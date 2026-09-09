@@ -23,3 +23,7 @@ description: Produce a structured evidence seal with source identity, commands, 
   the Coordinator.
 - A green workflow alone is not a Qualification PASS; gates must be independently
   adjudicated from the sealed artifacts.
+- Preserve exact provenance (source SHA/tree, producing run/test, artifact hashes)
+  on every entry. A technical decision recorded from sealed evidence stays
+  `CODE_DERIVED` until runtime execution verifies it — sealing must never promote
+  `CODE_DERIVED` to `RUNTIME_VERIFIED`.

@@ -54,6 +54,7 @@
     "task": {
       "*": "ask",
       "explore": "allow",
+      "foundry-adjudicator": "allow",
       "foundry-reviewer": "allow"
     },
     "external_directory": {

@@ -8,8 +8,11 @@ Single coherent entry point for the OpenCode/Muse execution system on
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
 | Machine config | `opencode.json` (root) | Model, HIGH default, permissions, sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
+| Technical authority | `docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md` | Coordinator autonomy/adjudication model |
+| Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
 | Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (HIGH) |
+| Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (XHIGH) |
 | Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
 | Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation |
 | Workstream state | `.foundry/WORKSTREAM_STATE.yaml` + `.foundry/WORKSTREAM_STATE.schema.json` | Resumable index + validator |

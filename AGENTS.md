@@ -82,6 +82,8 @@ requalification.
   capability identified; Sol High insufficient; OpenCode+Muse insufficient; genuinely
   required; smallest necessary scope). Never the normal engineering path.
 
+Technical autonomy within those tiers is defined in §8.
+
 ## 7. Reasoning effort
 
 Allowed project efforts: `high`, `xhigh`. `high` is the normal default for
@@ -91,16 +93,61 @@ unclear engine-vs-provider-vs-harness-vs-fixture causality, complex multi-subsys
 remediation, deep debugging chains, identity/state/lifecycle problems, and
 architecture-adjacent implementation. Never use `medium`, `low`, `minimal`, `none`, or
 `off` for active project work. Do not use XHIGH merely because a task is large; do not
-restart valid work solely to change effort.
+restart valid work solely to change effort. Preserve Source Lock and durable state
+across escalation. HIGH→XHIGH escalation is not failure.
 
-## 8. Workstream contract
+## 8. Technical decision authority
+
+`TECHNICAL_DECISION_AUTHORITY = AUTONOMOUS_WITHIN_CONTRACT`
+
+OpenCode/Muse workers do not stop or ask the Coordinator for routine technical
+decisions that can be resolved from authoritative repository source, tests,
+artifacts, logs, contracts, or bounded experimentation. They must not stop or
+escalate merely because a difficult technical decision exists when those sources
+can resolve it.
+
+Routing distinction:
+
+- Muse HIGH: autonomous bounded engineering execution + ordinary local technical
+  decisions.
+- Muse XHIGH: autonomous difficult engineering + technical root-cause, evidence,
+  qualification, and repair adjudication within already-defined project policy.
+- Sol High: Rules, evidence-policy, qualification-policy, shared-architecture,
+  cross-workstream authority, Provider Selection, Architecture Freeze.
+
+Muse HIGH owns autonomous bounded engineering execution, including ordinary local
+technical decisions inside the authorized workstream contract. Muse XHIGH owns
+difficult technical reasoning and adjudication within already-defined project
+policy (root cause, failure-class, evidence-provenance, repair-DAG decisions).
+The model is: Muse investigates → reasons → decides technically → implements when
+authorized → tests → diagnoses → repairs → validates → records evidence →
+continues. Sol High is an authority and gate tier, not a routine engineering
+micro-manager; the full delegation is recorded in
+`docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md`.
+
+For in-scope technical ambiguity, Muse must:
+
+1. inspect authoritative evidence;
+2. form one or more hypotheses;
+3. search for contradictory evidence;
+4. perform the smallest permitted validation when required;
+5. adjudicate technically when existing project policy determines the allowed semantics;
+6. persist the decision and evidence;
+7. continue the workstream.
+
+Only a real Rules, Evidence-Policy, Architecture, Scope, Provider, or Freeze
+authority question becomes an `AUTHORITY_GATE` for Sol High. A technical decision
+is never an authority decision: reaching and persisting a root cause within policy
+is the job, not an escalation.
+
+## 9. Workstream contract
 
 One session owns exactly one workstream ↔ one branch ↔ one worktree ↔ one mutation
 surface. Every substantial assignment needs Objective, Source Lock, In/Out of Scope,
 Ownership, Dependencies, Hard Gates, Forbidden Shortcuts, Evidence Requirements,
 Persistence, and Stop Conditions. One primary objective; do not silently broaden scope.
 
-## 9. Git, worktree, ownership
+## 10. Git, worktree, ownership
 
 Do not modify another active workstream's branch or worktree. Do not modify `main`
 directly. Local commits for resumability are encouraged. Push, merge, rebase,
@@ -109,7 +156,7 @@ worktree deletion require explicit user approval. Before material work, verify b
 HEAD, tree, `git status`, contract, and state file; resume from the newest verified
 state without redoing valid evidence.
 
-## 10. Privacy
+## 11. Privacy
 
 Muse may use project-relevant technical data: repository source, tests, contracts,
 qualification artifacts, build output, logs, Git metadata, branches/worktrees, engine
@@ -120,16 +167,17 @@ consume them locally, but values must never appear in prompts, logs, evidence, c
 or handoffs. Deny explicit secret-extraction operations. Automatic session sharing is
 disabled.
 
-## 11. Semantic Completion Rule
+## 12. Semantic Completion Rule
 
 Do not stop at a remediable in-scope failure (failed test, lint, config syntax, broken
 helper, incompatible design). Inspect → classify → repair → retest → continue. Stop only
 for: scope COMPLETE; irreconcilable Source Lock violation; another active owner's
-mutation surface; Sol/Human authority requirement; destructive/external consent
+mutation surface; Sol/Human authority requirement (`AUTHORITY_GATE`, see §8);
+destructive/external consent
 requirement; genuinely unobtainable upstream information; or proceeding would weaken
 Rules/Evidence/Privacy invariants. Blocked means fail closed.
 
-## 12. Persistence and handoff
+## 13. Persistence and handoff
 
 Treat every session as interruptible. After each validated milestone: coherent tree,
 scoped validation, state-file update, focused local commit, recorded HEAD/evidence.

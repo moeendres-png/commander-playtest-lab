@@ -20,8 +20,10 @@ Use this when starting a new bounded workstream on `moeendres-png/commander-play
    audit-base SHA and tree, current HEAD. Do not silently rebase onto a moving source
    after work begins; if the base moves, record the delta explicitly.
 7. Record objective, in-scope and out-of-scope surfaces, ownership, dependencies, hard
-   gates, forbidden shortcuts, stop conditions, and the Exact Next Action in
-   `.foundry/WORKSTREAM_STATE.yaml`.
+   gates, forbidden shortcuts, stop conditions, `TECHNICAL_DECISION_AUTHORITY`
+   (default `AUTONOMOUS_WITHIN_CONTRACT`), explicit `AUTHORITY_GATES`, and the
+   Exact Next Action in `.foundry/WORKSTREAM_STATE.yaml`. See
+   `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` for the full field list.
 8. End with a Source Lock summary. Missing facts stay `UNKNOWN`, never assumed.
 
 ## Rules

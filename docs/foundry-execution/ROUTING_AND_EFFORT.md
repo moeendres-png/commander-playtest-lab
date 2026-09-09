@@ -36,6 +36,26 @@ pins the `build` agent variant to `high`, and restricts providers to `opencode-g
 The GitHub lane (`.github/workflows/opencode.yml`) runs at `VARIANT: high` by default;
 per-run escalation to `xhigh` remains available with a recorded justification.
 
+## Technical decision authority
+
+Authoritative model:
+`docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md`. Summary:
+
+- Muse HIGH: autonomous bounded engineering execution plus ordinary local technical
+  decisions inside the workstream contract. Agents: `foundry-implementer`.
+- Muse XHIGH: autonomous difficult engineering plus technical adjudication
+  (root-cause class, first-failing boundary, evidence provenance, repair DAG)
+  within already-defined project policy. Agents: `foundry-adjudicator`
+  (read/test-first, narrower mutation permissions than the implementer).
+- Sol High: final authority only for project-wide evidence-semantics or
+  qualification-policy changes, ambiguous MTG Rules interpretation, new shared
+  Rules/Decision architecture, cross-workstream authority conflicts, material scope
+  expansion, Source-Truth hierarchy changes, Rules-authority-boundary changes,
+  Production Provider selection, and Architecture Freeze.
+
+A technical decision is never an authority decision. Only genuine authority-policy
+questions become `AUTHORITY_GATE`. HIGH→XHIGH escalation is not failure.
+
 ## Work necessity gate
 
 Work is forbidden for ordinary tasks the normal paths can perform. Before any Work

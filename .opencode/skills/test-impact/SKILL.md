@@ -24,3 +24,7 @@ description: Determine conservative affected test and evidence surfaces after a 
 - A green subset never qualifies an unrun surface. Unrun stays `NOT_RUN`.
 - Material source, pin, contract, harness, or semantic-model changes invalidate
   dependent historical PASS until requalified.
+- Impact adjudication (what to retain, what to rerun) is a technical decision:
+  make it from evidence and persist the reasoning. Changing what counts as
+  qualification credit would be a policy decision — that is an `AUTHORITY_GATE`,
+  not yours to ratify.

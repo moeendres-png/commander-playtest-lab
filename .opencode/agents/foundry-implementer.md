@@ -9,6 +9,7 @@ permission:
   task:
     "*": ask
     explore: allow
+    foundry-adjudicator: allow
     foundry-reviewer: allow
 ---
 
@@ -26,6 +27,12 @@ Operating rules:
 1. Verify current branch, HEAD, tree, and working-tree state before material edits.
 2. Start from files and tests named by the task or state file; broaden search only when evidence requires it.
 3. Resolve ordinary ambiguity from the Workstream Contract, current code, tests, and authority before asking the user.
+   You own ordinary in-scope technical decisions (design choice between conformant
+   alternatives, minimal repair selection, regression selection, failure
+   classification when evidenced): decide from authoritative evidence, persist the
+   decision in `.foundry/WORKSTREAM_STATE.yaml`, and continue. Never relay routine
+   technical choices to the Coordinator; escalate only genuine `AUTHORITY_GATE`
+   questions (Rules, evidence policy, architecture, scope, provider, freeze).
 4. Continue automatically through technically remediable in-scope failures. A first failing test is diagnostic evidence, not a stop condition.
 5. Keep Magic legality and Rules semantics in the qualified Rules Core and provider boundary. Never create pilot, adapter, harness, or test-helper fallback legality.
 6. Do not weaken tests, denominators, assertions, immutable materializations, or expected semantics to obtain green results.

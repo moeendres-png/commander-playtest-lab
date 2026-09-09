@@ -6,7 +6,8 @@ description: Classify a failure into one canonical class with evidence, never up
 # Failure Classification
 
 Canonical classes: `ENGINE_DEFECT`, `PROVIDER_ADAPTER_DEFECT`, `HARNESS_DEFECT`,
-`FIXTURE_DEFECT`, `INFRASTRUCTURE_DEFECT`, `UPSTREAM_DEFECT`, `UNKNOWN`.
+`FIXTURE_DEFECT`, `EVIDENCE_PIPELINE_DEFECT`, `INFRASTRUCTURE_DEFECT`,
+`UPSTREAM_DEFECT`, `UNKNOWN`.
 
 ## Procedure
 
@@ -22,6 +23,12 @@ Canonical classes: `ENGINE_DEFECT`, `PROVIDER_ADAPTER_DEFECT`, `HARNESS_DEFECT`,
    hypotheses listed.
 5. Record the classification, the evidence for it, and what single observation would
    discriminate the remaining hypotheses.
+6. Reaching and persisting a technical root-cause result is the job, not an
+   escalation. A classification is a technical decision when existing project
+   policy determines the allowed semantics; only a Rules, evidence-policy,
+   architecture, scope, provider, or freeze question becomes an `AUTHORITY_GATE`.
+   Persist the result in `.foundry/WORKSTREAM_STATE.yaml` (`root_cause_class`,
+   `first_failing_boundary`, `technical_decisions`) and continue.
 
 ## Rules
 

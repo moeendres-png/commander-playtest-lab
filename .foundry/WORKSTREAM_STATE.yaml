@@ -4,7 +4,7 @@ worktree: /home/moeen/code/commander-exec-consolidation
 branch: project/opencode-execution-system-consolidation-20260910
 audit_base_sha: b3f5a9929aaf07d2ae574724bbe198b5ab402df6
 audit_base_tree: 6c7e3f43ea6ef7aa0eaf385807138f938162bbdd
-current_head: ff9056b924ae787a851c554180e797474ef90a0c
+current_head: 0c0579e0eda134dbc3401a378d897d24068ed42c
 objective: Implement the single coherent OpenCode/Muse execution system (AGENTS.md, config, agents, skills, state, tooling, docs) on top of origin/main b3f5a992.
 in_scope:
 - Root AGENTS.md (durable rules only)
@@ -43,9 +43,14 @@ forbidden_shortcuts:
 - green workflow equated with Qualification PASS
 validated_gates:
 - source lock verified (origin/main b3f5a992, tree 6c7e3f43, clean worktree on dedicated branch)
+- origin/main reverified at c391a761/tree 5dbd3c5e; branch delta since 5826a5a2 adjudicated as own authorized repair work
+- main drift reconciled via non-destructive merge 0c0579e0 (HIGH-default alignment, coordinator authority record)
+- coordinator authority doc ec845445 inspected; no duplication, referenced as authority source
 - PR 161/166/167 inputs inspected at exact heads 26409b93/22e2a20f/633f51ae
 - live opencode.ai config schema fetched; PR161 permissions-array and PR167 variant-reasoningEffort defects identified and avoided
 - 17 deterministic tool tests pass; ruff check and ruff format clean on new surfaces
+- 24 deterministic tool tests pass after adjudication upgrade (adjudicator, HIGH default, reviewer, autonomy, state extension)
+- runtime smoke PASS on pinned CLI 1.18.29: config/agents/skills load, HIGH default and adjudicator XHIGH accepted
 - skills discoverable (.opencode/skills/*/SKILL.md, names match dirs, frontmatter valid)
 - agents carry model opencode-go/muse-spark-1.3-contributor at variant high
 - workflow VARIANT high with MODEL/SHARE unchanged; opencode.json share disabled
@@ -58,10 +63,10 @@ current_failure: NONE
 failure_class: NONE
 current_hypothesis: All deliverables A-K implemented; final validation and local commit remain.
 files_modified:
-- AGENTS.md
-- opencode.json
-- .opencode/agents/foundry-implementer.md
-- .opencode/agents/foundry-reviewer.md
+- AGENTS.md (technical decision authority section 8, renumbered 9-13)
+- opencode.json (foundry-adjudicator task permission)
+- .opencode/agents/foundry-adjudicator.md (new, XHIGH, read/test-first)
+- .opencode/agents/foundry-implementer.md (in-scope decision ownership, adjudicator escalation path)
 - .opencode/skills/workstream-bootstrap/SKILL.md
 - .opencode/skills/failure-classification/SKILL.md
 - .opencode/skills/test-impact/SKILL.md
@@ -84,9 +89,10 @@ files_modified:
 - docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md
 - docs/foundry-execution/METRICS.md
 - docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md
+- docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md (new, TECHNICAL_DECISION_AUTHORITY/AUTHORITY_GATES/ESCALATION)
 - handoffs/CROSS_CANDIDATE_DECISION_PLUMBING_ROOT_CAUSE_AUDIT.md
 tests_run:
-- pytest tests/foundry/ -q (17 passed)
+- pytest tests/foundry/ -q (24 passed)
 - ruff check tools/foundry tests/foundry (pass)
 - ruff format --check tools/foundry tests/foundry (pass)
 - tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml (STATE_OK)
@@ -95,8 +101,17 @@ tests_run:
 - opencode.json/workflow/skills/agents structural verification script (pass)
 evidence:
 - DIRECTLY_VERIFIED: origin/main SHA/tree, PR heads, WS48/WS49 origin SHAs and trees, tool test outcomes
-- CODE_DERIVED: schema-conformance reasoning from live opencode.ai/config.json for opencode.json key choices
+- RUNTIME_VERIFIED: pinned CLI 1.18.29 loads root config, all three agents, all five skills; HIGH default and adjudicator XHIGH accepted (isolated HOME, /tmp scratch project)
+- CODE_DERIVED: schema-conformance reasoning from live opencode.ai/config.json for opencode.json key choices; agent permission enforcement order from CLI docs
 remaining_scope:
-- Final §30 validation sweep and handoff
+- Push consolidation branch (approval-gated) and update PR #172
 status: ACTIVE
-exact_next_action: Run the final §30 validation sweep over the committed tree, then close with status COMPLETE and the handoff.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: xhigh
+hypotheses_rejected: []
+technical_decisions: []
+authority_gates: []
+first_failing_boundary: NONE
+root_cause_class: NONE
+next_action: push branch on approval; PR #172 moves to RUNTIME_VERIFIED smoke
+exact_next_action: Push only after explicit approval, then report PR #172 HEAD, checks, and smoke status.

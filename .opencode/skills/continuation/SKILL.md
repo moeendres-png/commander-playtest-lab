@@ -19,6 +19,10 @@ Use this after session loss, compaction, or handoff to resume the active workstr
 4. Continue from the Exact Next Action. If the state file conflicts with Git, test,
    or artifact reality, reality wins — record the discrepancy and proceed from the
    newest genuinely verified state.
+5. Re-enter the autonomous loop directly: a resolved technical decision recorded in
+   state (`technical_decisions`, updated hypothesis, next action) is a continuation
+   signal, not a handoff to the Coordinator. Resume inspection, validation, and
+   progress without asking for reassurance.
 
 ## Rules
 

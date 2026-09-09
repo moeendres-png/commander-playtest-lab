@@ -116,6 +116,7 @@
         "PROVIDER_ADAPTER_DEFECT",
         "HARNESS_DEFECT",
         "FIXTURE_DEFECT",
+        "EVIDENCE_PIPELINE_DEFECT",
         "INFRASTRUCTURE_DEFECT",
         "UPSTREAM_DEFECT",
         "UNKNOWN"
@@ -164,6 +165,63 @@
         "SUPERSEDED",
         "COMPLETE"
       ]
+    },
+    "technical_decision_authority": {
+      "type": "string",
+      "description": "Default AUTONOMOUS_WITHIN_CONTRACT; technical decisions are owned in-scope."
+    },
+    "current_reasoning_tier": {
+      "type": "string",
+      "enum": [
+        "high",
+        "xhigh"
+      ]
+    },
+    "hypotheses_rejected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "technical_decisions": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "authority_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "first_failing_boundary": {
+      "type": "string"
+    },
+    "root_cause_class": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "ENGINE_DEFECT",
+        "PROVIDER_ADAPTER_DEFECT",
+        "HARNESS_DEFECT",
+        "FIXTURE_DEFECT",
+        "EVIDENCE_PIPELINE_DEFECT",
+        "INFRASTRUCTURE_DEFECT",
+        "UPSTREAM_DEFECT",
+        "UNKNOWN"
+      ]
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Short operational pointer; exact_next_action remains binding."
     },
     "exact_next_action": {
       "type": "string",

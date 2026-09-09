@@ -238,6 +238,89 @@ def test_opencode_config_schema_conformance() -> None:
     assert isinstance(config["permission"], dict)
 
 
+def _agent_frontmatter(name: str) -> dict:
+    text = (REPO_ROOT / ".opencode" / "agents" / name).read_text(encoding="utf-8")
+    return yaml.safe_load(text.split("---")[1])
+
+
+def test_high_default_retained() -> None:
+    config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    provider_model = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]
+    assert provider_model["options"] == {"reasoningEffort": "high"}
+    assert config["agent"]["build"] == {"variant": "high"}
+    implementer = _agent_frontmatter("foundry-implementer.md")
+    assert implementer["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert implementer["variant"] == "high"
+
+
+def test_adjudicator_exists_and_configured() -> None:
+    adjudicator = _agent_frontmatter("foundry-adjudicator.md")
+    assert adjudicator["mode"] == "subagent"
+    assert adjudicator["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert adjudicator["variant"] == "xhigh"
+    assert adjudicator["permission"]["edit"] == "deny"
+    bash = adjudicator["permission"]["bash"]
+    assert bash["*"] == "ask"
+    for allowed in ("pytest*", "python*", "git diff*", "git log*"):
+        assert bash[allowed] == "allow"
+    for denied in ("git push*", "git rebase*", "rm -rf*", "gh auth token*"):
+        assert bash[denied] == "deny"
+    config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    assert config["permission"]["task"]["foundry-adjudicator"] == "allow"
+
+
+def test_adjudicator_narrower_than_implementer() -> None:
+    adjudicator = _agent_frontmatter("foundry-adjudicator.md")
+    implementer = _agent_frontmatter("foundry-implementer.md")
+    assert implementer["permission"]["edit"] == "allow"
+    assert adjudicator["permission"]["edit"] == "deny"
+    assert implementer["permission"]["bash"] == "allow"
+    assert isinstance(adjudicator["permission"]["bash"], dict)
+
+
+def test_state_accepts_adjudication_extension_fields() -> None:
+    state = _valid_state()
+    state.update(
+        {
+            "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
+            "current_reasoning_tier": "xhigh",
+            "hypotheses_rejected": ["harness-only cause"],
+            "technical_decisions": [{"decision": "root cause is adapter", "evidence": "log1"}],
+            "authority_gates": [],
+            "first_failing_boundary": "adapter translation",
+            "root_cause_class": "EVIDENCE_PIPELINE_DEFECT",
+            "next_action": "repair adapter",
+        }
+    )
+    assert state_mod.validate(state) == []
+
+
+def test_state_rejects_bad_tier_and_root_cause() -> None:
+    state = _valid_state()
+    state["current_reasoning_tier"] = "medium"
+    state["root_cause_class"] = "MAYBE_ENGINE"
+    errors = state_mod.validate(state)
+    assert any("current_reasoning_tier" in e for e in errors)
+    assert any("root_cause_class" in e for e in errors)
+
+
+def test_agents_md_encodes_technical_autonomy() -> None:
+    text = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    flat = " ".join(text.lower().split())
+    assert "technical_decision_authority = autonomous_within_contract" in flat
+    assert "do not stop or ask the coordinator for routine technical decisions" in flat
+    assert "muse xhigh" in flat
+    assert "authority_gate" in flat
+
+
+def test_reviewer_remains_high_and_read_only() -> None:
+    reviewer = _agent_frontmatter("foundry-reviewer.md")
+    assert reviewer["mode"] == "subagent"
+    assert reviewer["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert reviewer["variant"] == "high"
+    assert reviewer["permission"]["edit"] == "deny"
+
+
 def test_inventory_marks_clean_true_and_strips_refs(repo: Path) -> None:
     entries = worktree_inventory.inventory(str(repo))
     assert len(entries) == 1

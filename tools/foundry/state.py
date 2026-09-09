@@ -46,6 +46,9 @@ LIST_FIELDS = [
     "evidence",
     "artifacts",
     "remaining_scope",
+    "hypotheses_rejected",
+    "technical_decisions",
+    "authority_gates",
 ]
 
 STATUS_VOCABULARY = {"ACTIVE", "WAITING", "BLOCKED", "STALE", "SUPERSEDED", "COMPLETE"}
@@ -56,10 +59,13 @@ FAILURE_CLASSES = {
     "PROVIDER_ADAPTER_DEFECT",
     "HARNESS_DEFECT",
     "FIXTURE_DEFECT",
+    "EVIDENCE_PIPELINE_DEFECT",
     "INFRASTRUCTURE_DEFECT",
     "UPSTREAM_DEFECT",
     "UNKNOWN",
 }
+
+REASONING_TIERS = {"high", "xhigh"}
 
 
 def validate(data: dict) -> list[str]:
@@ -90,6 +96,15 @@ def validate(data: dict) -> list[str]:
     failure_class = data.get("failure_class")
     if failure_class is not None and failure_class not in FAILURE_CLASSES:
         errors.append(f"bad failure_class: {failure_class!r}")
+    tier = data.get("current_reasoning_tier")
+    if tier is not None and tier not in REASONING_TIERS:
+        errors.append(f"bad current_reasoning_tier: {tier!r}")
+    for field in ("technical_decision_authority", "first_failing_boundary", "next_action"):
+        if field in data and data[field] is not None and not str(data[field]).strip():
+            errors.append(f"{field} must be a non-empty string when present")
+    root_cause = data.get("root_cause_class")
+    if root_cause is not None and root_cause not in FAILURE_CLASSES:
+        errors.append(f"bad root_cause_class: {root_cause!r}")
     return errors
 
 
