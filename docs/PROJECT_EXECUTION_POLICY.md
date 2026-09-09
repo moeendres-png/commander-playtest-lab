@@ -2,26 +2,27 @@
 
 Status: ACTIVE / CANONICAL EXECUTION ROUTING
 Effective: 2026-09-08
+Updated: 2026-09-09
 
 This policy controls how project work is executed. It does not weaken Rules correctness, evidence quality, qualification standards, fail-closed behavior, reproducibility, Source Truth, or the Rules-Core/Pilot boundary.
 
-Older prompts or handoffs that prescribe another execution environment remain historical provenance only. Their technical evidence is not rewritten, but their execution-routing instructions are superseded here.
+Older prompts or handoffs that prescribe another execution environment, OpenCode model, provider, or effort policy remain historical provenance only. Their technical evidence is not rewritten, but their execution-routing instructions are superseded here.
 
 ## 1. Available execution paths
 
 There are exactly three project execution paths:
 
 1. normal ChatGPT with GPT-5.6 Sol High
-2. OpenCode with Muse Spark 1.3
+2. OpenCode with Muse Spark 1.3 Contributor through OpenCode Go
 3. ChatGPT Work with GPT-5.6 Sol Medium, exceptional only
 
-Muse and Spark 1.3 are not separate workers or execution paths in this project. The only OpenCode resource is OpenCode with Muse Spark 1.3.
+Muse Spark 1.3 is one model identity. It must never be split into separate Muse and Spark resources.
 
 ## 2. Primary operating rule
 
-Default execution uses normal Sol High and OpenCode with Muse Spark 1.3.
+Default execution uses normal Sol High and OpenCode with Muse Spark 1.3 Contributor.
 
-ChatGPT Work is not a normal project environment. It may be used only when a required capability cannot reasonably be completed through normal Sol High or OpenCode with Muse Spark 1.3.
+ChatGPT Work is not a normal project environment. It may be used only when a required capability cannot reasonably be completed through normal Sol High or OpenCode with Muse Spark 1.3 Contributor.
 
 ## 3. Normal Sol High
 
@@ -44,9 +45,33 @@ Use normal Sol High for:
 
 Normal Sol High is the final project-level adjudicator.
 
-## 4. OpenCode with Muse Spark 1.3
+## 4. OpenCode with Muse Spark 1.3 Contributor
 
-Use OpenCode with Muse Spark 1.3 for substantial repository execution, including:
+The current project OpenCode provider is OpenCode Go only.
+
+Canonical OpenCode model identity:
+
+- provider ID: `opencode-go`
+- model ID: `muse-spark-1.3-contributor`
+- full OpenCode model ID: `opencode-go/muse-spark-1.3-contributor`
+
+No other OpenCode model or provider is authorized for project work unless the user explicitly changes this policy.
+
+The allowed reasoning-effort range is exactly:
+
+- `medium`
+- `high`
+- `xhigh`
+
+Default effort is `high`.
+
+Use `medium` for bounded, clear, lower-risk repository work. Use `high` for normal substantial implementation, debugging, qualification and audit work. Use `xhigh` for genuinely difficult nonlocal debugging, complex multi-file remediation, or high-risk implementation where additional reasoning materially improves correctness.
+
+Do not use `none`, `off`, `minimal`, `low`, or any effort below `medium` for project OpenCode work.
+
+OpenCode Zen free models are not active project routing while OpenCode Go is in use. If the user later changes provider policy, the replacement must be explicitly source-locked before use.
+
+Use OpenCode with Muse Spark 1.3 Contributor for substantial repository execution, including:
 
 - implementation
 - repository edits
@@ -65,11 +90,13 @@ Use OpenCode with Muse Spark 1.3 for substantial repository execution, including
 
 Every substantial OpenCode assignment must be bounded to one primary workstream and include repository, branch, source lock, current head, objective, in-scope surface, hard gates, forbidden shortcuts, evidence requirements, persistence requirements and stop conditions.
 
-OpenCode with Muse Spark 1.3 may produce implementation and evidence but does not independently grant global architecture credit.
+OpenCode with Muse Spark 1.3 Contributor may produce implementation and evidence but does not independently grant global architecture credit.
+
+The repository root `opencode.json` is the machine-enforced project configuration for provider/model selection and allowed variants. Project prompts must not override it with another model.
 
 ## 5. Work budget and necessity gate
 
-Work is forbidden for ordinary tasks that normal Sol High or OpenCode with Muse Spark 1.3 can perform.
+Work is forbidden for ordinary tasks that normal Sol High or OpenCode with Muse Spark 1.3 Contributor can perform.
 
 Do not use Work for ordinary research, GitHub reading, repository investigation, architecture, code review, MTG Rules or Oracle work, evidence adjudication, coordination, prompt creation, test design, static analysis, candidate comparison, report reading, implementation, CI, debugging, runtime qualification or mechanical repository work when the normal paths are adequate.
 
@@ -81,7 +108,7 @@ PASS requires all of the following:
 
 1. the exact missing capability is identified
 2. normal Sol High cannot adequately perform it
-3. OpenCode with Muse Spark 1.3 cannot adequately perform it
+3. OpenCode with Muse Spark 1.3 Contributor cannot adequately perform it
 4. the capability is genuinely required
 5. the Work assignment is reduced to the smallest possible operation
 
@@ -142,7 +169,7 @@ The normal Sol High Coordinator decides the next workstream, whether OpenCode is
 
 Normal Sol High = reasoning, research, authority, coordination and adjudication.
 
-OpenCode with Muse Spark 1.3 = repository implementation, execution, audits, debugging, qualification and mechanical repository work.
+OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only = repository implementation, execution, audits, debugging, qualification and mechanical repository work. Allowed effort = Medium, High, XHigh. Default = High.
 
 Work with Sol Medium = exceptional irreducible capability only after WORK_NECESSITY = PASS.
 
