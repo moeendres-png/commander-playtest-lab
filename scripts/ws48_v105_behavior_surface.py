@@ -262,9 +262,11 @@ STOP_REASON_NEW = """        } catch (ControlledStop expected) {
         } catch (UnsupportedOperationException unsupported) {
             stopReason = "WS48_UNSUPPORTED_OP:" + unsupported.getClass().getName() + ":"
                 + String.valueOf(unsupported.getMessage());
+            broker.recordAutomatic("STOP_TRACE:" + ws48Trace(unsupported));
         } catch (RuntimeException unexpected) {
             stopReason = "WS48_UNEXPECTED_RUNTIME:" + unexpected.getClass().getName() + ":"
                 + String.valueOf(unexpected.getMessage());
+            broker.recordAutomatic("STOP_TRACE:" + ws48Trace(unexpected));
         }"""
 
 RESULT_EVENTS_OLD = """            + ",\\"priority_decisions\\":" + broker.priorityDecisions
@@ -293,6 +295,20 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
         // Contract event names use underscores (Giant_Growth); native card
         // names use spaces. Display normalization only, no semantic change.
         return raw == null ? "null" : raw.replace(" ", "_");
+    }
+
+    static String ws48Trace(Throwable problem) {
+        // Truncated native stack for unexpected-stop diagnosis. Evidence only.
+        StringBuilder trace = new StringBuilder();
+        int depth = 0;
+        for (StackTraceElement frame : problem.getStackTrace()) {
+            if (depth >= 18) break;
+            if (depth > 0) trace.append('<');
+            trace.append(frame.getClassName()).append('.').append(frame.getMethodName())
+                .append(':').append(frame.getLineNumber());
+            depth++;
+        }
+        return trace.toString().replace("|", "/").replace(",", ";");
     }
 
     static String ws48ManaPaidString(forge.card.mana.ManaCost cost) {

@@ -621,6 +621,16 @@ def diff_checkpoints(
         old_zone = str(old.get("zone"))
         if old_zone != zone:
             events.append(f"zone_change:{old_zone}->{zone}")
+            if zone == "battlefield" and old_zone in {
+                "stack",
+                "command",
+                "hand",
+                "graveyard",
+                "exile",
+                "library",
+            }:
+                events.append(f"creature_enters:{label(card)}")
+                events.append("creature_entered")
             if zone == "graveyard" and old_zone in {"battlefield", "stack"}:
                 events.append(f"move_to_graveyard:{label(card)}")
         if old.get("controller") != card.get("controller"):
