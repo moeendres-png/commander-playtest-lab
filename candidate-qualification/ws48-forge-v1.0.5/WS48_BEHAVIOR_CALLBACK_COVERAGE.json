@@ -1,0 +1,2153 @@
+{
+  "blocked_fixture_ids": [
+    "PILOT_PRIORITY",
+    "PILOT_TARGET",
+    "PILOT_CHOOSE_OBJECT",
+    "PILOT_TARGET_AMOUNT",
+    "PILOT_CHOOSE_USE",
+    "PILOT_CHOICE",
+    "PILOT_PILE",
+    "PILOT_MANA_PAYMENT",
+    "PILOT_ANNOUNCE_X",
+    "PILOT_MULTI_AMOUNT",
+    "PILOT_REPLACEMENT_EFFECT",
+    "PILOT_TRIGGER_ORDER",
+    "PILOT_CHOOSE_MODE",
+    "PILOT_CHOOSE_ABILITY",
+    "PILOT_DECLARE_ATTACKER",
+    "PILOT_DECLARE_BLOCKER",
+    "RNG_RULES_TAPE",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_STATE_HASHES",
+    "MICRO_COSTS",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_PRIORITY",
+    "MICRO_STACK",
+    "MICRO_TARGETS",
+    "MICRO_MODES",
+    "MICRO_TRIGGERS",
+    "MICRO_PREVENTION",
+    "MICRO_STATE_BASED_ACTIONS",
+    "CARD_02",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-BLOCK-4",
+    "WS05-CMD-TAX-2",
+    "WS05-CMD-TAX-4",
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-CMD-ZONE-LIB-NO"
+  ],
+  "denominator": 107,
+  "evidence_class": "CODE_DERIVED",
+  "fixtures_needing_overlay_before_continuation": 45,
+  "grants_behavior_credit": false,
+  "requirement_status_counts": {
+    "AUTOMATIC_SINGLETON": 1,
+    "EXTERNAL_GENERIC": 41,
+    "EXTERNAL_LABELED": 21,
+    "FAIL_CLOSED": 23
+  },
+  "rows": [
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATURAL_GAME_START",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_2P",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 1,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "keep-P1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "keep-P2",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 3,
+      "execution_entry_mode": "NATURAL_GAME_START",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_3P",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 2,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "keep-P1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "keep-P2",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P3",
+          "causal_step_id": "keep-P3",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 4,
+      "execution_entry_mode": "NATURAL_GAME_START",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_4P",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 3,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "keep-P1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "keep-P2",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P3",
+          "causal_step_id": "keep-P3",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P4",
+          "causal_step_id": "keep-P4",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 5,
+      "execution_entry_mode": "NATURAL_GAME_START",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_5P",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 4,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "keep-P1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "keep-P2",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P3",
+          "causal_step_id": "keep-P3",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P4",
+          "causal_step_id": "keep-P4",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P5",
+          "causal_step_id": "keep-P5",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PRIORITY",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 5,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-bolt",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-bolt",
+          "decision_family": "target",
+          "forge_surface": "chooseTargetsFor/chooseTarget",
+          "note": "overlay must implement engine-first candidate enumeration with seat-pid labels",
+          "selector_kind": "semantic_player",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 6,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-bolt",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-bolt",
+          "decision_family": "target",
+          "forge_surface": "chooseTargetsFor/chooseTarget",
+          "note": "overlay must implement engine-first candidate enumeration with seat-pid labels",
+          "selector_kind": "semantic_player",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 7,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choose_object",
+          "forge_surface": "chooseSingleEntityForEffect/chooseCardsForEffect",
+          "note": "overlay must project native options to semantic ids",
+          "selector_kind": "semantic_object",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET_AMOUNT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 8,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "target_amount",
+          "forge_surface": "chooseAmountDistribution",
+          "note": "exists but recipient labels lack semantic identity; overlay must add pid/semantic-id",
+          "selector_kind": "amount_assignment",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 5,
+      "execution_entry_mode": "NATURAL_GAME_START",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULLIGAN",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 9,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "mull-r1-P1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "mull-r1-P2",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P3",
+          "causal_step_id": "mull-r1-P3",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P4",
+          "causal_step_id": "mull-r1-P4",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "mull-r2-P1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 3,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_USE",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 10,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-warrior",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-warrior",
+          "decision_family": "mana_payment",
+          "forge_surface": "applyManaToCost/payManaCost",
+          "note": "overlay must implement engine-native mana loop with semantic source labels",
+          "selector_kind": "mana_payment",
+          "status": "FAIL_CLOSED"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "resolve-scry",
+          "decision_family": "choose_use",
+          "forge_surface": "arrangeForScry/confirmAction/chooseBinary",
+          "note": "scry arrangement needs semantic pile labels; overlay required",
+          "selector_kind": "boolean",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOICE",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 11,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "resolve-utopia",
+          "decision_family": "choice",
+          "forge_surface": "chooseColor",
+          "note": "color options are self-identifying; overlay required",
+          "selector_kind": "semantic_choice_key",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PILE",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 12,
+      "requirements": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cause-0",
+          "decision_family": "pile",
+          "forge_surface": "chooseCardsPile",
+          "note": "overlay must project both piles by semantic ids",
+          "selector_kind": "partition",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 3,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 13,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-counter",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-counter",
+          "decision_family": "target",
+          "forge_surface": "chooseTarget(stack)",
+          "note": "stack-object targeting; overlay required",
+          "selector_kind": "semantic_stack_object",
+          "status": "FAIL_CLOSED"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-counter",
+          "decision_family": "mana_payment",
+          "forge_surface": "applyManaToCost/payManaCost",
+          "note": "overlay must implement engine-native mana loop with semantic source labels",
+          "selector_kind": "mana_payment",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_ANNOUNCE_X",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 14,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-finale",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-finale",
+          "decision_family": "announce_x",
+          "forge_surface": "chooseNumber",
+          "note": "integer range is self-identifying; overlay required",
+          "selector_kind": "integer",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULTI_AMOUNT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 15,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "multi_amount",
+          "forge_surface": "chooseAmountDistribution",
+          "note": "as target_amount",
+          "selector_kind": "amount_assignment",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 16,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "resolve-unsummon",
+          "decision_family": "replacement_effect",
+          "forge_surface": "chooseSingleReplacementEffect/confirmReplacementEffect",
+          "note": "single-replacement external exists generically; boolean grounding needs question labels",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "AUTOMATIC_SINGLETON",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TRIGGER_ORDER",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 17,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "trigger_order",
+          "forge_surface": "orderSimultaneousSa/orderAndPlaySimultaneousSa",
+          "note": "automatic only for 0/1 triggers; 2-trigger APNAP ordering needs external overlay",
+          "selector_kind": "order",
+          "status": "AUTOMATIC_SINGLETON"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_MODE",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 18,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-burn",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-burn",
+          "decision_family": "choose_mode",
+          "forge_surface": "chooseModeForAbility",
+          "note": "NATIVE_OPTION labels; overlay must render native mode params for key grounding",
+          "selector_kind": "semantic_mode_key",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_ABILITY",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 19,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choose_ability",
+          "forge_surface": "chooseSpellAbilitiesForEffect/getAbilityToPlay",
+          "note": "overlay must project host-card + ability identity",
+          "selector_kind": "semantic_ability_key",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_ATTACKER",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 20,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "declare",
+          "decision_family": "declare_attacker",
+          "forge_surface": "declareAttackers",
+          "note": "overlay must enumerate CombatUtil.canAttack pairs with semantic labels",
+          "selector_kind": "attacker_assignment",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_BLOCKER",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 21,
+      "requirements": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cause-0",
+          "decision_family": "declare_blocker",
+          "forge_surface": "declareBlockers",
+          "note": "overlay must enumerate CombatUtil.canBlock pairs with semantic labels",
+          "selector_kind": "blocker_assignment",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_FIRST_OPTION",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 22,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choose_mode",
+          "forge_surface": "N/A(external handler unavailable)",
+          "note": "negative choose_mode: harness must not answer; typed UNSUPPORTED_DISCRETIONARY_DECISION required",
+          "selector_kind": "fail_closed_probe",
+          "status": "EXPECT_FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_RANDOM_OPTION",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 23,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "target",
+          "forge_surface": "N/A(external handler unavailable)",
+          "note": "negative target: harness must not answer; typed UNSUPPORTED_DISCRETIONARY_DECISION required",
+          "selector_kind": "fail_closed_probe",
+          "status": "EXPECT_FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 24,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choose_use",
+          "forge_surface": "N/A(external handler unavailable)",
+          "note": "negative choose_use: harness must not answer; typed UNSUPPORTED_DISCRETIONARY_DECISION required",
+          "selector_kind": "fail_closed_probe",
+          "status": "EXPECT_FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_INTERNAL_AI",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 25,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "declare_attacker",
+          "forge_surface": "N/A(external handler unavailable)",
+          "note": "negative declare_attacker: harness must not answer; typed UNSUPPORTED_DISCRETIONARY_DECISION required",
+          "selector_kind": "fail_closed_probe",
+          "status": "EXPECT_FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_GUI_DEFAULT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 26,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choose_mode",
+          "forge_surface": "N/A(external handler unavailable)",
+          "note": "negative choose_mode: harness must not answer; typed UNSUPPORTED_DISCRETIONARY_DECISION required",
+          "selector_kind": "fail_closed_probe",
+          "status": "EXPECT_FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_SILENT_SKIP",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 27,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "target",
+          "forge_surface": "N/A(external handler unavailable)",
+          "note": "negative target: harness must not answer; typed UNSUPPORTED_DISCRETIONARY_DECISION required",
+          "selector_kind": "fail_closed_probe",
+          "status": "EXPECT_FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 28,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_01",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 29,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_02",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 30,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_03",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 31,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_04",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 32,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_05",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 33,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_06",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 34,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_07",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 35,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_08",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 36,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_09",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 37,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_10",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 38,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_11",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 39,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_12",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 40,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_13",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 41,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_14",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 42,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_15",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 43,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_16",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 44,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_17",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 45,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_18",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 46,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_19",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 47,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 48,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "replay_rng",
+      "fixture_id": "RNG_RULES_TAPE",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 49,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "choose_mode",
+          "forge_surface": "chooseModeForAbility",
+          "note": "NATIVE_OPTION labels; overlay must render native mode params for key grounding",
+          "selector_kind": "semantic_mode_key",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 50,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "choose_mode",
+          "forge_surface": "chooseModeForAbility",
+          "note": "NATIVE_OPTION labels; overlay must render native mode params for key grounding",
+          "selector_kind": "semantic_mode_key",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 51,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "choose_mode",
+          "forge_surface": "chooseModeForAbility",
+          "note": "NATIVE_OPTION labels; overlay must render native mode params for key grounding",
+          "selector_kind": "semantic_mode_key",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 52,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "choose_mode",
+          "forge_surface": "chooseModeForAbility",
+          "note": "NATIVE_OPTION labels; overlay must render native mode params for key grounding",
+          "selector_kind": "semantic_mode_key",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 53,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-mode",
+          "decision_family": "choose_mode",
+          "forge_surface": "chooseModeForAbility",
+          "note": "NATIVE_OPTION labels; overlay must render native mode params for key grounding",
+          "selector_kind": "semantic_mode_key",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COSTS",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 54,
+      "requirements": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-hex",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-hex",
+          "decision_family": "target",
+          "forge_surface": "chooseTargetsFor(multi)",
+          "note": "multi-target loop with DONE sentinel; overlay required",
+          "selector_kind": "semantic_objects",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 3,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 55,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-counter",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-counter",
+          "decision_family": "target",
+          "forge_surface": "chooseTarget(stack)",
+          "note": "stack-object targeting; overlay required",
+          "selector_kind": "semantic_stack_object",
+          "status": "FAIL_CLOSED"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-counter",
+          "decision_family": "mana_payment",
+          "forge_surface": "applyManaToCost/payManaCost",
+          "note": "overlay must implement engine-native mana loop with semantic source labels",
+          "selector_kind": "mana_payment",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PRIORITY",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 56,
+      "requirements": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "target",
+          "forge_surface": "chooseTargetsFor/chooseTarget",
+          "note": "overlay must implement engine-first candidate enumeration with semantic-id labels",
+          "selector_kind": "semantic_object",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STACK",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 57,
+      "requirements": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "target",
+          "forge_surface": "chooseTargetsFor/chooseTarget",
+          "note": "overlay must implement engine-first candidate enumeration with semantic-id labels",
+          "selector_kind": "semantic_object",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TARGETS",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 58,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-bolt",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-bolt",
+          "decision_family": "target",
+          "forge_surface": "chooseTargetsFor/chooseTarget",
+          "note": "overlay must implement engine-first candidate enumeration with seat-pid labels",
+          "selector_kind": "semantic_player",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MODES",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 59,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choose_mode",
+          "forge_surface": "chooseModeForAbility",
+          "note": "NATIVE_OPTION labels; overlay must render native mode params for key grounding",
+          "selector_kind": "semantic_mode_key",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 2,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TRIGGERS",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 60,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-creature",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        },
+        {
+          "actor": "P1",
+          "causal_step_id": "warstorm-trigger",
+          "decision_family": "target",
+          "forge_surface": "chooseTargetsFor/chooseTarget",
+          "note": "overlay must implement engine-first candidate enumeration with seat-pid labels",
+          "selector_kind": "semantic_player",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_REPLACEMENT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 61,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PREVENTION",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 62,
+      "requirements": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-fog",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 63,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_LAYERS",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 64,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 65,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-memnite",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 66,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COPY",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 67,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTROL",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 68,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COMBAT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 69,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 70,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "actual_card",
+      "fixture_id": "CARD_02",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 71,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-commander",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-3",
+      "has_action_cost_state": false,
+      "has_priority_script": true,
+      "index": 72,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-5",
+      "has_action_cost_state": false,
+      "has_priority_script": true,
+      "index": 73,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-3",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 74,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cast-creature",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-5",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 75,
+      "requirements": []
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 76,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "declare-attackers",
+          "decision_family": "declare_attacker",
+          "forge_surface": "declareAttackers",
+          "note": "overlay must enumerate CombatUtil.canAttack pairs with semantic labels",
+          "selector_kind": "attacker_assignment",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 77,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "declare_attacker",
+          "forge_surface": "declareAttackers",
+          "note": "overlay must enumerate CombatUtil.canAttack pairs with semantic labels",
+          "selector_kind": "attacker_assignment",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "FAIL_CLOSED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 78,
+      "requirements": [
+        {
+          "actor": "P2",
+          "causal_step_id": "declare",
+          "decision_family": "declare_blocker",
+          "forge_surface": "declareBlockers",
+          "note": "overlay must enumerate CombatUtil.canBlock pairs with semantic labels",
+          "selector_kind": "blocker_assignment",
+          "status": "FAIL_CLOSED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-3",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 79,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-5",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 80,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 81,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 82,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 83,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 84,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 85,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-5",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 86,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-2",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 87,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-4",
+      "has_action_cost_state": true,
+      "has_priority_script": false,
+      "index": 88,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "priority",
+          "forge_surface": "chooseSpellAbilityToPlay",
+          "note": "labels are PASS/FORGE_LEGAL_ACTION; overlay must add host-card semantic identity",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 89,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choice",
+          "forge_surface": "chooseBinary/confirmAction",
+          "note": "boolean labels exist but question context needed; overlay should add question text",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 90,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choice",
+          "forge_surface": "chooseBinary/confirmAction",
+          "note": "boolean labels exist but question context needed; overlay should add question text",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 91,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choice",
+          "forge_surface": "chooseBinary/confirmAction",
+          "note": "boolean labels exist but question context needed; overlay should add question text",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 92,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "choice",
+          "forge_surface": "chooseBinary/confirmAction",
+          "note": "boolean labels exist but question context needed; overlay should add question text",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 93,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "replacement_effect",
+          "forge_surface": "chooseSingleReplacementEffect/confirmReplacementEffect",
+          "note": "single-replacement external exists generically; boolean grounding needs question labels",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 94,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "replacement_effect",
+          "forge_surface": "chooseSingleReplacementEffect/confirmReplacementEffect",
+          "note": "single-replacement external exists generically; boolean grounding needs question labels",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 95,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "replacement_effect",
+          "forge_surface": "chooseSingleReplacementEffect/confirmReplacementEffect",
+          "note": "single-replacement external exists generically; boolean grounding needs question labels",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_GENERIC",
+      "decision_count": 1,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 96,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "cause-0",
+          "decision_family": "replacement_effect",
+          "forge_surface": "chooseSingleReplacementEffect/confirmReplacementEffect",
+          "note": "single-replacement external exists generically; boolean grounding needs question labels",
+          "selector_kind": "boolean",
+          "status": "EXTERNAL_GENERIC"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SAME-21",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 97,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 98,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 99,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-TAX",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 100,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-DMG",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 101,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 102,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATURAL_GAME_START",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-2",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 103,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "mulligan-round-1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 1,
+      "execution_entry_mode": "NATURAL_GAME_START",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-4",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 104,
+      "requirements": [
+        {
+          "actor": "P1",
+          "causal_step_id": "mulligan-round-1",
+          "decision_family": "mulligan",
+          "forge_surface": "mulliganKeepHand/chooseStartingPlayer",
+          "note": "KEEP/MULLIGAN and PLAYER:seat-N labels already stable",
+          "selector_kind": "semantic_action",
+          "status": "EXTERNAL_LABELED"
+        }
+      ]
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-2",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 105,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-3",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 106,
+      "requirements": []
+    },
+    {
+      "blocking_status": "EXTERNAL_LABELED",
+      "decision_count": 0,
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "has_action_cost_state": false,
+      "has_priority_script": false,
+      "index": 107,
+      "requirements": []
+    }
+  ],
+  "schema_version": "commander-lab.ws48-behavior-callback-coverage/1.0.0",
+  "ws47": {
+    "bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.5"
+  },
+  "ws48_overlay_v1_surface": [
+    "applyManaToCost",
+    "arrangeForScry",
+    "chooseAmountDistribution",
+    "chooseBinary",
+    "chooseCardsForEffect",
+    "chooseCardsPile",
+    "chooseColor",
+    "chooseManaFromPool",
+    "chooseModeForAbility",
+    "chooseNumber",
+    "chooseSingleEntityForEffect",
+    "chooseSingleReplacementEffect",
+    "chooseSpellAbilityToPlay",
+    "chooseTarget",
+    "chooseTargetsFor",
+    "confirmAction",
+    "confirmReplacementEffect",
+    "declareAttackers",
+    "declareBlockers",
+    "orderSimultaneousSa",
+    "payManaCost"
+  ]
+}

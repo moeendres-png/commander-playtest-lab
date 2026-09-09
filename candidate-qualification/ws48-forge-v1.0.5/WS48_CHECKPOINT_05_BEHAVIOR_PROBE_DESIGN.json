@@ -1,0 +1,82 @@
+{
+  "schema_version": "commander-lab.ws48-checkpoint/1.0.0",
+  "workstream": "WS-48",
+  "checkpoint": 5,
+  "status": "IN_PROGRESS",
+  "title": "G48-09 behavior mechanism designed; transcript probe dispatched; no credit claimed",
+  "source_lock": {
+    "qualification_source_head": "8dd961409917680a1a4e14999e30e266545097a8",
+    "qualification_source_tree": "88b85fae087c8e586b7d60b17c1ca7b51adcbb87",
+    "ws47_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "ws47_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+    "ws47_namespace_tree": "12af73695c801a42a0193ee895d5fc0843d16b0c",
+    "ws47_schema": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "ws47_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "ws47_materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_version": "2.0.15-SNAPSHOT"
+  },
+  "g48_05_delta_adjudication": {
+    "range": "f54bf68f881d5c6cb911e0a4ff2ffcc05ebdbbf3..8dd961409917680a1a4e14999e30e266545097a8",
+    "changed_files": [
+      ".github/workflows/ws48-v105-behavior-shape-probe.yml",
+      "candidate-qualification/ws48-forge-v1.0.5/WS48_CHECKPOINT_04_INDEPENDENT_READBACK_107_PASS.json"
+    ],
+    "verdict": "ADDITIVE_ONLY_NO_RETAINED_IMPACT",
+    "detail": "Delta adds a behavior-shape diagnostic workflow and persists the G48-08 checkpoint. No WS47 bytes, Forge source, provider composition, or construction/readback inputs changed. Retained G48-01..G48-08 PASS stands without requalification."
+  },
+  "work_completed": [
+    "Verified audit base: branch/head/tree/remote/clean all match coordination source; no source-lock movement.",
+    "Inventoried 107 denominator obligations from immutable materialization (families, selectors, native procedures, events, postconditions).",
+    "Audited Forge provider surface: 108 PlayerController abstracts; current composition leaves 84 FAIL_CLOSED, 12 external, 12 automatic.",
+    "Built WS48_BEHAVIOR_CALLBACK_COVERAGE.json (CODE_DERIVED): 45/107 fixtures need overlay before continuation; 23 FAIL_CLOSED + 41 EXTERNAL_GENERIC requirements.",
+    "Implemented ws48_behavior_provider_overlay.py v1: engine-first semantic externals for priority/target/object/mode/number/color/boolean/confirm/replacement/trigger-order/mana/declare-attacker/declare-blocker/scry plus native event tape; validated against local provider reproduction (anchors exact, braces balanced, no duplicate signatures, no syntax errors; all uncertain engine APIs verified against pinned Forge commit).",
+    "Implemented run_behavior_transcript_probe.py v1: behavior continuation (CONSTRUCTION_ONLY=0), scripted-only matching with exactly-one semantics, setup-stage assertion, offered-digest anti-echo mutation support; verdicts are TRANSCRIPT_* only, never credit.",
+    "Added ws48-v105-behavior-transcript-probe.yml CI: exact pins, full provider build + WS48 overlay, 10-fixture probe subset + PILOT_PRIORITY expectation-mutation invariance."
+  ],
+  "new_findings": [
+    "NATIVE_STATE_LOAD continuation is architecturally supported: match.startGame(game, applyNativeState) returns into the live game loop when CONSTRUCTION_ONLY is unset.",
+    "Current provider labels are semantically opaque for most families (FORGE_LEGAL_ACTION/NATIVE_OPTION); the v1 overlay closes this without moving legality.",
+    "chooseCombatDamage/chooseAmountDistribution are concrete (non-abstract) Forge methods; amount_recipient labels need semantic upgrade (in overlay scope for v2; v1 keeps native labels).",
+    "chooseCardsPile polarity is undocumented in the controller contract; left fail-closed pending transcript evidence.",
+    "Starting-player selection (seat-1) follows construction precedent but has no WS47 script entry; recorded as modeling debt for the v2 credit runner."
+  ],
+  "gate_status": {
+    "G48-01": "PASS_RETAINED",
+    "G48-02": "PASS_RETAINED",
+    "G48-03": "PASS_RETAINED",
+    "G48-04": "PASS_RETAINED",
+    "G48-05": "PASS_RETAINED",
+    "G48-06": "PASS_RETAINED",
+    "G48-07": "PASS_RETAINED",
+    "G48-08": "PASS_RETAINED",
+    "G48-09": "UNKNOWN",
+    "G48-10": "UNKNOWN",
+    "G48-11": "UNKNOWN",
+    "G48-12": "UNKNOWN",
+    "G48-13": "UNKNOWN"
+  },
+  "credit": {
+    "historical_successor_runtime_credit_imported": 0,
+    "construction_credit": "107/107",
+    "behavior_credit": "0/107",
+    "forge_successor_provider_qualified": false,
+    "af07_granted": false,
+    "architecture_freeze_granted": false
+  },
+  "evidence_class": "CODE_DERIVED_AND_DESIGN",
+  "failure_classification": "NONE_YET_RUNTIME_PENDING",
+  "remaining_blockers": [
+    "CI transcript-probe results pending (compile + 10-fixture continuation + mutation invariance).",
+    "v2 credit runner: terminal snapshot emission, per-fixture postcondition evaluators, replay/RNG tape checks, full-107 execution."
+  ],
+  "outputs": [
+    "candidate-qualification/ws48-forge-v1.0.5/build_behavior_coverage.py",
+    "candidate-qualification/ws48-forge-v1.0.5/WS48_BEHAVIOR_CALLBACK_COVERAGE.json",
+    "candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py",
+    "candidate-qualification/ws48-forge-v1.0.5/run_behavior_transcript_probe.py",
+    ".github/workflows/ws48-v105-behavior-transcript-probe.yml"
+  ],
+  "exact_next_action": "Push checkpoint+harness+workflow; monitor CI run for ws48-v105-behavior-transcript-probe (compile PASS, 10-fixture transcripts, anti-echo invariance); triage BLOCKED_AT callbacks with runtime evidence; then build v2 credit runner toward genuine G48-09 107/107."
+}

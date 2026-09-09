@@ -1,0 +1,184 @@
+name: WS48 v1.0.5 behavior transcript probe
+
+on:
+  push:
+    branches: [ws48/forge-v1.0.5-successor-qualification]
+    paths:
+      - '.github/workflows/ws48-v105-behavior-transcript-probe.yml'
+      - 'candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py'
+      - 'candidate-qualification/ws48-forge-v1.0.5/run_behavior_transcript_probe.py'
+      - 'candidate-qualification/ws48-forge-v1.0.5/build_behavior_coverage.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS47_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_TREE: f596c54d2cb229b9827c6c94a278175e8312c65c
+  WS47_NAMESPACE_TREE: 12af73695c801a42a0193ee895d5fc0843d16b0c
+  WS47_SCHEMA: commander-lab.semantic-fixture-materialization/1.0.5
+  WS47_BUNDLE: 631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01
+  WS47_MATERIALIZATION_SHA256: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+  FORGE_COMMIT: 66caae16015bd403bc0a52fa6689afb5508f74d0
+  FORGE_TREE: 40fc8f29ce4de31a964972461db2b48b4221e07f
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+jobs:
+  transcript-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws47
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable WS47 contract and stage WS48 harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-transcript-probe
+          mkdir -p "$ev/runners"
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS47_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS47_TREE"
+          test "$(git -C contract-lock rev-parse HEAD:qualification/ws47)" = "$WS47_NAMESPACE_TREE"
+          test "$(sha256sum contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')" = "$WS47_MATERIALIZATION_SHA256"
+          python -m py_compile candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py
+          python -m py_compile candidate-qualification/ws48-forge-v1.0.5/run_behavior_transcript_probe.py
+          python -m py_compile candidate-qualification/ws48-forge-v1.0.5/build_behavior_coverage.py
+          cp candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py "$ev/runners/run_strict_no_echo_gate.py"
+          cp candidate-qualification/ws48-forge-v1.0.5/run_behavior_transcript_probe.py "$ev/runners/run_behavior_transcript_probe.py"
+          python scripts/ws45_patch_noecho_runner_lineage.py --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws45_patch_noecho_runner_forge_lock.py --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws48_patch_v105_runner_identity.py --noecho-runner "$ev/runners/run_strict_no_echo_gate.py"
+          python candidate-qualification/ws48-forge-v1.0.5/build_behavior_coverage.py \
+            --materialization contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json \
+            --denominator contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json \
+            --output "$ev/WS48_BEHAVIOR_CALLBACK_COVERAGE.json"
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+      - name: Verify exact Forge source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q '<versionCode>2.0.15</versionCode>' vendor/engine-source/forge/pom.xml
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build Forge and WS48 behavior provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-transcript-probe
+          (cd vendor/engine-source/forge && mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install)
+          (cd vendor/engine-source/forge && mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/$ev/dependency-classpath.txt")
+          out="$ev/generated"; mkdir -p "$out" "$ev/classes"
+          python scripts/ws40_generate_forge_provider.py --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python scripts/ws40_apply_successor_state_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          cp qualification/providers/forge/gpl/Ws40SuccessorState.java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_fix_successor_state_java.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_stack_history.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_revealed_state.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_fix_combat_target_type.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_lineage_target_resolution.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_stack_observer_identity_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_v104_exact_stack_target_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws40_v103_native_combat_legal_surface.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_apply_generated_overlay.py --generated-dir "$out/java/forge/game/player" --strict-source qualification/providers/forge/gpl/Ws45StrictObservation.java
+          python scripts/ws45_patch_generated_gamestate_identity.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python scripts/ws45_extend_natural_observation.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          python scripts/ws45_v104_nullable_knowledge_presence.py --strict-java "$out/java/forge/game/player/Ws45StrictObservation.java"
+          python scripts/ws48_v105_native_stack_modes.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java" --runner "$ev/runners/run_strict_no_echo_gate.py"
+          python scripts/ws45_v104_native_zero_counter_projection.py --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          python candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" --state-java "$out/java/forge/game/player/Ws40SuccessorState.java"
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana|candidates\.get\(0\)|game\.findById\(expectedNativeId\)' "$out/java"
+          ! grep -Eq 'forge-(ai|gui)' "$ev/dependency-classpath.txt"
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
+          javac -cp "$cp" -d "$ev/classes" "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$out/java/forge/game/player/Ws23ForgeBootstrap.java" "$out/java/forge/game/player/Ws40SuccessorState.java" "$out/java/forge/game/player/Ws45StrictObservation.java"
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/$ev/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+          sha256sum "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java" "$out/java/forge/game/player/Ws40SuccessorState.java" > "$ev/WS48_BEHAVIOR_PROVIDER_DIGESTS.txt"
+      - name: Behavior transcript probe subset (no credit)
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-transcript-probe
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          (cd "$ev/runners" && python run_behavior_transcript_probe.py \
+            --materialization "$GITHUB_WORKSPACE/contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json" \
+            --denominator "$GITHUB_WORKSPACE/contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json" \
+            --runners "$GITHUB_WORKSPACE/$ev/runners" \
+            --fixtures "PILOT_PRIORITY,PILOT_TARGET,PILOT_CHOOSE_MODE,PILOT_MULLIGAN,NEGATIVE_FIRST_OPTION,HIDDEN_01,MICRO_PRIORITY,WS05-MP-BLOCK-4,CARD_02,PLAYER_COUNT_2P" \
+            --output "$GITHUB_WORKSPACE/$ev/WS48_BEHAVIOR_TRANSCRIPT_PROBE.json" || true)
+          python - <<'PY'
+          import json
+          p = json.load(open('artifacts/ws48-v105-transcript-probe/WS48_BEHAVIOR_TRANSCRIPT_PROBE.json'))
+          assert p['evidence_class'] == 'TRANSCRIPT_PROBE' and p['grants_behavior_credit'] is False
+          assert p['behavior_credit'] == '0/107'
+          print(json.dumps(p.get('summary'), indent=2, sort_keys=True))
+          for r in p['rows']:
+              print(f"{r['fixture_id']}: {r['verdict']} frames={r['frames']} consumed={r['consumed']} stop={r['stop_reason']}")
+          PY
+      - name: Anti-echo mutation invariance (PILOT_PRIORITY)
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-transcript-probe
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          (cd "$ev/runners" && python run_behavior_transcript_probe.py \
+            --materialization "$GITHUB_WORKSPACE/contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json" \
+            --denominator "$GITHUB_WORKSPACE/contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json" \
+            --runners "$GITHUB_WORKSPACE/$ev/runners" \
+            --fixtures "PILOT_PRIORITY" \
+            --mutate-target "P3" \
+            --output "$GITHUB_WORKSPACE/$ev/WS48_BEHAVIOR_TRANSCRIPT_PROBE_MUTATED.json" || true)
+          python - <<'PY'
+          import json
+          base = json.load(open('artifacts/ws48-v105-transcript-probe/WS48_BEHAVIOR_TRANSCRIPT_PROBE.json'))
+          mut = json.load(open('artifacts/ws48-v105-transcript-probe/WS48_BEHAVIOR_TRANSCRIPT_PROBE_MUTATED.json'))
+          b = next(r for r in base['rows'] if r['fixture_id'] == 'PILOT_PRIORITY')
+          m = mut['rows'][0]
+          print('baseline offered:', b['offered_digest'], b['verdict'])
+          print('mutated  offered:', m['offered_digest'], m['verdict'])
+          assert b['offered_digest'] == m['offered_digest'], 'OFFERED SET CHANGED UNDER EXPECTATION MUTATION'
+          open('artifacts/ws48-v105-transcript-probe/WS48_ANTI_ECHO_INVARIANCE.txt', 'w').write(
+              f"ANTI_ECHO_INVARIANCE=PASS baseline={b['offered_digest']} mutated={m['offered_digest']}\n")
+          PY
+      - name: Seal evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=artifacts/ws48-v105-transcript-probe
+          python - <<'PY'
+          import json,os,subprocess
+          p={'schema_version':'commander-lab.ws48-transcript-probe-source-lock/1.0.0','qualification_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'ws47_commit':os.environ['WS47_COMMIT'],'ws47_tree':os.environ['WS47_TREE'],'ws47_namespace_tree':os.environ['WS47_NAMESPACE_TREE'],'forge_commit':os.environ['FORGE_COMMIT'],'forge_tree':os.environ['FORGE_TREE'],'forge_version':os.environ['FORGE_VERSION'],'historical_successor_runtime_credit_imported':0,'behavior_credit':'0/107','grants_behavior_credit':False}
+          open('artifacts/ws48-v105-transcript-probe/SOURCE_LOCK.json','w').write(json.dumps(p,indent=2,sort_keys=True)+'\n')
+          PY
+          find "$ev" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > "$ev/SHA256SUMS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws48-v105-transcript-probe-${{ github.sha }}
+          path: artifacts/ws48-v105-transcript-probe/
+          if-no-files-found: error
+          retention-days: 90
