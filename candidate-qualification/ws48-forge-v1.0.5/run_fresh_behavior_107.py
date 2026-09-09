@@ -124,7 +124,7 @@ def _maybe_emit_cost_determined(
         details = step.get("details") or {}
         if step.get("operation") != "NATIVE_CAST_SPELL":
             continue
-        if details.get("source_object") != source_ref:
+        if step.get("source_object") != source_ref and details.get("source_object") != source_ref:
             continue
         printed = details.get("printed_cost")
         expected = details.get("expected_total_cost")

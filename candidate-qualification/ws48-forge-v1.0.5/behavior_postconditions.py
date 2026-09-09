@@ -562,6 +562,22 @@ def _check_commander_tax_fresh(record: dict[str, Any], ctx: dict[str, Any]) -> l
     return bad
 
 
+def _check_esior_tax(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """Esior tax: cost determined +{3} once, paid in full from listed sources."""
+    bad: list[str] = []
+    feed = list(ctx.get("feed") or [])
+    if "cost_determined:base_plus_3_generic" not in feed:
+        bad.append("ESIOR_COST_UNDETERMINED")
+    picks = [
+        m
+        for m in (ctx.get("matches") or [])
+        if str(m.get("match_rule")).startswith("mana_payment:")
+    ]
+    if not picks:
+        bad.append("ESIOR_NO_PAYMENT")
+    return bad
+
+
 def _check_warstorm_surge(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     """Surge triggers exactly once; entering creature deals 2 to P2."""
     bad: list[str] = []
@@ -585,8 +601,10 @@ def _check_warstorm_surge(record: dict[str, Any], ctx: dict[str, Any]) -> list[s
             found = [
                 c
                 for c in _cards(ctx.get("snapshot") or {})
-                if c.get("card_identity") == (_record_object(record, entering) or {}).get("card_identity")
-                and c.get("controller") == (_record_object(record, entering) or {}).get("controller")
+                if c.get("card_identity")
+                == (_record_object(record, entering) or {}).get("card_identity")
+                and c.get("controller")
+                == (_record_object(record, entering) or {}).get("controller")
                 and c.get("zone") == "battlefield"
             ]
             if not found:
@@ -629,6 +647,7 @@ REGISTRY: dict[str, Checker] = {
     "Exactly the selected provider-legal mana payment is consumed.": _check_mana_consumed,
     "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned.": _check_mana_consumed,
     "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.": _check_bears_survive_bolt,
+    "Targeting two PX commanders while Esior is controlled adds exactly {3} total, once.": _check_esior_tax,
     "Warstorm Surge triggers exactly once and entering creature deals 2 to P2 on resolution.": _check_warstorm_surge,
     "X=N is bound into the announced spell and cost calculation by the Rules Core.": _check_announced_x,
     "Rograkh printed mana cost N plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes N.": _check_commander_tax_fresh,

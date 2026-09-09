@@ -1455,6 +1455,18 @@ TRIGGER_PREPARE = """    static boolean ws48PrepareTrigger(SpellAbility sa) {
 
 """
 
+ORDER_ZONE_PATTERN = re.compile(
+    r"(        @Override\n)(        public CardCollectionView orderMoveToZoneList\(CardCollectionView cards, ZoneType destinationZone, SpellAbility source\) \{\n            throw failClosed\(\"orderMoveToZoneList\"\);\n        \})",
+)
+
+ORDER_ZONE_NEW = """\\1        public CardCollectionView orderMoveToZoneList(CardCollectionView cards, ZoneType destinationZone, SpellAbility source) {
+            // No reordering: the native set and order stand (logged). Rearranging
+            // simultaneously-moving cards is unconstrained discretion here;
+            // exercising none keeps contracted terminals undisturbed.
+            broker.recordAutomatic("NATIVE_ZONE_ORDER_UNCHANGED:" + (cards == null ? 0 : cards.size()));
+            return cards;
+        }"""
+
 GET_ABILITY_PATTERN = re.compile(
     r"(        @Override\n)        public SpellAbility getAbilityToPlay\(.*?\) \{\n            throw failClosed\(\"getAbilityToPlay\"\);\n        \}",
 )
@@ -1537,6 +1549,7 @@ def patch_provider(path: Path, forge_src: Path) -> None:
         (ORDER_COSTS_PATTERN, ORDER_COSTS_NEW, "orderCosts"),
         (ORDER_SA_PATTERN, ORDER_SA_NEW, "orderSimultaneousSa"),
         (ORDER_PLAY_PATTERN, ORDER_PLAY_NEW, "orderAndPlaySimultaneousSa"),
+        (ORDER_ZONE_PATTERN, ORDER_ZONE_NEW, "orderMoveToZoneList"),
         (ANNOUNCE_PATTERN, ANNOUNCE_NEW, "announceRequirements"),
         (CONFIRM_REPL_PATTERN, CONFIRM_REPL_NEW, "confirmReplacementEffect"),
         (ENTITY_PATTERN, ENTITY_NEW, "chooseSingleEntityForEffect"),
