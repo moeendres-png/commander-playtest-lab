@@ -865,6 +865,11 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
                     broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
                 }
             }
+            if (taxHost != null && taxHost.isCommander()) {
+                String zoneName = taxHost.getZone() == null ? "null"
+                    : taxHost.getZone().getZoneType().toString();
+                broker.recordAutomatic("COMMANDER_CAST_DEBUG:" + zoneName + ":count_pending");
+            }
             forge.game.mana.ManaCostBeingPaid cost = new forge.game.mana.ManaCostBeingPaid(toPay);
             forge.game.mana.ManaPool manapool = payer.getManaPool();
             Ws48CostDecisionMaker activationDecisions =

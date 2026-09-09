@@ -541,8 +541,12 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
                 return
             sess.answer_pass(frame)
             return
-        # Script exhausted: anything but priority passes is unscripted pilot
-        # discretion (priority was handled above).
+        # All other frame kinds with a pending script entry are answered by
+        # contract match; with no entry pending they are unscripted discretion.
+        expected = sess.next_expected()
+        if expected is not None:
+            sess.answer_expected(frame, expected)
+            return
         sess.answer_unscripted_discretion(frame)
 
     def on_snapshot(sess: Session) -> None:
