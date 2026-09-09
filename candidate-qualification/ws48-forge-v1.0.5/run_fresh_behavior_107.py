@@ -95,6 +95,50 @@ def starting_player_option_id(frame: dict[str, Any]) -> str:
     return str(hits[0]["option_id"])
 
 
+def _parse_mana_cost(text: str) -> tuple[int, list[str]]:
+    """Parse '{7}{B}{B}' -> (generic 7, colored ['B','B'])."""
+    import re
+
+    generic = 0
+    colored: list[str] = []
+    for part in re.findall(r"\{([^}]*)\}", text or ""):
+        if part.isdigit():
+            generic += int(part)
+        elif part in {"W", "U", "B", "R", "G"}:
+            colored.append(part)
+    return generic, colored
+
+
+def _maybe_emit_cost_determined(
+    sess: Session, record: dict[str, Any], source_ref: str | None
+) -> None:
+    """Synthesize cost_determined when native payment exceeds printed cost.
+
+    Compares the procedure's printed_cost vs expected_total_cost for the cast;
+    the native payment completing for the full determined amount is the
+    execution proof. Emits base_plus_<n>_generic iff positive.
+    """
+    if not source_ref:
+        return
+    for step in record.get("native_procedure") or []:
+        details = step.get("details") or {}
+        if step.get("operation") != "NATIVE_CAST_SPELL":
+            continue
+        if details.get("source_object") != source_ref:
+            continue
+        printed = details.get("printed_cost")
+        expected = details.get("expected_total_cost")
+        if not printed or not expected:
+            return
+        printed_generic, _ = _parse_mana_cost(printed)
+        expected_generic, _ = _parse_mana_cost(expected)
+        if expected_generic > printed_generic:
+            sess.note_event(
+                f"cost_determined:base_plus_{expected_generic - printed_generic}_generic"
+            )
+        return
+
+
 def mana_expected_sources(
     record: dict[str, Any], entry_index: int
 ) -> tuple[list[str], list[str] | None]:
@@ -401,6 +445,9 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
                 sess.record_match(frame, option, f"mana_payment:{ref}:{produced}")
                 _submit(proc, frame, str(option["option_id"]), "mana")
                 if not remaining:
+                    _maybe_emit_cost_determined(
+                        sess, record, (sess.active_cost or {}).get("source")
+                    )
                     sess.active_cost = None
                     if (
                         expected is not None
@@ -467,29 +514,35 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
                 return
             sess.answer_unscripted_discretion(frame)
             return
-        expected = sess.next_expected()
-        if expected is not None:
-            if kind == "priority":
+        if kind == "priority":
+            expected = sess.next_expected()
+            if expected is not None:
                 # Priority frames only consume priority-action entries for the
                 # acting player; every other pending entry waits for its own
                 # native frame kind while the game advances through passes.
+                # A same-actor priority-action entry with no current match is
+                # deferred (the action may become legal later in the game);
+                # only genuine ambiguity fails immediately.
                 sel = expected["selection"]
                 if (
                     sel["selector_kind"] == "semantic_action"
                     and isinstance(sel["semantic_value"], dict)
                     and normalize_actor(frame.get("actor_id")) == expected.get("actor")
                 ):
-                    sess.answer_expected(frame, expected)
+                    try:
+                        sess.answer_expected(frame, expected)
+                    except BehaviorFailure as no_match:
+                        if "OPTION_MATCH_ZERO" in str(no_match):
+                            sess.answer_pass(frame)
+                        else:
+                            raise
                     return
                 sess.answer_pass(frame)
                 return
-            sess.answer_expected(frame, expected)
-            return
-        # Script exhausted: priority passes continue the game toward terminal
-        # resolution; anything else is unscripted pilot discretion.
-        if kind == "priority":
             sess.answer_pass(frame)
             return
+        # Script exhausted: anything but priority passes is unscripted pilot
+        # discretion (priority was handled above).
         sess.answer_unscripted_discretion(frame)
 
     def on_snapshot(sess: Session) -> None:

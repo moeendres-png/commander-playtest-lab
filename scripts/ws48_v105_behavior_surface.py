@@ -361,6 +361,24 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
             }
             if (event.sa().getHostCard().isCommander()) {
                 emit("commander_cast");
+                // Mirror CostAdjustment's native commander-tax rule: tax applies
+                // when cast from the command zone; amount is twice the current
+                // native command-zone cast count. Observation only.
+                forge.game.card.Card host = event.sa().getHostCard();
+                boolean fromCommand = host.getCastFrom() != null
+                    && forge.game.zone.ZoneType.Command.equals(host.getCastFrom().getZoneType());
+                if (fromCommand) {
+                    emit("commander_cast_from_command");
+                    int tax = 0;
+                    try {
+                        tax = event.sa().getActivatingPlayer().getCommanderCast(host) * 2;
+                    } catch (RuntimeException untracked) {
+                        broker.recordAutomatic("COMMANDER_TAX_COUNT_UNAVAILABLE");
+                    }
+                    if (tax > 0) {
+                        emit("commander_tax:+" + tax + "_generic");
+                    }
+                }
             }
         }
 

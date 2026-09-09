@@ -741,6 +741,7 @@ class Session:
                 self.active_cost = {
                     "remaining": list(cs.get("explicit_payment_sources") or []),
                     "cast_idx": entry_idx,
+                    "source": cs.get("source_semantic_id") or obj,
                 }
                 return
 
