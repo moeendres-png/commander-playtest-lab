@@ -49,6 +49,40 @@ def _snapshot_cards(ctx: dict[str, Any]) -> dict[str, dict[str, Any]]:
     }
 
 
+def _record_object(record: dict[str, Any], ref: str) -> dict[str, Any] | None:
+    for o in record.get("semantic_objects") or []:
+        if o.get("semantic_id") == ref:
+            return o
+    return None
+
+
+def _find_card(
+    record: dict[str, Any], cards: list[dict[str, Any]], ref: str
+) -> tuple[dict[str, Any] | None, list[str]]:
+    """Locate a semantic object in a behavior snapshot.
+
+    Prefers the provider-bound semantic id; falls back to
+    identity+controller matching with uniqueness enforcement, because zone
+    changes create new object incarnations (the graveyard card is not the
+    identical bound object). Returns (card, violations).
+    """
+    for c in cards:
+        if str(c.get("semantic_id")) == ref:
+            return c, []
+    shape = _record_object(record, ref)
+    if shape is None:
+        return None, [f"OBJECT_UNKNOWN_REF:{ref}"]
+    cands = [
+        c
+        for c in cards
+        if c.get("card_identity") == shape.get("card_identity")
+        and c.get("controller") == shape.get("controller")
+    ]
+    if len(cands) != 1:
+        return None, [f"OBJECT_IDENTITY_NONUNIQUE:{ref}:{len(cands)}"]
+    return cands[0], []
+
+
 def _script_refs(record: dict[str, Any], families: set[str], key: str) -> list[str]:
     refs = []
     for d in record.get("decision_script") or []:
@@ -63,11 +97,12 @@ def _script_refs(record: dict[str, Any], families: set[str], key: str) -> list[s
 
 def _check_bears_survive_bolt(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
     """Grizzly Bears survives Lightning Bolt because Giant Growth resolved first."""
-    cards = _snapshot_cards(ctx)
+    cards = _cards(ctx.get("snapshot") or {})
+    by_sem = _snapshot_cards(ctx)
     targets = _script_refs(record, {"target"}, "target")
     if len(targets) != 1:
         return [f"SURVIVOR_TARGET_NONUNIQUE:{targets}"]
-    target = cards.get(targets[0])
+    target = by_sem.get(targets[0])
     if target is None:
         return [f"SURVIVOR_TARGET_ABSENT:{targets[0]}"]
     bad = []
@@ -80,17 +115,15 @@ def _check_bears_survive_bolt(record: dict[str, Any], ctx: dict[str, Any]) -> li
     if toughness <= damage:
         bad.append(f"SURVIVOR_DID_NOT_SURVIVE:toughness={toughness}:damage={damage}")
     for ref in _script_refs(record, {"priority"}, "object"):
-        card = cards.get(ref)
-        if card is None:
-            bad.append(f"SURVIVOR_CAST_OBJECT_ABSENT:{ref}")
-        elif card.get("zone") != "graveyard":
+        card, find_bad = _find_card(record, cards, ref)
+        bad.extend(find_bad)
+        if card is not None and card.get("zone") != "graveyard":
             bad.append(f"SURVIVOR_CAST_OBJECT_NOT_RESOLVED:{ref}:{card.get('zone')}")
     for item in record.get("stack_state") or []:
         ref = item.get("source_semantic_id")
-        card = cards.get(ref)
-        if card is None:
-            bad.append(f"SURVIVOR_STACK_OBJECT_ABSENT:{ref}")
-        elif card.get("zone") != "graveyard":
+        card, find_bad = _find_card(record, cards, ref)
+        bad.extend(find_bad)
+        if card is not None and card.get("zone") != "graveyard":
             bad.append(f"SURVIVOR_STACK_OBJECT_NOT_RESOLVED:{ref}:{card.get('zone')}")
     return bad
 

@@ -570,21 +570,28 @@ def anchored_snapshot_index(record: dict[str, Any], session: Session) -> int | N
     return None
 
 
-def verify_terminal(record: dict[str, Any], session: Session) -> dict[str, Any]:
-    """Run event + postcondition verification over collected evidence."""
+def verify_terminal(
+    record: dict[str, Any], session: Session, snapshot_idx: int | None = None
+) -> dict[str, Any]:
+    """Run event + postcondition verification over collected evidence.
+
+    Postconditions evaluate at ``snapshot_idx`` (default: the completion
+    anchor, i.e. the first checkpoint after the last required event).
+    """
     if not session.snapshots:
         raise BehaviorFailure("NO_SNAPSHOTS")
     anchor = anchored_snapshot_index(record, session)
     if anchor is None:
         raise BehaviorFailure("NO_POST_RESOLUTION_SNAPSHOT")
-    terminal = session.snapshots[anchor]
+    idx = anchor if snapshot_idx is None else snapshot_idx
+    terminal = session.snapshots[idx]
     snapshot_texts = [json.dumps(s, ensure_ascii=False, sort_keys=True) for s in session.snapshots]
     events = behavior_events.verify(
         record.get("expected_events") or {}, session.feed, snapshot_texts
     )
     ctx = {
         "snapshot": terminal,
-        "snapshot_index": anchor,
+        "snapshot_index": idx,
         "feed": list(session.feed),
         "matches": list(session.matches),
         "stop": dict(session.stop or {}),
@@ -608,7 +615,9 @@ def check_terminal_ready(record: dict[str, Any], session: Session) -> dict[str, 
     """Return a PASS terminal result if the session may stop now, else None.
 
     Ready means: script fully consumed, every required event observed, and
-    postconditions holding at the anchored snapshot.
+    postconditions holding at the first satisfying checkpoint at or after
+    the completion anchor. Later checkpoints may diverge (the game continues),
+    so the earliest satisfying one is the terminal evidence.
     """
     if session.decision_index != len(session.script):
         return None
@@ -616,7 +625,16 @@ def check_terminal_ready(record: dict[str, Any], session: Session) -> dict[str, 
     if not required.issubset(set(session.feed)):
         return None
     try:
-        result = verify_terminal(record, session)
+        anchor = anchored_snapshot_index(record, session)
     except BehaviorFailure:
         return None
-    return result if result["status"] == "PASS" else None
+    if anchor is None:
+        return None
+    for idx in range(anchor, len(session.snapshots)):
+        try:
+            result = verify_terminal(record, session, snapshot_idx=idx)
+        except BehaviorFailure:
+            return None
+        if result["status"] == "PASS":
+            return result
+    return None

@@ -328,7 +328,20 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         return ready
     if session.decision_index != len(script):
         raise BehaviorFailure(f"SCRIPT_INCOMPLETE:{session.decision_index}/{len(script)}")
-    result = verify_terminal(record, session)
+    from behavior_driver import anchored_snapshot_index as _anchor
+
+    anchor = _anchor(record, session)
+    if anchor is None:
+        raise BehaviorFailure("NO_POST_RESOLUTION_SNAPSHOT")
+    result = None
+    for idx in range(anchor, len(session.snapshots)):
+        candidate = verify_terminal(record, session, snapshot_idx=idx)
+        if result is None:
+            result = candidate
+        if candidate["status"] == "PASS":
+            result = candidate
+            break
+    assert result is not None
     result["stop_reason"] = stop.get("stop_reason")
     result["matches"] = list(session.matches)
     result["feed"] = list(session.feed)
