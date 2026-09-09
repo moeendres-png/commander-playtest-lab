@@ -181,7 +181,84 @@ def _check_stack_empty(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]
     return []
 
 
+def _check_target_selected_log(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """'<X> is the target selected from the provider legal target set.'"""
+    entries = [
+        d for d in record.get("decision_script") or [] if d.get("decision_family") == "target"
+    ]
+    if not entries:
+        return ["TARGET_LOG_NO_TARGET_ENTRY"]
+    bad = []
+    for entry in entries:
+        value = entry["selection"]["semantic_value"]
+        hits = [
+            m
+            for m in (ctx.get("matches") or [])
+            if m.get("submitted")
+            and str(m.get("match_rule")).startswith(
+                (
+                    "semantic_object",
+                    "semantic_player",
+                    "semantic_stack",
+                    "semantic_objects",
+                    "target",
+                )
+            )
+        ]
+        if not hits:
+            bad.append(f"TARGET_LOG_NO_MATCH:{value}")
+            continue
+        for m in hits:
+            if int(m.get("offered_count", 0) or 0) < 1 or not m.get("offered_digest"):
+                bad.append(f"TARGET_LOG_NOT_FROM_OFFERED:{m.get('decision_id')}")
+    return bad
+
+
+def _check_mana_consumed(record: dict[str, Any], ctx: dict[str, Any]) -> list[str]:
+    """'Exactly the selected provider-legal mana payment is consumed.'"""
+    entries = [
+        (i, d)
+        for i, d in enumerate(record.get("decision_script") or [])
+        if d.get("decision_family") == "mana_payment"
+    ]
+    if not entries:
+        return ["MANA_LOG_NO_MANA_ENTRY"]
+    cards = _snapshot_cards(ctx)
+    bad = []
+    for _i, entry in entries:
+        sv = entry["selection"]["semantic_value"]
+        required = list(sv.get("mana", [])) if isinstance(sv, dict) else []
+        produced: list[str] = []
+        refs: list[str] = []
+        for m in ctx.get("matches") or []:
+            rule = str(m.get("match_rule"))
+            if rule.startswith("mana_payment:"):
+                body = rule[len("mana_payment:") :]
+                if ":" not in body:
+                    bad.append(f"MANA_RULE_MALFORMED:{rule}")
+                    continue
+                ref, produced = body.rsplit(":", 1)
+                refs.append(ref)
+                produced.append(produced)
+        if not refs:
+            bad.append("MANA_LOG_NO_PICKS")
+            continue
+        if sorted(produced) != sorted(required):
+            bad.append(f"MANA_SYMBOLS_NOT_CONSUMED:{produced}:{required}")
+        for ref in refs:
+            card = cards.get(ref)
+            if card is None:
+                bad.append(f"MANA_SOURCE_ABSENT:{ref}")
+            elif card.get("tapped") is not True:
+                bad.append(f"MANA_SOURCE_NOT_TAPPED:{ref}")
+    return bad
+
+
 REGISTRY: dict[str, Checker] = {
+    "P2 is the target selected from the provider legal target set.": _check_target_selected_log,
+    "PX is the target selected from the provider legal target set.": _check_target_selected_log,
+    "Only Rules-Core legal targets were offered and PX was selected.": _check_target_selected_log,
+    "Exactly the selected provider-legal mana payment is consumed.": _check_mana_consumed,
     "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.": _check_bears_survive_bolt,
     "Selected cast action was among provider-offered legal options and no adapter legality was invented.": _check_selected_from_offered,
     "Stack is empty after both spells resolve.": _check_stack_empty,

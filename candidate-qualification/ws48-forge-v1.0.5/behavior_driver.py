@@ -231,6 +231,19 @@ def match_semantic_object_any(frame: dict[str, Any], candidates: list[str]) -> d
     )
 
 
+def match_semantic_key(frame: dict[str, Any], key: str) -> dict[str, Any]:
+    """Match a provider-labeled selection key (MODE_KEY:/LOYALTY_KEY:).
+
+    Keys are contract-vocabulary tokens bound to native parameters
+    provider-side; matching is exact-token-or-fail-closed.
+    """
+
+    def pred(kind: str, _o: dict[str, Any]) -> bool:
+        return kind_has_ref(kind, key)
+
+    return match_single_option(frame, pred, f"semantic_key:{key}")
+
+
 def match_commander_cast(
     frame: dict[str, Any], expected: dict[str, Any], record: dict[str, Any]
 ) -> dict[str, Any]:
@@ -254,17 +267,7 @@ def match_commander_cast(
     def pred(kind: str, _o: dict[str, Any]) -> bool:
         if "FORGE_LEGAL_ACTION" not in kind or not kind_has_ref(kind, obj_ref):
             return False
-        if from_zone is not None:
-            segments = kind.split(":")
-            # Label shape: FORGE_LEGAL_ACTION:<name>:<zone>:<api>:<ref>:...
-            # Names may contain colons; zone is the segment before the ref.
-            zone = None
-            for i, seg in enumerate(segments):
-                if seg == obj_ref and i > 0:
-                    zone = segments[i - 1]
-            if zone != from_zone:
-                return False
-        return True
+        return from_zone is None or f":{from_zone}:" in kind
 
     return match_single_option(frame, pred, f"cast_commander:{commander_id}")
 
@@ -466,13 +469,15 @@ class Session:
             else:
                 option = match_semantic_action_object(frame, str(value.get("object", "")))
                 rule = f"semantic_action:{value}"
+        elif selector == "semantic_object":
+            option = match_semantic_object(frame, str(value))
+            rule = f"{selector}:{value}"
         elif selector in {
-            "semantic_object",
             "semantic_mode_key",
             "semantic_choice_key",
             "semantic_ability_key",
         }:
-            option = match_semantic_object(frame, str(value))
+            option = match_semantic_key(frame, str(value))
             rule = f"{selector}:{value}"
         elif selector == "semantic_stack_object":
             option = match_stack_object(frame, str(value), self)

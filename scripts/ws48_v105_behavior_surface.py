@@ -77,6 +77,11 @@ CHOOSE_OBJECT_NEW = """        <T> T chooseObject(String kind, Player actor, jav
             if (optional) labels.add("NONE");
             for (int i = 0; i < options.size(); i++) labels.add(ws48OptionLabel(actor, options.get(i)));"""
 
+BROKER_FIELD_OLD = """        final java.util.List<String> automatic = new ArrayList<>();"""
+
+BROKER_FIELD_NEW = """        final java.util.List<String> automatic = new ArrayList<>();
+        int manaActivations = 0;"""
+
 BROKER_HELPERS = """        static String ws48Pid(Player p) {
             if (p == null || p.getGame() == null) return "null";
             int idx = p.getGame().getPlayers().indexOf(p);
@@ -747,6 +752,8 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
                 payer.getGame().getStack().addAndUnfreeze(picked);
                 manapool.payManaFromAbility(sa, cost, picked);
                 activated = true;
+                broker.manaActivations++;
+                broker.emitEvent("mana_abilities_activated:" + broker.manaActivations);
                 broker.recordAutomatic("NATIVE_MANA_ACTIVATED:" + labels.get(selectedIndex));
             }
             throw failClosed("payManaCost:SELECTION_BUDGET_EXHAUSTED");
@@ -872,6 +879,7 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     java = replace_once(java, PRIORITY_LABEL_OLD, PRIORITY_LABEL_NEW, "priority labels")
     java = replace_once(java, CHOOSE_OBJECT_OLD, CHOOSE_OBJECT_NEW, "chooseObject labels")
     anchor = "        String choose(String kind, Player actor, java.util.List<String> labels) {"
+    java = replace_once(java, BROKER_FIELD_OLD, BROKER_FIELD_NEW, "broker mana counter")
     java = replace_once(java, anchor, BROKER_HELPERS + anchor, "broker semantic helpers")
     java = replace_once(java, CHOOSE_GATE_OLD, CHOOSE_GATE_NEW, "unsupported family gate")
     java = replace_once(java, PRIORITY_SELECT_OLD, PRIORITY_SELECT_NEW, "priority ability key")
