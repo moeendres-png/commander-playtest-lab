@@ -113,13 +113,14 @@ def derive_static_events(record: dict[str, Any], session: Session) -> None:
     """
     from behavior_driver import BehaviorFailure as _BF
 
-    first = session.snapshots[0]
-    if first.get("natural_lifecycle") is True:
-        # Natural-game lifecycle markers are derived when those fixtures run.
-        return
-    obs = first.get("ws45_observation") or {}
-    if not obs:
+    setup = None
+    for snap in session.snapshots:
+        if isinstance(snap, dict) and snap.get("ws45_observation"):
+            setup = snap
+            break
+    if setup is None:
         raise _BF("STATIC_DERIVATION_MISSING_OBSERVATION")
+    obs = setup.get("ws45_observation") or {}
     rr = obs.get("rules_randomness") or {}
     for ch in rr.get("channels") or []:
         session.note_event(f"rules_rng:{ch}")
@@ -288,8 +289,12 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         from behavior_driver import TerminalReached
         from behavior_driver import check_terminal_ready as _ready
 
-        if len(sess.snapshots) == 1:
+        if not sess.static_derived and any(
+            isinstance(s, dict) and (s.get("ws45_observation") or s.get("natural_lifecycle"))
+            for s in sess.snapshots
+        ):
             derive_static_events(record, sess)
+            sess.static_derived = True
         ready = _ready(record, sess)
         if ready is not None:
             raise TerminalReached(ready)
@@ -409,6 +414,22 @@ def main() -> int:
                 with contextlib.suppress(Exception):
                     proc.kill()
             sess = evidence.get("session")
+            anchor = None
+            anchor_cards: list[str] = []
+            if sess is not None:
+                from behavior_driver import anchored_snapshot_index as _anchor
+
+                with contextlib.suppress(Exception):
+                    anchor = _anchor(record, sess)
+                if anchor is not None:
+                    try:
+                        anchor_cards = sorted(
+                            str(c.get("semantic_id"))
+                            for c in (sess.snapshots[anchor].get("cards") or [])
+                            if c.get("semantic_id")
+                        )
+                    except Exception:
+                        anchor_cards = []
             rows.append(
                 {
                     "index": index,
@@ -422,6 +443,8 @@ def main() -> int:
                     "feed": list(sess.feed) if sess else [],
                     "matches": list(sess.matches) if sess else [],
                     "snapshot_count": len(sess.snapshots) if sess else 0,
+                    "anchor_snapshot": anchor,
+                    "anchor_cards": anchor_cards,
                     "forge_commit": FORGE_COMMIT,
                     "forge_tree": FORGE_TREE,
                 }

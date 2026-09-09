@@ -295,6 +295,8 @@ class Session:
         self._seq = 0
         # Per-actor mulligan prompt counts for round lifecycle events.
         self.mulligan_rounds: dict[str, int] = {}
+        # Whether static (construction-observation) events were derived.
+        self.static_derived = False
 
     def _log(self, kind: str, text: str) -> None:
         self.journal.append((self._seq, kind, text))
@@ -552,14 +554,18 @@ def anchored_snapshot_index(record: dict[str, Any], session: Session) -> int | N
     required = set((record.get("expected_events") or {}).get("required_events") or [])
     if not required:
         return len(session.snapshots) - 1 if session.snapshots else None
-    last_event_seq = -1
+    # Completion seq: the point at which the last-missing required event was
+    # FIRST observed. (Recurring events such as priority:Pn must not drag the
+    # anchor to game end; first-seen per event is what matters.)
+    first_seen: dict[str, int] = {}
     for seq, kind, text in session.journal:
-        if kind == "event" and text in required and seq > last_event_seq:
-            last_event_seq = seq
-    if last_event_seq < 0:
+        if kind == "event" and text in required and text not in first_seen:
+            first_seen[text] = seq
+    if set(first_seen) != required:
         return None
+    completion = max(first_seen.values())
     for seq, kind, text in session.journal:
-        if kind == "snapshot" and seq > last_event_seq:
+        if kind == "snapshot" and seq > completion:
             return int(text.split(":", 1)[1])
     return None
 
