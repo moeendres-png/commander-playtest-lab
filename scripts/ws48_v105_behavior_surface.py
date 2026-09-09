@@ -1053,8 +1053,8 @@ COLOR_NEW = """\\1        public byte chooseColor(String message, SpellAbility s
             }
             forge.card.MagicColor.Color picked = nativeOptions.get(selectedIndex);
             broker.recordAutomatic("NATIVE_COLOR_SELECTED:" + picked.getName());
-            broker.emitEvent("choice:" + picked.getName());
-            return picked.getColor();
+            broker.emitEvent("choice:" + picked.getName().toUpperCase(java.util.Locale.ROOT));
+            return picked.getColorMask();
         }"""
 
 SCRY_PATTERN = re.compile(
@@ -1111,7 +1111,7 @@ LIFECYCLE_OLD = """            if ("1".equals(ws40ConstructionOnly) && "NATURAL_
             } else if ("NATIVE_STATE_LOAD".equals(ws40EntryMode)) {"""
 
 LIFECYCLE_NEW = """            if ("NATURAL_GAME_START".equals(ws40EntryMode)
-                    && ("1".equals(ws40ConstructionOnly) || ws48BehaviorEnabled())) {
+                    && ("1".equals(ws40ConstructionOnly) || Broker.ws48BehaviorEnabled())) {
                 Ws45StrictObservation.prepareNatural(game);
                 match.startGame(game, () -> Ws45StrictObservation.emitNaturalLifecycle(game, broker));
             } else if ("NATIVE_STATE_LOAD".equals(ws40EntryMode)) {"""
@@ -1207,6 +1207,8 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     anchor2 = "    static String sessionSnapshot(Game game) {"
     helpers = COST_HELPERS.replace("__WS48_COST_VISITS__", cost_visit_methods(forge_src))
     java = replace_once(java, anchor2, helpers + "\n" + anchor2, "cost helpers")
+    java = replace_once(java, anchor2, TRIGGER_HELPERS + "\n" + anchor2, "trigger helpers")
+    java = replace_once(java, anchor2, PILE_HELPERS + "\n" + anchor2, "pile helpers")
     java = replace_once(java, anchor2, DISTRIBUTION_HELPERS + anchor2, "distribution helpers")
     java = replace_once(java, anchor2, EVENTS_CLASS + "\n" + anchor2, "events class")
     new_java, n = DECLARE_ATTACKERS_PATTERN.subn(DECLARE_ATTACKERS_NEW, java, count=1)
