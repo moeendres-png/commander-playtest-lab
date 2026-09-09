@@ -22,6 +22,7 @@ import forge.game.card.Card;
 import forge.game.combat.Combat;
 import forge.game.cost.CostDecisionMakerBase;
 import forge.game.cost.CostPart;
+import forge.game.spellability.AbilitySub;
 import forge.game.spellability.SpellAbility;
 import forge.game.zone.ZoneType;
 import forge.card.mana.ManaCost;
@@ -37,6 +38,7 @@ public abstract class PlayerController {
     public abstract CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt);
     public abstract boolean payManaCost(ManaCost toPay, CostPartMana costPartMana, SpellAbility sa, String prompt, ManaConversionMatrix matrix, boolean effect);
     public abstract List<CostPart> orderCosts(List<CostPart> costs);
+    public abstract List<AbilitySub> chooseModeForAbility(SpellAbility sa, List<AbilitySub> possible, int min, int num, boolean allowRepeat);
     public abstract void playSpellAbilityNoStack(SpellAbility effectSA, boolean mayChoseNewTargets);
     public abstract void declareAttackers(Player attacker, Combat combat);
     public abstract void declareBlockers(Player defender, Combat combat);

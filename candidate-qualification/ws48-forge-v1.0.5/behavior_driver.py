@@ -53,41 +53,44 @@ class TerminalReached(Exception):
     """Raised when script + required events + postconditions are all satisfied."""
 
 
-# Provider DECISION_FRAME kind -> contract decision family. The family frame
-# event (`<family>_frame:<actor>`) and `decision:<family>:<value>` syntheses
-# derive from this map. Kinds absent here are non-scripted native intermediates
+# Provider DECISION_FRAME kind -> (contract decision family, contract frame event).
+# Frame-event names are contract-exact (e.g. target_decision_frame, not
+# target_frame). Kinds absent here are non-scripted native intermediates
 # (diagnostic decision_frame events only).
-FRAME_FAMILY: dict[str, str] = {
-    "priority": "priority",
-    "chooseModeForAbility": "choose_mode",
-    "chooseTargetsFor": "target",
-    "chooseTarget": "target",
-    "payMana": "mana_payment",
-    "declareAttackers": "declare_attacker",
-    "declareBlockers": "declare_blocker",
-    "confirmAction": "choose_use",
-    "chooseBinary": "choice",
-    "announceRequirements": "announce_x",
-    "chooseSingleEntityForEffect": "choose_object",
-    "orderSimultaneousSa": "trigger_order",
-    "chooseCardsPile": "pile",
-    "combatDamage": "target_amount",
-    "amountDistribution": "multi_amount",
+FRAME_FAMILY: dict[str, tuple[str, str]] = {
+    "priority": ("priority", "priority_decision_frame"),
+    "chooseModeForAbility": ("choose_mode", "choose_mode_frame"),
+    "chooseTargetsFor": ("target", "target_decision_frame"),
+    "chooseTarget": ("target", "target_decision_frame"),
+    "payMana": ("mana_payment", "mana_payment_frame"),
+    "declareAttackers": ("declare_attacker", "declare_attacker_frame"),
+    "declareBlockers": ("declare_blocker", "declare_blocker_frame"),
+    "confirmAction": ("choose_use", "choose_use_frame"),
+    "chooseBinary": ("choice", "choice_frame"),
+    "announceRequirements": ("announce_x", "announce_x_frame"),
+    "chooseSingleEntityForEffect": ("choose_object", "choose_object_frame"),
+    "orderSimultaneousSa": ("trigger_order", "trigger_order_frame"),
+    "chooseCardsPile": ("pile", "pile_frame"),
+    "combatDamage": ("target_amount", "target_amount_frame"),
+    "amountDistribution": ("multi_amount", "multi_amount_frame"),
+    "chooseSingleReplacementEffect": ("replacement_effect", "replacement_effect_frame"),
 }
 
 
 def frame_family(kind: str) -> str | None:
-    return FRAME_FAMILY.get(kind)
+    entry = FRAME_FAMILY.get(kind)
+    return entry[0] if entry else None
 
 
 def synthesize_frame_events(kind: str, actor: str | None) -> list[str]:
     """Contract-level feed events for one offered native decision frame."""
-    family = frame_family(kind)
-    if family is None or actor is None:
+    entry = FRAME_FAMILY.get(kind)
+    if entry is None or actor is None:
         return []
+    family, frame_event = entry
     if family == "priority":
-        return [f"priority:{actor}", f"priority_decision_frame:{actor}"]
-    return [f"{family}_frame:{actor}", f"decision_frame:{family}"]
+        return [f"priority:{actor}", f"{frame_event}:{actor}"]
+    return [f"{frame_event}:{actor}", f"decision_frame:{family}"]
 
 
 def provider_command() -> list[str]:
@@ -226,6 +229,66 @@ def match_semantic_object_any(frame: dict[str, Any], candidates: list[str]) -> d
     raise BehaviorFailure(
         f"MULTI_TARGET_ZERO_MATCH:{candidates}:{frame['payload'].get('decision_id')}"
     )
+
+
+def match_commander_cast(
+    frame: dict[str, Any], expected: dict[str, Any], record: dict[str, Any]
+) -> dict[str, Any]:
+    """Match a cast_commander action to the provider-offered commander action.
+
+    Links commander_id -> semantic object ref via the record's commander-bound
+    semantic objects, then matches the offered legal action by that ref.
+    A declared from_zone is verified against the offered action's zone segment.
+    """
+    value = expected["selection"]["semantic_value"]
+    commander_id = value.get("commander_id")
+    obj_ref = None
+    for o in record.get("semantic_objects") or []:
+        if o.get("commander_id") == commander_id:
+            obj_ref = o.get("semantic_id")
+            break
+    if obj_ref is None:
+        raise BehaviorFailure(f"COMMANDER_OBJ_UNRESOLVABLE:{commander_id}")
+    from_zone = value.get("from_zone")
+
+    def pred(kind: str, _o: dict[str, Any]) -> bool:
+        if "FORGE_LEGAL_ACTION" not in kind or not kind_has_ref(kind, obj_ref):
+            return False
+        if from_zone is not None:
+            segments = kind.split(":")
+            # Label shape: FORGE_LEGAL_ACTION:<name>:<zone>:<api>:<ref>:...
+            # Names may contain colons; zone is the segment before the ref.
+            zone = None
+            for i, seg in enumerate(segments):
+                if seg == obj_ref and i > 0:
+                    zone = segments[i - 1]
+            if zone != from_zone:
+                return False
+        return True
+
+    return match_single_option(frame, pred, f"cast_commander:{commander_id}")
+
+
+def match_stack_object(frame: dict[str, Any], stack_ref: str, session: Session) -> dict[str, Any]:
+    """Resolve stack:N against the live native stack, then match by ref.
+
+    stack:N is only resolvable when exactly N native stack objects exist
+    (the denominator uses stack:1 with a single object); otherwise fail closed.
+    """
+    try:
+        want = int(str(stack_ref).split(":")[1])
+    except (IndexError, ValueError):
+        raise BehaviorFailure(f"STACK_REF_MALFORMED:{stack_ref}") from None
+    if not session.snapshots:
+        raise BehaviorFailure(f"STACK_REF_NO_SNAPSHOT:{stack_ref}")
+    entries = list(session.snapshots[-1].get("stack") or [])
+    if len(entries) != want:
+        raise BehaviorFailure(f"STACK_REF_AMBIGUOUS:{stack_ref}:native={len(entries)}")
+    # Top-down: with exactly one object the order is unambiguous.
+    target = entries[0].get("source_semantic_id")
+    if not target:
+        raise BehaviorFailure(f"STACK_REF_UNBOUND:{stack_ref}")
+    return match_semantic_object(frame, str(target))
 
 
 def match_mana_source(
@@ -396,16 +459,23 @@ class Session:
                 f"ACTOR_MISMATCH:{frame['payload'].get('decision_id')}:{actor}:{expected['actor']}"
             )
         if selector == "semantic_action" and isinstance(value, dict):
-            option = match_semantic_action_object(frame, str(value.get("object", "")))
-            rule = f"semantic_action:{value}"
+            action = value.get("action")
+            if action == "cast_commander":
+                option = match_commander_cast(frame, expected, self.record)
+                rule = f"semantic_action:{value}"
+            else:
+                option = match_semantic_action_object(frame, str(value.get("object", "")))
+                rule = f"semantic_action:{value}"
         elif selector in {
             "semantic_object",
-            "semantic_stack_object",
             "semantic_mode_key",
             "semantic_choice_key",
             "semantic_ability_key",
         }:
             option = match_semantic_object(frame, str(value))
+            rule = f"{selector}:{value}"
+        elif selector == "semantic_stack_object":
+            option = match_stack_object(frame, str(value), self)
             rule = f"{selector}:{value}"
         elif selector == "semantic_objects":
             wanted = [str(v) for v in value]

@@ -96,9 +96,41 @@ BROKER_HELPERS = """        static String ws48Pid(Player p) {
                     ? host.getZone().getZoneType().toString().toLowerCase() : "null";
             String semantic = host == null ? null : Ws40SuccessorState.semanticRefOf(host);
             String api = sa.getApi() == null ? "null" : sa.getApi().toString();
+            String abilityKey = ws48AbilityKeyForSA(sa);
             String desc = "FORGE_LEGAL_ACTION:" + (host == null ? "null" : host.getName())
-                    + ":" + zone + ":" + api + ":" + String.valueOf(semantic);
+                    + ":" + zone + ":" + api + ":" + String.valueOf(semantic)
+                    + ":ABILITY_KEY:" + String.valueOf(abilityKey);
             return desc.replace("|", "/").replace(",", ";");
+        }
+
+        // Static native-parameter -> contract selection-key bindings for the
+        // denominator's modal/activated vocabulary. Each rule names native
+        // ability parameters only; matching among offered options stays
+        // exact-or-fail-closed in the harness. Null = unmapped vocabulary.
+        static String ws48ModeKeyForSub(forge.game.spellability.AbilitySub sub) {
+            if (sub == null) return null;
+            String tokenScript = sub.hasParam("TokenScript") ? sub.getParam("TokenScript") : "";
+            if (tokenScript.toLowerCase(java.util.Locale.ROOT).contains("devil")) {
+                return "create_devils";
+            }
+            return null;
+        }
+
+        static String ws48AbilityKeyForSA(SpellAbility sa) {
+            if (sa == null || sa.getPayCosts() == null) return null;
+            boolean loyaltyZero = false;
+            for (forge.game.cost.CostPart part : sa.getPayCosts().getCostParts()) {
+                if (part instanceof forge.game.cost.CostPutCounter put
+                        && put.getCounter() != null
+                        && put.getCounter().is(forge.game.card.CounterEnumType.LOYALTY)
+                        && "0".equals(put.getAmount())) {
+                    loyaltyZero = true;
+                }
+            }
+            if (!loyaltyZero) return null;
+            String repl = sa.hasParam("ReplacementEffects") ? sa.getParam("ReplacementEffects") : "";
+            if (repl.contains("Triple")) return "loyalty_0_triple_damage";
+            return null;
         }
 
         static String ws48OptionLabel(Player actor, Object option) {
@@ -107,7 +139,9 @@ BROKER_HELPERS = """        static String ws48Pid(Player p) {
             if (option instanceof forge.game.mana.Mana mana) return "MANA:" + mana.toString();
             if (option instanceof forge.game.spellability.AbilitySub sub) {
                 String text = sub.getDescription() == null ? "null" : sub.getDescription();
-                return "MODE:" + text.replace("|", "/").replace(",", ";");
+                String key = ws48ModeKeyForSub(sub);
+                return "MODE_KEY:" + String.valueOf(key) + ":"
+                    + text.replace("|", "/").replace(",", ";");
             }
             if (option instanceof SpellAbility sa) {
                 Card host = sa.getHostCard();
@@ -152,6 +186,37 @@ CHOOSE_GATE_NEW = """        String choose(String kind, Player actor, java.util.
                 throw new ControlledStop("UNSUPPORTED_DISCRETIONARY_DECISION:" + kind);
             }
             long seq = ++decisionSeq;"""
+
+PRIORITY_SELECT_OLD = """            String id = choose("priority", actor, labels);
+            int idx = Integer.parseInt(id.substring(1));
+            if (idx == 0) return null;
+            return java.util.List.of(nativeOptions.get(idx - 1));"""
+
+PRIORITY_SELECT_NEW = """            String id = choose("priority", actor, labels);
+            int idx = Integer.parseInt(id.substring(1));
+            if (idx == 0) return null;
+            SpellAbility pickedPriority = nativeOptions.get(idx - 1);
+            String pickedKey = ws48AbilityKeyForSA(pickedPriority);
+            if (pickedKey != null) {
+                recordAutomatic("NATIVE_ABILITY_SELECTED:" + pickedKey);
+                emitEvent("ability_selected:" + pickedKey);
+            }
+            return java.util.List.of(pickedPriority);"""
+
+MODE_SELECT_OLD = """            if (min == 1 && num == 1 && !allowRepeat) {
+                AbilitySub chosen = broker.chooseObject("chooseModeForAbility", player, possible, false);
+                return java.util.List.of(chosen);
+            }"""
+
+MODE_SELECT_NEW = """            if (min == 1 && num == 1 && !allowRepeat) {
+                AbilitySub chosen = broker.chooseObject("chooseModeForAbility", player, possible, false);
+                String chosenModeKey = Broker.ws48ModeKeyForSub(chosen);
+                if (chosenModeKey != null) {
+                    broker.recordAutomatic("NATIVE_MODE_SELECTED:" + chosenModeKey);
+                    broker.emitEvent("mode_selected:" + chosenModeKey);
+                }
+                return java.util.List.of(chosen);
+            }"""
 
 FRAME_HOOK_OLD = """            out.flush();
             try {
@@ -573,6 +638,16 @@ CHOOSE_TARGETS_NEW = """\\1        public boolean chooseTargetsFor(SpellAbility 
                     if (currentAbility.canTarget(candidate)) legal.add(candidate);
                 }
                 for (ZoneType zone : zones) {
+                    if (zone == ZoneType.Stack) {
+                        for (forge.game.spellability.SpellAbilityStackInstance si : getGame().getStack()) {
+                            SpellAbility stacked = si.getSpellAbility();
+                            if (stacked != null && stacked.getHostCard() != null
+                                    && currentAbility.canTarget(stacked.getHostCard())) {
+                                legal.add(stacked.getHostCard());
+                            }
+                        }
+                        continue;
+                    }
                     for (Player candidate : getGame().getPlayers()) {
                         for (Card card : candidate.getCardsIn(zone)) {
                             if (currentAbility.canTarget(card)) legal.add(card);
@@ -591,7 +666,15 @@ CHOOSE_TARGETS_NEW = """\\1        public boolean chooseTargetsFor(SpellAbility 
                 if (selectedIndex < 0 || selectedIndex >= legal.size()) {
                     throw failClosed("chooseTargetsFor:STALE_SELECTION");
                 }
-                currentAbility.getTargets().add(legal.get(selectedIndex));
+                GameObject pickedTarget = legal.get(selectedIndex);
+                currentAbility.getTargets().add(pickedTarget);
+                if (pickedTarget instanceof Player pickedPlayer) {
+                    broker.emitEvent("target_selected:" + Broker.ws48Pid(pickedPlayer));
+                } else if (pickedTarget instanceof Card pickedCard) {
+                    String ref = Ws40SuccessorState.semanticRefOf(pickedCard);
+                    broker.emitEvent("target_selected:"
+                        + (ref == null ? ws48EventName(pickedCard.getName()) : ref));
+                }
             }
             return currentAbility.getTargets().size() >= min;
         }"""
@@ -621,9 +704,17 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
             forge.game.mana.ManaPool manapool = payer.getManaPool();
             Ws48CostDecisionMaker activationDecisions =
                 new Ws48CostDecisionMaker(payer, effect, sa, sa == null ? null : sa.getHostCard());
+            boolean activated = false;
             for (int guard = 0; guard < 32; guard++) {
                 if (cost.isPaid()) {
-                    broker.emitEvent("mana_paid:" + ws48ManaPaidString(toPay));
+                    // Zero-mana activation-cost passthrough emits nothing; only
+                    // real source activations produce mana_paid evidence.
+                    if (activated) {
+                        broker.emitEvent("mana_paid:" + ws48ManaPaidString(toPay));
+                    }
+                    broker.recordAutomatic("MANA_PAID_DEBUG:"
+                        + (sa == null || sa.getHostCard() == null ? "null" : sa.getHostCard().getName())
+                        + ":" + ws48ManaPaidString(toPay));
                     return true;
                 }
                 java.util.List<SpellAbility> options = new ArrayList<>();
@@ -655,6 +746,7 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
                 }
                 payer.getGame().getStack().addAndUnfreeze(picked);
                 manapool.payManaFromAbility(sa, cost, picked);
+                activated = true;
                 broker.recordAutomatic("NATIVE_MANA_ACTIVATED:" + labels.get(selectedIndex));
             }
             throw failClosed("payManaCost:SELECTION_BUDGET_EXHAUSTED");
@@ -782,6 +874,8 @@ def patch_provider(path: Path, forge_src: Path) -> None:
     anchor = "        String choose(String kind, Player actor, java.util.List<String> labels) {"
     java = replace_once(java, anchor, BROKER_HELPERS + anchor, "broker semantic helpers")
     java = replace_once(java, CHOOSE_GATE_OLD, CHOOSE_GATE_NEW, "unsupported family gate")
+    java = replace_once(java, PRIORITY_SELECT_OLD, PRIORITY_SELECT_NEW, "priority ability key")
+    java = replace_once(java, MODE_SELECT_OLD, MODE_SELECT_NEW, "mode selected event")
     java = replace_once(java, FRAME_HOOK_OLD, FRAME_HOOK_NEW, "decision frame event")
     java = replace_once(java, SNAPSHOT_HOOK_OLD, SNAPSHOT_HOOK_NEW, "checkpoint hook")
     java = replace_once(java, SUBSCRIBE_OLD, SUBSCRIBE_NEW, "event subscription")
