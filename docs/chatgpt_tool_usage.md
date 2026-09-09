@@ -12,9 +12,9 @@ There are exactly three project execution paths:
 
 Muse Spark 1.3 is one AI model and must not be split into separate Muse and Spark resources.
 
-The only authorized OpenCode model is `opencode-go/muse-spark-1.3-contributor`. Allowed effort is `medium`, `high`, or `xhigh`, with `high` as the project default. The repository root `opencode.json` enforces the current OpenCode provider/model policy.
+The only authorized OpenCode model is `opencode-go/muse-spark-1.3-contributor`. Allowed effort is `high` or `xhigh` only, with `high` as both the minimum and the project default. `medium` and all lower effort variants are not authorized. The repository root `opencode.json` enforces the current OpenCode provider/model/effort policy.
 
-Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work or as authorization to substitute another OpenCode model.
+Do not interpret the local API or Agents SDK examples below as a requirement to use ChatGPT Work or as authorization to substitute another OpenCode model or lower reasoning effort.
 
 ## Local API
 
