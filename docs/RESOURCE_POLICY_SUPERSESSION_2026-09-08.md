@@ -21,18 +21,20 @@ The only authorized OpenCode provider/model is:
 
 `opencode-go/muse-spark-1.3-contributor`
 
-Allowed OpenCode reasoning effort is Medium, High, or XHigh only. High is the default. Lower variants such as off, none, minimal, or low are not authorized for project execution.
+Allowed OpenCode reasoning effort is High or XHigh only. High is both the minimum and the default. Medium, low, minimal, none, off, and any lower effort are not authorized for project execution.
+
+Use High for normal implementation, tests, debugging, audits, CI, runtime qualification and bounded remediation. Use XHigh for especially difficult nonlocal implementation, complex debugging, high-risk remediation or other tasks where additional reasoning materially improves correctness.
 
 OpenCode Zen free models are not part of current routing while OpenCode Go is active. No other OpenCode model or provider may be substituted without a newer direct user instruction and corresponding policy/config update.
 
-Historical instructions such as one Work chat only, single ChatGPT Work chat, Work-first execution, separate Muse and Spark routing, Muse High/XHigh as separate model identities, or use of another OpenCode model are no longer operationally authoritative.
+Historical instructions such as one Work chat only, single ChatGPT Work chat, Work-first execution, separate Muse and Spark routing, Muse High/XHigh as separate model identities, use of another OpenCode model, or permission to run OpenCode below High are no longer operationally authoritative.
 
 Technical findings, source locks, defect registers, Rules analysis and evidence from historical handoffs remain provenance unless superseded by fresher technical or domain truth.
 
 Current routing is:
 
 - normal Sol High for coordination, research, architecture, Rules and Oracle analysis, review and evidence adjudication
-- OpenCode Go with Muse Spark 1.3 Contributor for repository implementation, debugging, CI, qualification, audits and mechanical repository work
+- OpenCode Go with Muse Spark 1.3 Contributor at High or XHigh for repository implementation, debugging, CI, qualification, audits and mechanical repository work
 - Work with Sol Medium only after WORK_NECESSITY = PASS
 
 WORK_NECESSITY = PASS requires that the exact missing capability is identified, normal Sol High is inadequate, OpenCode Go with Muse Spark 1.3 Contributor is inadequate, the capability is genuinely required, and the Work scope is minimized.
