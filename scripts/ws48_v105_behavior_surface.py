@@ -202,6 +202,17 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
         return semantic == null ? "NATIVE:" + card.getName() : semantic;
     }
 
+    static String ws48EventName(String raw) {
+        // Contract event names use underscores (Giant_Growth); native card
+        // names use spaces. Display normalization only, no semantic change.
+        return raw == null ? "null" : raw.replace(" ", "_");
+    }
+
+    static String ws48ManaPaidString(forge.card.mana.ManaCost cost) {
+        if (cost == null) return "0";
+        return cost.toString().replace("{", "").replace("}", "").replace(" ", "");
+    }
+
     static String ws48EventCardRef(int nativeId) {
         String semantic = Ws40SuccessorState.semanticRefOfId(nativeId);
         return semantic == null ? "NATIVE_CARD_VIEW:" + nativeId : semantic;
@@ -229,15 +240,30 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
         @com.google.common.eventbus.Subscribe
         public void onSpellCast(forge.game.event.GameEventSpellAbilityCast event) {
             if (event.sa() == null || event.sa().getHostCard() == null) return;
-            String castName = event.sa().getHostCard().getName();
-            emit("spell_cast:" + castName);
-            emit("stack_push:" + castName);
+            String name = ws48EventName(event.sa().getHostCard().getName());
+            emit("spell_cast:" + name);
+            emit("stack_push:" + name);
+            emit(name + "_cast");
+            String ref = ws48EventCardRef(event.sa().getHostCard().getId());
+            if (!ref.startsWith("NATIVE_CARD_VIEW:")) {
+                emit("spell_cast:" + ref);
+                emit("stack_push:" + ref);
+            }
+            if (event.sa().getHostCard().isCommander()) {
+                emit("commander_cast");
+            }
         }
 
         @com.google.common.eventbus.Subscribe
         public void onSpellResolved(forge.game.event.GameEventSpellResolved event) {
             if (event.spell() == null || event.spell().getHostCard() == null) return;
-            emit("resolve:" + event.spell().getHostCard().getName());
+            String name = ws48EventName(event.spell().getHostCard().getName());
+            emit("resolve:" + name);
+            emit("spell_resolved");
+            String ref = ws48EventCardRef(event.spell().getHostCard().getId());
+            if (!ref.startsWith("NATIVE_CARD_VIEW:")) {
+                emit("resolve:" + ref);
+            }
         }
 
         @com.google.common.eventbus.Subscribe
@@ -255,6 +281,17 @@ EVENTS_CLASS = """    static String ws48JsonStringList(java.util.List<String> va
 
         @com.google.common.eventbus.Subscribe
         public void onBlockersDeclared(forge.game.event.GameEventBlockersDeclared event) {
+            // Map: defender => attacker => blockers (see PhaseHandler).
+            for (java.util.Map.Entry<forge.game.GameEntityView,
+                    com.google.common.collect.Multimap<forge.game.card.CardView, forge.game.card.CardView>> outer
+                    : event.blockers().entrySet()) {
+                for (java.util.Map.Entry<forge.game.card.CardView, forge.game.card.CardView> pair
+                        : outer.getValue().entries()) {
+                    String attacker = ws48EventCardRef(pair.getKey().getId());
+                    String blocker = ws48EventCardRef(pair.getValue().getId());
+                    emit("blocker_declared:" + blocker + "->" + attacker);
+                }
+            }
             emit("blockers_declared");
         }
     }
@@ -585,7 +622,10 @@ PAY_MANA_NEW = """\\1        public boolean payManaCost(
             Ws48CostDecisionMaker activationDecisions =
                 new Ws48CostDecisionMaker(payer, effect, sa, sa == null ? null : sa.getHostCard());
             for (int guard = 0; guard < 32; guard++) {
-                if (cost.isPaid()) return true;
+                if (cost.isPaid()) {
+                    broker.emitEvent("mana_paid:" + ws48ManaPaidString(toPay));
+                    return true;
+                }
                 java.util.List<SpellAbility> options = new ArrayList<>();
                 for (Card source : payer.getCardsIn(ZoneType.Battlefield)) {
                     for (SpellAbility ma : source.getManaAbilities()) {
