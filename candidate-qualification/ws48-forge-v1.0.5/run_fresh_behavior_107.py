@@ -268,30 +268,39 @@ def derive_static_events(record: dict[str, Any], session: Session) -> None:
 def _submit_combat_state_declaration(
     sess: Session, proc, record: dict[str, Any], frame: dict[str, Any], kind: str
 ) -> None:
-    """Declare combat per the verified record combat_state, else discretion.
+    """Declare combat per the verified record combat_state, else hold still.
 
     The construction gate proved requested==native combat maps, so declaring
     the loaded assignment reproduces verified native state (logged as
-    combat_state_declared with full offered-set evidence). Falls back to
-    unscripted discretion only when the record declares no assignment.
+    combat_state_declared with full offered-set evidence). With no declared
+    assignment in the record, select the EMPTY assignment (no attackers / no
+    blockers): the only non-perturbing choice that preserves contracted
+    terminals. Falls back to unscripted discretion only when no empty
+    assignment is offered (e.g. must-attack effects).
     """
     from behavior_driver import match_assignment as _match_assignment
+    from behavior_driver import submit as _submit
 
-    want = record.get("combat_state") or {}
+    want = (record.get("combat_state") or {})
     if kind == "declareAttackers" and want.get("attackers"):
         option = _match_assignment(frame, dict(want["attackers"]), "ATTACK_ASSIGNMENT:")
         sess.record_match(frame, option, f"combat_state_attackers:{want['attackers']}")
-        from behavior_driver import submit as _submit
-
         _submit(proc, frame, str(option["option_id"]), "declare")
         return
     if kind == "declareBlockers" and want.get("blockers"):
         option = _match_assignment(frame, dict(want["blockers"]), "BLOCK_ASSIGNMENT:")
         sess.record_match(frame, option, f"combat_state_blockers:{want['blockers']}")
-        from behavior_driver import submit as _submit
-
         _submit(proc, frame, str(option["option_id"]), "declare")
         return
+    prefix = "ATTACK_ASSIGNMENT:" if kind == "declareAttackers" else "BLOCK_ASSIGNMENT:"
+    for o in frame["payload"].get("options") or []:
+        pairs = dict(
+            p.split("=", 1) for p in str(o.get("kind") or "")[len(prefix) :].split(",") if "=" in p
+        )
+        if pairs and all(v == "NONE" for v in pairs.values()):
+            sess.record_match(frame, o, "unscripted_empty_declaration")
+            _submit(proc, frame, str(o["option_id"]), "declare")
+            return
     sess.answer_unscripted_discretion(frame)
 
 
