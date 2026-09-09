@@ -21,9 +21,9 @@ TOOLS_DIR = REPO_ROOT / "tools" / "foundry"
 
 sys.path.insert(0, str(REPO_ROOT / "tools"))
 
-from foundry import cluster_failures, evidence, metrics, worktree_inventory
-from foundry import source_lock as lock_mod
-from foundry import state as state_mod
+from foundry import cluster_failures, evidence, metrics, worktree_inventory  # noqa: E402
+from foundry import source_lock as lock_mod  # noqa: E402
+from foundry import state as state_mod  # noqa: E402
 
 
 def _git(args: list[str], cwd: Path) -> str:

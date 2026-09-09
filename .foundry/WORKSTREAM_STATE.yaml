@@ -49,6 +49,7 @@ validated_gates:
 - skills discoverable (.opencode/skills/*/SKILL.md, names match dirs, frontmatter valid)
 - agents carry model opencode-go/muse-spark-1.3-contributor at variant high
 - workflow VARIANT high with MODEL/SHARE unchanged; opencode.json share disabled
+- "CI repair: pyproject.toml edit reverted (WS17 hash manifest is immutable); E402 suppression moved file-local via noqa; WS17 gate re-passes locally"
 failed_gates: []
 invalidated_gates: []
 do_not_rerun:
@@ -76,7 +77,6 @@ files_modified:
 - tools/foundry/state.py
 - tools/foundry/metrics.py
 - tests/foundry/test_foundry_tools.py
-- pyproject.toml (per-file-ignores entry for E402 in new test module)
 - .github/workflows/opencode.yml (VARIANT xhigh to high)
 - docs/foundry-execution/README.md
 - docs/foundry-execution/ROUTING_AND_EFFORT.md
