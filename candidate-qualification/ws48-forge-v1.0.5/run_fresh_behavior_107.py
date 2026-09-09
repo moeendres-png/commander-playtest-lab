@@ -405,7 +405,8 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
         if kind in {"declareAttackers", "declareBlockers"}:
             expected = sess.next_expected()
             if expected is None:
-                raise BehaviorFailure(f"UNSCRIPTED_DECLARE:{kind}")
+                sess.answer_unscripted_discretion(frame)
+                return
             selector = expected["selection"]["selector_kind"]
             prefix = (
                 "ATTACK_ASSIGNMENT:"
@@ -437,10 +438,18 @@ def drive_record(record: dict[str, Any], proc, evidence: dict[str, Any]) -> dict
             return
         expected = sess.next_expected()
         if expected is not None:
-            if kind == "priority" and normalize_actor(frame.get("actor_id")) != expected.get(
-                "actor"
-            ):
-                # Off-actor priority: pass without consuming the entry.
+            if kind == "priority":
+                # Priority frames only consume priority-action entries for the
+                # acting player; every other pending entry waits for its own
+                # native frame kind while the game advances through passes.
+                sel = expected["selection"]
+                if (
+                    sel["selector_kind"] == "semantic_action"
+                    and isinstance(sel["semantic_value"], dict)
+                    and normalize_actor(frame.get("actor_id")) == expected.get("actor")
+                ):
+                    sess.answer_expected(frame, expected)
+                    return
                 sess.answer_pass(frame)
                 return
             sess.answer_expected(frame, expected)
