@@ -745,6 +745,14 @@ DECLARE_DIRECT_HELPERS = """    public static void ws48BeginLoadedStep(Game game
         if (phase == PhaseType.UPKEEP && turn != null) {
             game.getUpkeep().executeUntil(turn);
             game.getUpkeep().executeAt();
+            // Phase-mode triggers (e.g. upkeep triggers) are detected by the
+            // onPhaseBegin tail, likewise skipped by devModeSet. Mirror only
+            // the trigger runner, never priority or step advancement.
+            game.getTriggerHandler().resetActiveTriggers();
+            game.getTriggerHandler().runTrigger(
+                forge.game.trigger.TriggerType.Phase,
+                forge.game.ability.AbilityKey.mapFromPlayer(turn), false);
+            game.getStack().unfreezeStack();
         }
         if (phase == PhaseType.COMBAT_DECLARE_ATTACKERS) {
             Player who = turn.getDeclaresAttackers() != null ? turn.getDeclaresAttackers() : turn;
@@ -1059,6 +1067,12 @@ TRIGGER_HELPERS = """    static String ws48TriggerDescriptor(SpellAbility sa) {
         return "TRIGGER:" + String.valueOf(ref) + ":" + name;
     }
 
+    static String ws48TriggerEventName(SpellAbility sa) {
+        Card host = sa.getHostCard();
+        if (host == null) return "unknown";
+        return host.getName().replace(" ", "_").replace("|", "/").replace(",", ";");
+    }
+
     static void ws48PermuteTriggers(
             java.util.List<SpellAbility> parts, int from,
             java.util.List<java.util.List<SpellAbility>> out, java.util.List<String> labels) {
@@ -1294,6 +1308,7 @@ ORDER_PLAY_NEW = """\\1        public void orderAndPlaySimultaneousSa(List<Spell
                 }
                 getGame().getStack().addAndUnfreeze(only);
                 broker.recordAutomatic("NATIVE_TRIGGER_STACKED:" + ws48TriggerDescriptor(only));
+                broker.emitEvent("trigger:" + ws48TriggerEventName(only));
                 return;
             }
             if (activePlayerSAs.size() > 4) {
@@ -1318,6 +1333,7 @@ ORDER_PLAY_NEW = """\\1        public void orderAndPlaySimultaneousSa(List<Spell
                 }
                 getGame().getStack().addAndUnfreeze(sa);
                 broker.recordAutomatic("NATIVE_TRIGGER_STACKED:" + ws48TriggerDescriptor(sa));
+                broker.emitEvent("trigger:" + ws48TriggerEventName(sa));
             }
         }"""
 

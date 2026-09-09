@@ -540,9 +540,20 @@ def _check_commander_tax_fresh(record: dict[str, Any], ctx: dict[str, Any]) -> l
         c.get("commander_id"): int(c.get("prior_command_zone_cast_count", 0) or 0)
         for c in (record.get("commander_state") or {}).get("commanders") or []
     }
+    cast_cids = {
+        d["selection"]["semantic_value"].get("commander_id")
+        for d in record.get("decision_script") or []
+        if d.get("decision_family") == "priority"
+        and isinstance(d["selection"]["semantic_value"], dict)
+        and d["selection"]["semantic_value"].get("action") == "cast_commander"
+    }
+    if not cast_cids:
+        return ["TAX_NO_CAST"]
     for cid, prior in priors.items():
         entry = counts.get(cid)
         if entry is None:
+            continue
+        if cid not in cast_cids:
             continue
         if int(entry.get("cast_count", -1)) != prior + 1:
             bad.append(f"TAX_COUNT_MISMATCH:{cid}:{entry.get('cast_count')}")
@@ -585,7 +596,7 @@ REGISTRY: dict[str, Checker] = {
     "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned.": _check_mana_consumed,
     "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.": _check_bears_survive_bolt,
     "X=N is bound into the announced spell and cost calculation by the Rules Core.": _check_announced_x,
-    "Rograkh printed mana cost N plus two prior command-zone casts gives exactly {N} additional generic; cast count becomes N.": _check_commander_tax_fresh,
+    "Rograkh printed mana cost N plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes N.": _check_commander_tax_fresh,
     "Selected cast action was among provider-offered legal options and no adapter legality was invented.": _check_selected_from_offered,
     "Stack is empty after both spells resolve.": _check_stack_empty,
     "Session/fixture terminates with typed unsupported discretionary-decision failure.": _check_typed_fail_closed,
