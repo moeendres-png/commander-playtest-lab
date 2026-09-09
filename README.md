@@ -15,11 +15,49 @@ The current decision architecture includes:
 - abort/censoring fail-closed decision evidence;
 - content-addressed current decision/semantic inputs.
 
-The operational simulation scope is **4-player Commander only**. 3-player and 5-player simulation is intentionally out of scope unless the project policy is explicitly changed later.
+For real Commander deck-decision evidence, the default official scope is **exactly 4 players: one own deck plus exactly three opponents**, unless a Decision Contract explicitly defines another allowed scope. The full-rules engine itself should technically support 2P, 3P, 4P and 5P; 6P is strongly desired where it can be supported without reducing correctness.
 
 Active own-deck scope must be read from the current project/collection scope and newer direct project truth, not inferred from this README or historical snapshots. Frozen opponent-only decks likewise come from the current opponent/project registries.
 
 No search, confirmatory result, diagnostic, or holdout automatically mutates a canonical/current deck, inventory quantity, physical allocation, purchase state, or opponent observation.
+
+## Project execution routing
+
+The canonical execution-environment policy is [`docs/PROJECT_EXECUTION_POLICY.md`](docs/PROJECT_EXECUTION_POLICY.md).
+
+There are exactly three project execution paths:
+
+- **normal ChatGPT Sol High** for coordination, research, architecture, difficult reasoning, MTG authority work, evidence adjudication, and all useful pre-work before any Work handoff;
+- **OpenCode Go with Muse Spark 1.3 Contributor** for repository implementation, debugging, CI, runtime qualification, audits and mechanical repository work;
+- **ChatGPT Work with Astra** only as an exceptional minimal fallback after `WORK_NECESSITY = PASS`.
+
+Muse Spark 1.3 is one AI model and must not be split into separate Muse and Spark resources.
+
+The current OpenCode project lock is:
+
+- provider: `opencode-go`
+- model: `muse-spark-1.3-contributor`
+- full ID: `opencode-go/muse-spark-1.3-contributor`
+- allowed reasoning effort: `high`, `xhigh` only
+- minimum reasoning effort: `high`
+- **default/preferred reasoning effort: `xhigh`**
+- `medium`, `low`, `minimal`, `none`, and `off` are not authorized; medium and all lower efforts are unauthorized
+- all other OpenCode providers/models are outside current project policy
+
+Use XHigh by default for substantial implementation, debugging, qualification, audits, semantic integration, multi-file work, repeated remediation and any task where extra reasoning could materially improve correctness. When uncertain between High and XHigh, choose XHigh. Use High only for clearly bounded, local, mechanical or low-ambiguity work where additional reasoning is not expected to materially improve the result.
+
+Work policy:
+
+- Astra Medium is the normal/default Work effort.
+- Astra High is allowed only rarely when the exact irreducible Work-only operation materially requires it.
+- Normal Sol High must do as much useful research, source locking, narrowing, adjudication, planning and context reduction as possible before Work is opened.
+- Work receives only the minimum context and smallest operation that genuinely requires Work.
+- Work must not repeat completed Sol/OpenCode research or broad discovery.
+- Work returns control to normal Sol High immediately after the irreducible operation is complete.
+
+The repository root [`opencode.json`](opencode.json) is the machine-enforced OpenCode configuration.
+
+Older reports, prompts or handoffs that prescribe Work as the default execution environment, split Muse and Spark into separate resources, use another OpenCode model, permit OpenCode effort below High, prescribe High rather than XHigh as the default, or prescribe a different Work model/effort policy are historical provenance. Their technical findings remain evidence, but their execution-routing instructions are superseded by the current policy.
 
 ## Optimizer-v2 decision path
 
@@ -134,4 +172,4 @@ python -m commander_lab.optimizer_v2_cli fidelity --frontier <frontier> --root .
 
 ## Optimization rule
 
-Candidate changes remain read-only until explicitly accepted. A baseline or challenger may be evaluated through paired comparison, commander-denial, ablation, holdout, sensitivity, pilot and opponent-ensemble workflows only within the evidence layers that are valid for the mechanics involved and within the current operational 4P scope.
+Candidate changes remain read-only until explicitly accepted. A baseline or challenger may be evaluated through paired comparison, commander-denial, ablation, holdout, sensitivity, pilot and opponent-ensemble workflows only within the evidence layers that are valid for the mechanics involved and within the current official decision scope.

@@ -1,8 +1,10 @@
 # Deckbuilding / Simulation Separation
 
-Status: architecture contract for package 1.24.0  
+Status: architecture contract for package 1.24.0, amended by current Foundry execution/rules-core-selection policy  
 Candidate runtime: `candidate-pipeline-1.0.0`  
 Candidate-set schema: `deck-candidate-set-1.0.0`
+
+Execution-environment routing is governed by [`../PROJECT_EXECUTION_POLICY.md`](../PROJECT_EXECUTION_POLICY.md). The repository root `opencode.json` machine-enforces the current OpenCode provider/model policy: OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only, reasoning effort High or XHigh only, minimum High, **default/preferred XHigh**; Medium and all lower efforts are unauthorized. When uncertain between High and XHigh, use XHigh; High is reserved for clearly bounded, local, mechanical or low-ambiguity work where extra reasoning is not expected to materially improve the result. Muse Spark 1.3 is one model identity and must not be split into Muse and Spark resources. Rules-core selection is not precommitted by this document; any older XMage-specific target wording is historical architecture provenance only until a candidate earns current Architecture Freeze.
 
 ## OLD ARCHITECTURE
 
@@ -31,9 +33,9 @@ ALL VALID UNIQUE CANDIDATES
         ↓
 SIMULATION_CANDIDATE_QUEUE
         ↓
-┌─────────────────────────────┐
-│ FUTURE: XMAGE + OUR PILOTS  │
-└─────────────────────────────┘
+┌───────────────────────────────────┐
+│ QUALIFIED FULL-RULES CORE + PILOTS│
+└───────────────────────────────────┘
         ↓
 GAMEPLAY EVIDENCE
         ↓
@@ -58,7 +60,7 @@ for every input candidate:
 
 ## DECKBUILDER CONTRACT
 
-Deck generation occurs outside the simulation stack. The deckbuilder/work chat is responsible for supplying **complete Commander decks**, not candidate cards to be assembled by simulation code.
+Deck generation occurs outside the simulation stack. The assigned deckbuilding worker is responsible for supplying **complete Commander decks**, not candidate cards to be assembled by simulation code. Worker/model selection follows `docs/PROJECT_EXECUTION_POLICY.md`; ChatGPT Work is not implied or required by this contract.
 
 The external deckbuilder may use any documented design concept, including:
 
@@ -172,7 +174,7 @@ No new work should attempt to evolve the Python Structural simulator into a comp
 
 Mechanics fidelity remains diagnostic engine-capability metadata. `STRUCTURAL`, `TACTICAL`, `EXTERNAL`, `SCREENING_ONLY` and `UNSUPPORTED` may describe old-engine coverage, but none can remove a hard-valid candidate from `SIMULATION_CANDIDATE_QUEUE`.
 
-In the target architecture, an `EXTERNAL_RULES_REQUIRED`/unsupported Structural mechanic is evidence that full-rules gameplay must use XMage; it is not a reason to omit gameplay.
+In the target architecture, an `EXTERNAL_RULES_REQUIRED`/unsupported Structural mechanic is evidence that gameplay must use a genuinely qualified full-rules engine/provider. It does not select XMage, Forge, or another candidate in advance and is not a reason to omit gameplay.
 
 ## TACTICAL ORACLE NEW ROLE
 
@@ -217,36 +219,38 @@ Notable dispositions:
 
 The authoritative inventory is `PRE_SIMULATION_FILTER_INVENTORY.json`.
 
-## FUTURE XMAGE + OUR PILOTS ARCHITECTURE
+## FUTURE FULL-RULES CORE + OUR PILOTS ARCHITECTURE
 
-The target authority split is explicit:
+The target authority split is explicit and candidate-neutral:
 
 ```text
-XMAGE                = RULES EXECUTION AUTHORITY
-OUR PILOTS           = DECISION POLICY
-LAB                  = EXPERIMENT / EVIDENCE CONTROLLER
-Structural Simulator = DIAGNOSTIC ONLY
-Tactical Oracle      = BOUNDED DIAGNOSTIC / TEST SUPPORT
+QUALIFIED FULL-RULES CORE = RULES EXECUTION AUTHORITY
+OUR PILOTS                = DECISION POLICY
+LAB                       = EXPERIMENT / EVIDENCE CONTROLLER
+Structural Simulator      = DIAGNOSTIC ONLY
+Tactical Oracle           = BOUNDED DIAGNOSTIC / TEST SUPPORT
 ```
 
-This reset does **not** implement an autonomous XMage 4-player game loop or produce fake XMage evidence.
+The production Rules Core remains `UNKNOWN` until current qualification and Architecture Freeze justify a selection. XMage, Forge, or another candidate may satisfy that role only through current evidence.
 
-The prepared future scenario contract (`future-xmage-scenario-contract-1.0.0`) requires, per scenario:
+This reset does **not** implement an autonomous full-rules 4-player game loop or produce fake external-engine evidence.
+
+The prepared historical `future-xmage-scenario-contract-1.0.0` remains provenance for interface requirements. New production qualification must translate those requirements into a candidate-neutral/current contract and must not treat the historical name as architecture authority. At minimum, per scenario, the runtime identity must bind:
 
 - `candidate_id`
 - `deck_hash`
-- exactly three `opponent_deck_ids`
-- `player_count = 4`
+- exactly three `opponent_deck_ids` for default official 4P decision evidence
+- `player_count = 4` for that default decision scope
 - `seat`
 - `scenario_id`
 - `seed`
-- `xmage_commit`
-- `bridge_version`
+- exact engine/provider source identity
+- bridge/provider version
 - `pilot_identity`
 - `pilot_version`
 - `decision_policy_version`
 
-This is an interface contract only. No gameplay result is fabricated.
+This is an interface requirement only. No gameplay result is fabricated.
 
 ## POST-SIMULATION RACING
 
@@ -257,7 +261,7 @@ Target sequence:
 ```text
 N hard-valid unique candidates
     ↓
-N candidates receive initial XMage gameplay screening
+N candidates receive initial qualified full-rules gameplay screening
     ↓
 GAMEPLAY evidence exists for every candidate
     ↓
@@ -268,7 +272,7 @@ additional budget for informative/strong candidates
 decision
 ```
 
-The present reset stops before the XMage execution and post-game racing implementation.
+The present reset stops before production full-rules execution and post-game racing implementation.
 
 ## HISTORICAL LIMITATIONS RECORDED
 
@@ -289,7 +293,7 @@ This architecture reset does not mutate canonical deck, inventory, allocation, p
 
 ```text
 OFFICIAL_GAMEPLAY_SIMULATION = FALSE
-XMAGE_FULL_GAME_CAMPAIGN = FALSE
+FULL_RULES_GAME_CAMPAIGN = FALSE
 STRUCTURAL_OFFICIAL_CAMPAIGN = FALSE
 TACTICAL_OFFICIAL_CAMPAIGN = FALSE
 HOLDOUT_OPENED = FALSE
