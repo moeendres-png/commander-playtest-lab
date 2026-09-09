@@ -132,3 +132,69 @@ trigger-permutations/combat+amount refs/turn-began/typed stops/natural
 lifecycle hook) + batch-2 driver (natural derivations, unscripted discretion,
 off-actor passes, negative cause-casts + post-emit gate, boolean/integer/
 amount/order/color/scry matchers, HI/lifecycle checkers). HIDDEN 01-05 PASS.
+
+## 9. RECOVERY CHECKPOINT 2026-09-09 (post host shutdown)
+
+Support branch pushed: `muse/ws48-forge-v1.0.5-heavy-support`
+Remote HEAD == local HEAD: `243a098549723b4f43a4ac9db382169bcee9d0cc`
+Tree: `67d0caabb69b8e400a23d4149dc813b10145ab91`
+Canonical `ws48/forge-v1.0.5-successor-qualification` untouched (still `8dd96140`).
+
+Impact adjudication: all support changes are Category A (behavior-only /
+observation-only / driver). No CI construction/readback/noecho path, immutable
+contract, or native legality enumeration is touched. G48-07/G48-08 CI credit
+retained; no construction rerun. Local /tmp eval state was rebuilt from source
+locks (Forge pin re-verified `66caae1`/tree `40fc8f29`).
+
+Gates: G48-07 PASS, G48-08 PASS, G48-09 behavior credit 0/107 (in progress).
+
+Exact G48-09 blocker: state-load libraries are EMPTY (GameState clears all
+zones); turn-2+ draws kill the very players whose scripted actions come later
+(proven: MICRO_COSTS P2/P3 vanish at their draws with 39 life, 0 poison).
+Multi-turn flow is contract-intended (turn-advance ops in procedures), so the
+blocker is missing canonical library background in behavior sessions, not a
+contract defect. Fix in progress: behavior-mode-only padding of unspecified
+libraries with face-down Mountains to canonical 99 (hidden_information family
+excluded; construction path untouched). Library-intent question recorded for
+Terra adjudication of credit; implementation unblocks execution either way.
+
+Unit tests: 14/14 pass (ruff clean). Behavior smokes green (micro/pilot/
+commander/declare/combat/tax/announce/naturals).
+
+Next: rebuild provider with padding → MICRO_COSTS live proof → full-matrix
+rerun → remaining families (triggers/APNAP, WS05 elim/turn/dmg, replay tapes,
+zone-choice, copy, RNG/replay) → G48-10..13 as evidence permits.
+
+## 10. LIBRARY PADDING PROOF 2026-09-09
+
+Proven: GameState.setupPlayerState clears ALL zones; unspecified libraries are
+empty; turn-2+ draws eliminate players whose scripted actions come later
+(MICRO_COSTS P2/P3 vanished at their draws, 39 life, 0 poison, no pending
+elimination). Multi-turn flow is contract-intended (turn-advance ops).
+
+Implemented (behavior mode only, NATIVE_STATE_LOAD only, HIDDEN_* excluded):
+pad each library with opaque face-down Forests to canonical 99 at the bottom,
+preserving specified order/positions; Mountain... Forest registered via
+existing registerCardRules path; distinct id range 910000+ (no collision with
+1000+i native binding or 900000+ knowledge minimums). Construction path
+byte-identical (gated). Extends the established WS-45 opaque-capacity pattern.
+
+Validated: local construction BLOCK-4 + MICRO_COSTS still CONSTRUCT_OK;
+HIDDEN_01 behavior PASS (exclusion holds); MICRO_COSTS behavior PASS (P2 casts
+Hex turn 2 for {7}{B}{B} with Esior +3, cost_determined fires, 6 targets
+matched incl. multi-ref disambiguation); MICRO_TRIGGERS behavior PASS
+(singleton trigger auto-play, Surge target P2, damage:P2:2).
+
+New native surfaces this round: direct loaded-combat-step invocation (devModeSet
+skips onPhaseBegin turn-based actions — proven via phase trace), commander tax
+at payment time via native getCastFrom + prior count, upkeep Phase-trigger
+runner, trigger order-and-play (singleton auto), zone-order passthrough,
+combat/card/player damage events, pending eliminations + poison/lost in
+checkpoints, stable seat pids, ref-linked arrival labels, cost_determined
+synthesis (printed vs expected_total_cost), mana window for X, scry/color/
+announce/amount/order/boolean matchers, negative cause-casts + post-emit gate.
+
+Open authority items for Terra/Sol: library-intent credit for padded runs;
+unscripted-discretion policy (lowest-id deterministic picks where the contract
+leaves choices open); mode-key native bindings (create_devils, loyalty_0);
+empty-declaration conservatism.
