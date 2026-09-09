@@ -1,12 +1,23 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode-go/muse-spark-1.3-contributor",
-  "enabled_providers": [
-    "opencode-go"
-  ],
   "instructions": [
     "docs/PROJECT_EXECUTION_POLICY.md"
   ],
+  "experimental": {
+    "policies": [
+      {
+        "effect": "deny",
+        "action": "provider.use",
+        "resource": "*"
+      },
+      {
+        "effect": "allow",
+        "action": "provider.use",
+        "resource": "opencode-go"
+      }
+    ]
+  },
   "provider": {
     "opencode-go": {
       "whitelist": [
