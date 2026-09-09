@@ -59,15 +59,14 @@ No other OpenCode model or provider is authorized for project work unless the us
 
 The allowed reasoning-effort range is exactly:
 
-- `medium`
 - `high`
 - `xhigh`
 
 Default effort is `high`.
 
-Use `medium` for bounded, clear, lower-risk repository work. Use `high` for normal substantial implementation, debugging, qualification and audit work. Use `xhigh` for genuinely difficult nonlocal debugging, complex multi-file remediation, or high-risk implementation where additional reasoning materially improves correctness.
+Use `high` for all normal substantial repository work, including implementation, tests, debugging, audits, CI, runtime qualification and bounded remediation. Use `xhigh` for especially difficult nonlocal implementation, complex multi-file debugging, high-risk remediation, or other cases where additional reasoning materially improves correctness.
 
-Do not use `none`, `off`, `minimal`, `low`, or any effort below `medium` for project OpenCode work.
+Do not use `medium`, `low`, `minimal`, `none`, `off`, or any effort below `high` for project OpenCode work.
 
 OpenCode Zen free models are not active project routing while OpenCode Go is in use. The current Zen free listing is a different provider/model identity and must not be substituted silently. If the user later changes provider policy, the replacement must be explicitly source-locked before use.
 
@@ -92,7 +91,7 @@ Every substantial OpenCode assignment must be bounded to one primary workstream 
 
 OpenCode Go with Muse Spark 1.3 Contributor may produce implementation and evidence but does not independently grant global architecture credit.
 
-The repository root `opencode.json` is the machine-enforced project configuration for provider/model selection and allowed variants. Project prompts must not override it with another model.
+The repository root `opencode.json` is the machine-enforced project configuration for provider/model selection and allowed variants. Project prompts must not override it with another model or an effort below High.
 
 ## 5. Work budget and necessity gate
 
@@ -169,7 +168,7 @@ The normal Sol High Coordinator decides the next workstream, whether OpenCode is
 
 Normal Sol High = reasoning, research, authority, coordination and adjudication.
 
-OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only = repository implementation, execution, audits, debugging, qualification and mechanical repository work. Allowed effort = Medium, High, XHigh. Default = High.
+OpenCode Go with `opencode-go/muse-spark-1.3-contributor` only = repository implementation, execution, audits, debugging, qualification and mechanical repository work. Allowed effort = High or XHigh only. Default = High.
 
 Work with Sol Medium = exceptional irreducible capability only after WORK_NECESSITY = PASS.
 
