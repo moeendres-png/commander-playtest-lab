@@ -682,6 +682,7 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
                 .append("\\",\\"life\\":").append(p.getLife())
                 .append(",\\"in_game\\":").append(p.isInGame())
                 .append(",\\"lost\\":").append(p.hasLost())
+                .append(",\\"poison\\":").append(p.getCounters(forge.game.card.CounterEnumType.POISON))
                 .append(",\\"hand_count\\":").append(p.getCardsIn(ZoneType.Hand).size())
                 .append(",\\"library_count\\":").append(p.getCardsIn(ZoneType.Library).size())
                 .append('}');
