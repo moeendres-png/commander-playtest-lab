@@ -648,6 +648,8 @@ STATE_HELPERS_NEW = """    private static String semanticOf(Card c) {
                 .append(Ws23ForgeVerticalProvider.esc(
                     sa.getActivatingPlayer() == null ? null
                         : controllerPid(game, sa.getActivatingPlayer())))
+                .append(",\\"kind\\":")
+                .append(Ws23ForgeVerticalProvider.esc(sa.isTrigger() ? "trigger" : "spell"))
                 .append('}');
         }
         stack.append(']');
@@ -724,21 +726,27 @@ DECLARE_DIRECT_OLD = """        emitNativeSnapshot(game, broker, false);
 
 DECLARE_DIRECT_NEW = """        emitNativeSnapshot(game, broker, false);
         if (!"1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {
-            ws48BeginLoadedCombatStep(game, broker);
+            ws48BeginLoadedStep(game, broker);
         }
         if ("1".equals(env("COMMANDER_LAB_WS40_CONSTRUCTION_ONLY"))) {"""
 
-DECLARE_DIRECT_HELPERS = """    public static void ws48BeginLoadedCombatStep(Game game, Ws23ForgeVerticalProvider.Broker broker) {
+DECLARE_DIRECT_HELPERS = """    public static void ws48BeginLoadedStep(Game game, Ws23ForgeVerticalProvider.Broker broker) {
         // devModeSet places the game directly into the loaded step, skipping
-        // that step's onPhaseBegin turn-based actions. In behavior mode the
-        // skipped declare-attackers/declare-blockers decision must still be
-        // offered natively: legality stays in Forge Rules Core (CombatUtil
-        // enumeration inside the controller), and this mirrors only
-        // PhaseHandler's turn-based invocation plus its immediate post-steps.
-        // Construction mode is unaffected (it stops before this point).
+        // that step's onPhaseBegin turn-based content. In behavior mode the
+        // skipped content must still run natively where the contract needs it:
+        // declare-attackers/declare-blockers DECISIONS are offered through the
+        // Rules-Core-owned controller surface (see below), while upkeep/draw
+        // MECHANICS that the loaded state already accounts for are left alone.
+        // Upkeep trigger detection is mechanical prerequisite for ordering, so
+        // it runs (decisions still externalized). Construction mode is
+        // unaffected (it stops before this point).
         PhaseType phase = game.getPhaseHandler().getPhase();
+        Player turn = game.getPhaseHandler().getPlayerTurn();
+        if (phase == PhaseType.UPKEEP && turn != null) {
+            game.getUpkeep().executeUntil(turn);
+            game.getUpkeep().executeAt();
+        }
         if (phase == PhaseType.COMBAT_DECLARE_ATTACKERS) {
-            Player turn = game.getPhaseHandler().getPlayerTurn();
             Player who = turn.getDeclaresAttackers() != null ? turn.getDeclaresAttackers() : turn;
             if (game.getCombat() == null) {
                 game.getPhaseHandler().setCombat(new Combat(turn));
@@ -1040,6 +1048,7 @@ ORDER_SA_NEW = """\\1        public List<SpellAbility> orderSimultaneousSa(List<
                 throw failClosed("orderSimultaneousSa:STALE_SELECTION");
             }
             broker.recordAutomatic("WS48_SELECTED_TRIGGER_ORDER:" + labels.get(selectedIndex));
+            broker.emitEvent("simultaneous_triggers:" + Broker.ws48Pid(this.player) + ":" + activePlayerSAs.size());
             return permutations.get(selectedIndex);
         }"""
 
@@ -1273,6 +1282,20 @@ ORDER_PLAY_NEW = """\\1        public void orderAndPlaySimultaneousSa(List<Spell
                 broker.recordAutomatic("orderAndPlaySimultaneousSa:EMPTY");
                 return;
             }
+            if (activePlayerSAs.size() == 1) {
+                // No ordering discretion exists; play the single trigger natively.
+                broker.recordAutomatic("SINGLE_NATIVE_TRIGGER");
+                SpellAbility only = activePlayerSAs.get(0);
+                if (!ws48PrepareTrigger(only)) {
+                    throw failClosed("orderAndPlaySimultaneousSa:TRIGGER_PREPARATION_DECLINED");
+                }
+                if (!only.setupTargets()) {
+                    throw failClosed("orderAndPlaySimultaneousSa:TRIGGER_TARGETS_DECLINED");
+                }
+                getGame().getStack().addAndUnfreeze(only);
+                broker.recordAutomatic("NATIVE_TRIGGER_STACKED:" + ws48TriggerDescriptor(only));
+                return;
+            }
             if (activePlayerSAs.size() > 4) {
                 throw failClosed("orderAndPlaySimultaneousSa:PERMUTATION_SPACE_UNSUPPORTED");
             }
@@ -1285,6 +1308,7 @@ ORDER_PLAY_NEW = """\\1        public void orderAndPlaySimultaneousSa(List<Spell
                 throw failClosed("orderAndPlaySimultaneousSa:STALE_SELECTION");
             }
             broker.recordAutomatic("WS48_SELECTED_TRIGGER_ORDER:" + labels.get(selectedIndex));
+            broker.emitEvent("simultaneous_triggers:" + Broker.ws48Pid(this.player) + ":" + activePlayerSAs.size());
             for (SpellAbility sa : permutations.get(selectedIndex)) {
                 if (!ws48PrepareTrigger(sa)) {
                     throw failClosed("orderAndPlaySimultaneousSa:TRIGGER_PREPARATION_DECLINED");
