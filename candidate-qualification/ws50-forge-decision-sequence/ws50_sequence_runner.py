@@ -57,6 +57,8 @@ class WS50Driver(base.Driver):
         for e in intent:
             self.script.append(copy.deepcopy(e))
         self.discard_cursors: dict[str, int] = {}
+        self.discard_queues: dict[str, list[str]] = {}
+        self.discard_pending: dict[str, dict[str, Any]] = {}
         self.structural_cap = structural_cap
         self.journal: list[dict[str, Any]] = []
         self.auto_records: list[str] = []
@@ -64,45 +66,91 @@ class WS50Driver(base.Driver):
 
 def ws50_answer_discard(drv: WS50Driver, actor: str, opts: list[dict[str, Any]],
                         labels: list[dict[str, str]]) -> str:
-    d = None
-    for i, e in enumerate(drv.script):
-        if e.get("decision_family") == "discard" and e.get("actor") == actor:
-            d = drv.script.pop(i)
-            break
-    if d is None:
-        raise base.Blocked("discardToMaximumHandSize", f"unscripted discard for {actor}")
-    want_list = d["selection"]["semantic_value"]["cards"]
-    used = drv.discard_cursors.get(actor, 0)
-    if used >= len(want_list):
-        drv.script.insert(0, d)
-        raise base.Blocked("discardToMaximumHandSize",
-                           f"extra discard frame {used + 1} for {actor}")
-    want = want_list[used]
+    # One intent entry per actor per discard FRAME; an entry's card list covers
+    # that frame's picks (queues refill from the next same-actor entry, so
+    # multi-turn sequences compose entry-per-frame).
+    q = drv.discard_queues.setdefault(actor, [])
+    if not q:
+        d = None
+        for i, e in enumerate(drv.script):
+            if e.get("decision_family") == "discard" and e.get("actor") == actor:
+                d = drv.script.pop(i)
+                break
+        if d is None:
+            raise base.Blocked("discardToMaximumHandSize", f"unscripted discard for {actor}")
+        q.extend(d["selection"]["semantic_value"]["cards"])
+        drv.discard_pending[actor] = d
+    want = q.pop(0)
     hits = [i for i, lb in enumerate(labels)
             if lb.get("_kind") == "OPT" and base.ref_identity(lb.get("opt", "")) == want]
     if len(hits) != 1:
-        drv.script.insert(0, d)
+        q.insert(0, want)
         raise base.Blocked("discardToMaximumHandSize",
                            f"card {want}: {len(hits)} matches of {len(opts)}")
-    drv.discard_cursors[actor] = used + 1
-    if used + 1 == len(want_list):
-        drv.consumed.append(d)
+    if not q:
+        drv.consumed.append(drv.discard_pending.pop(actor))
     return str(opts[hits[0]]["option_id"])
 
 
+def frame_phase(pay: dict[str, Any]) -> str | None:
+    try:
+        return json.loads(pay.get("state_snapshot") or "null").get("phase")
+    except Exception:
+        return None
+
+
 def ws50_answer(drv: WS50Driver, kind: str, actor: str, opts: list[dict[str, Any]],
-                labels: list[dict[str, str]], record: dict[str, Any]) -> str:
+                labels: list[dict[str, str]], record: dict[str, Any],
+                phase: str | None = None) -> str:
     if kind == "discardToMaximumHandSize":
         return ws50_answer_discard(drv, actor, opts, labels)
-    if kind == "priority":
-        # WS50 structural pass with raised bounded cap (truthfully journaled),
-        # taken ONLY when no scripted priority/ability obligation remains for
-        # this actor; otherwise the R1e scripted matcher decides.
+    families = KIND_FAMILIES.get(kind, ())
+    if families:
+        due = [e for e in drv.script
+               if e.get("decision_family") in families
+               and e.get("actor") == actor
+               and (e.get("phases") is None or phase in (e.get("phases") or []))]
+        if not due and kind == "priority":
+            # Nothing due for this actor now (waiting entries are out-of-phase):
+            # the engine-offered PASS decline is the legal waiting move.
+            for o in opts:
+                if o.get("kind") == "PASS":
+                    if len(drv.structural_passes) >= drv.structural_cap:
+                        return "__TERMINATE__"
+                    drv.structural_passes.append({"actor": actor,
+                                                  "frame_options": len(opts),
+                                                  "waiting": True})
+                    return str(o["option_id"])
+            raise base.Blocked("priority", "structural pass unavailable: no PASS offered")
+        if due:
+            # Stable reorder: due entries first; rotate on zero-match so each
+            # due entry is attempted strictly in turn; multi-match raises at
+            # once. Waiting entries are untouched.
+            due_ids = {id(e) for e in due}
+            rest = [e for e in drv.script if id(e) not in due_ids]
+            queue = list(due)
+            last_err: base.Blocked | None = None
+            for _ in range(len(queue)):
+                drv.script = queue + rest
+                try:
+                    return base.answer_frame(drv, kind, actor, opts, labels, record)
+                except base.Blocked as b:
+                    if _is_multi_match(b.detail):
+                        drv.script = queue + rest
+                        raise
+                    last_err = b
+                    # base pushed the failed entry back at front; rotate it.
+                    queue = queue[1:] + queue[:1]
+            drv.script = queue + rest
+            assert last_err is not None
+            raise last_err
+    if kind == "priority" and drv.ps_cursor >= len(drv.priority_script):
+        # Legacy R1e path (no WS50 families registered for priority).
         pending = [x for x in drv.script if x["decision_family"] == "priority"
                    and x.get("actor") == actor]
         ability = [x for x in drv.script if x["decision_family"] == "choose_ability"
                    and x.get("actor") == actor]
-        if not pending and not ability and drv.ps_cursor >= len(drv.priority_script):
+        if not pending and not ability:
             if len(drv.structural_passes) >= drv.structural_cap:
                 return "__TERMINATE__"
             for i, o in enumerate(opts):
@@ -113,6 +161,30 @@ def ws50_answer(drv: WS50Driver, kind: str, actor: str, opts: list[dict[str, Any
             raise base.Blocked("priority", "structural pass unavailable: no PASS offered")
         return base.answer_frame(drv, kind, actor, opts, labels, record)
     return base.answer_frame(drv, kind, actor, opts, labels, record)
+
+
+def _is_multi_match(detail: str) -> bool:
+    import re
+    m = re.search(r": (\d+) (offered matches|grounded matches|matches)", detail)
+    return bool(m and int(m.group(1)) > 1)
+
+
+KIND_FAMILIES: dict[str, tuple[str, ...]] = {
+    "priority": ("priority", "choose_ability"),
+    "target": ("target",),
+    "choose_mode": ("choose_mode",),
+    "choose_object": ("choose_object", "choose_ability"),
+    "choose_ability": ("choose_ability",),
+    "mana_payment": ("mana_payment",),
+    "announce_x": ("announce_x",),
+    "choice": ("choice",),
+    "choose_use": ("choose_use",),
+    "replacement_effect": ("replacement_effect",),
+    "trigger_order": ("trigger_order",),
+    "declare_attacker": ("declare_attacker",),
+    "declare_blocker": ("declare_blocker",),
+    "confirm": ("confirm",),
+}
 
 
 def selected_identity(kind: str, oid: str, opts: list[dict[str, Any]]) -> str:
@@ -408,7 +480,8 @@ def run_scenario(record: dict[str, Any], transport: Any, intent: list[dict[str, 
                     out.update({"stop_after_eof_rc": rc, "stderr_tail": tail})
                     break
                 try:
-                    oid = ws50_answer(drv, kind, actor, opts, labels, record)
+                    oid = ws50_answer(drv, kind, actor, opts, labels, record,
+                                      frame_phase(pay))
                 except base.Blocked as b:
                     entry["selection"] = None
                     entry["block"] = {"where": b.where, "detail": b.detail[:2000]}
@@ -435,6 +508,7 @@ def run_scenario(record: dict[str, Any], transport: Any, intent: list[dict[str, 
             else:
                 exit_rc, stderr_tail = close_and_collect()
                 out.update({"verdict": "PROBE_FAIL", "reason": "FRAME_BUDGET_EXHAUSTED",
+                            "terminal_class": "HARNESS_FRAME_BUDGET",
                             "exit_rc": exit_rc, "stderr_tail": stderr_tail})
                 return finish_ws50(out, drv, stop_reason, snapshot, answered,
                                    violations, lifecycle)
@@ -453,7 +527,8 @@ def run_scenario(record: dict[str, Any], transport: Any, intent: list[dict[str, 
                 proc.kill()
         except Exception:
             pass
-        out.update({"verdict": f"BLOCKED_AT:{b.where}", "reason": b.detail[:4000]})
+        out.update({"verdict": f"BLOCKED_AT:{b.where}", "reason": b.detail[:4000],
+                    "terminal_class": "HARNESS_INTENT_GAP"})
         return finish_ws50(out, drv, None, None, 0, violations, lifecycle)
     except Exception as ex:
         try:
@@ -462,7 +537,8 @@ def run_scenario(record: dict[str, Any], transport: Any, intent: list[dict[str, 
         except Exception:
             pass
         out.update({"verdict": "PROBE_FAIL",
-                    "reason": f"{type(ex).__name__}:{ex}"[:4000]})
+                    "reason": f"{type(ex).__name__}:{ex}"[:4000],
+                    "terminal_class": "HARNESS_PROBE_ERROR"})
         return finish_ws50(out, drv, None, None, 0, violations, lifecycle)
 
 
@@ -479,10 +555,16 @@ def finish_ws50(out: dict[str, Any], drv: WS50Driver, stop_reason: Any,
     if "verdict" not in out:
         if "terminate_rc" in out and not remaining:
             out["verdict"] = "TRANSCRIPT_COMPLETE"
+            out["terminal_class"] = "HARNESS_BOUNDED_CLOSE"
+            out["terminal_note"] = ("harness closed stdin after all intent was "
+                                    "consumed; provider EOF-typed stop is the expected "
+                                    "termination signal, not an engine defect")
         elif drv.result_seen and stop_reason is None:
             out["verdict"] = "BLOCKED_AT:NULL_STOP_REASON"
+            out["terminal_class"] = "ADAPTER_OPAQUE_STOP"
             out["reason"] = ("provider emitted SESSION_RESULT with null stop_reason")
         elif stop_reason in ("FORGE_GAME_RETURNED", "WS23_CONTROLLED_AFTER_PRIORITY_512"):
+            out["terminal_class"] = "ENGINE_NATURAL_TERMINAL"
             out["verdict"] = "TRANSCRIPT_COMPLETE" if not remaining else "PROBE_FAIL"
             if remaining:
                 out["reason"] = f"stopped with {len(remaining)} intent entries unconsumed"
@@ -491,15 +573,24 @@ def finish_ws50(out: dict[str, Any], drv: WS50Driver, stop_reason: Any,
                               or "WS48_BARE_UNSUPPORTED_OPERATION" in str(stop_reason)
                               or "WS48_NULL_CONTROLLED_STOP" in str(stop_reason)):
             out["verdict"] = f"BLOCKED_AT:{stop_reason}"
+            if "terminate_rc" in out:
+                out["terminal_class"] = "HARNESS_BOUNDED_CLOSE"
+                out["terminal_note"] = ("EOF-artifact stop after harness close; "
+                                        "see terminal_class, not an engine defect")
+            else:
+                out["terminal_class"] = "ENGINE_FAIL_CLOSED"
         elif stop_reason and "WS23_EXTERNAL_EOF" in str(stop_reason):
+            out["terminal_class"] = "HARNESS_BOUNDED_CLOSE"
             out["verdict"] = "TRANSCRIPT_COMPLETE" if not remaining else "PROBE_FAIL"
             if remaining:
                 out["reason"] = f"EOF with {len(remaining)} unconsumed"
         elif stop_reason:
             out["verdict"] = "PROBE_FAIL"
+            out["terminal_class"] = "ENGINE_UNCLASSIFIED_STOP"
             out["reason"] = f"stop_reason={stop_reason}"
         else:
             out["verdict"] = "PROBE_FAIL"
+            out["terminal_class"] = "NO_RESULT"
             out["reason"] = "no session result captured"
     out.update({
         "frames": drv.journal,
@@ -650,20 +741,28 @@ INTENT_B: list[dict[str, Any]] = [
 ]
 
 INTENT_C: list[dict[str, Any]] = [
-    {"decision_family": "mulligan", "actor": "P1",
-     "selection": {"selector_kind": "semantic_action", "semantic_value": "keep_opening_hand",
+    # PILOT_MULLIGAN's own record script covers the London mulligan flow, so
+    # no WS50 mulligan intent is needed (leftovers would block completion).
+    # Cleanup discard reached natively at frame 39 (hand 8 -> 7, all real
+    # Mountains, sids deterministic under seed 424242; replay-guarded).
+    {"decision_family": "discard", "actor": "P1",
+     "selection": {"selector_kind": "explicit_discard",
+                   "semantic_value": {"cards": ["MINTED-27"]},
                    "matches_only_provider_offered_legal_options": True,
                    "on_multiple_match": "FAIL_CLOSED", "on_zero_match": "FAIL_CLOSED"}},
-    {"decision_family": "mulligan", "actor": "P2",
-     "selection": {"selector_kind": "semantic_action", "semantic_value": "keep_opening_hand",
+    {"decision_family": "discard", "actor": "P2",
+     "selection": {"selector_kind": "explicit_discard",
+                   "semantic_value": {"cards": ["MINTED-196"]},
                    "matches_only_provider_offered_legal_options": True,
                    "on_multiple_match": "FAIL_CLOSED", "on_zero_match": "FAIL_CLOSED"}},
-    {"decision_family": "mulligan", "actor": "P3",
-     "selection": {"selector_kind": "semantic_action", "semantic_value": "keep_opening_hand",
+    {"decision_family": "discard", "actor": "P3",
+     "selection": {"selector_kind": "explicit_discard",
+                   "semantic_value": {"cards": ["MINTED-208"]},
                    "matches_only_provider_offered_legal_options": True,
                    "on_multiple_match": "FAIL_CLOSED", "on_zero_match": "FAIL_CLOSED"}},
-    {"decision_family": "mulligan", "actor": "P4",
-     "selection": {"selector_kind": "semantic_action", "semantic_value": "keep_opening_hand",
+    {"decision_family": "discard", "actor": "P4",
+     "selection": {"selector_kind": "explicit_discard",
+                   "semantic_value": {"cards": ["MINTED-337"]},
                    "matches_only_provider_offered_legal_options": True,
                    "on_multiple_match": "FAIL_CLOSED", "on_zero_match": "FAIL_CLOSED"}},
 ]
@@ -682,6 +781,7 @@ def main() -> int:
     ap.add_argument("--neg-zero", action="store_true")
     ap.add_argument("--neg-multi", action="store_true")
     ap.add_argument("--neg-replay-mismatch", action="store_true")
+    ap.add_argument("--structural-cap", type=int, default=256)
     a = ap.parse_args()
     sys.path.insert(0, a.runners)
     import run_strict_no_echo_gate as transport
@@ -730,7 +830,8 @@ def main() -> int:
         scenario = journal["scenario_id"]
         record = copy.deepcopy(by[journal["fixture_id"]])
         intent = copy.deepcopy(journal["intent"])
-        rerun = run_scenario(record, transport, intent, scenario + ":REPLAY")
+        rerun = run_scenario(record, transport, intent, scenario + ":REPLAY",
+                             structural_cap=a.structural_cap)
         cmp = compare_replay(journal, rerun)
         rerun["replay_of"] = str(a.replay)
         rerun["replay_comparison"] = cmp
@@ -761,7 +862,8 @@ def main() -> int:
                                      "matches_only_provider_offered_legal_options": True,
                                      "on_multiple_match": "FAIL_CLOSED",
                                      "on_zero_match": "FAIL_CLOSED"}})
-    result = run_scenario(record, transport, intent, scenario)
+    result = run_scenario(record, transport, intent, scenario,
+                          structural_cap=a.structural_cap)
     a.output.parent.mkdir(parents=True, exist_ok=True)
     a.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(f"WS50 {scenario} -> {result.get('verdict')} frames={result.get('frame_count')} "

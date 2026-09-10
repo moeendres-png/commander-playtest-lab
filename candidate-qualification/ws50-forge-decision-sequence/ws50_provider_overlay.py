@@ -23,6 +23,8 @@ Contents (all bounded adapter transport; Rules-Core authority preserved):
      native CardView marks them visible to that viewer; opponent hands and
      libraries as counts only; public zones with face-down protection) plus
      sha256 fingerprints per viewer.
+3. WS50-ADAPTER-REPAIR-01: remove the doubled nativeOptions.add(sa) in
+   Broker.choosePriority (selection/execution index misalignment).
 
 Label grammar reuse: WS48:OPT:opt=<cardRef> (same as WS48 overlay).
 """
@@ -39,6 +41,27 @@ def once(text: str, old: str, new: str, label: str) -> str:
     if n != 1:
         raise SystemExit(f"WS50_OVERLAY_ANCHOR:{label}:expected=1:found={n}")
     return text.replace(old, new, 1)
+
+
+# WS50-ADAPTER-REPAIR-01 (ADAPTER_BINDING, selection/execution misalignment).
+# The WS48 overlay's priority-label patch inserted a second
+# `nativeOptions.add(sa);` beside the base method's own add, while labels gain
+# one entry per SA. The opaque index contract (harness picks label index i ->
+# engine executes nativeOptions[i-1]) is therefore shifted for every ACT
+# option past the first: the engine executes a DIFFERENT native ability than
+# the externally selected one. Journal proof (WS50_C_RUN10 frames 15-16):
+# selected o8 Play-land MINTED-22, engine moved MINTED-77 instead (battlefield
+# + hand observation fingerprints diverge from the selected identity).
+# First-option selections (index 0) are unaffected, which is why R1e
+# transcripts still completed. Repair: restore the single-add invariant.
+# WS48-owned files stay byte-identical; the repair lives in this chained
+# overlay and is verified by selection/execution agreement in WS50 journals.
+PRIORITY_DOUBLE_ADD_OLD = """                        if (seen.add(sa)) {
+                            nativeOptions.add(sa);
+                            nativeOptions.add(sa);"""
+
+PRIORITY_DOUBLE_ADD_NEW = """                        if (seen.add(sa)) {
+                            nativeOptions.add(sa);"""
 
 
 DISCARD_OLD = """        public CardCollectionView chooseCardsToDiscardToMaximumHandSize(int numDiscard) {
@@ -228,6 +251,12 @@ def main() -> int:
         if marker not in p:
             raise SystemExit(f"WS50_OVERLAY_PREREQ_MISSING:{marker}")
     p = once(p, DISCARD_OLD, DISCARD_NEW, "discard labeled transport")
+    # Repair-01 cannot use once(): the fixed text is a substring of the broken
+    # text, so idempotency-by-containment misfires. Exact-count replace.
+    if p.count(PRIORITY_DOUBLE_ADD_OLD) != 1:
+        raise SystemExit("WS50_OVERLAY_ANCHOR:repair01:expected=1:found="
+                         + str(p.count(PRIORITY_DOUBLE_ADD_OLD)))
+    p = p.replace(PRIORITY_DOUBLE_ADD_OLD, PRIORITY_DOUBLE_ADD_NEW, 1)
     p = once(p, STATIC_HELPERS_ANCHOR, STATIC_HELPERS_ADD, "ws50 static helpers")
     p = once(p, CHOOSE_OLD, CHOOSE_NEW, "ws50 frame capture")
     p = once(p, OPTS_OLD, OPTS_NEW, "ws50 frame payload")
@@ -238,6 +267,8 @@ def main() -> int:
     missing = [x for x in required if x not in p]
     if missing:
         raise SystemExit(f"WS50_OVERLAY_INCOMPLETE:{missing}")
+    if "nativeOptions.add(sa);\n                            nativeOptions.add(sa);" in p:
+        raise SystemExit("WS50_OVERLAY_REPAIR01_NOT_APPLIED")
     print("WS50_DECISION_SEQUENCE_PROVIDER_OVERLAY_V1=PASS")
 
 
