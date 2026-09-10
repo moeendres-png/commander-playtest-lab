@@ -1,0 +1,39 @@
+kind,label,notes
+starting player,UNKNOWN,no live seam; config-only startingPlayerIndex
+mulligan,NATIVE_EXPLICIT,TakeMulligan/KeepHand/BottomCards validated vs hand
+priority/pass,NATIVE_EXPLICIT,PassPriority echoed unchanged
+cast spell,NATIVE_EXPLICIT,stamped CastSpell variants; X/modes/targets via bounded channels
+activate ability,NATIVE_EXPLICIT,ActivateAbility with pre-stamped AbilityId
+mana-source selection,OBJECT_ID_BASED,SelectManaSourcesDecision EntityId lists
+mana payment,OBJECT_ID_BASED,PaymentStrategy Explicit EntityId lists; engine solves
+alternate/additional costs,NATIVE_EXPLICIT,which stamped variant; echo discriminators
+X,NATIVE_EXPLICIT,inline xValue or ChooseNumberDecision range-checked
+modes,INDEX_BASED,ChooseModeDecision printed-order indices
+targets,OBJECT_ID_BASED,ChooseTargetsDecision legalTargets membership-checked
+numeric choices,NATIVE_EXPLICIT,ChooseNumberDecision range-checked
+colors,NATIVE_EXPLICIT,ChooseColorDecision membership-checked
+card names,INDEX_BASED,ChooseOptionDecision optionIndex
+creature types,INDEX_BASED,ChooseOptionDecision over ALL_CREATURE_TYPES
+ordering,OBJECT_ID_BASED,OrderedResponse exact-permutation enforced
+trigger ordering,INDEX_BASED,TriggerProcessor ChooseOptionDecision; apnapOrder exposed
+replacement ordering,INDEX_BASED,ReplacementEffectProcessor ChooseOptionDecision
+attackers,ADAPTER_REQUIRED,empty template + validAttackers/validAttackTargets; pilot fills map
+defender per attacker,ADAPTER_REQUIRED,value side of attacker map
+blockers,ADAPTER_REQUIRED,empty template + validBlockers; pilot fills map
+damage assignment,SEMANTIC_ID_AVAILABLE,CombatResolutionDecision stable edge ids; cached-edge resolution
+divide/distribute,OBJECT_ID_BASED,DistributeDecision sum/membership/bounds checked
+discard,OBJECT_ID_BASED,SelectCardsDecision membership+count checked
+sacrifice,OBJECT_ID_BASED,SelectCardsDecision or AdditionalCostPayment; revalidated
+search,OBJECT_ID_BASED,SearchLibraryDecision; minSelections=0 is fail-to-find
+hidden-zone selection,OBJECT_ID_BASED,same search/select with masked presentation
+reveal,OBJECT_ID_BASED,no wire type; visibility side effect on select/search flow
+scry,OBJECT_ID_BASED,composite pipeline; per-step native bindings
+surveil,OBJECT_ID_BASED,same as scry via SurveilExecutor
+piles,OBJECT_ID_BASED,SplitPilesDecision exact-permutation; pick is follow-up index
+voting,UNKNOWN,no vote/council decision type found
+secret/simultaneous choices,INDEX_BASED,sequential APNAP suspensions; secretTo stamping
+may/optional abilities,NATIVE_EXPLICIT,YesNo/BatchYesNo; yields may auto-answer
+optional replacement,INDEX_BASED,ChooseOptionDecision; missing persisted answer = declined
+copy choices,INDEX_BASED,copy-which as ChooseOptionDecision; new targets object IDs
+commander replacement,NATIVE_EXPLICIT,903.9a yes/no SBA prompt
+concession,NATIVE_EXPLICIT,Concede always legal; seat-scoped elimination
