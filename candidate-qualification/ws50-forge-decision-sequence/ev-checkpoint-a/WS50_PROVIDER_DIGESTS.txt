@@ -1,0 +1,2 @@
+7a09d3f07553788414e0ca59b94257185f8ef4665b9d6405b3f57ccba259f2da  /home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ev-checkpoint-a/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
+b6b0870fd642c3f491c65276cb4027e32a39dc2a98cd4b5fb36649f37dad9a22  /home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ev-checkpoint-a/generated/java/forge/game/player/Ws40SuccessorState.java
