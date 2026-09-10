@@ -1,0 +1,253 @@
+{
+  "actual_cards": [
+    {
+      "name": "Casualties of War",
+      "oracle_id": "5c6c8fe7-3520-423b-a224-1c0af516871a",
+      "oracle_text": "Choose one or more \u2014\n\u2022 Destroy target artifact.\n\u2022 Destroy target creature.\n\u2022 Destroy target enchantment.\n\u2022 Destroy target land.\n\u2022 Destroy target planeswalker.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen as the choose-one-or-more modal with five distinct target types: the combinatorial extreme of modal choice. No simpler card spans five target types.",
+      "role": "choose-one-or-more modal under test"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "DECISION_SEAM",
+    "RULES_CORRECTNESS"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "Ornithopter, Runeclaw Bear in graveyards; one P1 Forest in graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    },
+    {
+      "assertion": "Casualties of War in P0 graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "oracle_note": "Ornithopter ORACLE_TEXT_VERIFIED (Gatherer M11 #211; 0/2 Flying {0})",
+    "rules": [
+      "700.2",
+      "700.2c/d",
+      "601.2c",
+      "608.2c"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "OFFICIAL_RULES_DERIVED: constructed from Oracle text; no candidate output consulted."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "No semantic correction: carry forward RQ-C1 semantics unchanged via execution-manifest layer; Sol High item-10 batch promotion applies to exact RQ-C2-verified claims. Citation/provenance updates only where RQ-C2 mapped them (see RQ_C3_RULE_REFERENCE_CORRECTIONS.json / ORACLE_CONFIRMATIONS).",
+  "correction_source": "CARRY_FORWARD_UNCHANGED semantics; provenance updated: Ornithopter ORACLE_TEXT_VERIFIED + 700.2 supplied (item-10 Q-D06)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "cast",
+    "modes",
+    "targets",
+    "mana payment",
+    "pass"
+  ],
+  "execution_complexity": "HIGH",
+  "expected_rules_events": [
+    "CAST Casualties of War",
+    "MODES_CHOSEN: 3 modes (artifact + creature + land); 31 nonempty combinations asserted offerable",
+    "TARGETS: one legal target per chosen mode (Mana Crypt? use neutral: Darksteel-free vanilla artifact 'Ornithopter' (0/2 artifact creature? conflict). See board: artifact = 'Ornithopter' is artifact creature (both types; acceptable as artifact target? then creature mode targets Bear; land mode targets a Forest)",
+    "RESOLUTION in mode order: artifact destroyed; Bear destroyed; Forest destroyed"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "Ornithopter, Runeclaw Bear in graveyards; one P1 Forest in graveyard",
+      "target": "graveyards"
+    },
+    {
+      "assertion": "Casualties of War in P0 graveyard",
+      "target": "graveyards.P0"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P0",
+      "chosen_option": "modes [artifact; creature; land]",
+      "decision_kind": "modes",
+      "legal_set_expectation": "all 31 nonempty mode subsets offered (5 modes); scripted 3-mode subset",
+      "seq": 1
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "Ornithopter + Runeclaw Bear + P1 Forest",
+      "decision_kind": "targets",
+      "legal_set_expectation": "one legal target per chosen mode, matching required types",
+      "seq": 2
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "mode legality",
+      "expectation": "mode subset and per-mode targets public to all",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "VERY_HIGH",
+  "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-DECISION-WRONG-KIND",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P0",
+    "battlefield": [
+      {
+        "card": "Ornithopter (0/2 artifact creature)",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Runeclaw Bear",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Forest",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Swamp",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Swamp",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Forest",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Forest",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Forest",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Forest",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": [
+        "Casualties of War"
+      ]
+    },
+    "known_private_information": [
+      {
+        "fact": "Casualties of War in P0 hand",
+        "known_to": [
+          "P0"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 8
+  },
+  "notes": "Ornithopter text UNVERIFIED general knowledge (0/2 artifact creature with flying; flying irrelevant here): Oracle-confirm before execution; any vanilla artifact suffices. Six lands fund {2}{B}{B}{G}{G}. First-wave carrier for complex modes/targets. Adaptable to any player count.",
+  "oracle_provenance": "Casualties of War: Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY). Ornithopter: UNVERIFIED general knowledge; Oracle confirmation required before candidate execution.",
+  "parent_artifact_hash": {
+    "git_blob": "8aae85a8c2ad86a6147c58a688ef84d9d43dced8",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "ee9310b72991ff4305e5f97d8a7186a82cd146456258dc20e629313f3a7e0a83"
+  },
+  "parent_scenario_id": "RQ-C1-D06",
+  "player_count": 4,
+  "q6_provenance": "DEFERRED-relevant: no Q6 entry; constructed for the choose-one-or-more gap.",
+  "reverses": [
+    "DECISION_SEAM: 31 nonempty mode subsets plus per-mode typed targets must be explicit options (falsifies fixed-count modal logic and INDEX-mode shortcuts)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "Oracle choose-one-or-more sentence with five modes; subset cardinality and per-mode targeting proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [SUPPLIED: 700.2 modal family per RQ-C2 L13; Ornithopter ORACLE_TEXT_VERIFIED per RQ-C2 L15.]",
+  "scenario_id": "RQ-C3-D06",
+  "semantic_objective": "Prove choose-one-or-more modal integrity: Casualties of War must offer all 31 mode subsets with one typed target per chosen mode and destroy the scripted three.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Casualties of War choose one or more"
+}

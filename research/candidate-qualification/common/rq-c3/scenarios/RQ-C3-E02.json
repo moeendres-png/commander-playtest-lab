@@ -1,0 +1,251 @@
+{
+  "actual_cards": [
+    {
+      "name": "Carnage Tyrant",
+      "oracle_id": "8c411f4e-a091-447c-9450-d895b10b4985",
+      "oracle_text": "This spell can't be countered.\nTrample, hexproof (7/6).",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY; P/T 7/6 confirmed). Chosen as the trample attacker whose oversized body forces ordering + lethal + rollover arithmetic across two blockers. Hexproof/cannot-be-countered are irrelevant here.",
+      "role": "trample attacker"
+    },
+    {
+      "name": "Runeclaw Bear",
+      "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+      "oracle_text": "(Vanilla 2/2.)",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Blocker A.",
+      "role": "blocker A"
+    },
+    {
+      "name": "Llanowar Elves",
+      "oracle_id": "68954295-54e3-4303-a6bc-fc4547a4e3a3",
+      "oracle_text": "{T}: Add {G}.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Blocker B (1/1).",
+      "role": "blocker B"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "COMBAT",
+    "DECISION_SEAM",
+    "RULES_CORRECTNESS"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "P0 at 36 (4 rollover)",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "702.19b"
+      ]
+    },
+    {
+      "assertion": "blockers dead; Tyrant alive",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "704.5g"
+      ]
+    },
+    {
+      "assertion": "Tyrant under P1",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "control"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "510.1c (free chooser-division; no ordering step)",
+      "510.1e (legality check)",
+      "702.19b (trample: any compliant split legal; blockers-lethal-first only gates rollover)",
+      "704.5g (destroy)"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "OFFICIAL_RULES_DERIVED: constructed from Oracle text; no candidate output consulted."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "E02 AMEND_REQUIRED: Remove obsolete blocker-ordering Decision completely. Do not require/assert blocker-ordering step, two permutations, or externally selectable blocker-order option. Preserve declare attacker/defender, declare blockers, combat damage assignment where current Rules require player assignment, priority/pass. For Carnage Tyrant/Bear/Elves setup, selected assignment 2 to Bear, 1 to Elves, 4 to defending player may remain as concrete tested legal assignment if supported by RQ-C2 authority. Do not claim obsolete ordered-blocker prerequisite.",
+  "correction_source": "Sol High RQ-C3 E02 AMEND_REQUIRED + RQ-C2 L05 (510.1c/510.1e; no ordering) + L06 (702.19b compliant divisions)",
+  "decision_criticality": "BLOCKING",
+  "decision_kinds": [
+    "attackers",
+    "defender per attacker",
+    "blockers",
+    "combat damage assignment",
+    "pass"
+  ],
+  "execution_complexity": "MEDIUM",
+  "expected_rules_events": [
+    "ATTACK: Carnage Tyrant -> P0",
+    "DOUBLE_BLOCK: Bear + Elves assigned to Tyrant by P0",
+    "DAMAGE_ASSIGNMENT (702.19b-compliant chooser division): 2 to Bear (lethal), 1 to Elves (lethal), trample remainder 4 to P0 (scripted 2/1/4; no ordering step exists)",
+    "SBA: Bear + Elves destroyed; P0 takes 4"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "P0 life is 36 (4 trample rollover)",
+      "target": "life"
+    },
+    {
+      "assertion": "Bear and Elves in P0 graveyard; Tyrant alive with no damage marked (survived; blockers dealt 2+1=3 < 6)",
+      "target": "graveyards.P0"
+    },
+    {
+      "assertion": "Carnage Tyrant on battlefield under P1",
+      "target": "battlefield"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P1",
+      "chosen_option": "Carnage Tyrant -> P0",
+      "decision_kind": "attackers",
+      "legal_set_expectation": "Tyrant eligible; P0 legal defender",
+      "seq": 1
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "Bear + Elves block Tyrant",
+      "decision_kind": "blockers",
+      "legal_set_expectation": "both eligible blockers offered",
+      "seq": 2
+    },
+    {
+      "actor": "P1",
+      "chosen_option": "2 to Bear, 1 to Elves, 4 trample to P0",
+      "decision_kind": "combat damage assignment",
+      "legal_set_expectation": "702.19b-compliant division chosen (scripted 2/1/4); wider compliant set offerable",
+      "seq": 3
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "damage assignment",
+      "expectation": "damage split public to all (no ordering state)",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "VERY_HIGH",
+  "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+  "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+  "negative_controls": [
+    "NC-DECISION-REORDERED",
+    "NC-DECISION-WRONG-KIND",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P1",
+    "battlefield": [
+      {
+        "card": "Carnage Tyrant",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Runeclaw Bear",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Llanowar Elves",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": "HIDDEN:4",
+      "P1": "HIDDEN:3",
+      "P2": "HIDDEN:4",
+      "P3": "HIDDEN:4"
+    },
+    "known_private_information": [],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "DECLARE_ATTACKERS",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 7
+  },
+  "notes": "CORRECTED RQ-C3: obsolete seq-3 blocker-ordering Decision removed entirely (no such step in current CR; 510.1c is free division). No two-permutation offer. Retained: declare attacker/defender, declare blockers, 702.19b-compliant damage assignment (scripted 2/1/4 among compliant set), priority/pass. PRE_STEP_NATIVE_PROGRESSION preserved.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "8323c413c8577e1cc4378f181128fa169ecbf356",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "e57aa252f453fbad2d6dfabdefd9058536e8016a0827951e202548e4ecc93aee"
+  },
+  "parent_scenario_id": "RQ-C1-E02",
+  "player_count": 4,
+  "q6_provenance": "DEFERRED-relevant: no Q6 entry; constructed for the blockers/damage-assignment gap (Q6 COMBAT family background only).",
+  "reverses": [
+    "COMBAT: double-blocked 7/6 trampler with 702.19b-compliant division (2/1/4) and 4 rollover must compose exactly with no ordering prerequisite (falsifies ordering-required and damage-division-shortcut implementations)",
+    "DECISION_SEAM: declaration + compliant assignment must be explicit externally-selected options (no ordering option)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "510.1c/510.1e + 702.19b + 704.5g; RQ-C2 Q-E02 + Sol High RQ-C3 E02.",
+  "scenario_id": "RQ-C3-E02",
+  "semantic_objective": "Prove multi-blocker damage composition without ordering: a double-blocked 7/6 trampler with scripted 2/1/4 compliant division must destroy both blockers and roll 4 to the defender.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Double-blocked trampler compliant division and rollover (corrected: no ordering)"
+}

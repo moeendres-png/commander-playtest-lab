@@ -1,0 +1,246 @@
+{
+  "actual_cards": [
+    {
+      "name": "Control Magic",
+      "oracle_id": "cd0d7141-46d2-4aa3-bc77-6b3b4513803e",
+      "oracle_text": "Enchant creature\nYou control enchanted creature.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen as the minimal control-change Aura: ownership/control split plus leave-game cleanup in one card. Aethersnatch evaluated and REJECTED (ControlSpell exotic, Q6 manual-review; bespoke, not minimal).",
+      "role": "control-change under test"
+    },
+    {
+      "name": "Runeclaw Bear",
+      "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+      "oracle_text": "(Vanilla 2/2.)",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Neutral enchanted creature owned by P1.",
+      "role": "controlled creature"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "MULTIPLAYER",
+    "RULES_CORRECTNESS",
+    "ZONE_IDENTITY",
+    "NATIVE_IDENTITY",
+    "DECISION_SEAM"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "P0 left; P1/P2/P3 remain",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "104.3a",
+        "800.4a"
+      ]
+    },
+    {
+      "assertion": "Control Magic left with P0",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "800.4a"
+      ]
+    },
+    {
+      "assertion": "Bear under P1",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "800.4a example"
+      ]
+    },
+    {
+      "assertion": "zero triggers",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "800.4a"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "104.3a (concession always available)",
+      "800.4a (leaving-player cleanup + verbatim Mind Control example)",
+      "800.4b-d (confirmed non-triggering)",
+      "110.2/108.3 (owner fixed; default controller)"
+    ]
+  },
+  "authority_status": "AUTHORITY_GATE_REQUIRED",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "OFFICIAL_RULES_DERIVED: constructed from Oracle + leave-game rules; Argentum PlayerLeavesGameProcessor (800.4a-c/e-h, 2 simplifications) and XMage destructive-leave as background pressure only."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "G04 PROMOTE: Promote only exact RQ-C2-documented G04 assertions supported directly by CR 800.4a packet to EXTERNALLY_RULE_VALIDATED. Do not broaden scope. Candidate behavior remains untested.",
+  "correction_source": "Sol High RQ-C3 G04 PROMOTE + RQ-C2 Q_G04 packet (800.4a + verbatim Mind Control example)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "concession",
+    "pass"
+  ],
+  "execution_complexity": "HIGH",
+  "expected_rules_events": [
+    "PRIOR_STATE: Control Magic (P0) enchanting Runeclaw Bear (owned P1, controlled P0)",
+    "CONCESSION/LOSS: P0 leaves the game (scripted loss)",
+    "LEAVE_CLEANUP: all objects owned by P0 leave with P0 (incl. Control Magic Aura)",
+    "CONTROL_REVERTS: Bear (owned P1) remains under P1 control (Aura gone)",
+    "NO_ORPHANED_CONTROL: no object controlled by departed P0 remains",
+    "NO_TRIGGER_CREATED (Bear never changes zones; Aura leaving with owner is not battlefield-to-graveyard for any witness)"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "P0 has left the game; P1, P2, P3 remain",
+      "target": "players"
+    },
+    {
+      "assertion": "Control Magic has left the game with P0 (owner)",
+      "target": "exile-or-absent"
+    },
+    {
+      "assertion": "Runeclaw Bear on battlefield under P1 (owner) control",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "zero triggered abilities created for any principal",
+      "target": "trigger count"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P0",
+      "chosen_option": "leave the game (scripted loss/concession)",
+      "decision_kind": "concession",
+      "legal_set_expectation": "leaving the game is always available (no derived legality needed)",
+      "seq": 1
+    },
+    {
+      "actor": "ALL",
+      "chosen_option": "pass through cleanup verification",
+      "decision_kind": "pass",
+      "legal_set_expectation": "cleanup applied before continuing",
+      "seq": 2
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "post-cleanup ownership",
+      "expectation": "remaining control/ownership mapping public to all",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "VERY_HIGH",
+  "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-IDENTITY-STALE-FRAME",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P2",
+    "battlefield": [
+      {
+        "card": "Runeclaw Bear",
+        "controller": "P0",
+        "owner": "P1"
+      },
+      {
+        "card": "Control Magic (P0) enchanting Bear",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [
+      "CONTROL_MAGIC_CONTROL_CHANGE"
+    ],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": "HIDDEN:4",
+      "P1": "HIDDEN:4",
+      "P2": "HIDDEN:4",
+      "P3": "HIDDEN:4"
+    },
+    "known_private_information": [],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 8
+  },
+  "notes": "PROMOTED RQ-C3: exact Q_G04 packet assertions (800.4a + verbatim example) promoted to EXTERNALLY_RULE_VALIDATED by Sol High. Scope not broadened. Candidate behavior NOT_RUN. Fixture unchanged (NATURAL_GAME_START).",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "f55362e940db9bc0f541b9de3ffdc75504c4f4c6",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "3f430511a2d5aad69af77edfdc97c662454ede98c9e478b7fbb67ae983e6f430"
+  },
+  "parent_scenario_id": "RQ-C1-G04",
+  "player_count": 4,
+  "q6_provenance": "DEFERRED-relevant: no Q6 entry; Aethersnatch (Q6 manual-review ControlSpell) deliberately NOT reused.",
+  "reverses": [
+    "MULTIPLAYER: leave-game cleanup must remove leaver-owned objects and revert control of others-owned objects (falsifies destructive-leave-all and orphaned-control implementations)",
+    "NATIVE_IDENTITY: post-cleanup controller/owner mapping must be exact (falsifies identity confusion after player removal)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "800.4a (+ verbatim example) + 104.3a + 110.2/108.3; RQ-C2 Q_G04 packet + Sol High RQ-C3 G04.",
+  "scenario_id": "RQ-C3-G04",
+  "semantic_objective": "Prove leave-game cleanup with control revert: when the Control Magic controller leaves, the Aura leaves with them and the Bear stays under its owner.",
+  "status": "AUTHORITY_GATE_REQUIRED",
+  "title": "Control Magic controller leaves game"
+}

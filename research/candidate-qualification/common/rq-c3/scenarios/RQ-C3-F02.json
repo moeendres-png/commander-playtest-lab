@@ -1,0 +1,252 @@
+{
+  "actual_cards": [
+    {
+      "name": "Duress",
+      "oracle_id": "33d405ea-7a9a-4970-b70f-9c05d90dd6f0",
+      "oracle_text": "Target opponent reveals their hand. You choose a noncreature, nonland card from it. That player discards that card.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen because look-at-hand plus chooser-picks-discard fuses observation scoping with hidden-zone selection. No simpler card does both.",
+      "role": "look + hidden-choice discard"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "HIDDEN_INFO",
+    "DECISION_SEAM",
+    "RULES_CORRECTNESS"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "chosen in P1 graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "701.9a"
+      ]
+    },
+    {
+      "assertion": "hand hidden again + retained knowledge usable (not leak)",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "701.20a"
+      ]
+    },
+    {
+      "assertion": "Duress in P0 graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "resolution"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "701.20a (reveal to ALL)",
+      "701.9a/701.9b (discard)"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "OFFICIAL_RULES_DERIVED: constructed from Oracle text; no candidate output consulted."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "F02 AMEND_REQUIRED: Duress reveals chosen player's hand public to ALL while it occurs (701.20a). Correct checkpoints: before reveal target hand private except owner/authorized; during reveal public; after effect hand hidden again; legitimately acquired knowledge remains usable and must NOT be classified as provider leak merely because observers remember it. Do not claim only controller sees revealed hand.",
+  "correction_source": "Sol High RQ-C3 F02 AMEND_REQUIRED + RQ-C2 L08 (701.20a; no memory-wipe)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "cast",
+    "targets",
+    "hidden-zone selection",
+    "reveal",
+    "discard",
+    "mana payment",
+    "pass"
+  ],
+  "execution_complexity": "LOW",
+  "expected_rules_events": [
+    "CAST Duress targeting P1",
+    "REVEAL: P1 hand revealed PUBLIC TO ALL players during resolution (701.20a)",
+    "HIDDEN_SELECTION by P0: noncreature nonland card (scripted: Noncreature Spell)",
+    "DISCARD: chosen card P1 hand -> P1 graveyard",
+    "REVEAL_ENDS: remaining hand is a hidden zone again; legitimately acquired knowledge remains usable player knowledge for P0/P2/P3 (not a provider leak)"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "chosen noncreature nonland card in P1 graveyard",
+      "target": "graveyards.P1"
+    },
+    {
+      "assertion": "P1 remaining hand is a hidden zone again after resolution; identities legitimately observed during public reveal remain usable knowledge for P0/P2/P3 (retained memory is NOT a leak)",
+      "target": "hands.P1"
+    },
+    {
+      "assertion": "Duress in P0 graveyard",
+      "target": "graveyards.P0"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P0",
+      "chosen_option": "Duress -> P1",
+      "decision_kind": "cast",
+      "legal_set_expectation": "P1 is a legal opponent target",
+      "seq": 1
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "the noncreature nonland card",
+      "decision_kind": "hidden-zone selection",
+      "legal_set_expectation": "only noncreature nonland cards offered (Bear/land excluded)",
+      "seq": 2
+    }
+  ],
+  "first_wave": false,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "before reveal",
+      "expectation": "P1 hand identities private except to owner P1 and otherwise authorized principals",
+      "principal": "P1"
+    },
+    {
+      "checkpoint": "during reveal",
+      "expectation": "P1 hand identities PUBLIC TO ALL players while revealed (701.20a)",
+      "principal": "ALL"
+    },
+    {
+      "checkpoint": "after reveal effect finishes",
+      "expectation": "hand is a hidden zone again; retained legitimately-acquired knowledge remains usable and must NOT be classified as provider leak",
+      "principal": "ALL"
+    },
+    {
+      "checkpoint": "security scope",
+      "expectation": "provider leakage concerns unauthorized disclosure, not human memory erasure; pilots must NOT be required to forget legitimately observed identities",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "HIGH",
+  "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-HIDDEN-HAND-LEAK",
+    "NC-HIDDEN-PLANTED-LEAK",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P0",
+    "battlefield": [
+      {
+        "card": "Swamp",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": [
+        "Duress"
+      ],
+      "P1": [
+        "Runeclaw Bear (creature)",
+        "Forest (land)",
+        "Noncreature Spell (noncreature nonland)"
+      ]
+    },
+    "known_private_information": [
+      {
+        "fact": "Duress in P0 hand",
+        "known_to": [
+          "P0"
+        ]
+      },
+      {
+        "fact": "P1 hand identities (scripted construction)",
+        "known_to": [
+          "P1"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 2
+  },
+  "notes": "CORRECTED RQ-C3: 'revealed TO P0 ONLY' retired as contradicted (701.20a). P2/P3 observe full identities during reveal. Post-resolution amnesia retired (no memory-wipe rule). Contrast J03 (no-reveal random discard) preserved.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "f2d3100c6f45376752e1c03a8c6892387ecf305d",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "567f784199de3e0bb3cfae9a6564e2500cbe5bdd24371d4afbf6102e563f403e"
+  },
+  "parent_scenario_id": "RQ-C1-F02",
+  "player_count": 4,
+  "q6_provenance": "DEFERRED-relevant: no Q6 entry; constructed for the look-at-private plus hidden-choice gap.",
+  "reverses": [
+    "HIDDEN_INFO: reveal-to-ALL during resolution plus hidden-again after with retained usable knowledge (falsifies reveal-to-one and sticky-visibility or forced-amnesia implementations)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "Oracle reveal/choose/discard; 701.20a publicity + no-memory-wipe; RQ-C2 Q-F02 + Sol High RQ-C3 F02.",
+  "scenario_id": "RQ-C3-F02",
+  "semantic_objective": "Prove public reveal with privacy restoration: Duress must show P1's hand to ALL during resolution, discard the chosen card, return the zone to hidden, and preserve retained knowledge as usable (not a leak).",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Duress public reveal and retained knowledge (corrected: reveal to ALL)"
+}

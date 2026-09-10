@@ -1,0 +1,258 @@
+{
+  "actual_cards": [
+    {
+      "name": "Drudge Skeletons",
+      "oracle_id": "c180ed02-07f4-4538-9bea-8c249234a8e2",
+      "oracle_text": "{B}: Regenerate this creature. (The next time this creature would be destroyed this turn, instead tap it, remove it from combat, and heal all damage on it.)",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen because regeneration is the canonical optional replacement shield with an activation cost; no simpler card carries both properties.",
+      "role": "regeneration shield under test"
+    },
+    {
+      "name": "Lightning Bolt",
+      "oracle_id": "4457ed35-7c10-48c8-9776-456485fdf070",
+      "oracle_text": "Lightning Bolt deals 3 damage to any target.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Minimal 3-damage source, lethal to a 1/1.",
+      "role": "lethal damage source"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "REPLACEMENT",
+    "COSTS_MANA",
+    "DECISION_SEAM",
+    "RULES_CORRECTNESS"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "Skeletons tapped zero damage",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "701.19a"
+      ]
+    },
+    {
+      "assertion": "Swamp tapped for {B}",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "activation"
+      ]
+    },
+    {
+      "assertion": "Bolt in P1 graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "resolution"
+      ]
+    },
+    {
+      "assertion": "life unchanged",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "replacement"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "701.19 (Regenerate; replaces stale 702.13=Intimidate)",
+      "701.19a (shield replaces destruction automatically once created)",
+      "616.1 (choice only among 2+ applicable effects)",
+      "614.4 (shield timing)"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "OFFICIAL_RULES_DERIVED: constructed from Oracle reminder text; no candidate output consulted."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "A03 AMEND_REQUIRED: Remove fabricated second may/yes-no Decision for applying already-created regeneration shield. Discretionary choice is activation + cost payment. Once valid regeneration effect exists and destruction would occur, replacement applies per Rules (701.19a+616.1). Remove 'yes, apply shield at destruction' and expectation both apply/decline offered at destruction. Retain bounded Decision-seam for activation, mana/payment, priority/pass, target/cast of opposing spell. Do not turn replacement application into external pilot Decision.",
+  "correction_source": "Sol High RQ-C3 A03 AMEND_REQUIRED + RQ-C2 L04 (701.19a+616.1) + L03 (702.13->701.19)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "cast",
+    "targets",
+    "mana payment",
+    "activate",
+    "mana source",
+    "pass"
+  ],
+  "execution_complexity": "LOW",
+  "expected_rules_events": [
+    "CAST Lightning Bolt targeting Drudge Skeletons",
+    "ACTIVATE regeneration {B} in response (shield created; discretionary activation + payment)",
+    "RESOLUTION: 3 damage would destroy the 1/1",
+    "REPLACEMENT_APPLIED automatically (no external Decision; 701.19a): instead tap it, remove all damage",
+    "NO_ZONE_CHANGE (stays on battlefield)",
+    "NO_TRIGGER_CREATED"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "Drudge Skeletons is on battlefield tapped with zero damage marked",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "one P0 Swamp tapped for the {B} activation (mana paid)",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "Lightning Bolt is in P1 graveyard",
+      "target": "graveyards.P1"
+    },
+    {
+      "assertion": "all life totals unchanged",
+      "target": "life"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P1",
+      "chosen_option": "Lightning Bolt -> Drudge Skeletons",
+      "decision_kind": "cast",
+      "legal_set_expectation": "Bolt castable; Skeletons a legal target",
+      "seq": 1
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "activate regenerate, pay {B}",
+      "decision_kind": "activate",
+      "legal_set_expectation": "activation offered in response; {B} payable",
+      "seq": 2
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "pre-activation",
+      "expectation": "no private information beyond hands",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "HIGH",
+  "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-IDENTITY-STALE-FRAME",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P1",
+    "battlefield": [
+      {
+        "card": "Drudge Skeletons",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Swamp",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Mountain",
+        "controller": "P1",
+        "owner": "P1"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": "HIDDEN:3",
+      "P1": [
+        "Lightning Bolt"
+      ]
+    },
+    "known_private_information": [
+      {
+        "fact": "Lightning Bolt in P1 hand",
+        "known_to": [
+          "P1"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 4
+  },
+  "notes": "CORRECTED RQ-C3: fabricated seq-3 may/decline shield-application offer removed (automatic per 701.19a; 616.1 needs 2+ effects). Discretionary surface is activation + {B} payment (+ standard cast/target/priority/pass). Citation 702.13 retired (Intimidate) in favor of 701.19.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "d552bfe31a02a8a98829d111e2d1f5ecb6f53320",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "81c60315ba328155bf2495f4591152e0f583d163d37f02d7e4df5953a75a4951"
+  },
+  "parent_scenario_id": "RQ-C1-A03",
+  "player_count": 4,
+  "q6_provenance": "SELECTED: prevention-adjudication family (Regenerate verb, Q6 census) as discovery pointer; no Q6 card-level entry reused.",
+  "reverses": [
+    "REPLACEMENT: regeneration shield must be offered as activation with cost, then applied automatically as replacement (falsifies auto-pick without offer and may-at-destruction implementations)",
+    "COSTS_MANA: {B} activation payment must route through mana source selection"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "701.19 (replaces 702.13) + 701.19a + 616.1 + 614.4; RQ-C2 Q-A03 + Sol High RQ-C3 A03.",
+  "scenario_id": "RQ-C3-A03",
+  "semantic_objective": "Prove optional replacement with cost: activating Drudge Skeletons regeneration in response to lethal damage taps and heals it instead of destroying it.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Regeneration shield as automatic replacement (corrected: no may at destruction)"
+}

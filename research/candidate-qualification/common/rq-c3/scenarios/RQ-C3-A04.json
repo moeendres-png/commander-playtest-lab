@@ -1,0 +1,278 @@
+{
+  "actual_cards": [
+    {
+      "name": "Doubling Season",
+      "oracle_id": "01546b7d-a233-4176-8843-d732074dc5b6",
+      "oracle_text": "If an effect would create one or more tokens under your control, it creates twice that many of those tokens instead.\nIf an effect would put one or more counters on a permanent you control, it puts twice that many of those counters on that permanent instead.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen as one of two simultaneously-applicable counter replacements; pairing is the point, neither card alone suffices.",
+      "role": "replacement effect 1"
+    },
+    {
+      "name": "Hardened Scales",
+      "oracle_id": "a1f3da21-af6d-450e-bf0b-985d158418e6",
+      "oracle_text": "If one or more +1/+1 counters would be put on a creature you control, that many plus one +1/+1 counters are put on it instead.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen as the second applicable replacement; its +1 shape makes the two application orders arithmetically divergent (8 vs 7).",
+      "role": "replacement effect 2"
+    },
+    {
+      "name": "Stonecoil Serpent",
+      "oracle_id": "78124cd1-2658-43f3-a339-0755d84154d2",
+      "oracle_text": "Reach, trample, protection from multicolored\nThis creature enters with X +1/+1 counters on it.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen because it enters with X counters on a single generic-mana cost: the cleanest counter-entry vehicle with a choosable X. A fixed-counters creature would not test X payment.",
+      "role": "counter-entry vehicle, X=3"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "REPLACEMENT",
+    "DECISION_SEAM",
+    "COSTS_MANA",
+    "RULES_CORRECTNESS"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "Stonecoil Serpent is 8/8 (0/0 base + eight +1/+1 counters)",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    },
+    {
+      "assertion": "exactly 8 +1/+1 counters on the Serpent",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    },
+    {
+      "assertion": "both enchantments remain on battlefield",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "note": "DIRECT per RQ-C2 Q-A04; Doubling Season ruling",
+    "rules": [
+      "616.1",
+      "616.1e/f",
+      "614.1c",
+      "601.2b"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "CLEAN_ROOM_DERIVED_CASE_IDEA: Q6 Doubling Season routing entry (RULES_ADJUDICATION_REQUIRED, REPLACEMENT_EFFECT) as discovery pointer only."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "No semantic correction: carry forward RQ-C1 semantics unchanged via execution-manifest layer; Sol High item-10 batch promotion applies to exact RQ-C2-verified claims. ",
+  "correction_source": "CARRY_FORWARD_UNCHANGED (no RQ-C2/Sol correction; item-10 promotion Q-A04)",
+  "decision_criticality": "BLOCKING",
+  "decision_kinds": [
+    "cast",
+    "X",
+    "mana source",
+    "mana payment",
+    "replacement ordering",
+    "pass"
+  ],
+  "execution_complexity": "MEDIUM",
+  "expected_rules_events": [
+    "CAST Stonecoil Serpent with X=3 (3 generic mana paid)",
+    "ENTRY_EVENT: 3 +1/+1 counters would be put",
+    "REPLACEMENT_ORDERING_OFFERED with exactly 2 legal orders",
+    "CHOSEN: Hardened Scales first (3+1=4), then Doubling Season (4*2=8)",
+    "COUNTERS_PLACED: 8 +1/+1 counters",
+    "ALTERNATIVE_ORDER_RECORDED (Season-then-Scales would give 7; not chosen)"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "Stonecoil Serpent is 8/8 (0/0 base + eight +1/+1 counters)",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "exactly 8 +1/+1 counters on the Serpent",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "both enchantments remain on battlefield",
+      "target": "battlefield"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P0",
+      "chosen_option": "Stonecoil Serpent, X=3",
+      "decision_kind": "X",
+      "legal_set_expectation": "X in 0..available-mana; scripted X=3",
+      "seq": 1
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "3 generic mana from untapped lands",
+      "decision_kind": "mana payment",
+      "legal_set_expectation": "at least one legal payment route",
+      "seq": 2
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "Hardened Scales first, then Doubling Season",
+      "decision_kind": "replacement ordering",
+      "legal_set_expectation": "exactly 2 legal orders, arithmetically divergent (8 vs 7)",
+      "seq": 3
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "ordering offer",
+      "expectation": "both orders visible to all; no private information",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "VERY_HIGH",
+  "legal_reuse_class": "CLEAN_ROOM_DERIVED_CASE_IDEA",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-DECISION-WRONG-KIND",
+    "NC-IDENTITY-STALE-FRAME",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P0",
+    "battlefield": [
+      {
+        "card": "Doubling Season",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Hardened Scales",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Forest",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Forest",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Forest",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [
+      "DOUBLING_SEASON",
+      "HARDENED_SCALES"
+    ],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": [
+        "Stonecoil Serpent"
+      ],
+      "P1": "HIDDEN:4",
+      "P2": "HIDDEN:4",
+      "P3": "HIDDEN:4"
+    },
+    "known_private_information": [
+      {
+        "fact": "Stonecoil Serpent in P0 hand",
+        "known_to": [
+          "P0"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 8
+  },
+  "notes": "Board established through native plays. The two orders MUST both be offered (cardinality 2 asserted); choosing Scales-first gives 8 counters. Tests the affected-controller orders rule with divergent arithmetic so order is observable. Adaptable to any player count (idle principals observe).",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "356d92e3da188f1614fd5c150655333edd0c3541",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "c346aa91f2708b81540af1b933a546536ee9a0a42b02b9208f054e05196eafd9"
+  },
+  "parent_scenario_id": "RQ-C1-A04",
+  "player_count": 4,
+  "q6_provenance": "SELECTED: Q6 Doubling Season routing entry as discovery pointer; zero behavior credit.",
+  "reverses": [
+    "REPLACEMENT: multiple applicable replacements must be explicitly ordered by the affected controller (falsifies silent auto-pick such as XMage GUI-coupled replacement auto-pick and Argentum INDEX replacement-order without offer)",
+    "DECISION_SEAM: ordering decision with divergent observable outcome must appear as an engine-authorized option set of size 2"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "Oracle replacement sentences + affected-controller ordering rule; arithmetic divergence (8 vs 7) is mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+  "scenario_id": "RQ-C3-A04",
+  "semantic_objective": "Prove multiple-replacement ordering with divergent results: with Doubling Season and Hardened Scales out, Stonecoil Serpent (X=3) must offer both application orders and place 8 counters on the scripted Scales-first order.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Two counter replacements with divergent orders"
+}

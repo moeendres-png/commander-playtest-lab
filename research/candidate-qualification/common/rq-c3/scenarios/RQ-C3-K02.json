@@ -1,0 +1,266 @@
+{
+  "actual_cards": [
+    {
+      "name": "Clone",
+      "oracle_id": "42226b87-0746-4ebf-9fd0-108d508462af",
+      "oracle_text": "You may have this creature enter as a copy of any creature on the battlefield.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). INTENTIONAL reuse (complementary per XHIGH adjudication): here copy meets the legend rule (SBA), not layers (contrast H01) orPSC triggers (contrast D04).",
+      "role": "legend-rule copy under test"
+    },
+    {
+      "name": "Ghalta, Stampede Tyrant",
+      "oracle_id": "b8f16311-be5a-4648-b024-849a61dff0bc",
+      "oracle_text": "Trample\nWhen Ghalta enters, put any number of creature cards from your hand onto the battlefield. (12/12 legendary.)",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Legendary original (hand empty: ETB declined for both original earlier and copy now).",
+      "role": "legendary original"
+    },
+    {
+      "name": "Blood Artist",
+      "oracle_id": "310f141c-7f37-4729-aed6-dd9c09db448d",
+      "oracle_text": "Whenever this creature or another creature dies, target player loses 1 life and you gain 1 life.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Witness for the dies-fire question: if legend-rule transit fires dies, Artist triggers.",
+      "role": "dies-fire witness"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "RULES_CORRECTNESS",
+    "ZONE_IDENTITY",
+    "DECISION_SEAM"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "two Ghaltas coexist; no transit",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "704.5j"
+      ]
+    },
+    {
+      "assertion": "zero Artist triggers",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "700.4",
+        "603.10"
+      ]
+    },
+    {
+      "assertion": "variant: one dies + one Artist trigger + kept remains",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "704.5j",
+        "700.4",
+        "603.3d"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "704.5j (legend rule same-controller only)",
+      "700.4 (dies = battlefield-to-graveyard, no legend exception)",
+      "704.3 (SBA timing)",
+      "603.10/603.10a (simultaneous-death visibility)",
+      "614.1c/707.2 (Clone copy)"
+    ]
+  },
+  "authority_status": "AUTHORITY_GATE_REQUIRED",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "OFFICIAL_RULES_DERIVED: constructed from Oracle + legend-rule/dies definitions; no candidate output consulted."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "K02 PROMOTE: Promote only exact RQ-C2-documented K02 assertions supported by documented current CR 704.5j/700.4 packet to EXTERNALLY_RULE_VALIDATED. Do not broaden scope. Candidate behavior remains untested.",
+  "correction_source": "Sol High RQ-C3 K02 PROMOTE + RQ-C2 Q_K02 packet (704.5j + 700.4 + 603.10/603.10a)",
+  "decision_criticality": "MEDIUM",
+  "decision_kinds": [
+    "cast",
+    "copy choices",
+    "pass"
+  ],
+  "execution_complexity": "MEDIUM",
+  "expected_rules_events": [
+    "GHALTA on battlefield under P1 (established natively)",
+    "CAST Clone by P0; COPY_CHOICE: enter as Ghalta",
+    "LEGEND_RULE_SBA: two legendary permanents same name controlled by DIFFERENT players -> NO legend action (same-controller only, 704.5j)",
+    "ASSERTED_NON_EVENT: no legend-rule transit occurs; Clone-Ghalta and Ghalta coexist",
+    "GHALTA_ETB (copy): zero creatures put (P0 hand empty)",
+    "GATED_VARIANT (PROMOTED reading, separate run): same-controller Clone of own legend -> 704.5j transit to graveyard counts as dies per 700.4 (no exception); Blood Artist witness fires exactly once (controller = Artist controller; target chosen at stacking per 603.3d)"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "two Ghaltas coexist (P0 copy + P1 original); no SBA transit",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "zero Blood Artist triggers (nothing died)",
+      "target": "trigger count"
+    },
+    {
+      "assertion": "GATED_VARIANT: exactly one dies event from legend transit; exactly one Artist trigger by its controller with legally chosen target; kept permanent remains per 704.5j choice",
+      "target": "gated-variant"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P0",
+      "chosen_option": "enter as copy of Ghalta",
+      "decision_kind": "copy choices",
+      "legal_set_expectation": "Ghalta offered as copy option",
+      "seq": 1
+    },
+    {
+      "actor": "ALL",
+      "chosen_option": "pass; no legend action across different controllers",
+      "decision_kind": "pass",
+      "legal_set_expectation": "same-controller-only legend gating",
+      "seq": 2
+    }
+  ],
+  "first_wave": false,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "legend check",
+      "expectation": "controller mapping and no-transit outcome public",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "HIGH",
+  "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P0",
+    "battlefield": [
+      {
+        "card": "Ghalta, Stampede Tyrant",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Blood Artist",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": [
+        "Clone"
+      ]
+    },
+    "known_private_information": [
+      {
+        "fact": "Clone in P0 hand",
+        "known_to": [
+          "P0"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 9
+  },
+  "notes": "PROMOTED RQ-C3: exact Q_K02 packet assertions promoted (cross-controller coexistence + zero triggers; same-controller transit=dies with Artist once). Rejected readings (a)/(b) recorded as rejected, not executed. Scope not broadened. Candidate behavior NOT_RUN.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "3dd26476348ec08bfadaca813ae8ccc3874c24b7",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "c3e684e68dfb14d7ae1a59bde99713fa3d80120585bc0b6660aa889b78fc7f3e"
+  },
+  "parent_scenario_id": "RQ-C1-K02",
+  "player_count": 4,
+  "q6_provenance": "DEFERRED-relevant: no Q6 entry; Clone INTENTIONAL reuse complementary to H01 (layers) and D04 (trigger).",
+  "reverses": [
+    "RULES_CORRECTNESS: legend rule must gate on same-controller (falsifies cross-controller legend transit and spurious dies triggers)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "704.5j + 700.4 + 603.10/603.10a + 614.1c/707.2; RQ-C2 Q_K02 packet + Sol High RQ-C3 K02.",
+  "scenario_id": "RQ-C3-K02",
+  "semantic_objective": "Prove legend-rule controller gating: Clone copying an opponent's Ghalta must coexist with it, with no transit and no dies triggers.",
+  "status": "AUTHORITY_GATE_REQUIRED",
+  "title": "Clone across controllers: no legend transit"
+}

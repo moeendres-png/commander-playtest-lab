@@ -1,0 +1,251 @@
+{
+  "actual_cards": [
+    {
+      "name": "Propaganda",
+      "oracle_id": "ea9709b6-4c37-4d5a-b04d-cd4c42e4f9dd",
+      "oracle_text": "Creatures can't attack you unless their controller pays {2} for each creature they control that's attacking you.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen as the per-creature-per-defender attack cost: the multi-defender cost axis. Q6 READY entry (mechanical readiness only).",
+      "role": "attack-cost restriction"
+    },
+    {
+      "name": "Runeclaw Bear",
+      "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+      "oracle_text": "(Vanilla 2/2.)",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Neutral attacker bodies.",
+      "role": "attackers (2 copies)"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "COMBAT",
+    "MULTIPLAYER",
+    "COSTS_MANA",
+    "DECISION_SEAM"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "P0 and P2 life are 38 each",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    },
+    {
+      "assertion": "{2} paid for the P0-bound attacker; nothing paid for the P2-bound attacker",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    },
+    {
+      "assertion": "both Bears tapped and attacking-survived",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "508.1c/g/h/j"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "CLEAN_ROOM_DERIVED_CASE_IDEA: Q6 Propaganda routing entry (READY mechanical-readiness only) as discovery pointer."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "No semantic correction: carry forward RQ-C1 semantics unchanged via execution-manifest layer; Sol High item-10 batch promotion applies to exact RQ-C2-verified claims. ",
+  "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-E01)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "attackers",
+    "defender per attacker",
+    "mana payment",
+    "pass"
+  ],
+  "execution_complexity": "MEDIUM",
+  "expected_rules_events": [
+    "DECLARE_ATTACKERS: P1 attacks P0 (Propaganda) with Bear-A and P2 (no Propaganda) with Bear-B",
+    "COST: {2} paid for Bear-A (per-creature Propaganda tax); zero for Bear-B",
+    "DEFENDER_MAPPING: Bear-A -> P0, Bear-B -> P2 recorded per attacker",
+    "NO_BLOCKERS declared; DAMAGE: P0 takes 2, P2 takes 2"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "P0 and P2 life are 38 each",
+      "target": "life"
+    },
+    {
+      "assertion": "{2} paid for the P0-bound attacker; nothing paid for the P2-bound attacker",
+      "target": "mana paid"
+    },
+    {
+      "assertion": "both Bears tapped and attacking-survived",
+      "target": "battlefield"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P1",
+      "chosen_option": "Bear-A -> P0, Bear-B -> P2",
+      "decision_kind": "attackers",
+      "legal_set_expectation": "both Bears eligible; P0 and P2 legal defenders",
+      "seq": 1
+    },
+    {
+      "actor": "P1",
+      "chosen_option": "pay {2} for Bear-A attacking P0",
+      "decision_kind": "mana payment",
+      "legal_set_expectation": "Propaganda tax offered per P0-bound creature; unpaid P0-bound attackers illegal",
+      "seq": 2
+    },
+    {
+      "actor": "ALL",
+      "chosen_option": "no blockers; pass to damage",
+      "decision_kind": "pass",
+      "legal_set_expectation": "blocker pass offered to each defender",
+      "seq": 3
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "attack legality",
+      "expectation": "defender mapping and per-creature tax public to all",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "HIGH",
+  "legal_reuse_class": "CLEAN_ROOM_DERIVED_CASE_IDEA",
+  "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+  "negative_controls": [
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P1",
+    "battlefield": [
+      {
+        "card": "Propaganda",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Runeclaw Bear",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Runeclaw Bear",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Island",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Island",
+        "controller": "P1",
+        "owner": "P1"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [
+      "PROPAGANDA_P0"
+    ],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": "HIDDEN:4",
+      "P1": "HIDDEN:3",
+      "P2": "HIDDEN:4",
+      "P3": "HIDDEN:4"
+    },
+    "known_private_information": [],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "DECLARE_ATTACKERS",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 5
+  },
+  "notes": "Setup boundary is PRE_STEP native progression (WS50-demonstrated): turn progressed natively to the declare-attackers step with attackers still undeclared. Requires 3+ players for multi-defender depth; 4P primary. P3 idle observer.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "4ff1531a770b70f579f5386024ac5a4b0e6b355b",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "2bf1ee8a0e3abe3d90ad92a96ee9f14ce842f08f0ad4db122ad2bc50c7bf0122"
+  },
+  "parent_scenario_id": "RQ-C1-E01",
+  "player_count": 4,
+  "q6_provenance": "SELECTED: Q6 Propaganda routing entry (READY mechanical-readiness only, zero behavior credit) as discovery pointer.",
+  "reverses": [
+    "COMBAT: per-attacker defender mapping with per-creature-per-defender costs must hold across multiple defenders (falsifies single-defender combat and adapter-required attacker mapping gaps)",
+    "COSTS_MANA: unpaid taxed attackers must be illegal, untaxed ones legal"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "Oracle attack-restriction sentence; per-creature payment and defender mapping proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+  "scenario_id": "RQ-C3-E01",
+  "semantic_objective": "Prove multi-defender attack legality: two Bears attacking two different opponents with Propaganda on one must pay {2} for the taxed attacker only.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Propaganda multi-defender attack tax"
+}

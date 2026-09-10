@@ -1,0 +1,334 @@
+{
+  "actual_cards": [
+    {
+      "name": "Force of Will",
+      "oracle_id": "956381ba-6d37-4a8a-846c-bad79222dbee",
+      "oracle_text": "You may pay 1 life and exile a blue card from your hand rather than pay this spell's mana cost.\nCounter target spell.",
+      "provenance": "RQ-C2 SCRYFALL_CROSSCHECK_CONSISTENT + Sol High RQ-C3 C01 direction; alternate-cost fork under test.",
+      "role": "alternate-cost fork under test"
+    },
+    {
+      "name": "Llanowar Elves",
+      "oracle_id": "68954295-54e3-4303-a6bc-fc4547a4e3a3",
+      "oracle_text": "{T}: Add {G}.",
+      "provenance": "RQ-C2 crosscheck; neutral creature spell to be countered.",
+      "role": "counter target"
+    },
+    {
+      "name": "Turn to Frog",
+      "oracle_id": "74c4c1e2-c50d-4c8f-889a-0d5674dc6d67",
+      "oracle_text": "Until end of turn, target creature loses all abilities and becomes a blue Frog with base power and toughness 1/1.",
+      "provenance": "RQ-C2 ORACLE_TEXT_VERIFIED (Gatherer https://gatherer.wizards.com/CLU/en-us/103/turn-to-frog); blue nonland pitch fuel per Sol High RQ-C3 C01 direction. Color blue via {1}{U} per CR 105.2.",
+      "role": "blue nonland pitch fuel (exiled as alternate cost; card text not invoked)"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "COSTS_MANA",
+    "DECISION_SEAM",
+    "RULES_CORRECTNESS"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "P0 life is 39",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "118.9"
+      ]
+    },
+    {
+      "assertion": "Turn to Frog exiled; Force in graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "118.9",
+        "105.2"
+      ]
+    },
+    {
+      "assertion": "Elves countered to P1 graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "counter Oracle"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "oracle": {
+      "Force of Will": {
+        "note": "SCRYFALL_CROSSCHECK_CONSISTENT in RQ-C2; alternate-cost sentence authoritative for fork",
+        "oracle_id": "956381ba-6d37-4a8a-846c-bad79222dbee"
+      },
+      "Llanowar Elves": {
+        "oracle_id": "68954295-54e3-4303-a6bc-fc4547a4e3a3"
+      },
+      "Turn to Frog": {
+        "color": "blue via {1}{U} per 105.2 (nonland Instant)",
+        "mana_cost": "{1}{U}",
+        "official_page": "https://gatherer.wizards.com/CLU/en-us/103/turn-to-frog",
+        "oracle_id": "74c4c1e2-c50d-4c8f-889a-0d5674dc6d67",
+        "oracle_text": "Until end of turn, target creature loses all abilities and becomes a blue Frog with base power and toughness 1/1.",
+        "type_line": "Instant",
+        "verification_status": "ORACLE_TEXT_VERIFIED"
+      }
+    },
+    "rules": [
+      "118.9 (alternative costs)",
+      "601.2b (announce intentions; replaces stale 602)",
+      "105.2 (blue via mana-cost symbols; Island colorless)",
+      "305.6 (Island ability confers no color)",
+      "601.2a (stack/target publicity)"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "CLEAN_ROOM_DERIVED_CASE_IDEA: Q6 Force of Will routing entry (READY_FOR_RUNTIME_QUALIFICATION, mechanical readiness only) as discovery pointer."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "C01 AMEND_REQUIRED: Island is colorless (105.2+305.6) and cannot be exiled as Force of Will pitch. Corrected fixture must preserve both payment routes genuinely legal: (1) normal 3UU via enough untapped mana sources; (2) alternate 1 life + exile a blue nonland card from hand. Five untapped Islands acceptable as mana sources (NOT pitch). Force of Will in P0 hand; separate genuinely BLUE NONLAND card in P0 hand; P1 casting valid target spell; no external legality reconstruction. Execution script must distinguish NORMAL_COST_AVAILABLE and ALTERNATE_COST_AVAILABLE then choose alternate. Pitch-card selection is hidden-zone decision until exiled. Retire every assertion stating Island itself is blue.",
+  "correction_source": "Sol High RQ-C3 C01 AMEND_REQUIRED + RQ-C2 L02 (105.2+305.6) + L01 (118.9/601.2b)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "cast",
+    "targets",
+    "alternate cost",
+    "hidden-zone selection",
+    "mana source",
+    "mana payment",
+    "pass"
+  ],
+  "execution_complexity": "LOW",
+  "expected_rules_events": [
+    "CAST Llanowar Elves by P1 (on stack)",
+    "CAST Force of Will by P0 targeting Elves-spell",
+    "NORMAL_COST_AVAILABLE: 3UU payable via five untapped Islands (mana-source route genuinely legal)",
+    "ALTERNATE_COST_AVAILABLE: pay 1 life + exile a blue nonland card from hand (118.9)",
+    "ALTERNATE_COST_CHOSEN: P0 chooses pitch route",
+    "COST_PAID: life 40->39, Turn to Frog (blue nonland) exiled from hand",
+    "RESOLUTION: Elves-spell countered -> P1 graveyard"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "P0 life is 39",
+      "target": "life"
+    },
+    {
+      "assertion": "Turn to Frog (blue nonland) from P0 hand is in exile; Force of Will in P0 graveyard",
+      "target": "exile"
+    },
+    {
+      "assertion": "Llanowar Elves spell countered to P1 graveyard (never entered)",
+      "target": "graveyards.P1"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P1",
+      "chosen_option": "Llanowar Elves",
+      "decision_kind": "cast",
+      "legal_set_expectation": "Elves castable",
+      "seq": 1
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "Force of Will -> Elves-spell",
+      "decision_kind": "cast",
+      "legal_set_expectation": "Force castable; Elves-spell a legal target",
+      "seq": 2
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "ALTERNATE_COST_AVAILABLE chosen over NORMAL_COST_AVAILABLE (both genuinely legal)",
+      "decision_kind": "alternate cost",
+      "legal_set_expectation": "NORMAL_COST_AVAILABLE: 3UU payable via five untapped Islands; ALTERNATE_COST_AVAILABLE: 1 life + exile blue nonland card; scripted choice is alternate route",
+      "seq": 3
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "Turn to Frog (blue nonland) from hand",
+      "decision_kind": "hidden-zone selection",
+      "legal_set_expectation": "a blue nonland card in hand must be selectable for exile (hidden-zone selection; Island is colorless and NOT offered)",
+      "seq": 4
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "pitch selection (hidden-zone decision)",
+      "expectation": "Turn to Frog identity known only to P0 until exile; exile is public after",
+      "principal": "P0"
+    },
+    {
+      "checkpoint": "stack knowledge",
+      "expectation": "both spells and Force target public to all",
+      "principal": "ALL"
+    },
+    {
+      "checkpoint": "mana-source availability",
+      "expectation": "five untapped Islands and both cost routes public to all (no hidden legality)",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "HIGH",
+  "legal_reuse_class": "CLEAN_ROOM_DERIVED_CASE_IDEA",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-HIDDEN-HAND-LEAK",
+    "NC-DECISION-WRONG-KIND",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P1",
+    "battlefield": [
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0",
+        "tapped": false
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0",
+        "tapped": false
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0",
+        "tapped": false
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0",
+        "tapped": false
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0",
+        "tapped": false
+      },
+      {
+        "card": "Forest",
+        "controller": "P1",
+        "owner": "P1"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": [
+        "Force of Will",
+        "Turn to Frog (blue nonland pitch card)"
+      ],
+      "P1": [
+        "Llanowar Elves"
+      ]
+    },
+    "known_private_information": [
+      {
+        "fact": "Force of Will + Turn to Frog (blue nonland) in P0 hand",
+        "known_to": [
+          "P0"
+        ]
+      },
+      {
+        "fact": "Llanowar Elves in P1 hand",
+        "known_to": [
+          "P1"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 2
+  },
+  "notes": "CORRECTED RQ-C3: Island-is-blue retired (Island colorless per 105.2+305.6; five Islands are untapped mana sources funding NORMAL_COST_AVAILABLE 3UU, NOT pitch fuel). Pitch fuel is Turn to Frog, the simplest RQ-C2 ORACLE_TEXT_VERIFIED blue nonland card ({1}{U} Instant; text not invoked when exiled as cost). Both routes genuinely legal at decision point; script chooses alternate. Adaptable to 2/3/5 players.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "307fd9be3baafe211464544b13a64790ab937a66",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "39fa0340ef26d063adbe84bfcba6cb6806ad8bcca19a607043d36fd09ca34ba4"
+  },
+  "parent_scenario_id": "RQ-C1-C01",
+  "player_count": 4,
+  "q6_provenance": "SELECTED: Q6 Force of Will routing entry (READY mechanical-readiness only, zero behavior credit) as discovery pointer.",
+  "reverses": [
+    "COSTS_MANA: both payment routes (pitch vs 3UU) must be offered as engine-authorized alternatives with NORMAL_COST_AVAILABLE and ALTERNATE_COST_AVAILABLE distinguished (falsifies single-route cost engines)",
+    "DECISION_SEAM: hidden-hand blue-nonland selection for exile must be principal-scoped until exile (falsifies hand-identity leaks; Island must never be offered)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "118.9 + 601.2b (replaces stale 602); 105.2 + 305.6 (Island colorless; Turn to Frog blue); counter-target-spell resolution. RQ-C2 Q-C01 + Sol High RQ-C3 C01.",
+  "scenario_id": "RQ-C3-C01",
+  "semantic_objective": "Prove alternate-vs-mana payment fork with both routes genuinely legal: Force of Will must offer NORMAL_COST_AVAILABLE (3UU via five Islands) and ALTERNATE_COST_AVAILABLE (1 life + exile blue nonland Turn to Frog), pay the scripted pitch route via hidden-zone selection, and counter the target spell.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "support_pitch_card_selection": {
+    "alternatives_rejected": "Willbender/Clone/Twincast/Cryptic Command are blue but only SCRYFALL_CROSSCHECK_CONSISTENT in RQ-C2 (not official-verified); adding a new card would require fresh Gatherer provenance with no benefit.",
+    "rationale": "Simplest suitable blue nonland support card whose color and Oracle identity are already officially verified in RQ-C2 (ORACLE_TEXT_VERIFIED, Gatherer CLU #103, {1}{U} Instant => blue per 105.2). No additional semantics relevant as pitch fuel (exiled as cost; text not invoked). Five untapped Islands fund 3UU as mana sources, NOT pitch. No new Oracle provenance required.",
+    "selected": "Turn to Frog"
+  },
+  "title": "Force of Will pitch versus hard-cast (corrected: blue nonland pitch + 5-Island mana)"
+}

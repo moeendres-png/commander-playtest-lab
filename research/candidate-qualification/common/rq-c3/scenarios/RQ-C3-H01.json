@@ -1,0 +1,254 @@
+{
+  "actual_cards": [
+    {
+      "name": "Clone",
+      "oracle_id": "42226b87-0746-4ebf-9fd0-108d508462af",
+      "oracle_text": "You may have this creature enter as a copy of any creature on the battlefield.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen as the minimal copy vehicle (no extra trigger like Image). Q6 RULES_ADJUDICATION entry.",
+      "role": "copy under test"
+    },
+    {
+      "name": "Humility",
+      "oracle_id": "ed7bdb3e-5c51-4547-9266-76a791e0b2b0",
+      "oracle_text": "All creatures lose all abilities and have base power and toughness 1/1.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen as the ability-removal + P/T-setting continuous effect: copy (layer 1) applies before it regardless of timestamps. Selected for this timestamp-independence purpose, not fame.",
+      "role": "layers effect under test"
+    },
+    {
+      "name": "Runeclaw Bear",
+      "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+      "oracle_text": "(Vanilla 2/2.)",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Neutral copy original (vanilla keeps the question on Humility, not on copied abilities).",
+      "role": "copy original"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "LAYERS",
+    "RULES_CORRECTNESS",
+    "ZONE_IDENTITY",
+    "DECISION_SEAM"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "Clone is 1/1 with no abilities on battlefield",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    },
+    {
+      "assertion": "original Bear is 1/1 with no abilities (Humility)",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "613.1a/f/g",
+      "613.4b",
+      "613.7",
+      "707.2"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "CLEAN_ROOM_DERIVED_CASE_IDEA: Q6 Clone routing entry (RULES_ADJUDICATION_REQUIRED, COPY_CONTROL) as discovery pointer only."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "No semantic correction: carry forward RQ-C1 semantics unchanged via execution-manifest layer; Sol High item-10 batch promotion applies to exact RQ-C2-verified claims. ",
+  "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-H01)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "cast",
+    "copy choices",
+    "mana payment",
+    "pass"
+  ],
+  "execution_complexity": "MEDIUM",
+  "expected_rules_events": [
+    "HUMILITY already on battlefield (established natively)",
+    "CAST Clone; COPY_CHOICE: enter as Runeclaw Bear",
+    "COPY_APPLIED in layer 1 (copies printed 2/2; timestamp-independent)",
+    "HUMILITY_APPLIED in layers 6/7b: loses all abilities, base 1/1",
+    "FINAL: Clone is a 1/1 creature with no abilities (an ability-less Bear copy)"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "Clone is 1/1 with no abilities on battlefield",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "original Bear is 1/1 with no abilities (Humility)",
+      "target": "battlefield"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P0",
+      "chosen_option": "enter as copy of Runeclaw Bear",
+      "decision_kind": "copy choices",
+      "legal_set_expectation": "all battlefield creatures offered",
+      "seq": 1
+    },
+    {
+      "actor": "ALL",
+      "chosen_option": "pass to resolution",
+      "decision_kind": "pass",
+      "legal_set_expectation": "no further decisions",
+      "seq": 2
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "copy choice",
+      "expectation": "chosen original public on entry",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "VERY_HIGH",
+  "legal_reuse_class": "CLEAN_ROOM_DERIVED_CASE_IDEA",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P0",
+    "battlefield": [
+      {
+        "card": "Humility",
+        "controller": "P2",
+        "owner": "P2"
+      },
+      {
+        "card": "Runeclaw Bear",
+        "controller": "P1",
+        "owner": "P1"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Island",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [
+      "HUMILITY"
+    ],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": [
+        "Clone"
+      ]
+    },
+    "known_private_information": [
+      {
+        "fact": "Clone in P0 hand",
+        "known_to": [
+          "P0"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 7
+  },
+  "notes": "Humility controlled by P2 (neutral third party) so the question is purely layers, not controller interaction. Copy-then-Humility order is fixed by layering, not timestamps: reversing cast order must not change the outcome (noted second path). Adaptable to 2 players.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "07529de84ddf2ec2d55443625681db6d86741479",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "b38d8630be786fd54775470cec1661f302258760e7b02fda06c2c33697fde1ae"
+  },
+  "parent_scenario_id": "RQ-C1-H01",
+  "player_count": 4,
+  "q6_provenance": "SELECTED: Q6 Clone routing entry as discovery pointer; zero behavior credit.",
+  "reverses": [
+    "LAYERS: copy (layer 1) must apply before ability-removal/P-T-setting regardless of timestamps (falsifies timestamp-ordered layering and copy-after-Humility implementations)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "Oracle copy + Humility sentences; layer ordering with timestamp-independence proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+  "scenario_id": "RQ-C3-H01",
+  "semantic_objective": "Prove copy-before-Humility layering: Clone entering as a Bear under Humility must end as an ability-less 1/1.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Clone under Humility"
+}

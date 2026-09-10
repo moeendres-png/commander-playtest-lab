@@ -1,0 +1,241 @@
+{
+  "actual_cards": [
+    {
+      "name": "Fireball",
+      "oracle_id": "aa7714b0-2bfb-458a-8ebf-37ec2c53383e",
+      "oracle_text": "This spell costs {1} more to cast for each target beyond the first.\nFireball deals X damage divided evenly, rounded down, among any number of targets.",
+      "provenance": "Scryfall metadata mirror (METADATA_ONLY). Chosen because it fuses X + per-target cost increase + multi-target + rules-determined (not chooser) division: the division-being-determined is itself asserted. Rolling Thunder (D05) carries the chooser-division complement.",
+      "role": "X + cost-increase + multi-target under test"
+    }
+  ],
+  "architecture_reverser_axes": [
+    "COSTS_MANA",
+    "DECISION_SEAM",
+    "RULES_CORRECTNESS"
+  ],
+  "assertion_authority": [
+    {
+      "assertion": "P1 and P2 life are 38 each (remainder discarded, not assigned)",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    },
+    {
+      "assertion": "Fireball in P0 graveyard",
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "via": [
+        "item-10 packet"
+      ]
+    }
+  ],
+  "authority_provenance": {
+    "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rules": [
+      "601.2b/c/d/f"
+    ]
+  },
+  "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+  "behavior_credit": 0,
+  "candidate_behavior_status": "NOT_RUN",
+  "candidate_reference_provenance": [
+    "OFFICIAL_RULES_DERIVED: constructed from Oracle text; Q6 Fireball routing entry (RULES_ADJUDICATION_REQUIRED, X_COST_VALUE) as discovery pointer only."
+  ],
+  "commander_relevance": false,
+  "coordinator_direction": "No semantic correction: carry forward RQ-C1 semantics unchanged via execution-manifest layer; Sol High item-10 batch promotion applies to exact RQ-C2-verified claims. ",
+  "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-C03)",
+  "decision_criticality": "HIGH",
+  "decision_kinds": [
+    "cast",
+    "X",
+    "targets",
+    "mana payment",
+    "pass"
+  ],
+  "execution_complexity": "MEDIUM",
+  "expected_rules_events": [
+    "CAST Fireball with X=5 and 2 targets (P1, P2)",
+    "COST_COMPUTED: X(5) + R + 1 (second target) = 7 mana",
+    "RESOLUTION: 5 damage divided evenly rounded down: 2 to P1, 2 to P2 (1 remainder lost)",
+    "LIFE: P1 38, P2 38"
+  ],
+  "expected_terminal_assertions": [
+    {
+      "assertion": "P1 and P2 life are 38 each (remainder discarded, not assigned)",
+      "target": "life"
+    },
+    {
+      "assertion": "Fireball in P0 graveyard",
+      "target": "graveyards.P0"
+    }
+  ],
+  "external_decision_script": [
+    {
+      "actor": "P0",
+      "chosen_option": "Fireball, X=5, targets P1 and P2",
+      "decision_kind": "cast",
+      "legal_set_expectation": "X in range; any-number targets includes 2 players",
+      "seq": 1
+    },
+    {
+      "actor": "P0",
+      "chosen_option": "7 mana via untapped lands",
+      "decision_kind": "mana payment",
+      "legal_set_expectation": "X-plus-increase total payable through at least one route",
+      "seq": 2
+    }
+  ],
+  "first_wave": true,
+  "hidden_information_checkpoints": [
+    {
+      "checkpoint": "division",
+      "expectation": "even split is rules-determined (no chooser decision offered); public to all",
+      "principal": "ALL"
+    }
+  ],
+  "information_gain": "VERY_HIGH",
+  "legal_reuse_class": "CLEAN_ROOM_DERIVED_CASE_IDEA",
+  "native_setup_boundary": "NATURAL_GAME_START",
+  "negative_controls": [
+    "NC-DECISION-WRONG-KIND",
+    "NC-QUAL-WRONG-OUTCOME"
+  ],
+  "neutral_initial_state": {
+    "active_player": "P0",
+    "battlefield": [
+      {
+        "card": "Mountain",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Mountain",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Mountain",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Mountain",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Mountain",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Mountain",
+        "controller": "P0",
+        "owner": "P0"
+      },
+      {
+        "card": "Mountain",
+        "controller": "P0",
+        "owner": "P0"
+      }
+    ],
+    "command_zone": [],
+    "continuous_effects_present": [],
+    "decision_script": [],
+    "exile": {},
+    "graveyards": {
+      "P0": [],
+      "P1": [],
+      "P2": [],
+      "P3": []
+    },
+    "hands": {
+      "P0": [
+        "Fireball"
+      ]
+    },
+    "known_private_information": [
+      {
+        "fact": "Fireball in P0 hand",
+        "known_to": [
+          "P0"
+        ]
+      }
+    ],
+    "libraries": {
+      "P0": {
+        "count": 90
+      },
+      "P1": {
+        "count": 90
+      },
+      "P2": {
+        "count": 90
+      },
+      "P3": {
+        "count": 90
+      }
+    },
+    "life": {
+      "P0": 40,
+      "P1": 40,
+      "P2": 40,
+      "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "player_count": 4,
+    "players": [
+      {
+        "id": "P0",
+        "life": 40,
+        "seat": 0
+      },
+      {
+        "id": "P1",
+        "life": 40,
+        "seat": 1
+      },
+      {
+        "id": "P2",
+        "life": 40,
+        "seat": 2
+      },
+      {
+        "id": "P3",
+        "life": 40,
+        "seat": 3
+      }
+    ],
+    "rng_starting_contract": null,
+    "schema": "rq-c1.neutral-state.v1",
+    "stack": [],
+    "turn_number": 8
+  },
+  "notes": "Seven untapped Mountains fund X=5 + {R} + {1}. Remainder-loss (5 -> 2/2) is the asserted rules-determined outcome; an engine offering chooser-division here is wrong (contrast D05). Adaptable to any player count.",
+  "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+  "parent_artifact_hash": {
+    "git_blob": "0f559a0f9a4f46d26577111c38a1b6629df8f791",
+    "parent_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "sha256": "358d19048b34133a8d0223b974220609a55197628d2713fe7379f77f726e6de5"
+  },
+  "parent_scenario_id": "RQ-C1-C03",
+  "player_count": 4,
+  "q6_provenance": "SELECTED: Q6 Fireball routing entry as discovery pointer; zero behavior credit.",
+  "reverses": [
+    "COSTS_MANA: X plus per-extra-target increase must total correctly with multi-target declaration (falsifies X/cost-increase mis-accounting)",
+    "RULES_CORRECTNESS: even-division-rounded-down must be applied by rule with remainder lost (falsifies chooser-division or remainder-assignment)"
+  ],
+  "rng_operations": [],
+  "rq_c3_provenance": {
+    "cr_baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+    "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+    "rq_c2_head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "rq_c2_tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "rules_provenance": "Oracle cost and division sentences; arithmetic mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+  "scenario_id": "RQ-C3-C03",
+  "semantic_objective": "Prove X plus per-target cost increase with rules-determined division: Fireball X=5 at two targets costs 7 and deals 2/2 with the remainder lost.",
+  "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+  "title": "Fireball X with per-target increase"
+}
