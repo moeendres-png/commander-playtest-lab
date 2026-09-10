@@ -55,7 +55,13 @@ class WS50Driver(base.Driver):
                  structural_cap: int = 256):
         super().__init__(record)
         for e in intent:
-            self.script.append(copy.deepcopy(e))
+            # Entries marked script_position=front are attempted before record
+            # script entries of the same family (used by sharp negative probes
+            # to force the adversarial binding first).
+            if e.get("script_position") == "front":
+                self.script.insert(0, copy.deepcopy(e))
+            else:
+                self.script.append(copy.deepcopy(e))
         self.discard_cursors: dict[str, int] = {}
         self.discard_queues: dict[str, list[str]] = {}
         self.discard_pending: dict[str, dict[str, Any]] = {}
@@ -99,6 +105,17 @@ def frame_phase(pay: dict[str, Any]) -> str | None:
         return None
 
 
+def ws50_frame_subjects(labels: list[dict[str, str]], self_key: str) -> set[str]:
+    subjects: set[str] = set()
+    for lb in labels:
+        sk = lb.get(self_key, "")
+        if sk and sk != "SKIP":
+            ident = base.ref_identity(sk)
+            if ident is not None:
+                subjects.add(ident)
+    return subjects
+
+
 def ws50_answer(drv: WS50Driver, kind: str, actor: str, opts: list[dict[str, Any]],
                 labels: list[dict[str, str]], record: dict[str, Any],
                 phase: str | None = None) -> str:
@@ -110,6 +127,23 @@ def ws50_answer(drv: WS50Driver, kind: str, actor: str, opts: list[dict[str, Any
                if e.get("decision_family") in families
                and e.get("actor") == actor
                and (e.get("phases") is None or phase in (e.get("phases") or []))]
+        # Binding soundness for combat declarations: a non-empty assignment
+        # binds ONLY its subject's frame. Without this, entry {X:foe} would be
+        # consumed as SKIP on subject-Y's frame (silent misbinding). Empty
+        # assignments are explicit one-shot SKIP intents for any subject.
+        if kind in ("declare_attacker", "declare_blocker"):
+            self_key = "attacker" if kind == "declare_attacker" else "blocker"
+            subjects = ws50_frame_subjects(labels, self_key)
+            if len(subjects) == 1:
+                subject = next(iter(subjects))
+                due = [e for e in due
+                       if not e["selection"]["semantic_value"]
+                       or subject in e["selection"]["semantic_value"]]
+            if not due and any(e.get("decision_family") in families
+                               and e.get("actor") == actor for e in drv.script):
+                raise base.Blocked(
+                    kind, f"no intent covers this frame's subject; refusing "
+                    f"cross-subject SKIP binding")
         if not due and kind == "priority":
             # Nothing due for this actor now (waiting entries are out-of-phase):
             # the engine-offered PASS decline is the legal waiting move.
@@ -849,26 +883,48 @@ def main() -> int:
     if a.intent_json is not None:
         intent = json.loads(a.intent_json.read_text())["intent"]
     if a.neg_zero:
-        intent.append({"decision_family": "declare_attacker", "actor": "P1",
-                       "selection": {"selector_kind": "attacker_assignment",
-                                     "semantic_value": {"MINTED-423": "P9_NONEXISTENT"},
-                                     "matches_only_provider_offered_legal_options": True,
-                                     "on_multiple_match": "FAIL_CLOSED",
-                                     "on_zero_match": "FAIL_CLOSED"}})
+        # Sharp zero-match: the ONLY WS50 declare entry references a defender
+        # absent from every native option. Record script still drives the game
+        # to the declare surface (frames 1-24 identical); frame 25 must fail
+        # closed with a 0-match detail, never bind, never advance silently.
+        intent = [{"decision_family": "declare_attacker", "actor": "P1",
+                   "selection": {"selector_kind": "attacker_assignment",
+                                 "semantic_value": {"MINTED-423": "P9_NONEXISTENT"},
+                                 "matches_only_provider_offered_legal_options": True,
+                                 "on_multiple_match": "FAIL_CLOSED",
+                                 "on_zero_match": "FAIL_CLOSED"}}]
     if a.neg_multi:
-        intent.append({"decision_family": "choice", "actor": "P1",
-                       "selection": {"selector_kind": "semantic_choice_key",
-                                     "semantic_value": "XX_MULTI",
-                                     "matches_only_provider_offered_legal_options": True,
-                                     "on_multiple_match": "FAIL_CLOSED",
-                                     "on_zero_match": "FAIL_CLOSED"}})
+        # Sharp multi-match: semantic key "damage" token-matches BOTH native
+        # mode options (DamageAll desc + Token desc). Frame 7 must fail closed
+        # with a 2-match detail.
+        intent = [{"decision_family": "choose_mode", "actor": "P1",
+                   "script_position": "front",
+                   "selection": {"selector_kind": "semantic_mode_key",
+                                 "semantic_value": "damage",
+                                 "matches_only_provider_offered_legal_options": True,
+                                 "on_multiple_match": "FAIL_CLOSED",
+                                 "on_zero_match": "FAIL_CLOSED"}}]
     result = run_scenario(record, transport, intent, scenario,
                           structural_cap=a.structural_cap)
+    if a.neg_zero or a.neg_multi:
+        v = result.get("verdict", "")
+        detail = json.dumps(result.get("frames", [])[-1].get("block", {}))
+        if a.neg_zero:
+            ok = v == "BLOCKED_AT:declare_attacker" and "0 matches" in detail
+        else:
+            ok = v == "BLOCKED_AT:choose_mode" and "2 " in detail and "matches" in detail
+        result["neg_test"] = {"name": "zero_match" if a.neg_zero else "multi_match",
+                              "expected": "fail-closed BLOCKED_AT",
+                              "neg_verdict": "PASS" if ok else "FAIL"}
     a.output.parent.mkdir(parents=True, exist_ok=True)
     a.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(f"WS50 {scenario} -> {result.get('verdict')} frames={result.get('frame_count')} "
           f"consumed={result.get('consumed_intent')} hidden={result.get('hidden_info_verdict')} "
           f"class={result.get('failure_class', {}).get('class')} stop={result.get('stop_reason')}")
+    if (a.neg_zero or a.neg_multi) and result.get("neg_test", {}).get("neg_verdict") == "PASS":
+        print(f"WS50 NEG-{result['neg_test']['name']} -> fail-closed as required: "
+              f"{result.get('verdict')}")
+        return 0
     return 0 if result.get("verdict") in ("TRANSCRIPT_COMPLETE",
                                           "EXPECTED_FAIL_CLOSED_PASS") else 1
 

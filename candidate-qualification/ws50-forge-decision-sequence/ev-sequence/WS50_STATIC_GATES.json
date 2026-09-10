@@ -1,0 +1,66 @@
+{
+  "gates": [
+    {
+      "file": "/home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ev-sequence/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java",
+      "gate": "FALLBACK_AUDIT",
+      "hits": [],
+      "verdict": "PASS"
+    },
+    {
+      "failures": [],
+      "gate": "ADVERSARY_CONTROL_POSITIVE",
+      "journal": "/home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ev-sequence/WS50_B_FINAL.json",
+      "own_hand_views_checked": 18,
+      "verdict": "PASS"
+    },
+    {
+      "failures": [],
+      "gate": "ADVERSARY_CONTROL_POSITIVE",
+      "journal": "/home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ev-sequence/WS50_C_FINAL.json",
+      "own_hand_views_checked": 1976,
+      "verdict": "PASS"
+    },
+    {
+      "checks": [
+        {
+          "case": "non_owner_hand_leak",
+          "detected": true
+        },
+        {
+          "case": "facedown_exposure",
+          "detected": true
+        },
+        {
+          "case": "own_hand_count_mismatch",
+          "detected": true
+        }
+      ],
+      "frame": 2,
+      "gate": "ADVERSARY_CONTROL_NEGATIVE",
+      "journal": "/home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ev-sequence/WS50_B_FINAL.json",
+      "verdict": "PASS"
+    },
+    {
+      "checks": [
+        {
+          "case": "non_owner_hand_leak",
+          "detected": true
+        },
+        {
+          "case": "facedown_exposure",
+          "detected": true
+        },
+        {
+          "case": "own_hand_count_mismatch",
+          "detected": true
+        }
+      ],
+      "frame": 2,
+      "gate": "ADVERSARY_CONTROL_NEGATIVE",
+      "journal": "/home/moeen/code/ws50-forge-decision-sequence-slice/candidate-qualification/ws50-forge-decision-sequence/ev-sequence/WS50_C_FINAL.json",
+      "verdict": "PASS"
+    }
+  ],
+  "schema_version": "commander-lab.ws50-static-gates/1.0.0",
+  "verdict": "PASS"
+}
