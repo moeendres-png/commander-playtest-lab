@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-a1d-docker-pin-requalification
 branch: architecture/ws-a1d-docker-pin-authority-requalification-20260910
 audit_base_sha: dd3be6026515e40f4b18a6121058877f5cab5725
 audit_base_tree: 3e73de272899c39963160c1884e5280cfe86276a
-state_written_against_head: caeda376213120ba6835684c70f836664326da44
-validated_head: caeda376213120ba6835684c70f836664326da44
+state_written_against_head: e1bc5572ed154b176a8eb67863aa446e35e088d8
+validated_head: e1bc5572ed154b176a8eb67863aa446e35e088d8
 objective: >
   WS-A1D Docker Pin Authority and Runtime Requalification under canonical
   Coordinator contract (XHIGH). Eliminate the executable Docker pin-authority
@@ -115,15 +115,14 @@ artifacts:
 - docs/WS_A1D_PIN_CONSUMER_AUDIT.md (Phase A/B record + C-E adjudication appendix)
 - scripts/docker_resolve_engine_pin.py + scripts/docker_build_engine.sh + scripts/verify_container_provenance.py
 remaining_scope:
-- Remediation-01 substantive commit + state-only checkpoint + handoff (no push/PR/merge)
+- Remediation-01 handoff (no push/PR/merge; Coordinator push adjudication pending)
 - Phase H real image materialization + container runtime/bridge-health/engine-behavior evidence on a host with Docker (NOT_RUN here; H4 open)
 - Phase I B3/B4/external-engine suites on a capable host or CI (NOT_RUN locally; adjudicated UNAFFECTED)
-- Coordinator review + push adjudication (push/PR/merge NOT authorized for this workstream)
 status: ACTIVE
-next_action: Commit the remediation-01 checkpoint after final validation, then record the new validated_head in a state-only follow-up commit and return the remediation handoff.
+next_action: Return the remediation-01 handoff for Coordinator remote-review / push adjudication. Do NOT push, open a PR, merge, or delete anything.
 exact_next_action: >
-  Run the WS-A1D suite plus the 59-test targeted set on the remediated tree,
-  inspect the diff, make one focused local remediation commit (gate, entrypoint,
-  wrapper, resolver, tests, docs, state), follow with a state-only checkpoint
-  naming the new validated_head. Do NOT push, open a PR, merge, or delete
-  anything.
+  Hand off remediation-01 as locally COMPLETE and validated (69-test battery
+  green on the remediated tree, validated_head e1bc5572): unconditional
+  fail-closed provenance gate, complete wrapper environment, provider-field
+  identity validation. H4 remains NOT_RUN (no Docker host). Coordinator
+  decides push.
