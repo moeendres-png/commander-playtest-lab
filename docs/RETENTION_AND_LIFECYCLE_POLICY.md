@@ -166,6 +166,16 @@ gates owned elsewhere.
   artifacts and requires requalification — out of WS-A1R scope. Follow-up: a
   dedicated re-pin workstream (re-pin Dockerfiles to manifest, rebuild, rerun the
   B3/B4 regression chain, update `docs/engine_setup.md` container section).
+  Resolution (WS-A1D): Dockerfiles now declare required build args without
+  defaults, resolved from the manifest at build time by
+  `scripts/docker_build_engine.sh` via `scripts/docker_resolve_engine_pin.py`;
+  Compose requires wrapper-exported variables and otherwise fails closed;
+  Compose/devcontainer protocol corrected to `2.0.0`; image provenance is
+  recorded (`/opt/engine-provenance.json`) and enforced by a container-start
+  gate (`scripts/verify_container_provenance.py`); `docs/engine_setup.md`
+  documents the wrapper flow. B3/B4 were adjudicated UNAFFECTED (direct-source
+  path, no Docker consumption). Remaining: real image materialization on a host
+  with Docker (NOT_RUN on the WS-A1D execution host: no Docker client there).
 - `SCHEMA_RENAME_primary_secondary = DEFERRED` (Freeze-adjacent). `primary_engine`
   / `secondary_engine` are runtime-contract keys (consumers:
   `src/commander_lab/technical_truth.py`, `scripts/run_external_b4f_*.py`,

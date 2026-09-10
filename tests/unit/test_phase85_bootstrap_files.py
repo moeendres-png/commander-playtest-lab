@@ -56,6 +56,7 @@ def test_shell_scripts_parse(repo_root: Path) -> None:
         "scripts/verify_engine.sh",
         "scripts/collect_engine_logs.sh",
         "scripts/engine_container_entrypoint.sh",
+        "scripts/docker_build_engine.sh",
     ):
         completed = subprocess.run(
             [bash, "-n", str(repo_root / rel)],

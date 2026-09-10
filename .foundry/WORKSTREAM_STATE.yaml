@@ -85,24 +85,42 @@ failure_class: NONE
 current_hypothesis: NONE
 first_failing_boundary: NONE
 root_cause_class: NONE
-validated_gates: []
-tests_run: []
-evidence: []
-artifacts: []
+validated_gates:
+- H1 single pin authority (resolver reads manifest at runtime; no second pin file)
+- H2 no silent stale fallback (no Dockerfile defaults; compose :? ; required args; entrypoint provenance gate)
+- H3 correct repository is part of identity (fork clone; cross-wire guards in resolver, Dockerfiles, compose mapping)
+- H5 historical impact adjudicated (Phase 8.5 HISTORICAL_ONLY; B3/B4/external/release UNAFFECTED; no blanket invalidation)
+- H6 protocol drift adjudicated SAME-SCOPE CORRECTION (Compose/devcontainer 1.0.0 -> 2.0.0; handshake semantics verified)
+- H7 provider truth preserved (NO_PROVIDER_READY, selected=false, provider=null; manifest untouched)
+- H8 no Architecture Freeze claim
+- H9 no Rules-credit theater (RULES_BEHAVIOR_CREDIT_CHANGE = 0; build/provenance is not card behavior)
+- H10 fail closed (missing/malformed/unknown/cross-wire all non-zero; UNKNOWN/NOT_RUN never PASS)
+- H11 no second Rules Engine (tooling routes identity only; no legality semantics invented)
+tests_run:
+- tests/unit/test_ws_a1d_docker_pin_authority.py (34 with co-run suites: A1R pin authority + phase85 bootstrap files)
+- tests/unit/test_technical_truth.py + tests/contract/test_phase85_protocol.py + tests/contract/test_phase1213_provider_surface.py + tests/unit/test_external_engine_foundation.py + tests/unit/test_xmage_compatibility_provider.py + tests/integration/test_phase85_validation.py + tests/contract/test_phase86_phase85_claims.py (59 total green in final targeted run)
+- tests/unit sweep: 514 passed; 5 failed + 40 collection errors all from missing third-party modules (openpyxl etc.), environmental and unrelated to WS-A1D surfaces
+- tests/contract sweep: 11 passed; 1 collection error from missing typer (environmental)
+- resolver CLI matrix (xmage shell, forge json, unknown-provider exit 3) executed directly
+- Dockerfile guard matrices executed under bash (missing/stale-shape/cross-wire/canonical); RUN bodies pass bash -n; Compose YAML parses; devcontainer/manifest JSON parse
+evidence:
+- Phase A consumer audit: docs/WS_A1D_PIN_CONSUMER_AUDIT.md (all four SHAs, ENGINE_COMMIT, ENGINE_PROTOCOL_VERSION, Compose/Dockerfile references classified; no UNKNOWN)
+- Phase D: canonical xmage commit observed in moeendres-png/mage fork (Ashling the Limitless, parent b1ef0dc); forge release commit observed in Card-Forge/forge (prepare release forge-2.0.14)
+- Phase E: SAME-SCOPE CORRECTION (bridge.py handshake hard-fails mismatches; all real bridges speak 2.0.0; nothing speaks 1.0.0)
+- H4 boundary: NO docker client on execution host (shutil.which docker -> None); no image constructed; Dockerfile/Compose evidence is CODE_DERIVED plus executed shell-guard evidence, not image verification
+- B3/B4/external-engine suites NOT_RUN locally (no vendor source or bridge build); adjudicated UNAFFECTED, owned by CI direct-source path
+artifacts:
+- docs/WS_A1D_PIN_CONSUMER_AUDIT.md (Phase A/B record + C-E adjudication appendix)
+- scripts/docker_resolve_engine_pin.py + scripts/docker_build_engine.sh + scripts/verify_container_provenance.py
 remaining_scope:
-- Phase A consumer audit
-- Phase B historical evidence impact
-- Phase C systemic pin-authority design
-- Phase D XMage repository adjudication
-- Phase E protocol drift adjudication
-- Phase F implementation
-- Phase G regression tests
-- Phase H Docker materialization
-- Phase I targeted requalification
-- Phase J documentation
+- Phase H real image materialization + container runtime/bridge-health/engine-behavior evidence on a host with Docker (NOT_RUN here; H4 open)
+- Phase I B3/B4/external-engine suites on a capable host or CI (NOT_RUN locally; adjudicated UNAFFECTED)
+- Coordinator review + push adjudication (push/PR/merge NOT authorized for this workstream)
 status: ACTIVE
-next_action: Phase A consumer audit across all pin/protocol/Docker surfaces.
+next_action: Commit the WS-A1D implementation checkpoint, then record validated_head in a state-only follow-up commit and return the final handoff.
 exact_next_action: >
-  Execute Phase A: inspect every consumer named in the canonical contract,
-  grep all four SHAs plus ENGINE_COMMIT / ENGINE_PROTOCOL_VERSION / Compose and
-  Dockerfile references, classify each material occurrence, and persist the audit.
+  Inspect the full working-tree diff for unrelated semantic changes, then make
+  one focused local commit (Dockerfiles, Compose, devcontainer, resolver,
+  wrapper, provenance gate, entrypoint, READMEs, engine_setup.md, retention
+  ledger, audit report, new/strengthened tests, state). Do NOT push, open a PR,
+  merge, or delete anything.
