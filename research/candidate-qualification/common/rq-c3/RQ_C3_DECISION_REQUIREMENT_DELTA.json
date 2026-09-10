@@ -1,0 +1,179 @@
+{
+  "changes": [
+    {
+      "authority": "Sol High RQ-C3 A03",
+      "decision_kind": "may",
+      "delta": "REMOVED: A03 no longer contributes may at shield application (automatic per 701.19a). FW union may count 1->0.",
+      "rq_c1_contributors": [
+        "RQ-C1-A03"
+      ],
+      "rq_c3_contributors": []
+    },
+    {
+      "authority": "Sol High RQ-C3 E02",
+      "decision_kind": "ordering",
+      "delta": "REMOVED: E02 no longer contributes blocker ordering (no such step per 510.1c). FW union ordering count 1->0. Do not retain merely because WS55 may investigate.",
+      "rq_c1_contributors": [
+        "RQ-C1-E02"
+      ],
+      "rq_c3_contributors": []
+    },
+    {
+      "authority": "Sol High RQ-C3 C01",
+      "decision_kind": "hidden-zone selection",
+      "delta": "RETAINED+EXTENDED: C01 pitch selection corrected from targets to hidden-zone selection (hidden until exile); F01 retains search selection. C01 still contributes alternate-cost/payment fork plus hidden-zone pitch selection.",
+      "rq_c1_contributors": [
+        "RQ-C1-F01"
+      ],
+      "rq_c3_contributors": [
+        "RQ-C3-C01",
+        "RQ-C3-F01"
+      ]
+    },
+    {
+      "authority": "Sol High RQ-C3 C01",
+      "decision_kind": "alternate cost",
+      "delta": "RETAINED: C01 alternate-cost fork preserved with NORMAL_COST_AVAILABLE vs ALTERNATE_COST_AVAILABLE distinguished.",
+      "rq_c1_contributors": [
+        "RQ-C1-C01"
+      ],
+      "rq_c3_contributors": [
+        "RQ-C3-C01"
+      ]
+    },
+    {
+      "authority": "Sol High RQ-C3 E02",
+      "decision_kind": "combat damage assignment",
+      "delta": "RETAINED: E02 damage assignment preserved (scripted 2/1/4 compliant); ordering removed.",
+      "rq_c1_contributors": [
+        "RQ-C1-E02"
+      ],
+      "rq_c3_contributors": [
+        "RQ-C3-E02"
+      ]
+    },
+    {
+      "authority": "carry-forward",
+      "decision_kind": "all other kinds",
+      "delta": "UNCHANGED: all other FW decision kinds carried forward unchanged (see per-scenario maps)."
+    }
+  ],
+  "from": "RQ_C1_DECISION_REQUIREMENTS (15-scenario FW union from RQ_C1_DECISION_SURFACE_MATRIX.csv)",
+  "note": "WS55 historical work not automatically invalidated; Coordinator impact-adjudicates WS55 against this delta separately.",
+  "per_scenario_delta": {
+    "RQ-C1-A03 -> RQ-C3-A03": {
+      "added": [],
+      "removed": [
+        "may"
+      ]
+    },
+    "RQ-C1-A04 -> RQ-C3-A04": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-B01 -> RQ-C3-B01": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-C01 -> RQ-C3-C01": {
+      "added": [
+        "hidden-zone selection"
+      ],
+      "removed": []
+    },
+    "RQ-C1-C03 -> RQ-C3-C03": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-D06 -> RQ-C3-D06": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-E01 -> RQ-C3-E01": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-E02 -> RQ-C3-E02": {
+      "added": [],
+      "removed": [
+        "ordering"
+      ]
+    },
+    "RQ-C1-F01 -> RQ-C3-F01": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-G02 -> RQ-C3-G02": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-G03 -> RQ-C3-G03": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-G04 -> RQ-C3-G04": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-H01 -> RQ-C3-H01": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-I01 -> RQ-C3-I01": {
+      "added": [],
+      "removed": []
+    },
+    "RQ-C1-J02 -> RQ-C3-J02": {
+      "added": [],
+      "removed": []
+    }
+  },
+  "rq_c1_union_counts": {
+    "Commander movement": 1,
+    "X": 2,
+    "activate": 1,
+    "alternate cost": 1,
+    "attackers": 4,
+    "blockers": 2,
+    "cast": 10,
+    "combat damage assignment": 1,
+    "concession": 1,
+    "copy choices": 1,
+    "defender per attacker": 4,
+    "hidden-zone selection": 1,
+    "mana payment": 11,
+    "mana source": 3,
+    "may": 1,
+    "modes": 1,
+    "ordering": 1,
+    "pass": 15,
+    "replacement ordering": 1,
+    "search": 1,
+    "targets": 7,
+    "trigger ordering": 1
+  },
+  "rq_c3_union_counts": {
+    "Commander movement": 1,
+    "X": 2,
+    "activate": 1,
+    "alternate cost": 1,
+    "attackers": 4,
+    "blockers": 2,
+    "cast": 10,
+    "combat damage assignment": 1,
+    "concession": 1,
+    "copy choices": 1,
+    "defender per attacker": 4,
+    "hidden-zone selection": 2,
+    "mana payment": 11,
+    "mana source": 3,
+    "modes": 1,
+    "pass": 15,
+    "replacement ordering": 1,
+    "search": 1,
+    "targets": 7,
+    "trigger ordering": 1
+  },
+  "schema": "rq-c3.decision-requirement-delta.v1",
+  "to": "RQ_C3_CORRECTED_REQUIREMENTS (15-scenario FW union from corrected scenarios)"
+}

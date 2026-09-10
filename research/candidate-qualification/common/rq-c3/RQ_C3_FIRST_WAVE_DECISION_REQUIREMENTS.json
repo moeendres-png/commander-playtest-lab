@@ -1,0 +1,242 @@
+{
+  "authority": "RQ_C3_CORRECTED_REQUIREMENTS (new authority for later candidate execution; WS55 impact-adjudicated separately by Coordinator)",
+  "candidate_behavior_status": "NOT_RUN",
+  "count": 15,
+  "per_scenario": {
+    "RQ-C3-A03": [
+      "cast",
+      "targets",
+      "mana payment",
+      "activate",
+      "mana source",
+      "pass"
+    ],
+    "RQ-C3-A04": [
+      "cast",
+      "X",
+      "mana source",
+      "mana payment",
+      "replacement ordering",
+      "pass"
+    ],
+    "RQ-C3-B01": [
+      "cast",
+      "mana payment",
+      "trigger ordering",
+      "pass"
+    ],
+    "RQ-C3-C01": [
+      "cast",
+      "targets",
+      "alternate cost",
+      "hidden-zone selection",
+      "mana source",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-C03": [
+      "cast",
+      "X",
+      "targets",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-D06": [
+      "cast",
+      "modes",
+      "targets",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-E01": [
+      "attackers",
+      "defender per attacker",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-E02": [
+      "attackers",
+      "defender per attacker",
+      "blockers",
+      "combat damage assignment",
+      "pass"
+    ],
+    "RQ-C3-F01": [
+      "cast",
+      "mana payment",
+      "search",
+      "hidden-zone selection",
+      "pass"
+    ],
+    "RQ-C3-G02": [
+      "cast",
+      "targets",
+      "mana payment",
+      "Commander movement",
+      "pass"
+    ],
+    "RQ-C3-G03": [
+      "attackers",
+      "defender per attacker",
+      "blockers",
+      "pass"
+    ],
+    "RQ-C3-G04": [
+      "concession",
+      "pass"
+    ],
+    "RQ-C3-H01": [
+      "cast",
+      "copy choices",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-I01": [
+      "cast",
+      "targets",
+      "mana payment",
+      "pass"
+    ],
+    "RQ-C3-J02": [
+      "attackers",
+      "defender per attacker",
+      "targets",
+      "pass"
+    ]
+  },
+  "schema": "rq-c3.first-wave-decision-requirements.v1",
+  "union": {
+    "Commander movement": [
+      "RQ-C3-G02"
+    ],
+    "X": [
+      "RQ-C3-A04",
+      "RQ-C3-C03"
+    ],
+    "activate": [
+      "RQ-C3-A03"
+    ],
+    "alternate cost": [
+      "RQ-C3-C01"
+    ],
+    "attackers": [
+      "RQ-C3-E01",
+      "RQ-C3-E02",
+      "RQ-C3-G03",
+      "RQ-C3-J02"
+    ],
+    "blockers": [
+      "RQ-C3-E02",
+      "RQ-C3-G03"
+    ],
+    "cast": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-B01",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-F01",
+      "RQ-C3-G02",
+      "RQ-C3-H01",
+      "RQ-C3-I01"
+    ],
+    "combat damage assignment": [
+      "RQ-C3-E02"
+    ],
+    "concession": [
+      "RQ-C3-G04"
+    ],
+    "copy choices": [
+      "RQ-C3-H01"
+    ],
+    "defender per attacker": [
+      "RQ-C3-E01",
+      "RQ-C3-E02",
+      "RQ-C3-G03",
+      "RQ-C3-J02"
+    ],
+    "hidden-zone selection": [
+      "RQ-C3-C01",
+      "RQ-C3-F01"
+    ],
+    "mana payment": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-B01",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-E01",
+      "RQ-C3-F01",
+      "RQ-C3-G02",
+      "RQ-C3-H01",
+      "RQ-C3-I01"
+    ],
+    "mana source": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-C01"
+    ],
+    "modes": [
+      "RQ-C3-D06"
+    ],
+    "pass": [
+      "RQ-C3-A03",
+      "RQ-C3-A04",
+      "RQ-C3-B01",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-E01",
+      "RQ-C3-E02",
+      "RQ-C3-F01",
+      "RQ-C3-G02",
+      "RQ-C3-G03",
+      "RQ-C3-G04",
+      "RQ-C3-H01",
+      "RQ-C3-I01",
+      "RQ-C3-J02"
+    ],
+    "replacement ordering": [
+      "RQ-C3-A04"
+    ],
+    "search": [
+      "RQ-C3-F01"
+    ],
+    "targets": [
+      "RQ-C3-A03",
+      "RQ-C3-C01",
+      "RQ-C3-C03",
+      "RQ-C3-D06",
+      "RQ-C3-G02",
+      "RQ-C3-I01",
+      "RQ-C3-J02"
+    ],
+    "trigger ordering": [
+      "RQ-C3-B01"
+    ]
+  },
+  "union_counts": {
+    "Commander movement": 1,
+    "X": 2,
+    "activate": 1,
+    "alternate cost": 1,
+    "attackers": 4,
+    "blockers": 2,
+    "cast": 10,
+    "combat damage assignment": 1,
+    "concession": 1,
+    "copy choices": 1,
+    "defender per attacker": 4,
+    "hidden-zone selection": 2,
+    "mana payment": 11,
+    "mana source": 3,
+    "modes": 1,
+    "pass": 15,
+    "replacement ordering": 1,
+    "search": 1,
+    "targets": 7,
+    "trigger ordering": 1
+  }
+}

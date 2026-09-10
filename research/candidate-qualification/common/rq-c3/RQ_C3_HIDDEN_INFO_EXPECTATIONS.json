@@ -1,0 +1,270 @@
+{
+  "delta": {
+    "C01": {
+      "after": "pitch selection is hidden-zone decision (Turn to Frog known only to P0 until exile, public after); stack public to ALL; mana-route availability public",
+      "authority": "Sol High RQ-C3 C01",
+      "before": "pitch selection targets-kind; Island-as-blue"
+    },
+    "F02": {
+      "after": "before: private to P1/authorized; during: PUBLIC TO ALL (701.20a); after: hidden again BUT retained knowledge usable (not leak); no forced forgetting",
+      "authority": "Sol High RQ-C3 F02 + 701.20a",
+      "before": "P1 hand visible ONLY to P0; P2/P3 counts-only; post-resolution amnesia for P0/P2/P3"
+    },
+    "others": "All other checkpoints carried forward unchanged from RQ-C1 (public stacks/targets/votes/damage; private hands; J03 no-reveal contrast preserved)."
+  },
+  "principle": "Authorized current visibility vs previously learned information vs provider leakage vs public reveal vs transition back to hidden. Pilots must NOT be required to forget legitimately observed information. Security testing concerns unauthorized disclosure, not memory erasure.",
+  "scenarios": [
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "pre-activation",
+          "expectation": "no private information beyond hands",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_scenario_id": "RQ-C3-A03"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "ordering offer",
+          "expectation": "both orders visible to all; no private information",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-A04",
+      "rqc3_scenario_id": "RQ-C3-A04"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "trigger creation",
+          "expectation": "all 5 triggers and APNAP stack order public to all",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-B01",
+      "rqc3_scenario_id": "RQ-C3-B01"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "pitch selection (hidden-zone decision)",
+          "expectation": "Turn to Frog identity known only to P0 until exile; exile is public after",
+          "principal": "P0"
+        },
+        {
+          "checkpoint": "stack knowledge",
+          "expectation": "both spells and Force target public to all",
+          "principal": "ALL"
+        },
+        {
+          "checkpoint": "mana-source availability",
+          "expectation": "five untapped Islands and both cost routes public to all (no hidden legality)",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-C01",
+      "rqc3_scenario_id": "RQ-C3-C01"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "division",
+          "expectation": "even split is rules-determined (no chooser decision offered); public to all",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-C03",
+      "rqc3_scenario_id": "RQ-C3-C03"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "mode legality",
+          "expectation": "mode subset and per-mode targets public to all",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-D06",
+      "rqc3_scenario_id": "RQ-C3-D06"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "attack legality",
+          "expectation": "defender mapping and per-creature tax public to all",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-E01",
+      "rqc3_scenario_id": "RQ-C3-E01"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "damage assignment",
+          "expectation": "damage split public to all (no ordering state)",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-E02",
+      "rqc3_scenario_id": "RQ-C3-E02"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "during search",
+          "expectation": "library contents visible ONLY to P0; others observe 'P0 is searching' plus count hints only",
+          "principal": "P0"
+        },
+        {
+          "checkpoint": "found card",
+          "expectation": "found Forest revealed to all on moving to battlefield (public zone)",
+          "principal": "ALL"
+        },
+        {
+          "checkpoint": "post-shuffle",
+          "expectation": "library order unknown to all principals including P0",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-F01",
+      "rqc3_scenario_id": "RQ-C3-F01"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "before reveal",
+          "expectation": "P1 hand identities private except to owner P1 and otherwise authorized principals",
+          "principal": "P1"
+        },
+        {
+          "checkpoint": "during reveal",
+          "expectation": "P1 hand identities PUBLIC TO ALL players while revealed (701.20a)",
+          "principal": "ALL"
+        },
+        {
+          "checkpoint": "after reveal effect finishes",
+          "expectation": "hand is a hidden zone again; retained legitimately-acquired knowledge remains usable and must NOT be classified as provider leak",
+          "principal": "ALL"
+        },
+        {
+          "checkpoint": "security scope",
+          "expectation": "provider leakage concerns unauthorized disclosure, not human memory erasure; pilots must NOT be required to forget legitimately observed identities",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-F02",
+      "rqc3_scenario_id": "RQ-C3-F02"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "movement choice",
+          "expectation": "movement choice and tax accounting public to all",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-G02",
+      "rqc3_scenario_id": "RQ-C3-G02"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "damage ledger",
+          "expectation": "per-commander damage totals public to all",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-G03",
+      "rqc3_scenario_id": "RQ-C3-G03"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "post-cleanup ownership",
+          "expectation": "remaining control/ownership mapping public to all",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_scenario_id": "RQ-C3-G04"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "copy choice",
+          "expectation": "chosen original public on entry",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-H01",
+      "rqc3_scenario_id": "RQ-C3-H01"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "layer outcome",
+          "expectation": "final P/T and color public to all in both paths",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-H02",
+      "rqc3_scenario_id": "RQ-C3-H02"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "identity",
+          "expectation": "exile-then-return as new object is public; no carried state",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-I01",
+      "rqc3_scenario_id": "RQ-C3-I01"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "roll",
+          "expectation": "d20 result public to all immediately",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-J02",
+      "rqc3_scenario_id": "RQ-C3-J02"
+    },
+    {
+      "candidate_behavior_status": "NOT_RUN",
+      "checkpoints": [
+        {
+          "checkpoint": "legend check",
+          "expectation": "controller mapping and no-transit outcome public",
+          "principal": "ALL"
+        }
+      ],
+      "parent_scenario_id": "RQ-C1-K02",
+      "rqc3_scenario_id": "RQ-C3-K02"
+    }
+  ],
+  "schema": "rq-c3.hidden-info-expectations.v1"
+}

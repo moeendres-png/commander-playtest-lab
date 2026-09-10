@@ -1,0 +1,151 @@
+{
+  "scenarios": [
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_scenario_id": "RQ-C3-A03"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-A04",
+      "rqc3_scenario_id": "RQ-C3-A04"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-B01",
+      "rqc3_scenario_id": "RQ-C3-B01"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-C01",
+      "rqc3_scenario_id": "RQ-C3-C01"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-C03",
+      "rqc3_scenario_id": "RQ-C3-C03"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-D06",
+      "rqc3_scenario_id": "RQ-C3-D06"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "parent_scenario_id": "RQ-C1-E01",
+      "rqc3_scenario_id": "RQ-C3-E01"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "parent_scenario_id": "RQ-C1-E02",
+      "rqc3_scenario_id": "RQ-C3-E02"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-F01",
+      "rqc3_scenario_id": "RQ-C3-F01"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-F02",
+      "rqc3_scenario_id": "RQ-C3-F02"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-G02",
+      "rqc3_scenario_id": "RQ-C3-G02"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "detail": {
+        "boundary": "PRE_DECISION_CONSTRUCTION",
+        "candidate_credit_scope": [
+          "native attack",
+          "native block/pass handling",
+          "native combat damage (final 12)",
+          "ledger increment 12->24",
+          "crossing 21 threshold",
+          "Rules loss",
+          "resulting native leave-game transition insofar as asserted"
+        ],
+        "seeded_ledger": {
+          "P1_commander_damage_from_Ghalta_P0": 12,
+          "behavior_credit": 0,
+          "locus": "pre-game history strictly before first decision-bearing step",
+          "note": "BEHAVIOR_CREDIT=0; do not claim seeded 12 was simulated; do not inject commander damage during combat"
+        }
+      },
+      "native_setup_boundary": "PRE_DECISION_CONSTRUCTION",
+      "parent_scenario_id": "RQ-C1-G03",
+      "rqc3_scenario_id": "RQ-C3-G03",
+      "seeded_ledger_credit": "BEHAVIOR_CREDIT=0 for pre-existing 12 (PRE_DECISION_CONSTRUCTION history; not simulated; not injected during combat). Candidate credit only for post-boundary native behavior."
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_scenario_id": "RQ-C3-G04"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-H01",
+      "rqc3_scenario_id": "RQ-C3-H01"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-H02",
+      "rqc3_scenario_id": "RQ-C3-H02"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-I01",
+      "rqc3_scenario_id": "RQ-C3-I01"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "parent_scenario_id": "RQ-C1-J02",
+      "rqc3_scenario_id": "RQ-C3-J02"
+    },
+    {
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "parent_scenario_id": "RQ-C1-K02",
+      "rqc3_scenario_id": "RQ-C3-K02"
+    }
+  ],
+  "schema": "rq-c3.setup-boundaries.v1",
+  "ws51_rule": "RESTORE_PATH_REJECTED: no scenario may restore into a decision-bearing step. Restore-as-construction strictly before first decision-bearing step preserved; native progression thereafter required."
+}

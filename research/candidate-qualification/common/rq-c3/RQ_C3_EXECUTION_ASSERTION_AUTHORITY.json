@@ -1,0 +1,552 @@
+{
+  "assertions": [
+    {
+      "assertion": "Drudge Skeletons is on battlefield tapped with zero damage marked",
+      "authority_via": "701.19 (replaces 702.13) + 701.19a + 616.1 + 614.4; RQ-C2 Q-A03 + Sol High RQ-C3 A03.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_scenario_id": "RQ-C3-A03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "Lightning Bolt is in P1 graveyard",
+      "authority_via": "701.19 (replaces 702.13) + 701.19a + 616.1 + 614.4; RQ-C2 Q-A03 + Sol High RQ-C3 A03.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_scenario_id": "RQ-C3-A03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P1"
+    },
+    {
+      "assertion": "all life totals unchanged",
+      "authority_via": "701.19 (replaces 702.13) + 701.19a + 616.1 + 614.4; RQ-C2 Q-A03 + Sol High RQ-C3 A03.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_scenario_id": "RQ-C3-A03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "life"
+    },
+    {
+      "assertion": "one P0 Swamp tapped for the {B} activation (mana paid)",
+      "authority_via": "701.19 (replaces 702.13) + 701.19a + 616.1 + 614.4; RQ-C2 Q-A03 + Sol High RQ-C3 A03.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_scenario_id": "RQ-C3-A03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "Stonecoil Serpent is 8/8 (0/0 base + eight +1/+1 counters)",
+      "authority_via": "Oracle replacement sentences + affected-controller ordering rule; arithmetic divergence (8 vs 7) is mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-A04",
+      "rqc3_scenario_id": "RQ-C3-A04",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "both enchantments remain on battlefield",
+      "authority_via": "Oracle replacement sentences + affected-controller ordering rule; arithmetic divergence (8 vs 7) is mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-A04",
+      "rqc3_scenario_id": "RQ-C3-A04",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "exactly 8 +1/+1 counters on the Serpent",
+      "authority_via": "Oracle replacement sentences + affected-controller ordering rule; arithmetic divergence (8 vs 7) is mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-A04",
+      "rqc3_scenario_id": "RQ-C3-A04",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "Llanowar Elves on battlefield under P0",
+      "authority_via": "Oracle trigger text + APNAP stacking + same-controller ordering. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-B01",
+      "rqc3_scenario_id": "RQ-C3-B01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "P0 life 42, P1/P2/P3 life 41",
+      "authority_via": "Oracle trigger text + APNAP stacking + same-controller ordering. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-B01",
+      "rqc3_scenario_id": "RQ-C3-B01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "life"
+    },
+    {
+      "assertion": "stack empty, 5 triggers resolved in APNAP order",
+      "authority_via": "Oracle trigger text + APNAP stacking + same-controller ordering. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-B01",
+      "rqc3_scenario_id": "RQ-C3-B01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "stack"
+    },
+    {
+      "assertion": "ALTERNATE_COST_AVAILABLE: pay 1 life + exile a blue nonland card from hand (118.9)",
+      "authority_via": "118.9/601.2b + fixture",
+      "candidate_conformance": "NOT_RUN",
+      "kind": "execution_event",
+      "rqc3_scenario_id": "RQ-C3-C01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED"
+    },
+    {
+      "assertion": "Llanowar Elves spell countered to P1 graveyard (never entered)",
+      "authority_via": "118.9 + 601.2b (replaces stale 602); 105.2 + 305.6 (Island colorless; Turn to Frog blue); counter-target-spell resolution. RQ-C2 Q-C01 + Sol High RQ-C3 C01.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-C01",
+      "rqc3_scenario_id": "RQ-C3-C01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P1"
+    },
+    {
+      "assertion": "NORMAL_COST_AVAILABLE: 3UU payable via five untapped Islands (mana-source route genuinely legal)",
+      "authority_via": "118.9/601.2b + fixture",
+      "candidate_conformance": "NOT_RUN",
+      "kind": "execution_event",
+      "rqc3_scenario_id": "RQ-C3-C01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED"
+    },
+    {
+      "assertion": "P0 life is 39",
+      "authority_via": "118.9 + 601.2b (replaces stale 602); 105.2 + 305.6 (Island colorless; Turn to Frog blue); counter-target-spell resolution. RQ-C2 Q-C01 + Sol High RQ-C3 C01.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-C01",
+      "rqc3_scenario_id": "RQ-C3-C01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "life"
+    },
+    {
+      "assertion": "Turn to Frog (blue nonland) from P0 hand is in exile; Force of Will in P0 graveyard",
+      "authority_via": "118.9 + 601.2b (replaces stale 602); 105.2 + 305.6 (Island colorless; Turn to Frog blue); counter-target-spell resolution. RQ-C2 Q-C01 + Sol High RQ-C3 C01.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-C01",
+      "rqc3_scenario_id": "RQ-C3-C01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "exile"
+    },
+    {
+      "assertion": "Fireball in P0 graveyard",
+      "authority_via": "Oracle cost and division sentences; arithmetic mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-C03",
+      "rqc3_scenario_id": "RQ-C3-C03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P0"
+    },
+    {
+      "assertion": "P1 and P2 life are 38 each (remainder discarded, not assigned)",
+      "authority_via": "Oracle cost and division sentences; arithmetic mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-C03",
+      "rqc3_scenario_id": "RQ-C3-C03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "life"
+    },
+    {
+      "assertion": "Casualties of War in P0 graveyard",
+      "authority_via": "Oracle choose-one-or-more sentence with five modes; subset cardinality and per-mode targeting proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [SUPPLIED: 700.2 modal family per RQ-C2 L13; Ornithopter ORACLE_TEXT_VERIFIED per RQ-C2 L15.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-D06",
+      "rqc3_scenario_id": "RQ-C3-D06",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P0"
+    },
+    {
+      "assertion": "Ornithopter, Runeclaw Bear in graveyards; one P1 Forest in graveyard",
+      "authority_via": "Oracle choose-one-or-more sentence with five modes; subset cardinality and per-mode targeting proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [SUPPLIED: 700.2 modal family per RQ-C2 L13; Ornithopter ORACLE_TEXT_VERIFIED per RQ-C2 L15.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-D06",
+      "rqc3_scenario_id": "RQ-C3-D06",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards"
+    },
+    {
+      "assertion": "P0 and P2 life are 38 each",
+      "authority_via": "Oracle attack-restriction sentence; per-creature payment and defender mapping proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-E01",
+      "rqc3_scenario_id": "RQ-C3-E01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "life"
+    },
+    {
+      "assertion": "both Bears tapped and attacking-survived",
+      "authority_via": "Oracle attack-restriction sentence; per-creature payment and defender mapping proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-E01",
+      "rqc3_scenario_id": "RQ-C3-E01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "{2} paid for the P0-bound attacker; nothing paid for the P2-bound attacker",
+      "authority_via": "Oracle attack-restriction sentence; per-creature payment and defender mapping proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-E01",
+      "rqc3_scenario_id": "RQ-C3-E01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "mana paid"
+    },
+    {
+      "assertion": "Bear and Elves in P0 graveyard; Tyrant alive with no damage marked (survived; blockers dealt 2+1=3 < 6)",
+      "authority_via": "510.1c/510.1e + 702.19b + 704.5g; RQ-C2 Q-E02 + Sol High RQ-C3 E02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-E02",
+      "rqc3_scenario_id": "RQ-C3-E02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P0"
+    },
+    {
+      "assertion": "Carnage Tyrant on battlefield under P1",
+      "authority_via": "510.1c/510.1e + 702.19b + 704.5g; RQ-C2 Q-E02 + Sol High RQ-C3 E02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-E02",
+      "rqc3_scenario_id": "RQ-C3-E02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "P0 life is 36 (4 trample rollover)",
+      "authority_via": "510.1c/510.1e + 702.19b + 704.5g; RQ-C2 Q-E02 + Sol High RQ-C3 E02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-E02",
+      "rqc3_scenario_id": "RQ-C3-E02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "life"
+    },
+    {
+      "assertion": "P0 library count decreased by 1; order randomized (journal records shuffle, not order)",
+      "authority_via": "Oracle search-then-shuffle sentence; fail-to-find and shuffle-journal semantics proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [CORRECTED: 701.19b retired (static regenerate) in favor of 701.23b (hidden-zone fail-to-find) per RQ-C2 L07.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-F01",
+      "rqc3_scenario_id": "RQ-C3-F01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "libraries.P0"
+    },
+    {
+      "assertion": "Rampant Growth in P0 graveyard",
+      "authority_via": "Oracle search-then-shuffle sentence; fail-to-find and shuffle-journal semantics proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [CORRECTED: 701.19b retired (static regenerate) in favor of 701.23b (hidden-zone fail-to-find) per RQ-C2 L07.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-F01",
+      "rqc3_scenario_id": "RQ-C3-F01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P0"
+    },
+    {
+      "assertion": "one basic Forest on battlefield tapped under P0",
+      "authority_via": "Oracle search-then-shuffle sentence; fail-to-find and shuffle-journal semantics proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [CORRECTED: 701.19b retired (static regenerate) in favor of 701.23b (hidden-zone fail-to-find) per RQ-C2 L07.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-F01",
+      "rqc3_scenario_id": "RQ-C3-F01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "Duress in P0 graveyard",
+      "authority_via": "Oracle reveal/choose/discard; 701.20a publicity + no-memory-wipe; RQ-C2 Q-F02 + Sol High RQ-C3 F02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-F02",
+      "rqc3_scenario_id": "RQ-C3-F02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P0"
+    },
+    {
+      "assertion": "P1 remaining hand is a hidden zone again after resolution; identities legitimately observed during public reveal remain usable knowledge for P0/P2/P3 (retained memory is NOT a leak)",
+      "authority_via": "Oracle reveal/choose/discard; 701.20a publicity + no-memory-wipe; RQ-C2 Q-F02 + Sol High RQ-C3 F02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-F02",
+      "rqc3_scenario_id": "RQ-C3-F02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "hands.P1"
+    },
+    {
+      "assertion": "chosen noncreature nonland card in P1 graveyard",
+      "authority_via": "Oracle reveal/choose/discard; 701.20a publicity + no-memory-wipe; RQ-C2 Q-F02 + Sol High RQ-C3 F02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-F02",
+      "rqc3_scenario_id": "RQ-C3-F02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P1"
+    },
+    {
+      "assertion": "Ghalta on battlefield under P0 after taxed recast",
+      "authority_via": "Oracle text + commander movement/tax rules proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [Murder ORACLE_TEXT_VERIFIED per RQ-C2 L15; 10-mana funding obligation carried as harness obligation.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G02",
+      "rqc3_scenario_id": "RQ-C3-G02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "Murder in P1 graveyard",
+      "authority_via": "Oracle text + commander movement/tax rules proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [Murder ORACLE_TEXT_VERIFIED per RQ-C2 L15; 10-mana funding obligation carried as harness obligation.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G02",
+      "rqc3_scenario_id": "RQ-C3-G02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P1"
+    },
+    {
+      "assertion": "commander cast-count from command zone is 1 (tax accounted)",
+      "authority_via": "Oracle text + commander movement/tax rules proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [Murder ORACLE_TEXT_VERIFIED per RQ-C2 L15; 10-mana funding obligation carried as harness obligation.]",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G02",
+      "rqc3_scenario_id": "RQ-C3-G02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "players.P0"
+    },
+    {
+      "assertion": "Ghalta on battlefield under P0",
+      "authority_via": "903.10a (replaces 704.5c) + 704.3; RQ-C2 Q-G03 + setup review + Sol High RQ-C3 G03.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G03",
+      "rqc3_scenario_id": "RQ-C3-G03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "P0, P2, P3 remain in game",
+      "authority_via": "903.10a (replaces 704.5c) + 704.3; RQ-C2 Q-G03 + setup review + Sol High RQ-C3 G03.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G03",
+      "rqc3_scenario_id": "RQ-C3-G03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "players"
+    },
+    {
+      "assertion": "P1 has lost the game (commander damage total 24 from Ghalta)",
+      "authority_via": "903.10a (replaces 704.5c) + 704.3; RQ-C2 Q-G03 + setup review + Sol High RQ-C3 G03.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G03",
+      "rqc3_scenario_id": "RQ-C3-G03",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "players.P1"
+    },
+    {
+      "assertion": "PRIOR_STATE (PRE_DECISION_CONSTRUCTION, BEHAVIOR_CREDIT=0): P1 has 12 commander damage from Ghalta recorded as pre-game seeded history (not simulated; not injected during combat)",
+      "candidate_conformance": "NOT_RUN",
+      "kind": "setup_construction",
+      "note": "PRE_DECISION_CONSTRUCTION history; BEHAVIOR_CREDIT=0; not a behavior outcome",
+      "rqc3_scenario_id": "RQ-C3-G03",
+      "rules_authority": "MODELED_PENDING_CANDIDATE_EXECUTION"
+    },
+    {
+      "assertion": "Control Magic has left the game with P0 (owner)",
+      "authority_via": "800.4a (+ verbatim example) + 104.3a + 110.2/108.3; RQ-C2 Q_G04 packet + Sol High RQ-C3 G04.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_scenario_id": "RQ-C3-G04",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "exile-or-absent"
+    },
+    {
+      "assertion": "P0 has left the game; P1, P2, P3 remain",
+      "authority_via": "800.4a (+ verbatim example) + 104.3a + 110.2/108.3; RQ-C2 Q_G04 packet + Sol High RQ-C3 G04.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_scenario_id": "RQ-C3-G04",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "players"
+    },
+    {
+      "assertion": "Runeclaw Bear on battlefield under P1 (owner) control",
+      "authority_via": "800.4a (+ verbatim example) + 104.3a + 110.2/108.3; RQ-C2 Q_G04 packet + Sol High RQ-C3 G04.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_scenario_id": "RQ-C3-G04",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "zero triggered abilities created for any principal",
+      "authority_via": "800.4a (+ verbatim example) + 104.3a + 110.2/108.3; RQ-C2 Q_G04 packet + Sol High RQ-C3 G04.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_scenario_id": "RQ-C3-G04",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "trigger count"
+    },
+    {
+      "assertion": "Clone is 1/1 with no abilities on battlefield",
+      "authority_via": "Oracle copy + Humility sentences; layer ordering with timestamp-independence proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-H01",
+      "rqc3_scenario_id": "RQ-C3-H01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "original Bear is 1/1 with no abilities (Humility)",
+      "authority_via": "Oracle copy + Humility sentences; layer ordering with timestamp-independence proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-H01",
+      "rqc3_scenario_id": "RQ-C3-H01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "PATH_A final: Runeclaw Bear is a 4/4 blue Frog",
+      "authority_via": "Oracle +3/+3 and base-1/1 sentences; 613.4b/c sublayer precedence + Frog rulings; RQ-C2 Q-H02 + Sol High RQ-C3 H02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-H02",
+      "rqc3_scenario_id": "RQ-C3-H02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield.PATH_A"
+    },
+    {
+      "assertion": "PATH_B final: Runeclaw Bear is a 4/4 blue Frog",
+      "authority_via": "Oracle +3/+3 and base-1/1 sentences; 613.4b/c sublayer precedence + Frog rulings; RQ-C2 Q-H02 + Sol High RQ-C3 H02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-H02",
+      "rqc3_scenario_id": "RQ-C3-H02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield.PATH_B"
+    },
+    {
+      "assertion": "Momentary Blink in P0 graveyard",
+      "authority_via": "Oracle exile-then-return sentence + attachment/counter consequences proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-I01",
+      "rqc3_scenario_id": "RQ-C3-I01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P0"
+    },
+    {
+      "assertion": "Pacifism in P1 graveyard (not reattached)",
+      "authority_via": "Oracle exile-then-return sentence + attachment/counter consequences proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-I01",
+      "rqc3_scenario_id": "RQ-C3-I01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "graveyards.P1"
+    },
+    {
+      "assertion": "Runeclaw Bear on battlefield as a plain 2/2 with zero counters and no Auras",
+      "authority_via": "Oracle exile-then-return sentence + attachment/counter consequences proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-I01",
+      "rqc3_scenario_id": "RQ-C3-I01",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "Delina and Bear survive on battlefield",
+      "authority_via": "Oracle attack-trigger sentences; band mapping mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-J02",
+      "rqc3_scenario_id": "RQ-C3-J02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "RNG journal contains the d20 entry (domain 1-20, sampled 17, band 15-20) plus the decline of may-roll-again",
+      "authority_via": "Oracle attack-trigger sentences; band mapping mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-J02",
+      "rqc3_scenario_id": "RQ-C3-J02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "rng journal"
+    },
+    {
+      "assertion": "exactly one token was created and then exiled at end of combat (no token remains)",
+      "authority_via": "Oracle attack-trigger sentences; band mapping mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-J02",
+      "rqc3_scenario_id": "RQ-C3-J02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "token existence"
+    },
+    {
+      "assertion": "GATED_VARIANT: exactly one dies event from legend transit; exactly one Artist trigger by its controller with legally chosen target; kept permanent remains per 704.5j choice",
+      "authority_via": "704.5j + 700.4 + 603.10/603.10a + 614.1c/707.2; RQ-C2 Q_K02 packet + Sol High RQ-C3 K02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-K02",
+      "rqc3_scenario_id": "RQ-C3-K02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "gated-variant"
+    },
+    {
+      "assertion": "two Ghaltas coexist (P0 copy + P1 original); no SBA transit",
+      "authority_via": "704.5j + 700.4 + 603.10/603.10a + 614.1c/707.2; RQ-C2 Q_K02 packet + Sol High RQ-C3 K02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-K02",
+      "rqc3_scenario_id": "RQ-C3-K02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "battlefield"
+    },
+    {
+      "assertion": "zero Blood Artist triggers (nothing died)",
+      "authority_via": "704.5j + 700.4 + 603.10/603.10a + 614.1c/707.2; RQ-C2 Q_K02 packet + Sol High RQ-C3 K02.",
+      "candidate_conformance": "NOT_RUN",
+      "candidate_credit": 0,
+      "parent_scenario_id": "RQ-C1-K02",
+      "rqc3_scenario_id": "RQ-C3-K02",
+      "rules_authority": "EXTERNALLY_RULE_VALIDATED",
+      "target": "trigger count"
+    }
+  ],
+  "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline)",
+  "candidate_behavior_status": "NOT_RUN",
+  "closed_world": "Every corrected execution assertion listed above has explicit authority. Any assertion not listed is UNKNOWN (never PASS). Candidate runtime conformance to validated outcomes remains NOT_RUN (MODELED_PENDING_CANDIDATE_EXECUTION for future execution; never TECHNICALLY_CONFORMANT here).",
+  "schema": "rq-c3.execution-assertion-authority.v1"
+}
