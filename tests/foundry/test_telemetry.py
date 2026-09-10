@@ -253,5 +253,94 @@ def test_impact_unknown_base_errors(tmp_path: Path) -> None:
         test_impact_mod.changed_files(str(wt), "deadbeef" * 5)
 
 
+def test_redact_url_shapes() -> None:
+    from foundry import safe_push as safe_push_mod
+
+    assert (
+        safe_push_mod._redact_url("https://user:s3cret@github.com/o/r.git")
+        == "https://<redacted>@github.com/o/r.git"
+    )
+    assert (
+        safe_push_mod._redact_url("https://token123@github.com/o/r.git")
+        == "https://<redacted>@github.com/o/r.git"
+    )
+    plain = "https://github.com/o/r.git"
+    assert safe_push_mod._redact_url(plain) == plain
+    assert safe_push_mod._redact_url("/tmp/local/path.git") == "/tmp/local/path.git"
+
+
+def test_push_reject_redacts_credentialed_remote(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """A credential-bearing remote URL must never surface raw in diagnostics."""
+    import os
+
+    from foundry import safe_push as safe_push_mod
+
+    env = dict(os.environ)
+    env.update(
+        {
+            "GIT_AUTHOR_NAME": "T",
+            "GIT_AUTHOR_EMAIL": "t@example.com",
+            "GIT_COMMITTER_NAME": "T",
+            "GIT_COMMITTER_EMAIL": "t@example.com",
+            "GIT_CONFIG_NOSYSTEM": "1",
+        }
+    )
+    wt = tmp_path / "wt"
+    wt.mkdir()
+    _git(["init", "-b", "main"], wt, env)
+    _git(
+        ["config", "remote.origin.url", "https://user:s3cret-token@github.com/other/repo.git"],
+        wt,
+        env,
+    )
+    (wt / "f").write_text("x\n", encoding="utf-8")
+    _git(["add", "."], wt, env)
+    _git(["commit", "-m", "i"], wt, env)
+    head = _git(["rev-parse", "HEAD"], wt, env)
+    state = {
+        "schema_version": "2.0",
+        "repository": "r",
+        "worktree": str(wt),
+        "branch": "main",
+        "audit_base_sha": head,
+        "audit_base_tree": "0" * 40,
+        "state_written_against_head": head,
+        "validated_head": head,
+        "objective": "o",
+        "in_scope": [],
+        "out_of_scope": [],
+        "ownership": "REDAC-WS",
+        "status": "ACTIVE",
+        "exact_next_action": "x",
+    }
+    state_path = wt / "S.yaml"
+    state_path.write_text(yaml.safe_dump(state), encoding="utf-8")
+    rc = safe_push_mod.safe_push(str(wt), "project/x", str(state_path), "origin", "no-such-slug")
+    assert rc == 2
+    captured = capsys.readouterr()
+    assert "s3cret-token" not in captured.err
+    assert "<redacted>@" in captured.err
+
+
+def test_session_stats_ignores_secret_shaped_content(tmp_path: Path) -> None:
+    export = _export_fixture()
+    export["messages"][1]["parts"].append(
+        {
+            "type": "tool",
+            "tool": "bash",
+            "state": {"status": "completed", "output": "sk-live-abc123 token=hunter2"},
+        }
+    )
+    path = tmp_path / "export.json"
+    path.write_text(json.dumps(export), encoding="utf-8")
+    summary = session_stats_mod.summarize(str(path))
+    blob = json.dumps(summary)
+    assert "sk-live-abc123" not in blob
+    assert "hunter2" not in blob
+    assert summary["tool_calls"] == 4
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))

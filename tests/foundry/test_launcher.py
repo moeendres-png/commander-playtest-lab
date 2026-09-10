@@ -473,6 +473,19 @@ def test_launch_refused_plan_returns_one(target: dict, canon: Path) -> None:
     assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "low") == 1
 
 
+def test_injection_bundle_carries_no_secret_shaped_keys(target: dict, canon: Path) -> None:
+    plan = _plan(target, canon)
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    blob = json.dumps(bundle).lower()
+    for marker in ("apikey", "api_key", "token", "secret", "password", "credential"):
+        assert marker not in blob, marker
+    printable = {k: v for k, v in plan.items() if k != "_env"}
+    assert "_env" not in printable
+    # Key names are transparent; values (the bundle) must not leak into logs.
+    assert plan["_env"]["OPENCODE_CONFIG_CONTENT"] not in json.dumps(printable)
+
+
 _SLUG_BY_PROFILE = {
     "cpl": "moeendres-png/commander-playtest-lab",
     "mage": "moeendres-png/mage",
