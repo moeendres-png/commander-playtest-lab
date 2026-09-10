@@ -97,5 +97,16 @@
     "status": "external_runtime_prepared_but_not_executed",
     "forge_pin": "forge-2.0.13 @ 852066bf4f761b302ed17cb011999d8a8fe08ad6",
     "note": "Preserved only for Phase 8.5 provenance; not current provider truth."
+  },
+  "authority_note": {
+    "pin_authority": "This file (config/rules_engines.json) is the sole machine-readable authority for current engine pins: primary_engine.commit and secondary_engine.commit.",
+    "documentation_rule": "Human-readable pin statements elsewhere (integrations/*/README.md, docs/engine_setup.md) must cite this file and must not restate commits. On any disagreement, this file wins.",
+    "role_terminology": {
+      "primary_engine": "Engine under active integration (validated B4-D bridge surface). NOT a selected architecture leader and NOT a Production Provider.",
+      "secondary_engine": "Differential candidate backend under investigation. NOT a runner-up selection.",
+      "selection_truth": "ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT SELECTED. provider_decision=NO_PROVIDER_READY, current_runtime.provider_selected=false, current_runtime.production_provider=null. No engine is production-selected until the provider release gate passes and a Freeze workstream records the decision.",
+      "rename_policy": "Do not rename primary_engine/secondary_engine keys: they are runtime-contract fields consumed by src/commander_lab/technical_truth.py, scripts/run_external_b4f_*.py and .github/workflows/release-artifacts.yml. Terminology changes belong in documentation, not in schema renames."
+    },
+    "known_stale_pointers": "docker/forge/Dockerfile, docker/xmage/Dockerfile and src/commander_lab/engine/rules/phase85.py (Phase-8.5 output template) carry older pins. They are NOT authority. Re-pinning container flows requires a dedicated re-pin workstream with requalification (Authority Gate PIN_DIVERGENCE_DOCKERFILES); see docs/RETENTION_AND_LIFECYCLE_POLICY.md, Appendix G (recorded Authority Gates)."
   }
 }
