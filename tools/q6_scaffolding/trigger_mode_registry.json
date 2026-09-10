@@ -1,0 +1,978 @@
+{
+ "modes": {
+  "Abandoned": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AbilityCast": {
+   "corpus_files_before": 41,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AbilityResolves": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AbilityTriggered": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Always": {
+   "corpus_files_before": 62,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Attached": {
+   "corpus_files_before": 11,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AttackerBlocked": {
+   "corpus_files_before": 126,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AttackerBlockedByCreature": {
+   "corpus_files_before": 63,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AttackerBlockedOnce": {
+   "corpus_files_before": 3,
+   "once_base": "AttackerBlocked",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AttackerUnblocked": {
+   "corpus_files_before": 37,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AttackerUnblockedOnce": {
+   "corpus_files_before": 1,
+   "once_base": "AttackerUnblocked",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AttackersDeclared": {
+   "corpus_files_before": 225,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "AttackersDeclaredOneTarget": {
+   "corpus_files_before": 30,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Attacks": {
+   "corpus_files_before": 1577,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomeMonarch": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomeMonstrous": {
+   "corpus_files_before": 19,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomeRenowned": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomesCrewed": {
+   "corpus_files_before": 5,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomesPlotted": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomesSaddled": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomesTarget": {
+   "corpus_files_before": 115,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BecomesTargetOnce": {
+   "corpus_files_before": 3,
+   "once_base": "BecomesTarget",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "BlockersDeclared": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Blocks": {
+   "corpus_files_before": 126,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CaseSolved": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Championed": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ChangesController": {
+   "corpus_files_before": 6,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ChangesZone": {
+   "corpus_files_before": 7007,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ChangesZoneAll": {
+   "corpus_files_before": 122,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ChaosEnsues": {
+   "corpus_files_before": 139,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ClaimPrize": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Clashed": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CollectEvidence": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CommitCrime": {
+   "corpus_files_before": 20,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ConjureAll": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Connives": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CounterAdded": {
+   "corpus_files_before": 19,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CounterAddedAll": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CounterAddedOnce": {
+   "corpus_files_before": 46,
+   "once_base": "CounterAdded",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CounterPlayerAddedAll": {
+   "corpus_files_before": 8,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CounterRemoved": {
+   "corpus_files_before": 11,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CounterRemovedOnce": {
+   "corpus_files_before": 3,
+   "once_base": "CounterRemoved",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CounterTypeAddedAll": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Countered": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "CrankContraption": {
+   "corpus_files_before": 45,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Crewed": {
+   "corpus_files_before": 7,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Cycled": {
+   "corpus_files_before": 77,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DamageAll": {
+   "corpus_files_before": 7,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DamageDealtOnce": {
+   "corpus_files_before": 48,
+   "once_base": "DamageDealt",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DamageDone": {
+   "corpus_files_before": 860,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DamageDoneOnce": {
+   "corpus_files_before": 202,
+   "once_base": "DamageDone",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DamagePreventedOnce": {
+   "corpus_files_before": 1,
+   "once_base": "DamagePrevented",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DayTimeChanges": {
+   "corpus_files_before": 10,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Destroyed": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Devoured": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Discarded": {
+   "corpus_files_before": 76,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DiscardedAll": {
+   "corpus_files_before": 21,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Discover": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Drawn": {
+   "corpus_files_before": 145,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "DungeonCompleted": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ElementalBend": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Enlisted": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Evolved": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ExcessDamage": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ExcessDamageAll": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Exerted": {
+   "corpus_files_before": 5,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Exiled": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Exploited": {
+   "corpus_files_before": 25,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Explores": {
+   "corpus_files_before": 5,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "FacesDilemma": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Fight": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "FightOnce": {
+   "corpus_files_before": 1,
+   "once_base": "Fight",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "FlippedCoin": {
+   "corpus_files_before": 7,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Forage": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Foretell": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "FullyUnlock": {
+   "corpus_files_before": 17,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "GiveGift": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Investigated": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "LandPlayed": {
+   "corpus_files_before": 40,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "LifeGained": {
+   "corpus_files_before": 91,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "LifeLost": {
+   "corpus_files_before": 20,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "LifeLostAll": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "LosesGame": {
+   "corpus_files_before": 7,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ManaAdded": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ManaExpend": {
+   "corpus_files_before": 12,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "ManifestDread": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Mentored": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Milled": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "MilledAll": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "MilledOnce": {
+   "corpus_files_before": 2,
+   "once_base": "Milled",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Mutates": {
+   "corpus_files_before": 32,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "NewGame": {
+   "corpus_files_before": 5,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PayCumulativeUpkeep": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PayEcho": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PayLife": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Phase": {
+   "corpus_files_before": 2235,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PhaseIn": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PhaseOut": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PhaseOutAll": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PlanarDice": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PlaneswalkedFrom": {
+   "corpus_files_before": 5,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "PlaneswalkedTo": {
+   "corpus_files_before": 41,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Proliferate": {
+   "corpus_files_before": 6,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "RingTemptsYou": {
+   "corpus_files_before": 9,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "RolledDie": {
+   "corpus_files_before": 19,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "RolledDieOnce": {
+   "corpus_files_before": 6,
+   "once_base": "RolledDie",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "RoomEntered": {
+   "corpus_files_before": 0,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 1
+  },
+  "Sacrificed": {
+   "corpus_files_before": 114,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SacrificedOnce": {
+   "corpus_files_before": 1,
+   "once_base": "Sacrificed",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Saddled": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Scry": {
+   "corpus_files_before": 20,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SearchedLibrary": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SeekAll": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SetInMotion": {
+   "corpus_files_before": 84,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Shuffled": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Specializes": {
+   "corpus_files_before": 11,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SpellAbilityCast": {
+   "corpus_files_before": 6,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SpellAbilityCopy": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SpellCast": {
+   "corpus_files_before": 1348,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SpellCastOrCopy": {
+   "corpus_files_before": 31,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "SpellCopy": {
+   "corpus_files_before": 6,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Stationed": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Surveil": {
+   "corpus_files_before": 12,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "TapAll": {
+   "corpus_files_before": 2,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Taps": {
+   "corpus_files_before": 112,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "TapsForMana": {
+   "corpus_files_before": 64,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "TokenCreated": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "TokenCreatedOnce": {
+   "corpus_files_before": 2,
+   "once_base": "TokenCreated",
+   "once_variant": true,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Trains": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Transformed": {
+   "corpus_files_before": 30,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "TurnBegin": {
+   "corpus_files_before": 8,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "TurnFaceUp": {
+   "corpus_files_before": 125,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Unattached": {
+   "corpus_files_before": 4,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "UnlockDoor": {
+   "corpus_files_before": 26,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "UntapAll": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Untaps": {
+   "corpus_files_before": 30,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "VisitAttraction": {
+   "corpus_files_before": 1,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  },
+  "Vote": {
+   "corpus_files_before": 3,
+   "once_base": null,
+   "once_variant": false,
+   "provenance": "Task-2B full-corpus inventory b8d0b2b4f274ea88: observed as T/Mode$ and/or ValidMode$ values. A T-line Mode$ value is a trigger condition by format construction; recognition records the raw value and never encodes trigger semantics.",
+   "validmode_only_before": 0
+  }
+ },
+ "provenance": {
+  "forge_pin": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+  "inventory": "docs/qualification/q6-scaffolding/evidence/corpus-inventory-before.json",
+  "inventory_hash": "b8d0b2b4f274ea88d17e0e2355635f0b2aadec4105dddcb599d9932be4ee7040",
+  "method": "Union of observed T/Mode$ values and ValidMode$ references from the full-corpus BEFORE inventory (Task-2A baseline parser). Unlisted values stay exactly reported as unknown_trigger_modes."
+ },
+ "registry_version": "q6-trigger-mode-registry-0.2.0",
+ "schema": "q6.trigger-mode-registry.v1"
+}

@@ -104,6 +104,11 @@ _SEED_FAMILIES = (
         "task-contract seed; corpus evidence: copy/control (D3 §4: 170/1000)",
     ),
     CapabilityFamily(
+        "LAYER_CHARACTERISTIC",
+        "Characteristic-setting effects needing layer/timestamp adjudication.",
+        "Task-2B full-corpus census; Animate/SetState/ChangeText-shape verbs",
+    ),
+    CapabilityFamily(
         "ZONE_CHANGE",
         "Zone movements with timing/visibility questions (exile, return, SBA).",
         "task-contract seed; D3 family TRIGGER_REPLACEMENT_ZONE_SBA lineage",
@@ -152,6 +157,7 @@ PRIMARY_CAPABILITY_ORDER = (
     "HIDDEN_INFORMATION",
     "RANDOMNESS",
     "COPY_CONTROL",
+    "LAYER_CHARACTERISTIC",
     "TRIGGERED_CHOICE",
     "REPLACEMENT_EFFECT",
     "MODAL_CHOICE",
@@ -200,7 +206,7 @@ class Classification:
     capability_families: list = field(default_factory=list)
     adversarial_tags: list = field(default_factory=list)
     expected_decision_pretags: list = field(default_factory=list)
-    taxonomy_version: str = "q6-taxonomy-0.1.0"
+    taxonomy_version: str = "q6-taxonomy-0.2.0"
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -251,10 +257,14 @@ def classify_card(intake_id: str, features: dict) -> Classification:
     if features.get("has_replacement"):
         families.append("REPLACEMENT_EFFECT")
         tags.append("replacements")
-    if features.get("has_trigger"):
+    if features.get("has_trigger") or features.get("has_trigger_condition"):
         families.append("TRIGGERED_CHOICE")
         tags.append("triggers")
         pretags.append(_pretag("TRIGGER_CHOICE", "trigger line present in text"))
+    if features.get("has_combat"):
+        families.append("COMBAT")
+        tags.append("combat")
+        pretags.append(_pretag("COMBAT_SELECTION", "combat-restriction signals in text"))
     if features.get("has_commander"):
         families.append("COMMANDER_MECHANIC")
     if features.get("has_multiplayer"):
@@ -269,6 +279,9 @@ def classify_card(intake_id: str, features: dict) -> Classification:
     if features.get("has_copy_control"):
         families.append("COPY_CONTROL")
         tags.append("copy_control")
+    if features.get("layer_adjudication_verbs"):
+        families.append("LAYER_CHARACTERISTIC")
+        tags.append("layers")
     if features.get("has_trigger") or features.get("has_replacement") or features.get("has_static"):
         families.append("ZONE_CHANGE")
     if features.get("has_static") or features.get("has_replacement"):

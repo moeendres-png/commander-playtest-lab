@@ -1,0 +1,424 @@
+{
+ "ability_mode_classes": [
+  "CHARACTERISTIC_SCOPE",
+  "CHOICE_PROCEDURE",
+  "CONTROL_MODE",
+  "MODAL_META",
+  "RANDOMNESS_SELECTOR",
+  "TARGETING_SELECTOR",
+  "TRANSFORM_MODE",
+  "TRIGGER_CONDITION",
+  "ZONE_SCOPE"
+ ],
+ "ability_modes": {
+  "AbilityCast": {
+   "class": "TRIGGER_CONDITION",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "CanRepeatModes": {
+   "class": "MODAL_META",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "ChangesZone": {
+   "class": "TRIGGER_CONDITION",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Defined": {
+   "class": "ZONE_SCOPE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Flip": {
+   "class": "TRANSFORM_MODE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Gain": {
+   "class": "CONTROL_MODE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Hand": {
+   "class": "ZONE_SCOPE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "LockOrUnlock": {
+   "class": "CHOICE_PROCEDURE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "LookYouChoose": {
+   "class": "CHOICE_PROCEDURE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Phase": {
+   "class": "TRIGGER_CONDITION",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Power": {
+   "class": "CHARACTERISTIC_SCOPE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Random": {
+   "class": "RANDOMNESS_SELECTOR",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "RevealDiscardAll": {
+   "class": "CHOICE_PROCEDURE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "RevealTgtChoose": {
+   "class": "TARGETING_SELECTOR",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "RevealYouChoose": {
+   "class": "CHOICE_PROCEDURE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "SpellAbilityCast": {
+   "class": "TRIGGER_CONDITION",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "SpellCast": {
+   "class": "TRIGGER_CONDITION",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "TgtChoose": {
+   "class": "TARGETING_SELECTOR",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Toughness": {
+   "class": "CHARACTERISTIC_SCOPE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "Transform": {
+   "class": "TRANSFORM_MODE",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "TurnFaceDown": {
+   "class": "TRIGGER_CONDITION",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  },
+  "TurnFaceUp": {
+   "class": "TRIGGER_CONDITION",
+   "provenance": "Task-2B A-mode census (see registry provenance)."
+  }
+ },
+ "modal_meta_keys": [
+  "CanRepeatModes"
+ ],
+ "provenance": {
+  "forge_pin": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+  "inventory": "docs/qualification/q6-scaffolding/evidence/corpus-inventory-before.json",
+  "inventory_hash": "b8d0b2b4f274ea88d17e0e2355635f0b2aadec4105dddcb599d9932be4ee7040",
+  "method": "Task-2B full-corpus BEFORE inventory: all 38 observed S/Mode$ values and all 12 observed A/Mode$ values classified by mechanical role from the public Forge wiki format plus observed usage (Adaptive Training Post, Flay, Aggressive Sabotage, Ajani Unrelenting shapes). Unlisted values stay exactly reported."
+ },
+ "registry_version": "q6-static-mode-registry-0.2.0",
+ "schema": "q6.static-mode-registry.v1",
+ "static_mode_classes": [
+  "STATIC_COMBAT",
+  "STATIC_CONTINUOUS",
+  "STATIC_COST_CHOICE",
+  "STATIC_COST_MOD",
+  "STATIC_OTHER",
+  "STATIC_RESTRICTION"
+ ],
+ "static_modes": {
+  "ActivateAbilityAsIfHaste": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "Activations": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "AlternativeCost": {
+   "class": "STATIC_COST_CHOICE",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "AssignCombatDamageAsUnblocked": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "AttackRequirement": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "AttackRestrict": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "BlockRestrict": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "BlockTapped": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CanAttackDefender": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CanAttackIfHaste": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CanBlockIfReach": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantAttach": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantAttack": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantAttackUnless": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBeActivated": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBeBeamedUp": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBeCast": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBeCopied": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBeSuspected": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBlock": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBlockBy": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantBlockUnless": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantChangeDayTime": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantChangeLife": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantDiscard": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantDraw": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantExile": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantGainLife": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantPayLife": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantPhaseIn": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantPlayLand": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantPreventDamage": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantPutCounter": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantSacrifice": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantTarget": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantTransform": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CantVenture": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CastWithFlash": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "ColorlessDamageSource": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CombatDamageToughness": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "Continuous": {
+   "class": "STATIC_CONTINUOUS",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "CountersRemain": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "Devotion": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "DisableTriggers": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "FlipCoinDoubler": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "FlipCoinMod": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "GainLifeRadiation": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "IgnoreHexproof": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "IgnoreLandWalk": {
+   "class": "STATIC_CONTINUOUS",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "IgnoreLegendRule": {
+   "class": "STATIC_CONTINUOUS",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "InfectDamage": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "ManaBurn": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "ManaConvert": {
+   "class": "STATIC_COST_MOD",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "MaxCounter": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "MinMaxBlocker": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "MustAttack": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "MustBlock": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "MustTarget": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "NoCleanupDamage": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "NumLoyaltyAct": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "OptionalAttackCost": {
+   "class": "STATIC_COST_CHOICE",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "OptionalCost": {
+   "class": "STATIC_COST_CHOICE",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "Panharmonicon": {
+   "class": "STATIC_CONTINUOUS",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "PhaseReversed": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "PlayerMustAttack": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "PlotZone": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "RaiseCost": {
+   "class": "STATIC_COST_MOD",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "ReduceCost": {
+   "class": "STATIC_COST_MOD",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "SetCost": {
+   "class": "STATIC_COST_MOD",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "SurveilNum": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "TapPowerValue": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "TurnReversed": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "UnspentMana": {
+   "class": "STATIC_COST_MOD",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "UntapOtherPlayer": {
+   "class": "STATIC_COMBAT",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  },
+  "WitherDamage": {
+   "class": "STATIC_OTHER",
+   "provenance": "Task-2B S-mode census (see registry provenance)."
+  }
+ }
+}

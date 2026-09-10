@@ -1,0 +1,1146 @@
+{
+ "flag_vocabulary": [
+  "COMBAT",
+  "COPY_CONTROL",
+  "HIDDEN",
+  "LAYER_ADJUDICATION",
+  "MANUAL_REVIEW",
+  "PREVENTION_ADJUDICATION",
+  "RANDOMNESS",
+  "REPLACEMENT",
+  "TRIGGER"
+ ],
+ "provenance": {
+  "forge_pin": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+  "inventory": "docs/qualification/q6-scaffolding/evidence/corpus-inventory-before.json",
+  "inventory_hash": "b8d0b2b4f274ea88d17e0e2355635f0b2aadec4105dddcb599d9932be4ee7040",
+  "method": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label."
+ },
+ "registry_version": "q6-verb-registry-0.2.0",
+ "schema": "q6.verb-registry.v1",
+ "shape_vocabulary": [
+  "CHOICE_SHAPE",
+  "COMBAT_SHAPE",
+  "COPY_CONTROL_SHAPE",
+  "COUNTER_SHAPE",
+  "DAMAGE_SHAPE",
+  "DESTROY_SHAPE",
+  "DISCARD_SHAPE",
+  "DRAW_SHAPE",
+  "EXILE_SHAPE",
+  "HIDDEN_SHAPE",
+  "LAYER_SHAPE",
+  "LIFE_SHAPE",
+  "MANA_SHAPE",
+  "MASS_COUNTER_SHAPE",
+  "MASS_DAMAGE_SHAPE",
+  "MASS_DESTROY_SHAPE",
+  "MASS_ZONE_CHANGE_SHAPE",
+  "MILL_SHAPE",
+  "MODAL_SHAPE",
+  "OTHER_STRUCTURED_SHAPE",
+  "PREVENTION_SHAPE",
+  "PUMP_SHAPE",
+  "RANDOM_SHAPE",
+  "REPLACEMENT_SHAPE",
+  "SACRIFICE_SHAPE",
+  "SEARCH_SHAPE",
+  "SHUFFLE_SHAPE",
+  "TAP_SHAPE",
+  "TARGET_MOD_SHAPE",
+  "TOKEN_SHAPE",
+  "TRIGGER_SHAPE",
+  "TURN_SHAPE",
+  "ZONE_CHANGE_SHAPE"
+ ],
+ "verbs": {
+  "ActivateAbility": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "AddOrRemoveCounter": {
+   "corpus_files_before": 5,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "AddPhase": {
+   "corpus_files_before": 2,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TURN_SHAPE"
+  },
+  "AddTurn": {
+   "corpus_files_before": 33,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TURN_SHAPE"
+  },
+  "AdvanceCrank": {
+   "corpus_files_before": 1,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Airbend": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "AlterAttribute": {
+   "corpus_files_before": 7,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LAYER_SHAPE"
+  },
+  "Amass": {
+   "corpus_files_before": 12,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TOKEN_SHAPE"
+  },
+  "Animate": {
+   "corpus_files_before": 358,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LAYER_SHAPE"
+  },
+  "AnimateAll": {
+   "corpus_files_before": 60,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LAYER_SHAPE"
+  },
+  "AssembleContraption": {
+   "corpus_files_before": 6,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "AssignGroup": {
+   "corpus_files_before": 5,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "Attach": {
+   "corpus_files_before": 16,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "Balance": {
+   "corpus_files_before": 4,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "BecomeMonarch": {
+   "corpus_files_before": 4,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "BecomesBlocked": {
+   "corpus_files_before": 5,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "BidLife": {
+   "corpus_files_before": 3,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Blight": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Branch": {
+   "corpus_files_before": 24,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChangeTargets": {
+   "corpus_files_before": 23,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TARGET_MOD_SHAPE"
+  },
+  "ChangeText": {
+   "corpus_files_before": 6,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LAYER_SHAPE"
+  },
+  "ChangeZone": {
+   "corpus_files_before": 2063,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "ZONE_CHANGE_SHAPE"
+  },
+  "ChangeZoneAll": {
+   "corpus_files_before": 218,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MASS_ZONE_CHANGE_SHAPE"
+  },
+  "Charm": {
+   "corpus_files_before": 556,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MODAL_SHAPE"
+  },
+  "ChooseCard": {
+   "corpus_files_before": 78,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChooseColor": {
+   "corpus_files_before": 38,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChooseDirection": {
+   "corpus_files_before": 3,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChooseEvenOdd": {
+   "corpus_files_before": 2,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChooseNumber": {
+   "corpus_files_before": 14,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChoosePlayer": {
+   "corpus_files_before": 13,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChooseSector": {
+   "corpus_files_before": 1,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChooseSource": {
+   "corpus_files_before": 62,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "ChooseType": {
+   "corpus_files_before": 64,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "Clash": {
+   "corpus_files_before": 2,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Cleanup": {
+   "corpus_files_before": 0,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Clone": {
+   "corpus_files_before": 23,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "Connive": {
+   "corpus_files_before": 6,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "ControlPlayer": {
+   "corpus_files_before": 4,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "ControlSpell": {
+   "corpus_files_before": 3,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Copy": {
+   "corpus_files_before": 0,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "CopyPermanent": {
+   "corpus_files_before": 91,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "CopySpellAbility": {
+   "corpus_files_before": 47,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "Counter": {
+   "corpus_files_before": 369,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "Counters": {
+   "corpus_files_before": 0,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "DamageAll": {
+   "corpus_files_before": 174,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MASS_DAMAGE_SHAPE"
+  },
+  "DayTime": {
+   "corpus_files_before": 3,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "DealDamage": {
+   "corpus_files_before": 1174,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "DAMAGE_SHAPE"
+  },
+  "Debuff": {
+   "corpus_files_before": 26,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PUMP_SHAPE"
+  },
+  "DelayedTrigger": {
+   "corpus_files_before": 36,
+   "flags": [
+    "TRIGGER"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TRIGGER_SHAPE"
+  },
+  "Destroy": {
+   "corpus_files_before": 794,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "DESTROY_SHAPE"
+  },
+  "DestroyAll": {
+   "corpus_files_before": 161,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MASS_DESTROY_SHAPE"
+  },
+  "Detain": {
+   "corpus_files_before": 3,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "Dig": {
+   "corpus_files_before": 340,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "DigMultiple": {
+   "corpus_files_before": 9,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "DigUntil": {
+   "corpus_files_before": 45,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "Discard": {
+   "corpus_files_before": 241,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "DISCARD_SHAPE"
+  },
+  "Discover": {
+   "corpus_files_before": 11,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Draft": {
+   "corpus_files_before": 7,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Draw": {
+   "corpus_files_before": 943,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "DRAW_SHAPE"
+  },
+  "EachDamage": {
+   "corpus_files_before": 4,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MASS_DAMAGE_SHAPE"
+  },
+  "Earthbend": {
+   "corpus_files_before": 8,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Effect": {
+   "corpus_files_before": 577,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "EndTurn": {
+   "corpus_files_before": 5,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TURN_SHAPE"
+  },
+  "Endure": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "ExchangeControl": {
+   "corpus_files_before": 11,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "ExchangeControlVariant": {
+   "corpus_files_before": 1,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "ExchangeLife": {
+   "corpus_files_before": 5,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LIFE_SHAPE"
+  },
+  "ExchangeLifeVariant": {
+   "corpus_files_before": 3,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LIFE_SHAPE"
+  },
+  "Exile": {
+   "corpus_files_before": 0,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "EXILE_SHAPE"
+  },
+  "Explore": {
+   "corpus_files_before": 5,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Fight": {
+   "corpus_files_before": 9,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "FlipACoin": {
+   "corpus_files_before": 0,
+   "flags": [
+    "RANDOMNESS"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "RANDOM_SHAPE"
+  },
+  "FlipCoin": {
+   "corpus_files_before": 25,
+   "flags": [
+    "RANDOMNESS"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "RANDOM_SHAPE"
+  },
+  "FlipOntoBattlefield": {
+   "corpus_files_before": 2,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "ZONE_CHANGE_SHAPE"
+  },
+  "Fog": {
+   "corpus_files_before": 28,
+   "flags": [
+    "PREVENTION_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PREVENTION_SHAPE"
+  },
+  "GainControl": {
+   "corpus_files_before": 123,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "GainControlVariant": {
+   "corpus_files_before": 2,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "GainLife": {
+   "corpus_files_before": 273,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LIFE_SHAPE"
+  },
+  "GainOwnership": {
+   "corpus_files_before": 1,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "GenericChoice": {
+   "corpus_files_before": 36,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "Goad": {
+   "corpus_files_before": 10,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "ImmediateTrigger": {
+   "corpus_files_before": 1,
+   "flags": [
+    "TRIGGER"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TRIGGER_SHAPE"
+  },
+  "Incubate": {
+   "corpus_files_before": 4,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Investigate": {
+   "corpus_files_before": 23,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TOKEN_SHAPE"
+  },
+  "Learn": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "LookAt": {
+   "corpus_files_before": 2,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "HIDDEN_SHAPE"
+  },
+  "LoseLife": {
+   "corpus_files_before": 142,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LIFE_SHAPE"
+  },
+  "LosesGame": {
+   "corpus_files_before": 3,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "MakeCard": {
+   "corpus_files_before": 25,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Mana": {
+   "corpus_files_before": 1869,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MANA_SHAPE"
+  },
+  "ManaReflected": {
+   "corpus_files_before": 22,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MANA_SHAPE"
+  },
+  "Manifest": {
+   "corpus_files_before": 9,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "HIDDEN_SHAPE"
+  },
+  "ManifestDread": {
+   "corpus_files_before": 5,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "HIDDEN_SHAPE"
+  },
+  "Meld": {
+   "corpus_files_before": 2,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Mill": {
+   "corpus_files_before": 175,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MILL_SHAPE"
+  },
+  "MoveCounter": {
+   "corpus_files_before": 15,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "Mulligan": {
+   "corpus_files_before": 0,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "MultiplePiles": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "MultiplyCounter": {
+   "corpus_files_before": 10,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "MustBlock": {
+   "corpus_files_before": 11,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "NameCard": {
+   "corpus_files_before": 40,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "OpenAttraction": {
+   "corpus_files_before": 1,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "PeekAndReveal": {
+   "corpus_files_before": 59,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "HIDDEN_SHAPE"
+  },
+  "PermanentCreature": {
+   "corpus_files_before": 30,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LAYER_SHAPE"
+  },
+  "PermanentNoncreature": {
+   "corpus_files_before": 1,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LAYER_SHAPE"
+  },
+  "Phases": {
+   "corpus_files_before": 18,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TURN_SHAPE"
+  },
+  "Play": {
+   "corpus_files_before": 35,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "ZONE_CHANGE_SHAPE"
+  },
+  "Poison": {
+   "corpus_files_before": 3,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "PreventDamage": {
+   "corpus_files_before": 97,
+   "flags": [
+    "PREVENTION_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PREVENTION_SHAPE"
+  },
+  "Proliferate": {
+   "corpus_files_before": 21,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "Protection": {
+   "corpus_files_before": 45,
+   "flags": [
+    "PREVENTION_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PREVENTION_SHAPE"
+  },
+  "ProtectionAll": {
+   "corpus_files_before": 2,
+   "flags": [
+    "PREVENTION_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PREVENTION_SHAPE"
+  },
+  "Pump": {
+   "corpus_files_before": 2322,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PUMP_SHAPE"
+  },
+  "PumpAll": {
+   "corpus_files_before": 423,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PUMP_SHAPE"
+  },
+  "PutCounter": {
+   "corpus_files_before": 699,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "PutCounterAll": {
+   "corpus_files_before": 71,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MASS_COUNTER_SHAPE"
+  },
+  "RearrangeTopOfLibrary": {
+   "corpus_files_before": 13,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "Regenerate": {
+   "corpus_files_before": 233,
+   "flags": [
+    "PREVENTION_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PREVENTION_SHAPE"
+  },
+  "RemoveCounter": {
+   "corpus_files_before": 22,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COUNTER_SHAPE"
+  },
+  "RemoveCounterAll": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "MASS_COUNTER_SHAPE"
+  },
+  "RemoveFromCombat": {
+   "corpus_files_before": 5,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "ReorderZone": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SHUFFLE_SHAPE"
+  },
+  "Repeat": {
+   "corpus_files_before": 26,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "RepeatEach": {
+   "corpus_files_before": 95,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "ReplaceEffect": {
+   "corpus_files_before": 0,
+   "flags": [
+    "REPLACEMENT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "REPLACEMENT_SHAPE"
+  },
+  "RestartGame": {
+   "corpus_files_before": 1,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Reveal": {
+   "corpus_files_before": 33,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "HIDDEN_SHAPE"
+  },
+  "RevealHand": {
+   "corpus_files_before": 32,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "HIDDEN_SHAPE"
+  },
+  "ReverseTurnOrder": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TURN_SHAPE"
+  },
+  "RingTemptsYou": {
+   "corpus_files_before": 3,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "RollDice": {
+   "corpus_files_before": 46,
+   "flags": [
+    "RANDOMNESS"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "RANDOM_SHAPE"
+  },
+  "RollPlanarDice": {
+   "corpus_files_before": 1,
+   "flags": [
+    "RANDOMNESS"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "RANDOM_SHAPE"
+  },
+  "Sacrifice": {
+   "corpus_files_before": 127,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SACRIFICE_SHAPE"
+  },
+  "SacrificeAll": {
+   "corpus_files_before": 11,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SACRIFICE_SHAPE"
+  },
+  "Scry": {
+   "corpus_files_before": 87,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "SearchLibrary": {
+   "corpus_files_before": 0,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "Seek": {
+   "corpus_files_before": 27,
+   "flags": [
+    "RANDOMNESS"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "SetLife": {
+   "corpus_files_before": 11,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LIFE_SHAPE"
+  },
+  "SetState": {
+   "corpus_files_before": 82,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "LAYER_SHAPE"
+  },
+  "Shuffle": {
+   "corpus_files_before": 15,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SHUFFLE_SHAPE"
+  },
+  "SkipPhase": {
+   "corpus_files_before": 4,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TURN_SHAPE"
+  },
+  "StoreSVar": {
+   "corpus_files_before": 6,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Subgame": {
+   "corpus_files_before": 3,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Surveil": {
+   "corpus_files_before": 62,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "SEARCH_SHAPE"
+  },
+  "SwitchBlock": {
+   "corpus_files_before": 2,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "TakeInitiative": {
+   "corpus_files_before": 1,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Tap": {
+   "corpus_files_before": 261,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TAP_SHAPE"
+  },
+  "TapAll": {
+   "corpus_files_before": 19,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TAP_SHAPE"
+  },
+  "TapOrUntap": {
+   "corpus_files_before": 25,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TAP_SHAPE"
+  },
+  "TimeTravel": {
+   "corpus_files_before": 4,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Token": {
+   "corpus_files_before": 835,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TOKEN_SHAPE"
+  },
+  "TwoPiles": {
+   "corpus_files_before": 4,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "Unattach": {
+   "corpus_files_before": 1,
+   "flags": [
+    "COPY_CONTROL"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "COPY_CONTROL_SHAPE"
+  },
+  "UnlockDoor": {
+   "corpus_files_before": 2,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Untap": {
+   "corpus_files_before": 168,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TAP_SHAPE"
+  },
+  "UntapAll": {
+   "corpus_files_before": 30,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TAP_SHAPE"
+  },
+  "Venture": {
+   "corpus_files_before": 9,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "VillainousChoice": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "Vote": {
+   "corpus_files_before": 14,
+   "flags": [],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "CHOICE_SHAPE"
+  },
+  "WinsGame": {
+   "corpus_files_before": 2,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  }
+ }
+}

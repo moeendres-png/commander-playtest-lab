@@ -95,6 +95,8 @@ def _setup_for(features: dict, families: list[str]) -> tuple[list, list, list]:
         prereqs.append("Rules-Core-seeded randomness available (no harness RNG)")
     if features.get("has_multiplayer"):
         prereqs.append("multiplayer seating with 2+ opponents for vote/each-player scope")
+    if features.get("has_combat"):
+        prereqs.append("attacker/blocker declaration context available at runtime")
     if features.get("has_commander"):
         prereqs.append("commander game configuration (command zone + commander tax state)")
     if features.get("nested_svar"):
@@ -160,18 +162,26 @@ def _rules_questions_for(features: dict, families: list[str], card_name_hint: st
             }
         )
 
-    if features.get("has_trigger"):
+    if features.get("has_trigger") or features.get("has_trigger_condition"):
         ask(
             "trigger-timing",
             f"Trigger timing/ordering/intervention for {card_name_hint or 'this card'} "
             "under current Comprehensive Rules.",
             "TRIGGERED_CHOICE",
         )
-    if features.get("has_replacement"):
+    if features.get("has_replacement") or features.get("prevention_adjudication_verbs"):
         ask(
             "replacement-application",
             f"Replacement effect application order and scope for {card_name_hint or 'this card'}.",
             "REPLACEMENT_EFFECT",
+        )
+    if features.get("layer_adjudication_verbs"):
+        ask(
+            "layers-characteristic",
+            f"Layer, timestamp, and characteristic-setting behavior for "
+            f"{card_name_hint or 'this card'} "
+            f"(verbs: {', '.join(sorted(set(features['layer_adjudication_verbs'])))}).",
+            "LAYER_CHARACTERISTIC",
         )
     if features.get("has_copy_control"):
         ask(
@@ -257,6 +267,7 @@ def route_state(
     """Deterministically resolve a skeleton into its terminal routing state.
 
     Priority (first match wins): AMBIGUOUS > UNSUPPORTED >
+    MANUAL_REVIEW (registry-flagged curator-review verbs) >
     RULES_ADJUDICATION_REQUIRED > MANUAL_REVIEW_REQUIRED >
     READY_FOR_RUNTIME_QUALIFICATION. Returns (state, reasons).
     """
@@ -268,6 +279,12 @@ def route_state(
         return (
             ScaffoldingState.UNSUPPORTED,
             [f"unsupported_construct:{item}" for item in sorted(set(unsupported))],
+        )
+    manual_verbs = sorted(set(features.get("manual_review_verbs", [])))
+    if manual_verbs:
+        return (
+            ScaffoldingState.MANUAL_REVIEW_REQUIRED,
+            [f"verb_manual_review:{verb}" for verb in manual_verbs],
         )
     if skeleton.rules_questions:
         kinds = sorted({q["related_capability"] for q in skeleton.rules_questions})
@@ -291,6 +308,12 @@ def route_state(
     if features.get("unknown_trigger_modes"):
         review_reasons.append(
             "unknown_trigger_modes:" + ",".join(features["unknown_trigger_modes"])
+        )
+    if features.get("unknown_static_modes"):
+        review_reasons.append("unknown_static_modes:" + ",".join(features["unknown_static_modes"]))
+    if features.get("unknown_ability_modes"):
+        review_reasons.append(
+            "unknown_ability_modes:" + ",".join(features["unknown_ability_modes"])
         )
     if features.get("has_ability") and not (
         features.get("has_mana_cost") or features.get("has_targets") or features.get("has_choices")
