@@ -11,7 +11,10 @@ Status: `LOCK_OK` (verified at each milestone; refreshed at terminal state).
 | Branch | `research/argentum-comparable-qualification-rq-a2-20260910` |
 | Start HEAD (RQ-A1) | `a62a8c7cced4cc226ae9b9a44d06539fbf542bd6` |
 | Start TREE | `89bb39fcbe08f5ed722d9b882c19da91632ee262` |
-| Terminal HEAD | (refreshed at handoff) |
+| Terminal HEAD | `ccf1b6342853203f328ee0af3925fab7c8cd8242` |
+| Terminal TREE | `0650282046f5304e974be2fe6d05bcad220274b9` |
+| Seal | the seal commit after this HEAD modifies only this file (these two rows);
+  the recorded TREE is the complete qualified content tree |
 | Working tree | owned surface only (`research/candidate-qualification/argentum/rq-a2/`); no other mutation |
 
 Note: one foreign commit (`212109ad`, "recovery: canonicalize workstream state
