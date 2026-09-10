@@ -176,6 +176,10 @@ gates owned elsewhere.
   documents the wrapper flow. B3/B4 were adjudicated UNAFFECTED (direct-source
   path, no Docker consumption). Remaining: real image materialization on a host
   with Docker (NOT_RUN on the WS-A1D execution host: no Docker client there).
+  Remediation 01 (post-publication review): provenance gate and entrypoint are
+  now unconditional fail-closed (any unprovable identity stops startup); the
+  wrapper resolves/exports both provider identities; the resolver validates the
+  manifest `provider` field.
 - `SCHEMA_RENAME_primary_secondary = DEFERRED` (Freeze-adjacent). `primary_engine`
   / `secondary_engine` are runtime-contract keys (consumers:
   `src/commander_lab/technical_truth.py`, `scripts/run_external_b4f_*.py`,

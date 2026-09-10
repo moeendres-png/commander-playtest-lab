@@ -16,10 +16,14 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 CANONICAL_XMAGE_PIN = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
@@ -379,13 +383,13 @@ def test_provenance_gate_rejects_protocol_mismatch(
     assert module.check("xmage", provenance_path, manifest_path) == 3
 
 
-def test_provenance_gate_warns_without_record_or_manifest(
+def test_provenance_gate_fails_without_record_or_manifest(
     tmp_path: Path, repo_root: Path
 ) -> None:
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
-    assert module.check("xmage", tmp_path / "absent.json", manifest_path) == 0
-    assert module.check("xmage", provenance_path, tmp_path / "absent.json") == 0
+    assert module.check("xmage", tmp_path / "absent.json", manifest_path) == 3
+    assert module.check("xmage", provenance_path, tmp_path / "absent.json") == 3
 
 
 def test_provenance_gate_rejects_unreadable_record(
@@ -401,3 +405,301 @@ def test_entrypoint_enforces_provenance_gate(repo_root: Path) -> None:
     text = (repo_root / "scripts/engine_container_entrypoint.sh").read_text(encoding="utf-8")
     assert "verify_container_provenance.py" in text
     assert "ENGINE_START_COMMAND is required" in text
+
+
+def test_provenance_gate_fails_for_unknown_provider(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    module = _gate_module(repo_root)
+    provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
+    assert module.check("upstream", provenance_path, manifest_path) == 3
+    assert module.check("", provenance_path, manifest_path) == 3
+
+
+def test_provenance_gate_fails_for_unreadable_manifest(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    module = _gate_module(repo_root)
+    provenance_path, _ = _gate_fixture(tmp_path, repo_root)
+    bad_manifest = tmp_path / "bad-manifest.json"
+    bad_manifest.write_text("{not json", encoding="utf-8")
+    assert module.check("xmage", provenance_path, bad_manifest) == 3
+
+
+def test_provenance_gate_fails_for_provider_mismatch(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    module = _gate_module(repo_root)
+    provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    provenance["provider"] = "forge"
+    provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
+    assert module.check("xmage", provenance_path, manifest_path) == 3
+
+
+def test_resolver_requires_manifest_provider_field(repo_root: Path) -> None:
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    assert module.resolve("xmage", manifest).provider == "xmage"
+    assert module.resolve("forge", manifest).provider == "forge"
+    swapped = copy.deepcopy(manifest)
+    swapped["primary_engine"]["provider"] = "forge"
+    swapped["secondary_engine"]["provider"] = "xmage"
+    for provider in ("xmage", "forge"):
+        try:
+            module.resolve(provider, swapped)
+        except module.PinResolutionError:
+            continue
+        raise AssertionError(f"swapped provider field accepted for {provider!r}")
+
+
+def test_resolver_rejects_missing_or_malformed_provider_field(repo_root: Path) -> None:
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    for bad in ("", "XMAGE", "Forge ", "tactical", None, 42):
+        mutated = copy.deepcopy(manifest)
+        mutated["primary_engine"]["provider"] = bad
+        try:
+            module.resolve("xmage", mutated)
+        except module.PinResolutionError:
+            continue
+        raise AssertionError(f"provider field {bad!r} did not fail closed")
+    mutated = copy.deepcopy(manifest)
+    del mutated["secondary_engine"]["provider"]
+    try:
+        module.resolve("forge", mutated)
+    except module.PinResolutionError:
+        return
+    raise AssertionError("missing provider field did not fail closed")
+
+
+def _gnu_bash() -> str:
+    executable = shutil.which("bash")
+    if executable is None:
+        pytest.skip("bash is unavailable on this runner")
+    return executable
+
+
+def _run_entrypoint(
+    repo_root: Path, tmp_path: Path, extra_env: dict
+) -> tuple[subprocess.CompletedProcess, bool]:
+    marker = tmp_path / "engine-started.marker"
+    if marker.exists():
+        marker.unlink()
+    env = dict(os.environ)
+    env["ENGINE_START_COMMAND"] = 'touch "$WS_A1D_MARKER"'
+    env["WS_A1D_MARKER"] = str(marker)
+    env["CONTAINER_GATE_SCRIPT"] = str(
+        repo_root / "scripts/verify_container_provenance.py"
+    )
+    env.update(extra_env)
+    completed = subprocess.run(
+        [_gnu_bash(), str(repo_root / "scripts/engine_container_entrypoint.sh")],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+    return completed, marker.exists()
+
+
+def test_entrypoint_starts_engine_for_canonical_provenance(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    provenance = tmp_path / "engine-provenance.json"
+    manifest = tmp_path / "rules_engines.json"
+    live_manifest = _manifest(repo_root)
+    manifest.write_text(json.dumps(live_manifest), encoding="utf-8")
+    provenance.write_text(
+        json.dumps(
+            {
+                "provider": "xmage",
+                "repository": live_manifest["primary_engine"]["repository"],
+                "commit": live_manifest["primary_engine"]["commit"],
+                "protocol_version": live_manifest["protocol_version"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    completed, started = _run_entrypoint(
+        repo_root,
+        tmp_path,
+        {
+            "ENGINE_PROVIDER": "xmage",
+            "CONTAINER_PROVENANCE_PATH": str(provenance),
+            "PIN_MANIFEST_PATH": str(manifest),
+        },
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert started
+
+
+def _entrypoint_negative_cases(tmp_path: Path, repo_root: Path) -> dict:
+    live_manifest = _manifest(repo_root)
+    manifest = tmp_path / "rules_engines.json"
+    manifest.write_text(json.dumps(live_manifest), encoding="utf-8")
+    provenance = tmp_path / "engine-provenance.json"
+    provenance.write_text(
+        json.dumps(
+            {
+                "provider": "xmage",
+                "repository": live_manifest["primary_engine"]["repository"],
+                "commit": live_manifest["primary_engine"]["commit"],
+                "protocol_version": live_manifest["protocol_version"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    stale = tmp_path / "stale-provenance.json"
+    stale.write_text(
+        json.dumps(
+            {
+                "provider": "xmage",
+                "repository": live_manifest["primary_engine"]["repository"],
+                "commit": STALE_XMAGE_PIN,
+                "protocol_version": live_manifest["protocol_version"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    base = {
+        "ENGINE_PROVIDER": "xmage",
+        "CONTAINER_PROVENANCE_PATH": str(provenance),
+        "PIN_MANIFEST_PATH": str(manifest),
+    }
+    return {
+        "missing-provenance": {
+            **base,
+            "CONTAINER_PROVENANCE_PATH": str(tmp_path / "absent.json"),
+        },
+        "missing-manifest": {**base, "PIN_MANIFEST_PATH": str(tmp_path / "absent.json")},
+        "stale-commit": {**base, "CONTAINER_PROVENANCE_PATH": str(stale)},
+        "missing-gate": {**base, "CONTAINER_GATE_SCRIPT": str(tmp_path / "absent-gate.py")},
+        "missing-python": {**base, "PYTHON3_BIN": "/nonexistent/python3-ws-a1d"},
+    }
+
+
+def test_entrypoint_never_starts_engine_without_proven_authority(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    for name, extra_env in _entrypoint_negative_cases(tmp_path, repo_root).items():
+        completed, started = _run_entrypoint(repo_root, tmp_path, extra_env)
+        assert completed.returncode != 0, name
+        assert not started, name
+
+
+def _install_fake_docker(tmp_path: Path, monkeypatch) -> tuple[Path, Path]:
+    bindir = tmp_path / "fakebin"
+    bindir.mkdir()
+    shim = bindir / "docker"
+    argv_log = tmp_path / "docker-argv.log"
+    env_log = tmp_path / "docker-env.log"
+    shim.write_text(
+        '#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "$FAKE_DOCKER_ARGV"\n'
+        'env > "$FAKE_DOCKER_ENV"\nexit 0\n',
+        encoding="utf-8",
+    )
+    shim.chmod(0o755)
+    monkeypatch.setenv("FAKE_DOCKER_ARGV", str(argv_log))
+    monkeypatch.setenv("FAKE_DOCKER_ENV", str(env_log))
+    monkeypatch.setenv("PATH", str(bindir) + os.pathsep + os.environ.get("PATH", ""))
+    return argv_log, env_log
+
+
+def _fake_docker_env(env_log: Path) -> dict:
+    values: dict[str, str] = {}
+    for line in env_log.read_text(encoding="utf-8").splitlines():
+        if "=" in line:
+            key, value = line.split("=", 1)
+            values[key] = value
+    return values
+
+
+def _assert_complete_wrapper_environment(repo_root: Path, env: dict) -> None:
+    manifest = _manifest(repo_root)
+    assert env["XMAGE_ENGINE_REPOSITORY"] == manifest["primary_engine"]["repository"]
+    assert env["XMAGE_ENGINE_COMMIT"] == manifest["primary_engine"]["commit"]
+    assert env["XMAGE_ENGINE_PROTOCOL_VERSION"] == manifest["protocol_version"]
+    assert env["FORGE_ENGINE_REPOSITORY"] == manifest["secondary_engine"]["repository"]
+    assert env["FORGE_ENGINE_COMMIT"] == manifest["secondary_engine"]["commit"]
+    assert env["FORGE_ENGINE_PROTOCOL_VERSION"] == manifest["protocol_version"]
+
+
+def test_wrapper_exports_both_identities_for_xmage(
+    tmp_path: Path, repo_root: Path, monkeypatch
+) -> None:
+    argv_log, env_log = _install_fake_docker(tmp_path, monkeypatch)
+    completed = subprocess.run(
+        [_gnu_bash(), str(repo_root / "scripts/docker_build_engine.sh"), "xmage", "build"],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=str(repo_root),
+    )
+    assert completed.returncode == 0, completed.stderr
+    _assert_complete_wrapper_environment(repo_root, _fake_docker_env(env_log))
+    argv = argv_log.read_text(encoding="utf-8").split()
+    assert "--profile" in argv
+    assert argv[argv.index("--profile") + 1] == "xmage"
+
+
+def test_wrapper_exports_both_identities_for_forge(
+    tmp_path: Path, repo_root: Path, monkeypatch
+) -> None:
+    argv_log, env_log = _install_fake_docker(tmp_path, monkeypatch)
+    completed = subprocess.run(
+        [_gnu_bash(), str(repo_root / "scripts/docker_build_engine.sh"), "forge", "build"],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=str(repo_root),
+    )
+    assert completed.returncode == 0, completed.stderr
+    _assert_complete_wrapper_environment(repo_root, _fake_docker_env(env_log))
+    argv = argv_log.read_text(encoding="utf-8").split()
+    assert "--profile" in argv
+    assert argv[argv.index("--profile") + 1] == "forge"
+
+
+def test_wrapper_never_invokes_docker_without_authority(
+    tmp_path: Path, repo_root: Path, monkeypatch
+) -> None:
+    argv_log, env_log = _install_fake_docker(tmp_path, monkeypatch)
+    malformed = tmp_path / "malformed-manifest.json"
+    malformed.write_text("{not json", encoding="utf-8")
+    missing_section = tmp_path / "missing-section.json"
+    mutated = copy.deepcopy(_manifest(repo_root))
+    del mutated["secondary_engine"]
+    missing_section.write_text(json.dumps(mutated), encoding="utf-8")
+    cases = [
+        (["bogus"], dict()),
+        (
+            ["xmage", "build"],
+            {"PIN_MANIFEST_PATH": str(malformed)},
+        ),
+        (
+            ["forge", "build"],
+            {"PIN_MANIFEST_PATH": str(tmp_path / "absent-manifest.json")},
+        ),
+        (
+            ["xmage", "build"],
+            {"PIN_MANIFEST_PATH": str(missing_section)},
+        ),
+    ]
+    for args, extra_env in cases:
+        for log in (argv_log, env_log):
+            if log.exists():
+                log.unlink()
+        env = dict(os.environ)
+        env.update(extra_env)
+        completed = subprocess.run(
+            [_gnu_bash(), str(repo_root / "scripts/docker_build_engine.sh"), *args],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=str(repo_root),
+            env=env,
+        )
+        assert completed.returncode != 0, args
+        assert not argv_log.exists(), args
+        assert not env_log.exists(), args

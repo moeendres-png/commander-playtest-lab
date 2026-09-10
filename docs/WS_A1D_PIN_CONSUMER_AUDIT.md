@@ -185,8 +185,10 @@ references Docker at all (verified by search).
   repository shape, provider-token cross-wire guard, 40-hex commit, non-empty
   release and protocol. Any failure exits non-zero with a stderr diagnostic.
 - `scripts/docker_build_engine.sh <xmage|forge> [compose args…]`: the single
-  supported build path; exports resolver output as provider-prefixed variables
-  and execs `docker compose --profile <provider>`.
+  supported build path; resolves canonical identity for BOTH providers and
+  exports both provider-prefixed variable sets (Compose interpolates both
+  services), then execs `docker compose --profile <provider>`. Either
+  resolution failure stops before Docker is invoked.
 - Dockerfiles declare `ARG ENGINE_REPOSITORY / ENGINE_COMMIT /
   ENGINE_PROTOCOL_VERSION` with no defaults; re-validate shape/commit/provider
   match (including per-file cross-provider refusal); verify checked-out HEAD;
@@ -196,14 +198,37 @@ references Docker at all (verified by search).
   literal `2.0.0`, mechanically enforced against the manifest by tests (same
   precedent as `.env.example`). `.devcontainer/devcontainer.json` likewise carries
   literal `2.0.0` under test enforcement (no interpolation path exists there).
-- `scripts/verify_container_provenance.py` + entrypoint gate: a started container
-  with both a provenance record and a mounted manifest refuses a stale or
-  cross-wired image (exit 3). Records without authority, or authority without a
-  record, warn and proceed; the bridge handshake still applies.
+- `scripts/verify_container_provenance.py` + entrypoint gate: the gate runs
+  UNCONDITIONALLY before engine start and compares provider, repository,
+  commit and protocol against the manifest. Missing record, missing manifest,
+  missing gate tooling, missing Python, unknown provider, or any contradiction
+  stops startup non-zero (exit 3). There is no grandfathered/foreign-image
+  exception on the supported path.
 - No second volatile pin file was created. Literal `2.0.0` copies in Compose /
   devcontainer / `.env.example` are runtime-contract values enforced by tests,
   justified per surface above; no commit SHA is duplicated anywhere outside the
   manifest, provenance records and immutable history.
+
+## Coordinator remote-review remediation 01 (fail-closed hardening)
+
+Independent remote review of the published branch found two merge-blocking
+defects in the first implementation, remediated without touching published
+history:
+
+1. The first provenance gate failed OPEN (missing record/manifest, unknown
+   provider, missing Python each warned and proceeded). Remediation: gate and
+   entrypoint are now unconditional and fail closed (exit 3) on every
+   unprovable case; negative controls proving the defect were recorded before
+   the fix (8 new fail-closed assertions failed pre-fix, 0 post-fix).
+2. The first wrapper exported only the requested provider's variables while
+   Compose requires interpolation for both services. Remediation: the wrapper
+   now resolves and exports BOTH provider identities (single manifest
+   authority, no defaults, `${VAR:?}` semantics intact) and still selects the
+   operation via `--profile`.
+3. The resolver now additionally validates the manifest section's own
+   `provider` field (`primary_engine.provider == xmage`,
+   `secondary_engine.provider == forge`); repository heuristics remain
+   defense-in-depth only. No SHAs are hard-coded in the resolver.
 
 ## Phase H/I status pointer
 

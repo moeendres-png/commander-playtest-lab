@@ -81,8 +81,9 @@ starting XMage, Forge, a mock, or the Tactical Oracle is insufficient.
 The supported container path resolves engine identity from
 `config/rules_engines.json` (the sole pin authority) at build time. Never copy
 a commit SHA into a Docker command: run the wrapper, which derives the
-canonical provider repository, commit and bridge protocol version and exports
-them for `docker-compose.engine.yml` build-arg interpolation:
+canonical provider repository, commit and bridge protocol version for BOTH
+providers and exports them for `docker-compose.engine.yml` build-arg
+interpolation (`--profile` still selects the requested service):
 
 ```bash
 export ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar'
@@ -96,9 +97,14 @@ without the wrapper fails closed (the required build variables are unset)
 instead of materializing a stale engine. The Dockerfiles declare their build
 args without defaults and re-validate repository shape, full 40-hex commit and
 provider match at materialization time, then record what was built in
-`/opt/engine-provenance.json`. At container start the entrypoint compares that
-record against the mounted manifest and refuses to serve a stale or
-cross-wired image.
+`/opt/engine-provenance.json`. At container start the entrypoint unconditionally
+verifies that record against the mounted manifest (provider, repository,
+commit, protocol) and refuses to start when identity cannot be proven or
+contradicts authority — missing record, missing manifest, missing gate
+tooling, unknown provider, or any mismatch all stop startup non-zero. A failed
+external start never silently falls back; the bridge handshake additionally
+enforces provider identity and bridge protocol version at runtime (see Start,
+status and stop).
 
 Inspect what an image actually materialized (provenance is also printed during
 `docker build`):

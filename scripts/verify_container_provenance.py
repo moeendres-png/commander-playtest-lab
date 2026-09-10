@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
-"""Container provenance gate for WS-A1D Docker pin authority.
+"""Container provenance gate for WS-A1D Docker pin authority (fail closed).
 
 Compares the build-time provenance record (``/opt/engine-provenance.json``,
 written by ``docker/*/Dockerfile`` from required build args) against the sole
 pin authority (``config/rules_engines.json``) for the configured provider.
 
-Exit codes:
-  0 -- provenance matches authority, or no adjudication was possible
-       (missing provenance file means a grandfathered/foreign image;
-       missing manifest means no authority is mounted; an unconfigured
-       provider is owned by downstream fail-closed checks). Warnings go to
-       stderr in these cases.
-  2 -- usage error (bad arguments).
-  3 -- provenance contradicts authority (wrong provider, repository, commit
-       or protocol): fail closed so a stale image can never serve as healthy.
+The supported container path must prove image identity before the engine may
+start. Every case where identity CANNOT be proven stops startup non-zero:
 
-Paths and provider default to the container layout but are overridable for
-tests. Only the standard library is used.
+  * unknown or missing ``ENGINE_PROVIDER``;
+  * missing or unreadable provenance record;
+  * missing or unreadable pin manifest;
+  * provider, repository, commit or protocol_version contradiction.
+
+Exit codes:
+  0 -- provenance matches authority on every compared field.
+  2 -- usage error (bad arguments).
+  3 -- fail closed: identity unproven or contradicted. Diagnostics go to
+       stderr. There is no grandfathered/foreign-image exception: legacy
+       containers require a separately authorized compatibility path.
+
+Only the standard library is used.
 """
 
 from __future__ import annotations
@@ -29,14 +33,15 @@ from pathlib import Path
 
 EXIT_OK = 0
 EXIT_USAGE = 2
-EXIT_MISMATCH = 3
+EXIT_FAIL_CLOSED = 3
 
 _KNOWN_PROVIDERS = ("xmage", "forge")
 _SECTION = {"xmage": "primary_engine", "forge": "secondary_engine"}
 
 
-def _warn(message: str) -> None:
-    print(f"verify_container_provenance: {message}", file=sys.stderr)
+def _fail(message: str) -> int:
+    print(f"verify_container_provenance: FAIL CLOSED: {message}", file=sys.stderr)
+    return EXIT_FAIL_CLOSED
 
 
 def _read_json(path: Path):
@@ -53,46 +58,47 @@ def _read_json(path: Path):
 
 def check(provider: str, provenance_path: Path, manifest_path: Path) -> int:
     if provider not in _KNOWN_PROVIDERS:
-        _warn(f"ENGINE_PROVIDER {provider!r} is not adjudicated here; leaving to downstream checks")
-        return EXIT_OK
+        return _fail(
+            f"ENGINE_PROVIDER {provider!r} is not a supported provider; "
+            "refusing to start"
+        )
     if not provenance_path.is_file():
-        _warn(f"no provenance record at {provenance_path}; cannot prove image identity")
-        return EXIT_OK
+        return _fail(
+            f"no provenance record at {provenance_path}; "
+            "image identity cannot be proven"
+        )
     if not manifest_path.is_file():
-        _warn(f"no pin authority mounted at {manifest_path}; cannot adjudicate image identity")
-        return EXIT_OK
+        return _fail(
+            f"no pin authority at {manifest_path}; "
+            "image identity cannot be adjudicated"
+        )
     try:
         provenance = _read_json(provenance_path)
         manifest = _read_json(manifest_path)
     except ValueError as exc:
-        _warn(str(exc))
-        return EXIT_MISMATCH
+        return _fail(str(exc))
     section = manifest.get(_SECTION[provider])
     if not isinstance(section, dict):
-        _warn("pin authority manifest is missing the provider section")
-        return EXIT_MISMATCH
+        return _fail("pin authority manifest is missing the provider section")
     expected = {
         "provider": provider,
         "repository": section.get("repository"),
         "commit": section.get("commit"),
         "protocol_version": manifest.get("protocol_version"),
     }
-    mismatches = [
-        key for key in expected if provenance.get(key) != expected[key]
-    ]
+    mismatches = [key for key in expected if provenance.get(key) != expected[key]]
     if mismatches:
-        _warn(
+        return _fail(
             "image provenance contradicts pin authority "
-            f"(provider={provider} fields={','.join(sorted(mismatches))}); refusing to start"
+            f"(provider={provider} fields={','.join(sorted(mismatches))})"
         )
-        return EXIT_MISMATCH
     return EXIT_OK
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fail-closed container provenance gate.")
     parser.add_argument(
-        "--provider", default=os.environ.get("ENGINE_PROVIDER", "xmage")
+        "--provider", default=os.environ.get("ENGINE_PROVIDER", "")
     )
     parser.add_argument(
         "--provenance",

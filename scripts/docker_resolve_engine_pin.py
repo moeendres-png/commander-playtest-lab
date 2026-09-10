@@ -8,8 +8,8 @@ commit, release and bridge protocol version for one provider.
 
 Every authority problem fails closed (non-zero exit, diagnostic on stderr):
 unknown provider, missing manifest, malformed manifest, missing section or
-field, non-https repository, repository/provider cross-wire, malformed commit,
-or missing protocol version.
+field, manifest provider-identity mismatch, non-https repository,
+repository/provider cross-wire, malformed commit, or missing protocol version.
 
 Supported Docker builds must obtain their build args through this helper via
 ``scripts/docker_build_engine.sh``. ``docker/xmage/Dockerfile`` and
@@ -78,6 +78,16 @@ def resolve(provider: str, manifest: dict) -> EnginePin:
     section = manifest.get(section_key)
     if not isinstance(section, dict):
         raise PinResolutionError(f"manifest section {section_key!r} is missing or malformed")
+
+    # Manifest provider identity is authoritative: the section itself must
+    # declare the requested provider. Section position and repository-name
+    # heuristics alone are not sufficient.
+    identity = section.get("provider")
+    if identity != provider:
+        raise PinResolutionError(
+            f"manifest {section_key}.provider {identity!r} does not identify "
+            f"requested provider {provider!r}"
+        )
 
     repository = section.get("repository")
     if not isinstance(repository, str) or _REPO.fullmatch(repository) is None:
