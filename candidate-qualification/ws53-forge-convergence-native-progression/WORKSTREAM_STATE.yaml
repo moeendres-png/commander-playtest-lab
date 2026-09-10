@@ -1,0 +1,63 @@
+audit_base_sha: 66d5aa44a45cb574cabba2853de149c032e7942e
+audit_base_tree: 3025858d8de706029fa3a9a27920ace51ba35cd0
+branch: ws53/forge-convergence-native-progression-20260910
+exact_next_action: Commit Milestone A (source lock + draft convergence matrix), then invoke
+  foundry-adjudicator XHIGH on the convergence plan before any WS50-derived port.
+in_scope:
+- Converge WS50 Decision-sequence mechanisms into repaired WS48/WS51 lineage (semantic,
+  no history operations)
+- Replace rejected mid-decision restore with native progression (construct/restore
+  strictly before decision boundary, engine enters decisions natively)
+- Fresh BLOCK-4-class witness + C1-C4 convergence gates + impact ledger
+- Files owned: candidate-qualification/ws53-forge-convergence-native-progression/** plus
+  only those existing candidate/harness files strictly required for convergence
+objective: WS53 FORGE CONVERGENCE + NATIVE PROGRESSION REPLACEMENT. Objective A: integrate
+  still-needed WS50 Decision-sequence mechanisms (discard labeled transport, per-frame
+  decision metadata incl. observations/RNG, sequence runner incl. declare subject-scoping,
+  replay comparator, static gates) into the repaired WS48/WS51 lineage without
+  reintroducing pre-Repair-01 semantics. Objective B: replace `restore at decision-bearing
+  step` with `construct/restore strictly before the decision boundary, Forge advances
+  natively and emits the authoritative Decision frame`; fresh witness for the BLOCK-4
+  semantic class. Fresh-evidence rule: no behavior credit imported; BEHAVIOR_CREDIT=0/107,
+  FULL107=NOT_RUN throughout.
+out_of_scope:
+- Q6, XMage WS52, Argentum, RQ-X1, RQ-A1, cross-repo hardening, main, WS48/WS50/WS51
+  branches, other worktrees
+- Full107, actual-card qualification breadth, provider selection, architecture freeze
+- Forge engine mutation (READ-ONLY pin 66caae16015bd403bc0a52fa6689afb5508f74d0)
+- Execution-control-plane changes (predates candidate lineage; --allow-suppressed-routing
+  intentional; never merged into candidate line)
+ownership: WS53-FORGE-CONVERGENCE-NATIVE-PROGRESSION
+reference_lineage:
+  ws48_canonical_head: f8bd8b2d582627202a462ae7c7adf9fd5af83a57
+  ws48_canonical_tree: fcb7fc009bea6527e410eb88f67549ca16cc8ea4
+  ws50_donor_head: e636e7055478709010cbd778846683065e31655b
+  ws50_donor_tree: 59a08ba105a4f666e735c36cd8cd7c8c17ca1fd3
+  ws50_fork_point: 10a7f8f6ebc5be2b2a89d3d019f0c16659cadc7d
+  ws51_terminal_head: 66d5aa44a45cb574cabba2853de149c032e7942e
+  forge_pin_head: 66caae16015bd403bc0a52fa6689afb5508f74d0
+  forge_pin_tree: 40fc8f29ce4de31a964972461db2b48b4221e07f
+  control_plane_donor_tree: 215611ac8d1ea93353c2fcc4c8d7e06dabb4ca51
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+decisions:
+- 2026-09-10: WS50 overlay Repair-01 hunk will be OMITTED from port (current tree already
+  carries strictly stronger WS48 Repair-01: zero-add + cardinality guard + binding record).
+- 2026-09-10: Scenario-B NATIVE_STATE_LOAD setup will NOT be carried as any credited path
+  (restore-adjacent; pending XHIGH adjudication; native-progression witness uses
+  NATURAL_GAME_START only).
+- 2026-09-10: WS48 R1f test + evidence retained (WS50 absence is a pre-Repair-01 fork
+  artifact, not a semantic delta to port).
+milestones:
+  A_source_lock_inventory: IN_PROGRESS
+  B_xhigh_adjudication: PENDING
+  C_converged_implementation: PENDING
+  D_selection_decision_regression: PENDING
+  E_native_progression: PENDING
+  F_block4_witness: PENDING
+  G_impact_terminal: PENDING
+status: ACTIVE
+validated_head: null
+worktree: /home/moeen/code/ws53-forge-convergence-native-progression
+writer_evidence: single worktree on this branch per worktree list; tree clean except untracked
+  WS53-owned dir; no git locks observed
