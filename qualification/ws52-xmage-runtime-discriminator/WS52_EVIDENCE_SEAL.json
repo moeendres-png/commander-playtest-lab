@@ -1,0 +1,81 @@
+{
+  "workstream": "WS52-XMAGE-RUNTIME-ARCHITECTURE-DISCRIMINATOR",
+  "branch": "ws52/xmage-runtime-architecture-discriminator-20260910",
+  "verdict": "XMAGE_RUNTIME_DISCRIMINATOR_MIXED",
+  "source_lock": {
+    "cpl_repository": "moeendres-png/commander-playtest-lab",
+    "cpl_head": "7c3e3d2af474cbf9cdda6f9dd694f68e5cdb2c10",
+    "cpl_tree": "8dfc4bcbe65f1b3f43ef9805a6363343d137414b",
+    "xmage_candidate_commit": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+    "xmage_candidate_tree": "fdb8bf56a8bd8199a4ef372e468d93d6550b0649",
+    "xmage_audit_commit": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c",
+    "xmage_audit_tree": "f0a028b265f9c008ea0aedc4cec6b8f14500b69f",
+    "xmage_delta_77d7646d_to_0c1f455e_files": 6,
+    "engine_pin_change_gate": "NOT_TRIGGERED",
+    "writer_count": 1
+  },
+  "runtime_build": {
+    "engine_source_export": "git archive 0c1f455e from /tmp/rq-xmage-src to /tmp/ws52-xmage-build (pristine, read-only)",
+    "engine_build": "mvn -DskipTests install -pl Mage,Mage.Common,Mage.Sets,Mage.Server.Plugins/Mage.Deck.Constructed,Mage.Server.Plugins/Mage.Game.CommanderFreeForAll -am",
+    "engine_build_result": "BUILD SUCCESS",
+    "engine_build_java": "17.0.x (JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64, target 1.8)",
+    "bridge_build_java": "17 (maven.compiler.release=17)",
+    "maven_artifacts_sha256": {
+      "org.mage:mage:1.4.61": "2f206043ce25d49f24d5192f0d96c62b05b5bdcfbf24890329c92d197ba80832",
+      "org.mage:mage-sets:1.4.61": "61e7b1562f82b4129f8f4b491b7ed35b818f6f8fda6954db4222fbe9f9f94b1c",
+      "org.mage:mage-deck-constructed:1.4.61": "4c126534eff994224d1074f47d91651ff0a3ecdb21c07d3510b87feb39332177",
+      "org.mage:mage-game-commanderfreeforall:1.4.61": "fb5961c3776cb65174036ed58cd5cb11cabce740a703ec0abc60f0fa34e00c32"
+    },
+    "bridge_engine_commit_declared": "77d7646da6958fdf8125ee7c8f4aabd130d21d4c (XmageProvider.ENGINE_COMMIT, unmodified; no consumed-surface diff, see findings)"
+  },
+  "discriminator_runs": {
+    "ws52_suite_command": "mvn -f engine-bridge/pom.xml test -Dtest='Ws52*'",
+    "ws52_suite_result": "Tests run: 24, Failures: 0, Errors: 0, Skipped: 0",
+    "full_bridge_command": "mvn -f engine-bridge/pom.xml test",
+    "full_bridge_result": "Tests run: 86, Failures: 0, Errors: 0, Skipped: 0",
+    "evidence_class": "DIRECTLY_VERIFIED for runtime facts; TECHNICALLY_CONFORMANT for the bounded contract; CODE_DERIVED for source transfer; UNKNOWN where stated"
+  },
+  "per_axis": {
+    "M1_native_decision_extraction": "PASS (bounded): priority/cast/target sets equal engine sets; modes fail closed by design",
+    "M2_selection_native_execution": "PASS (bounded): non-first cast executes exactly; target first/last diverge; WS48 mode impossible",
+    "M3_stale_invalid_ambiguous": "PASS (bounded): stale/actor/unknown/duplicate/bounds/numeric/malformed/process all fail closed; no state-revision field (gap recorded)",
+    "M4_hidden_information": "PASS (bounded): sentinel principal scoping + planted-leak control at gateway; face-down/reveal flows UNKNOWN",
+    "M5_rng_reexecution": "FAIL (XMAGE_ENGINE blocker): per-run setup load order; unseeded shuffles; global stream; snapshot without RNG"
+  },
+  "credit_and_freeze": {
+    "BEHAVIOR_CREDIT": "0/107",
+    "FULL107": "NOT_RUN",
+    "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT SELECTED"
+  },
+  "ranking_impact": "Forge lead unchanged (XMage strengthened on decision/binding/projection, blocked on RNG/replay)",
+  "evidence_files": [
+    "qualification/ws52-xmage-runtime-discriminator/WS52_SOURCE_LOCK.md",
+    "qualification/ws52-xmage-runtime-discriminator/WS52_RQ_X1_TRANSFER.md",
+    "qualification/ws52-xmage-runtime-discriminator/WS52_FINDINGS.md",
+    "qualification/ws52-xmage-runtime-discriminator/WS52_EVIDENCE_SEAL.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m1-survey.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m2-selection-execution.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m5-setup-order-divergence.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m5-stream-sharing.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m5-control-flow-vs-identities.json"
+  ],
+  "changed_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/Ws52.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/Ws52Harness.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/Ws52M1NativeDecisionExtractionTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/Ws52M2SelectionExecutionTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/Ws52M3RejectionTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/Ws52M4HiddenInfoTest.java",
+    "engine-bridge/src/test/java/org/commanderlab/xmage/Ws52M5RngReexecutionTest.java",
+    "qualification/ws52-xmage-runtime-discriminator/WS52_SOURCE_LOCK.md",
+    "qualification/ws52-xmage-runtime-discriminator/WS52_RQ_X1_TRANSFER.md",
+    "qualification/ws52-xmage-runtime-discriminator/WS52_FINDINGS.md",
+    "qualification/ws52-xmage-runtime-discriminator/WS52_EVIDENCE_SEAL.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m1-survey.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m2-selection-execution.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m5-setup-order-divergence.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m5-stream-sharing.json",
+    "qualification/ws52-xmage-runtime-discriminator/evidence/m5-control-flow-vs-identities.json"
+  ]
+}
