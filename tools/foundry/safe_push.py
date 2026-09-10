@@ -313,9 +313,12 @@ def safe_push(
     if dry_run:
         print(f"SAFE_PUSH_OK: DRY_RUN_OK {expected_branch}@{live_head[:12]}")
         return 0
+    push_env = dict(os.environ)
+    push_env["FOUNDRY_SAFE_PUSH"] = "1"  # launcher-installed pre-push hook marker
     proc = subprocess.run(
         ["git", "push", remote, f"HEAD:refs/heads/{expected_branch}"],
         cwd=canonical,
+        env=push_env,
         capture_output=True,
         text=True,
         check=False,
