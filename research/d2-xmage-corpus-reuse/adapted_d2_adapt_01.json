@@ -1,0 +1,58 @@
+{
+  "draft_id": "D2-ADAPT-01",
+  "provenance": {
+    "source_path": "Mage.Tests/src/test/java/org/mage/test/commander/duel/CastCommanderTest.java",
+    "source_method": "testCastCommander",
+    "repository": "moeendres-png/mage",
+    "branch": "foundry/ws39-commander-history-state-restore",
+    "commit": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+    "tree": "fdb8bf56a8bd8199a4ef372e468d93d6550b0649",
+    "license": "MIT (LICENSE.txt at pinned commit; (c) 2010 betasteward@gmail.com)"
+  },
+  "setup": {
+    "format": "commander_duel",
+    "players": [
+      "A",
+      "B"
+    ],
+    "placements": [
+      {
+        "player": "A",
+        "zone": "battlefield",
+        "card_identity": "Swamp",
+        "count": 5
+      }
+    ],
+    "commander": {
+      "player": "A",
+      "card_identity": "Ob Nixilis of the Black Oath",
+      "zone": "command"
+    }
+  },
+  "action_script": [
+    {
+      "action": "cast_commander",
+      "player": "A",
+      "card_identity": "Ob Nixilis of the Black Oath",
+      "turn": 1,
+      "phase": "precombat_main",
+      "choices": "none_required_explicit"
+    }
+  ],
+  "stop_point": {
+    "turn": 1,
+    "phase": "begin_combat"
+  },
+  "observable_checklist": [
+    {
+      "observable": "zone_of_commander",
+      "authoritative_source": "rules_core"
+    },
+    {
+      "observable": "life_totals",
+      "authoritative_source": "rules_core"
+    }
+  ],
+  "deterministic_choices": "explicit",
+  "engine_ai": false
+}

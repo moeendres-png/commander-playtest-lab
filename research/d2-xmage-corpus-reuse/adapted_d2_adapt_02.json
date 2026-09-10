@@ -1,0 +1,68 @@
+{
+  "draft_id": "D2-ADAPT-02",
+  "provenance": {
+    "source_path": "Mage.Tests/src/test/java/org/mage/test/multiplayer/MultiplayerTriggerTest.java",
+    "source_method": "testMultiplayerAttackStinkdrinkerBanditTrigger",
+    "repository": "moeendres-png/mage",
+    "branch": "foundry/ws39-commander-history-state-restore",
+    "commit": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+    "tree": "fdb8bf56a8bd8199a4ef372e468d93d6550b0649",
+    "license": "MIT (LICENSE.txt at pinned commit; (c) 2010 betasteward@gmail.com)"
+  },
+  "setup": {
+    "format": "free_for_all_4p_range_all",
+    "players": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "placements": [
+      {
+        "player": "A",
+        "zone": "battlefield",
+        "card_identity": "Stinkdrinker Bandit",
+        "count": 1
+      },
+      {
+        "player": "A",
+        "zone": "battlefield",
+        "card_identity": "Pestermite",
+        "count": 1
+      }
+    ]
+  },
+  "action_script": [
+    {
+      "action": "declare_attackers",
+      "player": "A",
+      "assignments": [
+        {
+          "creature_identity": "Pestermite",
+          "defender": "B",
+          "blocked": "unresolved_branch"
+        },
+        {
+          "creature_identity": "Stinkdrinker Bandit",
+          "defender": "C",
+          "blocked": "unresolved_branch"
+        }
+      ],
+      "turn": 1,
+      "phase": "declare_attackers",
+      "choices": "blocker_decisions_deferred_to_rules_core"
+    }
+  ],
+  "stop_point": {
+    "turn": 1,
+    "phase": "postcombat_main"
+  },
+  "observable_checklist": [
+    {
+      "observable": "power_toughness_each_attacker",
+      "authoritative_source": "rules_core"
+    }
+  ],
+  "deterministic_choices": "explicit",
+  "engine_ai": false
+}

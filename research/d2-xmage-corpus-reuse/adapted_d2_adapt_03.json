@@ -1,0 +1,95 @@
+{
+  "draft_id": "D2-ADAPT-03",
+  "provenance": {
+    "source_path": "Mage.Tests/src/test/java/org/mage/test/multiplayer/PlayerDiedStackTargetHandlingTest.java",
+    "source_method": "TestDeadPlayerIsNoLongerValidTarget",
+    "repository": "moeendres-png/mage",
+    "branch": "foundry/ws39-commander-history-state-restore",
+    "commit": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+    "tree": "fdb8bf56a8bd8199a4ef372e468d93d6550b0649",
+    "license": "MIT (LICENSE.txt at pinned commit; (c) 2010 betasteward@gmail.com)"
+  },
+  "setup": {
+    "format": "free_for_all_4p_range_one",
+    "players": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "player_order": [
+      "A",
+      "D",
+      "C",
+      "B"
+    ],
+    "placements": [
+      {
+        "player": "A",
+        "zone": "battlefield",
+        "card_identity": "Plains",
+        "count": 2
+      },
+      {
+        "player": "A",
+        "zone": "battlefield",
+        "card_identity": "Mountain",
+        "count": 2
+      },
+      {
+        "player": "A",
+        "zone": "hand",
+        "card_identity": "Lightning Helix",
+        "count": 2
+      }
+    ]
+  },
+  "action_script": [
+    {
+      "action": "cast_spell",
+      "player": "A",
+      "card_identity": "Lightning Helix",
+      "turn": 1,
+      "phase": "precombat_main",
+      "choices": [
+        {
+          "choice": "choose_targets",
+          "target": "player_D"
+        }
+      ]
+    },
+    {
+      "action": "cast_spell",
+      "player": "A",
+      "card_identity": "Lightning Helix",
+      "turn": 1,
+      "phase": "precombat_main",
+      "choices": [
+        {
+          "choice": "choose_targets",
+          "target": "player_D"
+        }
+      ]
+    }
+  ],
+  "stop_point": {
+    "turn": 2,
+    "phase": "postcombat_main"
+  },
+  "observable_checklist": [
+    {
+      "observable": "graveyard_count_lightning_helix_A",
+      "authoritative_source": "rules_core"
+    },
+    {
+      "observable": "active_player_at_stop",
+      "authoritative_source": "rules_core"
+    },
+    {
+      "observable": "life_total_A",
+      "authoritative_source": "rules_core"
+    }
+  ],
+  "deterministic_choices": "explicit",
+  "engine_ai": false
+}
