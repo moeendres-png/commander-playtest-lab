@@ -1,0 +1,869 @@
+{
+ "counting": "117 classified items = 114 terminal assertions (one per RQ-C1 expected_terminal_assertions entry) + 3 flagged decision/event-level items (A03 scripted may/decline: OVERASSERTED; E02 scripted blocker-ordering: OVERASSERTED; E02 compliant-division breadth: UNDERASSERTED). Terminal CONTRADICTED = C01 x3, F02 rest-privacy x1, H02 PATH_A x1. Terminal SUPPORTED_WITH_INTERPRETATION = G03 x2 (P1-lost, others-remain; pre-seeded ledger pending Sol).",
+ "method": "Each RQ-C1 expected terminal assertion and each load-bearing expected event/decision was compared against the verified August-7-2026 CR baseline plus current Oracle/rulings. RQ-C1 text was NOT mutated; recommended amendments live in RQ_C2_CORRECTION_LEDGER. Verdicts: SUPPORTED_DIRECTLY / SUPPORTED_WITH_INTERPRETATION / OVERASSERTED / UNDERASSERTED / CONTRADICTED / AUTHORITY_UNKNOWN.",
+ "reviews": {
+  "RQ-C1-A01": {
+   "events": "SUPPORTED_DIRECTLY (cast/target/replacement/no-touch/no-trigger).",
+   "terminal": [
+    {
+     "a": "Bear in exile (P1-owned)",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "P1 graveyard has no Bear",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "life unchanged 40",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "zero dies triggers",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "614.1a",
+    "700.4",
+    "603.10"
+   ]
+  },
+  "RQ-C1-A02": {
+   "events": "SUPPORTED_DIRECTLY.",
+   "terminal": [
+    {
+     "a": "life unchanged",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Bear survives tapped",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Fog in P0 graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "615.1a",
+    "608.2n"
+   ]
+  },
+  "RQ-C1-A03": {
+   "events": "Shield-creation timing SUPPORTED_DIRECTLY; scripted may/decline application decision OVERASSERTED (automatic per 701.19a).",
+   "terminal": [
+    {
+     "a": "Skeletons tapped, zero damage",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "{B} paid (Swamp tapped)",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Bolt in P1 graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "life unchanged",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "701.19a",
+    "614.4",
+    "616.1"
+   ]
+  },
+  "RQ-C1-A04": {
+   "events": "SUPPORTED_DIRECTLY (cast X=3; 2 orders offered; Scales-first 8).",
+   "terminal": [
+    {
+     "a": "Serpent 8/8, eight counters",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "eight +1/+1 counters",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "both enchantments remain",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "616.1",
+    "614.1c",
+    "Doubling Season ruling"
+   ]
+  },
+  "RQ-C1-B01": {
+   "events": "SUPPORTED_DIRECTLY (5 triggers; APNAP stack; P0 orders 2).",
+   "terminal": [
+    {
+     "a": "42/41/41/41",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Elves under P0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "stack empty, APNAP resolution",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "603.3b",
+    "101.4"
+   ]
+  },
+  "RQ-C1-B02": {
+   "events": "SUPPORTED_DIRECTLY (ETB exile; delayed created; end-step return).",
+   "terminal": [
+    {
+     "a": "Bear battlefield-new under P0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Wisp under P0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "stack empty after end step",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "603.7a",
+    "603.7d",
+    "400.7"
+   ]
+  },
+  "RQ-C1-B03": {
+   "events": "SUPPORTED_DIRECTLY (trigger at 40; Bolt to 37; recheck fails).",
+   "terminal": [
+    {
+     "a": "P0 at 37",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "no win; game continues",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Sovereign remains",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "603.4 (verbatim example)",
+    "608.2a"
+   ]
+  },
+  "RQ-C1-B04": {
+   "events": "SUPPORTED_DIRECTLY (Murder cast; 2 triggers; APNAP; Kokusho then Artist).",
+   "terminal": [
+    {
+     "a": "36/54/35/35",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Kokusho P1 graveyard; Murder P0 graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "stack empty",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "603.3b",
+    "603.3d",
+    "700.4",
+    "Murder verified"
+   ]
+  },
+  "RQ-C1-C01": {
+   "events": "CONTRADICTED: Force of Will uncastable as fixture-specified (Island colorless per 105.2+305.6; no 3UU mana). Pitch-vs-hard-cast fork is correct Rules-wise but neither route payable.",
+   "terminal": [
+    {
+     "a": "P0 at 39",
+     "v": "CONTRADICTED"
+    },
+    {
+     "a": "blue card exiled; Force in graveyard",
+     "v": "CONTRADICTED"
+    },
+    {
+     "a": "Elves countered to graveyard",
+     "v": "CONTRADICTED"
+    }
+   ],
+   "via": [
+    "118.9",
+    "105.2",
+    "305.6"
+   ]
+  },
+  "RQ-C1-C02": {
+   "events": "SUPPORTED_DIRECTLY (sacrifice cost; draw 2).",
+   "terminal": [
+    {
+     "a": "two drawn private to P0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Bear sacrificed",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Reap in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "118.8",
+    "601.2h"
+   ]
+  },
+  "RQ-C1-C03": {
+   "events": "SUPPORTED_DIRECTLY (X=5; cost 7; forced 2/2; remainder lost).",
+   "terminal": [
+    {
+     "a": "P1/P2 at 38",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Fireball in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "601.2d",
+    "601.2f",
+    "Fireball Oracle"
+   ]
+  },
+  "RQ-C1-C04": {
+   "events": "SUPPORTED_DIRECTLY (free cast gated on commander; Cultivate countered).",
+   "terminal": [
+    {
+     "a": "zero mana paid",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Cultivate unresolved in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "commander still controlled",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "118.9",
+    "Cultivate verified"
+   ]
+  },
+  "RQ-C1-D01": {
+   "events": "SUPPORTED_DIRECTLY (6 combos; scripted pair; mode-order resolution).",
+   "terminal": [
+    {
+     "a": "Elves in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Bear in P2 hand",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Cryptic in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "700.2d",
+    "700.2c",
+    "608.2c"
+   ]
+  },
+  "RQ-C1-D02": {
+   "events": "SUPPORTED_DIRECTLY (copy P0-controlled; retarget P2; 3+3).",
+   "terminal": [
+    {
+     "a": "P1/P2 at 37",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "stack empty; no extra copies",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "both spells in graveyards",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "707.10",
+    "707.10c",
+    "608.2n"
+   ]
+  },
+  "RQ-C1-D03": {
+   "events": "SUPPORTED_DIRECTLY (Growth first; Bolt 3 non-lethal).",
+   "terminal": [
+    {
+     "a": "Bear alive 5/5 with 3 marked",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "both spells in graveyards",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "life unchanged",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "608.1",
+    "608.2b",
+    "704.5g"
+   ]
+  },
+  "RQ-C1-D04": {
+   "events": "SUPPORTED_DIRECTLY (copy+trigger entry; Blade targets Image; sacrifice pre-empts; fizzle).",
+   "terminal": [
+    {
+     "a": "Image sacrificed (graveyard)",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Blade no-effect in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "original Bear alive",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "614.1c",
+    "603.3d",
+    "608.2b"
+   ]
+  },
+  "RQ-C1-D05": {
+   "events": "SUPPORTED_DIRECTLY (X=4; 2/1/1 announced; Bear lethal; P2/P3 1).",
+   "terminal": [
+    {
+     "a": "Bear in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "P2/P3 at 39",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Rolling Thunder in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "601.2d",
+    "704.5g"
+   ]
+  },
+  "RQ-C1-D06": {
+   "events": "SUPPORTED_DIRECTLY (31 subsets; 3 typed targets; mode-order destruction).",
+   "terminal": [
+    {
+     "a": "Ornithopter + Bear + Forest in graveyards",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Casualties in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "700.2d",
+    "700.2c",
+    "608.2c",
+    "Ornithopter verified"
+   ]
+  },
+  "RQ-C1-E01": {
+   "events": "SUPPORTED_DIRECTLY (split attack; {2} once; 2+2 damage).",
+   "terminal": [
+    {
+     "a": "{2} paid once",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "P0/P2 at 38",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "attackers survive",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "508.1g-j",
+    "Propaganda Oracle"
+   ]
+  },
+  "RQ-C1-E02": {
+   "events": "Attack/block SUPPORTED_DIRECTLY; scripted blocker-ordering decision OVERASSERTED (no such decision in current CR); 2/1/4 division SUPPORTED_DIRECTLY under 702.19b; wider compliant-division set UNDERASSERTED.",
+   "terminal": [
+    {
+     "a": "P0 at 36 (4 rollover)",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "blockers dead; Tyrant alive unmarked-lethal",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Tyrant under P1",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "510.1c",
+    "702.19b",
+    "704.5g"
+   ]
+  },
+  "RQ-C1-E03": {
+   "events": "SUPPORTED_DIRECTLY (1 deathtouch lethal to Bear; 2 lethal to Recluse; simultaneous).",
+   "terminal": [
+    {
+     "a": "both in graveyards",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "life unchanged",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "702.2b",
+    "704.5g",
+    "704.5h",
+    "510.2"
+   ]
+  },
+  "RQ-C1-F01": {
+   "events": "SUPPORTED_DIRECTLY (searcher-only visibility; found + fail-to-find offerable; shuffle). Journaling is engineering, not Rules.",
+   "terminal": [
+    {
+     "a": "tapped Forest (found path)",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "journaled shuffle",
+     "v": "SUPPORTED_DIRECTLY (as engineering contract; Rules requires the shuffle, 701.24a)"
+    },
+    {
+     "a": "counts-only for others",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "701.23a",
+    "701.23b",
+    "701.24a"
+   ]
+  },
+  "RQ-C1-F02": {
+   "events": "Cast/choose/discard SUPPORTED_DIRECTLY; 'revealed TO P0 ONLY' CONTRADICTED (701.20a: all players); 'unknown to P0/P2/P3 after' CONTRADICTED (retained knowledge).",
+   "terminal": [
+    {
+     "a": "chosen card in P1 graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "rest private/unknown after",
+     "v": "CONTRADICTED"
+    },
+    {
+     "a": "Duress in P0 graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "701.20a",
+    "701.9a",
+    "701.9b"
+   ]
+  },
+  "RQ-C1-F03": {
+   "events": "SUPPORTED_DIRECTLY (hidden 2/2; special-action turn-up; retarget Bolt to Elves; Elves dies).",
+   "terminal": [
+    {
+     "a": "Willbender face-up",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Elves in graveyard; Bear alive",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Bolt in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "702.37c",
+    "702.37e",
+    "708.5",
+    "603.3d",
+    "704.5g"
+   ]
+  },
+  "RQ-C1-F04": {
+   "events": "SUPPORTED_DIRECTLY (scry 2 ordering; draw).",
+   "terminal": [
+    {
+     "a": "scry split +1 card",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Preordain in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "no other state change",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "701.22a"
+   ]
+  },
+  "RQ-C1-G01": {
+   "events": "SUPPORTED_DIRECTLY (open P0..P3 votes on resolution; 2-2 tie; both exiled).",
+   "terminal": [
+    {
+     "a": "Bear + Elves exiled",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Judgment in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "701.38a",
+    "Council Oracle + 6 rulings"
+   ]
+  },
+  "RQ-C1-G02": {
+   "events": "SUPPORTED_DIRECTLY (Murder; movement offer; CZ chosen; 8+2=10 recast; ETB zero). 10-mana base explicitly abstracted as payable.",
+   "terminal": [
+    {
+     "a": "Ghalta battlefield under P0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "cast-count 1",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Murder in P1 graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "903.9a",
+    "903.8",
+    "Ghalta cost verified"
+   ]
+  },
+  "RQ-C1-G03": {
+   "events": "Native attack/block/damage SUPPORTED_DIRECTLY; pre-seeded 12 ledger SUPPORTED_WITH_INTERPRETATION (fixture-design legitimacy for Sol).",
+   "terminal": [
+    {
+     "a": "P1 lost (24 commander damage)",
+     "v": "SUPPORTED_WITH_INTERPRETATION"
+    },
+    {
+     "a": "others remain",
+     "v": "SUPPORTED_WITH_INTERPRETATION"
+    },
+    {
+     "a": "Ghalta under P0",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "903.10a",
+    "704.3"
+   ]
+  },
+  "RQ-C1-G04": {
+   "events": "SUPPORTED_DIRECTLY (concession always available; 800.4a cleanup; revert). Sol promotes.",
+   "terminal": [
+    {
+     "a": "P0 left; P1/P2/P3 remain",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Aura gone with P0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Bear under P1",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "104.3a",
+    "800.4a (+verbatim example)"
+   ]
+  },
+  "RQ-C1-G05": {
+   "events": "SUPPORTED_DIRECTLY (P0 sacrifices; APNAP offers; P2 cannot; -2; draw 1).",
+   "terminal": [
+    {
+     "a": "P2 at 38",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "P0 +1 card",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "sacrificed lands in graveyards",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "603.5",
+    "608.2e",
+    "Braids Oracle + ruling"
+   ]
+  },
+  "RQ-C1-H01": {
+   "events": "SUPPORTED_DIRECTLY (layer-1 copy; layer-6 strip; 7b 1/1; timestamp-independence).",
+   "terminal": [
+    {
+     "a": "Clone 1/1 no abilities",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Bear 1/1 no abilities",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "613.1a",
+    "613.1f",
+    "613.1g",
+    "613.7"
+   ]
+  },
+  "RQ-C1-H02": {
+   "events": "PATH_B (Frog then Growth -> 4/4) SUPPORTED_DIRECTLY; PATH_A (Growth then Frog -> 1/1) CONTRADICTED (modifiers apply regardless: 613.4b/c + Frog ruling).",
+   "terminal": [
+    {
+     "a": "PATH_A 1/1 blue Frog",
+     "v": "CONTRADICTED"
+    },
+    {
+     "a": "PATH_B 4/4 blue Frog",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "613.4b",
+    "613.4c",
+    "Frog rulings"
+   ]
+  },
+  "RQ-C1-I01": {
+   "events": "SUPPORTED_DIRECTLY (exile; counter ceases; Pacifism to P1 graveyard; clean return).",
+   "terminal": [
+    {
+     "a": "Bear plain 2/2 under P0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Pacifism in P1 graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Blink exiled via flashback or graveyard per route",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "400.7",
+    "122.2",
+    "704.5m"
+   ]
+  },
+  "RQ-C1-I02": {
+   "events": "SUPPORTED_DIRECTLY (P1-graveyard Bear to P0; P0 -2).",
+   "terminal": [
+    {
+     "a": "Bear P0-controlled/P1-owned",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "P0 at 38",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Reanimate in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "108.3",
+    "110.2",
+    "202.3",
+    "400.7"
+   ]
+  },
+  "RQ-C1-I03": {
+   "events": "SUPPORTED_DIRECTLY (Traveler dies + Spirit; Reap cost-sacrifice; token dies; ceases; draw 2).",
+   "terminal": [
+    {
+     "a": "P1 38, P0 42, P0 draws 2",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "no token object anywhere",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Traveler + Reap in graveyards",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "700.4",
+    "111.7",
+    "111.8",
+    "603.10",
+    "601.2h"
+   ]
+  },
+  "RQ-C1-J01": {
+   "events": "SUPPORTED_DIRECTLY (upkeep trigger; journaled flip; loss 3 / win 0). Journal shape is engineering.",
+   "terminal": [
+    {
+     "a": "journaled flip; life per path (37/40)",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Crypt remains",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "705.1",
+    "705.2",
+    "Crypt ruling"
+   ]
+  },
+  "RQ-C1-J02": {
+   "events": "SUPPORTED_DIRECTLY (attack trigger; 17 in 15-20; copy token; decline ends recursion; exile at end of combat).",
+   "terminal": [
+    {
+     "a": "journaled 17",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "one token created-then-exiled; none remains",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Delina + Bear survive",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "706.1",
+    "706.3",
+    "707.2",
+    "603.5",
+    "Delina rulings"
+   ]
+  },
+  "RQ-C1-J03": {
+   "events": "SUPPORTED_DIRECTLY (target P1; Rules-RNG 2-of-4; no chooser; discarded public; retained private).",
+   "terminal": [
+    {
+     "a": "journaled pair discarded",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "pair retained private",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "Hymn in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "701.9a",
+    "701.9b"
+   ]
+  },
+  "RQ-C1-K01": {
+   "events": "SUPPORTED_DIRECTLY (mass destroy; 3 self-inclusive Artist triggers; 0 Warden; P0 orders; 37/43).",
+   "terminal": [
+    {
+     "a": "P1 37, P0 43",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "trigger counts 3/0",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "all creatures in graveyards; Wrath in graveyard",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "603.10a (+verbatim analogous example)",
+    "603.3b",
+    "700.4"
+   ]
+  },
+  "RQ-C1-K02": {
+   "events": "SUPPORTED_DIRECTLY (Clone enters as Ghalta; cross-controller: no legend action; ETB zero). Sol promotes; same-controller variant gated.",
+   "terminal": [
+    {
+     "a": "two Ghaltas coexist; no transit",
+     "v": "SUPPORTED_DIRECTLY"
+    },
+    {
+     "a": "zero Artist triggers",
+     "v": "SUPPORTED_DIRECTLY"
+    }
+   ],
+   "via": [
+    "704.5j",
+    "700.4",
+    "603.10"
+   ]
+  }
+ },
+ "schema": "rq-c2.expected-assertion-review.v1",
+ "totals": {
+  "AUTHORITY_UNKNOWN": 0,
+  "CONTRADICTED": 5,
+  "OVERASSERTED": 2,
+  "SUPPORTED_DIRECTLY": 107,
+  "SUPPORTED_WITH_INTERPRETATION": 2,
+  "UNDERASSERTED": 1
+ }
+}
