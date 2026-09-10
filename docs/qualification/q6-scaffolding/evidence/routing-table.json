@@ -1,0 +1,287 @@
+[
+  {
+    "capability": "ADDITIONAL_ALTERNATIVE_COST",
+    "card": "Altar's Reap",
+    "families": [
+      "ADDITIONAL_ALTERNATIVE_COST",
+      "MANA_PAYMENT_CHOICE"
+    ],
+    "input_hash": "9eebbe1e9cec3b04",
+    "intake_id": "a8242c17c2915c077d6edf4257a611f0",
+    "pretags": [
+      "MANA_PAYMENT",
+      "PAYMENT_CHOICE"
+    ],
+    "rules_questions": 0,
+    "skeleton_id": "skel-a8242c17c2915c07-additional_alternative_cost",
+    "state": "READY_FOR_RUNTIME_QUALIFICATION",
+    "witnesses": 8
+  },
+  {
+    "capability": "MODAL_CHOICE",
+    "card": "Boros Charm",
+    "families": [
+      "MANA_PAYMENT_CHOICE",
+      "MODAL_CHOICE"
+    ],
+    "input_hash": "09d1373fcca2d462",
+    "intake_id": "01eec5d12e4ac4446c98ef7a65e13b01",
+    "pretags": [
+      "MODE_CHOICE",
+      "MANA_PAYMENT"
+    ],
+    "rules_questions": 0,
+    "skeleton_id": "skel-01eec5d12e4ac444-modal_choice",
+    "state": "READY_FOR_RUNTIME_QUALIFICATION",
+    "witnesses": 8
+  },
+  {
+    "capability": "MULTIPLAYER_OPPONENT_SELECTION",
+    "card": "Braids, Arisen Nightmare",
+    "families": [
+      "MANA_PAYMENT_CHOICE",
+      "MULTIPLAYER_OPPONENT_SELECTION",
+      "TRIGGERED_CHOICE",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "c87ca9a532e1ff34",
+    "intake_id": "9d0bc5930267fd1a5f62b976378e5019",
+    "pretags": [
+      "VOTE_CHOICE",
+      "OPPONENT_CHOICE",
+      "MANA_PAYMENT",
+      "TRIGGER_CHOICE"
+    ],
+    "rules_questions": 2,
+    "skeleton_id": "skel-9d0bc5930267fd1a-multiplayer_opponent_selection",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 8
+  },
+  {
+    "capability": "MULTIPLAYER_OPPONENT_SELECTION",
+    "card": "Council's Judgment",
+    "families": [
+      "MANA_PAYMENT_CHOICE",
+      "MULTIPLAYER_OPPONENT_SELECTION"
+    ],
+    "input_hash": "242e27659b187b31",
+    "intake_id": "8d9554df5754c4bf175be2514d3e0ea3",
+    "pretags": [
+      "VOTE_CHOICE",
+      "OPPONENT_CHOICE",
+      "MANA_PAYMENT"
+    ],
+    "rules_questions": 1,
+    "skeleton_id": "skel-8d9554df5754c4bf-multiplayer_opponent_selection",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 8
+  },
+  {
+    "capability": "MANA_PAYMENT_CHOICE",
+    "card": "Divination",
+    "families": [
+      "MANA_PAYMENT_CHOICE"
+    ],
+    "input_hash": "e3940c01361a87eb",
+    "intake_id": "1e1e3fcac4d8b4841ff214e486fa87fd",
+    "pretags": [
+      "MANA_PAYMENT"
+    ],
+    "rules_questions": 0,
+    "skeleton_id": "skel-1e1e3fcac4d8b484-mana_payment_choice",
+    "state": "READY_FOR_RUNTIME_QUALIFICATION",
+    "witnesses": 8
+  },
+  {
+    "capability": "COMMANDER_MECHANIC",
+    "card": "Fierce Guardianship",
+    "families": [
+      "ADDITIONAL_ALTERNATIVE_COST",
+      "COMMANDER_MECHANIC",
+      "MANA_PAYMENT_CHOICE",
+      "SBA_SENSITIVE",
+      "TARGET_SELECTION",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "629d27bf0e9ce0ed",
+    "intake_id": "3ec2c2f1c0d3f645604ce692f2f226ab",
+    "pretags": [
+      "TARGET_SELECTION",
+      "TRIGGER_CHOICE",
+      "MANA_PAYMENT",
+      "PAYMENT_CHOICE"
+    ],
+    "rules_questions": 1,
+    "skeleton_id": "skel-3ec2c2f1c0d3f645-commander_mechanic",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 8
+  },
+  {
+    "capability": "TARGET_SELECTION",
+    "card": "Fireball",
+    "families": [
+      "MANA_PAYMENT_CHOICE",
+      "SBA_SENSITIVE",
+      "TARGET_SELECTION",
+      "X_COST_VALUE",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "7f645134956c793d",
+    "intake_id": "8ceb430659823bfeb23a70fb4c268f62",
+    "pretags": [
+      "TARGET_SELECTION",
+      "TRIGGER_CHOICE",
+      "MANA_PAYMENT",
+      "X_VALUE_CHOICE"
+    ],
+    "rules_questions": 1,
+    "skeleton_id": "skel-8ceb430659823bfe-target_selection",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 8
+  },
+  {
+    "capability": "TARGET_SELECTION",
+    "card": "Force of Will",
+    "families": [
+      "ADDITIONAL_ALTERNATIVE_COST",
+      "MANA_PAYMENT_CHOICE",
+      "SBA_SENSITIVE",
+      "TARGET_SELECTION",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "3c26f51d29fd0e7e",
+    "intake_id": "ea3c1487ece7ccd9147fe6709cdeefdc",
+    "pretags": [
+      "TARGET_SELECTION",
+      "TRIGGER_CHOICE",
+      "MANA_PAYMENT",
+      "PAYMENT_CHOICE"
+    ],
+    "rules_questions": 0,
+    "skeleton_id": "skel-ea3c1487ece7ccd9-target_selection",
+    "state": "READY_FOR_RUNTIME_QUALIFICATION",
+    "witnesses": 8
+  },
+  {
+    "capability": "RANDOMNESS",
+    "card": "Frenetic Efreet",
+    "families": [
+      "ADDITIONAL_ALTERNATIVE_COST",
+      "MANA_PAYMENT_CHOICE",
+      "RANDOMNESS"
+    ],
+    "input_hash": "481d70fe6399efda",
+    "intake_id": "4cadf01c284079cf4e567869611bd5f2",
+    "pretags": [
+      "MANA_PAYMENT",
+      "PAYMENT_CHOICE"
+    ],
+    "rules_questions": 1,
+    "skeleton_id": "skel-4cadf01c284079cf-randomness",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 8
+  },
+  {
+    "capability": "COPY_CONTROL",
+    "card": "Gisela, the Broken Blade",
+    "families": [
+      "COPY_CONTROL",
+      "MANA_PAYMENT_CHOICE",
+      "SBA_SENSITIVE",
+      "TRIGGERED_CHOICE",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "277ef10497cddcc3",
+    "intake_id": "905f11148202b9f704d59c146b36b2c8",
+    "pretags": [
+      "TRIGGER_CHOICE",
+      "MANA_PAYMENT"
+    ],
+    "rules_questions": 2,
+    "skeleton_id": "skel-905f11148202b9f7-copy_control",
+    "state": "UNSUPPORTED",
+    "witnesses": 8
+  },
+  {
+    "capability": "TARGET_SELECTION",
+    "card": "Lightning Bolt",
+    "families": [
+      "MANA_PAYMENT_CHOICE",
+      "TARGET_SELECTION"
+    ],
+    "input_hash": "330ba48b8090d1b2",
+    "intake_id": "b4bcd00aa87e326a0632ffe2d095c2f8",
+    "pretags": [
+      "TARGET_SELECTION",
+      "MANA_PAYMENT"
+    ],
+    "rules_questions": 0,
+    "skeleton_id": "skel-b4bcd00aa87e326a-target_selection",
+    "state": "READY_FOR_RUNTIME_QUALIFICATION",
+    "witnesses": 8
+  },
+  {
+    "capability": "TRIGGERED_CHOICE",
+    "card": "Soul Warden",
+    "families": [
+      "MANA_PAYMENT_CHOICE",
+      "TRIGGERED_CHOICE",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "4135b0008ba565c0",
+    "intake_id": "6cb3c05c0b294c0a3ca214cbd5c2cfec",
+    "pretags": [
+      "TRIGGER_CHOICE",
+      "MANA_PAYMENT"
+    ],
+    "rules_questions": 1,
+    "skeleton_id": "skel-6cb3c05c0b294c0a-triggered_choice",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 8
+  },
+  {
+    "capability": "REPLACEMENT_EFFECT",
+    "card": "Sundering Eruption",
+    "families": [
+      "ADDITIONAL_ALTERNATIVE_COST",
+      "MANA_PAYMENT_CHOICE",
+      "MODAL_CHOICE",
+      "REPLACEMENT_EFFECT",
+      "SBA_SENSITIVE",
+      "TARGET_SELECTION",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "def5d0a2956f2396",
+    "intake_id": "fa7e46a11e1c32dad2646087ad3dde72",
+    "pretags": [
+      "TARGET_SELECTION",
+      "MODE_CHOICE",
+      "MANA_PAYMENT",
+      "PAYMENT_CHOICE"
+    ],
+    "rules_questions": 1,
+    "skeleton_id": "skel-fa7e46a11e1c32da-replacement_effect",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 8
+  },
+  {
+    "capability": "HIDDEN_INFORMATION",
+    "card": "Willbender",
+    "families": [
+      "HIDDEN_INFORMATION",
+      "MANA_PAYMENT_CHOICE",
+      "TRIGGERED_CHOICE",
+      "ZONE_CHANGE"
+    ],
+    "input_hash": "c0bbc5474dc3e7d5",
+    "intake_id": "3cc7364f493cae0bd8feaa965b4f85e1",
+    "pretags": [
+      "TRIGGER_CHOICE",
+      "MANA_PAYMENT"
+    ],
+    "rules_questions": 2,
+    "skeleton_id": "skel-3cc7364f493cae0b-hidden_information",
+    "state": "RULES_ADJUDICATION_REQUIRED",
+    "witnesses": 9
+  }
+]

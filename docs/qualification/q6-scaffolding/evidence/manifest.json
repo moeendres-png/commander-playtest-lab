@@ -1,0 +1,287 @@
+{
+  "configuration": {},
+  "manifest_hash": "44bcde97cd4afc1e8df09297a01d73a43beeac6225a6890018c68d0ee5e00daa",
+  "manifest_id": "q6-bounded-sample-14",
+  "queue_summary": {
+    "AMBIGUOUS_PARSE": 0,
+    "MANUAL_SCENARIO_REVIEW": 11,
+    "PROVENANCE_REVIEW": 0,
+    "RULES_ADJUDICATION": 10,
+    "RUNTIME_QUALIFICATION_READY": 5,
+    "UNSUPPORTED_CAPABILITY": 1
+  },
+  "records": [
+    {
+      "capability": "MODAL_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "MODAL_CHOICE"
+      ],
+      "card_name_hint": "Boros Charm",
+      "input_hash": "09d1373fcca2d4628a05e91be27a769c86a19a8fa4df7f2424d78aee149727c2",
+      "intake_id": "01eec5d12e4ac4446c98ef7a65e13b01",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-01eec5d12e4ac444-modal_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/b/boros_charm.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "MANA_PAYMENT_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Divination",
+      "input_hash": "e3940c01361a87eb5777fa7c418fcdced3bd09b75fd4ba8ee1ecbc7d13497f53",
+      "intake_id": "1e1e3fcac4d8b4841ff214e486fa87fd",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-1e1e3fcac4d8b484-mana_payment_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/divination.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "HIDDEN_INFORMATION",
+      "capability_families": [
+        "HIDDEN_INFORMATION",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Willbender",
+      "input_hash": "c0bbc5474dc3e7d5b3b528de7b17083e9221a92276ca08d12128b2cef9fce6f2",
+      "intake_id": "3cc7364f493cae0bd8feaa965b4f85e1",
+      "reasons": [
+        "rules_question:HIDDEN_INFORMATION",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-3cc7364f493cae0b-hidden_information",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/w/willbender.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "COMMANDER_MECHANIC",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "COMMANDER_MECHANIC",
+        "MANA_PAYMENT_CHOICE",
+        "SBA_SENSITIVE",
+        "TARGET_SELECTION",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Fierce Guardianship",
+      "input_hash": "629d27bf0e9ce0edaf4a3b3972d97df90ce44a239491fe614a83a0caa7aa16a8",
+      "intake_id": "3ec2c2f1c0d3f645604ce692f2f226ab",
+      "reasons": [
+        "rules_question:COMMANDER_MECHANIC"
+      ],
+      "skeleton_id": "skel-3ec2c2f1c0d3f645-commander_mechanic",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/fierce_guardianship.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "RANDOMNESS",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "RANDOMNESS"
+      ],
+      "card_name_hint": "Frenetic Efreet",
+      "input_hash": "481d70fe6399efdaca2f9d1bcfed01b56bf7b7e4defcea4c1303e34b43305a43",
+      "intake_id": "4cadf01c284079cf4e567869611bd5f2",
+      "reasons": [
+        "rules_question:RANDOMNESS"
+      ],
+      "skeleton_id": "skel-4cadf01c284079cf-randomness",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/frenetic_efreet.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Soul Warden",
+      "input_hash": "4135b0008ba565c09cdd8e5ad0381543db5ededb2f133332e5ff0986a1fbed13",
+      "intake_id": "6cb3c05c0b294c0a3ca214cbd5c2cfec",
+      "reasons": [
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-6cb3c05c0b294c0a-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/soul_warden.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "SBA_SENSITIVE",
+        "TARGET_SELECTION",
+        "X_COST_VALUE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Fireball",
+      "input_hash": "7f645134956c793de24a86e8f454b34b091f0875c3cdbf4363f814604e6c6119",
+      "intake_id": "8ceb430659823bfeb23a70fb4c268f62",
+      "reasons": [
+        "rules_question:X_COST_VALUE"
+      ],
+      "skeleton_id": "skel-8ceb430659823bfe-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/fireball.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "MULTIPLAYER_OPPONENT_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "MULTIPLAYER_OPPONENT_SELECTION"
+      ],
+      "card_name_hint": "Council's Judgment",
+      "input_hash": "242e27659b187b31f5d27496910c7bbc283782d58f4ed6eb1f947cfc8e614bd8",
+      "intake_id": "8d9554df5754c4bf175be2514d3e0ea3",
+      "reasons": [
+        "rules_question:MULTIPLAYER_OPPONENT_SELECTION"
+      ],
+      "skeleton_id": "skel-8d9554df5754c4bf-multiplayer_opponent_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/councils_judgment.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE",
+        "SBA_SENSITIVE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Gisela, the Broken Blade",
+      "input_hash": "277ef10497cddcc39c5965b64bf72cba450eae036908d139424736b61daea419",
+      "intake_id": "905f11148202b9f704d59c146b36b2c8",
+      "reasons": [
+        "unsupported_construct:topkey:MeldPair"
+      ],
+      "skeleton_id": "skel-905f11148202b9f7-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/g/gisela_the_broken_blade_brisela_voice_of_nightmares.txt",
+      "state": "UNSUPPORTED"
+    },
+    {
+      "capability": "MULTIPLAYER_OPPONENT_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "MULTIPLAYER_OPPONENT_SELECTION",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Braids, Arisen Nightmare",
+      "input_hash": "c87ca9a532e1ff34c89272593761cabdea0f5e2ccb8b9607d5cdc2fed98b1f87",
+      "intake_id": "9d0bc5930267fd1a5f62b976378e5019",
+      "reasons": [
+        "rules_question:MULTIPLAYER_OPPONENT_SELECTION",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-9d0bc5930267fd1a-multiplayer_opponent_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/b/braids_arisen_nightmare.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "ADDITIONAL_ALTERNATIVE_COST",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Altar's Reap",
+      "input_hash": "9eebbe1e9cec3b0424c8f6df7bd4280799b61e5d773523507d10b8145b8b2e2d",
+      "intake_id": "a8242c17c2915c077d6edf4257a611f0",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-a8242c17c2915c07-additional_alternative_cost",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/altars_reap.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Lightning Bolt",
+      "input_hash": "330ba48b8090d1b2312f9404d71612cd3bbf49b960974b99ebf5c0804bb4711e",
+      "intake_id": "b4bcd00aa87e326a0632ffe2d095c2f8",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-b4bcd00aa87e326a-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/l/lightning_bolt.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "SBA_SENSITIVE",
+        "TARGET_SELECTION",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Force of Will",
+      "input_hash": "3c26f51d29fd0e7e72cbb80712f2401a1328f6a73fb3f94f1e0ce2a0c15af56d",
+      "intake_id": "ea3c1487ece7ccd9147fe6709cdeefdc",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-ea3c1487ece7ccd9-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/force_of_will.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "REPLACEMENT_EFFECT",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "MODAL_CHOICE",
+        "REPLACEMENT_EFFECT",
+        "SBA_SENSITIVE",
+        "TARGET_SELECTION",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Sundering Eruption",
+      "input_hash": "def5d0a2956f2396f88ffe1d31c31ebbbb239ea28557164daf2daba1a09e37fd",
+      "intake_id": "fa7e46a11e1c32dad2646087ad3dde72",
+      "reasons": [
+        "rules_question:REPLACEMENT_EFFECT"
+      ],
+      "skeleton_id": "skel-fa7e46a11e1c32da-replacement_effect",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/sundering_eruption_volcanic_fissure.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    }
+  ],
+  "schema": "q6.campaign-manifest.v1",
+  "source_locks": [
+    {
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git"
+    }
+  ],
+  "tool_version": "q6-scaffolding-0.1.0"
+}
