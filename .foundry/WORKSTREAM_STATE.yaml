@@ -1,31 +1,40 @@
-schema_version: "1.0"
+schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
 worktree: /home/moeen/code/opencode-muse-cross-repo-hardening-v2
 branch: project/opencode-muse-cross-repo-hardening-v2-20260910
 audit_base_sha: c162871ba416c338d37f83a44fbd5b054e79ca0e
 audit_base_tree: b75a51d3326f502f33f0af2ce5d897ac89d60cc5
-current_head: c162871ba416c338d37f83a44fbd5b054e79ca0e
-objective: Cross-repo OpenCode+Muse Spark 1.3 operating-layer hardening v2 (deep-research conformance, safe-auto, single-writer, launcher, state semantics, telemetry, cross-repo control plane) with CPL as canonical policy authority and zero engine-tree mutation.
+objective: Cross-repo OpenCode+Muse Spark 1.3 operating-layer hardening v2 (deep-research
+  conformance, safe-auto, single-writer, launcher, state semantics, telemetry, cross-repo
+  control plane) with CPL as canonical policy authority and zero engine-tree mutation.
 in_scope:
 - root OpenCode/project execution configuration (SAFE_AUTO deny-hardening within authority)
 - .opencode/** (agents, skills incl. reconciliation additions)
-- tools/foundry/** operating-layer tools (writer lock, safe push, profiles, launcher, metrics, state v2, drift check, bootstrap gate)
+- tools/foundry/** operating-layer tools (writer lock, safe push, profiles, launcher,
+  metrics, state v2, drift check, bootstrap gate)
 - tests/foundry/** (incl. adversarial batteries)
 - .foundry schemas/templates/tooling/state semantics
-- docs/foundry-execution/** (threat model, CLI requalification, qualification record, ledger)
+- docs/foundry-execution/** (threat model, CLI requalification, qualification record,
+  ledger)
 - dedicated cross-repo execution profiles + launcher/runtime wrappers
 - bounded CI changes concerning the OpenCode operating layer only
 out_of_scope:
-- WS50 Forge runtime/provider/Decision-sequence implementation and evidence (branch ws50/forge-decision-sequence-slice-20260910)
-- Task 2B Q6 scaffolding surfaces (tools/q6_scaffolding/**, tests/q6_scaffolding/**, docs/qualification/q6-scaffolding/**)
-- Forge/XMage Rules semantics, pinned engine commits, engine behavior tests, qualification credit
+- WS50 Forge runtime/provider/Decision-sequence implementation and evidence (branch
+  ws50/forge-decision-sequence-slice-20260910)
+- Task 2B Q6 scaffolding surfaces (tools/q6_scaffolding/**, tests/q6_scaffolding/**,
+  docs/qualification/q6-scaffolding/**)
+- Forge/XMage Rules semantics, pinned engine commits, engine behavior tests, qualification
+  credit
 - Production Repository creation, provider selection, Architecture Freeze claims
-- Merging/rebasing/pushing except via the new validated safe-push path (and only after it passes adversarial tests)
+- Merging/rebasing/pushing except via the new validated safe-push path (and only after
+  it passes adversarial tests)
 - Remote PR closure (recommendations only)
 ownership: CROSS-REPO-OPERATING-LAYER-HARDENING-V2 session (branch project/opencode-muse-cross-repo-hardening-v2-20260910)
 dependencies:
-- origin/main at c162871b/tree b75a51d3 (AUDIT_BASE, fetched + reverified 2026-09-10, contains PR172 + PR173 lines)
-- Pinned OpenCode CLI v1.18.29 lane in .github/workflows/opencode.yml (installed local CLI 1.18.30)
+- origin/main at c162871b/tree b75a51d3 (AUDIT_BASE, fetched + reverified 2026-09-10,
+  contains PR172 + PR173 lines)
+- Pinned OpenCode CLI v1.18.29 lane in .github/workflows/opencode.yml (installed local
+  CLI 1.18.30)
 - WS50 + Task 2B live workstreams respected (no shared mutation surface)
 hard_gates:
 - model stays opencode-go/muse-spark-1.3-contributor; share stays disabled
@@ -43,36 +52,78 @@ forbidden_shortcuts:
 - green workflow equated with Qualification PASS
 - copying governance files into qualified engine commits
 validated_gates:
-- source lock verified (canonical slug, branch, HEAD==origin/main c162871b, tree b75a51d3, clean worktree)
+- source lock verified (canonical slug, branch, HEAD==origin/main c162871b, tree b75a51d3,
+  clean worktree)
 - main contains PR172 (c162871b) and PR173 (8bdf2279) lines
 - baseline pytest tests/foundry/ 42/42 green on clean tree
-- CWD audit of live OpenCode processes recorded (WS50 pts/2, Task2B pts/0, own --auto pts/3 in this worktree)
+- CWD audit of live OpenCode processes recorded (WS50 pts/2, Task2B pts/0, own --auto
+  pts/3 in this worktree)
+- 'Checkpoint B code commit b46aa5f6 validated on clean tree: pytest 63/63, ruff check
+  clean, ruff format clean (validated_head names this commit)'
+- writer_lock scan reproduces the PR172 failure mode live (PID 59205 opencode --auto
+  with CWD=this worktree, invisible to worktree_inventory)
+- 'state schema 2.0: v1 parseable + migrates with zero fabricated credit; CHECKPOINT_CLEAN
+  terminates the write-commit cycle (both directions tested)'
 failed_gates: []
 invalidated_gates: []
 do_not_rerun:
-- origin/main fetch + HEAD/TREE verification at c162871b (immutable for this base; reverify only on drift)
+- origin/main fetch + HEAD/TREE verification at c162871b (immutable for this base;
+  reverify only on drift)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Checkpoint A complete (ledger written, 5 PASS / 7 PARTIAL / 8 FAIL); proceeding to Checkpoint B single-writer lock + state semantics v2.
+current_hypothesis: Checkpoint B complete (writer lock + state 2.0 validated at b46aa5f6);
+  proceeding to Checkpoint C safe-auto threat model + safe push.
 files_modified:
 - .foundry/WORKSTREAM_STATE.yaml (new source lock for this workstream)
-- .foundry/conformance-ledger-2026-09-10.json (new, Checkpoint A machine-readable ledger)
-- docs/foundry-execution/CROSS_REPO_CONFORMANCE_BASELINE_2026-09-10.md (new, audit + CLI verification)
+- .foundry/conformance-ledger-2026-09-10.json (new, Checkpoint A machine-readable
+  ledger)
+- docs/foundry-execution/CROSS_REPO_CONFORMANCE_BASELINE_2026-09-10.md (new, audit
+  + CLI verification)
 tests_run:
 - pytest tests/foundry/ -q (42 passed, clean-tree baseline 2026-09-10)
+- pytest tests/foundry/ -q (63 passed on Checkpoint B code commit b46aa5f6: 42 + 9 writer-lock + 12 state-v2)
+- ruff check tools/foundry tests/foundry (pass)
+- ruff format --check tools/foundry tests/foundry (pass)
+- tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml --workdir . --check-validated (STATE_OK schema 2.0, ancestry silent-clean)
+- tools/foundry/writer_lock.py scan --worktree . (detects live PID 59205 opencode --auto)
 evidence:
-- DIRECTLY_VERIFIED: origin/main SHA/tree, branch/HEAD/status, PR172/PR173 merge lines, CLI versions (installed 1.18.30, pin 1.18.29), live opencode PIDs+CWDs, mage/ws50/q6 remotes+branches
-- CODE_DERIVED: tool-surface assessment from reading all tools/foundry/*.py, skills, agents, docs
+- DIRECTLY_VERIFIED: origin/main SHA/tree, branch/HEAD/status, PR172/PR173 merge lines,
+    CLI versions (installed 1.18.30, pin 1.18.29), live opencode PIDs+CWDs, mage/ws50/q6
+    remotes+branches
+- CODE_DERIVED: tool-surface assessment from reading all tools/foundry/*.py, skills,
+    agents, docs
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: xhigh
 hypotheses_rejected: []
 technical_decisions:
-- "Prior consolidation WORKSTREAM_STATE.yaml superseded for this branch (preserved in git history); new source lock c162871b written for this workstream. State semantics self-reference (current_head) accepted temporarily; redesigned in Checkpoint B."
-- "Checkpoint A: OPENCODE_CONFIG_CONTENT deep-merges over project config (verified: model override + added deny rule preserved siblings); OPENCODE_CONFIG loses to project-local opencode.json; AGENTS.md sources combine with conflicts unresolved (official docs). Central-injection architecture chosen pending Checkpoint D validation."
-- "Checkpoint A ledger: 5 PASS / 7 PARTIAL / 8 FAIL. No UNSUPPORTED_BY_CURRENT_PLATFORM claimed yet."
+- Prior consolidation WORKSTREAM_STATE.yaml superseded for this branch (preserved
+  in git history); new source lock c162871b written for this workstream. State semantics
+  self-reference (current_head) accepted temporarily; redesigned in Checkpoint B.
+- 'Checkpoint A: OPENCODE_CONFIG_CONTENT deep-merges over project config (verified:
+  model override + added deny rule preserved siblings); OPENCODE_CONFIG loses to project-local
+  opencode.json; AGENTS.md sources combine with conflicts unresolved (official docs).
+  Central-injection architecture chosen pending Checkpoint D validation.'
+- 'Checkpoint A ledger: 5 PASS / 7 PARTIAL / 8 FAIL. No UNSUPPORTED_BY_CURRENT_PLATFORM
+  claimed yet.'
+- 'Checkpoint B: flock is lock authority, metadata diagnostic-only; stale bytes can
+  never brick (tested with dead-PID file); symlink aliases canonicalized via realpath;
+  scan keys on argv0 basename opencode (native-binary cmdline shape, emulated in tests
+  via executable=); own live PID 59205 detected by scan (PR172 failure mode reproduced).'
+- 'Checkpoint B: state 2.0 splits identity four ways (audit_base=source lock,
+  validated_head=claim, state_written_against_head=description, runtime HEAD derived
+  live); CHECKPOINT_CLEAN (parent==recorded + state-only diff) terminates the
+  write-commit cycle; migration carries zero validation credit.'
+- 'State semantics migrated 1.0 -> 2.0: current_head preserved as state_written_against_head
+  (descriptive); validated_head reset to null because v1 never distinguished the two
+  (no validation credit carried across migration).'
 authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
 status: ACTIVE
-next_action: "Checkpoint B: flock-backed single-writer lock tool + state semantics v2 (schema, validator, migration, tests)."
-exact_next_action: "Implement tools/foundry/writer_lock.py with concurrency tests, then state schema 2.0 with source_lock_head/validated_head/state_written_against_head + migration; validate with pytest + ruff; commit locally."
+next_action: 'Checkpoint C: safe-auto threat model + safe checkpoint-push path (narrow
+  API, adversarial tests).'
+exact_next_action: Write SAFE_AUTO_THREAT_MODEL doc + tools/foundry/safe_push.py with
+  fail-closed preconditions; adversarial battery incl. bypass paths; no remote push
+  until the battery passes.
+state_written_against_head: b46aa5f6fc3861e8b0041fcb43e4b288b2a57edb
+validated_head: b46aa5f6fc3861e8b0041fcb43e4b288b2a57edb
