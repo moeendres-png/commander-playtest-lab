@@ -123,6 +123,7 @@ class Driver:
         self.ritual_answers: list[dict[str, Any]] = []
         self.structural_passes: list[dict[str, Any]] = []
         self.decode_errors = 0
+        self.raw_lines: list[str] = []
         self.offered_for_digest: list[Any] = []
         self.events: list[dict[str, Any]] = []
         self.setup_stage_seen = False
@@ -286,6 +287,8 @@ def run_record(record: dict[str, Any], transport: Any,
                     line = next_line()
                     if not line:
                         break
+                    if len(drv.raw_lines) < 200:
+                        drv.raw_lines.append(line[:500])
                     try:
                         m = json.loads(line)
                     except Exception:
@@ -332,6 +335,8 @@ def run_record(record: dict[str, Any], transport: Any,
                 line = next_line()
                 if not line:
                     break
+                if len(drv.raw_lines) < 200:
+                    drv.raw_lines.append(line[:500])
                 try:
                     m = json.loads(line)
                 except Exception:
@@ -885,6 +890,7 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
         "frames_detail": drv.frames[:64],
         "native_event_tape": drv.events[:128],
         "session_snapshot": snapshot,
+        "raw_tail": drv.raw_lines[-8:],
         "script_remaining": remaining,
         "stop_reason": stop_reason,
         "offered_digest": digest(drv.offered_for_digest),
