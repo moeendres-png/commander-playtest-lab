@@ -30,7 +30,7 @@ forbidden_shortcuts:
 - fabricated legal actions, manual outcome injection, direct sa.resolve substitutes
 - weakening tests/assertions/denominators to obtain green
 status: ACTIVE
-state_written_against_head: e42cd1309794451671e5846dabc0c6f9e7499769
+state_written_against_head: 4129c5d4c5b514c96ab74343129ad3d72510dbe6
 validated_head: null
 milestones:
   A_source_lock_authority_baseline: DONE
