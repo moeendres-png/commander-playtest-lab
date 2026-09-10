@@ -1,0 +1,106 @@
+{
+  "guarantee": "RQ-C1 and RQ-C2 are historical evidence and remain byte-identical. All corrected material under research/candidate-qualification/common/rq-c3/**. No in-place amendment of parent artifacts.",
+  "rq_c1": {
+    "head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+    "status": "BYTE_IDENTICAL (validator: git status --porcelain and git diff HEAD clean for research/candidate-qualification/common/rq-c1/)",
+    "tree": "709a5944c9826dbaaa433052f3538425c8f0573b"
+  },
+  "rq_c2": {
+    "head": "fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8",
+    "status": "BYTE_IDENTICAL (validator: git status --porcelain and git diff HEAD clean for research/candidate-qualification/common/rq-c2/)",
+    "tree": "7abcb331fd378a9663bd9222eb8135ad34dff102"
+  },
+  "scenario_parent_hashes": {
+    "RQ-C3-A03": {
+      "git_blob": "d552bfe31a02a8a98829d111e2d1f5ecb6f53320",
+      "parent_scenario_id": "RQ-C1-A03",
+      "sha256": "81c60315ba328155bf2495f4591152e0f583d163d37f02d7e4df5953a75a4951"
+    },
+    "RQ-C3-A04": {
+      "git_blob": "356d92e3da188f1614fd5c150655333edd0c3541",
+      "parent_scenario_id": "RQ-C1-A04",
+      "sha256": "c346aa91f2708b81540af1b933a546536ee9a0a42b02b9208f054e05196eafd9"
+    },
+    "RQ-C3-B01": {
+      "git_blob": "7e034c7e5d347bd445f7a8c90f5bc41da8f40b18",
+      "parent_scenario_id": "RQ-C1-B01",
+      "sha256": "93ac087ff322598601e0e839396c7b49cf1076b5339443503d8b119dd6323714"
+    },
+    "RQ-C3-C01": {
+      "git_blob": "307fd9be3baafe211464544b13a64790ab937a66",
+      "parent_scenario_id": "RQ-C1-C01",
+      "sha256": "39fa0340ef26d063adbe84bfcba6cb6806ad8bcca19a607043d36fd09ca34ba4"
+    },
+    "RQ-C3-C03": {
+      "git_blob": "0f559a0f9a4f46d26577111c38a1b6629df8f791",
+      "parent_scenario_id": "RQ-C1-C03",
+      "sha256": "358d19048b34133a8d0223b974220609a55197628d2713fe7379f77f726e6de5"
+    },
+    "RQ-C3-D06": {
+      "git_blob": "8aae85a8c2ad86a6147c58a688ef84d9d43dced8",
+      "parent_scenario_id": "RQ-C1-D06",
+      "sha256": "ee9310b72991ff4305e5f97d8a7186a82cd146456258dc20e629313f3a7e0a83"
+    },
+    "RQ-C3-E01": {
+      "git_blob": "4ff1531a770b70f579f5386024ac5a4b0e6b355b",
+      "parent_scenario_id": "RQ-C1-E01",
+      "sha256": "2bf1ee8a0e3abe3d90ad92a96ee9f14ce842f08f0ad4db122ad2bc50c7bf0122"
+    },
+    "RQ-C3-E02": {
+      "git_blob": "8323c413c8577e1cc4378f181128fa169ecbf356",
+      "parent_scenario_id": "RQ-C1-E02",
+      "sha256": "e57aa252f453fbad2d6dfabdefd9058536e8016a0827951e202548e4ecc93aee"
+    },
+    "RQ-C3-F01": {
+      "git_blob": "4928aa0b3c708d3a0d89337e507325b58652cc89",
+      "parent_scenario_id": "RQ-C1-F01",
+      "sha256": "264d1c95b755e5e4a05047486dba8b7975ec47f0dc352b96dcf4447fa171a5ab"
+    },
+    "RQ-C3-F02": {
+      "git_blob": "f2d3100c6f45376752e1c03a8c6892387ecf305d",
+      "parent_scenario_id": "RQ-C1-F02",
+      "sha256": "567f784199de3e0bb3cfae9a6564e2500cbe5bdd24371d4afbf6102e563f403e"
+    },
+    "RQ-C3-G02": {
+      "git_blob": "947ffc294c48aa032d24bd6b8d4b811889c9791f",
+      "parent_scenario_id": "RQ-C1-G02",
+      "sha256": "6aca709b2728bafe408e33c1991a98aa7041b414edfa25c2975a5e4afcd3bfce"
+    },
+    "RQ-C3-G03": {
+      "git_blob": "c78343a1c2b246edb59f11144b8872e7b01f5c50",
+      "parent_scenario_id": "RQ-C1-G03",
+      "sha256": "6dadaf809f8d5c6cd558af2e95fbb81aba6dbb50d6c9c5f2f93818fccdb68e68"
+    },
+    "RQ-C3-G04": {
+      "git_blob": "f55362e940db9bc0f541b9de3ffdc75504c4f4c6",
+      "parent_scenario_id": "RQ-C1-G04",
+      "sha256": "3f430511a2d5aad69af77edfdc97c662454ede98c9e478b7fbb67ae983e6f430"
+    },
+    "RQ-C3-H01": {
+      "git_blob": "07529de84ddf2ec2d55443625681db6d86741479",
+      "parent_scenario_id": "RQ-C1-H01",
+      "sha256": "b38d8630be786fd54775470cec1661f302258760e7b02fda06c2c33697fde1ae"
+    },
+    "RQ-C3-H02": {
+      "git_blob": "8acb7a329e4d71f366cea3fef53fe2dc6ae9c244",
+      "parent_scenario_id": "RQ-C1-H02",
+      "sha256": "c71149bd68d6aab8772a643f4884de7475730add75a2b0f88df83088c0637965"
+    },
+    "RQ-C3-I01": {
+      "git_blob": "edb4e378cc8ae0155c18c651621a775421ed50f7",
+      "parent_scenario_id": "RQ-C1-I01",
+      "sha256": "f621b7a38465049ad5af126e2b46523028cd387da0cd834cc29c424faa9efbe2"
+    },
+    "RQ-C3-J02": {
+      "git_blob": "55ccd5d0db532ba743ebb5f229acae304c652c60",
+      "parent_scenario_id": "RQ-C1-J02",
+      "sha256": "641e67cfd4d6240cd04749e5b0af14c5f11dbcb5cd4ebb5e56ccea71aa271578"
+    },
+    "RQ-C3-K02": {
+      "git_blob": "3dd26476348ec08bfadaca813ae8ccc3874c24b7",
+      "parent_scenario_id": "RQ-C1-K02",
+      "sha256": "c3e684e68dfb14d7ae1a59bde99713fa3d80120585bc0b6660aa889b78fc7f3e"
+    }
+  },
+  "schema": "rq-c3.parent-immutability.v1"
+}
