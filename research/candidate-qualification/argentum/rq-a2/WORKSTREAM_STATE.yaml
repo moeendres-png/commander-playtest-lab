@@ -1,0 +1,102 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/rq-a2-argentum-comparable-qualification
+branch: research/argentum-comparable-qualification-rq-a2-20260910
+audit_base_sha: a62a8c7cced4cc226ae9b9a44d06539fbf542bd6
+audit_base_tree: 89bb39fcbe08f5ed722d9b882c19da91632ee262
+argentum_candidate_head: 3f46367d87c88bcf156a843a9e69fd29e1693872
+argentum_candidate_tree: 2adf51caa8f9c6a9908ea961fa988ebb5eb1959f
+argentum_checkout: /tmp/rq-a2-argentum-src
+state_written_against_head: a62a8c7cced4cc226ae9b9a44d06539fbf542bd6
+validated_head: null
+ownership: RQ-A2-ARGENTUM-COMPARABLE-ARCHITECTURE-QUALIFICATION
+status: ACTIVE
+objective: Resolve the highest-value RQ-A1 UNKNOWNs (U19 replay round-trip first,
+  then U22 identity, U16 hidden-info, U10 5-player, U5 card-behavior linkage, U1
+  rules-dense probes, U2/U3 authority packets, U12/U15/freshness, commander-shortcut
+  audit, RNG closure) strongly enough to decide whether Argentum deserves promotion
+  into a bounded runtime/behavior contender campaign. Qualification only; candidate
+  source stays semantically read-only; no provider selection; no freeze.
+in_scope:
+- research/candidate-qualification/argentum/rq-a2/** (harness, drivers, fixtures, evidence, reports, state)
+- Read-only inspection plus existing-test execution of /tmp/rq-a2-argentum-src at the exact lock
+- Gitignored candidate build products (jars, test-results) as driver inputs
+out_of_scope:
+- research/candidate-qualification/argentum/rq-a1/** (frozen)
+- WS52, WS53, Q6, Forge, XMage, CPL main, shared Foundry control-plane files
+- Any tracked-file mutation inside /tmp/rq-a2-argentum-src
+- Candidate engine repair, provider selection, architecture freeze
+dependencies:
+- CPL HEAD a62a8c7cced4cc226ae9b9a44d06539fbf542bd6 (RQ-A1 commit, verified 2026-09-10)
+- Argentum HEAD 3f46367d87c88bcf156a843a9e69fd29e1693872 / tree 2adf51caa8f9c6a9908ea961fa988ebb5eb1959f (verified clean)
+- JDK 21.0.12, candidate Gradle wrapper 9.6.1 (warm cache from RQ-A1), system Gradle 9.7.0
+hard_gates:
+- Candidate tracked tree stays clean (git status --porcelain empty at terminal, build outputs only)
+- No candidate-source semantic changes; defects classified ARGENTUM_ENGINE_DEFECT, never fixed
+- No pilot-side legality, no fabricated actions, no hidden full-state access on credited pilot paths
+- No self-test to EXTERNALLY_RULE_VALIDATED promotion; no construction to behavior promotion
+- No 4P to 5P extrapolation; no final-state-only replay claims; no seed-only replay claims
+- UNKNOWN != PASS; missing evidence stays UNKNOWN
+forbidden_shortcuts:
+- first/random/default/AI/GUI/silent-skip/parent fallbacks in any credited path
+- weakening tests, denominators, assertions, or expected semantics for green results
+- normalizing candidate defects in external layers that reproduce Rules semantics
+- hidden-information leakage across principals in observations, logs, evidence, errors
+evidence_classes:
+- DIRECTLY_VERIFIED
+- CODE_DERIVED
+- TECHNICALLY_CONFORMANT
+- EXTERNALLY_RULE_VALIDATED
+- MODELED
+- SYNTHETIC
+- UNKNOWN
+driver_topology: CPL-side Kotlin harness (rq-a2/harness) compiled against candidate jars
+  built at the lock (rules-engine main plus gym plus game-server for ReplayReconstructor;
+  driver-local card definitions via mtg-sdk DSL to stay hermetic). No new source files
+  inside the candidate checkout. Existing candidate tests executed read-only via Gradle
+  --tests filters.
+campaign_order:
+- U19 replay round-trip (first: cheapest strong discriminator)
+- U22 AbilityId identity impact
+- U16 hidden-info adversary
+- U10 five-player probe
+- U5 card-behavior linkage
+- U1 rules-dense probes
+- U2/U3 authority packets
+- U12/U15 decision seams plus decision freshness
+- Commander shortcut audit plus RNG use-site closure
+- Final report plus ledger update plus seal
+validated_gates:
+- U19-positive-leg (DIRECTLY_VERIFIED): G1/G2/G3 round-trip EXACT via fresh fold and
+  via candidate ReplayReconstructor from codec-round-tripped CompactReplay with
+  checkpoints (fidelity EXACT, streams complete)
+- U19-negative-controls (DIRECTLY_VERIFIED): N0 EXACT; N1a/N1b/N1c/N2/N3/N4/N5 all
+  DETECTED (fail-closed rejections or digest divergence; N1b shows semantic-divergence
+  propagation; N5 shows seat-id-namespace collision diverges via checkpoints)
+- Source locks re-verified (CPL a62a8c7; Argentum 3f46367/tree 2adf51c, tracked tree clean)
+failed_gates: []
+invalidated_gates: []
+do_not_rerun: []
+current_failure: NONE
+failure_class: NONE
+current_hypothesis: Existing candidate replay tests (CompactReplayReconstructionTest pass-only
+  game; ReproducibilityTest init-level determinism; opt-in ReplayDivergenceReproTest fuzzer)
+  leave U19 open for decision-bearing plus Rules-random round-trips with negative controls;
+  CPL-side engine-level drivers plus ReplayReconstructor reuse close it without candidate mutation.
+technical_decisions:
+- RQ-A1 evidence taken as input, not automatic PASS carry-forward (per contract section 3)
+- .foundry/WORKSTREAM_STATE.yaml left untouched (owned by another workstream surface per
+  RQ-A1 source-lock note); RQ-A2 persistence lives in rq-a2/WORKSTREAM_STATE.yaml plus commits
+- Driver topology decided: CPL-side Kotlin harness against lock-built candidate jars;
+  no new test files inside candidate checkout (would be tracked mutations)
+- ReplaySetup seat ids use explicit non-colliding strings (production GameSession topology).
+  Engine-minted e<N> seat ids collide with card instantiation on reconstruction (counter not
+  advanced for explicit ids) — driver-verified; production path unaffected (string seat ids).
+  Recorded as U19-N5 control, not a candidate defect.
+- U19 verdict (pending final adjudication): ENGINE_DETERMINISM/REEXECUTION DIRECTLY_VERIFIED;
+  SEMANTIC_REPLAY TECHNICALLY_CONFORMANT bounded (cross-process and cross-version open, U20/U22)
+authority_gates: []
+first_failing_boundary: NONE
+root_cause_class: NONE
+exact_next_action: Commit U19 milestone; then U22 AbilityId cross-process probe
+  (same game in fresh JVMs, normalized vs raw digests, routing-id stability).
