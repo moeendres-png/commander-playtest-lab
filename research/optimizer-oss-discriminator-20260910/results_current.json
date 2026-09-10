@@ -1,0 +1,51 @@
+{
+  "master_seeds": [
+    101,
+    202,
+    303
+  ],
+  "max_sim_evals_per_arm_per_seed": 400,
+  "problem": "synthetic_rogshai_like_singleswap",
+  "reproducibility_current": {
+    "hash_run1": "fc2ca3a24950bd82",
+    "hash_run2": "fc2ca3a24950bd82",
+    "identical": true,
+    "seed": 101
+  },
+  "results": [
+    {
+      "arm": "current",
+      "front_size": 8,
+      "hv": 8.782296836304047,
+      "seed": 101,
+      "sim_evals": 400,
+      "sim_wall_s": 0.0064,
+      "trace_hash": "fc2ca3a24950bd82",
+      "unique_decks": 101,
+      "wall_s": 0.0199
+    },
+    {
+      "arm": "current",
+      "front_size": 5,
+      "hv": 8.629282664784638,
+      "seed": 202,
+      "sim_evals": 400,
+      "sim_wall_s": 0.0063,
+      "trace_hash": "1be02bd8867cc697",
+      "unique_decks": 101,
+      "wall_s": 0.0208
+    },
+    {
+      "arm": "current",
+      "front_size": 7,
+      "hv": 9.305866359708862,
+      "seed": 303,
+      "sim_evals": 400,
+      "sim_wall_s": 0.0063,
+      "trace_hash": "90c69891367a0bea",
+      "unique_decks": 101,
+      "wall_s": 0.0199
+    }
+  ],
+  "truth_boundary": "Synthetic structural-model analogue only; better optimizer score does NOT prove simulator correctness."
+}

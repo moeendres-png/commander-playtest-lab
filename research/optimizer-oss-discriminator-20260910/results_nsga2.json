@@ -1,0 +1,60 @@
+{
+  "master_seeds": [
+    101,
+    202,
+    303
+  ],
+  "max_sim_evals_per_arm_per_seed": 400,
+  "problem": "synthetic_rogshai_like_singleswap",
+  "reproducibility_current": {
+    "hash_run1": "fc2ca3a24950bd82",
+    "hash_run2": "fc2ca3a24950bd82",
+    "identical": true,
+    "seed": 101
+  },
+  "results": [
+    {
+      "arm": "optuna_nsga2",
+      "complete": 13,
+      "front_size": 6,
+      "hv": 8.377196549839216,
+      "pruned": 107,
+      "seed": 101,
+      "sim_evals": 156,
+      "sim_wall_s": 0.0019,
+      "trace_hash": "2da4085fb0f6cf4c",
+      "trials": 120,
+      "unique_decks": 13,
+      "wall_s": 0.0208
+    },
+    {
+      "arm": "optuna_nsga2",
+      "complete": 15,
+      "front_size": 4,
+      "hv": 8.926707446446997,
+      "pruned": 105,
+      "seed": 202,
+      "sim_evals": 180,
+      "sim_wall_s": 0.0025,
+      "trace_hash": "0a0403e3350552fb",
+      "trials": 120,
+      "unique_decks": 15,
+      "wall_s": 0.018
+    },
+    {
+      "arm": "optuna_nsga2",
+      "complete": 17,
+      "front_size": 7,
+      "hv": 8.965951402505736,
+      "pruned": 103,
+      "seed": 303,
+      "sim_evals": 204,
+      "sim_wall_s": 0.0026,
+      "trace_hash": "70f6af19f7c2b4ff",
+      "trials": 120,
+      "unique_decks": 17,
+      "wall_s": 0.0178
+    }
+  ],
+  "truth_boundary": "Synthetic structural-model analogue only; better optimizer score does NOT prove simulator correctness."
+}
