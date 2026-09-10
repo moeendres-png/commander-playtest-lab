@@ -69,6 +69,13 @@ def check(provider: str) -> dict:
     gate("S2_order_combatants_config",
          "COMMANDER_LAB_FORGE_ORDER_COMBATANTS" in provider
          and "rules.setOrderCombatants(true)" in provider)
+    gate("S2_ranged_ints",
+         "WS55:NUMRANGE:min=" in provider
+         and "chooseRanged(" in provider
+         and "WS55_RANGED_VALUE_OUT_OF_RANGE" in provider
+         and "RANGE_TOO_WIDE" not in provider
+         and "ws55obs" in provider
+         and "ws55state" in provider)
     gate("S2_permutations", "ws55Permutations" in provider
          and "PERMUTATION_BOUND" in provider)
 

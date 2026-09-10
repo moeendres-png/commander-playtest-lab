@@ -69,6 +69,7 @@ ws53.KIND_FAMILIES.update({
     "order_combat": ("order_combat",),
     "confirm": ("confirm",),
     "choose_mode": ("choose_mode", "mode_pick"),
+    "target": ("target", "target_done"),
 })
 
 
@@ -229,6 +230,17 @@ def answer_order_combat(drv: Any, actor: str, opts: list[dict[str, Any]],
     return str(opts[hits[0]]["option_id"])
 
 
+def answer_target_done(drv: Any, actor: str, opts: list[dict[str, Any]],
+                       phase: Any, turn: Any) -> str:
+    d = _pop_due(drv, ("target_done",), actor, phase, turn, "target")
+    for i, o in enumerate(opts):
+        if o.get("kind", "") == "WS48:TARGET:DONE":
+            drv.consumed.append(d)
+            return str(o["option_id"])
+    drv.script.insert(0, d)
+    raise base.Blocked("target", "DONE not offered")
+
+
 def answer_confirm(drv: Any, actor: str, opts: list[dict[str, Any]],
                    labels: list[dict[str, str]], phase: Any,
                    turn: Any) -> str:
@@ -319,6 +331,26 @@ def answer_trigger_order_n(drv: Any, actor: str, opts: list[dict[str, Any]],
 
 _ORIG_WS53_ANSWER = ws53.ws53_answer
 _ORIG_CLASSIFY = ws53.classify
+_ORIG_SELECTED_IDENTITY = ws53.selected_identity
+
+
+def answer_ranged_number(drv: Any, actor: str, opts: list[dict[str, Any]],
+                         labels: list[dict[str, str]], phase: Any,
+                         turn: Any) -> str:
+    """Ranged integer frame: single NUMRANGE descriptor; submit by value."""
+    d = _pop_due(drv, ("announce_x",), actor, phase, turn, "announce_x")
+    want = str(int(d["selection"]["semantic_value"]))
+    if len(opts) != 1 or (labels[0].get("_kind") != "NUMRANGE"):
+        drv.script.insert(0, d)
+        raise base.Blocked("announce_x", "ranged answer on non-ranged frame")
+    lo, hi = labels[0].get("min", ""), labels[0].get("max", "")
+    drv.consumed.append(d)
+    _ws55_pending_value[0] = want
+    return str(opts[0]["option_id"])
+
+#: Slot for a ranged integer submission set by answer_number (single-threaded
+#: driver: set during answer, consumed by submit + identity in the same frame).
+_ws55_pending_value: list[str | None] = [None]
 
 
 def ws55_answer(drv: Any, kind: str, actor: str, opts: list[dict[str, Any]],
@@ -338,6 +370,24 @@ def ws55_answer(drv: Any, kind: str, actor: str, opts: list[dict[str, Any]],
         return answer_order_combat(drv, actor, opts, labels55, phase, turn)
     if kind == "confirm":
         return answer_confirm(drv, actor, opts, labels55, phase, turn)
+    if kind == "target":
+        # Multi-target DONE discipline: regular target entries take precedence;
+        # target_done entries close targeting once no pick remains due.
+        due_pick = [e for e in drv.script if e.get("decision_family") == "target"
+                    and e.get("actor") == actor
+                    and (e.get("phases") is None or phase in (e.get("phases") or []))
+                    and (e.get("turns") is None or turn in (e.get("turns") or []))]
+        if not due_pick:
+            due_done = [e for e in drv.script if e.get("decision_family") == "target_done"
+                        and e.get("actor") == actor
+                        and (e.get("phases") is None or phase in (e.get("phases") or []))
+                        and (e.get("turns") is None or turn in (e.get("turns") or []))]
+            if due_done and any(o.get("kind", "") == "WS48:TARGET:DONE" for o in opts):
+                return answer_target_done(drv, actor, opts, phase, turn)
+    if kind == "announce_x":
+        if len(opts) == 1 and labels55 and labels55[0].get("_kind") == "NUMRANGE":
+            return answer_ranged_number(drv, actor, opts, labels55, phase, turn)
+        # Enumerated NUM path stays on the WS53 mechanism.
     if kind == "mana_payment":
         # Fold scripted mana sources into cost_state once (record ships none).
         if not getattr(drv, "ws55_mana_folded", False):
@@ -388,6 +438,310 @@ ws53.ws53_answer = ws55_answer  # type: ignore[assignment]
 ws53.classify = ws55_classify  # type: ignore[assignment]
 
 
+def ws55_run_scenario(record: dict[str, Any], transport: Any,
+                      intent: list[dict[str, Any]], scenario_id: str,
+                      per_record_timeout: int = 600,
+                      structural_cap: int = 256,
+                      neg_stale: bool = False) -> dict[str, Any]:
+    """WS55-owned scenario loop (copied from the WS53 converged runner, which
+    is imported but never modified). Differences: SUBMIT carries an optional
+    by-value integer for WS55:NUMRANGE frames; journal selection identities
+    record the submitted value; --neg-stale duplicate-submit probe."""
+    import os as _os
+    import selectors as _selectors
+    import tempfile as _tempfile
+    import time as _time
+    drv = ws53.WS53Driver(record, intent, structural_cap)
+    sent = ws53.sentinel_names(record, "")
+    out: dict[str, Any] = {
+        "schema_version": "commander-lab.ws55-decision-breadth/1.0.0",
+        "evidence_class": "DECISION_SEQUENCE",
+        "grants_behavior_credit": False,
+        "behavior_credit": "0/107",
+        "credited_path": True,
+        "diagnostic_only": False,
+        "scenario_id": scenario_id,
+        "fixture_id": record["fixture_id"],
+        "execution_entry_mode": record["execution_entry_mode"],
+        "forge": {"commit": FORGE_COMMIT, "tree": FORGE_TREE},
+        "seed": ((record.get("rules_randomness") or {}).get("rules_seed")),
+        "seed_binding": WS55_SEED_BINDING,
+        "intent": intent,
+    }
+    deadline = _time.monotonic() + per_record_timeout
+    proc: Any = None
+    stop_reason: str | None = None
+    snapshot: Any = None
+    answered = 0
+    violations: list[str] = []
+    lifecycle: Any = None
+    try:
+        with _tempfile.TemporaryFile(mode="w+t", encoding="utf-8") as err:
+            p = base.subprocess.Popen(base.command(), stdin=base.subprocess.PIPE,
+                                      stdout=base.subprocess.PIPE, stderr=err,
+                                      text=True,
+                                      env=base.behavior_env(record, transport), bufsize=1)
+            proc = p
+            assert p.stdin is not None and p.stdout is not None
+            bindup = _os.dup(p.stdout.fileno())
+            try:
+                sel = _selectors.DefaultSelector()
+                sel.register(bindup, _selectors.EVENT_READ)
+            except Exception:
+                sel = None
+            buf = b""
+
+            def next_line() -> str | None:
+                nonlocal buf
+                while True:
+                    if b"\n" in buf:
+                        line, buf = buf.split(b"\n", 1)
+                        return (line + b"\n").decode("utf-8", errors="replace")
+                    if p.poll() is not None:
+                        try:
+                            chunk = _os.read(bindup, 65536)
+                        except OSError:
+                            chunk = b""
+                        if chunk:
+                            buf += chunk
+                            continue
+                        if buf:
+                            rest, buf = buf, b""
+                            return rest.decode("utf-8", errors="replace")
+                        return None
+                    remaining = deadline - _time.monotonic()
+                    if remaining <= 0:
+                        raise base.Blocked("TIMEOUT",
+                                           f"no session result within {per_record_timeout}s")
+                    if sel is not None:
+                        ready = sel.select(timeout=min(5.0, remaining))
+                        if not ready:
+                            continue
+                    else:
+                        _time.sleep(0.05)
+                    try:
+                        chunk = _os.read(bindup, 65536)
+                    except OSError:
+                        chunk = b""
+                    if not chunk:
+                        if p.poll() is not None:
+                            continue
+                        continue
+                    buf += chunk
+
+            def submit(frame: dict[str, Any], oid: str,
+                       value: str | None = None) -> None:
+                payload: dict[str, Any] = {"decision_id": frame["payload"]["decision_id"],
+                                           "option_id": oid}
+                if value is not None:
+                    payload["value"] = value
+                p.stdin.write(json.dumps({
+                    "protocol": PROTOCOL, "message_type": "SUBMIT_DECISION",
+                    "request_id": "ws55-reply-" + frame["payload"]["decision_id"],
+                    "session_id": frame.get("session_id"),
+                    "payload": payload}, separators=(",", ":")) + "\n")
+                p.stdin.flush()
+
+            def drain_to_result() -> None:
+                nonlocal stop_reason, snapshot
+                try:
+                    p.stdin.close()
+                except Exception:
+                    pass
+                for _ in range(4096):
+                    line = next_line()
+                    if not line:
+                        break
+                    try:
+                        m = json.loads(line)
+                    except Exception:
+                        continue
+                    if m.get("message_type") == "SESSION_RESULT":
+                        stop_reason = (m.get("payload") or {}).get("stop_reason")
+                        snapshot = (m.get("payload") or {}).get("snapshot")
+                        drv.result_seen = True
+                        break
+                    if m.get("message_type") == "NATIVE_EVENT":
+                        drv.events.append({"event": (m.get("payload") or {}).get("event"),
+                                           "facts": (m.get("payload") or {}).get("facts")})
+
+            def close_and_collect() -> tuple[int, str]:
+                try:
+                    p.stdin.close()
+                except Exception:
+                    pass
+                try:
+                    rc = p.wait(timeout=60)
+                except Exception:
+                    p.kill()
+                    rc = 124
+                err.seek(0)
+                return rc, err.read()[-6000:]
+
+            is_negative = any(d["selection"]["selector_kind"] == "fail_closed_probe"
+                              for d in drv.script)
+            p.stdin.write(json.dumps({
+                "protocol": PROTOCOL, "message_type": "CREATE_SESSION",
+                "request_id": "ws55-" + scenario_id,
+                "payload": {"fixture_id": record["fixture_id"]}},
+                separators=(",", ":")) + "\n")
+            p.stdin.flush()
+            exit_rc: Any = None
+            stderr_tail = ""
+            stale_sent = False
+            for _ in range(4096):
+                line = next_line()
+                if not line:
+                    break
+                if len(drv.raw_lines) < 200:
+                    drv.raw_lines.append(line[:500])
+                try:
+                    m = json.loads(line)
+                except Exception:
+                    drv.decode_errors += 1
+                    if drv.decode_errors > 16:
+                        raise base.Blocked("PROTOCOL", "too many undecodable lines")
+                    continue
+                typ = m.get("message_type")
+                if typ == "SESSION_CREATED":
+                    out["session_created_snapshot"] = (m.get("payload") or {}).get("snapshot")
+                    continue
+                if typ == "QUALIFICATION_STATE":
+                    payload = m.get("payload") or {}
+                    if payload.get("stage") == "after_native_setup_validation":
+                        drv.setup_stage_seen = True
+                    if payload.get("stage") == "native_post_mulligan_pre_main_loop":
+                        lifecycle = payload.get("raw_native")
+                    continue
+                if typ == "NATIVE_EVENT":
+                    drv.events.append({"event": (m.get("payload") or {}).get("event"),
+                                       "facts": (m.get("payload") or {}).get("facts")})
+                    continue
+                if typ == "SESSION_RESULT":
+                    stop_reason = (m.get("payload") or {}).get("stop_reason")
+                    snapshot = (m.get("payload") or {}).get("snapshot")
+                    drv.result_seen = True
+                    break
+                if typ != "DECISION_FRAME":
+                    raise base.Blocked("PROTOCOL", f"unexpected message {typ}")
+                pay = m["payload"]
+                kind = pay.get("decision_kind")
+                actor = drv.actor_pid(m)
+                opts = drv.options(m)
+                labels = [base.dec_label(o.get("kind", "")) for o in opts]
+                frame_no = len(drv.journal) + 1
+                obs = pay.get("observations") or []
+                violations.extend(ws53.audit_observations(frame_no, actor, obs, sent))
+                if pay.get("state_snapshot") in (None, "null"):
+                    violations.append(
+                        f"frame {frame_no}: null state_snapshot on credited path")
+                entry: dict[str, Any] = {
+                    "seq": frame_no,
+                    "engine_frame_id": pay.get("decision_id"),
+                    "engine_frame_seq": pay.get("frame_seq"),
+                    "revision": m.get("state_revision"),
+                    "actor": actor,
+                    "raw_actor": m.get("actor_id"),
+                    "kind": kind,
+                    "cancel_offered": pay.get("cancel_offered"),
+                    "rng": pay.get("rng"),
+                    "state_fingerprint": pay.get("state_fingerprint"),
+                    "state_snapshot": pay.get("state_snapshot"),
+                    "observation_fingerprints": {o.get("viewer"): o.get("fingerprint")
+                                                 for o in obs},
+                    "observations": obs,
+                    "option_count": len(opts),
+                    "offered_identities": sorted(o.get("kind", "") for o in opts),
+                    "offered_options": [{"id": o.get("option_id"), "kind": o.get("kind", "")}
+                                        for o in opts],
+                }
+                if len(drv.journal) >= 1024:
+                    raise base.Blocked("PROTOCOL", "journal budget exceeded")
+                if is_negative:
+                    entry["selection"] = None
+                    entry["engine_response"] = "NEGATIVE_DRAIN"
+                    drv.journal.append(entry)
+                    drain_to_result()
+                    rc, tail = close_and_collect()
+                    out.update({"stop_after_eof_rc": rc, "stderr_tail": tail})
+                    break
+                try:
+                    oid = ws53.ws53_answer(drv, kind, actor, opts, labels, record,
+                                           ws53.frame_phase(pay), ws53.frame_turn(pay))
+                except base.Blocked as b:
+                    entry["selection"] = None
+                    entry["block"] = {"where": b.where, "detail": b.detail[:2000]}
+                    entry["engine_response"] = "HARNESS_FAIL_CLOSED"
+                    drv.journal.append(entry)
+                    raise
+                value = _ws55_pending_value[0]
+                _ws55_pending_value[0] = None
+                if oid == "__TERMINATE__":
+                    entry["selection"] = None
+                    entry["engine_response"] = "HARNESS_SCRIPT_EXHAUSTION_TERMINATE"
+                    drv.journal.append(entry)
+                    drain_to_result()
+                    rc, tail = close_and_collect()
+                    out.update({"terminate_rc": rc, "stderr_tail": tail})
+                    break
+                submit(m, oid, value)
+                answered += 1
+                ident = ws53.selected_identity(kind, oid, opts)
+                if value is not None:
+                    ident += ":value=" + str(value)
+                entry["selection"] = {"option_id": oid, "identity": ident}
+                entry["engine_response"] = "ACCEPTED_CONTINUED"
+                drv.journal.append(entry)
+                drv.frames.append({"kind": kind, "actor": actor,
+                                   "option_count": len(opts),
+                                   "options": [o.get("kind", "") for o in opts][:16]})
+                if neg_stale and not stale_sent:
+                    # Duplicate-submit probe: resend this frame's submit verbatim.
+                    # The provider has advanced past this decision id and must
+                    # fail closed with WS23_STALE_OR_WRONG_DECISION_ID.
+                    stale_sent = True
+                    submit(m, oid, value)
+            else:
+                exit_rc, stderr_tail = close_and_collect()
+                out.update({"verdict": "PROBE_FAIL", "reason": "FRAME_BUDGET_EXHAUSTED",
+                            "terminal_class": "HARNESS_FRAME_BUDGET",
+                            "exit_rc": exit_rc, "stderr_tail": stderr_tail})
+                return ws53.finish_ws53(out, drv, stop_reason, snapshot, answered,
+                                        violations, lifecycle)
+            if is_negative and stop_reason is not None:
+                exit_rc, stderr_tail = close_and_collect()
+                out.update({"exit_rc": exit_rc, "stderr_tail": stderr_tail})
+                return ws53.finish_negative_ws53(out, drv, record, stop_reason, violations)
+            if stop_reason is None and "terminate_rc" not in out:
+                exit_rc, stderr_tail = close_and_collect()
+                out.update({"exit_rc": exit_rc, "stderr_tail": stderr_tail})
+            return ws53.finish_ws53(out, drv, stop_reason, snapshot, answered,
+                                    violations, lifecycle)
+    except base.Blocked as b:
+        try:
+            if proc is not None:
+                proc.kill()
+        except Exception:
+            pass
+        out.update({"verdict": f"BLOCKED_AT:{b.where}", "reason": b.detail[:4000],
+                    "terminal_class": "HARNESS_INTENT_GAP"})
+        return ws53.finish_ws53(out, drv, None, None, 0, violations, lifecycle)
+    except Exception as ex:
+        try:
+            if proc is not None:
+                proc.kill()
+        except Exception:
+            pass
+        out.update({"verdict": "PROBE_FAIL",
+                    "reason": f"{type(ex).__name__}:{ex}"[:4000],
+                    "terminal_class": "HARNESS_PROBE_ERROR"})
+        return ws53.finish_ws53(out, drv, None, None, 0, violations, lifecycle)
+
+
+ws53.ws53_answer = ws55_answer  # type: ignore[assignment]
+ws53.classify = ws55_classify  # type: ignore[assignment]
+
+
 def _entry(family: str, actor: str, selector: str, value: Any,
            phases: list[str] | None = None, turns: list[int] | None = None) -> dict[str, Any]:
     e: dict[str, Any] = {
@@ -417,6 +771,7 @@ def main() -> int:
     ap.add_argument("--deck-commander", default=None)
     ap.add_argument("--order-combatants", default=None)
     ap.add_argument("--neg-bad-option", default=None)
+    ap.add_argument("--neg-stale", action="store_true")
     a = ap.parse_args()
     sys.path.insert(0, a.runners)
     import run_strict_no_echo_gate as transport  # noqa: E402
@@ -462,7 +817,7 @@ def main() -> int:
             _os.environ["COMMANDER_LAB_FORGE_DECK_COMMANDER"] = dj["commander"]
         if journal.get("ws55_order_combatants"):
             _os.environ["COMMANDER_LAB_FORGE_ORDER_COMBATANTS"] = journal["ws55_order_combatants"]
-        rerun = ws53.run_scenario(record, transport, intent, scenario + ":REPLAY",
+        rerun = ws55_run_scenario(record, transport, intent, scenario + ":REPLAY",
                                   structural_cap=a.structural_cap)
         cmp = ws53.compare_replay(journal, rerun)
         rerun["replay_of"] = str(a.replay)
@@ -495,11 +850,19 @@ def main() -> int:
             return orig(drv, kind, actor, opts, labels, record, phase, turn)
 
         ws53.ws53_answer = poisoned  # type: ignore[assignment]
-    result = ws53.run_scenario(record, transport, intent, a.scenario,
-                               structural_cap=a.structural_cap)
+    result = ws55_run_scenario(record, transport, intent, a.scenario,
+                               structural_cap=a.structural_cap,
+                               neg_stale=a.neg_stale)
     result["schema_version"] = "commander-lab.ws55-decision-breadth/1.0.0"
     result["ws55_deck"] = {"main": a.deck_main, "commander": a.deck_commander}
     result["ws55_order_combatants"] = a.order_combatants
+    if a.neg_stale:
+        v = str(result.get("verdict", ""))
+        sr = str(result.get("stop_reason", ""))
+        ok = "WS23_STALE_OR_WRONG_DECISION_ID" in v or "WS23_STALE_OR_WRONG_DECISION_ID" in sr
+        result["neg_test"] = {"name": "stale_duplicate_submit",
+                              "expected": "fail-closed WS23_STALE_OR_WRONG_DECISION_ID",
+                              "neg_verdict": "PASS" if ok else "FAIL"}
     if a.neg_bad_option:
         v = str(result.get("verdict", ""))
         sr = str(result.get("stop_reason", ""))

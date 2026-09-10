@@ -39,8 +39,20 @@ Additions (all systemic, no card-name hacks, no per-card branches):
      COMMANDER_LAB_FORGE_DECK_MAIN / COMMANDER_LAB_FORGE_DECK_COMMANDER are
      absent, the legacy Mountain/Rograkh canonical path runs byte-identical.
      When present, PaperCards resolve via the native StaticData CardDb
-     (getCommonCards().getCard), same forCommander registration, same natural
+     (getAllCards first print; UNKNOWN-print native precedent fallback), same forCommander registration, same natural
      shuffle/startup. Setup classification stays NATURAL_GAME_START.
+ J7. Order-combatants fixture config: COMMANDER_LAB_FORGE_ORDER_COMBATANTS=1
+     sets GameRules.setOrderCombatants(true) at session construction (same
+     class as player-count/Commander-variant config); absent preserving the
+     legacy default (false). The engine then natively enters (or skips) the
+     orderBlockers/orderAttackers path; journaled per run.
+ J8. Ranged integer choice (announceRequirements / chooseNumber int
+     overload): when the engine-supplied [min,max] width exceeds 64, emit
+     ONE WS55:NUMRANGE descriptor (engine bounds verbatim) and accept the
+     external integer by VALUE in SUBMIT_DECISION, validated natively
+     (parse + min<=v<=max; missing/malformed/out-of-range fail closed).
+     Human integer-dialog mirror; no legality reconstructed. Width<=64
+     keeps exact NUM enumeration; min==max keeps the automatic record.
 
 Explicitly NOT changed (remain fail-closed, recorded as gaps):
  - chooseCombatDamage / chooseAmountDistribution (already present via the
@@ -419,6 +431,87 @@ ORDER_COMBATANTS_NEW = """        GameRules rules = new GameRules(GameType.Const
             rules.setOrderCombatants(true);
         }"""
 
+# ---------------------------------------------------------------- J8: ranged ints
+BROKER_RANGED_ANCHOR = """        boolean chooseBoolean(String kind, Player actor, String trueLabel, String falseLabel) {"""
+
+BROKER_RANGED_ADD = """        int chooseRanged(String kind, Player actor, int min, int max, String announce) {
+            long seq = ++decisionSeq;
+            String did = "d" + seq;
+            String label = "WS55:NUMRANGE:min=" + min + ":max=" + max
+                + ":announce=" + ws48Enc(announce == null ? "" : announce);
+            String ws55obs = "[]";
+            String ws55state = "null";
+            try {
+                Game ws55game = actor.getGame();
+                if (ws55game != null) {
+                    ws55obs = ws50AllObservations(ws55game);
+                    ws55state = sessionSnapshot(ws55game);
+                }
+            } catch (Throwable ws55t) {
+                ws55obs = "[{\\"viewer\\":\\"PX\\",\\"fingerprint\\":\\"UNAVAILABLE\\",\\"view\\":\\"\\"}]";
+            }
+            java.util.List<String> ws55one = java.util.List.of(label);
+            out.println("{\\"protocol\\":" + esc(PROTOCOL)
+                + ",\\"message_type\\":\\"DECISION_FRAME\\""
+                + ",\\"request_id\\":" + esc(did)
+                + ",\\"session_id\\":" + esc(SESSION_ID)
+                + ",\\"actor_id\\":" + esc(actor.getName())
+                + ",\\"state_revision\\":" + revision
+                + ",\\"payload\\":{\\"decision_id\\":" + esc(did)
+                + ",\\"decision_kind\\":" + esc(kind)
+                + ",\\"frame_seq\\":" + seq
+                + ",\\"cancel_offered\\":" + ws50CancelOffered(ws55one)
+                + ",\\"rng\\":" + ws50RngIdentity()
+                + ",\\"state_snapshot\\":" + esc(ws55state)
+                + ",\\"state_fingerprint\\":" + esc(ws50Sha(ws55state))
+                + ",\\"observations\\":" + ws55obs
+                + ",\\"options_digest\\":" + esc(digest(java.util.List.of("o0")))
+                + ",\\"options\\":[{\\"option_id\\":\\"o0\\",\\"kind\\":" + esc(label) + "}]}}");
+            out.flush();
+            try {
+                String answer = in.readLine();
+                if (answer == null) throw new ControlledStop("WS55_EXTERNAL_EOF:" + kind);
+                if (!"SUBMIT_DECISION".equals(field(answer, "message_type"))) {
+                    throw new ControlledStop("WS23_EXPECTED_SUBMIT_DECISION");
+                }
+                if (!did.equals(field(answer, "decision_id"))) {
+                    throw new ControlledStop("WS23_STALE_OR_WRONG_DECISION_ID");
+                }
+                if (!"o0".equals(field(answer, "option_id"))) {
+                    throw new ControlledStop("WS23_OPTION_NOT_OFFERED");
+                }
+                String vstr = field(answer, "value");
+                if (vstr == null) throw new ControlledStop("WS55_RANGED_VALUE_MISSING");
+                int v;
+                try {
+                    v = Integer.parseInt(vstr.trim());
+                } catch (Exception e) {
+                    throw new ControlledStop("WS55_RANGED_VALUE_MALFORMED");
+                }
+                if (v < min || v > max) throw new ControlledStop("WS55_RANGED_VALUE_OUT_OF_RANGE");
+                revision++;
+                return v;
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+""" + BROKER_RANGED_ANCHOR
+
+ANNOUNCE_RANGED_OLD = """            if ((long) max - (long) min > 64) throw failClosed("announceRequirements:RANGE_TOO_WIDE");"""
+
+ANNOUNCE_RANGED_NEW = """            if ((long) max - (long) min > 64) {
+                ws48Milestone("announceRequirements:RANGED");
+                return broker.chooseRanged("announce_x", this.player, min, max, announce);
+            }"""
+
+NUMBER_RANGED_OLD = """            if ((long) max - (long) min > 64) throw failClosed("chooseNumber:RANGE_TOO_WIDE");"""
+
+NUMBER_RANGED_NEW = """            if ((long) max - (long) min > 64) {
+                ws48Milestone("chooseNumber:RANGED");
+                return broker.chooseRanged("announce_x", this.player, min, max, title);
+            }"""
+
 # ---------------------------------------------------------------- static helper
 STATIC_ANCHOR = "    static String ws48Enc(String v) {"
 
@@ -472,6 +565,9 @@ def main() -> int:
     p = once(p, TRIGGER_N_OLD, TRIGGER_N_NEW, "trigger order N")
     p = once(p, DECK_OLD, DECK_NEW, "deck env generalization")
     p = once(p, ORDER_COMBATANTS_OLD, ORDER_COMBATANTS_NEW, "order combatants config")
+    p = once(p, BROKER_RANGED_ANCHOR, BROKER_RANGED_ADD, "ranged broker method")
+    p = once(p, ANNOUNCE_RANGED_OLD, ANNOUNCE_RANGED_NEW, "ranged announce")
+    p = once(p, NUMBER_RANGED_OLD, NUMBER_RANGED_NEW, "ranged chooseNumber")
     p = once(p, STATIC_ANCHOR, STATIC_ADD, "permutation helper")
     # Collapse doubled @Override from annotation-including replacements.
     while "        @Override\n        @Override\n" in p:
@@ -482,6 +578,8 @@ def main() -> int:
                 "chooseModeForAbility:MULTI", "orderSimultaneousSa:N:",
                 "COMMANDER_LAB_FORGE_DECK_MAIN", "ws55Permutations",
                 "COMMANDER_LAB_FORGE_ORDER_COMBATANTS",
+                "WS55:NUMRANGE:min=", "chooseRanged(",
+                "WS55_RANGED_VALUE_OUT_OF_RANGE",
                 "orderCosts:NATIVE_AUTO", "orderBlockers:SINGLETON",
                 "FULL_CONTROL_MIRROR" if False else "ChooseCostOrder"]
     missing = [x for x in required if x not in p]
@@ -492,6 +590,7 @@ def main() -> int:
                 "throw failClosed(\"orderBlockers\");",
                 "throw failClosed(\"orderBlocker\");",
                 "throw failClosed(\"orderAttackers\");",
+                "RANGE_TOO_WIDE",
                 "DEPENDENT_MULTI_CHOICE", "MORE_THAN_TWO"):
         if gap in p:
             raise SystemExit(f"WS55_OVERLAY_GAP_REMAINS:{gap}")
