@@ -1,6 +1,18 @@
 # Architecture
 
-The project separates eight layers:
+## Project direction versus existing implementation
+
+[Commander Simulator Next's mission](PROJECT_MISSION.md) governs future architecture
+selection: maximally rules-correct gameplay supporting learning and deck optimization,
+4P as the primary benchmark rather than a fixed architecture, 2–5P minimum conformance,
+and preference for 6+ / variable player counts when they improve correctness,
+simplicity, reuse, testability or research/implementation without reducing conformance.
+Existing engines, simulators or frameworks may replace whole workstreams on evidence.
+The layers below describe the existing system, not an Architecture Freeze or a mandate
+to retain this implementation. `ARCHITECTURE_FREEZE = NOT CLAIMED`;
+`PRODUCTION_PROVIDER = NOT SELECTED`.
+
+The existing project separates eight layers:
 
 1. immutable card, deck and game-state models;
 2. structural simulation;

@@ -2,6 +2,24 @@
 
 Local, reproducible decision system for Commander deck validation, Structural simulation, pilot/ensemble analysis, paired comparisons, ablation, holdout, sensitivity and constrained optimization.
 
+## Commander Simulator Next: project goal
+
+The end goal is the best realistically achievable, maximally rules-correct full-rules
+Commander simulator, with reproducible gameplay evidence from which to learn about
+play, matchups and deck construction and improve pilots and deckbuilding decisions.
+Rules Correctness takes precedence over performance, convenience and pilot strength.
+
+Four players (one own deck and three opponents) is the primary benchmark and decision
+mode, not an architecture constraint. Technical conformance must cover 2–5 players.
+Prefer 6+ or generally variable player counts when they improve Rules Correctness,
+simplicity, reuse, testability, or research/implementation, without weakening required
+conformance. These are target requirements, not claims of implemented support.
+
+Architecture selection is outcome-first: existing engines, complete simulators and
+frameworks may replace entire workstreams when evidence shows a better route to the
+goal. Neither current candidates nor invested work confer architectural priority.
+See [the project mission](docs/PROJECT_MISSION.md) for the governing policy and gates.
+
 ## Runtime truth
 
 Do not treat a commit SHA copied into this README as canonical current software truth. At execution time, resolve the repository default branch and pin the exact commit/tree in the run manifest. Package version alone is not a sufficient software identity.
@@ -15,7 +33,10 @@ The current decision architecture includes:
 - abort/censoring fail-closed decision evidence;
 - content-addressed current decision/semantic inputs.
 
-The operational simulation scope is **4-player Commander only**. 3-player and 5-player simulation is intentionally out of scope unless the project policy is explicitly changed later.
+The existing Structural simulation's operational decision scope remains **4-player
+Commander only**. This implementation boundary does not constrain Commander Simulator
+Next's architecture or research scope. Other player counts require their own qualified
+runtime and decision evidence; this documentation change does not enable them.
 
 Active own-deck scope must be read from the current project/collection scope and newer direct project truth, not inferred from this README or historical snapshots. Frozen opponent-only decks likewise come from the current opponent/project registries.
 
