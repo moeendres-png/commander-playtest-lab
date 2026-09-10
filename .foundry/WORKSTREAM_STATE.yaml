@@ -63,26 +63,24 @@ do_not_rerun:
 - D1-D7 discriminator experiments (consume as evidence; never re-execute here)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: 'Leading hypothesis FORGE-CENTRIC HYBRID (provisional-moderate); primary discriminator = Forge production vertical slice with decision-sequence traversal; secondary = conditional XMage mirror + human legal review. Freeze NOT ready (8 missing items).'
+current_hypothesis: 'FINAL: FORGE-CENTRIC HYBRID leads (provisional-moderate); primary discriminator = Forge vertical slice (Task 1 ready-to-send); secondary = trigger-gated XMage mirror (Task 3 parked); scaffolding = Task 2 (HIGH). Freeze NOT ready (8 missing items). All assigned outputs sealed.'
 files_modified:
-- .foundry/WORKSTREAM_STATE.yaml (this workstream init)
+- .foundry/WORKSTREAM_STATE.yaml (this workstream init + checkpoints)
 - research/d1-d7-final-reconciliation/evidence-index.json (Checkpoint A)
 - docs/research/D1_D7_FINAL_ARCHITECTURE_RECONCILIATION_2026-09-10.md (Checkpoint B: full adjudication)
+- docs/research/ARCHITECTURE_DISCRIMINATOR_MATRIX_2026-09-10.md (Checkpoint C: superseding matrix)
+- docs/research/CANDIDATE_QUALIFICATION_ROADMAP_2026-09-10.md (Checkpoint C: roadmap + 3 tasks + 10 actions)
 tests_run: []
 evidence:
 - DIRECTLY_VERIFIED: HEAD/tree/origin-main identity, PR172 ancestry, clean tree, single-writer process audit, D1/D2/D5/D6/WS48/WS49/matrix commit+origin-ref presence, D3/WS33-D commit presence in local worktrees, D4 report presence at preserve path
 - REPORT_CITED: engine pins, discriminator metrics, R1e/R1d, WS49 phases, D4c FAIL, impact gate, WS47 freeze values (each traced to exact commit/report in evidence-index.json)
-remaining_scope:
-- Checkpoint A commit (state + evidence-index.json)
-- Candidate comparison + decision-reverser + primary discriminator (Checkpoint B)
-- Final matrix + roadmap + portfolio + designs + ready-to-send workstreams + ten actions (Checkpoint C)
-- Final validation + authorized checkpoint pushes (no PR, no merge)
-status: ACTIVE
+remaining_scope: []
+status: COMPLETE
 ownership_conflict: NONE (single writer verified 2026-09-10; muse/* worktrees exist only on disjoint branches)
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: xhigh
 checkpoints:
 - A: source-lock + evidence ledger complete (81949a1d)
-- B: candidate comparison + remaining discriminator complete (in progress)
-- C: final matrix + roadmap + portfolio reset complete (pending)
-exact_next_action: Commit Checkpoint B (main report + state), then write superseding matrix + roadmap + ready-to-send workstreams, final validation, Checkpoint C commit + authorized push.
+- B: candidate comparison + remaining discriminator complete (30bdd884)
+- C: final matrix + roadmap + portfolio reset complete (this commit)
+exact_next_action: Coordinator adjudication of this reconciliation (Tasks 1-3 authorization, legal-review scheduling). No further action on this branch unless Coordinator redirects.
