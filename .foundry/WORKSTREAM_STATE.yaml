@@ -63,10 +63,11 @@ do_not_rerun:
 - D1-D7 discriminator experiments (consume as evidence; never re-execute here)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Evidence ledger complete; leading hypothesis and discriminator analysis next (Checkpoint B), then final matrix/roadmap/portfolio (Checkpoint C).
+current_hypothesis: 'Leading hypothesis FORGE-CENTRIC HYBRID (provisional-moderate); primary discriminator = Forge production vertical slice with decision-sequence traversal; secondary = conditional XMage mirror + human legal review. Freeze NOT ready (8 missing items).'
 files_modified:
 - .foundry/WORKSTREAM_STATE.yaml (this workstream init)
-- research/d1-d7-final-reconciliation/evidence-index.json (Checkpoint A, pending)
+- research/d1-d7-final-reconciliation/evidence-index.json (Checkpoint A)
+- docs/research/D1_D7_FINAL_ARCHITECTURE_RECONCILIATION_2026-09-10.md (Checkpoint B: full adjudication)
 tests_run: []
 evidence:
 - DIRECTLY_VERIFIED: HEAD/tree/origin-main identity, PR172 ancestry, clean tree, single-writer process audit, D1/D2/D5/D6/WS48/WS49/matrix commit+origin-ref presence, D3/WS33-D commit presence in local worktrees, D4 report presence at preserve path
@@ -81,7 +82,7 @@ ownership_conflict: NONE (single writer verified 2026-09-10; muse/* worktrees ex
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: xhigh
 checkpoints:
-- A: source-lock + evidence ledger complete (in progress)
-- B: candidate comparison + remaining discriminator complete (pending)
+- A: source-lock + evidence ledger complete (81949a1d)
+- B: candidate comparison + remaining discriminator complete (in progress)
 - C: final matrix + roadmap + portfolio reset complete (pending)
-exact_next_action: Write research/d1-d7-final-reconciliation/evidence-index.json, validate JSON + state, Checkpoint A commit.
+exact_next_action: Commit Checkpoint B (main report + state), then write superseding matrix + roadmap + ready-to-send workstreams, final validation, Checkpoint C commit + authorized push.
