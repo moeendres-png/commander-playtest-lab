@@ -73,6 +73,7 @@ validated_gates:
 - "U16-DEFECT-2 (ARGENTUM_ENGINE_DEFECT, low, authority-gated): server DTO discloses controller the true name of face-down exiled cards (CR 708.5 question); gym masks it."
 - "Existing masking suites green: ObservationVisibilityTest 6/6, GameMaskingTest 3/3, CombatDamageMaskingEnricherTest 1/1."
 - "U10-five-player (DIRECTLY_VERIFIED): 5P FFA init/rotation/priority green; 5P Commander pod (40 life, command zones, registries) green; elimination ladder 5->1 with correct winner and post-leave rotation skipping the leaver; 6P smoke green. Static scan: no engine player-count cap; product caps rules-correct (2HG=4, TvT even>=4) or dev-surface (scenario injection 2-4 seats, lobby default max 8)."
+- "U5-linkage (DIRECTLY_VERIFIED mechanical): 13,402 declared; 11,144 canonical; 2,227 generated (exact RQ-A1 match); 4,532 behavior-linked (~34%, mixed strong/heuristic); 10 named multiplayer + 1 named commander; 7,621 UNKNOWN (~57%). Goblin Psychopath and Fog implemented with zero test signal."
 failed_gates: []
 invalidated_gates: []
 do_not_rerun: []
@@ -88,4 +89,4 @@ technical_decisions:
 authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
-exact_next_action: "Commit U10 milestone; then U5 card-behavior linkage inventory (mechanical static analysis: declared vs canonical vs generated vs test-mentioned vs behavior-tested)."
+exact_next_action: "Commit U5 milestone; then U1 rules-dense probes (priority/stack, costs/mana, targets, replacement, layers, copy/control, SBA, APNAP, elimination, commander, multi-defender combat, hidden-zone choice, random effect)."

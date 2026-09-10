@@ -1,0 +1,39 @@
+{
+ "namedMultiplayer": {
+  "Agate-Blade Assassin": [
+   "rules-engine/src/test/kotlin/com/wingedsheep/engine/multiplayer/AgateBladeAssassinMultiplayerTest.kt"
+  ],
+  "Doom Reigns Supreme": [
+   "mtg-sets/2026/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/DoomReignsSupremeScenarioTest.kt"
+  ],
+  "Desolation of Smaug": [
+   "mtg-sets/2026/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/DesolationOfSmaugScenarioTest.kt"
+  ],
+  "Gonti, Night Minister": [
+   "mtg-sets/2025/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/GontiNightMinisterScenarioTest.kt"
+  ],
+  "Summon the School": [
+   "mtg-sets/2003-2007/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/SummonTheSchoolScenarioTest.kt"
+  ],
+  "Mausoleum Turnkey": [
+   "mtg-sets/2003-2007/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/MausoleumTurnkeyScenarioTest.kt"
+  ],
+  "Broken Ambitions": [
+   "mtg-sets/2003-2007/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/BrokenAmbitionsScenarioTest.kt"
+  ],
+  "Syphon Mind": [
+   "mtg-sets/2000-2002/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/SyphonMindTest.kt"
+  ],
+  "Cuombajj Witches": [
+   "mtg-sets/1993-1999/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/CuombajjWitchesScenarioTest.kt"
+  ],
+  "Two-Headed Giant": [
+   "game-server/src/test/kotlin/com/wingedsheep/gameserver/scenario/TwoHeadedGiantScenarioTest.kt"
+  ]
+ },
+ "namedCommander": {
+  "Liminal Hold": [
+   "rules-engine/src/test/kotlin/com/wingedsheep/engine/scenarios/LiminalHoldCommanderTest.kt"
+  ]
+ }
+}
