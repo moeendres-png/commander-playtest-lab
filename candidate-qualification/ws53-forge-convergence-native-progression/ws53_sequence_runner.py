@@ -114,6 +114,17 @@ def frame_phase(pay: dict[str, Any]) -> str | None:
         return None
 
 
+def frame_turn(pay: dict[str, Any]) -> int | None:
+    """Forge game-turn number from the frame state snapshot (turn 1 = P1's
+    first turn; shared across seats within a turn). Used for WS53 turn
+    scoping of intent entries."""
+    try:
+        t = json.loads(pay.get("state_snapshot") or "null").get("turn")
+        return int(t) if t is not None else None
+    except Exception:
+        return None
+
+
 def ws53_frame_subjects(labels: list[dict[str, str]], self_key: str) -> set[str]:
     subjects: set[str] = set()
     for lb in labels:
@@ -127,7 +138,7 @@ def ws53_frame_subjects(labels: list[dict[str, str]], self_key: str) -> set[str]
 
 def ws53_answer(drv: WS53Driver, kind: str, actor: str, opts: list[dict[str, Any]],
                 labels: list[dict[str, str]], record: dict[str, Any],
-                phase: str | None = None) -> str:
+                phase: str | None = None, turn: int | None = None) -> str:
     if kind == "discardToMaximumHandSize":
         return ws53_answer_discard(drv, actor, opts, labels)
     families = KIND_FAMILIES.get(kind, ())
@@ -135,7 +146,8 @@ def ws53_answer(drv: WS53Driver, kind: str, actor: str, opts: list[dict[str, Any
         due = [e for e in drv.script
                if e.get("decision_family") in families
                and e.get("actor") == actor
-               and (e.get("phases") is None or phase in (e.get("phases") or []))]
+               and (e.get("phases") is None or phase in (e.get("phases") or []))
+               and (e.get("turns") is None or turn in (e.get("turns") or []))]
         # Binding soundness for combat declarations: a non-empty assignment
         # binds ONLY its subject's frame. Without this, entry {X:foe} would be
         # consumed as SKIP on subject-Y's frame (silent misbinding). Empty
@@ -545,7 +557,7 @@ def run_scenario(record: dict[str, Any], transport: Any, intent: list[dict[str, 
                     break
                 try:
                     oid = ws53_answer(drv, kind, actor, opts, labels, record,
-                                      frame_phase(pay))
+                                      frame_phase(pay), frame_turn(pay))
                 except base.Blocked as b:
                     entry["selection"] = None
                     entry["block"] = {"where": b.where, "detail": b.detail[:2000]}
@@ -773,7 +785,8 @@ def compare_replay(journal: dict[str, Any], rerun: dict[str, Any]) -> dict[str, 
 
 def _fail_closed_entry(family: str, actor: str, selector: str, value: Any,
                        phases: list[str] | None = None,
-                       front: bool = False) -> dict[str, Any]:
+                       front: bool = False,
+                       turns: list[int] | None = None) -> dict[str, Any]:
     e: dict[str, Any] = {
         "decision_family": family, "actor": actor,
         "selection": {"selector_kind": selector,
@@ -785,6 +798,14 @@ def _fail_closed_entry(family: str, actor: str, selector: str, value: Any,
         e["phases"] = phases
     if front:
         e["script_position"] = "front"
+    if turns is not None:
+        # WS53 turn scoping (Forge game-turn numbers; turn 1 = P1's first
+        # turn): entry is due only on the listed game-turns. Harness-side waiting (structural PASS)
+        # outside them; still fail-closed if unmatched inside them. Proven
+        # necessary by calibration: round-1 non-P1 MAIN1 frames offer zero
+        # ACTs (engine behavior), so an unscoped P2 cast entry zero-fires
+        # before its option natively exists.
+        e["turns"] = turns
     return e
 
 
@@ -825,10 +846,18 @@ WS53_INTENT_B_DIAG: list[dict[str, Any]] = [
 # Re-derived WS53 natural-start negative probes (XHIGH Q6: WS50 frame-25/frame-7
 # expectations NOT reused; sites/frames recorded fresh in WS53_NEGATIVE_CONTROLS.json).
 # neg-zero: P1 declare probe with a nonexistent defender; reaches P1's first
-#   natively-entered declare_attacker frame (T5 on the oracle trajectory) only
-#   if the four first-round cleanup discards are scripted (else the run blocks
-#   earlier at T1 cleanup, which is itself fail-closed but not the probe).
+#   natively-entered declare_attacker frame (game-turn 5 on the oracle
+#   trajectory) only if P1 first casts (land + commander, turns [1], proven
+#   frames 15-16) and the four first-round cleanup discards are scripted
+#   (else the run blocks earlier at an unscripted cleanup or never offers a
+#   declare frame at all, which is itself fail-closed but not the probe).
 WS53_NEG_ZERO_DECL: list[dict[str, Any]] = [
+    _fail_closed_entry("priority", "P1", "semantic_action",
+                       {"action": "cast", "object": "MINTED-22"},
+                       phases=["MAIN1", "MAIN2"], turns=[1]),
+    _fail_closed_entry("priority", "P1", "semantic_action",
+                       {"action": "cast", "object": "MINTED-100"},
+                       phases=["MAIN1", "MAIN2"], turns=[1]),
     _discard_entry("P1", "MINTED-27"),
     _discard_entry("P2", "MINTED-196"),
     _discard_entry("P3", "MINTED-208"),

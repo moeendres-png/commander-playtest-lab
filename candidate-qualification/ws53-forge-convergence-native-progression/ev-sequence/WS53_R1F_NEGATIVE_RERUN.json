@@ -1,0 +1,77 @@
+{
+  "bindings": [
+    {
+      "facts": "idx=8:label=WS48:ACT:host=MINTED-22:cmd=null:card=Mountain:sa=Play+land:hostId=77"
+    }
+  ],
+  "checks": {
+    "binding_detail": "no binding with hostId=22 in 1 bindings",
+    "binding_returned_selected_host": false,
+    "execution_selected_active_post": false,
+    "execution_selected_left_sagroup": true,
+    "multi_act_offered": true,
+    "non_first_selected": true,
+    "post_frame": {
+      "act_count": 2,
+      "actor": "P1",
+      "groups": {
+        "Rograkh, Son of Rohgahh - Creature 0 / 1": [
+          "MINTED-100"
+        ],
+        "{T}: Add {R}.": [
+          "MINTED-77"
+        ]
+      },
+      "offered_count": 3
+    }
+  },
+  "fixture_id": "PILOT_MULLIGAN",
+  "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+  "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+  "post_frames": [
+    {
+      "act_count": 2,
+      "actor": "P1",
+      "groups": {
+        "Rograkh, Son of Rohgahh - Creature 0 / 1": [
+          "MINTED-100"
+        ],
+        "{T}: Add {R}.": [
+          "MINTED-77"
+        ]
+      },
+      "offered_count": 3
+    }
+  ],
+  "priority_frames_seen": 10,
+  "reason": "agreement chain broken: {\"multi_act_offered\": true, \"non_first_selected\": true, \"binding_returned_selected_host\": false, \"binding_detail\": \"no binding with hostId=22 in 1 bindings\", \"execution_selected_left_sagroup\": true, \"execution_selected_active_post\": false, \"post_frame\": {\"actor\": \"P1\", \"offered_count\": 3, \"act_count\": 2, \"groups\": {\"{T}: Add {R}.\": [\"MINTED-77\"], \"Rograkh, Son of Rohgahh - Creature 0 / 1\": [\"MINTED-100\"]}}}",
+  "selection": {
+    "act_count": 9,
+    "actor": "P1",
+    "frame_decision_id": "d15",
+    "offered_count": 10,
+    "offered_hosts": [
+      "MINTED-27",
+      "MINTED-8",
+      "MINTED-95",
+      "MINTED-77",
+      "MINTED-25",
+      "MINTED-3",
+      "MINTED-85",
+      "MINTED-22"
+    ],
+    "sa_group_size": 8,
+    "sa_text": "Play land",
+    "sa_text_head": "Play land",
+    "selected_act_rank": 8,
+    "selected_host": "MINTED-22",
+    "selected_idx": 8,
+    "selected_label_head": "WS48:ACT:host=MINTED-22:cmd=null:card=Mountain:sa=Play+land",
+    "selected_option_id": "o8"
+  },
+  "stderr_tail": "Language 'en-US' loaded successfully.\n(ThreadUtil first call): Running with priority 5\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nRead cards: 839 files in 0 ms (8 parts) using thread pool\nforge.game.player.Ws23ForgeVerticalProvider$ControlledStop: WS48_UNSUPPORTED_DISCRETIONARY_DECISION:priority\n\tat forge.game.player.Ws23ForgeVerticalProvider$Broker.choose(Ws23ForgeVerticalProvider.java:287)\n\tat forge.game.player.Ws23ForgeVerticalProvider$Broker.choosePriority(Ws23ForgeVerticalProvider.java:369)\n\tat forge.game.player.Ws23ForgeVerticalProvider$Ws23Controller.chooseSpellAbilityToPlay(Ws23ForgeVerticalProvider.java:1169)\n\tat forge.game.phase.PhaseHandler.mainLoopStep(PhaseHandler.java:1056)\n\tat forge.game.phase.PhaseHandler.mainGameLoop(PhaseHandler.java:1035)\n\tat forge.game.phase.PhaseHandler.startFirstTurn(PhaseHandler.java:1029)\n\tat forge.game.GameAction.startGame(GameAction.java:2373)\n\tat forge.game.Match.startGame(Match.java:92)\n\tat forge.game.Match.startGame(Match.java:77)\n\tat forge.game.player.Ws23ForgeVerticalProvider.runSession(Ws23ForgeVerticalProvider.java:1891)\n\tat forge.game.player.Ws23ForgeVerticalProvider.main(Ws23ForgeVerticalProvider.java:1947)\n\tat forge.game.player.Ws23ForgeBootstrap.main(Ws23ForgeBootstrap.java:125)\n",
+  "stop_reason": "WS48_UNSUPPORTED_DISCRETIONARY_DECISION:priority",
+  "verdict": "FAIL",
+  "witness": "commander-lab.ws48-r1f-nonfirst-act-witness/1.0.0",
+  "ws47_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3"
+}

@@ -1,0 +1,68 @@
+{
+  "gates": [
+    {
+      "file": "/tmp/ws53-ev/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java",
+      "gate": "FALLBACK_AUDIT",
+      "hits": [],
+      "verdict": "PASS"
+    },
+    {
+      "degraded_frames": 0,
+      "failures": [],
+      "gate": "ADVERSARY_CONTROL_POSITIVE",
+      "journal": "/tmp/ws53-ev/WS53_C_FINAL.json",
+      "own_hand_views_checked": 1756,
+      "verdict": "PASS"
+    },
+    {
+      "degraded_frames": 0,
+      "failures": [],
+      "gate": "ADVERSARY_CONTROL_POSITIVE",
+      "journal": "/tmp/ws53-ev/WS53_C_REPLAY1.json",
+      "own_hand_views_checked": 1756,
+      "verdict": "PASS"
+    },
+    {
+      "checks": [
+        {
+          "case": "non_owner_hand_leak",
+          "detected": true
+        },
+        {
+          "case": "facedown_exposure",
+          "detected": true
+        },
+        {
+          "case": "own_hand_count_mismatch",
+          "detected": true
+        }
+      ],
+      "frame": 2,
+      "gate": "ADVERSARY_CONTROL_NEGATIVE",
+      "journal": "/tmp/ws53-ev/WS53_C_FINAL.json",
+      "verdict": "PASS"
+    },
+    {
+      "checks": [
+        {
+          "case": "non_owner_hand_leak",
+          "detected": true
+        },
+        {
+          "case": "facedown_exposure",
+          "detected": true
+        },
+        {
+          "case": "own_hand_count_mismatch",
+          "detected": true
+        }
+      ],
+      "frame": 2,
+      "gate": "ADVERSARY_CONTROL_NEGATIVE",
+      "journal": "/tmp/ws53-ev/WS53_C_REPLAY1.json",
+      "verdict": "PASS"
+    }
+  ],
+  "schema_version": "commander-lab.ws53-static-gates/1.0.0",
+  "verdict": "PASS"
+}

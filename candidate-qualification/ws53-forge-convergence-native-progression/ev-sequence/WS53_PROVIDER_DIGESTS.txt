@@ -1,0 +1,2 @@
+54f75f44377d445eb68f3010b7abf8a3d0ed6524082cf2abaec64729d6617f65  /tmp/ws53-ev/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java
+b6b0870fd642c3f491c65276cb4027e32a39dc2a98cd4b5fb36649f37dad9a22  /tmp/ws53-ev/generated/java/forge/game/player/Ws40SuccessorState.java
