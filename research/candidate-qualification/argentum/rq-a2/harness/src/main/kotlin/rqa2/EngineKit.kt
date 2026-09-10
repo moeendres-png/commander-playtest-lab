@@ -8,6 +8,7 @@ import com.wingedsheep.engine.core.BudgetModalDecision
 import com.wingedsheep.engine.core.BudgetModalResponse
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseColorDecision
 import com.wingedsheep.engine.core.CoinFlipEvent
 import com.wingedsheep.engine.core.ChooseModeDecision
@@ -281,6 +282,15 @@ fun chooseAction(
             val valid = la.validTargets ?: emptyList()
             if (valid.size < la.minTargets) {
                 skipped.add("${a::class.simpleName}@${pp.value}: only ${valid.size} valid targets")
+                continue
+            }
+            val filled = valid.take(la.minTargets).map { toChosenTarget(state, it) }
+            return a.copy(targets = filled)
+        }
+        if (a is ActivateAbility && a.targets.isEmpty() && la.requiresTargets) {
+            val valid = la.validTargets ?: emptyList()
+            if (valid.size < la.minTargets) {
+                skipped.add("ActivateAbility@${pp.value}: only ${valid.size} valid targets")
                 continue
             }
             val filled = valid.take(la.minTargets).map { toChosenTarget(state, it) }

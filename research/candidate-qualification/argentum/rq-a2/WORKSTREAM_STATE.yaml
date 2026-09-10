@@ -74,6 +74,14 @@ validated_gates:
   DETECTED (fail-closed rejections or digest divergence; N1b shows semantic-divergence
   propagation; N5 shows seat-id-namespace collision diverges via checkpoints)
 - Source locks re-verified (CPL a62a8c7; Argentum 3f46367/tree 2adf51c, tracked tree clean)
+- U22-cross-process-identity (DIRECTLY_VERIFIED): S1/S2/S3/S4 same-game fresh-JVM
+  pairs canonical-EXACT (419+ frames); routing r<N>/entity e<N>/RNG stable; pinned and
+  unpinned persisted replays EXACT (0 nulls). Raw differs ONLY at runtime-minted
+  identity tokens (storm AbilityId.generate() ids; EntityId.generate() activation
+  resolutionKeys) — localized, normalized, behavior-neutral (subsequent frames EXACT).
+- U22-correction-to-RQ-A1: EntityId.generate() DOES have one live use
+  (ActivateAbilityHandler.executeActivation resolutionKey). Identity-only, replay-safe.
+- Harness hygiene: harness/.gradle untracked + gitignored (was accidentally committed in U19)
 failed_gates: []
 invalidated_gates: []
 do_not_rerun: []
@@ -98,5 +106,6 @@ technical_decisions:
 authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
-exact_next_action: Commit U19 milestone; then U22 AbilityId cross-process probe
-  (same game in fresh JVMs, normalized vs raw digests, routing-id stability).
+exact_next_action: Commit U22 milestone; then U16 hidden-info adversary probe
+  (per-principal ObservationBuilder sweep with unique sentinels plus planted-leak
+  control; managed Gym path vs in-process full-state caveat).

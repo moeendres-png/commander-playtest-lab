@@ -1,0 +1,3 @@
+# RQ-A2 harness local-only state (never evidence, never committed).
+.gradle/
+build/
