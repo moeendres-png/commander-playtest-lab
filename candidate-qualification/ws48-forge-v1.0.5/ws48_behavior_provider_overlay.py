@@ -101,13 +101,55 @@ HELPERS_ADD = """        String ws48Pid(Player p) {
         RuntimeException failClosed(String method) {"""
 
 PRIORITY_LABEL_ANCHOR = '                            labels.add("FORGE_LEGAL_ACTION");'
-PRIORITY_LABEL_NEW = """                            nativeOptions.add(sa);
-                            String ws48Host = Ws40SuccessorState.ws48SemanticOf(sa.getHostCard());
+# WS48-R1f Repair-01 (ports WS50-ADAPTER-REPAIR-01, ADAPTER_BINDING class):
+# the base generated provider already performs exactly one
+# nativeOptions.add(sa) per seen SpellAbility (see
+# scripts/ws23_generate_forge_vertical_provider.py Broker.choosePriority).
+# This replacement therefore projects exactly one ACT label per native
+# option and adds ZERO native entries, restoring the invariant:
+#   one native SpellAbility <-> one ACT label <-> one opaque id.
+# A previous revision of this block contained an extra
+# nativeOptions.add(sa) here, which double-populated nativeOptions (2N
+# entries for N labels) and misbound every non-first ACT selection.
+PRIORITY_LABEL_NEW = """                            String ws48Host = Ws40SuccessorState.ws48SemanticOf(sa.getHostCard());
                             String ws48Cmd = Ws40SuccessorState.ws48CommanderOf(sa.getHostCard());
                             labels.add("WS48:ACT:host=" + ws48Enc(ws48Host == null ? ("MINTED-" + sa.getHostCard().getId()) : ws48Host)
                                 + ":cmd=" + ws48Enc(String.valueOf(ws48Cmd))
                                 + ":card=" + ws48Enc(ws48CardName(sa.getHostCard()))
-                                + ":sa=" + ws48Enc(ws48Clip(String.valueOf(sa), 160)));"""
+                                 + ":sa=" + ws48Enc(ws48Clip(String.valueOf(sa), 160)));"""
+
+# WS48-R1f selection->execution integrity gate (durable, runtime).
+# Cardinality assertion: any future double-population (or label/native
+# skew from any cause) fails closed HERE with a distinct code instead of
+# silently misbinding a later ACT selection to the wrong native object.
+PRIORITY_CARDINALITY_ANCHOR = '            String id = choose("priority", actor, labels);'
+PRIORITY_CARDINALITY_NEW = """            if (nativeOptions.size() + 1 != labels.size()) throw new ControlledStop("WS48_SELECTION_EXECUTION_CARDINALITY_MISMATCH:native=" + nativeOptions.size() + ":labels=" + labels.size());
+            String id = choose("priority", actor, labels);"""
+
+# WS48-R1f selection->return binding record (durable, runtime).
+# Range-checks the opaque index, returns the EXACT native object at idx-1,
+# and emits an additive NATIVE_EVENT binding the selected external label
+# identity to the returned native host id. Harness-side witnesses correlate
+# this binding with engine-accepted post-frame observations; the event is
+# content-diagnostic only (no game facts beyond the binding itself) and is
+# ignored by drivers that do not consume it.
+# NOTE: the PASS branch reads `return null` (not `List.of()`) because the
+# ws25 layer of the generation chain (scripts/ws25_generate_forge_broad_provider.py)
+# rewrites the ws23 template's PASS return before this overlay runs last.
+PRIORITY_BINDING_ANCHOR = """            if (idx == 0) return null;
+            return java.util.List.of(nativeOptions.get(idx - 1));"""
+PRIORITY_BINDING_NEW = """            if (idx == 0) return null;
+            if (idx < 1 || idx > nativeOptions.size()) throw new ControlledStop("WS48_SELECTION_EXECUTION_INDEX_OUT_OF_RANGE:idx=" + idx + ":native=" + nativeOptions.size() + ":labels=" + labels.size());
+            SpellAbility ws48Selected = nativeOptions.get(idx - 1);
+            out.println("{\\"protocol\\":" + esc(PROTOCOL)
+                + ",\\"message_type\\":\\"NATIVE_EVENT\\""
+                + ",\\"request_id\\":\\"ws48-priority-binding\\""
+                + ",\\"session_id\\":" + esc(SESSION_ID)
+                + ",\\"payload\\":{\\"event\\":" + esc("priority_binding")
+                + ",\\"facts\\":" + esc("idx=" + idx + ":label=" + labels.get(idx)
+                    + ":hostId=" + (ws48Selected.getHostCard() == null ? -1 : ws48Selected.getHostCard().getId())) + "}}");
+            out.flush();
+            return java.util.List.of(ws48Selected);"""
 
 PROVIDER_STATIC_ANCHOR = "    static String esc(String s) {"
 PROVIDER_STATIC_ADD = """    static String ws48Enc(String v) {
@@ -973,6 +1015,10 @@ def main() -> int:
     p = once(p, HELPERS_ANCHOR, HELPERS_ADD, "controller helpers")
     p = once(p, PROVIDER_STATIC_ANCHOR, PROVIDER_STATIC_ADD, "static helpers")
     p = once(p, PRIORITY_LABEL_ANCHOR, PRIORITY_LABEL_NEW, "priority semantic labels")
+    p = once(p, PRIORITY_CARDINALITY_ANCHOR, PRIORITY_CARDINALITY_NEW,
+             "priority cardinality guard")
+    p = once(p, PRIORITY_BINDING_ANCHOR, PRIORITY_BINDING_NEW,
+             "priority selection-return binding")
 
     def rep(old: str, new: str, label: str) -> None:
         nonlocal p
@@ -1141,6 +1187,9 @@ def main() -> int:
         "WS48:COLOR:color=", "WS48:BOOL:val=", "WS48:REPL:apply=",
         "WS48:ORDER:order=", "WS48:MANA:src=", "WS48:ATTACK:attacker=",
         "WS48:BLOCK:blocker=",         "WS48:SCRY:top=", "Ws48NativeEvents",
+        "WS48_SELECTION_EXECUTION_CARDINALITY_MISMATCH",
+        "WS48_SELECTION_EXECUTION_INDEX_OUT_OF_RANGE",
+        "priority_binding",
         "announceRequirements", "CombatUtil.canAttack", "CombatUtil.canBlock",
         "costVisit:CostTap", "costVisit:CostAddMana", "costVisit:CostPayLife",
         "ws48EmitResult", "WS48_NO_RESULT_AT_SHUTDOWN",

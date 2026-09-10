@@ -1,0 +1,254 @@
+{
+  "gate": "commander-lab.ws48-r1f-selection-execution-gate/1.0.0",
+  "overlay": "/home/moeen/code/ws48-repair01-selection-execution-integrity/candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py",
+  "verdict": "FAIL",
+  "generator_block_found": true,
+  "generator_native_adds": 1,
+  "generator_labels": 1,
+  "generator_single_add_ok": true,
+  "overlay_block_found": true,
+  "overlay_native_adds": 1,
+  "overlay_act_labels": 1,
+  "overlay_single_add_ok": false,
+  "overlay_cardinality_guard_present": false,
+  "overlay_index_range_guard_present": false,
+  "overlay_binding_record_present": false,
+  "mechanism": {
+    "broken_binds_first_only": true,
+    "fixed_binds_all": true,
+    "broken": {
+      "n": 4,
+      "broken": true,
+      "label_count": 5,
+      "native_count": 8,
+      "rows": [
+        {
+          "selected_label": "L1",
+          "selected_idx": 1,
+          "want_native": "SA1",
+          "got_native": "SA1",
+          "binds_exactly": true
+        },
+        {
+          "selected_label": "L2",
+          "selected_idx": 2,
+          "want_native": "SA2",
+          "got_native": "SA1",
+          "binds_exactly": false
+        },
+        {
+          "selected_label": "L3",
+          "selected_idx": 3,
+          "want_native": "SA3",
+          "got_native": "SA2",
+          "binds_exactly": false
+        },
+        {
+          "selected_label": "L4",
+          "selected_idx": 4,
+          "want_native": "SA4",
+          "got_native": "SA2",
+          "binds_exactly": false
+        }
+      ],
+      "all_bind_exactly": false
+    },
+    "fixed": {
+      "n": 4,
+      "broken": false,
+      "label_count": 5,
+      "native_count": 4,
+      "rows": [
+        {
+          "selected_label": "L1",
+          "selected_idx": 1,
+          "want_native": "SA1",
+          "got_native": "SA1",
+          "binds_exactly": true
+        },
+        {
+          "selected_label": "L2",
+          "selected_idx": 2,
+          "want_native": "SA2",
+          "got_native": "SA2",
+          "binds_exactly": true
+        },
+        {
+          "selected_label": "L3",
+          "selected_idx": 3,
+          "want_native": "SA3",
+          "got_native": "SA3",
+          "binds_exactly": true
+        },
+        {
+          "selected_label": "L4",
+          "selected_idx": 4,
+          "want_native": "SA4",
+          "got_native": "SA4",
+          "binds_exactly": true
+        }
+      ],
+      "all_bind_exactly": true
+    }
+  },
+  "parallel_structure_audit": [
+    {
+      "transport": "Broker.choosePriority",
+      "lists": "labels[0]=PASS; labels[1..N]=ACT; nativeOptions[0..N-1]",
+      "alignment": "single-add invariant (base adds once; overlay adds zero) + R1f runtime cardinality guard (nativeOptions.size()+1==labels.size()) + guarded idx-1 with out-of-range fail-closed; PASS short-circuits before any native indexing [PRE-FIX: overlay double-populates]",
+      "status": "TARGETED_REPAIR_REQUIRED"
+    },
+    {
+      "transport": "getAbilityToPlay",
+      "lists": "labels 1:1 from abilities; indexed back into same list",
+      "alignment": "no parallel native list; abilities.get(ws48Choose(...)) indexes the exact enumerated list",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseTargetsFor",
+      "lists": "cands + labels built in same loop; optional trailing DONE",
+      "alignment": "DONE appended to labels only but guarded by (idx==labels.size()-1 && DONE) return-before-index; else idx < cands.size() so cands.get(idx) is exact",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseTarget",
+      "lists": "labels 1:1 from allTargets",
+      "alignment": "allTargets.get(ws48Choose(...)) on the enumerated list",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseSingleEntityForEffect",
+      "lists": "labels=[NONE?]+opts; direct index with offset",
+      "alignment": "optional NONE at 0 handled by explicit idx-- with idx==0 early-return; opts.get(idx) exact",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseEntitiesForEffect",
+      "lists": "rest + labels rebuilt per round; optional trailing DONE",
+      "alignment": "DONE guarded return-before-index; rest.get(idx) exact",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseCardsForEffect",
+      "lists": "labels=[NONE?]+rest-labels+[DONE?]; offset for NONE",
+      "alignment": "NONE early-return at idx==0; DONE guarded return-before-index; rest.get(idx-offset) exact",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseSpellAbilitiesForEffect",
+      "lists": "rest + labels rebuilt per round, same loop",
+      "alignment": "rest.get(ws48Choose(...)) on the same-round list",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseSingleSpellForEffect",
+      "lists": "labels 1:1 from spells",
+      "alignment": "spells.get(ws48Choose(...)) on the enumerated list",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseSingleCardForZoneChange",
+      "lists": "labels=[NONE?]+fetchList; offset",
+      "alignment": "NONE early-return + idx-- ; fetchList.get(idx) exact",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseCardsForZoneChange",
+      "lists": "rest + labels rebuilt per round; optional trailing DONE",
+      "alignment": "DONE guarded return-before-index; rest.get(idx) exact",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseModeForAbility(single)",
+      "lists": "labels 1:1 from possible",
+      "alignment": "possible.get(ws48Choose(...)) on the enumerated list; multi-choice stays fail-closed",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseNumber(int range)/announceRequirements",
+      "lists": "labels are consecutive ints min..max; no native list",
+      "alignment": "arithmetic min+idx; no parallel structure to drift",
+      "status": "NOT_APPLICABLE"
+    },
+    {
+      "transport": "chooseNumber(value list)",
+      "lists": "labels 1:1 from values",
+      "alignment": "values.get(ws48Choose(...)) on the enumerated list",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseBinary",
+      "lists": "fixed [true,false] labels; o0=true",
+      "alignment": "fixed-size explicit mapping; no parallel list",
+      "status": "NOT_APPLICABLE"
+    },
+    {
+      "transport": "chooseColor",
+      "lists": "opts + labels built in same loop over colors",
+      "alignment": "opts.get(ws48Choose(...)); single-color auto path records SINGLE_NATIVE_OPTION",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "chooseSingleReplacementEffect",
+      "lists": "labels 1:1 from possibleReplacers",
+      "alignment": "possibleReplacers.get(ws48Choose(...))",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "orderSimultaneousSa",
+      "lists": "fixed 2 labels mapping to 2 explicit orders",
+      "alignment": "explicit idx==0/else branches returning exact orders; size!=2 stays fail-closed",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "applyManaToCost",
+      "lists": "nativeMana + labels built in same loop per round",
+      "alignment": "nativeMana.get(ws48Choose(...)) on the same-round list",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "declareAttackers/declareBlockers",
+      "lists": "defs/foes + labels built in same loop; trailing SKIP",
+      "alignment": "SKIP appended to labels only but guarded by (idx==labels.size()-1) continue-before-index; else defs/foes.get(idx) exact; subject-scoped",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "arrangeForScry",
+      "lists": "tops/bottoms/labels built in same mask loop",
+      "alignment": "tops.get(idx)/bottoms.get(idx) on the same mask list",
+      "status": "INVARIANT_PROVEN"
+    },
+    {
+      "transport": "confirmAction/confirmPayment/confirmReplacementEffect",
+      "lists": "fixed 2-option confirm labels",
+      "alignment": "fixed-size explicit o0 mapping; no parallel list",
+      "status": "NOT_APPLICABLE"
+    },
+    {
+      "transport": "Broker.choosePlayer/Broker.chooseObject(base)",
+      "lists": "choosePlayer 1:1; chooseObject labels=[NONE?]+options",
+      "alignment": "chooseObject optional NONE handled by idx-- with idx==0 early-return; options.get(idx) exact",
+      "status": "INVARIANT_PROVEN"
+    }
+  ],
+  "parallel_structure_totals": {
+    "TARGETED_REPAIR_REQUIRED": 1,
+    "INVARIANT_PROVEN": 19,
+    "NOT_APPLICABLE": 3
+  },
+  "provider_block_found": true,
+  "provider_native_adds": 2,
+  "provider_label_adds": 1,
+  "provider_single_add_ok": false,
+  "provider_cardinality_guard_present": false,
+  "mutate_check": {
+    "synthesized_double_add_flagged": true,
+    "detail": {
+      "provider_block_found": false
+    }
+  },
+  "base_single_add_ok": true,
+  "overlay_guard_ok": false,
+  "reason": "double-add defect present: overlay PRIORITY_LABEL_NEW adds nativeOptions 1x per label (base already adds once) -> SELECTION_EXECUTION_INTEGRITY=FAIL",
+  "selection_execution_integrity": "FAIL"
+}
