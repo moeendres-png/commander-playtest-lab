@@ -1,130 +1,84 @@
 schema_version: "1.0"
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/commander-exec-consolidation
-branch: project/opencode-execution-system-consolidation-20260910
-audit_base_sha: b3f5a9929aaf07d2ae574724bbe198b5ab402df6
-audit_base_tree: 6c7e3f43ea6ef7aa0eaf385807138f938162bbdd
-current_head: a1cb097d8df7000ca4e721fe92aeb72f1bf2f642
-objective: Implement the single coherent OpenCode/Muse execution system (AGENTS.md, config, agents, skills, state, tooling, docs) on top of origin/main b3f5a992.
+worktree: /home/moeen/code/legal-topology-review-pack-20260910
+branch: research/legal-topology-review-pack-20260910
+audit_base_sha: c162871ba416c338d37f83a44fbd5b054e79ca0e
+audit_base_tree: b75a51d3326f502f33f0af2ce5d897ac89d60cc5
+current_head: c162871ba416c338d37f83a44fbd5b054e79ca0e
+objective: Prepare a precise, source-locked legal-topology evidence packet for HUMAN legal review of Commander Simulator Next architecture candidates. Preparation only; no clearance, no legal advice, no provider selection, no Architecture Freeze.
 in_scope:
-- Root AGENTS.md (durable rules only)
-- Canonical opencode.json (HIGH default, XHIGH permitted, below-HIGH disabled)
-- foundry-implementer and foundry-reviewer agents
-- Five-skill library under .opencode/skills/
-- .foundry workstream-state mechanism and schema
-- Deterministic helpers under tools/foundry/ with tests
-- Compaction, metrics, benchmark-harness, docs-consolidation records
-- Next-workstream handoff text for CROSS-CANDIDATE-DECISION-PLUMBING-ROOT-CAUSE-AUDIT
-- .github/workflows/opencode.yml VARIANT high alignment
+- Source-lock verification (main c162871b; D1-D7 6e6ac21f; WS48 10a7f8f6e; WS49 1cd12765)
+- Upstream license-file reads at exact pins where available (Forge 66caae16 LICENSE; mage 0c1f455e LICENSE.txt; phase-rs a0f9c55 license files + Cargo.toml)
+- Topology enumeration T1-T10 with linking/process/data boundaries
+- docs/research/LEGAL_TOPOLOGY_REVIEW_PACK_2026-09-10.md
+- research/legal-topology-review/license-evidence-index.json
+- docs/research/LEGAL_REVIEW_QUESTIONS_2026-09-10.md
 out_of_scope:
-- WS48/WS49 runtime, semantic, fixture, or engine-bridge code
-- WS47 fixture semantics and immutable authority
-- Production Repository creation, provider selection, Architecture Freeze claims
-- Merging, closing, or modifying PRs 161, 166, 167 remotely
-- Historical qualification campaign reruns
-ownership: PROJECT-EXECUTION-SYSTEM-CONSOLIDATION session (branch project/opencode-execution-system-consolidation-20260910)
+- Runtime code modification (none made)
+- WS50 Forge runtime/decision implementation paths
+- Task 2A Q6 scaffolding implementation paths
+- Provider selection, Architecture Freeze claims, PRs, merges
+- GPL/AGPL obligation interpretation beyond source-grounded factual description
+ownership: LEGAL-TOPOLOGY-REVIEW-PACK session (branch research/legal-topology-review-pack-20260910)
 dependencies:
-- origin/main at b3f5a992 (AUDIT_BASE, verified 2026-09-10, matches Coordinator observation)
-- Pinned OpenCode CLI v1.18.29 lane in .github/workflows/opencode.yml
-- Live opencode.ai config schema (permission singular, share disabled, provider variants)
+- origin/main at c162871b (HEAD == origin/main, clean worktree, verified 2026-09-10)
+- D1-D7 reconciliation branch @ 6e6ac21f (report + ledger + matrix read via git show)
+- WS48 @ 10a7f8f6e (provider harness layout + SPDX headers via git show)
+- WS49 @ 1cd12765 (bridge-player change via branch stat)
+- D2 report @ bf2c4711 (in-clone); D3 report @ a766f900 (mage remote, raw-fetched at pin)
+- Live upstream reads (raw.githubusercontent.com, api.github.com) at exact pins
 hard_gates:
-- HIGH is the normal default project effort in config, agents, workflow, and docs
-- Below-HIGH effort is not authorized for active project work
-- Rules Authority and Evidence semantics preserved verbatim in durable instructions
-- Session sharing disabled via share=disabled
-- Destructive and remote Git operations gated, secret extraction denied
-- No WS48/WS49 semantic surface modified
-- Deterministic tools tested and passing
+- No "legal/cleared" language without human legal authority
+- Every material claim carries component + commit/version + license path + verification class
+- Classifications limited to SOURCE_VERIFIED / REPORT_CITED / UNKNOWN / HUMAN_LEGAL_REVIEW_REQUIRED
+- No runtime, WS50, or Task 2A mutation; no PR; no merge; no provider selection; no Freeze claim
 forbidden_shortcuts:
-- first/random/default/AI/GUI/silent-skip/parent fallbacks
-- fabricated legal actions or manual outcome injection
-- second hidden Rules Engine in any helper, skill, or tool
-- UNKNOWN/PARTIAL/NOT_RUN promoted to PASS
-- green workflow equated with Qualification PASS
+- Interpreting GPL/AGPL obligations beyond source-grounded factual description
+- Promoting REPORT_CITED or UNKNOWN to clearance-equivalent language
+- Relying on FINAL/LATEST-style filename labels for freshness (pins are SHAs)
+- Bundling or linking any engine code into this workstream
 validated_gates:
-- source lock verified (origin/main b3f5a992, tree 6c7e3f43, clean worktree on dedicated branch)
-- origin/main reverified at c391a761/tree 5dbd3c5e; branch delta since 5826a5a2 adjudicated as own authorized repair work
-- main drift reconciled via non-destructive merge 0c0579e0 (HIGH-default alignment, coordinator authority record)
-- coordinator authority doc ec845445 inspected; no duplication, referenced as authority source
-- PR 161/166/167 inputs inspected at exact heads 26409b93/22e2a20f/633f51ae
-- live opencode.ai config schema fetched; PR161 permissions-array and PR167 variant-reasoningEffort defects identified and avoided
-- 17 deterministic tool tests pass; ruff check and ruff format clean on new surfaces
-- 24 deterministic tool tests pass after adjudication upgrade (adjudicator, HIGH default, reviewer, autonomy, state extension)
-- runtime smoke PASS on pinned CLI 1.18.29: config/agents/skills load, HIGH default and adjudicator XHIGH accepted
-- skills discoverable (.opencode/skills/*/SKILL.md, names match dirs, frontmatter valid)
-- agents carry model opencode-go/muse-spark-1.3-contributor at variant high for foundry-implementer/foundry-reviewer and xhigh for foundry-adjudicator
-- workflow VARIANT high with MODEL/SHARE unchanged; opencode.json share disabled
-- "CI repair: pyproject.toml edit reverted (WS17 hash manifest is immutable); E402 suppression moved file-local via noqa; WS17 gate re-passes locally"
-- S-1 committed as cfb033dc with S-2 files excluded and preserved dirty; S-1 permission model verified semantically unchanged in S-2 worktree (opencode.json, agents, permission_battery untouched)
-- S-2 resume: worktree_inventory.py verified free of the reported syntax error (import sys present, py_compile clean); only a ruff-format join remained and was repaired; 42/42 pytest green, ruff check and format clean
-- S-2 mission reconciliation: AGENTS.md section 1 aligned with PR173 head aa772f9 (outcome-first, player-count neutral, defers to docs/PROJECT_MISSION.md); execution governance sections 2-13 untouched
-- post-PR173 canonical reconciliation: normal merge a1cb097d of origin/main 8bdf2279 into a1477dd2, zero conflicts, AGENTS.md byte-identical to a1477dd2, PROJECT_MISSION.md + README + 4 architecture docs adopted verbatim from main
-- post-merge local validation green: pytest 42/42, ruff check clean, ruff format clean, source_lock LOCK_OK at a1cb097d (audit base c391a761 ancestor), worktree_inventory no duplicate writer, mission-consistency checks pass, merge delta is 6 doc-only files with zero Python
+- Source locks verified: main c162871b == HEAD == origin/main clean; D1-D7 6e6ac21f; WS48 10a7f8f6e; WS49 1cd12765 (all match assignment expectations)
+- Forge LICENSE = GPL-3.0 text at 66caae16 (SOURCE_VERIFIED live fetch)
+- Mage LICENSE.txt = MIT (c) 2010 betasteward at 0c1f455e (SOURCE_VERIFIED live fetch)
+- phase-rs MIT OR Apache-2.0 at a0f9c55 via Cargo.toml + LICENSE-MIT/LICENSE-APACHE/NOTICE presence (SOURCE_VERIFIED)
+- Manabrew identity + AGPL posture REPORT_CITED (D3) with public-web corroboration; unpinned
+- WS48 GPL-segregated harness practice documented (SPDX headers, forge.* package, separate-JVM doc)
+- Three required outputs written; JSON index parses; git status shows only the two new directories
 failed_gates: []
 invalidated_gates: []
 do_not_rerun:
-- PR head inspection (immutable refs pr-161-head/pr-166-head/pr-167-head in main checkout)
+- Upstream license-file fetches at pins (recorded in evidence index with URLs)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Post-PR173 reconciliation merge a1cb097d complete (parents a1477dd2 + 8bdf2279, zero conflicts, AGENTS.md byte-identical to a1477dd2); local validation green; push plus PR172 CI observation remain.
+current_hypothesis: Evidence packet complete; remaining work is diff verification, checkpoint commit, authorized push, and handoff. HUMAN legal review itself is outside this workstream.
 files_modified:
-- AGENTS.md (technical decision authority section 8, renumbered 9-13; S-2 mission-only reconciliation of section 1 with PR173 player-count-neutral policy)
-- opencode.json (foundry-adjudicator task permission)
-- .opencode/agents/foundry-adjudicator.md (new, XHIGH, read/test-first)
-- .opencode/agents/foundry-implementer.md (in-scope decision ownership, adjudicator escalation path)
-- .opencode/skills/workstream-bootstrap/SKILL.md
-- .opencode/skills/failure-classification/SKILL.md
-- .opencode/skills/test-impact/SKILL.md
-- .opencode/skills/evidence-seal/SKILL.md
-- .opencode/skills/continuation/SKILL.md
-- .foundry/WORKSTREAM_STATE.yaml
-- .foundry/WORKSTREAM_STATE.schema.json
-- tools/foundry/__init__.py
-- tools/foundry/source_lock.py
-- tools/foundry/worktree_inventory.py
-- tools/foundry/cluster_failures.py
-- tools/foundry/evidence.py
-- tools/foundry/state.py
-- tools/foundry/metrics.py
-- tests/foundry/test_foundry_tools.py
-- .github/workflows/opencode.yml (VARIANT xhigh to high)
-- docs/foundry-execution/README.md
-- docs/foundry-execution/GOVERNANCE_PROPAGATION.md (new, post-PR172 merge procedure)
-- docs/foundry-execution/ROUTING_AND_EFFORT.md
-- docs/foundry-execution/GOVERNANCE_SUPERSESSION.md
-- docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md
-- docs/foundry-execution/METRICS.md
-- docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md
-- docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md (new, TECHNICAL_DECISION_AUTHORITY/AUTHORITY_GATES/ESCALATION)
-- handoffs/CROSS_CANDIDATE_DECISION_PLUMBING_ROOT_CAUSE_AUDIT.md
+- docs/research/LEGAL_TOPOLOGY_REVIEW_PACK_2026-09-10.md (new)
+- research/legal-topology-review/license-evidence-index.json (new)
+- docs/research/LEGAL_REVIEW_QUESTIONS_2026-09-10.md (new)
+- .foundry/WORKSTREAM_STATE.yaml (workstream-accurate replacement of stale consolidation state)
 tests_run:
-- pytest tests/foundry/ -q (24 passed)
-- pytest tests/foundry/ -q (42 passed, S-2 resume: 34 S-1 + 8 S-2, post format repair)
-- ruff check tools/foundry tests/foundry (pass)
-- ruff format --check tools/foundry tests/foundry (pass)
-- tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml (STATE_OK)
-- tools/foundry/source_lock.py self-check (LOCK_OK)
-- tools/foundry/worktree_inventory.py smoke run (correct clean flags, ref prefixes stripped)
-- opencode.json/workflow/skills/agents structural verification script (pass)
+- python3 JSON parse of license-evidence-index.json (PASS)
+- git status/diff scope check: only docs/research/ + research/ untracked (PASS)
+- No test suite applicable (documentation-only workstream; no runtime code touched)
 evidence:
-- DIRECTLY_VERIFIED: origin/main SHA/tree, PR heads, WS48/WS49 origin SHAs and trees, tool test outcomes
-- RUNTIME_VERIFIED: pinned CLI 1.18.29 loads root config, all three agents, all five skills; HIGH default and adjudicator XHIGH accepted (isolated HOME, /tmp scratch project)
-- CODE_DERIVED: schema-conformance reasoning from live opencode.ai/config.json for opencode.json key choices; agent permission enforcement order from CLI docs
+- Upstream fetch transcripts summarized in license-evidence-index.json verification_notes
+artifacts:
+- docs/research/LEGAL_TOPOLOGY_REVIEW_PACK_2026-09-10.md
+- research/legal-topology-review/license-evidence-index.json
+- docs/research/LEGAL_REVIEW_QUESTIONS_2026-09-10.md
 remaining_scope:
-- Push reconciliation result (authorized non-force push) and observe PR #172 CI to terminal
-- Coordinator-owned final PR #172 integration decision after handoff
+- Exact diff verification + checkpoint commit + authorized non-force push
 status: ACTIVE
-ownership_conflict: "2026-09-10 ~00:55-01:00 UTC: second live writer active in this worktree/branch (live opencode TUI sessions on pts/0,4,5). Foreign changes: source_lock.py taxonomy rewrite, worktree_inventory.py duplicate-writer detection (committed with a syntax error breaking all foundry tests), bootstrap SKILL.md +69, handoff edit, new GOVERNANCE_PROPAGATION.md (S-2 scope), opencode.json .env.example allows (correct, adopted), state-file edits reverted. Evidence: /tmp/s1-conflict-evidence/. No commit made; S-1 delta validated in detached worktree /tmp/s1-validate (since removed). RESOLVED 2026-09-10: S-1 committed as cfb033dc with S-2 files excluded and preserved dirty per the commit message; sole-owner S-2 resume verified the inventory, found worktree_inventory.py already repaired (py_compile clean), and continued without reset/clean/stash."
-s1_permission_repair: "P0-1/P0-2/P1-1/P1-4 closed in opencode.json + implementer/adjudicator frontmatter; 37-probe battery via CLI 1.18.29 resolved rules; 34/34 pytest green in isolation; smoke PASS on final config. Remaining INSTRUCTION_ONLY: interpreter bypass (I14-I16), shell redirection (A24)."
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
-current_reasoning_tier: xhigh
-hypotheses_rejected: []
+current_reasoning_tier: high
 technical_decisions:
-- "S-2 resume: reported worktree_inventory.py syntax error adjudicated already-repaired in the preserved tree (import sys present, py_compile clean, 42/42 green); only residual was a ruff-format join in the S-2 test assertion, repaired via ruff format without semantic change."
-- "S-2 test_source_lock_repo_mismatch_fails broadened to accept WRONG_LOCAL_REPOSITORY: not a weakening; the S-2 source_lock.py taxonomy intentionally emits that reason for full-slug mismatch while the bare-fragment path still emits repository mismatch (covered by unchanged tests)."
-- "AGENTS.md mission reconciled inline with PR173 aa772f9 semantics plus a deference pointer to docs/PROJECT_MISSION.md; no file created on the PR172 line to avoid duplicating PR173's surface; execution governance sections 2-13 byte-identical."
+- Manabrew upstream identity corroborated via public web search (identity only); license posture stays REPORT_CITED from D3, never upgraded by search results
+- phase.rs license presence verified firsthand but full MIT/APACHE/NOTICE texts not read; recorded UNKNOWN for NOTICE terms rather than assuming standard texts
+- D1-D7/WS48/WS49/D2/D3 claims carried as REPORT_CITED with exact refs; only re-fetched license files promoted to SOURCE_VERIFIED
+- Stale WORKSTREAM_STATE.yaml (different workstream/branch) replaced with workstream-accurate state per schema
 authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
-next_action: push the reconciliation merge plus state update normally, then observe PR #172 CI to terminal
-exact_next_action: Push origin/project/opencode-execution-system-consolidation-20260910 (non-force); identify PR172 CI runs for the pushed HEAD; watch to terminal; repair only in-scope reconciliation defects (max two follow-ups), else fail closed.
+next_action: Verify exact diff, checkpoint-commit the three deliverables plus state file, push, hand off.
+exact_next_action: Run git diff review on docs/research/ + research/legal-topology-review/ + .foundry/WORKSTREAM_STATE.yaml, commit locally, push to origin/research/legal-topology-review-pack-20260910 (authorized non-force), and return the Final handoff with LEGAL_CLEARANCE = NONE.
