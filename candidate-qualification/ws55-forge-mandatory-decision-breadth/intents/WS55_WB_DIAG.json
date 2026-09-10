@@ -1,0 +1,71 @@
+{
+ "intent": [
+  {
+   "decision_family": "priority",
+   "actor": "P1",
+   "selection": {
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-7"
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    1
+   ]
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P2",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-99"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P3",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-237"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P4",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-279"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  }
+ ],
+ "provenance": "WS55 WB diagnostic: read T5/T9 hands for Drudge."
+}

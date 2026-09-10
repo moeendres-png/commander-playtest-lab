@@ -70,6 +70,7 @@ ws53.KIND_FAMILIES.update({
     "confirm": ("confirm",),
     "choose_mode": ("choose_mode", "mode_pick"),
     "target": ("target", "target_done"),
+    "order_zone": ("order_zone",),
 })
 
 
@@ -314,6 +315,61 @@ def _ws55_seq_match(want: list[str], seq_texts: list[str],
     return True
 
 
+def answer_order_zone(drv: Any, actor: str, opts: list[dict[str, Any]],
+                      labels: list[dict[str, str]], phase: Any,
+                      turn: Any) -> str:
+    if getattr(drv, "ws55_diag_accept_order_zone", False):
+        # DIAGNOSTIC ONLY (never evidence): accept o0 to reveal the engine's
+        # full move sequence in the journal.
+        return str(opts[0]["option_id"])
+    d = _pop_due(drv, ("order_zone",), actor, phase, turn, "order_zone")
+    sv = d["selection"]["semantic_value"]
+    # All options in one insertion frame concern the same engine card.
+    cards = {base.ref_identity(lb.get("card", "")) for lb in labels}
+    if len(cards) != 1:
+        drv.script.insert(0, d)
+        raise base.Blocked("order_zone", f"mixed-card insertion frame: {sorted(cards)}")
+    want_card = sv["card"]
+    if want_card not in cards:
+        drv.script.insert(0, d)
+        raise base.Blocked("order_zone", f"card {want_card} not offered (offered {sorted(cards)})")
+    hits = [i for i, lb in enumerate(labels)
+            if lb.get("_kind") == "ZONEORDER"
+            and str(lb.get("pos", "")) == str(sv["pos"])]
+    if len(hits) != 1:
+        drv.script.insert(0, d)
+        raise base.Blocked("order_zone", f"pos {sv['pos']}: {len(hits)} matches of {len(opts)}")
+    drv.consumed.append(d)
+    return str(opts[hits[0]]["option_id"])
+
+
+def answer_replacement(drv: Any, actor: str, opts: list[dict[str, Any]],
+                       labels: list[dict[str, str]], phase: Any,
+                       turn: Any) -> str:
+    # WS55 extension: boolean apply (confirmReplacementEffect) passes through
+    # to the base mechanism; multi-replacer ordering (chooseSingleReplacement-
+    # Effect, WS48:REPL:src= labels) matches an engine-identity substring.
+    peek = [e for e in drv.script if e.get("decision_family") == "replacement_effect"
+            and e.get("actor") == actor]
+    if peek and isinstance((peek[0].get("selection") or {}).get("semantic_value"), dict):
+        d = _pop_due(drv, ("replacement_effect",), actor, phase, turn,
+                     "replacement_effect")
+        sv = d["selection"]["semantic_value"]
+        if isinstance(sv, dict) and "order_pick" in sv:
+            hits = [i for i, lb in enumerate(labels)
+                    if lb.get("_kind") == "REPL" and "src" in lb
+                    and sv["order_pick"] in lb.get("src", "")]
+            if len(hits) != 1:
+                drv.script.insert(0, d)
+                raise base.Blocked("replacement_effect",
+                                   f"order_pick {sv['order_pick']}: {len(hits)} matches of {len(opts)}")
+            drv.consumed.append(d)
+            return str(opts[hits[0]]["option_id"])
+        drv.script.insert(0, d)
+        raise base.Blocked("replacement_effect", f"unknown replacement semantic {sv}")
+    return base.answer_replacement(drv, actor, opts, labels)
+
+
 def answer_trigger_order_n(drv: Any, actor: str, opts: list[dict[str, Any]],
                            labels: list[dict[str, str]], phase: Any,
                            turn: Any) -> str:
@@ -408,6 +464,10 @@ def ws55_answer(drv: Any, kind: str, actor: str, opts: list[dict[str, Any]],
         if len(opts) == 1 and labels55 and labels55[0].get("_kind") == "NUMRANGE":
             return answer_ranged_number(drv, actor, opts, labels55, phase, turn)
         # Enumerated NUM path stays on the WS53 mechanism.
+    if kind == "replacement_effect":
+        return answer_replacement(drv, actor, opts, labels55, phase, turn)
+    if kind == "order_zone":
+        return answer_order_zone(drv, actor, opts, labels55, phase, turn)
     if kind == "mana_payment":
         # Fold scripted mana sources into cost_state once (record ships none).
         if not getattr(drv, "ws55_mana_folded", False):
@@ -444,7 +504,7 @@ def ws55_classify(out: dict[str, Any]) -> dict[str, Any]:
     if verdict.startswith("BLOCKED_AT:"):
         where = verdict.split("BLOCKED_AT:", 1)[1]
         if where in ("combatDamage", "amountDistribution", "optional_costs",
-                     "order_costs", "order_combat", "confirm"):
+                     "order_costs", "order_combat", "confirm", "order_zone"):
             reason = str(out.get("reason", ""))
             if "unscripted" in reason or "kind-family binding" in reason:
                 return {"class": "HARNESS",
@@ -462,7 +522,8 @@ def ws55_run_scenario(record: dict[str, Any], transport: Any,
                       intent: list[dict[str, Any]], scenario_id: str,
                       per_record_timeout: int = 600,
                       structural_cap: int = 256,
-                      neg_stale: bool = False) -> dict[str, Any]:
+                      neg_stale: bool = False,
+                      diag_accept_order_zone: bool = False) -> dict[str, Any]:
     """WS55-owned scenario loop (copied from the WS53 converged runner, which
     is imported but never modified). Differences: SUBMIT carries an optional
     by-value integer for WS55:NUMRANGE frames; journal selection identities
@@ -472,6 +533,7 @@ def ws55_run_scenario(record: dict[str, Any], transport: Any,
     import tempfile as _tempfile
     import time as _time
     drv = ws53.WS53Driver(record, intent, structural_cap)
+    drv.ws55_diag_accept_order_zone = diag_accept_order_zone
     sent = ws53.sentinel_names(record, "")
     out: dict[str, Any] = {
         "schema_version": "commander-lab.ws55-decision-breadth/1.0.0",
@@ -792,6 +854,7 @@ def main() -> int:
     ap.add_argument("--order-combatants", default=None)
     ap.add_argument("--neg-bad-option", default=None)
     ap.add_argument("--neg-stale", action="store_true")
+    ap.add_argument("--diag-accept-order-zone", action="store_true")
     a = ap.parse_args()
     sys.path.insert(0, a.runners)
     import run_strict_no_echo_gate as transport  # noqa: E402
@@ -872,7 +935,11 @@ def main() -> int:
         ws53.ws53_answer = poisoned  # type: ignore[assignment]
     result = ws55_run_scenario(record, transport, intent, a.scenario,
                                structural_cap=a.structural_cap,
-                               neg_stale=a.neg_stale)
+                               neg_stale=a.neg_stale,
+                               diag_accept_order_zone=a.diag_accept_order_zone)
+    if a.diag_accept_order_zone:
+        result["diagnostic_only"] = True
+        result["credited_path"] = False
     result["schema_version"] = "commander-lab.ws55-decision-breadth/1.0.0"
     result["ws55_deck"] = {"main": a.deck_main, "commander": a.deck_commander}
     result["ws55_order_combatants"] = a.order_combatants

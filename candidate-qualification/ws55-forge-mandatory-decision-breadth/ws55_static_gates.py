@@ -86,6 +86,10 @@ def check(provider: str) -> dict:
          and 'throw failClosed("confirmTrigger");' not in provider
          and 'throw failClosed("playTrigger");' not in provider
          and 'throw failClosed("playSaFromPlayEffect");' not in provider)
+    gate("S2_zone_order",
+         "WS55:ZONEORDER:card=" in provider
+         and "orderMoveToZoneList:ENTERED" in provider
+         and 'throw failClosed("orderMoveToZoneList");' not in provider)
     gate("S2_permutations", "ws55Permutations" in provider
          and "PERMUTATION_BOUND" in provider)
 

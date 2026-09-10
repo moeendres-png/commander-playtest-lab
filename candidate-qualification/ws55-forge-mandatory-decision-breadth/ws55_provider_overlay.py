@@ -566,6 +566,50 @@ PLAY_SA_NEW = """        @Override
             return PlaySpellAbility.playSpellAbility(this, player, tgtSA);
         }"""
 
+# ---------------------------------------------------------------- J11: zone-move ordering
+ZONE_ORDER_OLD = """        public CardCollectionView orderMoveToZoneList(CardCollectionView cards, ZoneType destinationZone, SpellAbility source) {
+            throw failClosed("orderMoveToZoneList");
+        }"""
+
+ZONE_ORDER_NEW = """        @Override
+        public CardCollectionView orderMoveToZoneList(CardCollectionView cards, ZoneType destinationZone, SpellAbility source) {
+            ws48Milestone("orderMoveToZoneList:ENTERED");
+            if (cards == null) throw failClosed("orderMoveToZoneList:NULL");
+            java.util.List<Card> nativeOrder = new java.util.ArrayList<>();
+            for (Card c : cards) nativeOrder.add(c);
+            if (nativeOrder.size() <= 1) {
+                broker.recordAutomatic("orderMoveToZoneList:ZERO_OR_ONE");
+                return cards;
+            }
+            if (nativeOrder.size() > 24) throw failClosed("orderMoveToZoneList:FRAME_BOUND:" + nativeOrder.size());
+            java.util.List<Card> built = new java.util.ArrayList<>();
+            for (Card c : nativeOrder) {
+                java.util.List<String> labels = new java.util.ArrayList<>();
+                for (int pos = 0; pos <= built.size(); pos++) {
+                    labels.add("WS55:ZONEORDER:card=" + ws48Enc(ws48CardRef(c))
+                        + ":pos=" + pos + ":of=" + built.size()
+                        + ":dest=" + ws48Enc(String.valueOf(destinationZone)));
+                }
+                int pos = ws48Choose("order_zone", this.player, labels);
+                if (pos < 0 || pos > built.size()) throw failClosed("WS55_ZONEORDER_STALE");
+                built.add(pos, c);
+            }
+            CardCollection out = new CardCollection();
+            for (Card c : built) out.add(c);
+            if (out.size() != nativeOrder.size()) throw failClosed("WS55_ZONEORDER_SIZE");
+            return out;
+        }"""
+
+# ---------------------------------------------------------------- J10: replacement call audit
+REPL_AUDIT_OLD = """        public ReplacementEffect chooseSingleReplacementEffect(List<ReplacementEffect> possibleReplacers) {
+            if (possibleReplacers == null || possibleReplacers.isEmpty())
+                throw failClosed("chooseSingleReplacementEffect:EMPTY");"""
+
+REPL_AUDIT_NEW = """        public ReplacementEffect chooseSingleReplacementEffect(List<ReplacementEffect> possibleReplacers) {
+            ws48Milestone("chooseSingleReplacementEffect:CALLED:n=" + (possibleReplacers == null ? -1 : possibleReplacers.size()));
+            if (possibleReplacers == null || possibleReplacers.isEmpty())
+                throw failClosed("chooseSingleReplacementEffect:EMPTY");"""
+
 # ---------------------------------------------------------------- static helper
 STATIC_ANCHOR = "    static String ws48Enc(String v) {"
 
@@ -625,6 +669,8 @@ def main() -> int:
     p = once(p, CONFIRM_TRIGGER_OLD, CONFIRM_TRIGGER_NEW, "trigger confirm")
     p = once(p, PLAY_TRIGGER_OLD, PLAY_TRIGGER_NEW, "playTrigger mirror")
     p = once(p, PLAY_SA_OLD, PLAY_SA_NEW, "playSaFromPlayEffect mirror")
+    p = once(p, REPL_AUDIT_OLD, REPL_AUDIT_NEW, "replacement call audit")
+    p = once(p, ZONE_ORDER_OLD, ZONE_ORDER_NEW, "zone-move ordering")
     p = once(p, STATIC_ANCHOR, STATIC_ADD, "permutation helper")
     # Collapse doubled @Override from annotation-including replacements.
     while "        @Override\n        @Override\n" in p:
@@ -637,6 +683,9 @@ def main() -> int:
                 "COMMANDER_LAB_FORGE_ORDER_COMBATANTS",
                 "WS55:NUMRANGE:min=", "chooseRanged(",
                 "WS55_RANGED_VALUE_OUT_OF_RANGE",
+                "chooseSingleReplacementEffect:CALLED:n=",
+                "WS55:ZONEORDER:card=",
+                "orderMoveToZoneList:ENTERED",
                 "orderCosts:NATIVE_AUTO", "orderBlockers:SINGLETON",
                 "FULL_CONTROL_MIRROR" if False else "ChooseCostOrder"]
     missing = [x for x in required if x not in p]
@@ -646,6 +695,7 @@ def main() -> int:
                 "throw failClosed(\"orderCosts\");",
                 "throw failClosed(\"orderBlockers\");",
                 "throw failClosed(\"orderBlocker\");",
+                "throw failClosed(\"orderMoveToZoneList\");",
                 "throw failClosed(\"orderAttackers\");",
                 "throw failClosed(\"confirmTrigger\");",
                 "throw failClosed(\"playTrigger\");",
