@@ -682,3 +682,26 @@ def test_governance_propagation_contract_exists() -> None:
         "Do not use one governance checkout to write across independent worktrees",
     ):
         assert required.lower() in text.lower()
+
+
+def test_skill_library_conformance() -> None:
+    skills = REPO_ROOT / ".opencode" / "skills"
+    names = sorted(p.name for p in skills.iterdir() if p.is_dir())
+    assert names == [
+        "component-change-review",
+        "continuation",
+        "evidence-seal",
+        "failure-classification",
+        "rules-authority-escalation",
+        "test-impact",
+        "workstream-bootstrap",
+    ]
+    for name in names:
+        text = (skills / name / "SKILL.md").read_text(encoding="utf-8")
+        front = yaml.safe_load(text.split("---")[1])
+        assert front["name"] == name
+        assert front["description"].strip()
+    escalation = (skills / "rules-authority-escalation" / "SKILL.md").read_text(encoding="utf-8")
+    for required in ("AUTHORITY_GATE", "UNKNOWN", "Sol High"):
+        assert required in escalation
+    assert "second hidden rules engine" not in escalation.lower()

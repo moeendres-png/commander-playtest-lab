@@ -59,9 +59,35 @@ def _redact_url(url: str) -> str:
     return re.sub(r"^(https?://)[^/@]+@", r"\1<redacted>@", url)
 
 
-def _reject(reason: str) -> int:
-    print(f"PUSH_REJECT: {reason}", file=sys.stderr)
-    return REJECT
+class _PushReject(Exception):
+    """Fail-closed precondition failure (prints as PUSH_REJECT, exit 2)."""
+
+
+def _emit_push_metric(
+    metrics_path: str | None, task_id: str, source_sha: str | None, result: str, reason: str | None
+) -> None:
+    if not metrics_path:
+        return
+    import metrics as metrics_mod
+
+    try:
+        metrics_mod.record(
+            metrics_path,
+            _provenance={
+                "task_id": "AUTOCAPTURED",
+                "task_class": "AUTOCAPTURED",
+                "source_sha": "AUTOCAPTURED",
+                "push_result": "AUTOCAPTURED",
+                "reject_reason": "AUTOCAPTURED",
+            },
+            task_id=task_id,
+            task_class="checkpoint-push",
+            source_sha=source_sha,
+            push_result=result,
+            reject_reason=reason,
+        )
+    except OSError as exc:
+        print(f"PUSH_WARN: metrics not recorded: {exc}", file=sys.stderr)
 
 
 def _valid_branch_name(branch: str, workdir: str) -> str | None:
@@ -158,14 +184,16 @@ def _lock_held_by_ancestor(canonical_worktree: str) -> str | None:
     return None
 
 
-def safe_push(
+def _decide_push(
     worktree: str,
     expected_branch: str,
     state_path: str,
-    remote: str = "origin",
-    expected_slug: str = "moeendres-png/commander-playtest-lab",
-    dry_run: bool = False,
-) -> int:
+    remote: str,
+    expected_slug: str,
+    dry_run: bool,
+    ctx: dict,
+) -> str:
+    """Run all gates; perform the push. Returns 'RESULT branch@sha'; raises _PushReject."""
     canonical = os.path.realpath(os.path.abspath(worktree))
 
     # 1. state parses + validates (2.0 required for ancestry semantics).
@@ -175,27 +203,27 @@ def safe_push(
 
             data = yaml.safe_load(handle)
     except OSError as exc:
-        return _reject(f"cannot read state: {exc}")
+        raise _PushReject(f"cannot read state: {exc}") from exc
     if not isinstance(data, dict):
-        return _reject("state is not a mapping")
+        raise _PushReject("state is not a mapping")
     if str(data.get("schema_version", "")) != "2.0":
-        return _reject("state schema 2.0 required (migrate first)")
+        raise _PushReject("state schema 2.0 required (migrate first)")
     errors = state_mod.validate(data)
     if errors:
-        return _reject(f"invalid state: {errors[0]}")
+        raise _PushReject(f"invalid state: {errors[0]}")
 
     # 2. branch name safety.
     bad = _valid_branch_name(expected_branch, canonical)
     if bad:
-        return _reject(bad)
+        raise _PushReject(bad)
 
     # 3. remote identity.
     try:
         url = _run(["git", "config", "--get", f"remote.{remote}.url"], canonical)
     except RuntimeError:
-        return _reject(f"remote {remote!r} has no URL")
+        raise _PushReject(f"remote {remote!r} has no URL") from None
     if expected_slug not in url:
-        return _reject(
+        raise _PushReject(
             f"WRONG_REMOTE: remote {remote!r} identity {_redact_url(url)!r} lacks expected slug"
         )
 
@@ -204,12 +232,13 @@ def safe_push(
         live_branch = _run(["git", "rev-parse", "--abbrev-ref", "HEAD"], canonical)
         live_head = _run(["git", "rev-parse", "HEAD"], canonical)
     except RuntimeError as exc:
-        return _reject(f"cannot read live branch/HEAD: {exc}")
+        raise _PushReject(f"cannot read live branch/HEAD: {exc}") from exc
+    ctx["source_sha"] = live_head
     if live_branch == "HEAD":
-        return _reject("detached HEAD (push requires the workstream branch)")
+        raise _PushReject("detached HEAD (push requires the workstream branch)")
     state_branch = str(data.get("branch", ""))
     if not (live_branch == expected_branch == state_branch):
-        return _reject(
+        raise _PushReject(
             f"branch mismatch: live={live_branch!r} expected={expected_branch!r} "
             f"state={state_branch!r}"
         )
@@ -217,25 +246,26 @@ def safe_push(
     # 5. single-worktree ownership.
     owner_problem = _single_owner(canonical, expected_branch)
     if owner_problem:
-        return _reject(owner_problem)
+        raise _PushReject(owner_problem)
 
     # 6. ancestor-held writer lock.
     lock_problem = _lock_held_by_ancestor(canonical)
     if lock_problem:
-        return _reject(lock_problem)
+        raise _PushReject(lock_problem)
 
     # 7. state coherence + validation credit.
     if (
         str(data.get("worktree", "")) != canonical
         and os.path.realpath(str(data.get("worktree", "."))) != canonical
     ):
-        return _reject("state worktree does not match this worktree")
+        raise _PushReject("state worktree does not match this worktree")
     ownership = str(data.get("ownership", ""))
     if not ownership or ownership == "UNKNOWN":
-        return _reject("state ownership missing (unknown owner cannot push)")
+        raise _PushReject("state ownership missing (unknown owner cannot push)")
+    ctx["task_id"] = ownership
     validated = data.get("validated_head")
     if validated is None:
-        return _reject("validated_head is null (validate before checkpoint push)")
+        raise _PushReject("validated_head is null (validate before checkpoint push)")
     ancestry = state_mod.check_validated_ancestry(state_path, canonical)
     fatal = [
         n
@@ -243,15 +273,15 @@ def safe_push(
         if n.startswith("VALIDATED_OUTSIDE_LOCK") or n.startswith("VALIDATED_REWRITTEN")
     ]
     if fatal:
-        return _reject(fatal[0])
+        raise _PushReject(fatal[0])
 
     # 8. clean tree.
     try:
         porcelain = _run(["git", "status", "--porcelain"], canonical)
     except RuntimeError as exc:
-        return _reject(f"cannot read status: {exc}")
+        raise _PushReject(f"cannot read status: {exc}") from exc
     if porcelain:
-        return _reject(f"dirty worktree ({len(porcelain.splitlines())} entries; commit first)")
+        raise _PushReject(f"dirty worktree ({len(porcelain.splitlines())} entries; commit first)")
 
     # 9. source-lock ancestry.
     base = str(data.get("audit_base_sha", ""))
@@ -262,17 +292,16 @@ def safe_push(
         check=False,
     )
     if proc.returncode != 0:
-        return _reject("audit base is not an ancestor of HEAD (left the source lock)")
+        raise _PushReject("audit base is not an ancestor of HEAD (left the source lock)")
 
     # 10. remote ref state.
     try:
         ls = _run(["git", "ls-remote", remote, f"refs/heads/{expected_branch}"], canonical)
     except RuntimeError as exc:
-        return _reject(f"cannot read remote ref state: {exc}")
+        raise _PushReject(f"cannot read remote ref state: {exc}") from exc
     remote_sha = ls.split()[0] if ls else None
     if remote_sha == live_head:
-        print(f"SAFE_PUSH_OK: UP_TO_DATE {expected_branch}@{live_head[:12]}")
-        return 0
+        return f"UP_TO_DATE {expected_branch}@{live_head[:12]}"
     if remote_sha is not None:
         ahead = subprocess.run(
             ["git", "merge-base", "--is-ancestor", remote_sha, live_head],
@@ -281,7 +310,7 @@ def safe_push(
             check=False,
         )
         if ahead.returncode != 0:
-            return _reject(
+            raise _PushReject(
                 "non-fast-forward (remote has commits outside this history; "
                 "never force-push: reconcile by hand outside the launcher)"
             )
@@ -291,12 +320,12 @@ def safe_push(
             try:
                 out = _run(["git", "ls-remote", remote, candidate], canonical)
             except RuntimeError as exc:
-                return _reject(f"cannot resolve remote HEAD for creation gate: {exc}")
+                raise _PushReject(f"cannot resolve remote HEAD for creation gate: {exc}") from exc
             if out:
                 remote_main = out.split()[0]
                 break
         if remote_main is None:
-            return _reject(
+            raise _PushReject(
                 "cannot resolve remote main/master for creation gate "
                 "(unknown remote state; refusing)"
             )
@@ -307,12 +336,11 @@ def safe_push(
             check=False,
         )
         if base != remote_main and created.returncode != 0:
-            return _reject("branch creation refused: audit base is outside the remote history")
+            raise _PushReject("branch creation refused: audit base is outside the remote history")
 
     # 11. the single authorized write: exact refspec, no flags by construction.
     if dry_run:
-        print(f"SAFE_PUSH_OK: DRY_RUN_OK {expected_branch}@{live_head[:12]}")
-        return 0
+        return f"DRY_RUN_OK {expected_branch}@{live_head[:12]}"
     push_env = dict(os.environ)
     push_env["FOUNDRY_SAFE_PUSH"] = "1"  # launcher-installed pre-push hook marker
     proc = subprocess.run(
@@ -324,8 +352,32 @@ def safe_push(
         check=False,
     )
     if proc.returncode != 0:
-        return _reject(f"git push refused: {(proc.stderr.strip() or proc.stdout.strip())[:300]}")
-    print(f"SAFE_PUSH_OK: PUSHED {expected_branch}@{live_head[:12]}")
+        raise _PushReject(f"git push refused: {(proc.stderr.strip() or proc.stdout.strip())[:300]}")
+    return f"PUSHED {expected_branch}@{live_head[:12]}"
+
+
+def safe_push(
+    worktree: str,
+    expected_branch: str,
+    state_path: str,
+    remote: str = "origin",
+    expected_slug: str = "moeendres-png/commander-playtest-lab",
+    dry_run: bool = False,
+    metrics_path: str | None = None,
+) -> int:
+    """Narrow safe checkpoint push with fail-closed gates and metric emission."""
+    ctx: dict = {"task_id": "UNKNOWN", "source_sha": None}
+    try:
+        outcome = _decide_push(
+            worktree, expected_branch, state_path, remote, expected_slug, dry_run, ctx
+        )
+    except _PushReject as rej:
+        reason = str(rej)
+        print(f"PUSH_REJECT: {reason}", file=sys.stderr)
+        _emit_push_metric(metrics_path, ctx["task_id"], ctx["source_sha"], "REJECTED", reason)
+        return REJECT
+    _emit_push_metric(metrics_path, ctx["task_id"], ctx["source_sha"], outcome.split()[0], None)
+    print(f"SAFE_PUSH_OK: {outcome}")
     return 0
 
 
@@ -341,6 +393,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Trust root for the remote URL (substring match).",
     )
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--metrics", default=None, help="Append AUTOCAPTURED push record here.")
     args = parser.parse_args(argv)
     return safe_push(
         args.worktree,
@@ -349,6 +402,7 @@ def main(argv: list[str] | None = None) -> int:
         args.remote,
         args.expected_slug,
         args.dry_run,
+        args.metrics,
     )
 
 

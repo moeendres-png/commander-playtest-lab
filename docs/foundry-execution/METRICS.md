@@ -1,37 +1,69 @@
-# Minimal Session Metrics
+# Session Metrics with Provenance (Checkpoint E)
 
 No dashboard. One JSONL record per task or session, appended with
-`tools/foundry/metrics.py`. Reuse OpenCode session stats or export output as the
-values when available; never invent token counts, tool-call counts, or timings.
+`tools/foundry/metrics.py`. Never invent token counts, tool-call counts, or
+timings; missing measurements stay absent.
+
+## Provenance (required discipline, `--provenance FIELD=CLASS`)
+
+- `AUTOCAPTURED` — read deterministically by project tooling (launcher,
+  safe_push, session_stats) from an authoritative source.
+- `CALLER_SUPPLIED` — provided by a human/operator (e.g. intervention counts).
+- `UNAVAILABLE_FROM_PINNED_CLI` — the pinned CLI exposes no such signal.
+- `UNKNOWN` — provenance not established.
+
+## Autocapture matrix (verified 2026-09-10, CLI 1.18.30)
+
+| Metric | Source | Provenance |
+|---|---|---|
+| task/workstream ID, profile, model, effort | launcher plan | AUTOCAPTURED |
+| source/final SHA | launcher git reads | AUTOCAPTURED |
+| start/end UTC, elapsed, exit status | launcher clock/child | AUTOCAPTURED |
+| model turns, tool calls (+by tool), tool errors, patches | `session_stats.py` over `opencode export` JSON | AUTOCAPTURED |
+| tokens in/out/reasoning/cache, cost USD | same export `info` block | AUTOCAPTURED |
+| push result / reject reason | safe_push `--metrics` | AUTOCAPTURED |
+| human interventions | operator report | CALLER_SUPPLIED |
+| build/test attempts | caller or wrapper counts | CALLER_SUPPLIED |
+| compaction count | no marker in export format | UNAVAILABLE_FROM_PINNED_CLI |
+| per-turn model internals | not exposed | UNAVAILABLE_FROM_PINNED_CLI |
+
+Raw `opencode export` files are LOCAL_ONLY (they contain session content):
+`session_stats.py` emits counts only, and raw exports are never committed.
 
 ## Recorded fields
 
-`task_id`, `task_class`, `reasoning_effort`, `source_sha`, `final_sha`,
-`completed`, `human_interventions`, `build_attempts`, `test_attempts`,
-`tool_calls`, `token_usage`, `elapsed_seconds`, `reverts`, `scope_violations`,
-`failure_class`, `evidence_status`.
-
-Every field is optional except presence in the schema: record what is technically
-available without fragile inference. `tool_calls`, `token_usage`, and
-`elapsed_seconds` are omitted entirely when OpenCode does not expose them.
+`task_id`, `task_class`, `repo_profile`, `model`, `reasoning_effort`,
+`source_sha`, `final_sha`, `started_utc`, `ended_utc`, `elapsed_seconds`,
+`exit_status`, `completed`, `human_interventions`, `model_turns`, `tool_calls`,
+`tool_calls_by_tool`, `tool_errors`, `token_usage`, `tokens_input`,
+`tokens_output`, `tokens_reasoning`, `tokens_cache_read`, `tokens_cache_write`,
+`cost_usd`, `patch_count`, `build_attempts`, `test_attempts`,
+`checkpoint_commit_count`, `safe_push_count`, `failed_safe_push_count`,
+`push_result`, `reject_reason`, `state_validation_failures`,
+`writer_lock_conflicts`, `reverts`, `scope_violations`, `failure_class`,
+`evidence_status`, `provenance`.
 
 ## Usage
 
 ```bash
-python3 tools/foundry/metrics.py --metrics docs/foundry-execution/metrics.jsonl \
-  --set task_id='"WS48-probe-01"' \
+python3 tools/foundry/metrics.py --metrics .foundry/metrics.jsonl \
+  --set task_id='"WS50-slice-03"' \
   --set task_class='"bounded single-file bug"' \
   --set reasoning_effort='"high"' \
   --set source_sha='"<40-hex>"' \
-  --set final_sha='"<40-hex>"' \
-  --set completed=true \
-  --set human_interventions=0 \
-  --set build_attempts=2 \
-  --set test_attempts=3 \
-  --set failure_class='"NONE"' \
-  --set evidence_status='"DIRECTLY_VERIFIED"'
+  --provenance task_id=CALLER_SUPPLIED \
+  --provenance reasoning_effort=CALLER_SUPPLIED
+```
+
+Launcher sessions record start/end automatically (`.foundry/metrics.jsonl`,
+git-ignored; sealed into evidence, never committed raw). Enrich a finished
+session with export counts:
+
+```bash
+opencode export <sessionID> > /tmp/proven-session.json  # LOCAL_ONLY
+python3 tools/foundry/session_stats.py --export /tmp/proven-session.json
 ```
 
 The core project effectiveness notion is verified engineering progress per human
-coordination per model effort — not commit count. This file plus the JSONL log
-are the whole mechanism until measured need justifies more.
+coordination per model effort — not commit count. These records feed the
+HIGH-vs-XHIGH comparison; the benchmark itself remains NOT_RUN by design.

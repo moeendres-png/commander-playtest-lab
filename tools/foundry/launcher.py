@@ -313,13 +313,27 @@ def launch(plan: dict, argv_extra: list[str], worktree: str, workstream: str, ef
         return writer_lock_mod.HELD_EXIT
     metrics_path = _metrics_path(worktree)
     start_mono = time.monotonic()
+    start_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    auto = {
+        "task_id": "AUTOCAPTURED",
+        "task_class": "AUTOCAPTURED",
+        "repo_profile": "AUTOCAPTURED",
+        "model": "AUTOCAPTURED",
+        "reasoning_effort": "AUTOCAPTURED",
+        "source_sha": "AUTOCAPTURED",
+        "started_utc": "AUTOCAPTURED",
+    }
     try:
         metrics_mod.record(
             metrics_path,
+            _provenance=auto,
             task_id=workstream,
             task_class="workstream-session",
+            repo_profile=plan.get("gate", {}).get("profile", "UNKNOWN"),
+            model=CANONICAL_MODEL,
             reasoning_effort=effort,
             source_sha=plan.get("live_head"),
+            started_utc=start_utc,
         )
     except OSError as exc:
         print(f"LAUNCH_WARN: telemetry start not recorded: {exc}", file=sys.stderr)
@@ -338,9 +352,22 @@ def launch(plan: dict, argv_extra: list[str], worktree: str, workstream: str, ef
         try:
             metrics_mod.record(
                 metrics_path,
+                _provenance={
+                    **auto,
+                    "final_sha": "AUTOCAPTURED",
+                    "ended_utc": "AUTOCAPTURED",
+                    "elapsed_seconds": "AUTOCAPTURED",
+                    "exit_status": "AUTOCAPTURED",
+                    "completed": "AUTOCAPTURED",
+                },
                 task_id=workstream,
+                task_class="workstream-session",
+                repo_profile=plan.get("gate", {}).get("profile", "UNKNOWN"),
+                model=CANONICAL_MODEL,
                 reasoning_effort=effort,
                 final_sha=end_head,
+                ended_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                exit_status=rc,
                 completed=(rc == 0),
                 elapsed_seconds=round(elapsed, 1),
             )
