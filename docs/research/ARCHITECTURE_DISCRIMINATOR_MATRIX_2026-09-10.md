@@ -29,14 +29,14 @@ code, no governance change, no qualification evidence altered, no behavior credi
 | Mission/governance (canonical, merged) | `docs/PROJECT_MISSION.md` (outcome-first, player-count neutral; 4P benchmark-only, 2–5P mandatory) |
 | D1 | `research/general-n-forge-discriminator-20260910 @ 7c4356da` (origin EXISTS) |
 | D2 | `research/xmage-corpus-reuse-20260910 @ bf2c4711` (origin EXISTS) |
-| D3 | `research/d3-q6-import-automation-20260910 @ a766f900` (LOCAL-ONLY; verified `/home/moeen/code/mage-d3q6`) |
+| D3 | `moeendres-png/mage research/d3-q6-import-automation-20260910 @ a766f900` / tree `6c429f68` (mage remote EXISTS; erratum-corrected, was misclassified local-only) |
 | D4 source | LOCAL_PRESERVED_REPORT `~/restart-preserve/20260910-before-wsl-restart/D4_PHASE_RS_REALITY_REPORT.md` (not REMOTE_VERIFIED) |
-| D5 | `research/optimizer-oss-discriminator-20260910 @ 94c2eb7e` (origin EXISTS) |
-| D6 | `research/d6-execution-infra-20260910 @ 4a12e7b7` (origin EXISTS) |
+| D5 | `research/optimizer-oss-discriminator-20260910 @ 94c2eb7e` / tree `264622d2` (origin EXISTS) |
+| D6 | `research/d6-execution-infra-20260910 @ 4a12e7b7` / tree `aa7ceb5c` (origin EXISTS) |
 | D7 | architecture/legal-topology input; no dedicated commit (provenance incomplete, component claims source-verified) |
 | WS48 | `ws48/forge-v1.0.5-successor-qualification @ 10a7f8f6` (origin EXISTS) |
 | WS49 | `ws49/xmage-v1.0.5-native-remediation @ 1cd12765` (origin EXISTS) |
-| WS33-D (terminal) | `work/ws33-d-high-throughput-20260907 @ 798460bf` (LOCAL-ONLY; verified `/home/moeen/code/mage-ws33-d`) |
+| WS33-D (terminal) | `moeendres-png/mage work/ws33-d-high-throughput-20260907 @ 798460bf` / tree `cacfcdb6` (mage remote EXISTS; erratum-corrected, was misclassified local-only) |
 | WS47 v1.0.5 contract (immutable) | freeze `192e2b77c0625ad26905bd0ee8dcc3f44a5796c8`, denominator **107**, bundle `631da205c…`, MAT `0e47b792…` |
 | Forge pin (REPORT_CITED, cross-agreed D1/WS48) | `moeendres-png/forge @ 66caae16015bd403bc0a52fa6689afb5508f74d0` / tree `40fc8f29…`, v2.0.15-SNAPSHOT |
 | XMage pin (REPORT_CITED, cross-agreed D2/WS49) | `moeendres-png/mage @ 0c1f455ea8c8fa48ab9d638ad5068ec242800428` / tree `fdb8bf56…` |

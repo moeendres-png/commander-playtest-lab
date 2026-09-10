@@ -28,13 +28,13 @@ dependencies:
 - origin/main at c162871b (post-PR172 merge; PR172 commit 454f114a ancestor of HEAD and origin/main, verified 2026-09-10)
 - D1 branch research/general-n-forge-discriminator-20260910 @ 7c4356da (origin EXISTS)
 - D2 branch research/xmage-corpus-reuse-20260910 @ bf2c4711 (origin EXISTS)
-- D3 branch research/d3-q6-import-automation-20260910 @ a766f900 (LOCAL-ONLY, verified in /home/moeen/code/mage-d3q6)
+- D3 branch moeendres-png/mage research/d3-q6-import-automation-20260910 @ a766f900 / tree 6c429f68 (mage remote EXISTS; erratum-corrected)
 - D4 local preserved report ~/restart-preserve/20260910-before-wsl-restart/D4_PHASE_RS_REALITY_REPORT.md (LOCAL_PRESERVED_REPORT provenance)
 - D5 branch research/optimizer-oss-discriminator-20260910 @ 94c2eb7e (origin EXISTS)
 - D6 branch research/d6-execution-infra-20260910 @ 4a12e7b7 (origin EXISTS, worktree /home/moeen/code/commander-playtest-lab)
 - WS48 ws48/forge-v1.0.5-successor-qualification @ 10a7f8f6 (origin EXISTS, worktree /home/moeen/code/commander-ws48)
 - WS49 ws49/xmage-v1.0.5-native-remediation @ 1cd12765 (origin EXISTS)
-- WS33-D work/ws33-d-high-throughput-20260907 @ 798460bf (LOCAL-ONLY, verified in /home/moeen/code/mage-ws33-d)
+- WS33-D moeendres-png/mage work/ws33-d-high-throughput-20260907 @ 798460bf / tree cacfcdb6 (mage remote EXISTS; erratum-corrected)
 - WS47 ws47/successor-contract-v1.0.5-freeze terminal 5a2e4f46 (origin EXISTS)
 - Interim matrix research/architecture-discriminator-checkpoint-20260910 @ ba76ed6a (origin EXISTS)
 hard_gates:
@@ -53,7 +53,7 @@ validated_gates:
 - source lock verified 2026-09-10T04:43:56Z: HEAD c162871b == origin/main (post-fetch), tree b75a51d3, clean worktree, PR172 ancestor of HEAD and main YES
 - exclusive writer audit: exactly one opencode process (PID 34228) with CWD=this worktree; worktree_inventory duplicate_writers=[]
 - D1/D2/D5/D6/WS48/WS49/interim-matrix commits+origin refs verified present
-- D3/WS33-D commits verified present in local worktrees (local-only branches, absent from origin)
+- D3/WS33-D mage remote refs freshly verified (ls-remote HEAD match + object-store tree resolution); D5/D6 CPL remote HEAD+tree reverified (erratum: prior local-only classification was wrong-remote artifact)
 - D4 report verified present at local preserve path (LOCAL_PRESERVED_REPORT, not REMOTE_VERIFIED)
 - engine pins recorded as REPORT_CITED (Forge 66caae16/tree 40fc8f29; XMage 0c1f455e/tree fdb8bf56; phase-rs a0f9c55d): CPL clone lacks forge/mage fork objects; values cross-agree across D1/D2/WS48/WS49 reports
 failed_gates: []
@@ -72,7 +72,7 @@ files_modified:
 - docs/research/CANDIDATE_QUALIFICATION_ROADMAP_2026-09-10.md (Checkpoint C: roadmap + 3 tasks + 10 actions)
 tests_run: []
 evidence:
-- DIRECTLY_VERIFIED: HEAD/tree/origin-main identity, PR172 ancestry, clean tree, single-writer process audit, D1/D2/D5/D6/WS48/WS49/matrix commit+origin-ref presence, D3/WS33-D commit presence in local worktrees, D4 report presence at preserve path
+- DIRECTLY_VERIFIED: HEAD/tree/origin-main identity, PR172 ancestry, clean tree, single-writer process audit, D1/D2/D5/D6/WS48/WS49/matrix commit+origin-ref presence, D3/WS33-D mage remote HEAD+tree match, D5/D6 CPL remote HEAD+tree match, D4 report presence at preserve path
 - REPORT_CITED: engine pins, discriminator metrics, R1e/R1d, WS49 phases, D4c FAIL, impact gate, WS47 freeze values (each traced to exact commit/report in evidence-index.json)
 remaining_scope: []
 status: COMPLETE
@@ -82,5 +82,6 @@ current_reasoning_tier: xhigh
 checkpoints:
 - A: source-lock + evidence ledger complete (81949a1d)
 - B: candidate comparison + remaining discriminator complete (30bdd884)
-- C: final matrix + roadmap + portfolio reset complete (this commit)
-exact_next_action: Coordinator adjudication of this reconciliation (Tasks 1-3 authorization, legal-review scheduling). No further action on this branch unless Coordinator redirects.
+- C: final matrix + roadmap + portfolio reset complete (d4066d0b, pushed)
+- ERRATUM: D3/WS33-D mage-remote provenance correction + D5/D6 remote trees (this commit; ARCHITECTURE_DECISION_IMPACT = NO_CHANGE)
+exact_next_action: Push erratum commit (non-force, existing research branch), then Coordinator adjudication. No further action on this branch unless Coordinator redirects.
