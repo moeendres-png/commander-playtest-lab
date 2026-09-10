@@ -408,6 +408,17 @@ DECK_NEW = """        String ws55DeckMain = System.getenv("COMMANDER_LAB_FORGE_D
             deck.getOrCreate(forge.deck.DeckSection.Commander).add(commander, 1);
             }"""
 
+# ---------------------------------------------------------------- J7: order-combatants config
+ORDER_COMBATANTS_OLD = """        GameRules rules = new GameRules(GameType.Constructed);
+        rules.addAppliedVariant(GameType.Commander);"""
+
+ORDER_COMBATANTS_NEW = """        GameRules rules = new GameRules(GameType.Constructed);
+        rules.addAppliedVariant(GameType.Commander);
+        String ws55OrderCombatants = System.getenv("COMMANDER_LAB_FORGE_ORDER_COMBATANTS");
+        if ("1".equals(ws55OrderCombatants)) {
+            rules.setOrderCombatants(true);
+        }"""
+
 # ---------------------------------------------------------------- static helper
 STATIC_ANCHOR = "    static String ws48Enc(String v) {"
 
@@ -460,6 +471,7 @@ def main() -> int:
     p = once(p, MODE_MULTI_OLD, MODE_MULTI_NEW, "multi-mode sequential")
     p = once(p, TRIGGER_N_OLD, TRIGGER_N_NEW, "trigger order N")
     p = once(p, DECK_OLD, DECK_NEW, "deck env generalization")
+    p = once(p, ORDER_COMBATANTS_OLD, ORDER_COMBATANTS_NEW, "order combatants config")
     p = once(p, STATIC_ANCHOR, STATIC_ADD, "permutation helper")
     # Collapse doubled @Override from annotation-including replacements.
     while "        @Override\n        @Override\n" in p:
@@ -469,6 +481,7 @@ def main() -> int:
                 "WS55:ORDERBLOCKER:attacker=", "WS55:ORDERATTACKERS:blocker=",
                 "chooseModeForAbility:MULTI", "orderSimultaneousSa:N:",
                 "COMMANDER_LAB_FORGE_DECK_MAIN", "ws55Permutations",
+                "COMMANDER_LAB_FORGE_ORDER_COMBATANTS",
                 "orderCosts:NATIVE_AUTO", "orderBlockers:SINGLETON",
                 "FULL_CONTROL_MIRROR" if False else "ChooseCostOrder"]
     missing = [x for x in required if x not in p]

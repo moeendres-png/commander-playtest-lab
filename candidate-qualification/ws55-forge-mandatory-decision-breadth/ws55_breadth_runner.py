@@ -73,9 +73,23 @@ ws53.KIND_FAMILIES.update({
 
 
 def ws55_dec_label(label: str) -> dict[str, str]:
-    """Parse WS48: and WS55: labels with the same grammar."""
+    """Parse WS48:, WS55:, and prefix-less ws40 Core-view labels."""
     if label.startswith("WS55:"):
         return base.dec_label("WS48:" + label[len("WS55:"):])
+    if label.startswith("WS48:"):
+        return base.dec_label(label)
+    if "|" in label:
+        # ws40 Core-view style: KIND|k=v|k=v (raw values, may contain ':').
+        out: dict[str, str] = {}
+        head, *segs = label.split("|")
+        out["_kind"] = head
+        for seg in segs:
+            if "=" in seg:
+                k, v = seg.split("=", 1)
+                out[k] = v
+            else:
+                out[seg] = ""
+        return out
     return base.dec_label(label)
 
 
@@ -324,6 +338,19 @@ def ws55_answer(drv: Any, kind: str, actor: str, opts: list[dict[str, Any]],
         return answer_order_combat(drv, actor, opts, labels55, phase, turn)
     if kind == "confirm":
         return answer_confirm(drv, actor, opts, labels55, phase, turn)
+    if kind == "mana_payment":
+        # Fold scripted mana sources into cost_state once (record ships none).
+        if not getattr(drv, "ws55_mana_folded", False):
+            drv.ws55_mana_folded = True
+            for e in list(drv.script):
+                if e.get("decision_family") == "mana_payment":
+                    drv.script.remove(e)
+                    drv.cost_state.append({
+                        "actor": e.get("actor", actor),
+                        "explicit_payment_sources": list(
+                            (e.get("selection") or {}).get("semantic_value", {}).get("sources", [])),
+                    })
+                    drv.consumed.append(e)
     if kind == "trigger_order":
         # N-general (size-2 legacy handled identically).
         try:
@@ -388,6 +415,7 @@ def main() -> int:
     ap.add_argument("--structural-cap", type=int, default=256)
     ap.add_argument("--deck-main", default=None)
     ap.add_argument("--deck-commander", default=None)
+    ap.add_argument("--order-combatants", default=None)
     ap.add_argument("--neg-bad-option", default=None)
     a = ap.parse_args()
     sys.path.insert(0, a.runners)
@@ -404,6 +432,9 @@ def main() -> int:
     if a.deck_commander:
         import os as _os
         _os.environ["COMMANDER_LAB_FORGE_DECK_COMMANDER"] = a.deck_commander
+    if a.order_combatants:
+        import os as _os
+        _os.environ["COMMANDER_LAB_FORGE_ORDER_COMBATANTS"] = a.order_combatants
 
     if a.materialization is None:
         raise SystemExit("--materialization required (immutable WS47 identity enforced)")
@@ -429,6 +460,8 @@ def main() -> int:
             _os.environ["COMMANDER_LAB_FORGE_DECK_MAIN"] = dj["main"]
         if dj.get("commander"):
             _os.environ["COMMANDER_LAB_FORGE_DECK_COMMANDER"] = dj["commander"]
+        if journal.get("ws55_order_combatants"):
+            _os.environ["COMMANDER_LAB_FORGE_ORDER_COMBATANTS"] = journal["ws55_order_combatants"]
         rerun = ws53.run_scenario(record, transport, intent, scenario + ":REPLAY",
                                   structural_cap=a.structural_cap)
         cmp = ws53.compare_replay(journal, rerun)
@@ -466,6 +499,7 @@ def main() -> int:
                                structural_cap=a.structural_cap)
     result["schema_version"] = "commander-lab.ws55-decision-breadth/1.0.0"
     result["ws55_deck"] = {"main": a.deck_main, "commander": a.deck_commander}
+    result["ws55_order_combatants"] = a.order_combatants
     if a.neg_bad_option:
         v = str(result.get("verdict", ""))
         sr = str(result.get("stop_reason", ""))

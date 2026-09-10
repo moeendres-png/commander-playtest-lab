@@ -66,6 +66,9 @@ def check(provider: str) -> dict:
     gate("S2_deck_env", "COMMANDER_LAB_FORGE_DECK_MAIN" in provider
          and "FINALIST_CANONICAL_DECK_RULES_MISSING" in provider
          and "getAllCards(" in provider)
+    gate("S2_order_combatants_config",
+         "COMMANDER_LAB_FORGE_ORDER_COMBATANTS" in provider
+         and "rules.setOrderCombatants(true)" in provider)
     gate("S2_permutations", "ws55Permutations" in provider
          and "PERMUTATION_BOUND" in provider)
 

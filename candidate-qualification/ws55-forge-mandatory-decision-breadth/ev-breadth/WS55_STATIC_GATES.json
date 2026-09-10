@@ -1,7 +1,7 @@
 {
   "evidence_class": "CODE_DERIVED",
   "fail_count": 0,
-  "gate_count": 30,
+  "gate_count": 31,
   "gates": {
     "S1_cardinality_guard": {
       "detail": "",
@@ -32,6 +32,10 @@
       "verdict": "PASS"
     },
     "S2_optional_costs": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_order_combatants_config": {
       "detail": "",
       "verdict": "PASS"
     },
