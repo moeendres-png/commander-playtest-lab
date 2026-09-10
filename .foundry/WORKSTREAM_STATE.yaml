@@ -7,27 +7,42 @@ audit_base_tree: 3e73de272899c39963160c1884e5280cfe86276a
 state_written_against_head: dd3be6026515e40f4b18a6121058877f5cab5725
 validated_head: null
 objective: >
-  WS-A1D Docker Pin Authority and Runtime Requalification. Resolve the
-  PIN_DIVERGENCE_DOCKERFILES Authority Gate deferred by WS-A1R: re-pin container
-  build flows to the sole machine-readable authority config/rules_engines.json
-  (xmage 77d7646da6958fdf8125ee7c8f4aabd130d21d4c from
-  https://github.com/moeendres-png/mage.git; forge a37a865a53280dd8ad6fad3384d69611e8c5a42f
-  forge-2.0.14 from https://github.com/Card-Forge/forge.git) and requalify the
-  container runtime path. No provider selection. No Architecture Freeze.
+  WS-A1D Docker Pin Authority and Runtime Requalification under canonical
+  Coordinator contract (XHIGH). Eliminate the executable Docker pin-authority
+  divergence so the supported Docker/Compose engine path resolves CURRENT engine
+  identity from config/rules_engines.json sole authority (xmage 77d7646d from
+  moeendres-png/mage fork; forge a37a865a forge-2.0.14), cannot silently
+  materialize a stale engine or wrong repository, fails closed on missing or
+  inconsistent authority, and exposes verifiable provenance. Phases A-K:
+  consumer audit, historical evidence impact, systemic pin-authority design (no
+  second manually maintained pin file), XMage repository adjudication, protocol
+  drift adjudication (manifest 2.0.0 vs Compose 1.0.0), implementation,
+  regression tests, real Docker materialization where permitted, targeted
+  requalification, documentation. Provider truth preserved (NO_PROVIDER_READY,
+  provider_selected=false, production_provider=null). ARCHITECTURE_FREEZE NOT
+  CLAIMED. RULES_BEHAVIOR_CREDIT_CHANGE = 0 by default.
 in_scope:
-- docker/xmage/Dockerfile re-pin (commit 06d166b098ad36b277edef01116472203d5a047e
-  -> 77d7646da6958fdf8125ee7c8f4aabd130d21d4c) incl. clone-URL adjudication
-  (currently magefree/mage upstream; manifest authority is the moeendres-png/mage fork)
-- docker/forge/Dockerfile re-pin (commit 852066bf4f761b302ed17cb011999d8a8fe08ad6
-  forge-2.0.13 -> a37a865a53280dd8ad6fad3384d69611e8c5a42f forge-2.0.14)
-- adjudicate src/commander_lab/engine/rules/phase85.py installed_or_pinned stale
-  template pins (historical Phase-8.5 output template; disposition decided from
-  evidence, provenance preserved either way)
-- container-adjacent pin pointers in scripts/docker-compose/docs touched only as
-  required to keep the re-pinned build coherent
-- fail-closed consistency tests tying Dockerfiles to config/rules_engines.json
-  (no restated commits in human-readable docs per WS-A1R documentation rule)
-- runtime requalification of the container build/verify path on re-pinned Dockerfiles
+- 'Phase A consumer audit of all pin/protocol/Docker/Compose consumers with
+  CURRENT_AUTHORITY / LIVE_CONSUMER / HISTORICAL_PROVENANCE / GENERATED_OUTPUT /
+  TEST_FIXTURE / STALE_LIVE_POINTER / UNKNOWN classification'
+- 'Phase B historical evidence impact per family (UNAFFECTED /
+  AFFECTED_REQUALIFICATION_REQUIRED / HISTORICAL_ONLY / UNKNOWN)'
+- 'Phase C systemic pin-authority design (manifest-aware resolution; no second
+  manually maintained volatile pin file)'
+- 'Phase D XMage repository adjudication (fork moeendres-png/mage vs upstream
+  magefree/mage; canonical commit existence and fork-content dependence)'
+- 'Phase E protocol drift adjudication (manifest 2.0.0 vs Compose 1.0.0; exactly
+  one truthful disposition: SAME-SCOPE CORRECTION or SEPARATE CONTRACT BLOCKER)'
+- 'Phase F minimum systemic implementation (Dockerfiles, Compose, helper,
+  scripts, docs/engine_setup.md Docker section, bounded evidence artifact)'
+- 'Phase G fail-closed regression tests (canonical resolution, no silent stale
+  win, invalid provider/cross-wire/missing authority fail closed, provenance)'
+- 'Phase H real Docker materialization probe and canonical builds where permitted'
+- 'Phase I targeted requalification (pin/technical-truth, bootstrap, compat,
+  external-engine integration, B3/B4 chain as supported; Forge only on surfaces
+  that exist)'
+- 'Phase J documentation update matching the implemented canonical flow'
+- 'Phase K state/checkpoint maintenance (schema 2.0, no fabricated credit)'
 out_of_scope:
 - provider selection (PRODUCTION_PROVIDER stays NOT SELECTED; provider_decision
   stays NO_PROVIDER_READY until a Freeze workstream decides)
@@ -46,11 +61,17 @@ dependencies:
 - engine upstreams reachable for re-pin verification (moeendres-png/mage @ 77d7646d; Card-Forge/forge @ a37a865a)
 - docs/RETENTION_AND_LIFECYCLE_POLICY.md Appendix G (PIN_DIVERGENCE_DOCKERFILES gate record)
 hard_gates:
-- config/rules_engines.json remains sole pin authority; no new pins invented
-- re-pinned Dockerfiles byte-match manifest commits (and authoritative clone URLs)
-- no weakening of tests, denominators, assertions or expected semantics for green results
-- scoped validation green before handoff; no merge or push by this workstream
-- unsupported production-reachable paths stay fail closed
+- H1 single pin authority (config/rules_engines.json remains current authority)
+- H2 no silent stale fallback (unresolved authority stops the build path)
+- H3 correct repository is part of engine identity (not merely the commit hash)
+- H4 materialization evidence (CODE_DERIVED is not runtime/image verification)
+- H5 historical impact adjudicated per materially relevant evidence family
+- H6 protocol drift adjudicated (no silent 1.0.0 vs 2.0.0 inconsistency)
+- H7 provider truth preserved (NO_PROVIDER_READY, selected=false, provider=null)
+- H8 no Architecture Freeze claim
+- H9 no Rules-credit theater (build/import/readback is not card behavior)
+- H10 fail closed (UNKNOWN/NOT_RUN/PARTIAL never PASS)
+- H11 no second Rules Engine in tooling, tests or orchestration
 forbidden_shortcuts:
 - second hidden Rules Engine in any pilot, adapter, harness or test helper
 - first-option / random-option / default yes-no / silent-skip legality substitutes
@@ -58,7 +79,7 @@ forbidden_shortcuts:
 - weakening assertions or denominators to obtain green results
 - copying SHAs into docs as new pin authority (docs must cite the manifest)
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
-current_reasoning_tier: high
+current_reasoning_tier: xhigh
 current_failure: NONE
 failure_class: NONE
 current_hypothesis: NONE
@@ -69,14 +90,19 @@ tests_run: []
 evidence: []
 artifacts: []
 remaining_scope:
-- re-pin docker/xmage/Dockerfile to manifest commit and fork URL
-- re-pin docker/forge/Dockerfile to manifest commit
-- adjudicate phase85.py stale-pin disposition
-- add fail-closed Dockerfile-vs-manifest consistency tests
-- runtime requalification of container build/verify path
+- Phase A consumer audit
+- Phase B historical evidence impact
+- Phase C systemic pin-authority design
+- Phase D XMage repository adjudication
+- Phase E protocol drift adjudication
+- Phase F implementation
+- Phase G regression tests
+- Phase H Docker materialization
+- Phase I targeted requalification
+- Phase J documentation
 status: ACTIVE
-next_action: Re-pin Dockerfiles to manifest authority, then requalify.
+next_action: Phase A consumer audit across all pin/protocol/Docker surfaces.
 exact_next_action: >
-  Diff both Dockerfiles against config/rules_engines.json pins and
-  clone URLs, verify fork commit 77d7646d and forge commit a37a865a resolvability,
-  then re-pin docker/xmage/Dockerfile and docker/forge/Dockerfile to the manifest.
+  Execute Phase A: inspect every consumer named in the canonical contract,
+  grep all four SHAs plus ENGINE_COMMIT / ENGINE_PROTOCOL_VERSION / Compose and
+  Dockerfile references, classify each material occurrence, and persist the audit.
