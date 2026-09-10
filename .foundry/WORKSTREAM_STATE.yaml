@@ -1,75 +1,82 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/ws-a1r-authority-retention
-branch: architecture/ws-a1r-authority-retention-hygiene-20260910
-audit_base_sha: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
-audit_base_tree: 215611ac8d1ea93353c2fcc4c8d7e06dabb4ca51
-state_written_against_head: 119c6e69d64742a58d4d10030c117949f2050dbc
-validated_head: 119c6e69d64742a58d4d10030c117949f2050dbc
-objective: WS-A1R repository authority, pin, pointer and retention hygiene on the accepted 3-repo pre-freeze topology (non-destructive; no mergers/splits/deletions; no license, protection, or pin changes). COMPLETE — terminal state.
+worktree: /home/moeen/code/ws-a1d-docker-pin-requalification
+branch: architecture/ws-a1d-docker-pin-authority-requalification-20260910
+audit_base_sha: dd3be6026515e40f4b18a6121058877f5cab5725
+audit_base_tree: 3e73de272899c39963160c1884e5280cfe86276a
+state_written_against_head: dd3be6026515e40f4b18a6121058877f5cab5725
+validated_head: null
+objective: >
+  WS-A1D Docker Pin Authority and Runtime Requalification. Resolve the
+  PIN_DIVERGENCE_DOCKERFILES Authority Gate deferred by WS-A1R: re-pin container
+  build flows to the sole machine-readable authority config/rules_engines.json
+  (xmage 77d7646da6958fdf8125ee7c8f4aabd130d21d4c from
+  https://github.com/moeendres-png/mage.git; forge a37a865a53280dd8ad6fad3384d69611e8c5a42f
+  forge-2.0.14 from https://github.com/Card-Forge/forge.git) and requalify the
+  container runtime path. No provider selection. No Architecture Freeze.
 in_scope:
-- integrations/forge/README.md pin-authority repair (reference manifest, drop stale 2.0.13 pin)
-- docs/engine_setup.md pin-table repair (reference manifest, drop stale SHAs)
-- config/rules_engines.json additive authority_note (terminology + documentation rule + stale-pointer record; no key touched)
-- docs/RETENTION_AND_LIFECYCLE_POLICY.md (canonical lifecycle states, fail-closed deletion eligibility, Appendix G gates)
-- docs/EVIDENCE_INDEX_REQUIREMENTS.md (minimum index fields + template; no re-indexing ordered)
-- docs/FORK_AGENT_POINTER_SPEC.md (fork pointer design + WS-A1R-F1/F2 follow-up specs; no fork edits)
-- tests/unit/test_ws_a1r_pin_authority.py (fail-closed doc/manifest consistency tests)
-- Coordinator retention/reachability review remediation (SHA-is-identity-not-storage; durable retention anchors; no-timer MERGED adjudication)
-- tests/unit/test_ws_a1r_retention_semantics.py (6 tests incl. negative control vs defective text)
+- docker/xmage/Dockerfile re-pin (commit 06d166b098ad36b277edef01116472203d5a047e
+  -> 77d7646da6958fdf8125ee7c8f4aabd130d21d4c) incl. clone-URL adjudication
+  (currently magefree/mage upstream; manifest authority is the moeendres-png/mage fork)
+- docker/forge/Dockerfile re-pin (commit 852066bf4f761b302ed17cb011999d8a8fe08ad6
+  forge-2.0.13 -> a37a865a53280dd8ad6fad3384d69611e8c5a42f forge-2.0.14)
+- adjudicate src/commander_lab/engine/rules/phase85.py installed_or_pinned stale
+  template pins (historical Phase-8.5 output template; disposition decided from
+  evidence, provenance preserved either way)
+- container-adjacent pin pointers in scripts/docker-compose/docs touched only as
+  required to keep the re-pinned build coherent
+- fail-closed consistency tests tying Dockerfiles to config/rules_engines.json
+  (no restated commits in human-readable docs per WS-A1R documentation rule)
+- runtime requalification of the container build/verify path on re-pinned Dockerfiles
 out_of_scope:
-- branch/PR deletion or closure; evidence deletion or migration; history rewrite; force push; rebase
+- provider selection (PRODUCTION_PROVIDER stays NOT SELECTED; provider_decision
+  stays NO_PROVIDER_READY until a Freeze workstream decides)
+- Architecture Freeze claims or Production Repository creation
+- inventing new engine pins or bumping beyond manifest authority (manifest wins)
 - license selection or LICENSE creation (LICENSE_DECISION = AUTHORITY_GATE)
 - branch-protection/ruleset mutation (BRANCH_PROTECTION = AUTHORITY_GATE)
-- engine re-pinning incl. Dockerfile defaults (PIN_DIVERGENCE_DOCKERFILES = AUTHORITY_GATE)
-- schema renames of primary_engine/secondary_engine (DEFERRED; terminology clarified in docs)
-- fork repository edits (WS-A1R-F1/F2 follow-ups)
-- provider selection, Architecture Freeze, Production Repository, qualification campaigns
-ownership: WS-A1R session (branch architecture/ws-a1r-authority-retention-hygiene-20260910)
+- history rewrite, rebase, force push, merge, push (no remote writes by this workstream)
+- branch/worktree deletion or evidence deletion/migration
+- fork repository edits (engine upstreams are read-only inputs)
+- carrying WS-A1R validation credit, completion state or ownership into WS-A1D
+ownership: WS-A1D session (branch architecture/ws-a1d-docker-pin-authority-requalification-20260910)
 dependencies:
-- origin/main at d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68 (no drift; verified by ls-remote)
-- ARCH-PORTFOLIO-AUDIT-01 findings (output/ in audit workspace; comparison evidence only)
-- PR #176 OPEN against main, head 119c6e69d64742a58d4d10030c117949f2050dbc at terminalization (merge adjudication external)
+- origin/main at dd3be6026515e40f4b18a6121058877f5cab5725 (WS-A1R merge; no drift at bootstrap)
+- config/rules_engines.json as sole machine-readable pin authority (WS-A1R additive authority_note)
+- engine upstreams reachable for re-pin verification (moeendres-png/mage @ 77d7646d; Card-Forge/forge @ a37a865a)
+- docs/RETENTION_AND_LIFECYCLE_POLICY.md Appendix G (PIN_DIVERGENCE_DOCKERFILES gate record)
 hard_gates:
-- no destructive action; no license decision; no protection mutation; no pin change
-- manifest edit strictly additive (existing keys byte-identical)
-- terminology clarified in docs only; runtime contracts untouched
-- validation green before handoff; no merge by this workstream
+- config/rules_engines.json remains sole pin authority; no new pins invented
+- re-pinned Dockerfiles byte-match manifest commits (and authoritative clone URLs)
+- no weakening of tests, denominators, assertions or expected semantics for green results
+- scoped validation green before handoff; no merge or push by this workstream
+- unsupported production-reachable paths stay fail closed
 forbidden_shortcuts:
-- second hidden Rules Engine; fabricated evidence; green-theater tests
-- closing PRs or deleting branches as drive-by cleanup
-- copying SHAs into docs as new pin authority
-validated_gates:
-- 'original scope validation: 63 passed (pin-authority, bootstrap, compatibility, technical-truth, workflow-identity, foundry-state suites)'
-- 'remediation validation: 69 passed (63 + 6 retention-semantics tests)'
-- 'negative control: defective pre-fix policy text fails the new assertions (4/4)'
-- 'state schema validation: STATE_OK via tools/foundry/state.py'
-tests_run:
-- tests/unit/test_ws_a1r_pin_authority.py
-- tests/unit/test_ws_a1r_retention_semantics.py
-- tests/unit/test_phase85_bootstrap_files.py
-- tests/unit/test_xmage_compatibility_provider.py
-- tests/unit/test_technical_truth.py
-- tests/unit/test_workflow_identity.py
-- tests/foundry/test_foundry_tools.py
-evidence:
-- 'commits 3c6668bc (pin authority) + 1d350a2d (policy/docs) + 119c6e69 (reachability remediation), all local-then-pushed, no rewrites'
-- 'state-only terminal checkpoint follows (touches .foundry/WORKSTREAM_STATE.yaml only; carries no substantive validation credit)'
-artifacts: []
-remaining_scope: []
+- second hidden Rules Engine in any pilot, adapter, harness or test helper
+- first-option / random-option / default yes-no / silent-skip legality substitutes
+- fabricated legal actions, manual outcome injection, direct sa.resolve() substitutes
+- weakening assertions or denominators to obtain green results
+- copying SHAs into docs as new pin authority (docs must cite the manifest)
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
 current_failure: NONE
 failure_class: NONE
 current_hypothesis: NONE
 first_failing_boundary: NONE
 root_cause_class: NONE
-technical_decisions:
-- 'Resolved Coordinator review defect (retention/reachability SHA-as-storage fallacy) as repository/evidence-policy semantics; closed within WS-A1R, workstream left in no failing state.'
-authority_gates:
-- 'LICENSE_DECISION = AUTHORITY_GATE (human/legal; factual input in Retention Policy Appendix G)'
-- 'BRANCH_PROTECTION = AUTHORITY_GATE (human governance workstream)'
-- 'DESTRUCTIVE_CLEANUP = AUTHORITY_GATE (Coordinator + human per wave)'
-- 'PIN_DIVERGENCE_DOCKERFILES = AUTHORITY_GATE (dedicated re-pin + requalification workstream)'
-- 'SCHEMA_RENAME_primary_secondary = DEFERRED (Freeze-adjacent; terminology clarified in docs)'
-status: COMPLETE
-next_action: 'Terminal: Coordinator re-reviews PR #176 final state-only checkpoint and CI for merge adjudication.'
-exact_next_action: Coordinator independently reviews the final PR #176 head and CI for merge adjudication. Do not merge PR #176 from WS-A1R.
+validated_gates: []
+tests_run: []
+evidence: []
+artifacts: []
+remaining_scope:
+- re-pin docker/xmage/Dockerfile to manifest commit and fork URL
+- re-pin docker/forge/Dockerfile to manifest commit
+- adjudicate phase85.py stale-pin disposition
+- add fail-closed Dockerfile-vs-manifest consistency tests
+- runtime requalification of container build/verify path
+status: ACTIVE
+next_action: Re-pin Dockerfiles to manifest authority, then requalify.
+exact_next_action: >
+  Diff both Dockerfiles against config/rules_engines.json pins and
+  clone URLs, verify fork commit 77d7646d and forge commit a37a865a resolvability,
+  then re-pin docker/xmage/Dockerfile and docker/forge/Dockerfile to the manifest.
