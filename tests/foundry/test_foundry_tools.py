@@ -170,6 +170,26 @@ def test_artifact_index_hashes(tmp_path: Path) -> None:
 def _valid_state() -> dict:
     sha = "a" * 40
     return {
+        "schema_version": "2.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "worktree": "/tmp/wt",
+        "branch": "project/x",
+        "audit_base_sha": sha,
+        "audit_base_tree": sha,
+        "state_written_against_head": sha,
+        "validated_head": None,
+        "objective": "do the thing",
+        "in_scope": ["a"],
+        "out_of_scope": ["b"],
+        "ownership": "tester",
+        "status": "ACTIVE",
+        "exact_next_action": "next",
+    }
+
+
+def _legacy_v1_state() -> dict:
+    sha = "a" * 40
+    return {
         "schema_version": "1.0",
         "repository": "moeendres-png/commander-playtest-lab",
         "worktree": "/tmp/wt",
@@ -186,6 +206,17 @@ def _valid_state() -> dict:
     }
 
 
+def test_state_schema_v1_remains_parseable_and_migrates() -> None:
+    legacy = _legacy_v1_state()
+    assert state_mod.validate(legacy) == []
+    migrated = state_mod.migrate(legacy)
+    assert migrated["schema_version"] == "2.0"
+    assert migrated["state_written_against_head"] == "a" * 40
+    assert migrated["validated_head"] is None
+    assert "current_head" not in migrated
+    assert state_mod.validate(migrated) == []
+
+
 def test_state_schema_accepts_valid() -> None:
     assert state_mod.validate(_valid_state()) == []
 
@@ -193,10 +224,10 @@ def test_state_schema_accepts_valid() -> None:
 def test_state_schema_rejects_bad_status_and_sha() -> None:
     bad = _valid_state()
     bad["status"] = "DONE"
-    bad["current_head"] = "xyz"
+    bad["state_written_against_head"] = "xyz"
     errors = state_mod.validate(bad)
     assert any("status" in e for e in errors)
-    assert any("current_head" in e for e in errors)
+    assert any("state_written_against_head" in e for e in errors)
 
 
 def test_state_schema_rejects_missing_and_bad_class() -> None:
@@ -443,6 +474,92 @@ def test_battery_full_probe_set_runs() -> None:
     }
 
 
+def test_safe_auto_deny_set_pinned() -> None:
+    """Every SAFE_AUTO threat-model deny shape must stay deny in opencode.json.
+
+    Guards against silent ask-downgrades. Live resolution is proven separately
+    by the adversarial battery against `opencode debug agent` output.
+    """
+    config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    bash = config["permission"]["bash"]
+    for pattern in (
+        "git push*",
+        "git merge*",
+        "git rebase*",
+        "git reset --hard*",
+        "git clean*",
+        "git branch -D*",
+        "git branch -d*",
+        "git worktree add*",
+        "git worktree remove*",
+        "git worktree move*",
+        "git checkout main",
+        "git checkout master",
+        "git checkout -b*",
+        "git switch main",
+        "git switch master",
+        "git switch -c*",
+        "git update-ref*",
+        "git symbolic-ref*",
+        "git filter-branch*",
+        "git filter-repo*",
+        "git tag -d*",
+        "git tag -f*",
+        "git stash drop*",
+        "git stash clear*",
+        "git -C*",
+        "/usr/bin/git*",
+        "/bin/git*",
+        "command *",
+        "sh -c*",
+        "bash -c*",
+        "sudo*",
+        "su *",
+        "env",
+        "env *",
+        "printenv*",
+        "rm -rf*",
+        "rm -fr*",
+        "gh auth*",
+        "gh repo create*",
+        "gh repo delete*",
+        "gh repo fork*",
+        "gh api -X POST*",
+        "gh api -X PUT*",
+        "gh api -X PATCH*",
+        "gh api -X DELETE*",
+        "gh api --method POST*",
+        "gh api --method PUT*",
+        "gh api --method PATCH*",
+        "gh api --method DELETE*",
+        "*| sh",
+        "*| sh *",
+        "*|sh",
+        "*|sh *",
+        "*| bash",
+        "*| bash *",
+        "*|bash",
+        "*|bash *",
+    ):
+        assert bash.get(pattern) == "deny", pattern
+    # Routine engineering must still proceed unattended.
+    for pattern in (
+        "git status*",
+        "git diff*",
+        "git log*",
+        "pytest*",
+        "python*",
+        "ruff*",
+        "git add*",
+        "git commit*",
+    ):
+        assert bash.get(pattern) == "allow", pattern
+    ext = config["permission"]["external_directory"]
+    assert ext["/home/moeen/code/ws50-forge-decision-sequence-slice*"] == "deny"
+    assert ext["/home/moeen/code/q6-capability-curation-20260910*"] == "deny"
+    assert ext["/tmp/*"] == "allow"
+
+
 def test_inventory_marks_clean_true_and_strips_refs(repo: Path) -> None:
     entries = worktree_inventory.inventory(str(repo))
     assert len(entries) == 1
@@ -517,12 +634,12 @@ def test_state_head_mismatch_warns(repo: Path, tmp_path: Path) -> None:
 
     head = _git(["rev-parse", "HEAD"], repo)
     state = _valid_state()
-    state["current_head"] = head
+    state["state_written_against_head"] = head
     state_path = tmp_path / "STATE.yaml"
     state_path.write_text(_yaml.safe_dump(state), encoding="utf-8")
     assert state_mod.check_head_mismatch(str(state_path), str(repo)) == []
     bad = dict(state)
-    bad["current_head"] = "0" * 40
+    bad["state_written_against_head"] = "0" * 40
     state_path.write_text(_yaml.safe_dump(bad), encoding="utf-8")
     warnings = state_mod.check_head_mismatch(str(state_path), str(repo))
     assert any("HEAD_MISMATCH" in w for w in warnings)
@@ -565,3 +682,26 @@ def test_governance_propagation_contract_exists() -> None:
         "Do not use one governance checkout to write across independent worktrees",
     ):
         assert required.lower() in text.lower()
+
+
+def test_skill_library_conformance() -> None:
+    skills = REPO_ROOT / ".opencode" / "skills"
+    names = sorted(p.name for p in skills.iterdir() if p.is_dir())
+    assert names == [
+        "component-change-review",
+        "continuation",
+        "evidence-seal",
+        "failure-classification",
+        "rules-authority-escalation",
+        "test-impact",
+        "workstream-bootstrap",
+    ]
+    for name in names:
+        text = (skills / name / "SKILL.md").read_text(encoding="utf-8")
+        front = yaml.safe_load(text.split("---")[1])
+        assert front["name"] == name
+        assert front["description"].strip()
+    escalation = (skills / "rules-authority-escalation" / "SKILL.md").read_text(encoding="utf-8")
+    for required in ("AUTHORITY_GATE", "UNKNOWN", "Sol High"):
+        assert required in escalation
+    assert "second hidden rules engine" not in escalation.lower()

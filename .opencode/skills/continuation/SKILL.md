@@ -29,3 +29,7 @@ Use this after session loss, compaction, or handoff to resume the active workstr
 - Compaction summaries are never authoritative. The durable source is Git plus the
   state file plus sealed evidence.
 - Do not restart validated phases without a concrete invalidation reason.
+- State identity (schema 2.0): `audit_base_sha` is the immutable source lock;
+  `validated_head` is the newest commit with actual validation evidence (`null`
+  means none beyond the base — never assume); `state_written_against_head` is
+  descriptive only. Live `HEAD` (via `state.py --workdir`) wins over all three.

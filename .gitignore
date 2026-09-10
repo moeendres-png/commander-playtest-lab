@@ -25,6 +25,9 @@ release/
 # Ephemeral local runtime state
 .runtime/
 
+# Foundry launcher telemetry spool (sealed into evidence/docs, never committed raw)
+.foundry/metrics.jsonl
+
 # Generated Phase-10 demo evidence
 artifacts/phase10/*.json
 artifacts/engine_setup/logs/.*.process-state.json.*
