@@ -48,11 +48,19 @@ decisions:
   NATURAL_GAME_START only).
 - 2026-09-10: WS48 R1f test + evidence retained (WS50 absence is a pre-Repair-01 fork
   artifact, not a semantic delta to port).
+- 2026-09-10 (Milestone C): WS53 chained-overlay Java helper/logic bodies kept byte-identical
+  to WS50 PASS-proven artifact (fidelity over renaming); ownership carried by WS53 file,
+  messages, doubled-add-absence assertion, and Repair-01-guard prereqs.
+- 2026-09-10 (Milestone C): JVM LANG_DIR exported from dedicated Forge checkout
+  /tmp/ws53-forge-src (read-only consumption); card-data bootstrap otherwise unchanged.
+  First witness run without it failed environment-only (0 frames); rerun PASS.
+- 2026-09-10 (C1): static gate PASS + mutate-check PASS + pytest 14/14 + runtime non-first
+  ACT witness PASS (d15 o8 MINTED-22 rank 8/8 hostId=22, byte-comparable to R1f canonical).
 milestones:
   A_source_lock_inventory: COMPLETED
   B_xhigh_adjudication: COMPLETED_VERDICT_PASS_WITH_BINDING_CORRECTIONS
-  C_converged_implementation: PENDING
-  D_selection_decision_regression: PENDING
+  C_converged_implementation: COMPLETED
+  D_selection_decision_regression: IN_PROGRESS
   E_native_progression: PENDING
   F_block4_witness: PENDING
   G_impact_terminal: PENDING
