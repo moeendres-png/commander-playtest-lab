@@ -331,12 +331,12 @@ def answer_trigger_order_n(drv: Any, actor: str, opts: list[dict[str, Any]],
             if len(want) != 2:
                 continue
             seq = [lb.get("first", "").lower(), lb.get("second", "").lower()]
-            seq_hids = [lb.get("hidfirst", "").lower(), lb.get("hidsecond", "").lower()]
+            seq_hids = [lb.get("hidfirst", ""), lb.get("hidsecond", "")]
             if _ws55_seq_match(want, seq, seq_hids):
                 hits.append(i)
             continue
         seq = [lb.get(f"m{k}", "").lower() for k in range(len(want))]
-        seq_hids = [lb.get(f"h{k}", "").lower() for k in range(len(want))]
+        seq_hids = [lb.get(f"h{k}", "") for k in range(len(want))]
         if _ws55_seq_match(want, seq, seq_hids):
             # mK holds the K-th element of this permutation's sequence, so a
             # matched label is the witness for exactly the scripted sequence
