@@ -1,0 +1,83 @@
+{
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "forbidden_absent": [
+  "injected resolved outcomes",
+  "injected pending decisions",
+  "restore at/after decision-bearing steps",
+  "prepopulated attackers/blockers",
+  "manual damage maps",
+  "manual trigger firing"
+ ],
+ "rule": "WS51/WS53 lifecycle rule: construct/restore only before the decision boundary; Forge enters every decision-bearing lifecycle itself; no restore at/after decision-bearing steps.",
+ "schema": "ws55.setup-boundary-matrix.v1",
+ "witnesses": {
+  "WS53_C_FINAL(replay requal)": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WBLACK_YES": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WCMD_NO": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WCMD_YES": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WCOMBAT_EVID_A": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WCOMBAT_EVID_B": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WCOPY_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WCOPY_NO": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WDASH_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WFB_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WMODES_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WORDER_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WRED_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WSEARCH_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WTRIG_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WTWINS_EVID": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  },
+  "WS55_WX_BOUNDS": {
+   "construction": "canonical or declared card-list decks via native CardStorageReader/CardDb prints; RegisteredPlayer.forCommander; real shuffle/startup/mulligans; zero state load, zero devModeSet, zero mirror on credited paths.",
+   "setup": "NATURAL_GAME_START"
+  }
+ }
+}

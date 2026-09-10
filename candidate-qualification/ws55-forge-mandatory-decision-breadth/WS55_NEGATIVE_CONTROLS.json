@@ -1,0 +1,71 @@
+{
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "forbidden_absent": [
+  "first-match choice",
+  "closest match",
+  "default yes/no",
+  "fallback pass",
+  "silent skip"
+ ],
+ "harness_fail_closed_zero_multi": [
+  {
+   "artifact": "ev-breadth/WS55_WTWINS_EVID.json (diagnostic pass)",
+   "case": "trigger twins identical-text 2-match",
+   "result": "BLOCKED_AT:trigger_order (2 matches)"
+  },
+  {
+   "artifact": "ev-breadth/WS55_WFB_EVID.json (diagnostic pass)",
+   "case": "Fireball P2 absent from offered set (0-match)",
+   "result": "BLOCKED_AT:target (0 matches)"
+  },
+  {
+   "artifact": "ev-breadth/WS55_WCOMBAT_EVID_A.json (diagnostic pass)",
+   "case": "unscripted declare (P3 T11 classmates)",
+   "result": "BLOCKED_AT:declare_attacker (HARNESS_FAIL_CLOSED journal)"
+  },
+  {
+   "artifact": "ev-breadth/WS55_WTRIG_DIAG.json (diagnostic pass)",
+   "case": "unscripted confirm (Priest may)",
+   "result": "BLOCKED_AT:confirm"
+  }
+ ],
+ "kind_family_binding": "each broker kind answered only by its own family (enforced in ws55_answer + KIND_FAMILIES); no cross-family fallback; no structural pass of discretionary frames.",
+ "provider_fail_closed": [
+  {
+   "artifact": "ev-breadth/WS55_NEG_BADOPT.json",
+   "expect": "WS23_OPTION_NOT_OFFERED",
+   "got": "WS23_OPTION_NOT_OFFERED",
+   "probe": "bad-option@priority",
+   "verdict": "PASS"
+  },
+  {
+   "artifact": "ev-breadth/WS55_NEG_BADOPT_AX.json",
+   "expect": "WS23_OPTION_NOT_OFFERED",
+   "got": "WS23_OPTION_NOT_OFFERED",
+   "probe": "bad-option@announce_x",
+   "verdict": "PASS"
+  },
+  {
+   "artifact": "ev-breadth/WS55_NEG_STALE.json",
+   "expect": "WS23_STALE_OR_WRONG_DECISION_ID",
+   "got": "WS23_STALE_OR_WRONG_DECISION_ID",
+   "probe": "stale duplicate submit",
+   "verdict": "PASS"
+  },
+  {
+   "artifact": "ev-breadth/WS55_NEG_RANGED_OOB.json",
+   "expect": "WS55_RANGED_VALUE_OUT_OF_RANGE",
+   "got": "WS55_RANGED_VALUE_OUT_OF_RANGE",
+   "probe": "ranged out-of-range value",
+   "verdict": "PASS"
+  },
+  {
+   "artifact": "ev-breadth/WS55_NEG_REPLAY.json",
+   "expect": "FAIL detection",
+   "got": "FAIL (1 div)",
+   "probe": "replay-mismatch comparator",
+   "verdict": "PASS"
+  }
+ ],
+ "schema": "ws55.negative-controls.v1"
+}

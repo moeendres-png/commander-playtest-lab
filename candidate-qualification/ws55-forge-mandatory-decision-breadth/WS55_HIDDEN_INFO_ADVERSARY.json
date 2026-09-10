@@ -1,0 +1,92 @@
+{
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "mechanism": "per-frame principal-scoped adversary (own-hand completeness incl. names; non-owner hands carry zero identities; libraries counts-only; face-down anonymity; cross-principal leak check; UNAVAILABLE/null-snapshot frames flagged) + sentinel-name audit.",
+ "planted_controls": [
+  {
+   "control": "searched Forest-11 identity",
+   "expect": "visible to P1 frame + P1 views; absent from P2/P3/P4 views",
+   "got": "0 leaks across 299 frames",
+   "verdict": "PASS"
+  },
+  {
+   "control": "library identities generally",
+   "expect": "counts-only in all non-owner views",
+   "got": "0 violations all journals",
+   "verdict": "PASS"
+  }
+ ],
+ "projection_note": "DECISION_FRAME option labels necessarily carry hidden identities to the ENTITLED actor (search fetchList); non-entitled actors receive separate frames/observations; journals are harness-internal (all-pilot local-client model), never a principal-facing projection.",
+ "results": [
+  {
+   "journal": "WS55_WCOMBAT_EVID_A/B",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WRED_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WFB_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WX_BOUNDS",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WTRIG_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WTWINS_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WSEARCH_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WBLACK_YES",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WCOPY_EVID/NO",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WMODES_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WCMD_YES/NO",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WORDER_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS55_WDASH_EVID",
+   "verdict": "PASS",
+   "violations": []
+  },
+  {
+   "journal": "WS53_C_FINAL replay",
+   "verdict": "PASS",
+   "violations": []
+  }
+ ],
+ "schema": "ws55.hidden-info-adversary.v1"
+}

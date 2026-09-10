@@ -1,0 +1,76 @@
+{
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "families": {
+  "alt-cost choice": {
+   "binding": "engine alternative-cost SA variants (getAlternativeCosts); exact SA binding; costs paid natively.",
+   "journal": "Dash variants offered side-by-side (normal + Dash SA); o4/o2 non-first dash picks; divergent mana; EOT return observed."
+  },
+  "announce_x (ranged)": {
+   "binding": "engine [min,max] verbatim; value validated natively (parse + range); OOB/missing/malformed fail closed.",
+   "journal": "Serpent descriptor min=0/max=MAX_INT value=0 (bounds); Fireball value=1 -> 1 damage/life 39 (interior)."
+  },
+  "combatDamage (Core view)": {
+   "binding": "Core (source,recipient,min..max) tuples enumerated; exact CombatDamageSelection; validator-owned; no provider arithmetic.",
+   "journal": "Free-assign (Bear,1)o2 + (Bear,1)o1; legacy (Bear,2)o1; staged graves/life verified."
+  },
+  "commander-move": {
+   "binding": "confirmAction ChangeZoneToAltDestination; native moveTo on YES.",
+   "journal": "903.9a SBA confirm YES->command zone / NO->graveyard; no default."
+  },
+  "confirm/may": {
+   "binding": "engine-identified subject + YES/NO (or PAY/DECLINE); both responses selectable; no defaults.",
+   "journal": "Priest confirmTrigger NO o1; copy-replacement YES/NO both; commander YES/NO both; life-PAY confirm surface (unwitnessed path)."
+  },
+  "copy": {
+   "binding": "engine copyable set; exact entity binding; copy semantics engine-side.",
+   "journal": "Copy-replacement YES then chooseSingleEntity o1 (85 over 95); decline path dies natively."
+  },
+  "cost_exile/life": {
+   "binding": "(unwitnessed) native candidate list; exact card binding; cancel aborts iff non-mandatory; canPayLife gate; Human latch mirrored.",
+   "journal": "IMPLEMENTED + static-gated; runtime NOT_REACHED (FoW pitch blocked upstream at spell-target candidacy raw=0)."
+  },
+  "declare_attackers/blockers": {
+   "binding": "CombatUtil legality both axes; per-subject frames; SKIP explicit; attackers/blockers_declared native events.",
+   "journal": "WS53 10/10; W-combat Bear-8->P3 o1 + double-block exact; W-ordering destroy line."
+  },
+  "mana": {
+   "binding": "native mana abilities enumerated (isManaAbility, activatingPlayer set natively); selected ability played natively; payManaFromAbility + restrictions gate native.",
+   "journal": "W-combat f155 (2 opts), f228 (3 opts incl. Elves ability), f229 o1 non-first; all breadth runs."
+  },
+  "modes": {
+   "binding": "single: exact AbilitySub; multi: sequential remaining-modes + DONE discipline, min/num/allowRepeat bounds, mutable ArrayList return.",
+   "journal": "Piracy single o1; Cryptic multi o1/o1 sequential (TapAll, Draw) + native resolutions; Counter pruned by engine."
+  },
+  "order_combat": {
+   "binding": "exact permutation over engine CardCollection (same objects); n<=5 bound; 0/1 auto-mirror; engine applies order natively.",
+   "journal": "W-combat-B order [208,298] o1 non-first; legacy lethal-first damage (Bear,2) o1."
+  },
+  "priority/cast/activate (ACT)": {
+   "binding": "opaque idx -> nativeOptions[idx-1] with cardinality + range guards + priority_binding hostId record; engine-accepted post-observation.",
+   "journal": "WS53 R1f rerun (d15 o8 MINTED-22 rank 8/8 hostId=22; engine moved 22 hand->battlefield); W-combat Forest-25 idx4, Elves-298 idx2, Forest-276 idx3; W-black regen ACT o3/6; W-dash dash-variants o4/o2."
+  },
+  "replacement order": {
+   "binding": "(unwitnessed) exact ReplacementEffect binding over engine list; engine reevaluates subsequently.",
+   "journal": "NOT_REACHED at runtime (engine never called chooseSingleReplacementEffect across 3 shapes; audit milestone absent)."
+  },
+  "targets": {
+   "binding": "canTarget-filtered native candidates; DONE iff >= minTargets; exact GameEntity binding; no provider legality.",
+   "journal": "Bolt P3 o2/4; Fireball P4 o2 + DONE; Piracy singleton-target; Murder singleton; Judith-trigger P3 o2; TravelPrep 27 + DONE."
+  },
+  "trigger_order": {
+   "binding": "exact SpellAbility permutation (multiset-validated); orderAndPlay guards (NON_NATIVE_TRIGGER, Forge-reject); n<=5 bound.",
+   "journal": "Distinct o1 (Priest,Warden) with observable resolution order; twins [3,8] o1 hid-exact (P1 43)."
+  },
+  "zone-change (search/hidden)": {
+   "binding": "engine fetchList + NONE/DONE discipline; exact Card binding; DelayedReveal native.",
+   "journal": "Rampant 79-option fetchList; MINTED-11 o2 to battlefield; native shuffle; 0 leaks."
+  },
+  "zone-move order": {
+   "binding": "sequential insertion over engine list; exact positional binding of same objects.",
+   "journal": "RIP ETB 6 insertion frames (227:0, 276:1, 266:0 / 370:0, 314:1, 346:0); exile zones verified."
+  }
+ },
+ "grants_behavior_credit": false,
+ "invariant": "selected external option -> exactly one current authoritative native binding -> exactly that native option executed; non-first selections throughout; zero/multi/stale fail closed.",
+ "schema": "ws55.native-binding-matrix.v1"
+}

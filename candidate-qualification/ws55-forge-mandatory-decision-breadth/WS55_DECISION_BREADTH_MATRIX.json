@@ -1,0 +1,289 @@
+{
+ "FIRST_WAVE_REQUIRED_DECISION_KINDS": 22,
+ "baseline_investigated": {
+  "ACTIVATE": {
+   "note": "proven via regen ACT (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "ADDITIONAL_COST": {
+   "note": "chooseOptionalCosts implemented (J1), runtime NOT_REACHED; kicker-class costs untested.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "ALTERNATE_COST": {
+   "note": "kind proven via dash; pitch-payment mirrors implemented, runtime NOT_REACHED.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "ATTACKERS": {
+   "note": "proven.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "BLOCKERS": {
+   "note": "proven.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "CARD_NAME": {
+   "note": "fail-closed stub retained (correct).",
+   "production_significance": "FUTURE_COVERAGE"
+  },
+  "CAST": {
+   "note": "proven (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "COLOR": {
+   "note": "surface present (chooseColor), runtime NOT_REACHED.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "COMBAT_DAMAGE_ASSIGNMENT": {
+   "note": "proven via Core views.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "COMMANDER_MOVEMENT": {
+   "note": "proven YES/NO (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "CONCESSION": {
+   "note": "initiated-not-offered (see matrix).",
+   "production_significance": "NONBLOCKING_FOR_CURRENT_GATE"
+  },
+  "COPY_CHOICES": {
+   "note": "proven (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "CREATURE_TYPE": {
+   "note": "no surface, fail-closed (correct).",
+   "production_significance": "FUTURE_COVERAGE"
+  },
+  "DEFENDER_PER_ATTACKER": {
+   "note": "proven.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "DISCARD": {
+   "note": "transport proven (WS53 + all breadth runs, exact per-card binding). Opponent-hand SELECTION (chooseCardsToDiscardFrom) fail-closed: baseline gap.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "DIVIDE_DISTRIBUTE": {
+   "note": "chooseAmountDistribution present (ws40 Core views), runtime NOT_REACHED; raw divideShield stays fail-closed (correct).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "HIDDEN_ZONE_SELECTION": {
+   "note": "proven for search/fetchList; opponent-hand picks share the sacrifice/discard-selection gap.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "MANA_PAYMENT": {
+   "note": "proven (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "MANA_SOURCE": {
+   "note": "proven, same surface as payment.",
+   "production_significance": "NONBLOCKING_FOR_CURRENT_GATE"
+  },
+  "MAY": {
+   "note": "proven (confirmTrigger + copy-replacement + regen-activation).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "MODES": {
+   "note": "proven single+multi (see matrix). DONE discipline implemented, exercised only where offered.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "NUMBER": {
+   "note": "covered by X/announce surfaces.",
+   "production_significance": "NONBLOCKING_FOR_CURRENT_GATE"
+  },
+  "OPTIONAL_REPLACEMENT": {
+   "note": "confirmReplacementEffect proven (copy YES/NO); confirmTrigger proven (Priest NO).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "OPTIONAL_TARGETS": {
+   "note": "DONE discipline proven (Fireball/TravelPrep); min-targets engine-owned.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "ORDERING": {
+   "note": "combat ordering proven (config); zone-move ordering proven (6/6 insertion).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "PASS": {
+   "note": "proven (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "PILES": {
+   "note": "chooseCardsPile fail-closed (correct).",
+   "production_significance": "FUTURE_COVERAGE"
+  },
+  "PRIORITY": {
+   "note": "pass proven (decline axis); full action breadth proven via ACT casts/activations.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "REPLACEMENT_ORDERING": {
+   "note": "engine-unoffered (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "REVEAL": {
+   "note": "informational; DelayedReveal honored natively.",
+   "production_significance": "NONBLOCKING_FOR_CURRENT_GATE"
+  },
+  "SACRIFICE": {
+   "note": "choosePermanentsToSacrifice fail-closed: blocking baseline gap (fetches/altars).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "SCRY": {
+   "note": "arrangeForScry present (n<=4 bound), runtime NOT_REACHED.",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "SEARCH": {
+   "note": "proven (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "SECRET_CHOICE": {
+   "note": "no surface, fail-closed (correct).",
+   "production_significance": "FUTURE_COVERAGE"
+  },
+  "SURVEIL": {
+   "note": "no overlay surface, fail-closed (correct).",
+   "production_significance": "FUTURE_COVERAGE"
+  },
+  "TARGETS": {
+   "note": "proven (see matrix) incl. DONE discipline; stack-spell subpath engine-blocked (raw=0).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "TRIGGER_ORDERING": {
+   "note": "proven (see matrix).",
+   "production_significance": "COMMANDER_BASELINE_BLOCKING"
+  },
+  "VOTING": {
+   "note": "vote fail-closed (correct).",
+   "production_significance": "FUTURE_COVERAGE"
+  },
+  "X": {
+   "note": "proven (see matrix).",
+   "production_significance": "NONBLOCKING_FOR_CURRENT_GATE"
+  }
+ },
+ "denominators": {
+  "PROJECT_CRITICAL_BASELINE_INVESTIGATED": 39,
+  "baseline_by_significance": {
+   "COMMANDER_BASELINE_BLOCKING": 28,
+   "FUTURE_COVERAGE": 6,
+   "NONBLOCKING_FOR_CURRENT_GATE": 5
+  },
+  "blocking_gap_kinds": 1,
+  "first_wave_required": 22,
+  "nonblocking_future_gaps": "see baseline section",
+  "proven_native_externalizable": 20,
+  "unknown": 0
+ },
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "grants_behavior_credit": false,
+ "rows": {
+  "Commander movement": {
+   "evidence": "903.9a SBA confirm YES/NO both selectable (command zone vs graveyard); no provider default; 903.9b flag path verified single-choice (no second offer).",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "X": {
+   "evidence": "Ranged descriptor min=0/max=MAX_INT verbatim; value=1 -> 1 damage/life 39 (Fireball); value=0 bounds (Serpent); OOB/missing/malformed fail closed; CostAddMana engine-computed.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "activate": {
+   "evidence": "WS55_WBLACK_YES f477: regen ACT o3/6 non-first; mana paid; shield applied natively (95 lives/196 dies).",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "alternate cost": {
+   "evidence": "KIND proven via dash: both SA variants engine-offered side-by-side; dash o4/o2 non-first; divergent mana paid; EOT return observed. SUBGAP: FoW-pitch end-to-end blocked (spell-target raw=0 first; J12 CostExile/CostPayLife mirrors implemented+gated, runtime NOT_REACHED behind target gap).",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "attackers": {
+   "evidence": "WS53 10/10 + W-combat o1 non-first defender (P3); SKIP discipline; native attackers_declared events.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "blockers": {
+   "evidence": "WS53 nontrivial blocks + W-combat double-block exact bindings; SKIP; blockers_declared events; tapped-blocker absence is engine legality.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "cast": {
+   "evidence": "WS53_C_FINAL 440f + R1f o8 non-first + all breadth runs; priority ACT exact binding (Repair-01); native stack consequences throughout.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "combat damage assignment": {
+   "evidence": "Core CombatDamageDecisionView enumeration only (no provider arithmetic); non-first splits both paths (free-assign 1+1; legacy Bear-2); staged outcomes verified (graves/life); validator-owned.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "concession": {
+   "evidence": "Never engine-offered (no abstract PlayerController method; Human.concede is externally initiated). No option set exists to externalize; no concede option injected (would fabricate offered choice). G04 NOT_READY (non-offered + AG-1 authority gate).",
+   "production_significance": "NONBLOCKING_FOR_CURRENT_GATE",
+   "support_classification": "ENGINE_DECISION_NOT_EXTERNALLY_REACHABLE"
+  },
+  "copy choices": {
+   "evidence": "Copy-replacement YES/NO both selectable (decline dies natively); chooseSingleEntityForEffect o1 non-first (85 over 95); exact binding; native copy on battlefield.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "defender per attacker": {
+   "evidence": "Per-attacker defender options in declareAttackers; o1 non-first (P3 over P2); CombatUtil legality both axes.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "hidden-zone selection": {
+   "evidence": "Same zone-change surface as search; entitled frame carries hidden identities; per-frame adversary 0 violations; library counts-only for non-entitled; planted-name audit 0 leaks.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "mana payment": {
+   "evidence": "payManaCost native + applyManaToCost external choice + payManaFromAbility + restrictions gate; multi-mana sequences; no external solver.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "mana source": {
+   "evidence": "MANA labels src-projected; competing sources; non-first o1 (W-combat f229); creature mana abilities enumerated (Elves).",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "may": {
+   "evidence": "confirmTrigger NO o1 non-first (Priest); copy-replacement YES/NO both; regen-activation discretion; no defaults.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "modes": {
+   "evidence": "Single o1 (Piracy); multi sequential o1/o1 (Cryptic TapAll+Draw) with exact AbilitySub binding + native resolutions; Counter pruned by engine (offered set authoritative). DONE discipline implemented (unexercised: min==num shapes close without DONE). AG-2 Rules caveat noted.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "ordering": {
+   "evidence": "orderBlockers 2-perm offer + o1 non-first + exact positional binding + legacy lethal-first damage (orderCombatants=1). CONDITION: engine offers ordering only with GameRules orderCombatants=true (fixture config, journaled); default-false path engine-skips (audited, 0 order frames). orderBlocker-insertion/orderAttackers implemented, NOT_REACHED at runtime.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "pass": {
+   "evidence": "WS53 412 structural passes + all breadth runs; PASS distinct from action; consecutive passes progress natively; replay 0-div.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "replacement ordering": {
+   "evidence": "Seam EXISTS (chooseSingleReplacementEffect multi + audit milestone, static-gated). Engine never called it across 3 shapes (Serpent ETB, TravelPrep counters, regen-vs-RIP destroy): audit milestone absent over 1300+ frames. Root: counter events yield zero applicable replacements (E1); regen-destroy uses dedicated path bypassing generic ordering (E2). A04 NOT_READY.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "ENGINE_DECISION_NOT_EXTERNALLY_REACHABLE"
+  },
+  "search": {
+   "evidence": "79-option engine fetchList; MINTED-11 o2 non-first to battlefield; native shuffle; 0 leaks.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "targets": {
+   "evidence": "Bolt o2/4; Fireball o2 + DONE; Piracy singleton-target; Murder singleton; Judith-trigger o2; TravelPrep + DONE. SUBGAP: stack-spell candidacy engine raw=0 (FoW, audited milestone) -> C01 blocked.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  },
+  "trigger ordering": {
+   "evidence": "Exactly-2 legacy path (B01 shape) + identical-twins hid-exact order [3,8] o1 non-first (P1 43) + distinct-pair order with observable resolution sequence; N>2 generalized (bound, NOT_REACHED); orderAndPlay guards intact.",
+   "production_significance": "FIRST_WAVE_BLOCKING",
+   "support_classification": "PROVEN_NATIVE_EXTERNALIZABLE"
+  }
+ },
+ "schema": "ws55.decision-breadth-matrix.v1"
+}

@@ -1,15 +1,17 @@
 audit_base_sha: 9493bb562efb9bcb7e14bf652b564f74b3f3b600
 audit_base_tree: 077769865f2224304c2365d85020de57e637cd20
 branch: ws55/forge-mandatory-decision-breadth-20260910
-exact_next_action: 'Checkpoint B: persist WS55_DECISION_TAXONOMY.json static inventory, then dispatch XHIGH adjudication (Checkpoint C).'
+exact_next_action: 'Coordinator: confirm RQ-C2/Sol readiness; rule on AG-1/2/3; set
+  orderCombatants execution config; disposition A04/C01/G04; commission first-wave
+  execution separately. (See WS55_FINAL_REPORT.md section 31.)'
 in_scope:
 - Derive FIRST_WAVE_REQUIRED_DECISION_KINDS (22) from RQ-C1 lock (done, triple-agree).
-- Static inventory of WS53 converged provider vocabulary vs 22 kinds (in progress).
-- XHIGH gap adjudication per decision kind.
-- Systemic provider remediation for provider-remediable first-wave blockers.
-- Runtime competing-option witnesses + negative controls + hidden-info/combat gates.
-- Targeted WS53 impact requalification.
-- Final readiness matrix + report. No behavior credit, no Full107, no first-wave execution.
+- Static inventory of WS53 converged provider vocabulary vs 22 kinds (done).
+- XHIGH gap adjudication per decision kind (done; 1 correction applied).
+- Systemic provider remediation for provider-remediable first-wave blockers (done J1-J13).
+- Runtime competing-option witnesses + negative controls + hidden-info/combat gates (done).
+- Targeted WS53 impact requalification (done).
+- Final readiness matrix + report (done).
 objective: WS55-FORGE-MANDATORY-DECISION-BREADTH - qualify that the terminal WS53
   Forge provider/native-progression architecture externalizes the complete mandatory
   discretionary Decision breadth for the RQ-C1 first wave with authoritative Forge
@@ -25,7 +27,8 @@ out_of_scope:
 ownership: WS55-FORGE-MANDATORY-DECISION-BREADTH
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-status: ACTIVE
+status: COMPLETE
+terminal_verdict: FORGE_MANDATORY_DECISION_BREADTH_PARTIAL
 validated_head: null
 worktree: /home/moeen/code/ws55-forge-mandatory-decision-breadth
 checkpoints:
@@ -36,15 +39,53 @@ checkpoints:
     - WS55_FIRST_WAVE_DECISION_REQUIREMENTS.json (N=22, triple-agree)
     - ws55_derive_first_wave.py
   B_static_inventory:
-    status: IN_PROGRESS
+    status: DONE
+    evidence:
+    - WS55_DECISION_TAXONOMY.json
+    - WS55_PROVIDER_CHANGES.md
   C_xhigh_adjudication:
-    status: PENDING
+    status: DONE
+    evidence:
+    - WS55_XHIGH_ADJUDICATION.json (10 verdicts, 3 AG items, 1 correction C-1)
   D_blocking_remediation:
-    status: PENDING
+    status: DONE
+    evidence:
+    - ws55_provider_overlay.py (J1-J13)
+    - ws55_build_breadth.sh (WS55-BREADTH-BUILD-OK)
+    - ev-breadth/WS55_STATIC_GATES.json (32/32)
   E_remaining_surfaces:
-    status: PENDING
+    status: DONE
+    evidence:
+    - 16 evidence journals TRANSCRIPT_COMPLETE + 9 replays 0-div
+    - WS55_DECISION_BREADTH_MATRIX.json (20/22 proven)
+    - WS55_NATIVE_BINDING_MATRIX.json
   F_hidden_combat_negative:
-    status: PENDING
+    status: DONE
+    evidence:
+    - WS55_HIDDEN_INFO_ADVERSARY.json (PASS all)
+    - WS55_NEGATIVE_CONTROLS.json (5 provider PASS + harness blocks)
+    - WS55_SETUP_BOUNDARY_MATRIX.json (all NATURAL_GAME_START)
   G_impact_readiness:
-    status: PENDING
-technical_decisions: []
+    status: DONE
+    evidence:
+    - WS55_WS53_IMPACT_LEDGER.json (6/7/0/0)
+    - WS55_FIRST_WAVE_READINESS.json (11/1/3)
+    - WS55_FINAL_REPORT.md (PARTIAL)
+technical_decisions:
+- T1_combat_damage_correction: adjudicator Q1 assumed ws25 base; code reality is
+  ws40 base with Core-view chooseCombatDamage already present. Corrected; only
+  runtime witnessing remained.
+- T2_ranged_integers: engine offers X over [min, MAX_INT]; conformant by-value
+  submit with native range validation (no enumeration, no solver).
+- T3_order_combatants_config: GameRules flag exposed as journaled fixture config;
+  E02 readiness conditional on Coordinator confirmation.
+- T4_no_concede_injection: concession has no offered set; injecting a concede
+  option would fabricate offered choices. Recorded non-offered.
+- T5_cost_mirrors_bounded: CostExile single-zone + CostPayLife confirm mirror
+  Human branches exactly; constrained shapes stay fail-closed.
+- T6_no_provider_filtering: engine-listed unviable ACTs passed through (offer
+  authority); harness scripts viable options; resolutions asserted.
+- T7_sequential_zone_order: insertion frames scale to any n without factorial
+  blowup; exact positional binding.
+- T8_submission_value_plumbing: WS55-owned scenario loop copy (WS53 precedent)
+  for NUMRANGE by-value SUBMIT + value-aware identities.

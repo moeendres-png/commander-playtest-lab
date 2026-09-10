@@ -1,0 +1,77 @@
+{
+ "provider_delta": "WS55 chained overlay (J1-J13) + deck/config env + runner extensions; no WS48/WS53/shared file modified; state layer untouched (digest b6b0870f unchanged).",
+ "schema": "ws55.ws53-impact-ledger.v1",
+ "totals": {
+  "INVALIDATED": 0,
+  "NO_IMPACT": 6,
+  "TARGETED_REQUALIFICATION_REQUIRED": 7,
+  "UNKNOWN": 0
+ },
+ "units": [
+  {
+   "basis": "WS55 static gates S1 (single-add, cardinality/range guards, binding record, mutate-relevant anchors) PASS 32/32.",
+   "gate": "Repair-01 selection integrity (C1 static)",
+   "verdict": "NO_IMPACT"
+  },
+  {
+   "basis": "Rerun on WS55 provider: WS55_R1F_WITNESS.json PASS (non-first ACT, exact hostId, engine-accepted). Satisfied fresh.",
+   "gate": "Repair-01 runtime witness (C1)",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  {
+   "basis": "WS53-C replay on WS55 provider: WS55_WS53C_REPLAY.json PASS 0 divergences (440 frames incl. observations/RNG/events). Satisfied fresh.",
+   "gate": "WS50 decision-sequence carry-forward (C2)",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  {
+   "basis": "No change to declare/phase/combat-entry paths; WS53-C replay reproduces engine-entered declares identically; restore allowlist untouched.",
+   "gate": "Native progression + BLOCK-4 witness",
+   "verdict": "NO_IMPACT"
+  },
+  {
+   "basis": "Observation/state capture code changed ONLY in new chooseRanged path (absent from WS53 trajectories); WS53-C replay observation fingerprints 0-div; fresh per-frame adversary on all WS55 journals PASS. Satisfied fresh.",
+   "gate": "Hidden information (C4)",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  {
+   "basis": "WS53 negatives target unchanged paths; WS55 adds new negatives (all PASS) without altering old tripwires.",
+   "gate": "Negative controls (C3)",
+   "verdict": "NO_IMPACT"
+  },
+  {
+   "basis": "Comparator reused verbatim; WS55 replays (9 journals) all PASS 0-div; mismatch detection re-proven (WS55_NEG_REPLAY).",
+   "gate": "Replay comparator",
+   "verdict": "NO_IMPACT"
+  },
+  {
+   "basis": "hidfirst/hidsecond segments ADDED to ORDER labels (offered_identities change on trigger frames). No WS53 evidence covers trigger frames (WS53-C has none) -> nothing invalidated; new labels proven in W-triggers/twins. Satisfied fresh.",
+   "gate": "Trigger_order size-2 labels",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  {
+   "basis": "Audit milestone added (J13, additive NATIVE_EVENT only). WS53-C replay 0-div post-change (replay ran on final provider). Satisfied fresh.",
+   "gate": "chooseTargetsFor loop",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  {
+   "basis": "Entry audit milestone added (additive). No WS53 trajectory reaches it. Satisfied fresh (static + audit absence).",
+   "gate": "chooseSingleReplacementEffect",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  {
+   "basis": "CostPayLife confirm branch + CostExile mirror + mandatory box ADDED; CostTap/AddMana/mandatory-life paths byte-identical. WS53 trajectories contain no pay-life/exile costs (free Rograkh + lands) -> behavior preserved; proven by WS53-C replay 0-div. New branches gated static + awaiting runtime (NOT_REACHED).",
+   "gate": "Cost decision makers",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  {
+   "basis": "Exactly-2 path byte-identical; N-path additive behind size guard. No WS53 trajectory reaches it.",
+   "gate": "orderSimultaneousSa >2",
+   "verdict": "NO_IMPACT"
+  },
+  {
+   "basis": "Purely additive new methods/branches/env reads; default paths (env absent, single-mode, auto-costs) byte-identical behaviorally; WS53-C replay 0-div.",
+   "gate": "Multi-mode/orderBlockers/orderCosts/optional-costs/deck/config",
+   "verdict": "NO_IMPACT"
+  }
+ ]
+}

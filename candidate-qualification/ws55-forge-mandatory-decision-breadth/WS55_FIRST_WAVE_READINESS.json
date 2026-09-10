@@ -1,0 +1,127 @@
+{
+ "FORGE_RQC1_FIRST_WAVE_DECISION_SEAM_READY": "NO",
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "grants_behavior_credit": false,
+ "rows": {
+  "RQ-C1-A03": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/targets/mana/activate/mana-source/may(via regen activation)/pass all proven (W-red/W-black/W-combat)."
+  },
+  "RQ-C1-A04": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_NOT_READY",
+   "remaining_blocking_kinds": [
+    "replacement ordering"
+   ],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/X/mana/pass proven; replacement order engine-unoffered (audited)."
+  },
+  "RQ-C1-B01": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/mana/pass proven; trigger ordering proven EXACT shape (identical-twins hid-exact [3,8], P1 43)."
+  },
+  "RQ-C1-C01": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_NOT_READY",
+   "remaining_blocking_kinds": [
+    "targets (spell-stack subpath)",
+    "alternate cost (pitch payment)"
+   ],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/mana/pass proven; alt-cost CHOICE proven via dash; FoW pitch blocked: spell-stack candidacy raw=0 (audited) with J12 cost mirrors behind it."
+  },
+  "RQ-C1-C03": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/X (ranged interior + damage)/targets(players)/mana/pass proven (W-Fireball)."
+  },
+  "RQ-C1-D06": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/modes(multi sequential o1/o1)/targets/mana/pass proven (W-modes). AG-2 subset-pruning is Rules, not seam."
+  },
+  "RQ-C1-E01": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "attackers/defender/mana/pass proven; setup PRE_STEP_NATIVE_PROGRESSION compatible (natural combat entry)."
+  },
+  "RQ-C1-E02": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY_CONDITIONAL",
+   "remaining_blocking_kinds": [
+    "ordering (requires orderCombatants=1)"
+   ],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "attackers/defender/blockers/combat-damage proven; ordering proven ONLY with GameRules orderCombatants=true (fixture config, journaled). Default-false path engine-skips ordering (audited). AG-3 outcome-uniqueness is Rules, not seam."
+  },
+  "RQ-C1-F01": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/mana/search/hidden-zone/pass proven (79-option fetchList, shuffle, 0 leaks)."
+  },
+  "RQ-C1-G02": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/targets/mana/Commander-movement(YES/NO)/pass proven (W-commander)."
+  },
+  "RQ-C1-G03": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "attackers/defender/blockers/pass proven; setup PRE_DECISION_CONSTRUCTION compatible (no restore used; natural boards)."
+  },
+  "RQ-C1-G04": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_NOT_READY",
+   "remaining_blocking_kinds": [
+    "concession"
+   ],
+   "rules_authority": "AUTHORITY_GATE_REQUIRED (AG-1; RQ-C2).",
+   "seam_basis": "pass proven; concession never engine-offered (no seam exists); scenario AUTHORITY_GATE_REQUIRED (AG-1)."
+  },
+  "RQ-C1-H01": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/copy-choices/mana/pass proven (W-copy YES/NO + o1)."
+  },
+  "RQ-C1-I01": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2).",
+   "seam_basis": "cast/targets/mana/pass proven."
+  },
+  "RQ-C1-J02": {
+   "candidate_behavior_verdict": "NOT_RUN (never started here)",
+   "decision_seam": "DECISION_SEAM_READY",
+   "remaining_blocking_kinds": [],
+   "rules_authority": "RULES_AUTHORITY_PENDING (RQ-C2; RNG separately).",
+   "seam_basis": "attackers/defender/targets(battlefield)/pass proven. CAVEAT (out of seam scope): d20 roll/roll-again path and Rules-RNG authority belong to RQ-C2/RNG work; Delina targets battlefield (unaffected by stack-target gap)."
+  }
+ },
+ "schema": "ws55.first-wave-readiness.v1",
+ "totals": {
+  "not_ready": 3,
+  "ready": 11,
+  "ready_conditional": 1
+ }
+}

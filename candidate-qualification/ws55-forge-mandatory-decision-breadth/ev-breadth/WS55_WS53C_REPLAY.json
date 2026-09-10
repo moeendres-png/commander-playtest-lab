@@ -28753,10 +28753,10 @@
     }
   ],
   "scenario_id": "WS53-C-NATIVE:REPLAY",
-  "schema_version": "commander-lab.ws53-decision-sequence/1.0.0",
+  "schema_version": "commander-lab.ws55-decision-breadth/1.0.0",
   "script_remaining": [],
   "seed": 424242,
-  "seed_binding": "ws53-forge-convergence-native-progression",
+  "seed_binding": "ws55-forge-mandatory-decision-breadth",
   "session_created_snapshot": {
     "phase": "null",
     "player_count": 4,
@@ -28835,7 +28835,7 @@
     ],
     "turn": "13"
   },
-  "stderr_tail": "Language 'en-US' loaded successfully.\n(ThreadUtil first call): Running with priority 5\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nRead cards: 839 files in 0 ms (8 parts) using thread pool\nforge.game.player.Ws23ForgeVerticalProvider$ControlledStop: WS48_UNSUPPORTED_DISCRETIONARY_DECISION:priority\n\tat forge.game.player.Ws23ForgeVerticalProvider$Broker.choose(Ws23ForgeVerticalProvider.java:313)\n\tat forge.game.player.Ws23ForgeVerticalProvider$Broker.choosePriority(Ws23ForgeVerticalProvider.java:394)\n\tat forge.game.player.Ws23ForgeVerticalProvider$Ws23Controller.chooseSpellAbilityToPlay(Ws23ForgeVerticalProvider.java:1297)\n\tat forge.game.phase.PhaseHandler.mainLoopStep(PhaseHandler.java:1056)\n\tat forge.game.phase.PhaseHandler.mainGameLoop(PhaseHandler.java:1035)\n\tat forge.game.phase.PhaseHandler.startFirstTurn(PhaseHandler.java:1029)\n\tat forge.game.GameAction.startGame(GameAction.java:2373)\n\tat forge.game.Match.startGame(Match.java:92)\n\tat forge.game.Match.startGame(Match.java:77)\n\tat forge.game.player.Ws23ForgeVerticalProvider.runSession(Ws23ForgeVerticalProvider.java:2157)\n\tat forge.game.player.Ws23ForgeVerticalProvider.main(Ws23ForgeVerticalProvider.java:2213)\n\tat forge.game.player.Ws23ForgeBootstrap.main(Ws23ForgeBootstrap.java:125)\n",
+  "stderr_tail": "Language 'en-US' loaded successfully.\n(ThreadUtil first call): Running with priority 5\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nRead cards: 839 files in 0 ms (8 parts) using thread pool\nforge.game.player.Ws23ForgeVerticalProvider$ControlledStop: WS48_UNSUPPORTED_DISCRETIONARY_DECISION:priority\n\tat forge.game.player.Ws23ForgeVerticalProvider$Broker.choose(Ws23ForgeVerticalProvider.java:313)\n\tat forge.game.player.Ws23ForgeVerticalProvider$Broker.choosePriority(Ws23ForgeVerticalProvider.java:456)\n\tat forge.game.player.Ws23ForgeVerticalProvider$Ws23Controller.chooseSpellAbilityToPlay(Ws23ForgeVerticalProvider.java:1406)\n\tat forge.game.phase.PhaseHandler.mainLoopStep(PhaseHandler.java:1056)\n\tat forge.game.phase.PhaseHandler.mainGameLoop(PhaseHandler.java:1035)\n\tat forge.game.phase.PhaseHandler.startFirstTurn(PhaseHandler.java:1029)\n\tat forge.game.GameAction.startGame(GameAction.java:2373)\n\tat forge.game.Match.startGame(Match.java:92)\n\tat forge.game.Match.startGame(Match.java:77)\n\tat forge.game.player.Ws23ForgeVerticalProvider.runSession(Ws23ForgeVerticalProvider.java:2344)\n\tat forge.game.player.Ws23ForgeVerticalProvider.main(Ws23ForgeVerticalProvider.java:2400)\n\tat forge.game.player.Ws23ForgeBootstrap.main(Ws23ForgeBootstrap.java:125)\n",
   "stop_reason": "WS48_UNSUPPORTED_DISCRETIONARY_DECISION:priority",
   "structural_passes": 413,
   "terminal_class": "HARNESS_BOUNDED_CLOSE",
