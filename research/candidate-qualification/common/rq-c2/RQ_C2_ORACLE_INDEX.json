@@ -1,0 +1,809 @@
+{
+ "baseline": "CR effective 2026-08-07; Oracle retrieved 2026-09-10 (see RQ_C2_AUTHORITY_BASELINE.md)",
+ "cards": {
+  "Altar's Reap": {
+   "mana_cost": "{1}{B}",
+   "official_page": null,
+   "oracle_id": "6a125750-2b8c-4f9d-8173-ac8d14c91ddb",
+   "oracle_text": "As an additional cost to cast this spell, sacrifice a creature.\nDraw two cards.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-C02",
+    "RQ-C1-I03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Blood Artist": {
+   "mana_cost": "{1}{B}",
+   "official_page": null,
+   "oracle_id": "310f141c-7f37-4729-aed6-dd9c09db448d",
+   "oracle_text": "Whenever this creature or another creature dies, target player loses 1 life and you gain 1 life.",
+   "power": "0",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Vampire",
+   "used_in": [
+    "RQ-C1-B04",
+    "RQ-C1-I03",
+    "RQ-C1-K01",
+    "RQ-C1-K02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Braids, Arisen Nightmare": {
+   "mana_cost": "{1}{B}{B}",
+   "official_page": "https://gatherer.wizards.com/EOC/en-us/82/braids-arisen-nightmare",
+   "oracle_id": "e0445c80-fa53-4c3e-881e-940e9fce7f57",
+   "oracle_text": "At the beginning of your end step, you may sacrifice an artifact, creature, enchantment, land, or planeswalker. If you do, each opponent may sacrifice a permanent of their choice that shares a card type with it. For each opponent who doesn't, that player loses 2 life and you draw a card.",
+   "power": "3",
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": "rqc2_gatherer_rulings.json (1, 2022-09-09)",
+   "toughness": "3",
+   "type_line": "Legendary Creature \u2014 Nightmare",
+   "used_in": [
+    "RQ-C1-G05"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Carnage Tyrant": {
+   "mana_cost": "{4}{G}{G}",
+   "official_page": null,
+   "oracle_id": "8c411f4e-a091-447c-9450-d895b10b4985",
+   "oracle_text": "This spell can't be countered.\nTrample, hexproof",
+   "power": "7",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "6",
+   "type_line": "Creature \u2014 Dinosaur",
+   "used_in": [
+    "RQ-C1-E02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Casualties of War": {
+   "mana_cost": "{2}{B}{B}{G}{G}",
+   "official_page": null,
+   "oracle_id": "5c6c8fe7-3520-423b-a224-1c0af516871a",
+   "oracle_text": "Choose one or more \u2014\n\u2022 Destroy target artifact.\n\u2022 Destroy target creature.\n\u2022 Destroy target enchantment.\n\u2022 Destroy target land.\n\u2022 Destroy target planeswalker.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-D06"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Clone": {
+   "mana_cost": "{3}{U}",
+   "official_page": null,
+   "oracle_id": "42226b87-0746-4ebf-9fd0-108d508462af",
+   "oracle_text": "You may have this creature enter as a copy of any creature on the battlefield.",
+   "power": "0",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "0",
+   "type_line": "Creature \u2014 Shapeshifter",
+   "used_in": [
+    "RQ-C1-H01",
+    "RQ-C1-K02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Control Magic": {
+   "mana_cost": "{2}{U}{U}",
+   "official_page": null,
+   "oracle_id": "cd0d7141-46d2-4aa3-bc77-6b3b4513803e",
+   "oracle_text": "Enchant creature\nYou control enchanted creature.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Enchantment \u2014 Aura",
+   "used_in": [
+    "RQ-C1-G04"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Council's Judgment": {
+   "mana_cost": "{1}{W}{W}",
+   "official_page": "https://gatherer.wizards.com/OTC/en-us/79/councils-judgment",
+   "oracle_id": "acf4d685-a718-42f7-9a7a-dee069ae8db2",
+   "oracle_text": "Will of the council \u2014 Starting with you, each player votes for a nonland permanent you don't control. Exile each permanent with the most votes or tied for most votes.",
+   "power": null,
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": "rqc2_gatherer_rulings.json (6, 2020-08-07)",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-G01"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Cryptic Command": {
+   "mana_cost": "{1}{U}{U}{U}",
+   "official_page": null,
+   "oracle_id": "a3e51a35-09df-4189-b131-08a21e6a557d",
+   "oracle_text": "Choose two \u2014\n\u2022 Counter target spell.\n\u2022 Return target permanent to its owner's hand.\n\u2022 Tap all creatures your opponents control.\n\u2022 Draw a card.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-D01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Cultivate": {
+   "mana_cost": "{2}{G}",
+   "official_page": "https://gatherer.wizards.com/M21/en-us/177/cultivate",
+   "oracle_id": "8b755881-a72d-4e21-a369-d2924eb4585a",
+   "oracle_text": "Search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle.",
+   "power": null,
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": [
+    {
+     "date": "2010-08-15",
+     "text": "If you choose to find only one basic land card, you put it onto the battlefield tapped."
+    }
+   ],
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-C04"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Deadly Recluse": {
+   "mana_cost": "{1}{G}",
+   "official_page": null,
+   "oracle_id": "6b941291-1802-4ced-9869-39fa43825550",
+   "oracle_text": "Reach (This creature can block creatures with flying.)\nDeathtouch (Any amount of damage this deals to a creature is enough to destroy it.)",
+   "power": "1",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "2",
+   "type_line": "Creature \u2014 Spider",
+   "used_in": [
+    "RQ-C1-E03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Delina, Wild Mage": {
+   "mana_cost": "{3}{R}",
+   "official_page": "https://gatherer.wizards.com/AFR/en-us/138/delina-wild-mage",
+   "oracle_id": "8d57dadb-c689-4691-b331-aba15daf46ff",
+   "oracle_text": "Whenever Delina attacks, choose target creature you control, then roll a d20.\n1\u201414 | Create a tapped and attacking token that's a copy of that creature, except it's not legendary and it has \"At end of combat, exile this token.\"\n15\u201420 | Create one of those tokens. You may roll again.",
+   "power": "3",
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": "rqc2_gatherer_rulings.json (3, 2021-07-23)",
+   "toughness": "2",
+   "type_line": "Legendary Creature \u2014 Elf Shaman",
+   "used_in": [
+    "RQ-C1-J02"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Doom Blade": {
+   "mana_cost": "{1}{B}",
+   "official_page": null,
+   "oracle_id": "59e7f2ae-4535-4191-98be-3e65b6b2befa",
+   "oracle_text": "Destroy target nonblack creature.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-A01",
+    "RQ-C1-B04",
+    "RQ-C1-D04"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Doomed Traveler": {
+   "mana_cost": "{W}",
+   "official_page": null,
+   "oracle_id": "a30907c0-fbde-4fd3-a8c7-f304305fcea7",
+   "oracle_text": "When this creature dies, create a 1/1 white Spirit creature token with flying.",
+   "power": "1",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Human Soldier",
+   "used_in": [
+    "RQ-C1-I03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Doubling Season": {
+   "mana_cost": "{4}{G}",
+   "official_page": "https://gatherer.wizards.com/FDN/en-us/216/doubling-season",
+   "oracle_id": "01546b7d-a233-4176-8843-d732074dc5b6",
+   "oracle_text": "If an effect would create one or more tokens under your control, it creates twice that many of those tokens instead.\nIf an effect would put one or more counters on a permanent you control, it puts twice that many of those counters on that permanent instead.",
+   "power": null,
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": "rqc2_gatherer_rulings.json (5 distinct, 2024-11-08)",
+   "toughness": null,
+   "type_line": "Enchantment",
+   "used_in": [
+    "RQ-C1-A04"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Drudge Skeletons": {
+   "mana_cost": "{1}{B}",
+   "official_page": null,
+   "oracle_id": "c180ed02-07f4-4538-9bea-8c249234a8e2",
+   "oracle_text": "{B}: Regenerate this creature. (The next time this creature would be destroyed this turn, instead tap it, remove it from combat, and heal all damage on it.)",
+   "power": "1",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Skeleton",
+   "used_in": [
+    "RQ-C1-A03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Duress": {
+   "mana_cost": "{B}",
+   "official_page": null,
+   "oracle_id": "33d405ea-7a9a-4970-b70f-9c05d90dd6f0",
+   "oracle_text": "Target opponent reveals their hand. You choose a noncreature, nonland card from it. That player discards that card.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-F02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Felidar Sovereign": {
+   "mana_cost": "{4}{W}{W}",
+   "official_page": null,
+   "oracle_id": "5ae3cbb9-9f0c-4077-ae7c-fba660d7fb4b",
+   "oracle_text": "Vigilance (Attacking doesn't cause this creature to tap.)\nLifelink (Damage dealt by this creature also causes you to gain that much life.)\nAt the beginning of your upkeep, if you have 40 or more life, you win the game.",
+   "power": "4",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "6",
+   "type_line": "Creature \u2014 Cat Beast",
+   "used_in": [
+    "RQ-C1-B03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Fierce Guardianship": {
+   "mana_cost": "{2}{U}",
+   "official_page": null,
+   "oracle_id": "d09c9cba-fdd2-479b-ad5d-d05181c3e3f9",
+   "oracle_text": "If you control a commander, you may cast this spell without paying its mana cost.\nCounter target noncreature spell.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-C04"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Fireball": {
+   "mana_cost": "{X}{R}",
+   "official_page": null,
+   "oracle_id": "aa7714b0-2bfb-458a-8ebf-37ec2c53383e",
+   "oracle_text": "This spell costs {1} more to cast for each target beyond the first.\nFireball deals X damage divided evenly, rounded down, among any number of targets.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-C03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Flickerwisp": {
+   "mana_cost": "{1}{W}{W}",
+   "official_page": null,
+   "oracle_id": "b23a3d30-6b8e-4aad-890f-db0c3af43ace",
+   "oracle_text": "Flying\nWhen this creature enters, exile another target permanent. Return that card to the battlefield under its owner's control at the beginning of the next end step.",
+   "power": "3",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Elemental",
+   "used_in": [
+    "RQ-C1-B02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Fog": {
+   "mana_cost": "{G}",
+   "official_page": null,
+   "oracle_id": "27e9db49-7af7-4bef-ad4c-bf5dfb92030d",
+   "oracle_text": "Prevent all combat damage that would be dealt this turn.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-A02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Force of Will": {
+   "mana_cost": "{3}{U}{U}",
+   "official_page": null,
+   "oracle_id": "956381ba-6d37-4a8a-846c-bad79222dbee",
+   "oracle_text": "You may pay 1 life and exile a blue card from your hand rather than pay this spell's mana cost.\nCounter target spell.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-C01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Ghalta, Stampede Tyrant": {
+   "mana_cost": "{5}{G}{G}{G}",
+   "official_page": null,
+   "oracle_id": "b8f16311-be5a-4648-b024-849a61dff0bc",
+   "oracle_text": "Trample\nWhen Ghalta enters, put any number of creature cards from your hand onto the battlefield.",
+   "power": "12",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "12",
+   "type_line": "Legendary Creature \u2014 Elder Dinosaur",
+   "used_in": [
+    "RQ-C1-G02",
+    "RQ-C1-G03",
+    "RQ-C1-K02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Giant Growth": {
+   "mana_cost": "{G}",
+   "official_page": null,
+   "oracle_id": "5748ebf1-24e3-499d-ab7c-c2cebd462a24",
+   "oracle_text": "Target creature gets +3/+3 until end of turn.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-D03",
+    "RQ-C1-H02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Hardened Scales": {
+   "mana_cost": "{G}",
+   "official_page": null,
+   "oracle_id": "a1f3da21-af6d-450e-bf0b-985d158418e6",
+   "oracle_text": "If one or more +1/+1 counters would be put on a creature you control, that many plus one +1/+1 counters are put on it instead.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Enchantment",
+   "used_in": [
+    "RQ-C1-A04"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Humility": {
+   "mana_cost": "{2}{W}{W}",
+   "official_page": "https://gatherer.wizards.com/TPR/en-us/16/humility",
+   "oracle_id": "ed7bdb3e-5c51-4547-9266-76a791e0b2b0",
+   "oracle_text": "All creatures lose all abilities and have base power and toughness 1/1.",
+   "power": null,
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": "rqc2_gatherer_rulings.json (3, 2006/2007/2009)",
+   "toughness": null,
+   "type_line": "Enchantment",
+   "used_in": [
+    "RQ-C1-H01"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Hymn to Tourach": {
+   "mana_cost": "{B}{B}",
+   "official_page": null,
+   "oracle_id": "992d9a72-d34d-47d7-96fb-37f0efb515ef",
+   "oracle_text": "Target player discards two cards at random.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-J03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Kokusho, the Evening Star": {
+   "mana_cost": "{4}{B}{B}",
+   "official_page": "https://gatherer.wizards.com/IMA/en-us/95/kokusho-the-evening-star",
+   "oracle_id": "cf631c93-b7fb-4e4f-b405-3778c15b1117",
+   "oracle_text": "Flying\nWhen Kokusho dies, each opponent loses 5 life. You gain life equal to the life lost this way.",
+   "power": "5",
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": [],
+   "toughness": "5",
+   "type_line": "Legendary Creature \u2014 Dragon Spirit",
+   "used_in": [
+    "RQ-C1-B04"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Lightning Bolt": {
+   "mana_cost": "{R}",
+   "official_page": null,
+   "oracle_id": "4457ed35-7c10-48c8-9776-456485fdf070",
+   "oracle_text": "Lightning Bolt deals 3 damage to any target.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-A03",
+    "RQ-C1-B03",
+    "RQ-C1-D02",
+    "RQ-C1-D03",
+    "RQ-C1-F03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Llanowar Elves": {
+   "mana_cost": "{G}",
+   "official_page": null,
+   "oracle_id": "68954295-54e3-4303-a6bc-fc4547a4e3a3",
+   "oracle_text": "{T}: Add {G}.",
+   "power": "1",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Elf Druid",
+   "used_in": [
+    "RQ-C1-B01",
+    "RQ-C1-C01",
+    "RQ-C1-D01",
+    "RQ-C1-E02",
+    "RQ-C1-F03",
+    "RQ-C1-G01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Mana Crypt": {
+   "mana_cost": "{0}",
+   "official_page": "https://gatherer.wizards.com/2XM/en-us/270/mana-crypt",
+   "oracle_id": "2c63e4e1-89d2-4bc6-a232-94e75c4b1c8a",
+   "oracle_text": "At the beginning of your upkeep, flip a coin. If you lose the flip, this artifact deals 3 damage to you.\n{T}: Add {C}{C}.",
+   "power": null,
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": "rqc2_gatherer_rulings.json (1, 2020-08-07)",
+   "toughness": null,
+   "type_line": "Artifact",
+   "used_in": [
+    "RQ-C1-J01"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Momentary Blink": {
+   "mana_cost": "{1}{W}",
+   "official_page": null,
+   "oracle_id": "a3ec6b5d-08ec-4ae0-b1db-c4b87a1849c7",
+   "oracle_text": "Exile target creature you control, then return it to the battlefield under its owner's control.\nFlashback {3}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-I01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Murder": {
+   "mana_cost": "{1}{B}{B}",
+   "official_page": "https://gatherer.wizards.com/ANB/en-us/53/murder",
+   "oracle_id": "938b4e2c-88d9-4637-bc00-e228920c9a78",
+   "oracle_text": "Destroy target creature.",
+   "power": null,
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": [],
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-G02"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Ornithopter": {
+   "mana_cost": "{0}",
+   "note": "D06 battlefield fixture \"(0/2 artifact creature)\" confirmed: Artifact Creature - Thopter, Flying, 0/2, {0}. Flying and {0} cost are immaterial to D06 (artifact-mode target).",
+   "official_page": "https://gatherer.wizards.com/M11/en-us/211/ornithopter",
+   "oracle_id": "a3a98bc9-caa0-49b7-951c-fe4e4f54e4ba",
+   "oracle_text": "Flying",
+   "power": "0",
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": [],
+   "toughness": "2",
+   "type_line": "Artifact Creature \u2014 Thopter",
+   "used_in": [
+    "RQ-C1-D06 battlefield fixture (not in actual_cards)"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Pacifism": {
+   "mana_cost": "{1}{W}",
+   "official_page": null,
+   "oracle_id": "5f5e0b10-c8cf-450c-bfd3-bcb0528ec330",
+   "oracle_text": "Enchant creature\nEnchanted creature can't attack or block.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Enchantment \u2014 Aura",
+   "used_in": [
+    "RQ-C1-I01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Phantasmal Image": {
+   "mana_cost": "{1}{U}",
+   "official_page": null,
+   "oracle_id": "bde94af8-faea-41ff-8eed-ba642eac9968",
+   "oracle_text": "You may have this creature enter as a copy of any creature on the battlefield, except it's an Illusion in addition to its other types and it has \"When this creature becomes the target of a spell or ability, sacrifice it.\"",
+   "power": "0",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "0",
+   "type_line": "Creature \u2014 Illusion",
+   "used_in": [
+    "RQ-C1-D04"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Preordain": {
+   "mana_cost": "{U}",
+   "official_page": null,
+   "oracle_id": "ac641490-ca14-48d7-8cc4-b69ce984befa",
+   "oracle_text": "Scry 2, then draw a card. (To scry 2, look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-F04"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Propaganda": {
+   "mana_cost": "{2}{U}",
+   "official_page": null,
+   "oracle_id": "ea9709b6-4c37-4d5a-b04d-cd4c42e4f9dd",
+   "oracle_text": "Creatures can't attack you unless their controller pays {2} for each creature they control that's attacking you.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Enchantment",
+   "used_in": [
+    "RQ-C1-E01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Rampant Growth": {
+   "mana_cost": "{1}{G}",
+   "official_page": null,
+   "oracle_id": "8539f295-5d58-4436-a73a-b9277c4c7795",
+   "oracle_text": "Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-F01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Reanimate": {
+   "mana_cost": "{B}",
+   "official_page": null,
+   "oracle_id": "a044474a-cd72-4e9d-bd8d-a08f2de9cdc0",
+   "oracle_text": "Put target creature card from a graveyard onto the battlefield under your control. You lose life equal to that card's mana value.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-I02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Rest in Peace": {
+   "mana_cost": "{1}{W}",
+   "official_page": null,
+   "oracle_id": "087f9ad7-e74f-40e2-8102-1ed2925d0418",
+   "oracle_text": "When this enchantment enters, exile all graveyards.\nIf a card or token would be put into a graveyard from anywhere, exile it instead.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Enchantment",
+   "used_in": [
+    "RQ-C1-A01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Rolling Thunder": {
+   "mana_cost": "{X}{R}{R}",
+   "official_page": null,
+   "oracle_id": "9c47888b-28a5-4c43-9ee4-a9059e3c367d",
+   "oracle_text": "Rolling Thunder deals X damage divided as you choose among any number of targets.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-D05"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Runeclaw Bear": {
+   "mana_cost": "{1}{G}",
+   "note": "Vanilla creature: no Oracle rules text (Scryfall oracle_text empty). RQ-C1 descriptor \"(Vanilla 2/2.)\" is a neutral placeholder, accurate: 2/2, {1}{G}, Creature - Bear.",
+   "official_page": null,
+   "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+   "oracle_text": "",
+   "power": "2",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "2",
+   "type_line": "Creature \u2014 Bear",
+   "used_in": [
+    "RQ-C1-A01",
+    "RQ-C1-A02",
+    "RQ-C1-B02",
+    "RQ-C1-C02",
+    "RQ-C1-D01",
+    "RQ-C1-D03",
+    "RQ-C1-D04",
+    "RQ-C1-E01",
+    "RQ-C1-E02",
+    "RQ-C1-E03",
+    "RQ-C1-F03",
+    "RQ-C1-G01",
+    "RQ-C1-G04",
+    "RQ-C1-H01",
+    "RQ-C1-H02",
+    "RQ-C1-I01",
+    "RQ-C1-I02",
+    "RQ-C1-J02",
+    "RQ-C1-K01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Soul Warden": {
+   "mana_cost": "{W}",
+   "official_page": null,
+   "oracle_id": "f3fad295-1af2-4ecc-8546-b121ad6be27b",
+   "oracle_text": "Whenever another creature enters, you gain 1 life.",
+   "power": "1",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Human Cleric",
+   "used_in": [
+    "RQ-C1-B01",
+    "RQ-C1-K01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Stonecoil Serpent": {
+   "mana_cost": "{X}",
+   "official_page": null,
+   "oracle_id": "78124cd1-2658-43f3-a339-0755d84154d2",
+   "oracle_text": "Reach, trample, protection from multicolored\nThis creature enters with X +1/+1 counters on it.",
+   "power": "0",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "0",
+   "type_line": "Artifact Creature \u2014 Snake",
+   "used_in": [
+    "RQ-C1-A04"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Turn to Frog": {
+   "mana_cost": "{1}{U}",
+   "official_page": "https://gatherer.wizards.com/CLU/en-us/103/turn-to-frog",
+   "oracle_id": "74c4c1e2-c50d-4c8f-889a-0d5674dc6d67",
+   "oracle_text": "Until end of turn, target creature loses all abilities and becomes a blue Frog with base power and toughness 1/1.",
+   "power": null,
+   "provenance": "Gatherer official page (DIRECTLY_VERIFIED 2026-09-10) + Scryfall crosscheck agree",
+   "rulings": "rqc2_gatherer_rulings.json:Turn to Frog (6, 2014-07-18)",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-H02"
+   ],
+   "verification_status": "ORACLE_TEXT_VERIFIED"
+  },
+  "Twincast": {
+   "mana_cost": "{U}{U}",
+   "official_page": null,
+   "oracle_id": "8f878efc-850f-43d2-a6fe-5ea8d1dd5afb",
+   "oracle_text": "Copy target instant or sorcery spell. You may choose new targets for the copy.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Instant",
+   "used_in": [
+    "RQ-C1-D02"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Willbender": {
+   "mana_cost": "{1}{U}",
+   "official_page": null,
+   "oracle_id": "0aae277e-e58e-4115-b5fd-0459451e17ec",
+   "oracle_text": "Morph {1}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, change the target of target spell or ability with a single target.",
+   "power": "1",
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": "2",
+   "type_line": "Creature \u2014 Human Wizard",
+   "used_in": [
+    "RQ-C1-F03"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  },
+  "Wrath of God": {
+   "mana_cost": "{2}{W}{W}",
+   "official_page": null,
+   "oracle_id": "34515b16-c9a4-4f98-8c77-416a7a523407",
+   "oracle_text": "Destroy all creatures. They can't be regenerated.",
+   "power": null,
+   "provenance": "Scryfall API secondary crosscheck 2026-09-10 agrees with RQ-C1 text (METADATA_ONLY); Gatherer page not opened for this card",
+   "rulings": "not collected; CR provisions decisive for packet",
+   "toughness": null,
+   "type_line": "Sorcery",
+   "used_in": [
+    "RQ-C1-K01"
+   ],
+   "verification_status": "SCRYFALL_CROSSCHECK_CONSISTENT"
+  }
+ },
+ "count": 50,
+ "retrieval_date": "2026-09-10",
+ "schema": "rq-c2.oracle-index.v1",
+ "summary": {
+  "OFFICIAL_SOURCE_ACCESS_BLOCKED": 0,
+  "ORACLE_TEXT_MISMATCH": 0,
+  "ORACLE_TEXT_VERIFIED": 11,
+  "SCRYFALL_CROSSCHECK_CONSISTENT": 39
+ }
+}

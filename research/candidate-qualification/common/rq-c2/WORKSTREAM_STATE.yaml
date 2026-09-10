@@ -1,0 +1,59 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/rq-c2-rules-authority-verification
+branch: research/rules-authority-verification-rq-c2-20260910
+audit_base_sha: 714ad417c1c090eb4ddf1ccd0828a2e869a80a74
+audit_base_tree: 709a5944c9826dbaaa433052f3538425c8f0573b
+objective: Convert the RQ-C1 Rules Authority Queue (37 packets) into a source-complete,
+  current, auditable adjudication pack for Sol High: exact current Oracle text, exact
+  current CR sections, official rulings where applicable, stale/missing/overbroad
+  reference corrections, direct-vs-interpretive separation, and the smallest exact
+  questions Sol must decide. Candidate-neutral; no candidate execution; no Rules engine.
+in_scope:
+- research/candidate-qualification/common/rq-c2/** only
+out_of_scope:
+- RQ-C1 artifacts, WS52, WS53, RQ-A2, Q6, RQ-X1, RQ-A1, engines, shared Foundry
+  tooling, main (all read-only inputs or untouched surfaces)
+ownership: RQ-C2-OFFICIAL-RULES-ORACLE-AUTHORITY-VERIFICATION
+dependencies:
+- RQ-C1 parent HEAD 714ad417 (NEUTRAL_CORPUS_READY_PENDING_RULES_ADJUDICATION)
+- Official CR effective 2026-08-07 (media.wizards.com TXT, retrieved 2026-09-10)
+- Official Gatherer Oracle/rulings (retrieved 2026-09-10)
+- Scryfall API secondary crosscheck (2026-09-10, METADATA_ONLY)
+hard_gates:
+- No RQ-C1 artifact modified (validated every run)
+- No EXTERNALLY_RULE_VALIDATED awarded by Muse (Sol promotes only)
+- No candidate behavior as Rules authority; no candidate execution
+- No second Rules engine in tools (parse/validate/normalize/report only)
+forbidden_shortcuts:
+- first/random/default/pilot/adapter/GUI/silent-skip/parent fallbacks
+- fabricated legal actions, manual outcome injection, direct sa.resolve substitutes
+- weakening tests/assertions/denominators to obtain green
+status: ACTIVE
+state_written_against_head: 714ad417c1c090eb4ddf1ccd0828a2e869a80a74
+validated_head: null
+milestones:
+  A_source_lock_authority_baseline: DONE
+  B_oracle_index_rule_index: DONE
+  C_first_wave_verification: PENDING
+  D_complete_37_packet_verification: PENDING
+  E_G04_K02_deep_packets: PENDING
+  F_correction_ledger: PENDING
+  G_sol_queue_validation_final_report: PENDING
+key_findings_to_date:
+- Murder/Cultivate/Ornithopter all ORACLE_TEXT_VERIFIED via direct Gatherer pages
+- 5 stale CR citations in RQ-C1 queue (702.13, 702.36, 602-as-costs, 701.19b-as-search,
+  704.5c-as-commander-damage) mapped to correct current provisions
+- Current CR has NO blocker-ordering decision (E02 scripted ordering overasserted)
+- Duress reveal is to ALL players per 701.20a (F02 P0-only expectation contradicted)
+- H02 PATH_A 1/1 contradicted by 613.4 sublayers + official Turn to Frog ruling
+  (modifying effects apply regardless of timing; both paths 4/4)
+- C01 scripted pitch is uncastable as fixture-specified (Island is colorless per
+  105.2+305.6, not a blue card; P0 has no 3UU mana either)
+technical_decisions:
+- Single coherent authority baseline: CR effective 2026-08-07 for all 37 packets
+- Scryfall is SECONDARY_METADATA_CROSSCHECK only, never authority
+- Preparation classifications are source-preparation only, never evidence promotion
+exact_next_action: Write milestones C-D artifacts (packet status, first-wave status,
+  expected-assertion review), then E (G04/K02 packets, hidden-info/RNG/setup reviews),
+  then F-G (correction ledger, Sol queue, validation, final report); commit per milestone.
