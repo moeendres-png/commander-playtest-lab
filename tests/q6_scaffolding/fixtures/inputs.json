@@ -1,0 +1,116 @@
+{
+  "inputs": [
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/altars_reap.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/altars_reap.txt",
+      "expected_hash": "9eebbe1e9cec3b0424c8f6df7bd4280799b61e5d773523507d10b8145b8b2e2d"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/boros_charm.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/b/boros_charm.txt",
+      "expected_hash": "09d1373fcca2d4628a05e91be27a769c86a19a8fa4df7f2424d78aee149727c2"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/braids_arisen_nightmare.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/b/braids_arisen_nightmare.txt",
+      "expected_hash": "c87ca9a532e1ff34c89272593761cabdea0f5e2ccb8b9607d5cdc2fed98b1f87"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/councils_judgment.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/councils_judgment.txt",
+      "expected_hash": "242e27659b187b31f5d27496910c7bbc283782d58f4ed6eb1f947cfc8e614bd8"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/divination.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/divination.txt",
+      "expected_hash": "e3940c01361a87eb5777fa7c418fcdced3bd09b75fd4ba8ee1ecbc7d13497f53"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/fierce_guardianship.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/fierce_guardianship.txt",
+      "expected_hash": "629d27bf0e9ce0edaf4a3b3972d97df90ce44a239491fe614a83a0caa7aa16a8"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/fireball.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/fireball.txt",
+      "expected_hash": "7f645134956c793de24a86e8f454b34b091f0875c3cdbf4363f814604e6c6119"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/force_of_will.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/force_of_will.txt",
+      "expected_hash": "3c26f51d29fd0e7e72cbb80712f2401a1328f6a73fb3f94f1e0ce2a0c15af56d"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/frenetic_efreet.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/frenetic_efreet.txt",
+      "expected_hash": "481d70fe6399efdaca2f9d1bcfed01b56bf7b7e4defcea4c1303e34b43305a43"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/gisela_the_broken_blade_brisela_voice_of_nightmares.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/g/gisela_the_broken_blade_brisela_voice_of_nightmares.txt",
+      "expected_hash": "277ef10497cddcc39c5965b64bf72cba450eae036908d139424736b61daea419"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/lightning_bolt.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/l/lightning_bolt.txt",
+      "expected_hash": "330ba48b8090d1b2312f9404d71612cd3bbf49b960974b99ebf5c0804bb4711e"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/soul_warden.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/soul_warden.txt",
+      "expected_hash": "4135b0008ba565c09cdd8e5ad0381543db5ededb2f133332e5ff0986a1fbed13"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/sundering_eruption_volcanic_fissure.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/sundering_eruption_volcanic_fissure.txt",
+      "expected_hash": "def5d0a2956f2396f88ffe1d31c31ebbbb239ea28557164daf2daba1a09e37fd"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/willbender.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/w/willbender.txt",
+      "expected_hash": "c0bbc5474dc3e7d5b3b528de7b17083e9221a92276ca08d12128b2cef9fce6f2"
+    }
+  ]
+}
