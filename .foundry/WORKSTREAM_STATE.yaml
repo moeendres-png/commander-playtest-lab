@@ -4,7 +4,7 @@ worktree: /home/moeen/code/q6-capability-curation-20260910
 branch: qualification/q6-capability-curation-20260910
 audit_base_sha: a33d5d97cef4df46129e543707886e4a42e64f4c
 audit_base_tree: b7e640cbb9b5cb957ec9e46055817a2a778b2d04
-current_head: 82d08f2812a0a213265eeab994e31d6600100ed6
+current_head: 743b3df2b8716a30561c7f6fe099ae030611bc80
 objective: "Industrialize the Task-2A Q6 scaffolding parser/classification layer against the full pinned actual-card corpus (Task 2B) - measure grammar gaps, implement the smallest maintainable registry-driven extension covering the major actual-card grammar families, validate on a 55-card stratified sample. Scaffolding only; structurally incapable of behavior PASS, qualification PASS, or coverage promotion."
 in_scope:
 - tools/q6_scaffolding/ self-contained surface (parser, registries, classify, skeleton, queues, manifest, gate, CLI, corpus inventory tool)
@@ -85,7 +85,7 @@ evidence:
 remaining_scope:
 - Checkpoint D commit, exact-diff plus ownership verification, authorized non-force push
 - Terminal handoff (this file plus final message)
-status: ACTIVE
+status: COMPLETE
 ownership_conflict: NONE (WS50 worktree inspected read-only per checkpoint; own paths disjoint; no overlap recorded)
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
