@@ -1,0 +1,50 @@
+audit_base_sha: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
+audit_base_tree: 215611ac8d1ea93353c2fcc4c8d7e06dabb4ca51
+branch: research/candidate-neutral-architecture-reverser-corpus-rq-c1-20260910
+exact_next_action: Fetch Scryfall Oracle-text metadata for ~43 candidate-neutral cards, then draft scenario families A-K.
+in_scope:
+- research/candidate-qualification/common/rq-c1/** only
+- neutral corpus design, schemas, manifests, matrices, negative controls, execution-contract template, Rules-authority queue, redundancy adjudication, validator, final report
+objective: RQ-C1-CANDIDATE-NEUTRAL-ACTUAL-CARD-ARCHITECTURE-REVERSER-CORPUS -
+  design, classify, validate and seal the candidate-neutral actual-card qualification
+  corpus for later identical execution against Forge, XMage and possibly Argentum.
+  No candidate execution in this workstream.
+out_of_scope:
+- Q6 branch/worktree mutation
+- WS52/WS53/RQ-A2/RQ-X1/WS50/WS51 mutation or use as authority
+- Forge/XMage provider code, engine repositories, shared Foundry tooling
+- main, production code, pushes, merges, PRs
+- running any candidate qualification scenario
+ownership: RQ-C1-CANDIDATE-NEUTRAL-ACTUAL-CARD-ARCHITECTURE-REVERSER-CORPUS
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+state_written_against_head: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
+status: ACTIVE
+validated_head: null
+worktree: /home/moeen/code/rq-c1-neutral-architecture-reverser-corpus
+milestones:
+  A_source_locks_input_provenance: COMPLETE
+  B_taxonomy_scenario_schema: PENDING
+  C_card_discovery: PENDING
+  D_first_wave_corpus: PENDING
+  E_rules_authority_queue: PENDING
+  F_negative_controls_execution_contract: PENDING
+  G_redundancy_audit_final_seal: PENDING
+donor_locks_verified:
+  cpl_base_head: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
+  cpl_base_tree: 215611ac8d1ea93353c2fcc4c8d7e06dabb4ca51
+  q6_head: c6b2105098dff066adf2d18252d2ddeb49e4412b
+  q6_tree: c3700d2a933e5004ba3d482487d12c80b4b70e04
+  xmage_audit_head: 24da99402c369c9441c91ece7226efad8fb45c92
+  xmage_audit_tree: d82787ac9f663f65b5af8c29b3d6fc21119b0a58
+  argentum_rqa1_head: a62a8c7cced4cc226ae9b9a44d06539fbf542bd6
+  argentum_rqa1_tree: 89bb39fcbe08f5ed722d9b882c19da91632ee262
+  ws51_head: 66d5aa44a45cb574cabba2853de149c032e7942e
+  ws51_tree: 3025858d8de706029fa3a9a27920ace51ba35cd0
+  ws50_head: e636e7055478709010cbd778846683065e31655b
+  ws50_tree: 59a08ba105a4f666e735c36cd8cd7c8c17ca1fd3
+standing_state:
+  ARCHITECTURE_FREEZE: NOT CLAIMED
+  PRODUCTION_PROVIDER: NOT SELECTED
+  FULL107: NOT_RUN
+  CURRENT_BEHAVIOR_CREDIT: 0/107
