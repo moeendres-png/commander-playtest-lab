@@ -1098,11 +1098,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private JsonArray objectOptions(List<UUID> ids, Game game, String optionType) {
         JsonArray options = new JsonArray();
         for (UUID id : ids) {
+            String label = objectLabel(id, game);
             options.add(XmageFullGameDecisionController.option(
                     id.toString(),
-                    objectLabel(id, game),
+                    label,
                     optionType,
-                    objectMetadata(id, objectLabel(id, game))
+                    objectMetadata(id, label, game)
             ));
         }
         return options;
@@ -1177,6 +1178,62 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return object.getName();
         }
         return id.toString();
+    }
+
+    private JsonObject objectMetadata(UUID id, String label, Game game) {
+        JsonObject metadata = new JsonObject();
+        metadata.addProperty("object_id", id.toString());
+        metadata.addProperty("name", label);
+        // R-c SELECTOR_IDENTITY provenance (native Rules-Core facts only):
+        // stable player/object identity for exact 1:1 matching. Option
+        // legality itself comes from Target.possibleTargets filtering in
+        // chooseTargetInternal; this metadata only names the offered native
+        // object so the pilot can match without label guessing.
+        try {
+            Player targetPlayer = game == null ? null : game.getPlayer(id);
+            if (targetPlayer != null) {
+                int seat = XmageFullGameStateRedactor.seat(game, targetPlayer.getId());
+                if (seat >= 0) {
+                    metadata.addProperty("player_ref", "P" + (seat + 1));
+                    metadata.addProperty("seat", seat);
+                }
+                return metadata;
+            }
+            Permanent permanent = game == null ? null : game.getPermanent(id);
+            if (permanent != null) {
+                int ownerSeat = XmageFullGameStateRedactor.seat(game, permanent.getOwnerId());
+                int controllerSeat = XmageFullGameStateRedactor.seat(game, permanent.getControllerId());
+                if (ownerSeat >= 0) {
+                    metadata.addProperty("owner_ref", "P" + (ownerSeat + 1));
+                    metadata.addProperty("owner", "P" + (ownerSeat + 1));
+                }
+                if (controllerSeat >= 0) {
+                    metadata.addProperty("controller_ref", "P" + (controllerSeat + 1));
+                    metadata.addProperty("controller", "P" + (controllerSeat + 1));
+                }
+                metadata.addProperty("zone", "battlefield");
+                metadata.addProperty("tapped", permanent.isTapped());
+                try {
+                    metadata.addProperty("face_down", permanent.isFaceDown(game));
+                } catch (Exception ignored) {
+                    // Provenance best-effort; absence fails closed downstream
+                    // only where the contract requires the field.
+                }
+                return metadata;
+            }
+            Card card = game == null ? null : game.getCard(id);
+            if (card != null) {
+                try {
+                    metadata.addProperty("face_down", card.isFaceDown(game));
+                } catch (Exception ignored) {
+                }
+                return metadata;
+            }
+        } catch (Exception ignored) {
+            // Provenance enrichment is best-effort; the opaque option_id plus
+            // name remain, and runner matching fails closed on ambiguity.
+        }
+        return metadata;
     }
 
     private static JsonObject objectMetadata(UUID id, String label) {

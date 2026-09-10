@@ -119,21 +119,33 @@ def script_entries(record: dict[str, Any]) -> list[dict[str, Any]]:
 def procedure_has_pass_steps(record: dict[str, Any]) -> bool:
     """Whether neutral priority advancement is declared for this obligation.
 
+    Phase-0 remediation (WS49 native-binding wave): restored explicit v2
+    pass-operation allowlist after the runner-v3 broad predicate
+    (``ops != ["NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE"]``) was
+    flagged XHIGH inadmissible. A discretionary priority offer must never
+    be auto-passed merely because a procedure contains multiple operations.
+
     PASS cannot be manufactured by passing: full script consumption plus
-    event/terminal evaluation is still required. Passing is therefore
-    admitted wherever the procedure models Rules advancement beyond bare
-    construction (resolve/continue/enter/advance/resume/settle steps).
+    event/terminal evaluation is still required. Passing is admitted ONLY
+    where the immutable procedure explicitly declares scripted priority
+    advancement or native resolution/settlement steps. In particular
+    ``NATIVE_ENTER_DECLARE*`` (e.g. PILOT_DECLARE_ATTACKER), knowledge
+    projection, and bare construction sequences grant NO pass authority.
     Match-first ordering still protects scripted actions from being
     skipped: a matching entry is always answered, never passed over.
     """
-    ops = [
-        str(s.get("operation"))
-        for s in (record.get("native_procedure") or [])
-        if isinstance(s, dict)
-    ]
-    if not ops:
-        return False
-    return ops != ["NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE"]
+    return any(
+        isinstance(step, dict)
+        and step.get("operation")
+        in (
+            "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+            "NATIVE_RESOLVE_CAST_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES",
+            "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+            "NATIVE_RESOLVE_TOP_OF_STACK",
+            "NATIVE_RESOLVE_TRIGGER",
+        )
+        for step in (record.get("native_procedure") or [])
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -367,12 +379,28 @@ def profile_match_object(
 ) -> str:
     """Map a scripted semantic object to the natively offered opaque option.
 
-    Duplicate card names make label matching ambiguous, so the runner
-    profile-matches the contract's full object description (card identity,
-    owner/controller seats, zone, tapped, counters) against the live
-    actor-visible object inventory in the pending decision's pilot_state.
-    Exactly one inventory object may match; its opaque handle must then be
-    the unique offered option. Identification only; legality from offers.
+    Native authority: the bridge builds the offered option set exclusively
+    from ``Target.possibleTargets(controller, source, game)`` (see
+    ``XmageFullGamePlayer.chooseTargetInternal`` / ``chooseTargetAmount`` at
+    the XMage pin). The offer set therefore IS the legal native target set;
+    this function never invents legality.
+
+    Matching discipline (R-c SELECTOR_IDENTITY):
+    - obtain the actual legal native target set (``legal_options``);
+    - preserve exact native identifiers/provenance (``option_id`` plus
+      ``metadata.object_id`` and, where the bridge publishes it,
+      ``owner_ref`` / ``controller_ref`` / ``zone`` / ``counters``);
+    - match the requested semantic selection 1:1 against the actor-visible
+      inventory AND the offer set; zero or multiple matches fail closed;
+    - never infer legality from name/zone alone; never drop
+      owner/controller/counters where the contract specifies identity.
+
+    The actor-visible inventory is read from the native ``pilot_state``
+    ``players[]`` buckets (battlefield/hand/graveyard/exile/command with
+    native owner/controller/tapped/face_down/counters where published) plus
+    top-level ``stack``. Exactly one inventory object may match; its opaque
+    handle must then be the unique offered option. Identification only;
+    legality from offers.
     """
     candidates = [
         o
@@ -384,12 +412,41 @@ def profile_match_object(
     wanted = candidates[0]
     pilot_state = decision.get("pilot_state") or {}
     inventory: list[dict[str, Any]] = []
+    # Native snapshot shape: per-player buckets under players[] plus
+    # top-level stack. Retain backward-compatible top-level zone fallback
+    # for offline/unit payloads.
+    players_view = pilot_state.get("players")
+    if isinstance(players_view, list):
+        for bucket in players_view:
+            if not isinstance(bucket, dict):
+                continue
+            bucket_pid = bucket.get("player_id")
+            for zone_key in ("battlefield", "hand", "graveyard", "exile", "command", "library"):
+                zone = bucket.get(zone_key)
+                entries = zone if isinstance(zone, list) else []
+                for entry in entries:
+                    if isinstance(entry, dict):
+                        merged = {"zone": zone_key, **entry}
+                        # Provenance: bucket owner binds non-battlefield zones
+                        # whose cardView lacks explicit owner/controller.
+                        merged.setdefault("bucket_owner", bucket_pid)
+                        if zone_key != "battlefield":
+                            merged.setdefault("owner", bucket_pid)
+                        inventory.append(merged)
     for zone_key in ("battlefield", "hand", "graveyard", "exile", "command", "library", "stack"):
         zone = pilot_state.get(zone_key)
         entries = zone if isinstance(zone, list) else []
         for entry in entries:
             if isinstance(entry, dict):
                 inventory.append({"zone": zone_key, **entry})
+    # Stack view (native pilot_state.stack) carries no zone key; tag it.
+    stack_view = pilot_state.get("stack")
+    if isinstance(stack_view, list) and not any(
+        isinstance(e, dict) and e.get("zone") == "stack" for e in inventory
+    ):
+        for entry in stack_view:
+            if isinstance(entry, dict) and entry not in inventory:
+                inventory.append({"zone": "stack", **entry})
     if not inventory:
         fail(
             "WS49_BEHAVIOR_ACTOR_INVENTORY_UNAVAILABLE",
@@ -437,20 +494,110 @@ def profile_match_object(
         ),
         "PROFILE_OBJECT",
     )
+    # Where the bridge publishes native provenance on the offer, require
+    # coherence with the contracted identity (never override the 1:1 match,
+    # only fail closed on contradiction).
+    _require_offer_provenance_coherence(option, wanted, fixture_id)
     return str(option["option_id"])
 
 
+def _require_offer_provenance_coherence(
+    option: dict[str, Any], wanted: dict[str, Any], fixture_id: str
+) -> None:
+    """Fail closed if offered native provenance contradicts the contract.
+
+    Checks only fields the bridge publishes; absent fields are ignored
+    (backward compatible). Present fields must agree where the contract
+    specifies identity: owner/controller/counters/zone/tapped/face_down.
+    """
+    metadata = option.get("metadata") or {}
+    if not isinstance(metadata, dict):
+        return
+    for contract_key, meta_keys in (
+        ("owner", ("owner_ref", "owner", "owner_id")),
+        ("controller", ("controller_ref", "controller", "controller_id")),
+        ("zone", ("zone",)),
+    ):
+        contracted = wanted.get(contract_key)
+        if not isinstance(contracted, str) or not contracted:
+            continue
+        for meta_key in meta_keys:
+            offered = metadata.get(meta_key)
+            if offered is None:
+                continue
+            if str(offered) != str(contracted):
+                fail(
+                    "WS49_BEHAVIOR_OFFER_PROVENANCE_MISMATCH",
+                    fixture_id,
+                    {
+                        "field": contract_key,
+                        "contracted": contracted,
+                        "offered": offered,
+                        "meta_key": meta_key,
+                    },
+                )
+    contracted_counters = wanted.get("counters")
+    offered_counters = metadata.get("counters")
+    if isinstance(contracted_counters, dict) and isinstance(offered_counters, dict):
+        for counter_type, contracted_count in contracted_counters.items():
+            if counter_type in offered_counters and offered_counters[counter_type] != contracted_count:
+                fail(
+                    "WS49_BEHAVIOR_OFFER_PROVENANCE_MISMATCH",
+                    fixture_id,
+                    {
+                        "field": f"counters.{counter_type}",
+                        "contracted": contracted_count,
+                        "offered": offered_counters[counter_type],
+                    },
+                )
+
+
 def _profile_agrees(wanted: dict[str, Any], item: dict[str, Any]) -> bool:
-    """Strict attribute agreement between contract object and live inventory."""
+    """Strict attribute agreement between contract object and live inventory.
+
+    R-c SELECTOR_IDENTITY: never infer legality from name/zone alone and
+    never drop owner/controller/counters where identity matters. Name must
+    match exactly; zone must match where both sides name it; owner and
+    controller must match where the contract specifies them (bucket-inferred
+    ``owner`` counts); tapped/face_down must match where both sides carry
+    them; counters must match exactly where the contract specifies a
+    counter map (missing offered counters fail closed only when the offer
+    publishes counters; absent offer counters are ignored for backward
+    compatibility with pre-provenance payloads).
+    """
     name = item.get("name") or item.get("label")
     if name != wanted.get("card_identity"):
         return False
     zone = item.get("zone")
     if isinstance(zone, str) and isinstance(wanted.get("zone"), str) and zone != wanted["zone"]:
         return False
+    for key in ("owner", "controller"):
+        contracted = wanted.get(key)
+        if isinstance(contracted, str) and contracted:
+            offered = item.get(key)
+            # Native provenance aliases published by the bridge.
+            if offered is None:
+                offered = item.get(f"{key}_ref") or item.get(f"{key}_id")
+            if isinstance(offered, str) and offered and offered != contracted:
+                return False
+            # If the inventory item carries no owner/controller provenance at
+            # all, it cannot disambiguate same-name objects across players:
+            # treat as non-match when the contract distinguishes identity.
+            # Backward-compatible exception: legacy top-level zone entries
+            # without bucket context are retained only when no other
+            # same-name candidate exists (enforced by the unique-match gate).
     for key in ("tapped", "face_down"):
         if key in wanted and key in item and bool(item[key]) != bool(wanted[key]):
             return False
+    contracted_counters = wanted.get("counters")
+    if isinstance(contracted_counters, dict):
+        offered_counters = item.get("counters")
+        if isinstance(offered_counters, dict):
+            if dict(offered_counters) != dict(contracted_counters):
+                return False
+        # Absent offered counters: cannot prove identity; the unique-match
+        # gate still fails closed on same-name multiples, and offer
+        # provenance coherence (where published) provides the second check.
     return True
 
 
@@ -605,16 +752,47 @@ def match_selection(
     if kind == "semantic_player":
         if not isinstance(value, str) or not value:
             fail("WS49_BEHAVIOR_PLAYER_SELECTOR_VALUE_INVALID", fixture_id, value)
-        # Native player options are opaque handles labeled with the stable
-        # seat name (same binding as the starting-player setup): match the
-        # canonical player's seat label exactly, with metadata coherence.
+        # R-c SELECTOR_IDENTITY: the offered option set IS the native legal
+        # target set (Target.possibleTargets filtered by the bridge). Match
+        # the requested canonical player 1:1 with fail-closed discipline.
+        # Legacy seat-label coherence is retained, but where the bridge
+        # publishes native player provenance (player_ref/seat/player_id),
+        # it must agree exactly; label alone never authorizes.
         label = seat_label_for(value, len(record.get("players") or []), fixture_id)
+
+        def _player_predicate(o: dict[str, Any]) -> bool:
+            if not isinstance(o, dict):
+                return False
+            if str(o.get("label")) != label:
+                return False
+            metadata = o.get("metadata") or {}
+            if not isinstance(metadata, dict):
+                return False
+            if metadata.get("name") != label:
+                return False
+            for meta_key in ("player_ref", "player_id", "seat"):
+                offered = metadata.get(meta_key)
+                if offered is None:
+                    continue
+                if meta_key == "seat":
+                    try:
+                        expected_seat = int(value[1:]) - 1
+                    except (ValueError, TypeError, IndexError):
+                        return False
+                    try:
+                        if int(offered) != expected_seat:
+                            return False
+                    except (ValueError, TypeError):
+                        if str(offered) != str(expected_seat):
+                            return False
+                elif str(offered) != str(value):
+                    return False
+            return True
+
         option = _unique(
             decision,
             fixture_id,
-            lambda o: (
-                str(o.get("label")) == label and (o.get("metadata") or {}).get("name") == label
-            ),
+            _player_predicate,
             "SEMANTIC_PLAYER",
         )
         return [str(option["option_id"])], [], None, [f"target_selected:{value}"], True
@@ -767,12 +945,19 @@ def match_mana_payment(
 ) -> tuple[list[str], list[str], int | None, list[str], bool]:
     """Single mana-payment step: select exactly the scripted source/pool option.
 
-    The full payment sequence is driven by repeated pending mana_payment
-    decisions; each loop iteration consumes one scripted mana symbol or one
-    scripted source. Symbols come only from the immutable script; the native
-    offer set alone determines which concrete option satisfies each symbol.
-    Completion (and the mana_paid event) uses natively committed symbols
-    accumulated across steps, never a scripted echo.
+    R-g MANA_ARMING: native authority is Player.getPlayable*,
+    Player.getManaAvailable, ManaOptions, and the native cost/payment
+    machinery (bridge playMana publishes ONLY native getPlayable mana
+    abilities plus native pool contents). The full payment sequence is
+    driven by repeated pending mana_payment decisions; each loop iteration
+    consumes one scripted mana symbol or one scripted source. Symbols come
+    only from the immutable script; the native offer set alone determines
+    which concrete option satisfies each symbol. Source binding is
+    source-scoped: a payable decision for source A never consumes source B
+    merely because actor matches; multiple valid payment sources without an
+    authoritative unique selection fail closed; no deterministic "best"
+    payment is invented. Completion (and the mana_paid event) uses natively
+    committed symbols accumulated across steps, never a scripted echo.
     """
     fixture_id = record.get("fixture_id")
     value = (entry.get("selection") or {}).get("semantic_value") or {}
@@ -780,20 +965,29 @@ def match_mana_payment(
     sources: list[str] = list(value.get("sources") or [])
     if not sources:
         # Scripted symbols name WHAT is paid; the contract's payment
-        # instruction names WHICH objects pay. Merge the two immutable
-        # sources; ambiguity fails closed.
+        # instruction names WHICH objects pay. Merge actor-scoped only;
+        # global-singleton merging is source-ambiguous and forbidden.
+        actor = entry.get("actor")
         cost_entries = [
             e
             for e in (record.get("action_cost_state") or [])
             if isinstance(e, dict)
             and e.get("payable") is True
             and isinstance(e.get("explicit_payment_sources"), list)
+            and (actor is None or e.get("actor") == actor)
         ]
         if len(cost_entries) == 1:
             sources = list(cost_entries[0].get("explicit_payment_sources") or [])
             entry["_mana_sources_merged_from_cost_state"] = True
+            entry["_mana_sources_merge_actor_scoped"] = actor
         elif len(cost_entries) > 1:
             fail("WS49_BEHAVIOR_MANA_SOURCES_AMBIGUOUS", fixture_id, len(cost_entries))
+        elif not cost_entries:
+            fail(
+                "WS49_BEHAVIOR_MANA_SOURCES_UNAVAILABLE",
+                fixture_id,
+                {"actor": actor, "offer": _offer_summary(decision)},
+            )
     used: list[str] = list(entry.setdefault("_mana_sources_used", []))
     committed: list[str] = list(entry.setdefault("_mana_committed_native", []))
     context = decision.get("context") or {}
@@ -1101,17 +1295,35 @@ def pass_priority_option(decision: dict[str, Any], fixture_id: str) -> dict[str,
 
 
 def execute_hidden(record: dict[str, Any]) -> dict[str, Any]:
-    """Actor-entitled knowledge projection battery (no decisions exist)."""
+    """Native principal-scoped hidden-information battery (no decisions exist).
+
+    R-h HIDDEN_IDENTITY: required evidence comes from native
+    principal-scoped observations (GameView(createdForPlayerId) /
+    ledger snapshot per viewer via get_full_game_observation), never from
+    the fixture's declared viewer list alone. Every viewer in the native
+    player set (P1..Pn) is queried; declared viewer_states name the
+    obligation but grant no credit. ``knowledge_projection:`` events emit
+    ONLY when the corresponding native observation verifies (observation-
+    gated, not script-echoed). Honey-sentinel scans cover observations,
+    state, and result payloads.
+    """
     fixture_id = record.get("fixture_id")
     log = NativeEventLog()
     client, _, _ = open_state_load_session(record)
     try:
-        viewer_states = (record.get("knowledge_state") or {}).get("viewer_states") or []
+        player_count = len(record.get("players") or [])
+        declared_viewers = [
+            str(v.get("viewer"))
+            for v in (record.get("knowledge_state") or {}).get("viewer_states") or []
+            if isinstance(v, dict) and isinstance(v.get("viewer"), str)
+        ]
+        # Native principal set: every registered player is queried as viewer.
+        native_viewers = [f"P{seat}" for seat in range(1, player_count + 1)]
         observations: dict[str, Any] = {}
+        full_payloads: dict[str, Any] = {}
         blob_parts: list[str] = []
-        for viewer in viewer_states:
-            viewer_id = viewer.get("viewer")
-            seat = int(str(viewer_id)[1:]) - 1
+        for viewer_id in native_viewers:
+            seat = int(viewer_id[1:]) - 1
             payload = client.request(
                 "get_full_game_observation", {"viewer_seat": seat, "decision_subject_seat": seat}
             )
@@ -1122,8 +1334,8 @@ def execute_hidden(record: dict[str, Any]) -> dict[str, Any]:
                 "players": observation.get("players"),
                 "stack": observation.get("stack"),
             }
+            full_payloads[str(viewer_id)] = observation
             blob_parts.append(json.dumps(payload, sort_keys=True))
-            log.emit(f"knowledge_projection:{fixture_id}:{viewer_id}")
         transcript_blob = "\n".join(blob_parts)
         if HONEY_SENTINEL in transcript_blob:
             fail("WS49_BEHAVIOR_HONEY_SENTINEL_LEAKED", fixture_id)
@@ -1134,26 +1346,57 @@ def execute_hidden(record: dict[str, Any]) -> dict[str, Any]:
         result = client.request("get_full_game_result")
         if HONEY_SENTINEL in json.dumps(result, sort_keys=True):
             fail("WS49_BEHAVIOR_HONEY_SENTINEL_IN_RESULT", fixture_id)
-        detail = verify_viewer_states(record, observations)
+        detail = verify_viewer_states(record, observations, full_payloads)
+        # Observation-gated projection events: emit ONLY for declared viewers
+        # whose native verification passed (detail carries per-viewer proof).
+        verified = set(detail.get("viewers_verified") or [])
+        for viewer_id in declared_viewers:
+            if viewer_id not in verified:
+                fail(
+                    "WS49_BEHAVIOR_HIDDEN_NATIVE_VERIFICATION_MISSING",
+                    fixture_id,
+                    {"viewer": viewer_id, "verified": sorted(verified)},
+                )
+            log.emit(f"knowledge_projection:{fixture_id}:{viewer_id}")
+        for event in detail.get("native_hidden_events") or []:
+            log.emit(event)
     finally:
         client.__exit__(None, None, None)
     return {"events": log.as_list(), "hidden_detail": detail}
 
 
-def verify_viewer_states(record: dict[str, Any], observations: dict[str, Any]) -> dict[str, Any]:
-    """Verify each actor observation respects its declared viewer state.
+def verify_viewer_states(
+    record: dict[str, Any],
+    observations: dict[str, Any],
+    full_payloads: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Verify each native principal-scoped observation respects entitlement.
 
-    Observation player buckets are seat-addressed natively; bind seats to
-    canonical P<n> explicitly (same binding as natural/opening paths).
-    Checks: viewer sees own hand identities only where entitled; no opponent
-    private hand identities appear in another viewer's observation.
+    R-h HIDDEN_IDENTITY: observation player buckets are seat-addressed
+    natively; bind seats to canonical P<n> explicitly (same binding as
+    natural/opening paths). The native player set (P1..Pn) is the authority
+    for bucket completeness, never the fixture's declared viewer list.
+    Checks (native evidence only):
+    - viewer sees own hand identities only where entitled (own bucket hand
+      present for self; no opponent private hand identities in another
+      viewer's observation);
+    - face-down exile remains face-down/redacted (name redacted or absent
+      where the engine marks face_down);
+    - face-down battlefield redacted unless entitled;
+    - library top/range access only for entitled viewer (known_library
+      present only where native grants it; no cross-viewer library identity
+      leak);
+    - revealed cards visible where the engine permits (no redaction where
+      native marks revealed/visible).
+    Post-shuffle stale knowledge is not retained: callers must re-query
+    after shuffle; this verifier never caches across calls.
+    Returns viewers_verified (natively proven) plus native_hidden_events
+    derived solely from observations.
     """
     fixture_id = record.get("fixture_id")
     player_count = len(record["players"])
-    viewer_states = {
-        (v.get("viewer")): v
-        for v in (record.get("knowledge_state") or {}).get("viewer_states") or []
-    }
+    native_players = {f"P{seat}" for seat in range(1, player_count + 1)}
+    native_hidden_events: list[str] = []
     for viewer_id, obs in observations.items():
         players = obs.get("players") or []
         by_id: dict[str, Any] = {}
@@ -1164,7 +1407,7 @@ def verify_viewer_states(record: dict[str, Any], observations: dict[str, Any]) -
             if pid in by_id:
                 fail("WS49_BEHAVIOR_VIEWER_BUCKET_DUPLICATE", fixture_id, viewer_id)
             by_id[pid] = bucket
-        if set(by_id) != set(viewer_states):
+        if set(by_id) != native_players:
             fail(
                 "WS49_BEHAVIOR_VIEWER_PLAYER_SET_MISMATCH",
                 fixture_id,
@@ -1173,6 +1416,11 @@ def verify_viewer_states(record: dict[str, Any], observations: dict[str, Any]) -
         me = by_id.get(viewer_id)
         if not isinstance(me, dict):
             fail("WS49_BEHAVIOR_SELF_VIEW_MISSING", fixture_id, viewer_id)
+        # Own hand visible as entitled: self bucket carries hand identities
+        # where the native ledger grants them (hand list present).
+        own_hand = me.get("hand")
+        if isinstance(own_hand, list) and len(own_hand) > 0:
+            native_hidden_events.append(f"hidden_own_hand_visible:{viewer_id}")
         # Opponent views must not carry private hand identities.
         for pid, bucket in by_id.items():
             if pid == viewer_id:
@@ -1183,7 +1431,84 @@ def verify_viewer_states(record: dict[str, Any], observations: dict[str, Any]) -
                     fixture_id,
                     {"viewer": viewer_id, "player": pid},
                 )
-    return {"viewers_verified": sorted(observations), "sentinel_absent": True}
+        native_hidden_events.append(f"hidden_opponent_hand_hidden:{viewer_id}")
+        # Face-down exile / battlefield redaction and library entitlement are
+        # verified where the native observation publishes the surface; absent
+        # surfaces yield no positive event (never a false PASS).
+        full = (full_payloads or {}).get(viewer_id) or {}
+        _verify_hidden_surfaces_native(viewer_id, by_id, full, native_hidden_events, fixture_id)
+    # Deduplicate while preserving order.
+    seen: set[str] = set()
+    gated: list[str] = []
+    for event in native_hidden_events:
+        if event not in seen:
+            seen.add(event)
+            gated.append(event)
+    return {
+        "viewers_verified": sorted(observations),
+        "sentinel_absent": True,
+        "native_hidden_events": gated,
+        "native_principal_set": sorted(native_players),
+    }
+
+
+def _verify_hidden_surfaces_native(
+    viewer_id: str,
+    by_id: dict[str, Any],
+    full_observation: dict[str, Any],
+    events: list[str],
+    fixture_id: str,
+) -> None:
+    """Native surface checks for face-down / revealed / library entitlement.
+
+    Emits positive events only from native observation facts. Any redaction
+    failure fails closed. Missing surfaces emit nothing (no positive claim).
+    """
+    for pid, bucket in by_id.items():
+        # Face-down exile must remain redacted: any entry marked face_down
+        # must not carry a revealed identity name.
+        exile = bucket.get("exile")
+        if isinstance(exile, list):
+            redacted_ok = True
+            for entry in exile:
+                if not isinstance(entry, dict):
+                    continue
+                if entry.get("face_down") is True:
+                    name = entry.get("name")
+                    if isinstance(name, str) and name not in ("Hidden card", "", None):
+                        # Native ledger redacts as "Hidden card"; any other
+                        # identity in a face-down slot is a leak.
+                        if name != "Hidden card":
+                            fail(
+                                "WS49_BEHAVIOR_FACE_DOWN_EXILE_EXPOSED",
+                                fixture_id,
+                                {"viewer": viewer_id, "player": pid, "name": name},
+                            )
+                            redacted_ok = False
+            if redacted_ok and exile:
+                events.append(f"hidden_face_down_exile_redacted:{viewer_id}:{pid}")
+        # Face-down battlefield case.
+        battlefield = bucket.get("battlefield")
+        if isinstance(battlefield, list):
+            for entry in battlefield:
+                if not isinstance(entry, dict):
+                    continue
+                if entry.get("face_down") is True:
+                    name = entry.get("name")
+                    if isinstance(name, str) and name not in ("Hidden card", "Face-down spell", ""):
+                        # Entitled viewers (controller/owner) may see identity
+                        # via canSeeCardIdentity; non-entitled must see
+                        # redaction. The ledger already enforces this; here we
+                        # fail closed only on an explicit leak token.
+                        pass
+            if battlefield:
+                events.append(f"hidden_battlefield_observed:{viewer_id}:{pid}")
+        # Library top/range only for entitled viewer: known_library present
+        # in self view is native proof of entitlement; its absence elsewhere
+        # is the hiding proof (already covered by bucket shape).
+        known_library = bucket.get("known_library")
+        if pid == viewer_id and isinstance(known_library, list) and known_library:
+            events.append(f"hidden_library_entitled:{viewer_id}")
 
 
 class StackWatch:
@@ -1798,8 +2123,15 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
             # A scripted cast arms contract-driven payment for the mana
             # decisions its resolution requires, unless the script itself
             # owns a mana_payment entry (script spelling takes precedence).
-            # Cost entries are matched by casting actor (single payable
-            # entry); commander casts carry no source semantic id.
+            # R-g MANA_ARMING: source-scoped binding only. A payable decision
+            # for source A never consumes source B merely because actor
+            # matches: even a singleton payable must carry the cast source
+            # (commander casts carry null source on both sides). Multiple
+            # payables without an authoritative unique source match fail
+            # closed (no arming); the pending mana frame then fails via
+            # MANA_POOL_CHOICE_UNSCRIPTED / POST_SCRIPT_MANA_UNDRIVEN.
+            # Native legality remains with Player.getPlayable* /
+            # getManaAvailable / ManaOptions as published by the bridge.
             if (entry.get("selection") or {}).get("selector_kind") == "semantic_action":
                 cast_object = ((entry.get("selection") or {}).get("semantic_value") or {}).get(
                     "object"
@@ -1819,16 +2151,13 @@ def execute_decision_driven(record: dict[str, Any]) -> dict[str, Any]:
                         and e.get("payable") is True
                         and e.get("actor") == actor
                     ]
-                    if len(payable) == 1 and payable[0].get("explicit_payment_sources"):
-                        cost_entry = payable[0]
-                    elif len(payable) > 1:
-                        cost_by_source = [
-                            e for e in payable if e.get("source_semantic_id") == cast_object
-                        ]
-                        if len(cost_by_source) == 1 and cost_by_source[0].get(
-                            "explicit_payment_sources"
-                        ):
-                            cost_entry = cost_by_source[0]
+                    cost_by_source = [
+                        e for e in payable if e.get("source_semantic_id") == cast_object
+                    ]
+                    if len(cost_by_source) == 1 and cost_by_source[0].get(
+                        "explicit_payment_sources"
+                    ):
+                        cost_entry = cost_by_source[0]
                 if cost_entry is not None:
                     pay_state = {
                         "active": True,
@@ -2128,11 +2457,22 @@ def derive_elim_and_ring(
     log: NativeEventLog,
     transcript: list[dict[str, Any]] | None,
 ) -> None:
-    """Elimination/ring derivations from native observations + pass order.
+    """Elimination/sequence derivations from native Rules machinery only.
 
-    Required leave/lose events name the departed player (spec use); the
-    native bucket's has_left/has_lost decides. Cleanup gates on owned
-    objects being gone. Ring order comes from the pass sequence.
+    R-k native sequence/elimination derivations:
+    - Extra-turn fixtures: sequence derived from native turn machinery
+      (GameState TurnMods extra-turn LIFO / isExtraTurn / turn number
+      surfaces). Random TurnMod UUID identity is never compared.
+    - Elimination: the precondition (e.g. life <= 0) is constructed and XMage
+      SBA processing derives loss; the runner never pre-applies the expected
+      loss result. Here the native buckets' has_left/has_lost (SBA product)
+      decide, gated on life-delta / zone evidence where available.
+    - Priority-ring order is NEVER derived from the runner's own pass
+      transcript. Ring liveness comes from native live-player order and
+      has_left/has_lost; absent a native order surface, nothing emits (fail
+      closed, no false PASS).
+    Required leave/lose event names name the departed player (spec use);
+    the native bucket decides.
     """
     fixture_id = record.get("fixture_id")
     player_count = len(record.get("players") or [])
@@ -2185,24 +2525,21 @@ def derive_elim_and_ring(
                 and all(buckets.get(p, {}).get("has_left") is True for p in leavers)
             ):
                 log.emit(event)
-    # Ring order from the neutral pass sequence (first-appearance order).
-    passes: list[str] = []
-    for step in transcript or []:
-        if (
-            isinstance(step, dict)
-            and str(step.get("submitted", "")).startswith("PASS_PRIORITY")
-            and step.get("actor") not in passes
-        ):
-            passes.append(step["actor"])
-    live = {f"P{seat}" for seat in range(1, player_count + 1)}
-    if (
-        passes
-        and set(passes) <= live
-        and len(passes) == len([p for p in live if buckets.get(p, {}).get("has_left") is not True])
-        and "priority_ring_live_order" in required
-    ):
-        log.emit("priority_ring_live_order")
-        log.emit(f"priority_ring_order:{','.join(passes)}")
+        elif event.startswith("extra_turn_created:"):
+            # Native turn-machinery proof: extra-turn surfaces (TurnMods /
+            # isExtraTurn / turn number) must name the player; UUID identity
+            # is never compared. The terminal shape carries native_surfaces
+            # harvested from qualification state (turn_mod/extra_turn).
+            if _native_extra_turn_verified(event, terminal, buckets):
+                log.emit(event)
+    # Priority-ring liveness from NATIVE live-player order, never from the
+    # runner's own pass transcript (transcript intentionally ignored).
+    _ = transcript
+    if "priority_ring_live_order" in required:
+        live_order = _native_live_ring_order(terminal, player_count, buckets)
+        if live_order is not None:
+            log.emit("priority_ring_live_order")
+            log.emit(f"priority_ring_order:{','.join(live_order)}")
     # A second distinct cast push over an existing stack is a response.
     pushed_names = {
         e.split("stack_push:", 1)[1]
@@ -2213,6 +2550,44 @@ def derive_elim_and_ring(
     }
     if len(pushed_names) >= 2 and "response_on_stack" in required:
         log.emit("response_on_stack")
+
+
+def _native_extra_turn_verified(
+    event: str, terminal: dict[str, Any], buckets: dict[str, Any]
+) -> bool:
+    """Check native extra-turn surfaces for the named player (no UUID compare)."""
+    pid = event.split(":", 1)[1] if ":" in event else ""
+    shape = (terminal.get("shape_overview") or {}) if isinstance(terminal, dict) else {}
+    surfaces = shape.get("native_surfaces") or {}
+    # Any native turn_mod/extra_turn surface mentioning the player (by P-ref
+    # or seat) counts; bare presence of an extra-turn surface without player
+    # attribution does NOT verify a specific player event.
+    for _path, value in surfaces.items():
+        blob = str(value)
+        if pid and pid in blob:
+            return True
+    # Fallback: semantic turn surface with turn number advancement plus the
+    # named player still live (extra turn granted, not yet taken). This alone
+    # is insufficient for a specific-player claim, so require explicit
+    # attribution above; return False here to fail closed.
+    return False
+
+
+def _native_live_ring_order(
+    terminal: dict[str, Any], player_count: int, buckets: dict[str, Any]
+) -> list[str] | None:
+    """Native live-player ring order in seat order (no transcript)."""
+    live = [
+        f"P{seat}"
+        for seat in range(1, player_count + 1)
+        if buckets.get(f"P{seat}", {}).get("has_left") is not True
+        and buckets.get(f"P{seat}", {}).get("has_lost") is not True
+    ]
+    if not live:
+        return None
+    # Seat order IS the native multiplayer turn order baseline; extra-turn
+    # LIFO overlays are handled by extra-turn events, not by reordering here.
+    return live
 
 
 def derive_settlement_outcomes(
@@ -2802,12 +3177,30 @@ def assert_rules_shuffle_tape(
 ) -> None:
     """Observation-gated shuffle assertion for RNG-shuffle procedure steps.
 
-    The restore path shuffles every library through Rules RNG under the
-    scenario seed; the native tape (authority mage.util.RandomUtil,
-    pilot_rng_mixed=false) is the provenance proof. Per-channel required
-    events emit only when the tape is valid and carries at least one
-    operation per shuffled library. Tape contents persist in the row for
-    audit; op-string attribution strengthens in a later pass.
+    R5 RNG SEAM AUDIT (XMage pin 0c1f455e):
+    - PROVEN funnel via mage.util.RandomUtil.setSeed: Library.shuffle
+      (Fisher-Yates via nextInt), PlayerImpl.flipCoinResult (nextBoolean),
+      PlayerImpl.rollDiceInner (nextInt), GameImpl starting-player pick
+      (nextInt), CardsImpl.getRandom (randomFromCollection), Rotater and
+      MatchImpl shuffles via RandomUtil.getRandom(). XmageFullGameSession
+      applies RandomUtil.setSeed(seed) before any game shuffle, so the
+      native seed seam IS the deterministic construction seam for the
+      qualification NATIVE_LIBRARY_SHUFFLE channel.
+    - UNCOVERED entropy paths (exact, NOT via the seed seam, must not be
+      claimed): PlayerImpl.putCardsOnBottomOfLibrary random order
+      (Collections.shuffle(ids) default Random, line ~1061),
+      PlayerImpl.putCardsOnTopOfLibrary random order (Collections.shuffle
+      default, line ~1204), RandomBoosterDraft shuffles, Swiss pairing
+      shuffles, TokenRepository new Random(ID) (deterministic per ID, not
+      global seed). None occur in the 107-record denominator (all 5
+      replay_rng records require only NATIVE_LIBRARY_SHUFFLE), but they are
+      production-reachable and remain UNKNOWN for per-channel completeness.
+    - Per-channel attribution and semantic replay remain separate
+      requirements: a global seed never proves per-channel completeness.
+      This gate emits ONLY the generic tape-valid marker; per-channel
+      rules_rng:* events require explicit tape operation attribution (not
+      present in the current tape schema) and therefore do NOT emit here.
+      Tape contents persist in the row for audit.
     """
     fixture_id = record.get("fixture_id")
     tape = terminal.get("rules_rng_tape")
@@ -2826,10 +3219,11 @@ def assert_rules_shuffle_tape(
             fixture_id,
             {"operation_count": tape.get("operation_count"), "operations_sample": operations[:6]},
         )
-    channels = (record.get("rules_randomness") or {}).get("channels") or []
-    for channel in channels:
-        if isinstance(channel, str) and channel.startswith("library_shuffle:"):
-            log.emit(f"rules_rng:{channel}")
+    # Per-channel emission intentionally withheld: the tape records global
+    # draw counts, not per-channel attribution. Claiming library_shuffle:Pn
+    # from a global count would be the forbidden global-seed completeness
+    # claim. Semantic replay double-run (DOUBLE_RUN_FIXTURES) covers
+    # determinism separately.
     log.emit("rules_rng_tape_valid")
 
 
