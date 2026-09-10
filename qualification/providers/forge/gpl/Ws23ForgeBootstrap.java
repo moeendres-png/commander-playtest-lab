@@ -38,10 +38,12 @@ public final class Ws23ForgeBootstrap {
         Path root = forgeRoot(languagesDirectory);
         Path res = root.resolve("forge-gui/res");
         Path cards = res.resolve("cardsfolder");
+        Path tokens = res.resolve("tokenscripts");
         Path editions = res.resolve("editions");
         Path blockData = res.resolve("blockdata");
         Path typeLists = res.resolve("lists/TypeLists.txt");
         if (!Files.isDirectory(cards)
+                || !Files.isDirectory(tokens)
                 || !Files.isDirectory(editions)
                 || !Files.isDirectory(blockData)
                 || !Files.isRegularFile(typeLists)) {
@@ -63,15 +65,32 @@ public final class Ws23ForgeBootstrap {
         // into the proprietary process. All resources remain filesystem inputs to this GPL-side JVM.
         Path emptyCustomEditions = Files.createTempDirectory("ws23-forge-custom-editions-");
         CardStorageReader reader = new CardStorageReader(cards.toString(), null, true);
+        // R1e: native token database. The normal client (FModel.initialize) builds a CardStorageReader
+        // over ForgeConstants.TOKEN_DATA_DIR (forge-gui/res/tokenscripts) and passes it as tokenReader
+        // to the 13-arg StaticData constructor, which populates TokenDb. The previous 8-arg construction
+        // delegated tokenReader=null, leaving StaticData.getAllTokens() null, so any TokenDb.getToken
+        // lookup (e.g. PILOT_CHOOSE_MODE) failed with an NPE on the null database. Reuse the same native
+        // path headlessly: same source directory, same reader type, same TokenDb construction. No token
+        // is hard-coded or synthesized; no fixture is special-cased. The reader is non-lazy (false),
+        // exactly like the native client, so loadCards() parses the token scripts and the TokenDb is
+        // populated at construction. Remaining constructor arguments are identical to the 8-arg
+        // delegation (no custom readers, empty set-lookup, "latest", unknown/non-legal enabled, both
+        // conformance flags false).
+        CardStorageReader tokenReader = new CardStorageReader(tokens.toString(), null, false);
         StaticData data = new StaticData(
                 reader,
+                tokenReader,
+                null,
                 null,
                 editions.toString(),
                 emptyCustomEditions.toString(),
                 blockData.toString(),
+                "",
                 "latest",
                 true,
-                true);
+                true,
+                false,
+                false);
         data.setFilteredHandsEnabled(false);
     }
 
