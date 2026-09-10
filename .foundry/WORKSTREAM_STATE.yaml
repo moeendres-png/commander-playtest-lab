@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-a1d-docker-pin-requalification
 branch: architecture/ws-a1d-docker-pin-authority-requalification-20260910
 audit_base_sha: dd3be6026515e40f4b18a6121058877f5cab5725
 audit_base_tree: 3e73de272899c39963160c1884e5280cfe86276a
-state_written_against_head: dd3be6026515e40f4b18a6121058877f5cab5725
-validated_head: null
+state_written_against_head: caeda376213120ba6835684c70f836664326da44
+validated_head: caeda376213120ba6835684c70f836664326da44
 objective: >
   WS-A1D Docker Pin Authority and Runtime Requalification under canonical
   Coordinator contract (XHIGH). Eliminate the executable Docker pin-authority
@@ -117,10 +117,9 @@ remaining_scope:
 - Phase I B3/B4/external-engine suites on a capable host or CI (NOT_RUN locally; adjudicated UNAFFECTED)
 - Coordinator review + push adjudication (push/PR/merge NOT authorized for this workstream)
 status: ACTIVE
-next_action: Commit the WS-A1D implementation checkpoint, then record validated_head in a state-only follow-up commit and return the final handoff.
+next_action: Return the WS-A1D final handoff for Coordinator review and push adjudication. Do NOT push, open a PR, merge, or delete anything.
 exact_next_action: >
-  Inspect the full working-tree diff for unrelated semantic changes, then make
-  one focused local commit (Dockerfiles, Compose, devcontainer, resolver,
-  wrapper, provenance gate, entrypoint, READMEs, engine_setup.md, retention
-  ledger, audit report, new/strengthened tests, state). Do NOT push, open a PR,
-  merge, or delete anything.
+  Hand off WS-A1D as locally COMPLETE except H4 image materialization
+  (NOT_RUN: no Docker client on the execution host) and CI-owned B3/B4 suites
+  (NOT_RUN locally, adjudicated UNAFFECTED). Coordinator decides push and any
+  Docker-host follow-up for H4 closure.
