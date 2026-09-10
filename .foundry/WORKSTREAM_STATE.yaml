@@ -63,8 +63,13 @@ validated_gates:
 - 'Checkpoint C code commit a121896f validated at its time: pytest 79/79, ruff clean
   (superseded as validated_head by Checkpoint D)'
 - 'Checkpoint D code commits 9af7ea47 (profiles + drift) and 557f7339 (bootstrap +
-  launcher + hook) validated on clean tree: pytest 103/103, ruff check clean, ruff
-  format clean (validated_head names 557f7339)'
+  launcher + hook) validated at their time: pytest 103/103, ruff clean (superseded)'
+- 'Checkpoint E code commit e9414c00 validated on clean tree: pytest 113/113, ruff check
+  clean, ruff format clean (validated_head names e9414c00)'
+- 'Telemetry: opencode export (1.18.30) exposes authoritative turns/tool-counts/tokens/cost;
+  session_stats emits counts only (raw exports LOCAL_ONLY); metrics carry AUTOCAPTURED /
+  CALLER_SUPPLIED / UNAVAILABLE / UNKNOWN provenance; launcher + safe_push autocapture;
+  compaction count UNAVAILABLE_FROM_PINNED_CLI (no marker in format)'
 - 'Drift checker fails closed live on mage-d3q6 (SUPERSEDED_BUT_REACHABLE WS33 AGENTS.md);
   launcher init refuses own tree while pre-launcher PID 59205 occupies CWD (PR172 defect
   class now guarded) and reaches LAUNCH_READY with explicit allowance; injected env
@@ -85,8 +90,8 @@ do_not_rerun:
   reverify only on drift)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Checkpoint D complete (profiles + drift + bootstrap + launcher validated
-  at 557f7339); proceeding to Checkpoint E telemetry + selective-test/skill reconciliation.
+current_hypothesis: Checkpoint E complete (telemetry + test-impact + skills validated at
+  e9414c00); proceeding to Checkpoint F CLI/compaction bounded requalification.
 files_modified:
 - .foundry/WORKSTREAM_STATE.yaml (new source lock for this workstream)
 - .foundry/conformance-ledger-2026-09-10.json (new, Checkpoint A machine-readable
@@ -98,6 +103,7 @@ tests_run:
 - pytest tests/foundry/ -q (63 passed on Checkpoint B code commit b46aa5f6: 42 + 9 writer-lock + 12 state-v2)
 - pytest tests/foundry/ -q (79 passed on Checkpoint C code commit a121896f: 63 + 15 safe-push + 1 deny-pin)
 - pytest tests/foundry/ -q (103 passed on Checkpoint D code commit 557f7339: 79 + 8 drift + 16 launcher/bootstrap)
+- pytest tests/foundry/ -q (113 passed on Checkpoint E code commit e9414c00: 103 + 9 telemetry + 1 skill-conformance)
 - ruff check tools/foundry tests/foundry (pass)
 - ruff format --check tools/foundry tests/foundry (pass)
 - tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml --workdir . --check-validated (STATE_OK schema 2.0, ancestry silent-clean)
@@ -141,10 +147,10 @@ authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
 status: ACTIVE
-next_action: 'Checkpoint E: telemetry autocapture classification + selective-test tool +
-  skill reconciliation.'
-exact_next_action: Extend metrics with provenance classification + launcher autocapture;
-  implement changed-surface test mapper (advisory, contract overrides); add missing skills
-  (component-change-review, rules-escalation-gate); validate; commit locally.
-state_written_against_head: 557f7339c0f37a577e6dc7613c748677fca8a560
-validated_head: 557f7339c0f37a577e6dc7613c748677fca8a560
+next_action: 'Checkpoint F: CLI 1.18.29 vs installed/newer bounded requalification + compaction
+  verdict.'
+exact_next_action: Establish 1.18.29 behavior baseline, compare installed 1.18.30, survey newer
+  CLI changes (compaction hooks incl. experimental.session.compacting); record
+  CLI_UPGRADE_CANDIDATE without changing the pin; commit locally.
+state_written_against_head: e9414c006bcf959706a3d6ace932c31db5cff8a3
+validated_head: e9414c006bcf959706a3d6ace932c31db5cff8a3
