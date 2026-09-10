@@ -4,9 +4,9 @@ worktree: /home/moeen/code/ws-a1r-authority-retention
 branch: architecture/ws-a1r-authority-retention-hygiene-20260910
 audit_base_sha: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
 audit_base_tree: 215611ac8d1ea93353c2fcc4c8d7e06dabb4ca51
-state_written_against_head: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
-validated_head: null
-objective: WS-A1R repository authority, pin, pointer and retention hygiene on the accepted 3-repo pre-freeze topology (non-destructive; no mergers/splits/deletions; no license, protection, or pin changes).
+state_written_against_head: 119c6e69d64742a58d4d10030c117949f2050dbc
+validated_head: 119c6e69d64742a58d4d10030c117949f2050dbc
+objective: WS-A1R repository authority, pin, pointer and retention hygiene on the accepted 3-repo pre-freeze topology (non-destructive; no mergers/splits/deletions; no license, protection, or pin changes). COMPLETE — terminal state.
 in_scope:
 - integrations/forge/README.md pin-authority repair (reference manifest, drop stale 2.0.13 pin)
 - docs/engine_setup.md pin-table repair (reference manifest, drop stale SHAs)
@@ -15,6 +15,8 @@ in_scope:
 - docs/EVIDENCE_INDEX_REQUIREMENTS.md (minimum index fields + template; no re-indexing ordered)
 - docs/FORK_AGENT_POINTER_SPEC.md (fork pointer design + WS-A1R-F1/F2 follow-up specs; no fork edits)
 - tests/unit/test_ws_a1r_pin_authority.py (fail-closed doc/manifest consistency tests)
+- Coordinator retention/reachability review remediation (SHA-is-identity-not-storage; durable retention anchors; no-timer MERGED adjudication)
+- tests/unit/test_ws_a1r_retention_semantics.py (6 tests incl. negative control vs defective text)
 out_of_scope:
 - branch/PR deletion or closure; evidence deletion or migration; history rewrite; force push; rebase
 - license selection or LICENSE creation (LICENSE_DECISION = AUTHORITY_GATE)
@@ -25,22 +27,49 @@ out_of_scope:
 - provider selection, Architecture Freeze, Production Repository, qualification campaigns
 ownership: WS-A1R session (branch architecture/ws-a1r-authority-retention-hygiene-20260910)
 dependencies:
-- origin/main at d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68 (no drift from audit lock; verified by ls-remote + fetch)
+- origin/main at d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68 (no drift; verified by ls-remote)
 - ARCH-PORTFOLIO-AUDIT-01 findings (output/ in audit workspace; comparison evidence only)
+- PR #176 OPEN against main, head 119c6e69d64742a58d4d10030c117949f2050dbc at terminalization (merge adjudication external)
 hard_gates:
 - no destructive action; no license decision; no protection mutation; no pin change
 - manifest edit strictly additive (existing keys byte-identical)
 - terminology clarified in docs only; runtime contracts untouched
-- all tests green before handoff; no push without explicit user approval; no merge
+- validation green before handoff; no merge by this workstream
 forbidden_shortcuts:
 - second hidden Rules Engine; fabricated evidence; green-theater tests
 - closing PRs or deleting branches as drive-by cleanup
 - copying SHAs into docs as new pin authority
+validated_gates:
+- 'original scope validation: 63 passed (pin-authority, bootstrap, compatibility, technical-truth, workflow-identity, foundry-state suites)'
+- 'remediation validation: 69 passed (63 + 6 retention-semantics tests)'
+- 'negative control: defective pre-fix policy text fails the new assertions (4/4)'
+- 'state schema validation: STATE_OK via tools/foundry/state.py'
+tests_run:
+- tests/unit/test_ws_a1r_pin_authority.py
+- tests/unit/test_ws_a1r_retention_semantics.py
+- tests/unit/test_phase85_bootstrap_files.py
+- tests/unit/test_xmage_compatibility_provider.py
+- tests/unit/test_technical_truth.py
+- tests/unit/test_workflow_identity.py
+- tests/foundry/test_foundry_tools.py
+evidence:
+- 'commits 3c6668bc (pin authority) + 1d350a2d (policy/docs) + 119c6e69 (reachability remediation), all local-then-pushed, no rewrites'
+- 'state-only terminal checkpoint follows (touches .foundry/WORKSTREAM_STATE.yaml only; carries no substantive validation credit)'
+artifacts: []
+remaining_scope: []
+current_failure: NONE
+failure_class: NONE
+current_hypothesis: NONE
+first_failing_boundary: NONE
+root_cause_class: NONE
+technical_decisions:
+- 'Resolved Coordinator review defect (retention/reachability SHA-as-storage fallacy) as repository/evidence-policy semantics; closed within WS-A1R, workstream left in no failing state.'
 authority_gates:
 - 'LICENSE_DECISION = AUTHORITY_GATE (human/legal; factual input in Retention Policy Appendix G)'
 - 'BRANCH_PROTECTION = AUTHORITY_GATE (human governance workstream)'
 - 'DESTRUCTIVE_CLEANUP = AUTHORITY_GATE (Coordinator + human per wave)'
 - 'PIN_DIVERGENCE_DOCKERFILES = AUTHORITY_GATE (dedicated re-pin + requalification workstream)'
-status: ACTIVE
-next_action: 'Validate state file with tools/foundry/state.py, run scoped pytest set, commit locally, hand off.'
-exact_next_action: Run tools/foundry/state.py validator on .foundry/WORKSTREAM_STATE.yaml plus pytest on the pin-authority and engine-config suites; on green, create focused local commits (no push, no merge); return the WS-A1R handoff.
+- 'SCHEMA_RENAME_primary_secondary = DEFERRED (Freeze-adjacent; terminology clarified in docs)'
+status: COMPLETE
+next_action: 'Terminal: Coordinator re-reviews PR #176 final state-only checkpoint and CI for merge adjudication.'
+exact_next_action: Coordinator independently reviews the final PR #176 head and CI for merge adjudication. Do not merge PR #176 from WS-A1R.
