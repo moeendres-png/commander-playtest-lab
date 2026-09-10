@@ -58,8 +58,15 @@ validated_gates:
 - baseline pytest tests/foundry/ 42/42 green on clean tree
 - CWD audit of live OpenCode processes recorded (WS50 pts/2, Task2B pts/0, own --auto
   pts/3 in this worktree)
-- 'Checkpoint B code commit b46aa5f6 validated on clean tree: pytest 63/63, ruff check
+- 'Checkpoint B code commit b46aa5f6 validated at its time: pytest 63/63, ruff clean
+  (superseded as validated_head by Checkpoint C)'
+- 'Checkpoint C code commit a121896f validated on clean tree: pytest 79/79, ruff check
   clean, ruff format clean (validated_head names this commit)'
+- 'SAFE_AUTO battery (72 probes) against CLI-resolved 1.18.30 rules: every destructive
+  direct shape DENIED (push/force/main/merge/rebase/reset/clean/branch/worktree/checkout-main/rewrite/tag/stash/git-C/absolute/command/nesting/sudo/env/rm/gh-auth/gh-repo-write/gh-api-write/pipe-to-shell);
+  residuals stay declared BYPASSABLE/INSTRUCTION_ONLY, never weakened'
+- 'safe_push (15 adversarial tests, real file remotes + real lock ancestry): main/force-branch/detached/dirty/forged-state/wrong-remote/non-FF/null-validated/rewritten
+  all rejected with remote untouched; creation + up-to-date + dry-run succeed; no credential output'
 - writer_lock scan reproduces the PR172 failure mode live (PID 59205 opencode --auto
   with CWD=this worktree, invisible to worktree_inventory)
 - 'state schema 2.0: v1 parseable + migrates with zero fabricated credit; CHECKPOINT_CLEAN
@@ -71,8 +78,8 @@ do_not_rerun:
   reverify only on drift)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Checkpoint B complete (writer lock + state 2.0 validated at b46aa5f6);
-  proceeding to Checkpoint C safe-auto threat model + safe push.
+current_hypothesis: Checkpoint C complete (threat model + deny hardening + safe_push
+  validated at a121896f); proceeding to Checkpoint D cross-repo profiles + launcher.
 files_modified:
 - .foundry/WORKSTREAM_STATE.yaml (new source lock for this workstream)
 - .foundry/conformance-ledger-2026-09-10.json (new, Checkpoint A machine-readable
@@ -82,10 +89,12 @@ files_modified:
 tests_run:
 - pytest tests/foundry/ -q (42 passed, clean-tree baseline 2026-09-10)
 - pytest tests/foundry/ -q (63 passed on Checkpoint B code commit b46aa5f6: 42 + 9 writer-lock + 12 state-v2)
+- pytest tests/foundry/ -q (79 passed on Checkpoint C code commit a121896f: 63 + 15 safe-push + 1 deny-pin)
 - ruff check tools/foundry tests/foundry (pass)
 - ruff format --check tools/foundry tests/foundry (pass)
 - tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml --workdir . --check-validated (STATE_OK schema 2.0, ancestry silent-clean)
 - tools/foundry/writer_lock.py scan --worktree . (detects live PID 59205 opencode --auto)
+- permission_battery 72 probes vs CLI-1.18.30-resolved rules (isolated HOME): all destructive direct shapes DENIED; residuals declared
 evidence:
 - DIRECTLY_VERIFIED: origin/main SHA/tree, branch/HEAD/status, PR172/PR173 merge lines,
     CLI versions (installed 1.18.30, pin 1.18.29), live opencode PIDs+CWDs, mage/ws50/q6
@@ -113,6 +122,10 @@ technical_decisions:
   validated_head=claim, state_written_against_head=description, runtime HEAD derived
   live); CHECKPOINT_CLEAN (parent==recorded + state-only diff) terminates the
   write-commit cycle; migration carries zero validation credit.'
+- 'Checkpoint C: ASK is not a boundary under --auto (CLI help text); only DENY is hard
+  and only for matched command strings (interpreter children out of reach: residuals R1-R3
+  declared). gh api write-methods denied (read-only GET stays ask). Sibling-worktree denies
+  pinned for live WS50/Task-2B paths; launcher injects current inventory at Checkpoint D.'
 - 'State semantics migrated 1.0 -> 2.0: current_head preserved as state_written_against_head
   (descriptive); validated_head reset to null because v1 never distinguished the two
   (no validation credit carried across migration).'
@@ -120,10 +133,10 @@ authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
 status: ACTIVE
-next_action: 'Checkpoint C: safe-auto threat model + safe checkpoint-push path (narrow
-  API, adversarial tests).'
-exact_next_action: Write SAFE_AUTO_THREAT_MODEL doc + tools/foundry/safe_push.py with
-  fail-closed preconditions; adversarial battery incl. bypass paths; no remote push
-  until the battery passes.
-state_written_against_head: b46aa5f6fc3861e8b0041fcb43e4b288b2a57edb
-validated_head: b46aa5f6fc3861e8b0041fcb43e4b288b2a57edb
+next_action: 'Checkpoint D: cross-repo profiles + drift check + launcher (validated dry-runs
+  for CPL/Mage/Forge).'
+exact_next_action: Implement repo profiles, drift checker, bootstrap gate, and foundry
+  launcher with OPENCODE_CONFIG_CONTENT/DIR injection; smoke-test all three profiles
+  without engine mutation; no broad Muse sessions in engine repos.
+state_written_against_head: a121896fe20e7851c54c8328e16b77b7852db285
+validated_head: a121896fe20e7851c54c8328e16b77b7852db285
