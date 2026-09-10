@@ -1,0 +1,570 @@
+{
+ "baseline_kinds_beyond_first_wave": {
+  "note": "Project-critical baseline classes from WS55 contract section 6 that are NOT in the first-wave union. Investigated for production significance only; no support fabricated.",
+  "singletons": [
+   "PRIORITY",
+   "ACTIVATE",
+   "MANA_SOURCE",
+   "MANA_PAYMENT",
+   "ALTERNATE_COST",
+   "ADDITIONAL_COST",
+   "COLOR",
+   "CARD_NAME",
+   "CREATURE_TYPE",
+   "NUMBER",
+   "DISCARD",
+   "SACRIFICE",
+   "REVEAL",
+   "SCRY",
+   "SURVEIL",
+   "PILES",
+   "VOTING",
+   "SECRET_CHOICE",
+   "OPTIONAL_REPLACEMENT",
+   "OPTIONAL_TARGETS",
+   "DIVIDE_DISTRIBUTE",
+   "TRIGGER_ORDERING",
+   "REPLACEMENT_ORDERING",
+   "COPY_CHOICES",
+   "COMMANDER_MOVEMENT",
+   "CONCESSION"
+  ]
+ },
+ "canonical_kind_map": {
+  "X": {
+   "aliases": [
+    "X",
+    "NUMBER"
+   ],
+   "baseline": [
+    "X",
+    "NUMBER"
+   ]
+  },
+  "activate": {
+   "aliases": [
+    "ACTIVATE"
+   ],
+   "baseline": [
+    "ACTIVATE"
+   ]
+  },
+  "alternate cost": {
+   "aliases": [
+    "ALTERNATE_COST"
+   ],
+   "baseline": [
+    "ALTERNATE_COST"
+   ]
+  },
+  "attackers": {
+   "aliases": [
+    "ATTACKERS"
+   ],
+   "baseline": [
+    "ATTACKERS"
+   ]
+  },
+  "blockers": {
+   "aliases": [
+    "BLOCKERS"
+   ],
+   "baseline": [
+    "BLOCKERS"
+   ]
+  },
+  "cast": {
+   "aliases": [
+    "CAST"
+   ],
+   "baseline": [
+    "CAST"
+   ]
+  },
+  "combat damage assignment": {
+   "aliases": [
+    "COMBAT_DAMAGE_ASSIGNMENT"
+   ],
+   "baseline": [
+    "COMBAT_DAMAGE_ASSIGNMENT"
+   ]
+  },
+  "concession": {
+   "aliases": [
+    "CONCESSION"
+   ],
+   "baseline": [
+    "CONCESSION"
+   ]
+  },
+  "copy choices": {
+   "aliases": [
+    "COPY_CHOICES"
+   ],
+   "baseline": [
+    "COPY_CHOICES"
+   ]
+  },
+  "defender per attacker": {
+   "aliases": [
+    "DEFENDER_PER_ATTACKER"
+   ],
+   "baseline": [
+    "DEFENDER_PER_ATTACKER"
+   ]
+  },
+  "hidden-zone selection": {
+   "aliases": [
+    "HIDDEN_ZONE_SELECTION"
+   ],
+   "baseline": [
+    "HIDDEN_ZONE_SELECTION"
+   ]
+  },
+  "mana payment": {
+   "aliases": [
+    "MANA_PAYMENT"
+   ],
+   "baseline": [
+    "MANA_PAYMENT"
+   ]
+  },
+  "mana source": {
+   "aliases": [
+    "MANA_SOURCE"
+   ],
+   "baseline": [
+    "MANA_SOURCE"
+   ]
+  },
+  "may": {
+   "aliases": [
+    "MAY"
+   ],
+   "baseline": [
+    "MAY"
+   ]
+  },
+  "modes": {
+   "aliases": [
+    "MODES"
+   ],
+   "baseline": [
+    "MODES"
+   ]
+  },
+  "ordering": {
+   "aliases": [
+    "ORDERING"
+   ],
+   "baseline": [
+    "ORDERING"
+   ]
+  },
+  "pass": {
+   "aliases": [
+    "PASS",
+    "PRIORITY"
+   ],
+   "baseline": [
+    "PRIORITY",
+    "PASS"
+   ]
+  },
+  "replacement ordering": {
+   "aliases": [
+    "REPLACEMENT_ORDERING"
+   ],
+   "baseline": [
+    "REPLACEMENT_ORDERING",
+    "OPTIONAL_REPLACEMENT"
+   ]
+  },
+  "search": {
+   "aliases": [
+    "SEARCH"
+   ],
+   "baseline": [
+    "SEARCH"
+   ]
+  },
+  "targets": {
+   "aliases": [
+    "TARGETS",
+    "OPTIONAL_TARGETS"
+   ],
+   "baseline": [
+    "TARGETS",
+    "OPTIONAL_TARGETS"
+   ]
+  },
+  "trigger ordering": {
+   "aliases": [
+    "TRIGGER_ORDERING"
+   ],
+   "baseline": [
+    "TRIGGER_ORDERING"
+   ]
+  }
+ },
+ "evidence_class": "CODE_DERIVED",
+ "first_wave_union": [
+  "Commander movement",
+  "X",
+  "activate",
+  "alternate cost",
+  "attackers",
+  "blockers",
+  "cast",
+  "combat damage assignment",
+  "concession",
+  "copy choices",
+  "defender per attacker",
+  "hidden-zone selection",
+  "mana payment",
+  "mana source",
+  "may",
+  "modes",
+  "ordering",
+  "pass",
+  "replacement ordering",
+  "search",
+  "targets",
+  "trigger ordering"
+ ],
+ "forge_pin": {
+  "commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+  "tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+ },
+ "grants_behavior_credit": false,
+ "provider_lineage": "WS53 converged provider = generated ws25 broad provider + WS48 behavior overlay v1 (repaired, Repair-01) + WS53 chained overlay v1 (discard transport + frame metadata). No WS55 overlay yet at inventory time.",
+ "schema": "ws55.decision-taxonomy.v1",
+ "static_inventory": {
+  "Commander movement": {
+   "broker_kinds": [
+    "confirm"
+   ],
+   "forge_native": [
+    "GameAction.stateBasedAction_Commander (CR 903.9a): c.isRealCommander() && c.canMoveToCommandZone() -> owner controller confirmAction(..., ChangeZoneToAltDestination, '...may put it into the command zone.', null) -> YES moves natively to command zone, NO leaves it.",
+    "Zone-change replacement path (903.9b) is engine-automated via the moveToCommandZone flag (set for real commanders; consumed only by the SBA above): no second offered choice exists in engine.",
+    "No provider default selects either destination: confirm surface offers both."
+   ],
+   "label_grammar": [
+    "WS48:CONFIRM:opt=YES",
+    "WS48:CONFIRM:opt=NO"
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNNER_CONFIRM_SCRIPTING",
+   "source": "forge-game/.../GameAction.java:1830-1843"
+  },
+  "X": {
+   "broker_kinds": [
+    "announce_x"
+   ],
+   "forge_native": [
+    "PlayerController.announceRequirements(ability, min, max, announce): min==max -> automatic; else external NUM over [min,max] (width<=64).",
+    "PlayerController.chooseNumber x2 overloads: same discipline.",
+    "CostAddMana amount is engine-computed from the announced X (separate surface, AUTO mirror per WS48 R1b)."
+   ],
+   "label_grammar": [
+    "WS48:NUM:n="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "ws48_behavior_provider_overlay.py:ANNOUNCE_NEW/NUMBER_INT_NEW/NUMBER_LIST_NEW"
+  },
+  "activate": {
+   "broker_kinds": [
+    "choose_ability"
+   ],
+   "forge_native": [
+    "PlayerController.getAbilityToPlay(hostCard, abilities, triggerEvent): multi -> external; single -> automatic (broker.recordAutomatic). CloneEffect/CopyPermanentEffect copy-decisions and chooseOptionalAdditionalCosts route through here.",
+    "PlayerControllerHuman: GUI dialog over engine-provided abilities."
+   ],
+   "label_grammar": [
+    "WS48:ABILITY:host=:sa="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py:ABILITY_TO_PLAY_NEW"
+  },
+  "alternate cost": {
+   "broker_kinds": [
+    "priority(ACT alt-cost SA variants)",
+    "choose_ability",
+    "optional_costs(MISSING)"
+   ],
+   "forge_native": [
+    "Card.getAllPossibleAbilities: alternative-cost SpellAbility variants appended natively (GameActionUtil.getAlternativeCosts) -> offered as priority ACT options.",
+    "PlaySpellAbility.chooseOptionalAdditionalCosts: getAbilityToPlay(hostCard, additional-cost abilities) -> GameActionUtil.getOptionalCostValues(chosen) [engine-authoritative list] -> PlayerController.chooseOptionalCosts(chosen, list) -> GameActionUtil.addOptionalCosts.",
+    "PlayerControllerHuman.chooseOptionalCosts: GUI multi-select over engine list."
+   ],
+   "label_grammar": [
+    "ACT variants present; WS48:OPTIONALCOST:* MISSING"
+   ],
+   "provider_status": "GAP_PROVIDER_REMEDIABLE",
+   "source": "forge-game/.../GameActionUtil.java:88,567; forge-game/.../PlaySpellAbility.java:140-153; forge-gui/.../PlayerControllerHuman.java:3784"
+  },
+  "attackers": {
+   "broker_kinds": [
+    "declare_attacker"
+   ],
+   "forge_native": [
+    "PlayerController.declareAttackers(attacker, combat): CombatUtil.canAttack legality both axes."
+   ],
+   "label_grammar": [
+    "WS48:ATTACK:attacker=:defender=",
+    "WS48:ATTACK:SKIP:"
+   ],
+   "provider_status": "RUNTIME_PROVEN_WS53",
+   "source": "WS53_NATIVE_PROGRESSION_WITNESS.json 10/10; WS53_C_FINAL.json 4 attacker frames"
+  },
+  "blockers": {
+   "broker_kinds": [
+    "declare_blocker"
+   ],
+   "forge_native": [
+    "PlayerController.declareBlockers(defender, combat): CombatUtil.canBlock legality."
+   ],
+   "label_grammar": [
+    "WS48:BLOCK:blocker=:attacker=",
+    "WS48:BLOCK:SKIP:"
+   ],
+   "provider_status": "RUNTIME_PROVEN_WS53",
+   "source": "WS53_NATIVE_PROGRESSION_WITNESS.json 10/10; WS53_C_FINAL.json f170/f313 nontrivial blocks"
+  },
+  "cast": {
+   "broker_kinds": [
+    "priority"
+   ],
+   "forge_native": [
+    "PlayerController.chooseSpellAbilityToPlay -> Broker.choosePriority: nativeOptions from Card.getAllPossibleAbilities(actor, true) incl. alternative-cost variants; PASS o0 = decline.",
+    "PlaySpellAbility.playSpellAbility executes natively."
+   ],
+   "label_grammar": [
+    "PASS",
+    "WS48:ACT:host=:cmd=:card=:sa="
+   ],
+   "provider_status": "RUNTIME_PROVEN_WS53",
+   "source": "WS53_SELECTION_INTEGRITY.json (non-first o8 MINTED-22 hostId=22) + WS53_C_FINAL.json 440 frames"
+  },
+  "combat damage assignment": {
+   "broker_kinds": [
+    "combatDamage"
+   ],
+   "forge_native": [
+    "PlayerController.chooseCombatDamage(CombatDamageDecisionView) [concrete Core-owned method; base throws FORGE_CONTROLLER_COMBAT_DAMAGE_DECISION_UNSUPPORTED]: the ws40 base generator (scripts/ws40_generate_forge_provider.py, in the WS53 build chain) enumerates ONLY Core-authorized (source, recipient, min..max amount) tuples and returns the exact CombatDamageSelection; singleton -> automatic record; stale idx -> fail-closed. No provider arithmetic (see WS55_XHIGH_ADJUDICATION.json C-1).",
+    "Combat.assignAttackersDamage/assignBlockersDamage build CombatDamageDecision from the ordered maps and resolve incrementally through the controller; vanilla splits are offered as Core views.",
+    "RQ-C1 E02 script step 4 (2-to-Bear/1-to-Elves/4-trample) is the terminal staged map produced by externally-selected Core-authorized triples."
+   ],
+   "label_grammar": [
+    "COMBAT_DAMAGE|source=|recipient=|amount="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "scripts/ws40_generate_forge_provider.py:chooseCombatDamage + forge-game/.../combat/CombatDamageDecision.java"
+  },
+  "concession": {
+   "broker_kinds": [
+    "(none: concession is externally initiated, not engine-offered)"
+   ],
+   "forge_native": [
+    "PlayerControllerHuman.concede() [override]: player.concede() + game.getAction().checkGameOverCondition() + input-queue release on game over. No option set is offered by the engine; no Rules legality is computed.",
+    "No PlayerController abstract decision method offers concession as a choice."
+   ],
+   "label_grammar": [],
+   "provider_status": "ADJUDICATE_INITIATED_NOT_OFFERED",
+   "source": "forge-gui/.../PlayerControllerHuman.java:3700-3715"
+  },
+  "copy choices": {
+   "broker_kinds": [
+    "choose_object",
+    "confirm"
+   ],
+   "forge_native": [
+    "CloneEffect: activator.getController().chooseSingleEntityForEffect(choices, sa, title, choiceOpt, null) over engine-provided copyable set; optional-copy confirmAction yes/no.",
+    "CopyPermanentEffect: chooseSingleEntityForEffect + confirmAction OptionalChoose paths."
+   ],
+   "label_grammar": [
+    "WS48:OPT:opt=",
+    "WS48:CONFIRM:opt="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "forge-game/.../ability/effects/CloneEffect.java:94,111; CopyPermanentEffect.java:126,212,217,222,250"
+  },
+  "defender per attacker": {
+   "broker_kinds": [
+    "declare_attacker"
+   ],
+   "forge_native": [
+    "Within declareAttackers: per-attacker defender list (players + planeswalkers) via CombatUtil.canAttack(c, p/pw)."
+   ],
+   "label_grammar": [
+    "WS48:ATTACK:attacker=:defender="
+   ],
+   "provider_status": "RUNTIME_PROVEN_WS53",
+   "source": "ws48_behavior_provider_overlay.py:DECLARE_NEW + WS53_C_FINAL.json"
+  },
+  "hidden-zone selection": {
+   "broker_kinds": [
+    "choose_object"
+   ],
+   "forge_native": [
+    "Same zone-change methods as search (fetchList is the engine-authoritative hidden set; DelayedReveal honored natively)."
+   ],
+   "label_grammar": [
+    "WS48:OPT:opt="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_ADVERSARY_WITNESS",
+   "source": "ws48_behavior_provider_overlay.py:SINGLE_ZONE_NEW/ZONE_LIST_NEW"
+  },
+  "mana payment": {
+   "broker_kinds": [
+    "mana_payment"
+   ],
+   "forge_native": [
+    "PlayerController.payManaCost -> PlaySpellAbility.payManaCost natively.",
+    "PlayerController.applyManaToCost: external choice among native mana abilities (isManaAbility, activatingPlayer set natively) + payManaFromAbility natively + meetsManaRestrictions gate."
+   ],
+   "label_grammar": [
+    "WS48:MANA:src=:ability="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "ws48_behavior_provider_overlay.py:MANA_NEW"
+  },
+  "mana source": {
+   "broker_kinds": [
+    "mana_payment"
+   ],
+   "forge_native": [
+    "Same applyManaToCost surface: each offered option IS a native mana source ability (host card + ability identity projected)."
+   ],
+   "label_grammar": [
+    "WS48:MANA:src=:ability="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "ws48_behavior_provider_overlay.py:MANA_NEW"
+  },
+  "may": {
+   "broker_kinds": [
+    "choose_use",
+    "confirm",
+    "replacement_effect"
+   ],
+   "forge_native": [
+    "PlayerController.chooseBinary(sa, question, kindOfChoice, defaultChoice): native yes/no externalized (defaultChoice NOT auto-applied; both options offered).",
+    "PlayerController.confirmAction(sa, mode, message, options, ...): engine-provided options or YES/NO.",
+    "PlayerController.confirmReplacementEffect: apply true/false over engine-identified effect.",
+    "PlayerController.confirmTrigger(WrappedAbility): currently FAIL_CLOSED in provider (generated stub, unpatched)."
+   ],
+   "label_grammar": [
+    "WS48:BOOL:val=",
+    "WS48:CONFIRM:opt=",
+    "WS48:REPL:apply="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS_WITH_CONFIRMTRIGGER_GAP",
+   "source": "ws48_behavior_provider_overlay.py:BINARY_NEW/confirmAction/confirmReplacementEffect"
+  },
+  "modes": {
+   "broker_kinds": [
+    "choose_mode"
+   ],
+   "forge_native": [
+    "PlayerController.chooseModeForAbility(sa, possible, min, num, allowRepeat): single (min=num=1, no repeat) -> external single pick; ALL multi shapes -> DEPENDENT_MULTI_CHOICE fail-closed.",
+    "RQ-C1 D06 Casualties of War 'choose one or more' is a multi-mode shape."
+   ],
+   "label_grammar": [
+    "WS48:MODE:api=:desc="
+   ],
+   "provider_status": "PARTIAL_SINGLE_ONLY_MULTI_GAP_PROVIDER_REMEDIABLE",
+   "source": "ws48_behavior_provider_overlay.py:MODE_NEW"
+  },
+  "ordering": {
+   "broker_kinds": [
+    "(none: order_combat MISSING)"
+   ],
+   "forge_native": [
+    "Combat.orderBlockersForDamageAssignment(attacker, blockers): playerWhoAttacks.getController().orderBlockers(attacker, blockers) when >1 blocker (legacyOrderCombatants).",
+    "Combat.addBlockerToDamageAssignmentOrder: orderBlocker(attacker, blocker, oldBlockers) for late blockers.",
+    "Combat.orderAttackersForDamageAssignment(blocker): blockerCtrl.getController().orderAttackers(blocker, attackers) when >1 attacker.",
+    "PlayerControllerHuman: GUI order/insert dialogs over engine-provided collections.",
+    "RQ-C1 E02 step 3 asserts both blocker-order permutations offered (2-permutation set)."
+   ],
+   "label_grammar": [
+    "WS48:ORDERCOMBAT:* MISSING"
+   ],
+   "provider_status": "GAP_PROVIDER_REMEDIABLE",
+   "source": "forge-game/.../combat/Combat.java:466-555; forge-gui/.../PlayerControllerHuman.java:883,935,940"
+  },
+  "pass": {
+   "broker_kinds": [
+    "priority"
+   ],
+   "forge_native": [
+    "PASS o0 in choosePriority = engine-offered decline; consecutive passes progress natively via PhaseHandler; no AI involved."
+   ],
+   "label_grammar": [
+    "PASS"
+   ],
+   "provider_status": "RUNTIME_PROVEN_WS53",
+   "source": "WS53_C_FINAL.json 412 structural passes over 440 frames; replay 0 divergences"
+  },
+  "replacement ordering": {
+   "broker_kinds": [
+    "replacement_effect"
+   ],
+   "forge_native": [
+    "PlayerController.chooseSingleReplacementEffect(possibleReplacers): 0 -> fail-closed; 1 -> automatic record; >=2 -> external REPL choice over engine-identified effects.",
+    "RQ-C1 A04 asserts exactly 2 legal orders (Hardened Scales vs Doubling Season)."
+   ],
+   "label_grammar": [
+    "WS48:REPL:src=:desc="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "ws48_behavior_provider_overlay.py:REPL_SINGLE_NEW"
+  },
+  "search": {
+   "broker_kinds": [
+    "choose_object"
+   ],
+   "forge_native": [
+    "PlayerController.chooseSingleCardForZoneChange / chooseCardsForZoneChange(destination, origin, sa, fetchList, ...): engine-authoritative fetchList; optional NONE / DONE discipline; exact index binding."
+   ],
+   "label_grammar": [
+    "WS48:OPT:opt=",
+    "WS48:OPT:NONE",
+    "WS48:OPT:DONE"
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "ws48_behavior_provider_overlay.py:SINGLE_ZONE_NEW/ZONE_LIST_NEW"
+  },
+  "targets": {
+   "broker_kinds": [
+    "target"
+   ],
+   "forge_native": [
+    "PlayerController.chooseTargetsFor: candidates = TargetRestrictions.getAllCandidates filtered by canTarget + already-targeted exclusion; DONE offered iff >= minTargets.",
+    "PlayerController.chooseTarget(sa, allTargets pairs): 1 -> automatic; >=2 -> TARGETPAIR choice."
+   ],
+   "label_grammar": [
+    "WS48:TARGET:tgt=",
+    "WS48:TARGET:DONE",
+    "WS48:TARGETPAIR:tgt="
+   ],
+   "provider_status": "SURFACE_PRESENT_NEEDS_RUNTIME_WITNESS",
+   "source": "ws48_behavior_provider_overlay.py:TARGETS_FOR_NEW/TARGET_NEW"
+  },
+  "trigger ordering": {
+   "broker_kinds": [
+    "trigger_order"
+   ],
+   "forge_native": [
+    "PlayerController.orderSimultaneousSa(activePlayerSAs): 0/1 -> automatic; exactly 2 -> external binary ORDER choice; >2 -> MORE_THAN_TWO fail-closed.",
+    "orderAndPlaySimultaneousSa replays the ordered list through PlaySpellAbility.playSpellAbility with NON_NATIVE_TRIGGER guard.",
+    "RQ-C1 B01: P0 orders exactly its 2 Soul Warden triggers; P1/P2/P3 hold 1 each (no choice). First-wave shape fits the exactly-2 path."
+   ],
+   "label_grammar": [
+    "WS48:ORDER:order=0,1:",
+    "WS48:ORDER:order=1,0:"
+   ],
+   "provider_status": "PARTIAL_EXACTLY_TWO_ONLY_N_GAP_FUTURE",
+   "source": "ws48_behavior_provider_overlay.py:TRIGGER_ORDER_NEW"
+  }
+ }
+}

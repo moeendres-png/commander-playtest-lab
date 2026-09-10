@@ -1,0 +1,130 @@
+{
+  "evidence_class": "CODE_DERIVED",
+  "fail_count": 0,
+  "gate_count": 30,
+  "gates": {
+    "S1_cardinality_guard": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S1_no_doubled_add": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S1_priority_binding": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S1_range_guard": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_combat_order_trio": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_deck_env": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_multi_mode": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_optional_costs": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_order_costs_mirror": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_permutations": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_trigger_n": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S2_trigger_two_legacy_intact": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S3_chooseCardName": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_chooseCardsPile": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_confirmTrigger": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_dependent_multi_removed": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S3_destroy": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_divideShield": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_more_than_two_removed": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S3_playSaFromPlayEffect": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_playTrigger": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_sacrifice": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_specifyManaCombo": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S3_vote": {
+      "detail": "fail-closed stub retained",
+      "verdict": "PASS"
+    },
+    "S4_no_ai_gui_imports": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S4_no_gui_fallbacks": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S4_no_hacks": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S5_amount_distribution_core_view": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S5_combat_damage_core_view": {
+      "detail": "",
+      "verdict": "PASS"
+    },
+    "S6_no_lethal_arithmetic": {
+      "detail": "",
+      "verdict": "PASS"
+    }
+  },
+  "grants_behavior_credit": false,
+  "schema": "ws55.static-gates.v1",
+  "verdict": "PASS"
+}

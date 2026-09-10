@@ -1,0 +1,246 @@
+{
+  "FIRST_WAVE_REQUIRED_DECISION_KINDS": [
+    "Commander movement",
+    "X",
+    "activate",
+    "alternate cost",
+    "attackers",
+    "blockers",
+    "cast",
+    "combat damage assignment",
+    "concession",
+    "copy choices",
+    "defender per attacker",
+    "hidden-zone selection",
+    "mana payment",
+    "mana source",
+    "may",
+    "modes",
+    "ordering",
+    "pass",
+    "replacement ordering",
+    "search",
+    "targets",
+    "trigger ordering"
+  ],
+  "FIRST_WAVE_REQUIRED_DECISION_KINDS_COUNT": 22,
+  "derivation": "union of discretionary decision_kinds over the 15 first_wave=true scenarios; manifest JSON x matrix CSV x scenario files triple-agree (script fails loud otherwise)",
+  "evidence_class": "CODE_DERIVED",
+  "first_wave_scenario_count": 15,
+  "first_wave_scenario_ids": [
+    "RQ-C1-A03",
+    "RQ-C1-A04",
+    "RQ-C1-B01",
+    "RQ-C1-C01",
+    "RQ-C1-C03",
+    "RQ-C1-D06",
+    "RQ-C1-E01",
+    "RQ-C1-E02",
+    "RQ-C1-F01",
+    "RQ-C1-G02",
+    "RQ-C1-G03",
+    "RQ-C1-G04",
+    "RQ-C1-H01",
+    "RQ-C1-I01",
+    "RQ-C1-J02"
+  ],
+  "grants_behavior_credit": false,
+  "per_scenario": {
+    "RQ-C1-A03": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "activate",
+        "cast",
+        "mana payment",
+        "mana source",
+        "may",
+        "pass",
+        "targets"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Regeneration shield as optional replacement"
+    },
+    "RQ-C1-A04": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "X",
+        "cast",
+        "mana payment",
+        "mana source",
+        "pass",
+        "replacement ordering"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Two counter replacements with divergent orders"
+    },
+    "RQ-C1-B01": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "cast",
+        "mana payment",
+        "pass",
+        "trigger ordering"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Five Wardens trigger across four players"
+    },
+    "RQ-C1-C01": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "alternate cost",
+        "cast",
+        "mana payment",
+        "mana source",
+        "pass",
+        "targets"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Force of Will pitch versus hard-cast"
+    },
+    "RQ-C1-C03": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "X",
+        "cast",
+        "mana payment",
+        "pass",
+        "targets"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Fireball X with per-target increase"
+    },
+    "RQ-C1-D06": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "cast",
+        "mana payment",
+        "modes",
+        "pass",
+        "targets"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Casualties of War choose one or more"
+    },
+    "RQ-C1-E01": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "attackers",
+        "defender per attacker",
+        "mana payment",
+        "pass"
+      ],
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "player_count": 4,
+      "title": "Propaganda multi-defender attack tax"
+    },
+    "RQ-C1-E02": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "attackers",
+        "blockers",
+        "combat damage assignment",
+        "defender per attacker",
+        "ordering",
+        "pass"
+      ],
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "player_count": 4,
+      "title": "Double-blocked trampler ordering and rollover"
+    },
+    "RQ-C1-F01": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "cast",
+        "hidden-zone selection",
+        "mana payment",
+        "pass",
+        "search"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Rampant Growth search plus shuffle"
+    },
+    "RQ-C1-G02": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "Commander movement",
+        "cast",
+        "mana payment",
+        "pass",
+        "targets"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Commander movement choice and tax"
+    },
+    "RQ-C1-G03": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "attackers",
+        "blockers",
+        "defender per attacker",
+        "pass"
+      ],
+      "native_setup_boundary": "PRE_DECISION_CONSTRUCTION",
+      "player_count": 4,
+      "title": "Commander damage loss at 21"
+    },
+    "RQ-C1-G04": {
+      "authority_status": "AUTHORITY_GATE_REQUIRED",
+      "decision_kinds": [
+        "concession",
+        "pass"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Control Magic controller leaves game"
+    },
+    "RQ-C1-H01": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "cast",
+        "copy choices",
+        "mana payment",
+        "pass"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Clone under Humility"
+    },
+    "RQ-C1-I01": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "cast",
+        "mana payment",
+        "pass",
+        "targets"
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "player_count": 4,
+      "title": "Blink drops counters and Aura"
+    },
+    "RQ-C1-J02": {
+      "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+      "decision_kinds": [
+        "attackers",
+        "defender per attacker",
+        "pass",
+        "targets"
+      ],
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "player_count": 4,
+      "title": "Delina d20 with roll-again"
+    }
+  },
+  "rq_c1_head": "714ad417c1c090eb4ddf1ccd0828a2e869a80a74",
+  "rq_c1_ref": "research/candidate-neutral-architecture-reverser-corpus-rq-c1-20260910",
+  "rq_c1_tree": "709a5944c9826dbaaa433052f3538425c8f0573b",
+  "schema": "ws55.first-wave-decision-requirements.v1",
+  "usage_note": "RQ-C1 is MODELED corpus design input. Its expected Magic outcomes are NOT Rules truth. Only the decision-surface requirements are consumed here."
+}

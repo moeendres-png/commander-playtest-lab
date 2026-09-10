@@ -1,0 +1,50 @@
+audit_base_sha: 9493bb562efb9bcb7e14bf652b564f74b3f3b600
+audit_base_tree: 077769865f2224304c2365d85020de57e637cd20
+branch: ws55/forge-mandatory-decision-breadth-20260910
+exact_next_action: 'Checkpoint B: persist WS55_DECISION_TAXONOMY.json static inventory, then dispatch XHIGH adjudication (Checkpoint C).'
+in_scope:
+- Derive FIRST_WAVE_REQUIRED_DECISION_KINDS (22) from RQ-C1 lock (done, triple-agree).
+- Static inventory of WS53 converged provider vocabulary vs 22 kinds (in progress).
+- XHIGH gap adjudication per decision kind.
+- Systemic provider remediation for provider-remediable first-wave blockers.
+- Runtime competing-option witnesses + negative controls + hidden-info/combat gates.
+- Targeted WS53 impact requalification.
+- Final readiness matrix + report. No behavior credit, no Full107, no first-wave execution.
+objective: WS55-FORGE-MANDATORY-DECISION-BREADTH - qualify that the terminal WS53
+  Forge provider/native-progression architecture externalizes the complete mandatory
+  discretionary Decision breadth for the RQ-C1 first wave with authoritative Forge
+  legality, exact native binding, fail-closed behavior, and principal-scoped
+  information/execution. Decision-seam qualification only; no actual-card behavior
+  credit.
+out_of_scope:
+- RQ-C1 first-wave actual-card execution (not started here).
+- RQ-C2/Sol Rules authority adjudication.
+- Forge engine source changes (read-only).
+- Full107, behavior credit, provider selection, architecture freeze.
+- 2-5 player conformance.
+ownership: WS55-FORGE-MANDATORY-DECISION-BREADTH
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+status: ACTIVE
+validated_head: null
+worktree: /home/moeen/code/ws55-forge-mandatory-decision-breadth
+checkpoints:
+  A_source_lock_denominator:
+    status: DONE
+    evidence:
+    - WS55_SOURCE_LOCK.md
+    - WS55_FIRST_WAVE_DECISION_REQUIREMENTS.json (N=22, triple-agree)
+    - ws55_derive_first_wave.py
+  B_static_inventory:
+    status: IN_PROGRESS
+  C_xhigh_adjudication:
+    status: PENDING
+  D_blocking_remediation:
+    status: PENDING
+  E_remaining_surfaces:
+    status: PENDING
+  F_hidden_combat_negative:
+    status: PENDING
+  G_impact_readiness:
+    status: PENDING
+technical_decisions: []
