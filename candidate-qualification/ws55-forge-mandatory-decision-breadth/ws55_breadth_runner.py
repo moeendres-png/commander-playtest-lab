@@ -231,7 +231,35 @@ def answer_order_combat(drv: Any, actor: str, opts: list[dict[str, Any]],
     return str(opts[hits[0]]["option_id"])
 
 
+def answer_priority_cost(drv: Any, actor: str, opts: list[dict[str, Any]],
+                         labels: list[dict[str, str]], phase: Any,
+                         turn: Any) -> str | None:
+    """Alternate-cost variant pick: matches host identity + cost-text
+    substring against native ACT labels (both variants are engine-offered
+    SpellAbilities). Returns None when no due cast_cost entry."""
+    due = [e for e in drv.script
+           if e.get("decision_family") == "priority_cost"
+           and e.get("actor") == actor
+           and (e.get("phases") is None or phase in (e.get("phases") or []))
+           and (e.get("turns") is None or turn in (e.get("turns") or []))]
+    if not due:
+        return None
+    d = due[0]
+    drv.script.remove(d)
+    sv = d["selection"]["semantic_value"]
+    hits = [i for i, lb in enumerate(labels)
+            if lb.get("_kind") == "ACT"
+            and (lb.get("host") == sv["object"])
+            and sv["cost_match"].lower() in (lb.get("sa", "") + " " + lb.get("card", "")).lower()]
+    if len(hits) != 1:
+        drv.script.insert(0, d)
+        raise base.Blocked("priority", f"cost variant {sv}: {len(hits)} matches of {len(opts)}")
+    drv.consumed.append(d)
+    return str(opts[hits[0]]["option_id"])
+
+
 def answer_target_done(drv: Any, actor: str, opts: list[dict[str, Any]],
+                       labels: list[dict[str, str]],
                        phase: Any, turn: Any) -> str:
     d = _pop_due(drv, ("target_done",), actor, phase, turn, "target")
     for i, o in enumerate(opts):
@@ -434,6 +462,27 @@ def ws55_answer(drv: Any, kind: str, actor: str, opts: list[dict[str, Any]],
                 phase: str | None = None, turn: int | None = None) -> str:
     # Re-parse WS55 labels (run_scenario parsed WS48-only; WS55 fell to _legacy).
     labels55 = [ws55_dec_label(o.get("kind", "")) for o in opts]
+    if kind == "priority":
+        # Script-order fairness: the first due entry among the priority
+        # families decides. Cost-variant answers only when the earliest due
+        # entry is a priority_cost entry; otherwise the WS53 mechanism runs
+        # (lands before spells, matching authorial script order).
+        first_due = None
+        for e in drv.script:
+            if e.get("decision_family") not in ("priority", "choose_ability", "priority_cost"):
+                continue
+            if e.get("actor") != actor:
+                continue
+            if e.get("phases") is not None and phase not in (e.get("phases") or []):
+                continue
+            if e.get("turns") is not None and turn not in (e.get("turns") or []):
+                continue
+            first_due = e
+            break
+        if first_due is not None and first_due.get("decision_family") == "priority_cost":
+            hit = answer_priority_cost(drv, actor, opts, labels55, phase, turn)
+            if hit is not None:
+                return hit
     if kind == "combatDamage":
         return answer_combat_damage(drv, actor, opts, labels55, phase, turn)
     if kind == "amountDistribution":
