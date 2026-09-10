@@ -66,8 +66,13 @@ validated_gates:
   launcher + hook) validated at their time: pytest 103/103, ruff clean (superseded)'
 - 'Checkpoint E code commit e9414c00 validated at its time: pytest 113/113, ruff clean
   (superseded)'
-- 'Checkpoint F commit 61fb7120 (docs-only CLI requalification) validated on clean tree:
-  pytest 113/113, ruff clean (validated_head names 61fb7120)'
+- 'Checkpoint F commit 61fb7120 (docs-only CLI requalification) validated at its time:
+  pytest 113/113, ruff clean (superseded)'
+- 'Checkpoint G code commit 93d0c303 (redaction tests) + docs commit 5a6550c7
+  (qualification record, final ledger 13 PASS / 8 PARTIAL / 0 FAIL, 72-probe battery
+  seal) validated on clean tree: pytest 117/117, ruff check clean, ruff format clean,
+  git diff clean, final 72-probe battery vs fresh CLI-resolved rules green
+  (validated_head names 5a6550c7)'
 - 'CLI: 1.18.29 vs 1.18.30 zero verdict drift (72 probes); .30 changes immaterial;
   CLI_UPGRADE_CANDIDATE=NO, CLI_PIN_CHANGE=NOT_AUTHORIZED; COMPACTION_HOOK=
   INTENTIONALLY_DEFERRED (no declarative hook; unknown keys dropped)'
@@ -95,8 +100,8 @@ do_not_rerun:
   reverify only on drift)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Checkpoint F complete (CLI requalification at 61fb7120); proceeding to
-  Checkpoint G adversarial qualification + final docs.
+current_hypothesis: 'All checkpoints complete (A-G); final validation green at 5a6550c7.
+  Remaining step: authorized checkpoint push via the validated safe-push path, then handoff.'
 files_modified:
 - .foundry/WORKSTREAM_STATE.yaml (new source lock for this workstream)
 - .foundry/conformance-ledger-2026-09-10.json (new, Checkpoint A machine-readable
@@ -110,6 +115,9 @@ tests_run:
 - pytest tests/foundry/ -q (103 passed on Checkpoint D code commit 557f7339: 79 + 8 drift + 16 launcher/bootstrap)
 - pytest tests/foundry/ -q (113 passed on Checkpoint E code commit e9414c00: 103 + 9 telemetry + 1 skill-conformance)
 - pytest tests/foundry/ -q (113 passed on Checkpoint F commit 61fb7120, docs-only delta)
+- pytest tests/foundry/ -q (117 passed on Checkpoint G commit 5a6550c7: 113 + 4 redaction/secret)
+- ruff check + ruff format --check + git diff --check (pass, final tree)
+- permission_battery 72 probes vs freshly resolved 1.18.30 rules (final seal: zero non-DENIED destructive)
 - ruff check tools/foundry tests/foundry (pass)
 - ruff format --check tools/foundry tests/foundry (pass)
 - tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml --workdir . --check-validated (STATE_OK schema 2.0, ancestry silent-clean)
@@ -153,9 +161,10 @@ authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
 status: ACTIVE
-next_action: 'Checkpoint G: adversarial qualification + final readiness matrix + docs.'
-exact_next_action: Run the full adversarial battery (safe-auto, push, lock, drift, redaction)
-  fresh; verify engine pin integrity; write CROSS_REPO_MUSE_OPERATING_LAYER_QUALIFICATION doc;
-  update conformance ledger to final; commit locally; hand off (no push, no PR).
-state_written_against_head: 61fb71202c6bd5de741cb39f2e4324e4bcb05cd3
-validated_head: 61fb71202c6bd5de741cb39f2e4324e4bcb05cd3
+next_action: 'Terminal: push checkpoints via validated safe-push path, verify remote, hand off.'
+exact_next_action: Install branch-scoped pre-push hook; fetch origin; push HEAD to
+  origin/project/opencode-muse-cross-repo-hardening-v2-20260910 via safe_push as a child of
+  a lock-holding parent (authorized workstream-checkpoint path); verify with ls-remote;
+  do not open a PR; return the full handoff.
+state_written_against_head: 5a6550c7770894c19712f3690ae4b17072669973
+validated_head: 5a6550c7770894c19712f3690ae4b17072669973
