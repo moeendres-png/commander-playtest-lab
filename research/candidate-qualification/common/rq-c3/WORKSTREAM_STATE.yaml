@@ -95,8 +95,8 @@ technical_decisions:
 authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
-status: ACTIVE
-next_action: 'Terminal: seal evidence, commit checkpoints, hand off with RULES_AUTHORITY_CLOSURE_PASS.'
-exact_next_action: Run validate_rqc3.py green, verify git diff scoped to rq-c3/ only, make focused local commits per persistence checkpoints, return full handoff with terminal verdict and dependency answers.
-state_written_against_head: fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8
-validated_head: null
+status: COMPLETE
+next_action: 'Handoff RULES_AUTHORITY_CLOSURE_PASS; await Coordinator WS55 impact-adjudication then candidate instantiation.'
+exact_next_action: Coordinator impact-adjudicates WS55 against RQ_C3_DECISION_REQUIREMENT_DELTA.json, then authorizes unchanged-instantiation of RQ-C3 First Wave.
+state_written_against_head: 46a3a18f09c092c15b70d134741685b496226d50
+validated_head: 46a3a18f09c092c15b70d134741685b496226d50
