@@ -1,0 +1,9 @@
+{
+ "neg_test": "replay_mismatch_detection",
+ "expected": "FAIL",
+ "got": "FAIL",
+ "neg_verdict": "PASS",
+ "divergences": [
+  "frame 1: selected identity PLAYER:seat-1 != MUTATED:PLAYER:seat-1"
+ ]
+}

@@ -90,6 +90,14 @@ def check(provider: str) -> dict:
          "WS55:ZONEORDER:card=" in provider
          and "orderMoveToZoneList:ENTERED" in provider
          and 'throw failClosed("orderMoveToZoneList");' not in provider)
+    gate("S2_pitch_costs",
+         "WS55:COSTEXILE:opt=" in provider
+         and "WS55:OPT:CANCEL" in provider
+         and "costVisit:CostExile" in provider
+         and "costVisit:CostPayLife" in provider
+         and "ws55MandatoryBox" in provider
+         and 'throw failClosed("costVisit:CostExile");' not in provider
+         and 'throw failClosed("costVisit:CostPayLife");' not in provider)
     gate("S2_permutations", "ws55Permutations" in provider
          and "PERMUTATION_BOUND" in provider)
 

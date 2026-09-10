@@ -1,0 +1,232 @@
+{
+ "intent": [
+  {
+   "decision_family": "priority",
+   "actor": "P1",
+   "selection": {
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-27"
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    1
+   ]
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P2",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-183"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P3",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-227"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P4",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-337"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "priority",
+   "actor": "P1",
+   "selection": {
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-25"
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    5
+   ]
+  },
+  {
+   "decision_family": "priority",
+   "actor": "P2",
+   "selection": {
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-167"
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    6
+   ]
+  },
+  {
+   "decision_family": "mana_payment",
+   "actor": "P2",
+   "selection": {
+    "selector_kind": "explicit_sources",
+    "semantic_value": {
+     "sources": [
+      "MINTED-167"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "priority",
+   "actor": "P2",
+   "selection": {
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-196"
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    6
+   ]
+  },
+  {
+   "decision_family": "priority_cost",
+   "actor": "P1",
+   "selection": {
+    "selector_kind": "cost_variant",
+    "semantic_value": {
+     "object": "MINTED-8",
+     "cost_match": "exile"
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   },
+   "turns": [
+    6
+   ],
+   "requires_stack": true
+  },
+  {
+   "decision_family": "target",
+   "actor": "P1",
+   "selection": {
+    "selector_kind": "semantic_object",
+    "semantic_value": "MINTED-196",
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "cost_exile",
+   "actor": "P1",
+   "selection": {
+    "selector_kind": "exact_card",
+    "semantic_value": "MINTED-3",
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "confirm",
+   "actor": "P1",
+   "selection": {
+    "selector_kind": "explicit_confirm",
+    "semantic_value": {
+     "confirm": true
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P3",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-276"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  },
+  {
+   "decision_family": "discard",
+   "actor": "P4",
+   "selection": {
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-338"
+     ]
+    },
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED"
+   }
+  }
+ ],
+ "provenance": "WS55 W-pitch (diagnostic-or-evidence): FoW-8 pitch vs Merfolk-196; exile FoW-3; PAY life."
+}

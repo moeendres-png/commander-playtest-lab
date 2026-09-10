@@ -1,0 +1,1353 @@
+{
+  "answered": 17,
+  "behavior_credit": "0/107",
+  "consumed_intent": 7,
+  "credited_path": true,
+  "decode_errors": 0,
+  "diagnostic_only": false,
+  "evidence_class": "DECISION_SEQUENCE",
+  "execution_entry_mode": "NATURAL_GAME_START",
+  "failure_class": {
+    "class": "UNKNOWN",
+    "note": "stop_reason=WS23_OPTION_NOT_OFFERED"
+  },
+  "fixture_id": "PILOT_MULLIGAN",
+  "forge": {
+    "commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+  },
+  "frame_count": 17,
+  "frames": [
+    {
+      "actor": "P3",
+      "cancel_offered": false,
+      "engine_frame_id": "d1",
+      "engine_frame_seq": 1,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "chooseStartingPlayer",
+      "observation_fingerprints": {
+        "P1": "2a39b6872518392bd28151a6924127ed84639d988b0b3ba8717d6d4f4b6cfef9",
+        "P2": "0372a8fdd5beb0f718bfa76b1e5412024e44f312c7498fa480e96f9fbd36cdab",
+        "P3": "663742a9ad9315395e4b17a3fd12978c0ca91ca27151cd971fe9c29033df5717",
+        "P4": "47f1309beb0b3c154ef5355e53f2f11a48182971a2e501f85c79afe5ed28ce99"
+      },
+      "observations": [
+        {
+          "fingerprint": "2a39b6872518392bd28151a6924127ed84639d988b0b3ba8717d6d4f4b6cfef9",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "0372a8fdd5beb0f718bfa76b1e5412024e44f312c7498fa480e96f9fbd36cdab",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "663742a9ad9315395e4b17a3fd12978c0ca91ca27151cd971fe9c29033df5717",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "47f1309beb0b3c154ef5355e53f2f11a48182971a2e501f85c79afe5ed28ce99",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PLAYER:seat-1",
+        "PLAYER:seat-2",
+        "PLAYER:seat-3",
+        "PLAYER:seat-4"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PLAYER:seat-1"
+        },
+        {
+          "id": "o1",
+          "kind": "PLAYER:seat-2"
+        },
+        {
+          "id": "o2",
+          "kind": "PLAYER:seat-3"
+        },
+        {
+          "id": "o3",
+          "kind": "PLAYER:seat-4"
+        }
+      ],
+      "option_count": 4,
+      "raw_actor": "seat-3",
+      "revision": 0,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PLAYER:seat-1",
+        "option_id": "o0"
+      },
+      "seq": 1,
+      "state_fingerprint": "9185e76742fcea774d3e4cde29d62a88ec121c978b48d61bd693b4def4c452ce",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": false,
+      "engine_frame_id": "d2",
+      "engine_frame_seq": 2,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "84a7c4382e401e6954ae595cc1f248f84f932c29a0c3ac2351f96f14d330e0f1",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "84a7c4382e401e6954ae595cc1f248f84f932c29a0c3ac2351f96f14d330e0f1",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":72,\"name\":\"Forest\"},{\"id\":47,\"name\":\"Forest\"},{\"id\":55,\"name\":\"Forest\"},{\"id\":34,\"name\":\"Stonecoil Serpent\"},{\"id\":59,\"name\":\"Forest\"},{\"id\":37,\"name\":\"Stonecoil Serpent\"},{\"id\":82,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-1",
+      "revision": 1,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "MULLIGAN",
+        "option_id": "o1"
+      },
+      "seq": 2,
+      "state_fingerprint": "853a4d0a410aca2f3b26f4deaca8eeaf3c5c81d340f8689db919f10b198a9c6a",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P2",
+      "cancel_offered": false,
+      "engine_frame_id": "d3",
+      "engine_frame_seq": 3,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-2",
+      "revision": 2,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 3,
+      "state_fingerprint": "853a4d0a410aca2f3b26f4deaca8eeaf3c5c81d340f8689db919f10b198a9c6a",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P3",
+      "cancel_offered": false,
+      "engine_frame_id": "d4",
+      "engine_frame_seq": 4,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-3",
+      "revision": 3,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 4,
+      "state_fingerprint": "853a4d0a410aca2f3b26f4deaca8eeaf3c5c81d340f8689db919f10b198a9c6a",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P4",
+      "cancel_offered": false,
+      "engine_frame_id": "d5",
+      "engine_frame_seq": 5,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-4",
+      "revision": 4,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 5,
+      "state_fingerprint": "853a4d0a410aca2f3b26f4deaca8eeaf3c5c81d340f8689db919f10b198a9c6a",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": false,
+      "engine_frame_id": "d6",
+      "engine_frame_seq": 6,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-1",
+      "revision": 5,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 6,
+      "state_fingerprint": "853a4d0a410aca2f3b26f4deaca8eeaf3c5c81d340f8689db919f10b198a9c6a",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d7",
+      "engine_frame_seq": 7,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-1",
+      "revision": 6,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 7,
+      "state_fingerprint": "89be0bf0dfbb9006d3b67c7da6be1324d6975ae2bf284d0901dad280d3e6b763",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P2",
+      "cancel_offered": true,
+      "engine_frame_id": "d8",
+      "engine_frame_seq": 8,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-2",
+      "revision": 7,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 8,
+      "state_fingerprint": "89be0bf0dfbb9006d3b67c7da6be1324d6975ae2bf284d0901dad280d3e6b763",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P3",
+      "cancel_offered": true,
+      "engine_frame_id": "d9",
+      "engine_frame_seq": 9,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-3",
+      "revision": 8,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 9,
+      "state_fingerprint": "89be0bf0dfbb9006d3b67c7da6be1324d6975ae2bf284d0901dad280d3e6b763",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P4",
+      "cancel_offered": true,
+      "engine_frame_id": "d10",
+      "engine_frame_seq": 10,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+        "P2": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+        "P3": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+        "P4": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664"
+      },
+      "observations": [
+        {
+          "fingerprint": "2214bcb01aa90473f84dfe3804357784b3c41e925c88b7ced0747b50d07b77c6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "b22203bc7779ea660bdac8865d2125c10b2b103170580d44add56fd4b6456a07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "e07f15041ef0790e72f05a962d9be7aab7cbb9879759fe05df0dc88e3224de5b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "502f3ac9edca610b378453edc8b3d590780f15d72bf17e4ee849af5ab8e46664",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-4",
+      "revision": 9,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 10,
+      "state_fingerprint": "89be0bf0dfbb9006d3b67c7da6be1324d6975ae2bf284d0901dad280d3e6b763",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d11",
+      "engine_frame_seq": 11,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+        "P2": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+        "P3": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+        "P4": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab"
+      },
+      "observations": [
+        {
+          "fingerprint": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Stonecoil Serpent\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-1",
+      "revision": 10,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 11,
+      "state_fingerprint": "64013333368468642d7a1f879255291a973d94abce095e1bc6cd2b9803aea1c7",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P2",
+      "cancel_offered": true,
+      "engine_frame_id": "d12",
+      "engine_frame_seq": 12,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+        "P2": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+        "P3": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+        "P4": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab"
+      },
+      "observations": [
+        {
+          "fingerprint": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Stonecoil Serpent\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-2",
+      "revision": 11,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 12,
+      "state_fingerprint": "64013333368468642d7a1f879255291a973d94abce095e1bc6cd2b9803aea1c7",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P3",
+      "cancel_offered": true,
+      "engine_frame_id": "d13",
+      "engine_frame_seq": 13,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+        "P2": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+        "P3": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+        "P4": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab"
+      },
+      "observations": [
+        {
+          "fingerprint": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Stonecoil Serpent\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-3",
+      "revision": 12,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 13,
+      "state_fingerprint": "64013333368468642d7a1f879255291a973d94abce095e1bc6cd2b9803aea1c7",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P4",
+      "cancel_offered": true,
+      "engine_frame_id": "d14",
+      "engine_frame_seq": 14,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+        "P2": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+        "P3": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+        "P4": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab"
+      },
+      "observations": [
+        {
+          "fingerprint": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Stonecoil Serpent\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-4",
+      "revision": 13,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 14,
+      "state_fingerprint": "64013333368468642d7a1f879255291a973d94abce095e1bc6cd2b9803aea1c7",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d15",
+      "engine_frame_seq": 15,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+        "P2": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+        "P3": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+        "P4": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab"
+      },
+      "observations": [
+        {
+          "fingerprint": "e45ebac45586d2b3511ba261a0a642f2f56d4d1c33188d834792272165c9c25c",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":95,\"name\":\"Forest\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Stonecoil Serpent\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "2abc79526bb0060ed88af0a207753a559078cc808400f31568db9b5a8afc1d83",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "5faa1c018983ac13e80fe7744a63c121293e6d3453248ee86e892fe8c23df38e",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "28da7c3a7a5ac92840a02398bc9d9a638a5ce8c5b0cb2b66ad6ed91dee1cc5ab",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-100:cmd=null:card=Ghalta%2C+Stampede+Tyrant:sa=Ghalta%2C+Stampede+Tyrant+-+Creature+12+%2F+12",
+        "WS48:ACT:host=MINTED-22:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-25:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-27:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-77:cmd=null:card=Forest:sa=Play+land",
+        "WS48:ACT:host=MINTED-85:cmd=null:card=Forest:sa=Play+land",
+        "WS48:ACT:host=MINTED-8:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-95:cmd=null:card=Forest:sa=Play+land"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-27:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o2",
+          "kind": "WS48:ACT:host=MINTED-8:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o3",
+          "kind": "WS48:ACT:host=MINTED-95:cmd=null:card=Forest:sa=Play+land"
+        },
+        {
+          "id": "o4",
+          "kind": "WS48:ACT:host=MINTED-77:cmd=null:card=Forest:sa=Play+land"
+        },
+        {
+          "id": "o5",
+          "kind": "WS48:ACT:host=MINTED-25:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o6",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o7",
+          "kind": "WS48:ACT:host=MINTED-85:cmd=null:card=Forest:sa=Play+land"
+        },
+        {
+          "id": "o8",
+          "kind": "WS48:ACT:host=MINTED-22:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o9",
+          "kind": "WS48:ACT:host=MINTED-100:cmd=null:card=Ghalta%2C+Stampede+Tyrant:sa=Ghalta%2C+Stampede+Tyrant+-+Creature+12+%2F+12"
+        }
+      ],
+      "option_count": 10,
+      "raw_actor": "seat-1",
+      "revision": 14,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "WS48:ACT:host=MINTED-95:cmd=null:card=Forest:sa=Play+land",
+        "option_id": "o3"
+      },
+      "seq": 15,
+      "state_fingerprint": "b87380650e6c2b10229b8688b1d1b88e32a2db2118b3a5ae68a8af28cf113e7f",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"MAIN1\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d16",
+      "engine_frame_seq": 16,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "360f7131e4d4722c9d41db05b2d9362b6ea31ad4fa4b70a9223b5e6e4e108521",
+        "P2": "694c1773322d59c9f70c00038152073043193c9424854d0827e1705b2ecf4d50",
+        "P3": "059a32eac7dda4a3b634029525cc36a97d12a22b4f7e3c5429b795dd2c087b18",
+        "P4": "e521d7f3dc83f10b968645bccc2e1fb6162ed1990472a1bc0832efa1f6c66b0d"
+      },
+      "observations": [
+        {
+          "fingerprint": "360f7131e4d4722c9d41db05b2d9362b6ea31ad4fa4b70a9223b5e6e4e108521",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":8,\"name\":\"Stonecoil Serpent\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Stonecoil Serpent\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "694c1773322d59c9f70c00038152073043193c9424854d0827e1705b2ecf4d50",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "059a32eac7dda4a3b634029525cc36a97d12a22b4f7e3c5429b795dd2c087b18",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e521d7f3dc83f10b968645bccc2e1fb6162ed1990472a1bc0832efa1f6c66b0d",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-100:cmd=null:card=Ghalta%2C+Stampede+Tyrant:sa=Ghalta%2C+Stampede+Tyrant+-+Creature+12+%2F+12",
+        "WS48:ACT:host=MINTED-22:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-25:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-27:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-8:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "WS48:ACT:host=MINTED-95:cmd=null:card=Forest:sa=%7BT%7D%3A+Add+%7BG%7D."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-27:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o2",
+          "kind": "WS48:ACT:host=MINTED-8:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o3",
+          "kind": "WS48:ACT:host=MINTED-25:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o4",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o5",
+          "kind": "WS48:ACT:host=MINTED-22:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29"
+        },
+        {
+          "id": "o6",
+          "kind": "WS48:ACT:host=MINTED-95:cmd=null:card=Forest:sa=%7BT%7D%3A+Add+%7BG%7D."
+        },
+        {
+          "id": "o7",
+          "kind": "WS48:ACT:host=MINTED-100:cmd=null:card=Ghalta%2C+Stampede+Tyrant:sa=Ghalta%2C+Stampede+Tyrant+-+Creature+12+%2F+12"
+        }
+      ],
+      "option_count": 8,
+      "raw_actor": "seat-1",
+      "revision": 15,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "WS48:ACT:host=MINTED-8:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+        "option_id": "o2"
+      },
+      "seq": 16,
+      "state_fingerprint": "810323885b8f3d432812d5b12c165f2415187e511e62847f52b72306e59ada12",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"MAIN1\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":91,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": false,
+      "engine_frame_id": "d17",
+      "engine_frame_seq": 17,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "announce_x",
+      "observation_fingerprints": {
+        "P1": "2cd4124564cac2353a3d1db7b4b641521e4d06ddb18197fd30d70bc4f96851f0",
+        "P2": "8c39e811d5f92095554bfdb12658be50b41793039d8ca99315350dc29ef65ee3",
+        "P3": "ed91c6692a89c76d9035f979546fea4224e1e5ff0ba07c0329b7dabbb709ecaa",
+        "P4": "57203a751d5731cbd48867d3849e79f7f77571d1b272f3c4de70638db76c66dd"
+      },
+      "observations": [
+        {
+          "fingerprint": "2cd4124564cac2353a3d1db7b4b641521e4d06ddb18197fd30d70bc4f96851f0",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":6,\"cards\":[{\"id\":27,\"name\":\"Stonecoil Serpent\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Stonecoil Serpent\"},{\"id\":3,\"name\":\"Stonecoil Serpent\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Stonecoil Serpent\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[{\"id\":8,\"face_down\":false,\"name\":\"Stonecoil Serpent\"}]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "8c39e811d5f92095554bfdb12658be50b41793039d8ca99315350dc29ef65ee3",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":6,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Forest\"},{\"id\":197,\"name\":\"Forest\"},{\"id\":107,\"name\":\"Stonecoil Serpent\"},{\"id\":167,\"name\":\"Forest\"},{\"id\":149,\"name\":\"Forest\"},{\"id\":154,\"name\":\"Forest\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[{\"id\":8,\"face_down\":false,\"name\":\"Stonecoil Serpent\"}]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "ed91c6692a89c76d9035f979546fea4224e1e5ff0ba07c0329b7dabbb709ecaa",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":6,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Stonecoil Serpent\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Stonecoil Serpent\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Forest\"},{\"id\":223,\"name\":\"Stonecoil Serpent\"},{\"id\":298,\"name\":\"Forest\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[{\"id\":8,\"face_down\":false,\"name\":\"Stonecoil Serpent\"}]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "57203a751d5731cbd48867d3849e79f7f77571d1b272f3c4de70638db76c66dd",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":6,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Stonecoil Serpent\"},{\"id\":338,\"name\":\"Stonecoil Serpent\"},{\"id\":370,\"name\":\"Forest\"},{\"id\":346,\"name\":\"Forest\"},{\"id\":314,\"name\":\"Stonecoil Serpent\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Forest\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":95,\"face_down\":false,\"name\":\"Forest\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Ghalta, Stampede Tyrant\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[{\"id\":8,\"face_down\":false,\"name\":\"Stonecoil Serpent\"}]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "WS55:NUMRANGE:min=0:max=2147483647:announce=X"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "WS55:NUMRANGE:min=0:max=2147483647:announce=X"
+        }
+      ],
+      "option_count": 1,
+      "raw_actor": "seat-1",
+      "revision": 16,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "STALE:o9999",
+        "option_id": "o9999"
+      },
+      "seq": 17,
+      "state_fingerprint": "c3cf17fb2134e47fffc9fe6e6b40f93bca3dc6d7b596b2bce5fa3918a0f9e5be",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"MAIN1\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":6,\"library_count\":91,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Ghalta, Stampede Tyrant\"}]}"
+    }
+  ],
+  "grants_behavior_credit": false,
+  "hidden_info_verdict": "PASS",
+  "intent": [
+    {
+      "actor": "P1",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-95"
+        }
+      },
+      "turns": [
+        1
+      ]
+    },
+    {
+      "actor": "P1",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-8"
+        }
+      },
+      "turns": [
+        1
+      ]
+    },
+    {
+      "actor": "P1",
+      "decision_family": "announce_x",
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "integer",
+        "semantic_value": 0
+      }
+    }
+  ],
+  "native_event_tape": [
+    {
+      "event": "shuffle",
+      "facts": "seat-1"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-2"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-3"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-4"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-1"
+    },
+    {
+      "event": "mulligan",
+      "facts": "seat-1"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "UNTAP"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "UPKEEP"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "DRAW"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "MAIN1"
+    },
+    {
+      "event": "priority_binding",
+      "facts": "idx=3:label=WS48:ACT:host=MINTED-95:cmd=null:card=Forest:sa=Play+land:hostId=95"
+    },
+    {
+      "event": "priority_binding",
+      "facts": "idx=2:label=WS48:ACT:host=MINTED-8:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29:hostId=8"
+    },
+    {
+      "event": "milestone:announceRequirements:RANGED",
+      "facts": ""
+    }
+  ],
+  "native_events": 13,
+  "native_lifecycle": null,
+  "neg_test": {
+    "expected": "fail-closed WS23_OPTION_NOT_OFFERED",
+    "name": "bad_option@announce_x",
+    "neg_verdict": "PASS"
+  },
+  "observation_violations": [],
+  "offered_digest": "f9e637df3a826a5c07176000870457c5e139dfb963bbebdc1d5a5738caebbfc1",
+  "reason": "stop_reason=WS23_OPTION_NOT_OFFERED",
+  "ritual_answers": [
+    {
+      "kind": "chooseStartingPlayer",
+      "option_id": "o0"
+    }
+  ],
+  "scenario_id": "WS55-BREADTH",
+  "schema_version": "commander-lab.ws55-decision-breadth/1.0.0",
+  "script_remaining": [
+    {
+      "actor": "P1",
+      "family": "announce_x",
+      "selector": "integer"
+    }
+  ],
+  "seed": 424242,
+  "seed_binding": "ws55-forge-mandatory-decision-breadth",
+  "session_created_snapshot": {
+    "phase": "null",
+    "player_count": 4,
+    "players": [
+      {
+        "actor_id": "seat-1",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-2",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-3",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-4",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      }
+    ],
+    "turn": "0"
+  },
+  "session_snapshot": {
+    "phase": "MAIN1",
+    "player_count": 4,
+    "players": [
+      {
+        "actor_id": "seat-1",
+        "command_count": 1,
+        "commander": "Ghalta, Stampede Tyrant",
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-2",
+        "command_count": 1,
+        "commander": "Ghalta, Stampede Tyrant",
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-3",
+        "command_count": 1,
+        "commander": "Ghalta, Stampede Tyrant",
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-4",
+        "command_count": 1,
+        "commander": "Ghalta, Stampede Tyrant",
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40
+      }
+    ],
+    "turn": "1"
+  },
+  "stop_reason": "WS23_OPTION_NOT_OFFERED",
+  "structural_passes": 8,
+  "terminal_class": "ENGINE_UNCLASSIFIED_STOP",
+  "verdict": "PROBE_FAIL",
+  "ws55_deck": {
+    "commander": "Ghalta, Stampede Tyrant",
+    "main": "Forest*60,Stonecoil Serpent*39"
+  },
+  "ws55_order_combatants": null
+}

@@ -71,6 +71,7 @@ ws53.KIND_FAMILIES.update({
     "choose_mode": ("choose_mode", "mode_pick"),
     "target": ("target", "target_done"),
     "order_zone": ("order_zone",),
+    "cost_exile": ("cost_exile",),
 })
 
 
@@ -103,6 +104,19 @@ def _due(drv: Any, families: tuple[str, ...], actor: str,
            and (e.get("phases") is None or phase in (e.get("phases") or []))
            and (e.get("turns") is None or turn in (e.get("turns") or []))]
     return due
+
+
+def _stack_nonempty(obs: list[dict[str, Any]]) -> bool:
+    """Native-observation stack check (scoping only, never legality)."""
+    try:
+        import json as _j
+        for o in (obs or []):
+            v = _j.loads(o.get("view") or "{}")
+            if v.get("stack"):
+                return True
+    except Exception:
+        pass
+    return False
 
 
 def _pop_due(drv: Any, families: tuple[str, ...], actor: str,
@@ -241,7 +255,9 @@ def answer_priority_cost(drv: Any, actor: str, opts: list[dict[str, Any]],
            if e.get("decision_family") == "priority_cost"
            and e.get("actor") == actor
            and (e.get("phases") is None or phase in (e.get("phases") or []))
-           and (e.get("turns") is None or turn in (e.get("turns") or []))]
+           and (e.get("turns") is None or turn in (e.get("turns") or []))
+           and (not e.get("requires_stack")
+                or _stack_nonempty(getattr(drv, "ws55_frame_obs", [])))]
     if not due:
         return None
     d = due[0]
@@ -276,13 +292,13 @@ def answer_confirm(drv: Any, actor: str, opts: list[dict[str, Any]],
     d = _pop_due(drv, ("confirm",), actor, phase, turn, "confirm")
     sv = d["selection"]["semantic_value"]
     if isinstance(sv, dict) and "confirm" in sv:
-        want = "YES" if sv["confirm"] else "NO"
+        want_opts = ("YES", "PAY") if sv["confirm"] else ("NO", "DECLINE")
         hits = [i for i, lb in enumerate(labels)
                 if lb.get("_kind") == "CONFIRM"
-                and (lb.get("opt", "") or "").upper() == want]
+                and (lb.get("opt", "") or "").upper() in want_opts]
         if len(hits) != 1:
             drv.script.insert(0, d)
-            raise base.Blocked("confirm", f"{want}: {len(hits)} matches of {len(opts)}")
+            raise base.Blocked("confirm", f"{want_opts}: {len(hits)} matches of {len(opts)}")
         drv.consumed.append(d)
         return str(opts[hits[0]]["option_id"])
     if isinstance(sv, dict) and "option" in sv:
@@ -367,6 +383,29 @@ def answer_order_zone(drv: Any, actor: str, opts: list[dict[str, Any]],
     if len(hits) != 1:
         drv.script.insert(0, d)
         raise base.Blocked("order_zone", f"pos {sv['pos']}: {len(hits)} matches of {len(opts)}")
+    drv.consumed.append(d)
+    return str(opts[hits[0]]["option_id"])
+
+
+def answer_cost_exile(drv: Any, actor: str, opts: list[dict[str, Any]],
+                      labels: list[dict[str, str]], phase: Any,
+                      turn: Any) -> str:
+    d = _pop_due(drv, ("cost_exile",), actor, phase, turn, "cost_exile")
+    sv = d["selection"]["semantic_value"]
+    if isinstance(sv, dict) and sv.get("decision") == "cancel":
+        for i, o in enumerate(opts):
+            if o.get("kind", "") == "WS55:OPT:CANCEL":
+                drv.consumed.append(d)
+                return str(o["option_id"])
+        drv.script.insert(0, d)
+        raise base.Blocked("cost_exile", "CANCEL not offered")
+    want = sv.get("card", sv) if isinstance(sv, dict) else sv
+    hits = [i for i, lb in enumerate(labels)
+            if lb.get("_kind") == "COSTEXILE"
+            and base.ref_identity(lb.get("opt", "")) == want]
+    if len(hits) != 1:
+        drv.script.insert(0, d)
+        raise base.Blocked("cost_exile", f"card {want}: {len(hits)} matches of {len(opts)}")
     drv.consumed.append(d)
     return str(opts[hits[0]]["option_id"])
 
@@ -456,6 +495,9 @@ def answer_ranged_number(drv: Any, actor: str, opts: list[dict[str, Any]],
 #: driver: set during answer, consumed by submit + identity in the same frame).
 _ws55_pending_value: list[str | None] = [None]
 
+#: One-shot out-of-range probe flag (set from --neg-ranged-oob).
+_ws55_neg_ranged_oob: list[bool] = [False]
+
 
 def ws55_answer(drv: Any, kind: str, actor: str, opts: list[dict[str, Any]],
                 labels: list[dict[str, str]], record: dict[str, Any],
@@ -517,6 +559,8 @@ def ws55_answer(drv: Any, kind: str, actor: str, opts: list[dict[str, Any]],
         return answer_replacement(drv, actor, opts, labels55, phase, turn)
     if kind == "order_zone":
         return answer_order_zone(drv, actor, opts, labels55, phase, turn)
+    if kind == "cost_exile":
+        return answer_cost_exile(drv, actor, opts, labels55, phase, turn)
     if kind == "mana_payment":
         # Fold scripted mana sources into cost_state once (record ships none).
         if not getattr(drv, "ws55_mana_folded", False):
@@ -553,7 +597,8 @@ def ws55_classify(out: dict[str, Any]) -> dict[str, Any]:
     if verdict.startswith("BLOCKED_AT:"):
         where = verdict.split("BLOCKED_AT:", 1)[1]
         if where in ("combatDamage", "amountDistribution", "optional_costs",
-                     "order_costs", "order_combat", "confirm", "order_zone"):
+                     "order_costs", "order_combat", "confirm", "order_zone",
+                     "cost_exile"):
             reason = str(out.get("reason", ""))
             if "unscripted" in reason or "kind-family binding" in reason:
                 return {"class": "HARNESS",
@@ -796,6 +841,7 @@ def ws55_run_scenario(record: dict[str, Any], transport: Any,
                     rc, tail = close_and_collect()
                     out.update({"stop_after_eof_rc": rc, "stderr_tail": tail})
                     break
+                drv.ws55_frame_obs = obs
                 try:
                     oid = ws53.ws53_answer(drv, kind, actor, opts, labels, record,
                                            ws53.frame_phase(pay), ws53.frame_turn(pay))
@@ -807,6 +853,10 @@ def ws55_run_scenario(record: dict[str, Any], transport: Any,
                     raise
                 value = _ws55_pending_value[0]
                 _ws55_pending_value[0] = None
+                if _ws55_neg_ranged_oob[0] and kind == "announce_x":
+                    # Out-of-range probe: submit a below-minimum value once.
+                    _ws55_neg_ranged_oob[0] = False
+                    value = "-1"
                 if oid == "__TERMINATE__":
                     entry["selection"] = None
                     entry["engine_response"] = "HARNESS_SCRIPT_EXHAUSTION_TERMINATE"
@@ -903,6 +953,7 @@ def main() -> int:
     ap.add_argument("--order-combatants", default=None)
     ap.add_argument("--neg-bad-option", default=None)
     ap.add_argument("--neg-stale", action="store_true")
+    ap.add_argument("--neg-ranged-oob", action="store_true")
     ap.add_argument("--diag-accept-order-zone", action="store_true")
     a = ap.parse_args()
     sys.path.insert(0, a.runners)
@@ -982,10 +1033,32 @@ def main() -> int:
             return orig(drv, kind, actor, opts, labels, record, phase, turn)
 
         ws53.ws53_answer = poisoned  # type: ignore[assignment]
+    if a.neg_ranged_oob:
+        _ws55_neg_ranged_oob[0] = True
     result = ws55_run_scenario(record, transport, intent, a.scenario,
                                structural_cap=a.structural_cap,
                                neg_stale=a.neg_stale,
                                diag_accept_order_zone=a.diag_accept_order_zone)
+    if a.neg_ranged_oob:
+        v = str(result.get("verdict", ""))
+        sr = str(result.get("stop_reason", ""))
+        ok = "WS55_RANGED_VALUE_OUT_OF_RANGE" in v or "WS55_RANGED_VALUE_OUT_OF_RANGE" in sr
+        result["neg_test"] = {"name": "ranged_oob_value",
+                              "expected": "fail-closed WS55_RANGED_VALUE_OUT_OF_RANGE",
+                              "neg_verdict": "PASS" if ok else "FAIL"}
+    if a.neg_ranged_oob:
+        _ws55_neg_ranged_oob[0] = True
+        # Re-run with the probe armed (flag must be set before the loop).
+        result = ws55_run_scenario(record, transport, intent, a.scenario,
+                                   structural_cap=a.structural_cap,
+                                   neg_stale=a.neg_stale,
+                                   diag_accept_order_zone=a.diag_accept_order_zone)
+        v = str(result.get("verdict", ""))
+        sr = str(result.get("stop_reason", ""))
+        ok = "WS55_RANGED_VALUE_OUT_OF_RANGE" in v or "WS55_RANGED_VALUE_OUT_OF_RANGE" in sr
+        result["neg_test"] = {"name": "ranged_oob_value",
+                              "expected": "fail-closed WS55_RANGED_VALUE_OUT_OF_RANGE",
+                              "neg_verdict": "PASS" if ok else "FAIL"}
     if a.diag_accept_order_zone:
         result["diagnostic_only"] = True
         result["credited_path"] = False

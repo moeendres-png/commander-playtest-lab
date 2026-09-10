@@ -62,13 +62,28 @@ Additions (all systemic, no card-name hacks, no per-card branches):
      playSpellAbilityNoStack / playSpellAbility execution; nested
      discretionary choices re-enter the controller). Broker kind
      "confirm" (same CONFIRM grammar as confirmAction).
+ J10. Replacement-call audit milestone (diagnostic evidence distinguishing
+     "engine never called" from "singleton-auto").
+ J11. Zone-move ordering (orderMoveToZoneList): sequential-insertion frames
+     over the engine-provided list (each card offered insertion positions
+     0..k into the growing list; exact positional binding of the SAME Card
+     objects; 0/1 fast path mirrors with recordAutomatic). Scales to any n
+     without factorial frames. Broker kind "order_zone".
+ J12. Pitch-cost mirrors (bounded HumanCostDecision branches):
+     CostExile single-zone Hand/Battlefield shape (native candidate list via
+     the same getValidCards/canExiledBy calls; only WHICH cards external;
+     cancel aborts iff non-mandatory; constrained shapes fail closed) and
+     CostPayLife non-mandatory confirm-or-cancel (native canPayLife gate;
+     confirm via CONFIRM PAY/DECLINE; Human mandatory latch mirrored).
+     Broker kinds "cost_exile" / "confirm".
 
 Explicitly NOT changed (remain fail-closed, recorded as gaps):
  - chooseCombatDamage / chooseAmountDistribution (already present via the
    ws40 base generator: Core-view enumeration, exact selection binding).
- - confirmTrigger / playTrigger / playSaFromPlayEffect / vote /
-   chooseCardsPile / choosePermanentsToSacrifice-Destroy / chooseCardName /
-   chooseSomeType / specifyManaCombo / divideShield / sideboard et al.
+ - playSaFromPlayEffect is now a native-execution mirror (J9); still
+   fail-closed: vote / chooseCardsPile / choosePermanentsToSacrifice-Destroy /
+   chooseCardName / chooseSomeType / specifyManaCombo / divideShield /
+   CostTapType / CostChooseColor / CostChooseCreatureType / sideboard et al.
  - Broker.choose SUBMIT verification (actor/kind binding enforced
    harness-side in the WS55 runner; engine-side hole documented in Q9).
 """
@@ -600,7 +615,140 @@ ZONE_ORDER_NEW = """        @Override
             return out;
         }"""
 
-# ---------------------------------------------------------------- J10: replacement call audit
+# ---------------------------------------------------------------- J12: pitch cost mirrors
+COST_BOX_OLD = """            ws48Milestone("getCostDecisionMaker:ENTERED");
+            Card source = ability == null ? null : ability.getHostCard();
+            return new CostDecisionMakerBase(player, effect, ability, source) {"""
+
+COST_BOX_NEW = """            ws48Milestone("getCostDecisionMaker:ENTERED");
+            Card source = ability == null ? null : ability.getHostCard();
+            final boolean[] ws55MandatoryBox = {ability != null && ability.getPayCosts() != null && ability.getPayCosts().isMandatory()};
+            return new CostDecisionMakerBase(player, effect, ability, source) {"""
+
+COST_PAYLIFE_OLD = """                @Override
+                public PaymentDecision visit(CostPayLife cost) {
+                    // R1b CONDITIONAL mirror of the single native branch that
+                    // pays without asking: HumanCostDecision.visit(CostPayLife)
+                    // returns PaymentDecision.number(c) directly only when
+                    // sa.getPayCosts().isMandatory(). The non-mandatory path
+                    // offers confirm-or-cancel (cancel aborts payment), which
+                    // is genuine discretion, so it fails closed with exact
+                    // part identity - never auto-pay, never auto-decline.
+                    if (ability.getPayCosts().isMandatory()) {
+                        broker.recordAutomatic("costVisit:CostPayLife:MANDATORY");
+                        return PaymentDecision.number(cost.getAbilityAmount(ability));
+                    }
+                    throw failClosed("costVisit:CostPayLife");
+                }"""
+
+COST_PAYLIFE_NEW = """                @Override
+                public PaymentDecision visit(CostPayLife cost) {
+                    // Faithful HumanCostDecision.visit(CostPayLife) mirror:
+                    // mandatory pays without asking; otherwise confirm-or-
+                    // cancel after the native canPayLife gate (cancel aborts
+                    // payment natively). The post-pay mandatory latch mirrors
+                    // Human unless snapshot-restore is experimental.
+                    ws48Milestone("costVisit:CostPayLife");
+                    Integer ws55c = cost.getAbilityAmount(ability);
+                    if (ws55c == null) throw failClosed("costVisit:CostPayLife:NULL_AMOUNT");
+                    if (ws55MandatoryBox[0]) {
+                        broker.recordAutomatic("costVisit:CostPayLife:MANDATORY");
+                        return PaymentDecision.number(ws55c);
+                    }
+                    if (!player.canPayLife(ws55c, isEffect(), ability)) {
+                        broker.recordAutomatic("costVisit:CostPayLife:CANNOT_PAY");
+                        return null;
+                    }
+                    boolean ws55pay = "o0".equals(broker.choose("confirm", player, java.util.List.of(
+                        "WS48:CONFIRM:opt=PAY:q=" + ws48Enc(ws48Clip("Pay " + ws55c + " life", 160)),
+                        "WS48:CONFIRM:opt=DECLINE:q=" + ws48Enc(ws48Clip("Pay " + ws55c + " life", 160)))));
+                    if (!ws55pay) return null;
+                    if (!player.getGame().EXPERIMENTAL_RESTORE_SNAPSHOT) ws55MandatoryBox[0] = true;
+                    return PaymentDecision.number(ws55c);
+                }"""
+
+COST_EXILE_OLD = """                @Override
+                public PaymentDecision visit(CostExile cost) {
+                    throw failClosed("costVisit:CostExile");
+                }"""
+
+COST_EXILE_NEW = """                @Override
+                public PaymentDecision visit(CostExile cost) {
+                    // Bounded HumanCostDecision.visit(CostExile) mirror for the
+                    // common single-zone Hand/Battlefield shape: the candidate
+                    // list is built with the SAME native calls (zone cards,
+                    // getValidCards type filter, canExiledBy filter); only
+                    // WHICH cards are chosen is external (exact binding).
+                    // Cancel aborts natively iff non-mandatory. Constrained
+                    // shapes (multi-zone, CMC/symbol/type tallies, top-grave,
+                    // misc zones) stay fail-closed.
+                    ws48Milestone("costVisit:CostExile");
+                    if (cost == null || cost.from == null || cost.from.size() != 1)
+                        throw failClosed("costVisit:CostExile:SCOPE");
+                    ZoneType ws55from = cost.from.get(0);
+                    if (ws55from != ZoneType.Hand && ws55from != ZoneType.Battlefield)
+                        throw failClosed("costVisit:CostExile:ZONE");
+                    String ws55type = cost.getType();
+                    if (ws55type == null
+                            || ws55type.contains("FromTopGrave")
+                            || ws55type.contains("+withTotalCMC")
+                            || ws55type.contains("+withTotalManaSymbols_")
+                            || ws55type.contains("+withTypesGE")
+                            || ws55type.contains("+withSharedCardType"))
+                        throw failClosed("costVisit:CostExile:CONSTRAINED");
+                    if (cost.zoneRestriction != 0 && cost.zoneRestriction != 1)
+                        throw failClosed("costVisit:CostExile:ZONERESTRICT");
+                    Game ws55game = player.getGame();
+                    if (ws55game == null) throw failClosed("costVisit:CostExile:GAME");
+                    CardCollection ws55pool;
+                    if (cost.zoneRestriction != 1) ws55pool = new CardCollection(ws55game.getCardsIn(cost.from));
+                    else ws55pool = new CardCollection(player.getCardsIn(cost.from));
+                    CardCollection ws55list = CardLists.getValidCards(ws55pool, ws55type.split(";"), player, source, ability);
+                    ws55list = CardLists.filter(ws55list, CardPredicates.canExiledBy(ability, isEffect()));
+                    int ws55c = cost.getAbilityAmount(ability);
+                    if (ws55list.size() < ws55c) {
+                        broker.recordAutomatic("costVisit:CostExile:UNPAYABLE");
+                        return null;
+                    }
+                    if (ws55c == 0) {
+                        broker.recordAutomatic("costVisit:CostExile:ZERO");
+                        return PaymentDecision.number(0);
+                    }
+                    java.util.List<Card> ws55remaining = new java.util.ArrayList<>(ws55list);
+                    CardCollection ws55chosen = new CardCollection();
+                    int ws55guard = 0;
+                    while (ws55chosen.size() < ws55c) {
+                        if (++ws55guard > 16) throw failClosed("costVisit:CostExile:GUARD");
+                        java.util.List<Card> ws55rest = new java.util.ArrayList<>();
+                        java.util.List<String> ws55labels = new java.util.ArrayList<>();
+                        if (!ws55MandatoryBox[0]) ws55labels.add("WS55:OPT:CANCEL");
+                        for (Card ws55o : ws55remaining) {
+                            ws55rest.add(ws55o);
+                            ws55labels.add("WS55:COSTEXILE:opt=" + ws48Enc(ws48CardRef(ws55o)));
+                        }
+                        int ws55idx = ws48Choose("cost_exile", this.player, ws55labels);
+                        if (!ws55MandatoryBox[0] && ws55idx == 0) return null;
+                        int ws55off = ws55MandatoryBox[0] ? 0 : 1;
+                        Card ws55pick = ws55rest.get(ws55idx - ws55off);
+                        if (!ws55remaining.remove(ws55pick)) throw failClosed("WS55_COSTEXILE_STALE");
+                        ws55chosen.add(ws55pick);
+                    }
+                    return PaymentDecision.card(ws55chosen);
+                }"""
+
+# ---------------------------------------------------------------- J13: target audit
+TARGET_AUDIT_OLD = """                if (currentAbility.getTargets().size() >= currentAbility.getMaxTargets()) return true;
+                java.util.List<GameEntity> cands = new java.util.ArrayList<>();
+                java.util.List<String> labels = new java.util.ArrayList<>();
+                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {"""
+
+TARGET_AUDIT_NEW = """                if (currentAbility.getTargets().size() >= currentAbility.getMaxTargets()) return true;
+                java.util.List<GameEntity> cands = new java.util.ArrayList<>();
+                java.util.List<String> labels = new java.util.ArrayList<>();
+                int ws55RawCands = 0;
+                for (GameEntity ws55cand : restrictions.getAllCandidates(currentAbility)) ws55RawCands++;
+                ws48Milestone("chooseTargetsFor:CANDIDATES:raw=" + ws55RawCands);
+                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {"""
 REPL_AUDIT_OLD = """        public ReplacementEffect chooseSingleReplacementEffect(List<ReplacementEffect> possibleReplacers) {
             if (possibleReplacers == null || possibleReplacers.isEmpty())
                 throw failClosed("chooseSingleReplacementEffect:EMPTY");"""
@@ -670,7 +818,11 @@ def main() -> int:
     p = once(p, PLAY_TRIGGER_OLD, PLAY_TRIGGER_NEW, "playTrigger mirror")
     p = once(p, PLAY_SA_OLD, PLAY_SA_NEW, "playSaFromPlayEffect mirror")
     p = once(p, REPL_AUDIT_OLD, REPL_AUDIT_NEW, "replacement call audit")
+    p = once(p, TARGET_AUDIT_OLD, TARGET_AUDIT_NEW, "target candidate audit")
     p = once(p, ZONE_ORDER_OLD, ZONE_ORDER_NEW, "zone-move ordering")
+    p = once(p, COST_BOX_OLD, COST_BOX_NEW, "cost mandatory box")
+    p = once(p, COST_PAYLIFE_OLD, COST_PAYLIFE_NEW, "cost paylife confirm")
+    p = once(p, COST_EXILE_OLD, COST_EXILE_NEW, "cost exile mirror")
     p = once(p, STATIC_ANCHOR, STATIC_ADD, "permutation helper")
     # Collapse doubled @Override from annotation-including replacements.
     while "        @Override\n        @Override\n" in p:
@@ -684,8 +836,12 @@ def main() -> int:
                 "WS55:NUMRANGE:min=", "chooseRanged(",
                 "WS55_RANGED_VALUE_OUT_OF_RANGE",
                 "chooseSingleReplacementEffect:CALLED:n=",
+                "chooseTargetsFor:CANDIDATES:raw=",
                 "WS55:ZONEORDER:card=",
                 "orderMoveToZoneList:ENTERED",
+                "costVisit:CostExile",
+                "costVisit:CostPayLife",
+                "ws55MandatoryBox",
                 "orderCosts:NATIVE_AUTO", "orderBlockers:SINGLETON",
                 "FULL_CONTROL_MIRROR" if False else "ChooseCostOrder"]
     missing = [x for x in required if x not in p]
