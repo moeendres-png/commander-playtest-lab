@@ -6,12 +6,21 @@ Current provider truth is `NO_PROVIDER_READY`. Later J-P3 real executions retain
 
 ## Pinned providers
 
-| Candidate role | Provider | Frozen current evidence pin | License | Current status |
+| Candidate role | Provider | Current evidence pin (authority) | License | Current status |
 |---|---|---|---|---|
-| Provider candidate | XMage | `xmage_1.4.60V3 @ 06d166b098ad36b277edef01116472203d5a047e` | MIT | `PARTIAL` |
-| Provider candidate | Forge | `forge-2.0.14 @ a37a865a53280dd8ad6fad3384d69611e8c5a42f` | GPL-3.0 | `PARTIAL` |
+| Provider candidate | XMage | `primary_engine` in `config/rules_engines.json` (compatibility-fork pin) | MIT | `PARTIAL` |
+| Provider candidate | Forge | `secondary_engine` in `config/rules_engines.json` | GPL-3.0 | `PARTIAL` |
 
-Neither provider is production-selected. `docs/J_P3_PROVIDER_DECISION.json` is the current decision record; `config/rules_engines.json` mirrors those pins while preserving the older Phase-8.5 Forge pin only as historical provenance.
+Do not copy commits out of the manifest into this table: the manifest is the sole
+pin authority (see its `authority_note`). Superseded pins — the J-P3
+`xmage_1.4.60V3` line and the Phase-8.5 `forge-2.0.13` line — remain provenance
+only in `docs/J_P3_PROVIDER_DECISION.json`, the Phase-8.5 artifacts, and
+`historical_phase85` in the manifest.
+
+Neither provider is production-selected. `docs/J_P3_PROVIDER_DECISION.json` is the
+historical decision record; `config/rules_engines.json` is the current
+machine-readable truth (`provider_decision: NO_PROVIDER_READY`,
+`current_runtime.provider_selected: false`).
 
 ## Prerequisites
 
