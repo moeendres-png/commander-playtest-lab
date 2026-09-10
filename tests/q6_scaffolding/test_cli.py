@@ -122,4 +122,4 @@ def test_cli_machine_readable_summaries_are_json(tmp_path, capsys):
     captured = capsys.readouterr()
     summary = json.loads(captured.out)
     assert summary["command"] == "intake"
-    assert summary["records"] == 14
+    assert summary["records"] == 55

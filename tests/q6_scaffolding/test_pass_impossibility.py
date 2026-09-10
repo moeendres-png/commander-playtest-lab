@@ -178,3 +178,109 @@ def test_cli_rejects_promotion_in_configuration(tmp_path):
     )
     assert code == 2
     _ = out
+
+
+def test_registries_carry_no_credit_fields():
+    import json as _json
+    from pathlib import Path as _Path
+
+    from q6_scaffolding.registries import (
+        static_mode_registry,
+        trigger_mode_registry,
+        unsupported_registry,
+        verb_registry,
+    )
+
+    for doc in (
+        verb_registry(),
+        trigger_mode_registry(),
+        static_mode_registry(),
+        unsupported_registry(),
+    ):
+        validate_output(doc, artifact="registry")
+    _ = _json, _Path
+
+
+def test_contaminated_registry_like_dict_rejected():
+    with pytest.raises(PromotionRejected):
+        validate_output(
+            {"verbs": {"Draw": {"shape": "DRAW_SHAPE", "behavior_pass": True}}},
+            artifact="contaminated-registry",
+        )
+
+
+def test_before_inventory_evidence_carries_no_credit_fields():
+    import json as _json
+    from pathlib import Path as _Path
+
+    before = _json.loads(
+        (
+            _Path(__file__).resolve().parents[2]
+            / "docs"
+            / "qualification"
+            / "q6-scaffolding"
+            / "evidence"
+            / "corpus-inventory-before.json"
+        ).read_text(encoding="utf-8")
+    )
+    validate_output(before, artifact="corpus-inventory-before")
+
+
+def test_contaminated_script_fails_closed_at_classify(tmp_path):
+    import json as _json
+
+    from q6_scaffolding.provenance import SourceLock
+
+    lock = SourceLock(
+        source_corpus="forge-card-scripts",
+        source_repository="https://github.com/Card-Forge/forge.git",
+        source_commit=PIN,
+        source_path="forge-gui/res/cardsfolder/x/synthetic_evil.txt",
+    )
+    record = intake_card(b"Name:Evil\nA:SP$ Draw | behavior_pass$ True\n", lock)
+    intake_p = tmp_path / "intake.json"
+    intake_p.write_text(
+        _json.dumps({"records": [record.as_dict()], "tool_version": "q6-scaffolding-0.1.0"})
+    )
+    out_p = tmp_path / "classified.json"
+    code = cli.main(["classify", "--in", str(intake_p), "--out", str(out_p)])
+    assert code == 2
+    assert not out_p.exists(), "contaminated input must not produce partial output"
+
+
+def test_manual_review_verbs_carry_no_credit(tmp_path):
+    out = run_pipeline(tmp_path)
+    manual = [r for r in out["skeletons"]["records"] if r["state"] == "MANUAL_REVIEW_REQUIRED"]
+    assert manual, "sample must contain MANUAL records for this negative proof"
+    for record in manual:
+        validate_output(record, artifact="manual-record")
+        assert record["state"] != "PASS"
+
+
+def test_new_question_skeletons_carry_no_verdicts(tmp_path):
+    out = run_pipeline(tmp_path)
+    for record in out["skeletons"]["records"]:
+        for question in record["skeleton"]["rules_questions"]:
+            assert question["status"] == "OPEN"
+            assert question["resolving_authority"] == "human_coordinator_rules_adjudication"
+            validate_output(question, artifact="rules-question")
+
+
+def test_unknown_tripwire_never_routes_ready():
+    from q6_scaffolding.classify import classify_card
+    from q6_scaffolding.forge_parser import extract_features, parse_script
+    from q6_scaffolding.skeleton import generate_skeleton, route_state
+
+    parsed = parse_script("Name:X\nT:Mode$ FrobnicateMode | Execute$ Foo\n", "synthetic")
+    feats = extract_features(parsed, "Name:X\nT:Mode$ FrobnicateMode | Execute$ Foo\n")
+    assert feats["unknown_trigger_modes"] == ["FrobnicateMode"]
+    classification = classify_card("id-unk", feats)
+    skeleton = generate_skeleton("id-unk", "Unk", feats, classification)
+    state, _ = route_state(
+        ambiguous=parsed["ambiguous"],
+        unsupported=parsed["unsupported"],
+        features=feats,
+        classification=classification,
+        skeleton=skeleton,
+    )
+    assert state.value == "MANUAL_REVIEW_REQUIRED"

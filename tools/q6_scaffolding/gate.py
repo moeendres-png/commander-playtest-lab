@@ -81,13 +81,34 @@ FORBIDDEN_INPUT_KEYS = frozenset(
 ALLOWED_INPUT_KEYS = frozenset({"expected_hash"})
 
 # Substring markers (case-insensitive) rejected inside free-text input fields:
-# engine AI drivers and harness hooks per D2 BOUNDED_REUSE Phase C.
+# engine AI drivers and harness hooks per D2 BOUNDED_REUSE Phase C, plus
+# snake_case promotion markers. The snake_case form never occurs in natural
+# card text (cf. bare words like "verdict", which Supreme Verdict proves
+# must NOT be matched), so these catch smuggled promotion fields hiding as
+# opaque param names or raw values (e.g. ``behavior_pass$ True`` in a
+# script) without false-positiving on Oracle wording.
 FORBIDDEN_TEXT_MARKERS = (
     "aiplaypriority",
     "cardtestcommander4playerswithaihelps",
     "runCode",
     "rollbackTurns",
     "setStrictChooseMode",
+    "behavior_pass",
+    "behavior_result",
+    "coverage_increment",
+    "coverage_delta",
+    "coverage_promotion",
+    "qualification_credit",
+    "externally_rule_validated",
+    "pass_verdict",
+    "expected_outcome",
+    "expected_life_total",
+    "expected_life",
+    "expected_permanents",
+    "expected_permanent_state",
+    "legal_options",
+    "exact_legal_option_list",
+    "pass_criteria",
 )
 
 
@@ -160,3 +181,14 @@ def validate_output(obj: Any, *, artifact: str = "<artifact>") -> None:
                 f"structural gate violation in {artifact}: output key {key!r} "
                 "is incapable of existing in scaffolding output"
             )
+    # Promotion markers smuggled as opaque values (param names, raw corpus
+    # text) fail closed here exactly as on the input side: snake_case
+    # markers never occur in natural card text.
+    for text in _iter_text_values(obj):
+        lowered = text.lower()
+        for marker in FORBIDDEN_TEXT_MARKERS:
+            if marker.lower() in lowered:
+                raise PromotionRejected(
+                    f"structural gate violation in {artifact}: promotion marker "
+                    f"{marker!r} must never appear in scaffolding output"
+                )

@@ -88,7 +88,12 @@ def intake_card(
         provenance=provenance.as_dict(),
         raw_text=text,
     )
-    validate_output(record.as_dict(), artifact="intake-record")
+    # The schema gate screens the record structure, not the opaque corpus
+    # bytes: intake performs no parsing and no judgment of script content.
+    # Content markers (promotion/contamination inside script text) fail
+    # closed downstream at classify/output validation.
+    redacted = {k: v for k, v in record.as_dict().items() if k != "raw_text"}
+    validate_output(redacted, artifact="intake-record")
     return record
 
 

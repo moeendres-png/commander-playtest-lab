@@ -203,8 +203,29 @@ _HIDDEN_SIGNALS = (
     "cloak",
 )
 
-# SVar fragment heads that denote computed/reference values (state-defined
-# variables, counters of game objects, remembered selections).
+# Deck-hint/metadata line prefixes: deckbuilding hints, never game text.
+# Signal matching (randomness, hidden, multiplayer, copy/control,
+# commander) runs on game text with these lines removed, so hint words
+# such as ``AI:RemoveDeck:Random`` or ``DeckShuffles`` never read as
+# mechanics.
+_HINT_LINE_PREFIXES = (
+    "AI:",
+    "DeckHints:",
+    "DeckHas:",
+    "DeckNeeds:",
+    "DeckShuffles:",
+    "RemAIDeck:",
+    "RemRandomDeck:",
+    "ODeckHints:",
+)
+
+
+def _game_text(text: str) -> str:
+    """Return script text without deck-hint/metadata lines."""
+    kept = [raw for raw in text.splitlines() if not raw.strip().startswith(_HINT_LINE_PREFIXES)]
+    return "\n".join(kept)
+
+
 _COMPUTED_SVAR_HEADS = frozenset(
     {
         "Count",
@@ -428,29 +449,36 @@ def parse_script(text: str, path: str = "<memory>") -> dict:
             lines.append(record)
         elif key in ("SVar", "DBCleanup"):
             rest = value
-            if ":" not in rest:
-                diagnostics.append(
-                    _diag(
-                        "svar_missing_name_sep",
-                        f"{key} without name ':' separator",
-                        idx,
-                        span,
+            if key == "DBCleanup":
+                # DBCleanup lines carry the DB$ body directly
+                # (``DBCleanup:DB$ Cleanup | ...``): the record name is the
+                # key itself. Observed once in the pinned corpus; parsed
+                # generically like any SVar effect body.
+                name, sval = "DBCleanup", rest.strip()
+            else:
+                if ":" not in rest:
+                    diagnostics.append(
+                        _diag(
+                            "svar_missing_name_sep",
+                            f"{key} without name ':' separator",
+                            idx,
+                            span,
+                        )
                     )
-                )
-                ambiguous = True
-                lines.append(
-                    {
-                        "kind": "SVar",
-                        "name": rest.strip(),
-                        "value": "",
-                        "line_no": idx,
-                        "span": span,
-                        "params": [],
-                    }
-                )
-                continue
-            name, sval = rest.split(":", 1)
-            name, sval = name.strip(), sval.strip()
+                    ambiguous = True
+                    lines.append(
+                        {
+                            "kind": "SVar",
+                            "name": rest.strip(),
+                            "value": "",
+                            "line_no": idx,
+                            "span": span,
+                            "params": [],
+                        }
+                    )
+                    continue
+                name, sval = rest.split(":", 1)
+                name, sval = name.strip(), sval.strip()
             params: list = []
             if "$" in sval:
                 for part in _PARAM_SPLIT_RE.split(sval):
@@ -761,6 +789,14 @@ def extract_features(parsed: dict, text: str) -> dict:
             for param in line.get("params", []):
                 pkey = param.get("key", "")
                 praw = param.get("raw", "")
+                # Standalone X in a numeric slot of an SVar effect body
+                # (Ajani Unrelenting ``NumCards$ X`` shape): a variable
+                # amount, same rule as ability records. SVar *names* and
+                # cross-references still never count (checked later).
+                if pkey.lower() in NUMERIC_X_PARAM_KEYS and _X_TOKEN_RE.search(praw):
+                    feats["has_x_value"] = True
+                    if "NUMERIC_X" not in feats["x_sources"]:
+                        feats["x_sources"].append("NUMERIC_X")
                 if pkey in ABILITY_CONTAINERS and _VERB_TOKEN_RE.match(praw):
                     # SVar effect bodies (DB$/AB$ fragments) carry the same
                     # verb grammar as ability lines (Cleanup, ReplaceEffect
@@ -800,7 +836,10 @@ def extract_features(parsed: dict, text: str) -> dict:
             feats["x_sources"].append("X_COUNT_DEFINED")
     if _X_CONDITION_RE.search(text):
         feats["x_sources"].append("X_CONDITION_REF")
-    lowered = text.lower()
+    # Hint/metadata lines are deckbuilding aids, never game text: all
+    # substring signals below run on game text only.
+    gtext = _game_text(text)
+    lowered = gtext.lower()
     if any(s in lowered for s in _HIDDEN_SIGNALS):
         feats["has_hidden"] = True
     if "HIDDEN" in shape_flags:
@@ -819,7 +858,7 @@ def extract_features(parsed: dict, text: str) -> dict:
     feats["_verb_shape_set"] = sorted(verb_shape_set)
     feats["static_mode_classes"] = sorted(static_mode_classes)
     feats["ability_mode_classes"] = sorted(ability_mode_classes)
-    feats["random_kinds"] = _random_kinds(text, feats, text)
+    feats["random_kinds"] = _random_kinds(gtext, feats, gtext)
     # Tutor-shuffle rule preserved: a bare library shuffle is recorded as
     # has_shuffle and never implies discretionary RANDOMNESS.
     if "SHUFFLE" in feats["random_kinds"]:
@@ -837,7 +876,7 @@ def extract_features(parsed: dict, text: str) -> dict:
     if multiplayer_hits:
         feats["has_multiplayer"] = True
         feats["multiplayer_signals"] = sorted(set(multiplayer_hits))
-    if any(s in text for s in _COMMANDER_SIGNALS):
+    if any(s in gtext for s in _COMMANDER_SIGNALS):
         feats["has_commander"] = True
     edges: dict[str, list] = {name: _SVAR_REF_RE.findall(value) for name, value in svar_map.items()}
     feats["svar_edge_count"] = sum(len(v) for v in edges.values())

@@ -140,11 +140,17 @@ def cmd_classify(args: argparse.Namespace) -> int:
         record["stage_history"] = [ScaffoldingState.PARSED.value]
         record["state"] = ScaffoldingState.STRUCTURED.value
         record["stage_history"].append(ScaffoldingState.STRUCTURED.value)
-        validate_output(record, artifact="classified-record")
+        try:
+            validate_output(record, artifact="classified-record")
+        except PromotionRejected as exc:
+            raise CliError(str(exc)) from exc
         enriched.append(record)
     enriched.sort(key=lambda r: r["intake_id"])
     out = {"tool_version": Q6_SCAFFOLDING_VERSION, "records": enriched}
-    validate_output(out, artifact="classified-batch")
+    try:
+        validate_output(out, artifact="classified-batch")
+    except PromotionRejected as exc:
+        raise CliError(str(exc)) from exc
     _write_json(Path(args.out), out)
     return _emit(
         {
@@ -204,7 +210,10 @@ def cmd_generate_skeletons(args: argparse.Namespace) -> int:
             ScaffoldingState.SKELETON_GENERATED.value,
             state.value,
         ]
-        validate_output(record, artifact="routed-record")
+        try:
+            validate_output(record, artifact="routed-record")
+        except PromotionRejected as exc:
+            raise CliError(str(exc)) from exc
         routed.append(record)
     routed.sort(key=lambda r: r["intake_id"])
     slim = [

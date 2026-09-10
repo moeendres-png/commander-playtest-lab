@@ -111,6 +111,334 @@
       "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
       "source_path": "forge-gui/res/cardsfolder/w/willbender.txt",
       "expected_hash": "c0bbc5474dc3e7d5b3b528de7b17083e9221a92276ca08d12128b2cef9fce6f2"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/wrath_of_god.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/w/wrath_of_god.txt",
+      "expected_hash": "8d27ced15f70fe5767d0cd3d5f5f7b978470966bf32eb856622d6fad64f60bd3"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/llanowar_elves.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/l/llanowar_elves.txt",
+      "expected_hash": "f8eab9c6d1b3bc9c180228a150d3a386248c10b8563f2ac54319129d7570e7f3"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/doom_blade.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/doom_blade.txt",
+      "expected_hash": "8b048328719c832fd3889b86c9b19916f179bd1081d1ed907e091dd82dcb6ce2"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/counterspell.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/counterspell.txt",
+      "expected_hash": "893b826ac94d6c73d4dd80c975ff6e2bbb0fd3d9a8f26fe08b050f7999bb2c0c"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/giant_growth.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/g/giant_growth.txt",
+      "expected_hash": "b38c4fefb0a2f9c02ec94a5eceb789c8c8f7ea0a03f27afc83ec12d6fb961560"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/aggravate.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aggravate.txt",
+      "expected_hash": "bc67c0aa6a4efdc808e6c0f9ac940cc3ad3bf67f0a982f621ee86754f2a95af1"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/clone.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/clone.txt",
+      "expected_hash": "9473363c4d0937de3a4d607298926ba9e3bb4303a938535189e433db6a2ac9e2"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/fog.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/fog.txt",
+      "expected_hash": "7c3c29212eab26eb4540fd09e01b5f43a0bb4fd2de3d2e43f93d30f2c28170d1"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/contagion_clasp.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/contagion_clasp.txt",
+      "expected_hash": "4a06eeb979ad89a1f4156105ac199808fe56ce465952ddbdfdd1cf5c24c3c849"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/rampant_growth.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/r/rampant_growth.txt",
+      "expected_hash": "2af8f19de6b282fd7da174d80d72d5f9934fefcde99e8de29f0e6f5079f483fc"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/dreadhorde_invasion.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/dreadhorde_invasion.txt",
+      "expected_hash": "187c3c6f69eb3d8deed03d61aff9276a268dcff60dd43ce4608d1620e0d9436f"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/adaptive_training_post.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/adaptive_training_post.txt",
+      "expected_hash": "4ecb5b0b8ffd979eddeeac94b2345a1bdef36aa00d84ad4648db222555993bc7"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/strict_proctor.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/strict_proctor.txt",
+      "expected_hash": "0789d98bf15d64c65933a3b84569c9617b8385801221bd4c32b945635474956b"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/archangel_of_thune.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/archangel_of_thune.txt",
+      "expected_hash": "76dac8f4021959e6eceed93d1633b8afa3a91c0f5834e67857a5bce4248e4e49"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/spirit_of_resilience.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/spirit_of_resilience.txt",
+      "expected_hash": "42cc1e4e18fc2fcca759ae327b01be72d0d712b7af5183771a1489481719118b"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/ajani_unrelenting.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/ajani_unrelenting.txt",
+      "expected_hash": "0fe7a11a405962cc7994fb4673154ea89767638a859da65bb82cbe9d92244a49"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/astral_cornucopia.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/astral_cornucopia.txt",
+      "expected_hash": "f47dacf69dd824ee3238de60a5e0918c32a85b46173a4aea1b142aa5fd605466"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/finale_of_devastation.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/finale_of_devastation.txt",
+      "expected_hash": "b20b42e4fb6945a433a0bafd6c8e3df5ff2fcdee92ad0fbbeacb3cb123a8621f"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/flay.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/flay.txt",
+      "expected_hash": "28b3d36115d772b8676ee06d84cbf0d83b3413b07b86ad61b9dc98fb94fce308"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/mana_crypt.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/m/mana_crypt.txt",
+      "expected_hash": "61746355582480a5f9128adefbaae91066f493a87125a8d35e7086d20df5947c"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/karplusan_minotaur.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/k/karplusan_minotaur.txt",
+      "expected_hash": "a3db841aace44c989e3a9243cfa89ef6804f0527b35c1856205b4686711d27fd"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/command_tower.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/command_tower.txt",
+      "expected_hash": "5a8965cbfa406f827c6869c807452397767af128693c2a5ed1ecf924880eab7d"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/aggressive_sabotage.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aggressive_sabotage.txt",
+      "expected_hash": "200fb7d94d917c2a4f0210db375f7ae1e0cd10d0d4484814b1835ab90a668c81"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/teferis_protection.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/t/teferis_protection.txt",
+      "expected_hash": "2aae3a433d13bc43427f194ce36b354596d17d9d37b89c9a8eb79e4bc5d68357"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/rest_in_peace.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/r/rest_in_peace.txt",
+      "expected_hash": "7b2c4c5c44a4b05eb23751e557c3abdaee0e7af60195d39fd5dd29fdfc06f94b"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/doubling_season.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/doubling_season.txt",
+      "expected_hash": "8f17a3d7ea7c8f217e4b7b60cffa25dfae5d651dfc2bce717dd42121f2ef4afb"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/aethersnatch.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aethersnatch.txt",
+      "expected_hash": "a41b8a3b9c0e498519595a39265153718bb49710d5072efcc6786ebe8bb2211c"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/phantasmal_image.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/p/phantasmal_image.txt",
+      "expected_hash": "ed66684243cc875eaffd8a43a5ce21b96275fa9e7945dfe26aaccf7a7eb1979a"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/akroma_angel_of_wrath_avatar.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/akroma_angel_of_wrath_avatar.txt",
+      "expected_hash": "297d1db73eeaa34e0f832f6f7011f72a5d0454ad9a636015487c0bce20037bf2"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/aether_searcher.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aether_searcher.txt",
+      "expected_hash": "e419b6379fc127c4696a3d1b2fcdbeaea310ea129a556b40f443ecb20c670c34"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/bind_liberate.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/b/bind_liberate.txt",
+      "expected_hash": "30c313a210f6f97bc692c99b6c94bfc38389b2c7b20cae29304b8d393220fc90"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/cryptic_spires.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/cryptic_spires.txt",
+      "expected_hash": "3dc33793d5fdeca83af69b7657a51192e44902c2cd9a1a7760244fd980e1852c"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/circling_vultures.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/circling_vultures.txt",
+      "expected_hash": "30c9af3e5b8bc348a877a6e7690610000ebea3f87d7b3014d4a628b196f35950"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/propaganda.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/p/propaganda.txt",
+      "expected_hash": "920a93f6961ff3658355f0d2e1de645a40abe5dc43a3e718c68a1852b88cd63c"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/artificial_evolution.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/artificial_evolution.txt",
+      "expected_hash": "1a300f3773dd186b1e6c2f2979628e3a2ba24b4fb686b024ebf8dd9bfeaecdec"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/time_warp.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/t/time_warp.txt",
+      "expected_hash": "f0a5911bc4aeb818da0918ecf5c54318863783a812f136e97a619ac9dbe23d9e"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/cryptic_command.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/cryptic_command.txt",
+      "expected_hash": "2648a0153b98c6a90a8f67d8041a9b9db1c4f2052a5bb0ac2aeaf3db051337ba"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/metamorphic_alteration.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/m/metamorphic_alteration.txt",
+      "expected_hash": "994ba84113a9b81cc3c9dd8c0f4298c33e452d90d37b9e07074dc62c56a8e6bc"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/inexorable_tide.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/i/inexorable_tide.txt",
+      "expected_hash": "c026d995d607c5fe7fc33ab3598c1ae8838caa7798ffd337220d1a7832f89302"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/delina_wild_mage.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/delina_wild_mage.txt",
+      "expected_hash": "4e086551c2bb52ff1c8f79b092993931a7c7d00df88eba92c368a19bee2f81e4"
+    },
+    {
+      "path": "tests/q6_scaffolding/fixtures/cards/vial_smasher_the_fierce.txt",
+      "source_corpus": "forge-card-scripts",
+      "source_repository": "https://github.com/Card-Forge/forge.git",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/v/vial_smasher_the_fierce.txt",
+      "expected_hash": "a27c9a475b79bdba3525313a746340fc09f8360881c924c52fb57a4ba82df54a"
     }
   ]
 }

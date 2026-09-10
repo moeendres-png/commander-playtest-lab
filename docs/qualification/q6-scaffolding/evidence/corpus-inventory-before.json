@@ -278,7 +278,7 @@
   }
  },
  "integrity": {
-  "disclaimer": "TOKEN OBSERVATION != PARSER INTERPRETATION != CAPABILITY HYPOTHESIS. Scaffolding metrics only. BEHAVIOR_PASS = NOT_MEASURED. BEHAVIOR_CREDIT = 0. COVERAGE_PROMOTION = FALSE.",
+  "disclaimer": "TOKEN OBSERVATION != PARSER INTERPRETATION != CAPABILITY HYPOTHESIS. Scaffolding metrics only. No behavior PASS is measured or awarded here. No behavior credit. No coverage promotion.",
   "inventory_hash": "b8d0b2b4f274ea88d17e0e2355635f0b2aadec4105dddcb599d9932be4ee7040"
  },
  "parser_interpretation": {

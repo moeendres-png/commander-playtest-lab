@@ -658,8 +658,8 @@ def main(argv: list[str] | None = None) -> int:
             "disclaimer": (
                 "TOKEN OBSERVATION != PARSER INTERPRETATION != CAPABILITY "
                 "HYPOTHESIS. Scaffolding metrics only. "
-                "BEHAVIOR_PASS = NOT_MEASURED. BEHAVIOR_CREDIT = 0. "
-                "COVERAGE_PROMOTION = FALSE."
+                "No behavior PASS is measured or awarded here. "
+                "No behavior credit. No coverage promotion."
             ),
         },
     }

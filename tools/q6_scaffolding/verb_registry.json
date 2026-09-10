@@ -894,12 +894,28 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "OTHER_STRUCTURED_SHAPE"
   },
+  "ReplaceCounter": {
+   "corpus_files_before": 0,
+   "flags": [
+    "REPLACEMENT"
+   ],
+   "provenance": "Task-2B sample review: SVar-head replacement verb (Doubling Season shape); counted from Task-2B work, full-census frequency lands in the AFTER inventory.",
+   "shape": "REPLACEMENT_SHAPE"
+  },
   "ReplaceEffect": {
    "corpus_files_before": 0,
    "flags": [
     "REPLACEMENT"
    ],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "REPLACEMENT_SHAPE"
+  },
+  "ReplaceToken": {
+   "corpus_files_before": 0,
+   "flags": [
+    "REPLACEMENT"
+   ],
+   "provenance": "Task-2B sample review: SVar-head replacement verb (Doubling Season shape); counted from Task-2B work, full-census frequency lands in the AFTER inventory.",
    "shape": "REPLACEMENT_SHAPE"
   },
   "RestartGame": {

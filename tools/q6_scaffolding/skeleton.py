@@ -286,6 +286,25 @@ def route_state(
             ScaffoldingState.MANUAL_REVIEW_REQUIRED,
             [f"verb_manual_review:{verb}" for verb in manual_verbs],
         )
+    unknown_reasons: list[str] = []
+    if features.get("unknown_ability_verbs"):
+        unknown_reasons.append(
+            "unknown_ability_verbs:" + ",".join(features["unknown_ability_verbs"])
+        )
+    if features.get("unknown_trigger_modes"):
+        unknown_reasons.append(
+            "unknown_trigger_modes:" + ",".join(features["unknown_trigger_modes"])
+        )
+    if features.get("unknown_static_modes"):
+        unknown_reasons.append("unknown_static_modes:" + ",".join(features["unknown_static_modes"]))
+    if features.get("unknown_ability_modes"):
+        unknown_reasons.append(
+            "unknown_ability_modes:" + ",".join(features["unknown_ability_modes"])
+        )
+    if unknown_reasons:
+        # Unrecognized grammar goes to the curator before any Rules
+        # adjudication: adjudicating misparsed structure would be premature.
+        return ScaffoldingState.MANUAL_REVIEW_REQUIRED, sorted(unknown_reasons)
     if skeleton.rules_questions:
         kinds = sorted({q["related_capability"] for q in skeleton.rules_questions})
         return (
@@ -301,20 +320,6 @@ def route_state(
         review_reasons.append("randomness")
     if features.get("has_copy_control"):
         review_reasons.append("copy_control")
-    if features.get("unknown_ability_verbs"):
-        review_reasons.append(
-            "unknown_ability_verbs:" + ",".join(features["unknown_ability_verbs"])
-        )
-    if features.get("unknown_trigger_modes"):
-        review_reasons.append(
-            "unknown_trigger_modes:" + ",".join(features["unknown_trigger_modes"])
-        )
-    if features.get("unknown_static_modes"):
-        review_reasons.append("unknown_static_modes:" + ",".join(features["unknown_static_modes"]))
-    if features.get("unknown_ability_modes"):
-        review_reasons.append(
-            "unknown_ability_modes:" + ",".join(features["unknown_ability_modes"])
-        )
     if features.get("has_ability") and not (
         features.get("has_mana_cost") or features.get("has_targets") or features.get("has_choices")
     ):
