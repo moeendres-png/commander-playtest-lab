@@ -1,0 +1,89 @@
+{
+  "baseline": {
+    "aborted_batch": true,
+    "completed": 5,
+    "error": "RuntimeError: injected worker crash for d6-discriminator-job-0005",
+    "executor": "baseline-process-pool",
+    "peak_python_bytes": 473419,
+    "startup_overhead_seconds": 0.044423005001590354,
+    "wall_seconds": 4.058166740000161
+  },
+  "baseline_result_count": 5,
+  "hardened_fresh": {
+    "completed": 24,
+    "duplicates_suppressed": 1,
+    "executed_tasks": 27,
+    "executor": "hardened-local",
+    "failed": 0,
+    "failure_classes": [],
+    "manifest_sha256": "e33837d5df1cd3e8b1248b5a07053fab7d69c0bad0a999643c31ba2eed68fcef",
+    "peak_python_bytes": 233331,
+    "resumed": 0,
+    "retried": {
+      "d6-discriminator-job-0005": 1,
+      "d6-discriminator-job-0011": 1,
+      "d6-discriminator-job-0017": 1
+    },
+    "startup_overhead_seconds": 0.04460792300233152,
+    "total": 24,
+    "wall_seconds": 4.056964192001033
+  },
+  "hardened_resume_full": {
+    "completed": 24,
+    "duplicates_suppressed": 0,
+    "executed_tasks": 0,
+    "executor": "hardened-local",
+    "failed": 0,
+    "failure_classes": [],
+    "manifest_sha256": "e33837d5df1cd3e8b1248b5a07053fab7d69c0bad0a999643c31ba2eed68fcef",
+    "resumed": 24,
+    "retried": {},
+    "startup_overhead_seconds": 0.0,
+    "total": 24,
+    "wall_seconds": 0.0011334349983371794
+  },
+  "hardened_resume_partial": {
+    "completed": 24,
+    "duplicates_suppressed": 0,
+    "executed_tasks": 18,
+    "executor": "hardened-local",
+    "failed": 0,
+    "failure_classes": [],
+    "manifest_sha256": "e33837d5df1cd3e8b1248b5a07053fab7d69c0bad0a999643c31ba2eed68fcef",
+    "resumed": 8,
+    "retried": {
+      "d6-discriminator-job-0011": 1,
+      "d6-discriminator-job-0017": 1
+    },
+    "startup_overhead_seconds": 0.0,
+    "total": 24,
+    "wall_seconds": 4.051985126996442
+  },
+  "master_seed": 20260910,
+  "n": 24,
+  "ray": {
+    "completed": 24,
+    "duplicates_suppressed": 0,
+    "executed_tasks": 27,
+    "executor": "ray-core",
+    "failed": 0,
+    "failure_classes": [],
+    "manifest_sha256": "e33837d5df1cd3e8b1248b5a07053fab7d69c0bad0a999643c31ba2eed68fcef",
+    "ray_init_seconds": 1.9258262669973192,
+    "resumed": 0,
+    "retried": {
+      "d6-discriminator-job-0005": 1,
+      "d6-discriminator-job-0011": 1,
+      "d6-discriminator-job-0017": 1
+    },
+    "startup_overhead_seconds": 3.933884604000923,
+    "total": 24,
+    "wall_seconds": 3.9408953610000026
+  },
+  "ray_status": "ran",
+  "run_id": "d6-discriminator",
+  "semantic_hash_baseline_clean": "2121aa246838f31935949a3bae9e985e453deb2ccfc8791a12cb8a846b7f9758",
+  "semantic_hash_hardened_clean": "2121aa246838f31935949a3bae9e985e453deb2ccfc8791a12cb8a846b7f9758",
+  "semantic_hashes_equal": true,
+  "workers": 4
+}

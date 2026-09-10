@@ -1,0 +1,153 @@
+{
+  "engine_version": "d6-synthetic-v1",
+  "immutable": true,
+  "jobs": [
+    {
+      "index": 0,
+      "job_id": "d6-discriminator-job-0000",
+      "scenario": "clean",
+      "seed": 890741018921909522
+    },
+    {
+      "index": 1,
+      "job_id": "d6-discriminator-job-0001",
+      "scenario": "clean",
+      "seed": 15683490101164806251
+    },
+    {
+      "index": 2,
+      "job_id": "d6-discriminator-job-0002",
+      "scenario": "clean",
+      "seed": 7630890063175158531
+    },
+    {
+      "index": 3,
+      "job_id": "d6-discriminator-job-0003",
+      "scenario": "clean",
+      "seed": 15697874857061349145
+    },
+    {
+      "index": 4,
+      "job_id": "d6-discriminator-job-0004",
+      "scenario": "clean",
+      "seed": 535416791788830221
+    },
+    {
+      "index": 5,
+      "job_id": "d6-discriminator-job-0005",
+      "scenario": "crash",
+      "seed": 14148374368685233161
+    },
+    {
+      "index": 6,
+      "job_id": "d6-discriminator-job-0006",
+      "scenario": "clean",
+      "seed": 234242045332910303
+    },
+    {
+      "index": 7,
+      "job_id": "d6-discriminator-job-0007",
+      "scenario": "clean",
+      "seed": 9643878634469614409
+    },
+    {
+      "index": 8,
+      "job_id": "d6-discriminator-job-0008",
+      "scenario": "clean",
+      "seed": 3488418865972508729
+    },
+    {
+      "index": 9,
+      "job_id": "d6-discriminator-job-0009",
+      "scenario": "clean",
+      "seed": 208230922049751870
+    },
+    {
+      "index": 10,
+      "job_id": "d6-discriminator-job-0010",
+      "scenario": "clean",
+      "seed": 16992540361535452644
+    },
+    {
+      "index": 11,
+      "job_id": "d6-discriminator-job-0011",
+      "scenario": "timeout",
+      "seed": 14471806283917504083
+    },
+    {
+      "index": 12,
+      "job_id": "d6-discriminator-job-0012",
+      "scenario": "clean",
+      "seed": 16716448487973424447
+    },
+    {
+      "index": 13,
+      "job_id": "d6-discriminator-job-0013",
+      "scenario": "clean",
+      "seed": 16788533638194943986
+    },
+    {
+      "index": 14,
+      "job_id": "d6-discriminator-job-0014",
+      "scenario": "clean",
+      "seed": 11388547672129470639
+    },
+    {
+      "index": 15,
+      "job_id": "d6-discriminator-job-0015",
+      "scenario": "clean",
+      "seed": 4045962671098198404
+    },
+    {
+      "index": 16,
+      "job_id": "d6-discriminator-job-0016",
+      "scenario": "clean",
+      "seed": 6925142293325655536
+    },
+    {
+      "index": 17,
+      "job_id": "d6-discriminator-job-0017",
+      "scenario": "flaky",
+      "seed": 5041324658157978934
+    },
+    {
+      "index": 18,
+      "job_id": "d6-discriminator-job-0018",
+      "scenario": "clean",
+      "seed": 4847275385382712970
+    },
+    {
+      "index": 19,
+      "job_id": "d6-discriminator-job-0019",
+      "scenario": "clean",
+      "seed": 931541862041853169
+    },
+    {
+      "index": 20,
+      "job_id": "d6-discriminator-job-0020",
+      "scenario": "clean",
+      "seed": 17532626821810143467
+    },
+    {
+      "index": 21,
+      "job_id": "d6-discriminator-job-0021",
+      "scenario": "clean",
+      "seed": 17311417150418494081
+    },
+    {
+      "index": 22,
+      "job_id": "d6-discriminator-job-0022",
+      "scenario": "clean",
+      "seed": 15697586958428801222
+    },
+    {
+      "index": 23,
+      "job_id": "d6-discriminator-job-0023",
+      "scenario": "clean",
+      "seed": 13569869670582217849
+    }
+  ],
+  "master_seed": 20260910,
+  "run_id": "d6-discriminator",
+  "schema_version": 1
+}

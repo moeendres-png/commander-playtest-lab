@@ -1,0 +1,41 @@
+{
+  "aborted_batch": true,
+  "completed": 5,
+  "error": "RuntimeError: injected worker crash for d6-discriminator-job-0005",
+  "executor": "baseline-process-pool",
+  "peak_python_bytes": 473419,
+  "results": [
+    {
+      "attempt": 0,
+      "job_id": "d6-discriminator-job-0000",
+      "result_hash": "e4d0bdf03632f9840e76f0624234542e6ef3cb265677d26bcacf7657cf5186ad",
+      "seed": 890741018921909522
+    },
+    {
+      "attempt": 0,
+      "job_id": "d6-discriminator-job-0001",
+      "result_hash": "f0c7a0904115bc864bb096e8b3473a577692efd56ef2e3561350b132c4de3175",
+      "seed": 15683490101164806251
+    },
+    {
+      "attempt": 0,
+      "job_id": "d6-discriminator-job-0002",
+      "result_hash": "5c78a90b9ee0045d5a022c85e3ba8988dec3ebdf466ce37dfed3fc206831bf24",
+      "seed": 7630890063175158531
+    },
+    {
+      "attempt": 0,
+      "job_id": "d6-discriminator-job-0003",
+      "result_hash": "d801cb3155832b58df7c70883116e6c4e5cfd5472ff943c2661aa5b0a3351a94",
+      "seed": 15697874857061349145
+    },
+    {
+      "attempt": 0,
+      "job_id": "d6-discriminator-job-0004",
+      "result_hash": "d8078c732d5b22996ea4cf09c2f7e0df9518216735eacd58ec7aed71b8535c5b",
+      "seed": 535416791788830221
+    }
+  ],
+  "startup_overhead_seconds": 0.044423005001590354,
+  "wall_seconds": 4.058166740000161
+}

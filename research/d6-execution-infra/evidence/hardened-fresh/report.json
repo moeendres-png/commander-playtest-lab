@@ -1,0 +1,14 @@
+{
+  "completed": 24,
+  "duplicates_suppressed": 0,
+  "executed_tasks": 0,
+  "executor": "hardened-local",
+  "failed": 0,
+  "failure_classes": [],
+  "manifest_sha256": "e33837d5df1cd3e8b1248b5a07053fab7d69c0bad0a999643c31ba2eed68fcef",
+  "resumed": 24,
+  "retried": {},
+  "startup_overhead_seconds": 0.0,
+  "total": 24,
+  "wall_seconds": 0.0011334349983371794
+}

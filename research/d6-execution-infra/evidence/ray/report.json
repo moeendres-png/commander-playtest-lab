@@ -1,0 +1,19 @@
+{
+  "completed": 24,
+  "duplicates_suppressed": 0,
+  "executed_tasks": 27,
+  "executor": "ray-core",
+  "failed": 0,
+  "failure_classes": [],
+  "manifest_sha256": "e33837d5df1cd3e8b1248b5a07053fab7d69c0bad0a999643c31ba2eed68fcef",
+  "ray_init_seconds": 1.9258262669973192,
+  "resumed": 0,
+  "retried": {
+    "d6-discriminator-job-0005": 1,
+    "d6-discriminator-job-0011": 1,
+    "d6-discriminator-job-0017": 1
+  },
+  "startup_overhead_seconds": 3.933884604000923,
+  "total": 24,
+  "wall_seconds": 3.9408953610000026
+}
