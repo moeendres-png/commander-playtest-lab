@@ -35,7 +35,7 @@ WS49 qualification payload that must not enter governance; references
 Work/Work-chat effort prescriptions predate the final routing adjudication.
 
 Recommendation: `REBASE/REWORK` in spirit — extract only the privacy-boundary
-concepts (already incorporated into `AGENTS.md` §10 and `opencode.json`
+concepts (already incorporated into `AGENTS.md` §11 and `opencode.json`
 permissions), then `CLOSE_AFTER_CONSOLIDATION`. Never merge wholesale.
 
 ## PR #167 — `project/resource-constrained-execution-policy-20260908` (@ `633f51ae68b4908228afdb4354029163e24b903c`)

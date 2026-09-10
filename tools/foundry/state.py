@@ -108,9 +108,53 @@ def validate(data: dict) -> list[str]:
     return errors
 
 
+def check_head_mismatch(state_path: str, workdir: str) -> list[str]:
+    """Compare state ``current_head`` against live ``git rev-parse HEAD``.
+
+    Returns warnings (empty when matching). The state file is never Source
+    Authority: on mismatch, live Git wins and the state must be updated.
+    """
+    import subprocess
+
+    try:
+        with open(state_path, encoding="utf-8") as handle:
+            data = yaml.safe_load(handle)
+    except OSError as exc:
+        return [f"cannot read state for HEAD check: {exc}"]
+    if not isinstance(data, dict) or not data.get("current_head"):
+        return ["state has no current_head to compare"]
+    proc = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=workdir,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return [f"cannot read live HEAD: {proc.stderr.strip()}"]
+    live = proc.stdout.strip()
+    recorded = str(data["current_head"]).strip()
+    if live != recorded:
+        return [
+            f"HEAD_MISMATCH: state current_head {recorded} != live HEAD {live} "
+            "(live Git wins; update the state file)"
+        ]
+    return []
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate a WORKSTREAM_STATE.yaml file.")
     parser.add_argument("--state", required=True, help="Path to the state YAML file.")
+    parser.add_argument(
+        "--workdir",
+        default=None,
+        help="Optional worktree to compare live HEAD against current_head.",
+    )
+    parser.add_argument(
+        "--fail-on-head-mismatch",
+        action="store_true",
+        help="Exit nonzero when live HEAD differs from current_head.",
+    )
     args = parser.parse_args(argv)
     try:
         with open(args.state, encoding="utf-8") as handle:
@@ -125,7 +169,14 @@ def main(argv: list[str] | None = None) -> int:
         for error in errors:
             print(f"STATE_INVALID: {error}", file=sys.stderr)
         return 1
+    warnings: list[str] = []
+    if args.workdir:
+        warnings = check_head_mismatch(args.state, args.workdir)
+        for warning in warnings:
+            print(f"STATE_WARN: {warning}", file=sys.stderr)
     print(f"STATE_OK: status={data['status']} branch={data['branch']}")
+    if args.fail_on_head_mismatch and warnings:
+        return 1
     return 0
 
 

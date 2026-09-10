@@ -87,7 +87,7 @@ def test_source_lock_repo_mismatch_fails(repo: Path) -> None:
         audit_base_sha=head,
         workdir=str(repo),
     )
-    assert any("repository mismatch" in r for r in reasons)
+    assert any("repository mismatch" in r or "WRONG_LOCAL_REPOSITORY" in r for r in reasons)
 
 
 def test_source_lock_wrong_base_fails(repo: Path) -> None:
@@ -456,3 +456,112 @@ def test_inventory_marks_dirty_false(repo: Path) -> None:
     (repo / "file.txt").write_text("dirty\n", encoding="utf-8")
     entries = worktree_inventory.inventory(str(repo))
     assert entries[0]["clean"] is False
+
+
+def test_source_lock_full_slug_wrong_owner_is_wrong_local_repository(
+    repo: Path,
+) -> None:
+    head = _git(["rev-parse", "HEAD"], repo)
+    _git(
+        [
+            "config",
+            "remote.origin.url",
+            "https://github.com/someone-else/commander-playtest-lab.git",
+        ],
+        repo,
+    )
+    reasons = lock_mod.verify(
+        repo="moeendres-png/commander-playtest-lab",
+        branch="main",
+        audit_base_sha=head,
+        workdir=str(repo),
+    )
+    assert any("WRONG_LOCAL_REPOSITORY" in r for r in reasons)
+
+
+def test_source_lock_full_slug_canonical_passes_identity(repo: Path) -> None:
+    head = _git(["rev-parse", "HEAD"], repo)
+    reasons = lock_mod.verify(
+        repo="moeendres-png/commander-playtest-lab",
+        branch="main",
+        audit_base_sha=head,
+        workdir=str(repo),
+    )
+    assert reasons == []
+
+
+def test_is_canonical_remote_requires_full_slug() -> None:
+    assert lock_mod.is_canonical_remote(
+        "https://github.com/moeendres-png/commander-playtest-lab.git"
+    )
+    assert not lock_mod.is_canonical_remote(
+        "https://github.com/someone-else/commander-playtest-lab.git"
+    )
+    assert not lock_mod.is_canonical_remote("https://github.com/moeendres-png/other.git")
+
+
+def test_worktree_inventory_duplicate_writer_detected() -> None:
+    entries = [
+        {"path": "/tmp/wt-a", "branch": "project/x", "head": "a" * 40},
+        {"path": "/tmp/wt-b", "branch": "project/x", "head": "a" * 40},
+        {"path": "/tmp/wt-c", "branch": "project/y", "head": "b" * 40},
+    ]
+    conflicts = worktree_inventory.find_duplicate_writers(entries)  # type: ignore[arg-type]
+    assert len(conflicts) == 1
+    assert "project/x" in conflicts[0]
+    assert worktree_inventory.find_duplicate_writers(entries[:1]) == []
+
+
+def test_state_head_mismatch_warns(repo: Path, tmp_path: Path) -> None:
+    import yaml as _yaml
+
+    head = _git(["rev-parse", "HEAD"], repo)
+    state = _valid_state()
+    state["current_head"] = head
+    state_path = tmp_path / "STATE.yaml"
+    state_path.write_text(_yaml.safe_dump(state), encoding="utf-8")
+    assert state_mod.check_head_mismatch(str(state_path), str(repo)) == []
+    bad = dict(state)
+    bad["current_head"] = "0" * 40
+    state_path.write_text(_yaml.safe_dump(bad), encoding="utf-8")
+    warnings = state_mod.check_head_mismatch(str(state_path), str(repo))
+    assert any("HEAD_MISMATCH" in w for w in warnings)
+
+
+def test_battery_cli_wildcard_exact_semantics() -> None:
+    assert permission_battery.matches("gh api*", "gh api repos/x/y")
+    assert permission_battery.matches("gh api*", "gh api -X PATCH repos/x/y")
+    assert not permission_battery.matches("gh api*", "gh run view 1")
+    assert permission_battery.matches("*.env", "/proj/.env")
+    assert permission_battery.matches("*.env.*", "/proj/.env.local")
+    assert permission_battery.matches("git push*", "git push origin test")
+    assert not permission_battery.matches("git push*", "git status")
+
+
+def test_bootstrap_skill_has_identity_gate() -> None:
+    text = (REPO_ROOT / ".opencode" / "skills" / "workstream-bootstrap" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    for required in (
+        "moeendres-png/commander-playtest-lab",
+        "WRONG_LOCAL_REPOSITORY",
+        "REQUESTED_REF_ABSENT_FROM_CANONICAL_REMOTE",
+        "tools/foundry/source_lock.py",
+        "tools/foundry/worktree_inventory.py",
+        "no duplicate writer",
+        "Do not use one governance checkout to write across independent worktrees",
+    ):
+        assert required.lower() in text.lower()
+
+
+def test_governance_propagation_contract_exists() -> None:
+    text = (REPO_ROOT / "docs" / "foundry-execution" / "GOVERNANCE_PROPAGATION.md").read_text(
+        encoding="utf-8"
+    )
+    for required in (
+        "RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT",
+        "only expected governance/tooling paths",
+        "do not rerun qualification for reassurance",
+        "Do not use one governance checkout to write across independent worktrees",
+    ):
+        assert required.lower() in text.lower()

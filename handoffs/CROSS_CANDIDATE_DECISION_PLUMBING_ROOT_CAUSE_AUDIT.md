@@ -129,7 +129,7 @@ probe failures are diagnostic, not terminal.
 ## Persistence
 
 After each validated milestone: coherent tree, scoped validation, state-file update,
-focused local commit. End with the full handoff sections from `AGENTS.md` §12.
+focused local commit. End with the full handoff sections from `AGENTS.md` §13.
 
 ## Final Handoff
 

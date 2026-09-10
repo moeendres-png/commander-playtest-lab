@@ -4,7 +4,7 @@ worktree: /home/moeen/code/commander-exec-consolidation
 branch: project/opencode-execution-system-consolidation-20260910
 audit_base_sha: b3f5a9929aaf07d2ae574724bbe198b5ab402df6
 audit_base_tree: 6c7e3f43ea6ef7aa0eaf385807138f938162bbdd
-current_head: 0c0579e0eda134dbc3401a378d897d24068ed42c
+current_head: cfb033dcec3f37f14b9195c72052a2950043894b
 objective: Implement the single coherent OpenCode/Muse execution system (AGENTS.md, config, agents, skills, state, tooling, docs) on top of origin/main b3f5a992.
 in_scope:
 - Root AGENTS.md (durable rules only)
@@ -52,18 +52,21 @@ validated_gates:
 - 24 deterministic tool tests pass after adjudication upgrade (adjudicator, HIGH default, reviewer, autonomy, state extension)
 - runtime smoke PASS on pinned CLI 1.18.29: config/agents/skills load, HIGH default and adjudicator XHIGH accepted
 - skills discoverable (.opencode/skills/*/SKILL.md, names match dirs, frontmatter valid)
-- agents carry model opencode-go/muse-spark-1.3-contributor at variant high
+- agents carry model opencode-go/muse-spark-1.3-contributor at variant high for foundry-implementer/foundry-reviewer and xhigh for foundry-adjudicator
 - workflow VARIANT high with MODEL/SHARE unchanged; opencode.json share disabled
 - "CI repair: pyproject.toml edit reverted (WS17 hash manifest is immutable); E402 suppression moved file-local via noqa; WS17 gate re-passes locally"
+- S-1 committed as cfb033dc with S-2 files excluded and preserved dirty; S-1 permission model verified semantically unchanged in S-2 worktree (opencode.json, agents, permission_battery untouched)
+- S-2 resume: worktree_inventory.py verified free of the reported syntax error (import sys present, py_compile clean); only a ruff-format join remained and was repaired; 42/42 pytest green, ruff check and format clean
+- S-2 mission reconciliation: AGENTS.md section 1 aligned with PR173 head aa772f9 (outcome-first, player-count neutral, defers to docs/PROJECT_MISSION.md); execution governance sections 2-13 untouched
 failed_gates: []
 invalidated_gates: []
 do_not_rerun:
 - PR head inspection (immutable refs pr-161-head/pr-166-head/pr-167-head in main checkout)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: All deliverables A-K implemented; final validation and local commit remain.
+current_hypothesis: S-1 committed as cfb033dc; sole-owner S-2 resume verified the preserved dirty tree, repaired format, reconciled AGENTS.md mission with PR173; S-2 commit plus push-gate evaluation remain.
 files_modified:
-- AGENTS.md (technical decision authority section 8, renumbered 9-13)
+- AGENTS.md (technical decision authority section 8, renumbered 9-13; S-2 mission-only reconciliation of section 1 with PR173 player-count-neutral policy)
 - opencode.json (foundry-adjudicator task permission)
 - .opencode/agents/foundry-adjudicator.md (new, XHIGH, read/test-first)
 - .opencode/agents/foundry-implementer.md (in-scope decision ownership, adjudicator escalation path)
@@ -84,6 +87,7 @@ files_modified:
 - tests/foundry/test_foundry_tools.py
 - .github/workflows/opencode.yml (VARIANT xhigh to high)
 - docs/foundry-execution/README.md
+- docs/foundry-execution/GOVERNANCE_PROPAGATION.md (new, post-PR172 merge procedure)
 - docs/foundry-execution/ROUTING_AND_EFFORT.md
 - docs/foundry-execution/GOVERNANCE_SUPERSESSION.md
 - docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md
@@ -93,6 +97,7 @@ files_modified:
 - handoffs/CROSS_CANDIDATE_DECISION_PLUMBING_ROOT_CAUSE_AUDIT.md
 tests_run:
 - pytest tests/foundry/ -q (24 passed)
+- pytest tests/foundry/ -q (42 passed, S-2 resume: 34 S-1 + 8 S-2, post format repair)
 - ruff check tools/foundry tests/foundry (pass)
 - ruff format --check tools/foundry tests/foundry (pass)
 - tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml (STATE_OK)
@@ -104,14 +109,21 @@ evidence:
 - RUNTIME_VERIFIED: pinned CLI 1.18.29 loads root config, all three agents, all five skills; HIGH default and adjudicator XHIGH accepted (isolated HOME, /tmp scratch project)
 - CODE_DERIVED: schema-conformance reasoning from live opencode.ai/config.json for opencode.json key choices; agent permission enforcement order from CLI docs
 remaining_scope:
+- S-2 commit (sole-owner) and push-gate evaluation for PR #172
 - Push consolidation branch (approval-gated) and update PR #172
+- S-1 permission hardening: repair validated in isolation; commit blocked by concurrent-writer conflict (see ownership_conflict)
 status: ACTIVE
+ownership_conflict: "2026-09-10 ~00:55-01:00 UTC: second live writer active in this worktree/branch (live opencode TUI sessions on pts/0,4,5). Foreign changes: source_lock.py taxonomy rewrite, worktree_inventory.py duplicate-writer detection (committed with a syntax error breaking all foundry tests), bootstrap SKILL.md +69, handoff edit, new GOVERNANCE_PROPAGATION.md (S-2 scope), opencode.json .env.example allows (correct, adopted), state-file edits reverted. Evidence: /tmp/s1-conflict-evidence/. No commit made; S-1 delta validated in detached worktree /tmp/s1-validate (since removed). RESOLVED 2026-09-10: S-1 committed as cfb033dc with S-2 files excluded and preserved dirty per the commit message; sole-owner S-2 resume verified the inventory, found worktree_inventory.py already repaired (py_compile clean), and continued without reset/clean/stash."
+s1_permission_repair: "P0-1/P0-2/P1-1/P1-4 closed in opencode.json + implementer/adjudicator frontmatter; 37-probe battery via CLI 1.18.29 resolved rules; 34/34 pytest green in isolation; smoke PASS on final config. Remaining INSTRUCTION_ONLY: interpreter bypass (I14-I16), shell redirection (A24)."
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: xhigh
 hypotheses_rejected: []
-technical_decisions: []
+technical_decisions:
+- "S-2 resume: reported worktree_inventory.py syntax error adjudicated already-repaired in the preserved tree (import sys present, py_compile clean, 42/42 green); only residual was a ruff-format join in the S-2 test assertion, repaired via ruff format without semantic change."
+- "S-2 test_source_lock_repo_mismatch_fails broadened to accept WRONG_LOCAL_REPOSITORY: not a weakening; the S-2 source_lock.py taxonomy intentionally emits that reason for full-slug mismatch while the bare-fragment path still emits repository mismatch (covered by unchanged tests)."
+- "AGENTS.md mission reconciled inline with PR173 aa772f9 semantics plus a deference pointer to docs/PROJECT_MISSION.md; no file created on the PR172 line to avoid duplicating PR173's surface; execution governance sections 2-13 byte-identical."
 authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
-next_action: push branch on approval; PR #172 moves to RUNTIME_VERIFIED smoke
-exact_next_action: Push only after explicit approval, then report PR #172 HEAD, checks, and smoke status.
+next_action: create the single focused S-2 local commit, then evaluate the conditional push gate for PR #172
+exact_next_action: Commit S-2 only (no push yet); then verify S-1 untouched, S-2 tests green, commit file list clean, PR173 unmodified before any push.

@@ -9,9 +9,21 @@ and `.foundry/WORKSTREAM_STATE.yaml`.
 
 Build and qualify the best realistically achievable full-rules Magic: The Gathering
 Commander simulator. Rules Correctness outranks performance and convenience.
+Governing mission policy is `docs/PROJECT_MISSION.md` (established on the PR #173
+line): outcome-first, player-count neutral. Its player-count and architecture
+direction governs over any summary here, so merging this file must never reintroduce
+a fixed 4-player architecture restriction.
 
-- Primary decision mode: exactly 4 players (one own deck, three opponents).
-- Technical Rules-Core conformance: 2–5 players required; 6 players desired only if quality permits.
+- Four players (one own deck, three opponents) is the primary benchmark and decision
+  mode. It is not an architecture anchor, a fixed-size data-model requirement, or a
+  reason to exclude otherwise better candidates or research.
+- Technical Rules-Core conformance for 2–5 players is mandatory. Record evidence for
+  each count; a 4P result does not establish another count's correctness.
+- Prefer 6+ or generally variable-player solutions when they improve Rules Correctness,
+  simplicity, reuse, testability, or research/implementation. This preference must not
+  weaken Rules Correctness or the required 2–5P conformance.
+- A target player-count capability is not runtime evidence. Unsupported paths remain
+  fail closed until qualified.
 - The simulator must support real Commander decks for deck decisions, matchup analysis,
   reproducible simulations, later pilot improvement, and later deckbuilding optimization.
 
