@@ -123,6 +123,7 @@ class Driver:
         self.ritual_answers: list[dict[str, Any]] = []
         self.structural_passes: list[dict[str, Any]] = []
         self.decode_errors = 0
+        self.result_seen = False
         self.raw_lines: list[str] = []
         self.offered_for_digest: list[Any] = []
         self.events: list[dict[str, Any]] = []
@@ -297,6 +298,7 @@ def run_record(record: dict[str, Any], transport: Any,
                     if typ == "SESSION_RESULT":
                         stop_reason = (m.get("payload") or {}).get("stop_reason")
                         session_snapshot = (m.get("payload") or {}).get("snapshot")
+                        drv.result_seen = True
                         break
                     if typ == "NATIVE_EVENT":
                         drv.events.append({"event": (m.get("payload") or {}).get("event"),
@@ -359,6 +361,7 @@ def run_record(record: dict[str, Any], transport: Any,
                 if typ == "SESSION_RESULT":
                     stop_reason = (m.get("payload") or {}).get("stop_reason")
                     session_snapshot = (m.get("payload") or {}).get("snapshot")
+                    drv.result_seen = True
                     break
                 if typ != "DECISION_FRAME":
                     raise Blocked("PROTOCOL", f"unexpected message {typ}")
@@ -858,8 +861,16 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
         if "terminate_rc" in outcome and not remaining:
             # Harness-initiated EOF after the full script was consumed: the
             # provider's EOF-typed stop is the expected termination signal,
-            # not a mid-script fail-closed.
+            # not a mid-script fail-closed. This holds even when the
+            # EOF-typed SESSION_RESULT was captured during drain
+            # (result_seen): the close was deliberate and every scripted
+            # obligation was answered; the stop_reason field retains whatever
+            # terminal class the provider reported.
             outcome["verdict"] = "TRANSCRIPT_COMPLETE"
+        elif drv.result_seen and stop_reason is None:
+            outcome["verdict"] = "BLOCKED_AT:NULL_STOP_REASON"
+            outcome["reason"] = ("provider emitted SESSION_RESULT with null "
+                                 "stop_reason (opaque fail-closed; see stderr trace)")
         elif stop_reason in ("FORGE_GAME_RETURNED", "WS23_CONTROLLED_AFTER_PRIORITY_512"):
             if not remaining:
                 outcome["verdict"] = "TRANSCRIPT_COMPLETE"
@@ -867,7 +878,9 @@ def finish(outcome: dict[str, Any], drv: Driver, stop_reason: Any,
                 outcome["verdict"] = "PROBE_FAIL"
                 outcome["reason"] = f"stopped with {len(remaining)} scripted decisions unconsumed"
         elif stop_reason and ("WS23_FAIL_CLOSED_UNSUPPORTED" in str(stop_reason)
-                               or "WS48_UNSUPPORTED_DISCRETIONARY_DECISION" in str(stop_reason)):
+                               or "WS48_UNSUPPORTED_DISCRETIONARY_DECISION" in str(stop_reason)
+                               or "WS48_BARE_UNSUPPORTED_OPERATION" in str(stop_reason)
+                               or "WS48_NULL_CONTROLLED_STOP" in str(stop_reason)):
             outcome["verdict"] = f"BLOCKED_AT:{stop_reason}"
         elif stop_reason and "WS23_EXTERNAL_EOF" in str(stop_reason):
             outcome["verdict"] = "TRANSCRIPT_COMPLETE" if not remaining else "PROBE_FAIL"

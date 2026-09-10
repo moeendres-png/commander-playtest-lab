@@ -373,7 +373,11 @@ MODE_NEW = """        @Override
             if (possible == null || possible.isEmpty()) throw failClosed("chooseModeForAbility:EMPTY");
             if (possible.size() == 1 && min == 1 && num == 1 && !allowRepeat) {
                 broker.recordAutomatic("SINGLE_NATIVE_OPTION:chooseModeForAbility");
-                return java.util.List.of(possible.get(0));
+                // Mutable container required: the engine sorts the returned
+                // modes in place (CharmEffect.chainAbilities). Same element,
+                // same order - only the container mutability matches the
+                // native controller contract.
+                return new java.util.ArrayList<>(java.util.List.of(possible.get(0)));
             }
             if (min == 1 && num == 1 && !allowRepeat) {
                 java.util.List<String> labels = new java.util.ArrayList<>();
@@ -381,7 +385,7 @@ MODE_NEW = """        @Override
                     labels.add("WS48:MODE:api=" + ws48Enc(String.valueOf(o.getApi()))
                         + ":desc=" + ws48Enc(ws48Clip(o.getDescription(), 200)));
                 }
-                return java.util.List.of(possible.get(ws48Choose("choose_mode", this.player, labels)));
+                return new java.util.ArrayList<>(java.util.List.of(possible.get(ws48Choose("choose_mode", this.player, labels))));
             }
             throw failClosed("chooseModeForAbility:DEPENDENT_MULTI_CHOICE");
         }"""
@@ -501,17 +505,37 @@ TRIGGER_ORDER_NEW = """        @Override
         }"""
 
 # Exact ICostVisitor<PaymentDecision> surface at Forge 66caae16 (40 methods).
-# Only CostPartMana is decidable headlessly: CostPartMana.payAsDecided
-# ignores the decision content and runs the interactive native payment
-# (payManaCost/applyManaToCost), so the visit returns an empty decision and
-# real payment authority stays in the engine. All other parts fail closed
-# with the exact part identity.
+# R1b audit (all citations Forge 66caae16, tree 40fc8f29):
+# - CostPartMana: HumanCostDecision.visit returns new PaymentDecision(0)
+#   unconditionally; CostPartMana.payAsDecided runs the interactive native
+#   payment (payManaCost/applyManaToCost) ignoring decision content. AUTO.
+# - CostTap: HumanCostDecision.visit returns PaymentDecision.number(1)
+#   unconditionally - no prompt, no selection, no confirm. CostTap is a
+#   no-arg part; CostTap.payAsDecided taps ability.getHostCard() directly and
+#   ignores the decision content. Selective tapping is the separate
+#   CostTapType part (stays fail-closed). AUTO.
+# - CostAddMana: HumanCostDecision.visit returns
+#   PaymentDecision.number(cost.getAbilityAmount(ability)) unconditionally -
+#   no prompt, no selection, no confirm. payAsDecided adds exactly
+#   decision.c mana of the native part type. The amount is engine-computed
+#   native state (X resolved from ability-announced values via the separate
+#   announceRequirements surface). AUTO as an exact native mirror.
+# - CostPayLife: HumanCostDecision.visit pays WITHOUT asking only when
+#   sa.getPayCosts().isMandatory(); the non-mandatory path offers a
+#   confirm-or-cancel choice and cancelling aborts payment. Willingness to
+#   pay is genuine discretion: only the exact native-mandatory branch is
+#   mirrored, everything else fails closed (never auto-pay, never
+#   auto-decline/filter-cancel).
+# - All other parts involve native prompts/selections/confirms: FAIL_CLOSED
+#   with exact part identity. Multi-part cost ordering stays fail-closed via
+#   the generated orderCosts fail-closed stub (PlaySpellAbility activation
+#   uses CostPayment.payCost, which calls orderCosts for >1 part).
 COST_VISIT_PARTS = [
     "CostBehold", "CostBeholdExile", "CostGainControl", "CostChooseColor",
     "CostChooseCreatureType", "CostCollectEvidence", "CostDiscard",
     "CostDamage", "CostDraw", "CostExile", "CostExileFromStack",
     "CostExiledMoveToGrave", "CostExert", "CostEnlist", "CostFlipCoin",
-    "CostForage", "CostRollDice", "CostMill", "CostAddMana", "CostPayLife",
+    "CostForage", "CostRollDice", "CostMill",
     "CostPayEnergy", "CostGainLife",     "CostPromiseGift", "CostPutCardToLib",
     "CostSacrifice", "CostReturn", "CostReveal",
     "CostRevealChosen", "CostRemoveAnyCounter", "CostRemoveCounter",
@@ -552,12 +576,40 @@ def cost_decision_java() -> str:
 
                 @Override
                 public PaymentDecision visit(CostTap cost) {
-                    // CostTap.payAsDecided taps ability.getHostCard()
-                    // directly and ignores the decision content. No
-                    // discretion exists here; the tapped card is forced by
-                    // the ability under payment.
+                    // R1b PROVEN NON-DISCRETIONARY, exact native mirror:
+                    // HumanCostDecision.visit(CostTap) returns
+                    // PaymentDecision.number(1) with no prompt/selection/
+                    // confirm, and CostTap.payAsDecided taps
+                    // ability.getHostCard() ignoring the decision content.
                     broker.recordAutomatic("costVisit:CostTap");
-                    return new PaymentDecision(0);
+                    return PaymentDecision.number(1);
+                }
+
+                @Override
+                public PaymentDecision visit(CostAddMana cost) {
+                    // R1b PROVEN NON-DISCRETIONARY, exact native mirror:
+                    // HumanCostDecision.visit(CostAddMana) returns
+                    // PaymentDecision.number(cost.getAbilityAmount(ability))
+                    // with no prompt/selection/confirm. payAsDecided adds
+                    // exactly decision.c mana of the native part type.
+                    broker.recordAutomatic("costVisit:CostAddMana");
+                    return PaymentDecision.number(cost.getAbilityAmount(ability));
+                }
+
+                @Override
+                public PaymentDecision visit(CostPayLife cost) {
+                    // R1b CONDITIONAL mirror of the single native branch that
+                    // pays without asking: HumanCostDecision.visit(CostPayLife)
+                    // returns PaymentDecision.number(c) directly only when
+                    // sa.getPayCosts().isMandatory(). The non-mandatory path
+                    // offers confirm-or-cancel (cancel aborts payment), which
+                    // is genuine discretion, so it fails closed with exact
+                    // part identity - never auto-pay, never auto-decline.
+                    if (ability.getPayCosts().isMandatory()) {
+                        broker.recordAutomatic("costVisit:CostPayLife:MANDATORY");
+                        return PaymentDecision.number(cost.getAbilityAmount(ability));
+                    }
+                    throw failClosed("costVisit:CostPayLife");
                 }
 
 """ + "\n".join(visits) + """
@@ -721,6 +773,20 @@ SCRY_NEW = """        @Override
 
 EOF_TYPED_ANCHOR = '                if (answer == null) throw new ControlledStop("WS23_EXTERNAL_EOF");'
 EOF_TYPED_NEW = """                if (answer == null) throw new ControlledStop("WS48_UNSUPPORTED_DISCRETIONARY_DECISION:" + kind);"""
+TRACE_ANCHOR = """        } catch (ControlledStop expected) {
+            stopReason = expected.getMessage();
+        } catch (UnsupportedOperationException unsupported) {
+            stopReason = unsupported.getMessage();
+        }"""
+TRACE_NEW = """        } catch (ControlledStop expected) {
+            stopReason = expected.getMessage();
+            if (stopReason == null) stopReason = "WS48_NULL_CONTROLLED_STOP";
+            expected.printStackTrace();
+        } catch (UnsupportedOperationException unsupported) {
+            stopReason = unsupported.getMessage();
+            if (stopReason == null) stopReason = "WS48_BARE_UNSUPPORTED_OPERATION";
+            unsupported.printStackTrace();
+        }"""
 EVENTS_ANCHOR = "        Game game = match.createGame();"
 EVENTS_ADD = """        Game game = match.createGame();
         game.subscribeToEvents(new Ws48NativeEvents(broker, game));"""
@@ -795,6 +861,98 @@ EVENTS_CLASS_ADD = """    static final class Ws48NativeEvents {
     }
 
     static String singleCommanderName(Player player) {"""
+
+TERMINATION_HELPERS_ANCHOR = "    static void runSession(BufferedReader in, PrintWriter out) throws Exception {"
+TERMINATION_HELPERS_ADD = """    // R1c truthful terminal SESSION_RESULT. Exactly-once emission guarded by
+    // ws48ResultEmitted: normal return, clean EOF/script exhaustion, and
+    // controlled fail-closed stops emit synchronously with their real stop
+    // reason; unexpected failures emit before propagating (real termination
+    // class preserved, never translated into success); a shutdown hook
+    // covers any remaining JVM-exit path with a truthful no-result marker.
+    static final java.util.concurrent.atomic.AtomicBoolean ws48ResultEmitted =
+        new java.util.concurrent.atomic.AtomicBoolean(false);
+    static volatile String ws48TerminalClass = null;
+
+    static void ws48EmitResult(PrintWriter out, Broker broker, Game game, String stopReason) {
+        if (!ws48ResultEmitted.compareAndSet(false, true)) return;
+        String snapshot;
+        try {
+            snapshot = sessionSnapshot(game);
+        } catch (Throwable t) {
+            snapshot = "{\\"snapshot_unavailable\\":" + esc(t.getClass().getName()) + "}";
+        }
+        out.println("{\\"protocol\\":" + esc(PROTOCOL)
+            + ",\\"message_type\\":\\"SESSION_RESULT\\""
+            + ",\\"request_id\\":\\"ws23-result\\""
+            + ",\\"session_id\\":" + esc(SESSION_ID)
+            + ",\\"state_revision\\":" + broker.revision
+            + ",\\"payload\\":{\\"stop_reason\\":" + esc(stopReason)
+            + ",\\"priority_decisions\\":" + broker.priorityDecisions
+            + ",\\"snapshot\\":" + snapshot + "}}");
+        out.flush();
+    }
+
+    static void runSession(BufferedReader in, PrintWriter out) throws Exception {"""
+
+TERM_CATCH_OLD = """        } catch (ControlledStop expected) {
+            stopReason = expected.getMessage();
+            if (stopReason == null) stopReason = "WS48_NULL_CONTROLLED_STOP";
+            expected.printStackTrace();
+        } catch (UnsupportedOperationException unsupported) {
+            stopReason = unsupported.getMessage();
+            if (stopReason == null) stopReason = "WS48_BARE_UNSUPPORTED_OPERATION";
+            unsupported.printStackTrace();
+        }"""
+TERM_CATCH_NEW = """        } catch (ControlledStop expected) {
+            stopReason = expected.getMessage();
+            if (stopReason == null) stopReason = "WS48_NULL_CONTROLLED_STOP";
+            expected.printStackTrace();
+        } catch (UnsupportedOperationException unsupported) {
+            stopReason = unsupported.getMessage();
+            if (stopReason == null) stopReason = "WS48_BARE_UNSUPPORTED_OPERATION";
+            unsupported.printStackTrace();
+        } catch (RuntimeException unexpected) {
+            // R1c: unexpected failure - report terminally HERE before exit,
+            // preserving the real termination class (never a success).
+            // printStackTrace preserves the stderr diagnostic evidence.
+            unexpected.printStackTrace();
+            ws48TerminalClass = "UNEXPECTED:" + unexpected.getClass().getName()
+                + ":" + ws48Clip(String.valueOf(unexpected.getMessage()), 200);
+            ws48EmitResult(out, broker, game, ws48TerminalClass);
+            throw unexpected;
+        } catch (Error terminalError) {
+            terminalError.printStackTrace();
+            ws48TerminalClass = "UNEXPECTED_ERROR:" + terminalError.getClass().getName()
+                + ":" + ws48Clip(String.valueOf(terminalError.getMessage()), 200);
+            ws48EmitResult(out, broker, game, ws48TerminalClass);
+            throw terminalError;
+        }"""
+
+TERM_EMIT_OLD = """        out.println("{\\"protocol\\":" + esc(PROTOCOL)
+            + ",\\"message_type\\":\\"SESSION_RESULT\\""
+            + ",\\"request_id\\":\\"ws23-result\\""
+            + ",\\"session_id\\":" + esc(SESSION_ID)
+            + ",\\"state_revision\\":" + broker.revision
+            + ",\\"payload\\":{\\"stop_reason\\":" + esc(stopReason)
+            + ",\\"priority_decisions\\":" + broker.priorityDecisions
+            + ",\\"snapshot\\":" + sessionSnapshot(game) + "}}");
+        out.flush();"""
+TERM_EMIT_NEW = """        ws48TerminalClass = stopReason;
+        ws48EmitResult(out, broker, game, stopReason);"""
+
+TERM_HOOK_OLD = """        Game game = match.createGame();
+        game.subscribeToEvents(new Ws48NativeEvents(broker, game));"""
+TERM_HOOK_NEW = """        Game game = match.createGame();
+        game.subscribeToEvents(new Ws48NativeEvents(broker, game));
+        final Broker ws48HookBroker = broker;
+        final Game ws48HookGame = game;
+        final PrintWriter ws48HookOut = out;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            String terminal = ws48TerminalClass == null
+                ? "WS48_NO_RESULT_AT_SHUTDOWN"
+                : ("WS48_NO_RESULT_AT_SHUTDOWN:lastKnown=" + ws48TerminalClass);
+            ws48EmitResult(ws48HookOut, ws48HookBroker, ws48HookGame, terminal);
+        }));"""
 
 
 def main() -> int:
@@ -958,9 +1116,14 @@ def main() -> int:
     rep("""        public CostDecisionMakerBase getCostDecisionMaker(Player player, SpellAbility ability, boolean effect, String prompt) {
             throw failClosed("getCostDecisionMaker");
         }""", COST_DECISION_NEW, "getCostDecisionMaker")
+    rep(TRACE_ANCHOR, TRACE_NEW, "fail-closed trace + null guard")
     rep(EVENTS_ANCHOR, EVENTS_ADD, "event subscription")
     rep(EVENTS_CLASS_ANCHOR, EVENTS_CLASS_ADD, "event recorder")
     rep(EOF_TYPED_ANCHOR, EOF_TYPED_NEW, "typed EOF fail-closed")
+    rep(TERMINATION_HELPERS_ANCHOR, TERMINATION_HELPERS_ADD, "R1c terminal emitter")
+    rep(TERM_CATCH_OLD, TERM_CATCH_NEW, "R1c unexpected-exception terminal report")
+    rep(TERM_EMIT_OLD, TERM_EMIT_NEW, "R1c guarded terminal emission")
+    rep(TERM_HOOK_OLD, TERM_HOOK_NEW, "R1c shutdown-hook last-resort report")
     # Collapse doubled @Override (original anchors exclude the annotation line
     # while replacement bodies include it).
     while "        @Override\n        @Override\n" in p:
@@ -977,8 +1140,10 @@ def main() -> int:
         "WS48:TARGET:tgt=", "WS48:MODE:api=", "WS48:NUM:n=",
         "WS48:COLOR:color=", "WS48:BOOL:val=", "WS48:REPL:apply=",
         "WS48:ORDER:order=", "WS48:MANA:src=", "WS48:ATTACK:attacker=",
-        "WS48:BLOCK:blocker=", "WS48:SCRY:top=", "Ws48NativeEvents",
+        "WS48:BLOCK:blocker=",         "WS48:SCRY:top=", "Ws48NativeEvents",
         "announceRequirements", "CombatUtil.canAttack", "CombatUtil.canBlock",
+        "costVisit:CostTap", "costVisit:CostAddMana", "costVisit:CostPayLife",
+        "ws48EmitResult", "WS48_NO_RESULT_AT_SHUTDOWN",
     ]
     missing = [x for x in required if x not in p]
     if missing:

@@ -1,0 +1,34 @@
+{
+  "abstract_stub_count": 108,
+  "discriminator": "STATE_RESTORE_OR_ADAPTER_DEFECT",
+  "evidence_class": "HAND_BUILT_NATIVE_REPRO",
+  "forge": {
+    "commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "version": "2.0.15-SNAPSHOT"
+  },
+  "grants_behavior_credit": false,
+  "rows": [
+    {
+      "detail": "Cannot invoke \"java.lang.Boolean.booleanValue()\" because the return value of \"forge.game.combat.AttackingBand.isBlocked()\" is null",
+      "finalized_natively": false,
+      "outcome": "NULL_POINTER",
+      "r1d_variant": "A",
+      "rc": 0,
+      "stderr_tail": "Upcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\n",
+      "top_frame": "forge.game.combat.Combat.assignAttackersDamage(Combat.java:873)"
+    },
+    {
+      "detail": "null",
+      "finalized_natively": true,
+      "outcome": "RETURNED",
+      "r1d_variant": "B",
+      "rc": 0,
+      "stderr_tail": "Upcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\nUpcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.\n",
+      "top_frame": "null"
+    }
+  ],
+  "schema_version": "commander-lab.ws48-r1d-discriminator/1.0.0",
+  "variant_a_reproduces_production_873_npe": true,
+  "variant_b_same_873_npe": false
+}
