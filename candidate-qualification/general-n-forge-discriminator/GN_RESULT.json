@@ -1,0 +1,452 @@
+{
+  "abstract_stub_count": 108,
+  "evidence_class": "HAND_BUILT_NATIVE_REPRO",
+  "forge": {
+    "commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "version": "2.0.15-SNAPSHOT"
+  },
+  "grants_behavior_credit": false,
+  "grants_qualification_credit": false,
+  "per_n_gates": {
+    "2": {
+      "COMBAT_MULTI_DEFENDER": "PASS",
+      "COMMANDER_INIT": "PASS",
+      "CONSTRUCTS": "PASS",
+      "DETERMINISM": "PASS",
+      "ELIMINATION": "PASS",
+      "HIDDEN_INFO": "PASS",
+      "PRIORITY_RING": "PASS",
+      "TURN_RING": "PASS"
+    },
+    "3": {
+      "COMBAT_MULTI_DEFENDER": "PASS",
+      "COMMANDER_INIT": "PASS",
+      "CONSTRUCTS": "PASS",
+      "DETERMINISM": "PASS",
+      "ELIMINATION": "PASS",
+      "HIDDEN_INFO": "PASS",
+      "PRIORITY_RING": "PASS",
+      "TURN_RING": "PASS"
+    },
+    "4": {
+      "COMBAT_MULTI_DEFENDER": "PASS",
+      "COMMANDER_INIT": "PASS",
+      "CONSTRUCTS": "PASS",
+      "DETERMINISM": "PASS",
+      "ELIMINATION": "PASS",
+      "HIDDEN_INFO": "PASS",
+      "PRIORITY_RING": "PASS",
+      "TURN_RING": "PASS"
+    },
+    "5": {
+      "COMBAT_MULTI_DEFENDER": "PASS",
+      "COMMANDER_INIT": "PASS",
+      "CONSTRUCTS": "PASS",
+      "DETERMINISM": "PASS",
+      "ELIMINATION": "PASS",
+      "HIDDEN_INFO": "PASS",
+      "PRIORITY_RING": "PASS",
+      "TURN_RING": "PASS"
+    },
+    "6": {
+      "COMBAT_MULTI_DEFENDER": "PASS",
+      "COMMANDER_INIT": "PASS",
+      "CONSTRUCTS": "PASS",
+      "DETERMINISM": "PASS",
+      "ELIMINATION": "PASS",
+      "HIDDEN_INFO": "PASS",
+      "PRIORITY_RING": "PASS",
+      "TURN_RING": "PASS"
+    }
+  },
+  "rows": [
+    {
+      "check": "CONSTRUCTS",
+      "detail": "players=2 distinctNames=2 distinctIds=2 life40=all commander=Isamaru, Hound of Konda",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "TURN_RING",
+      "detail": "gn-seat-1>gn-seat-0",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_RING",
+      "detail": "priorityOrder==gn-seat-1>gn-seat-0 CODE_DERIVED:PhaseHandler:1062,1119",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "OPPONENTS",
+      "detail": "gn-seat-0=1,gn-seat-1=1",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMMANDER_INIT",
+      "detail": "gn-seat-0:cmds=1:zone=true:cast=0,gn-seat-1:cmds=1:zone=true:cast=0",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMBAT_MULTI_DEFENDER",
+      "detail": "bands=1 defenders=[gn-seat-1] nonNextIncluded=false damageResult=RETURNED",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "ELIMINATION",
+      "detail": "conceded=gn-seat-1 aliveRing=[gn-seat-0]",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_AFTER_ELIMINATION",
+      "detail": "[gn-seat-0]",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "EXTRA_TURN",
+      "detail": "baseNext=gn-seat-1 extraNext=gn-seat-1 ringIntact=gn-seat-1>gn-seat-0",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "HIDDEN_INFO",
+      "detail": "distinctControllers=2 eachBoundToOwnSeat CODE_DERIVED:observation-principal-scoped",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "DETERMINISM",
+      "detail": "gn-seat-0#0:life40:opp1:cmd0:cast0;gn-seat-1#1:life40:opp1:cmd0:cast0;",
+      "n": 2,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "CONSTRUCTS",
+      "detail": "players=3 distinctNames=3 distinctIds=3 life40=all commander=Isamaru, Hound of Konda",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "TURN_RING",
+      "detail": "gn-seat-1>gn-seat-2>gn-seat-0",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_RING",
+      "detail": "priorityOrder==gn-seat-1>gn-seat-2>gn-seat-0 CODE_DERIVED:PhaseHandler:1062,1119",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "OPPONENTS",
+      "detail": "gn-seat-0=2,gn-seat-1=2,gn-seat-2=2",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMMANDER_INIT",
+      "detail": "gn-seat-0:cmds=1:zone=true:cast=0,gn-seat-1:cmds=1:zone=true:cast=0,gn-seat-2:cmds=1:zone=true:cast=0",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMBAT_MULTI_DEFENDER",
+      "detail": "bands=2 defenders=[gn-seat-1, gn-seat-2] nonNextIncluded=false damageResult=RETURNED",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "ELIMINATION",
+      "detail": "conceded=gn-seat-1 aliveRing=[gn-seat-2, gn-seat-0]",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_AFTER_ELIMINATION",
+      "detail": "[gn-seat-2, gn-seat-0]",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "EXTRA_TURN",
+      "detail": "baseNext=gn-seat-1 extraNext=gn-seat-2 ringIntact=gn-seat-1>gn-seat-2>gn-seat-0",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "HIDDEN_INFO",
+      "detail": "distinctControllers=3 eachBoundToOwnSeat CODE_DERIVED:observation-principal-scoped",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "DETERMINISM",
+      "detail": "gn-seat-0#0:life40:opp2:cmd0:cast0;gn-seat-1#1:life40:opp2:cmd0:cast0;gn-seat-2#2:life40:opp2:cmd0:cast0;",
+      "n": 3,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "CONSTRUCTS",
+      "detail": "players=4 distinctNames=4 distinctIds=4 life40=all commander=Isamaru, Hound of Konda",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "TURN_RING",
+      "detail": "gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-0",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_RING",
+      "detail": "priorityOrder==gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-0 CODE_DERIVED:PhaseHandler:1062,1119",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "OPPONENTS",
+      "detail": "gn-seat-0=3,gn-seat-1=3,gn-seat-2=3,gn-seat-3=3",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMMANDER_INIT",
+      "detail": "gn-seat-0:cmds=1:zone=true:cast=0,gn-seat-1:cmds=1:zone=true:cast=0,gn-seat-2:cmds=1:zone=true:cast=0,gn-seat-3:cmds=1:zone=true:cast=0",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMBAT_MULTI_DEFENDER",
+      "detail": "bands=3 defenders=[gn-seat-1, gn-seat-2, gn-seat-3] nonNextIncluded=true damageResult=RETURNED",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "ELIMINATION",
+      "detail": "conceded=gn-seat-2 aliveRing=[gn-seat-1, gn-seat-3, gn-seat-0]",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_AFTER_ELIMINATION",
+      "detail": "[gn-seat-1, gn-seat-3, gn-seat-0]",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "EXTRA_TURN",
+      "detail": "baseNext=gn-seat-1 extraNext=gn-seat-2 ringIntact=gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-0",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "HIDDEN_INFO",
+      "detail": "distinctControllers=4 eachBoundToOwnSeat CODE_DERIVED:observation-principal-scoped",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "DETERMINISM",
+      "detail": "gn-seat-0#0:life40:opp3:cmd0:cast0;gn-seat-1#1:life40:opp3:cmd0:cast0;gn-seat-2#2:life40:opp3:cmd0:cast0;gn-seat-3#3:life40:opp3:cmd0:cast0;",
+      "n": 4,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "CONSTRUCTS",
+      "detail": "players=5 distinctNames=5 distinctIds=5 life40=all commander=Isamaru, Hound of Konda",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "TURN_RING",
+      "detail": "gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-4>gn-seat-0",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_RING",
+      "detail": "priorityOrder==gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-4>gn-seat-0 CODE_DERIVED:PhaseHandler:1062,1119",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "OPPONENTS",
+      "detail": "gn-seat-0=4,gn-seat-1=4,gn-seat-2=4,gn-seat-3=4,gn-seat-4=4",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMMANDER_INIT",
+      "detail": "gn-seat-0:cmds=1:zone=true:cast=0,gn-seat-1:cmds=1:zone=true:cast=0,gn-seat-2:cmds=1:zone=true:cast=0,gn-seat-3:cmds=1:zone=true:cast=0,gn-seat-4:cmds=1:zone=true:cast=0",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMBAT_MULTI_DEFENDER",
+      "detail": "bands=4 defenders=[gn-seat-1, gn-seat-2, gn-seat-3, gn-seat-4] nonNextIncluded=true damageResult=RETURNED",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "ELIMINATION",
+      "detail": "conceded=gn-seat-2 aliveRing=[gn-seat-1, gn-seat-3, gn-seat-4, gn-seat-0]",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_AFTER_ELIMINATION",
+      "detail": "[gn-seat-1, gn-seat-3, gn-seat-4, gn-seat-0]",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "EXTRA_TURN",
+      "detail": "baseNext=gn-seat-1 extraNext=gn-seat-2 ringIntact=gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-4>gn-seat-0",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "HIDDEN_INFO",
+      "detail": "distinctControllers=5 eachBoundToOwnSeat CODE_DERIVED:observation-principal-scoped",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "DETERMINISM",
+      "detail": "gn-seat-0#0:life40:opp4:cmd0:cast0;gn-seat-1#1:life40:opp4:cmd0:cast0;gn-seat-2#2:life40:opp4:cmd0:cast0;gn-seat-3#3:life40:opp4:cmd0:cast0;gn-seat-4#4:life40:opp4:cmd0:cast0;",
+      "n": 5,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "CONSTRUCTS",
+      "detail": "players=6 distinctNames=6 distinctIds=6 life40=all commander=Isamaru, Hound of Konda",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "TURN_RING",
+      "detail": "gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-4>gn-seat-5>gn-seat-0",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_RING",
+      "detail": "priorityOrder==gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-4>gn-seat-5>gn-seat-0 CODE_DERIVED:PhaseHandler:1062,1119",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "OPPONENTS",
+      "detail": "gn-seat-0=5,gn-seat-1=5,gn-seat-2=5,gn-seat-3=5,gn-seat-4=5,gn-seat-5=5",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMMANDER_INIT",
+      "detail": "gn-seat-0:cmds=1:zone=true:cast=0,gn-seat-1:cmds=1:zone=true:cast=0,gn-seat-2:cmds=1:zone=true:cast=0,gn-seat-3:cmds=1:zone=true:cast=0,gn-seat-4:cmds=1:zone=true:cast=0,gn-seat-5:cmds=1:zone=true:cast=0",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "COMBAT_MULTI_DEFENDER",
+      "detail": "bands=5 defenders=[gn-seat-1, gn-seat-2, gn-seat-3, gn-seat-4, gn-seat-5] nonNextIncluded=true damageResult=RETURNED",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "ELIMINATION",
+      "detail": "conceded=gn-seat-3,+last aliveRing=[gn-seat-1, gn-seat-2, gn-seat-4, gn-seat-0]",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "PRIORITY_AFTER_ELIMINATION",
+      "detail": "[gn-seat-1, gn-seat-2, gn-seat-4, gn-seat-0]",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "EXTRA_TURN",
+      "detail": "baseNext=gn-seat-1 extraNext=gn-seat-2 ringIntact=gn-seat-1>gn-seat-2>gn-seat-3>gn-seat-4>gn-seat-5>gn-seat-0",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "HIDDEN_INFO",
+      "detail": "distinctControllers=6 eachBoundToOwnSeat CODE_DERIVED:observation-principal-scoped",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    },
+    {
+      "check": "DETERMINISM",
+      "detail": "gn-seat-0#0:life40:opp5:cmd0:cast0;gn-seat-1#1:life40:opp5:cmd0:cast0;gn-seat-2#2:life40:opp5:cmd0:cast0;gn-seat-3#3:life40:opp5:cmd0:cast0;gn-seat-4#4:life40:opp5:cmd0:cast0;gn-seat-5#5:life40:opp5:cmd0:cast0;",
+      "n": 6,
+      "outcome": "PASS",
+      "rc": 0
+    }
+  ],
+  "schema_version": "commander-lab.general-n-forge-discriminator/1.0.0",
+  "seed_base": 424242
+}
