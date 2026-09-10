@@ -2,6 +2,15 @@
 
 ## Purpose
 
+The overarching [Commander Simulator Next mission](../PROJECT_MISSION.md) is maximally
+rules-correct full-rules gameplay supporting learning, matchup analysis and deck
+optimization. Four players is the primary benchmark/decision mode, not an architecture
+anchor; 2–5 players is minimum technical conformance. Prefer 6+ or generally variable
+player counts when they improve correctness, simplicity, reuse, testability or
+research/implementation without weakening conformance. Outcome-first selection permits
+existing engines, simulators and frameworks to replace entire workstreams. Existing
+components and CI described below confer neither candidate priority nor runtime credit.
+
 The Commander Playtest Lab is a decision-support system. Its durable product contract is to take an
 explicit own-deck context, inventory/test-candidate provenance, opponent assumptions and simulation
 configuration and return reproducible decision evidence. The currently active deck is data; it is

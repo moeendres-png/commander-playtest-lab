@@ -2,6 +2,12 @@
 
 ## Status
 
+This is a bounded XMage lane specification, not a project-wide provider selection or
+four-player architecture mandate. The [project mission](../PROJECT_MISSION.md) requires
+outcome-first candidate comparison and 2–5P minimum conformance, with 4P as primary
+benchmark and preference for beneficial 6+ / variable-player designs. This lane's
+existing runtime scope and evidence claims are unchanged by that project direction.
+
 This document defines the dedicated full-game lane introduced after the B3/B4 compatibility bridge. It is deliberately separate from the older bounded JSONL bridge so that previously validated capability claims are not silently widened.
 
 Operational scope is **exactly four-player Commander**. A run in this lane is **technical conformance evidence only** until a later, separately authorized decision contract promotes a validated configuration for official deck-comparison evidence.

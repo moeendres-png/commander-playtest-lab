@@ -4,6 +4,14 @@ Status: architecture contract for package 1.24.0
 Candidate runtime: `candidate-pipeline-1.0.0`  
 Candidate-set schema: `deck-candidate-set-1.0.0`
 
+Project direction is governed by [PROJECT_MISSION.md](../PROJECT_MISSION.md). XMage in
+this implementation-era diagram is a candidate lane, not a selected Production
+Provider. Existing engines, simulators or frameworks may supersede this implementation
+or entire workstreams after evidence review; no candidate or workstream has incumbency
+rights. The separation and runtime contracts described here are not silently changed
+by that policy. `ARCHITECTURE_FREEZE = NOT CLAIMED`;
+`PRODUCTION_PROVIDER = NOT SELECTED`.
+
 ## OLD ARCHITECTURE
 
 The historical whole-deck/Optimizer-v2 stack mixed five responsibilities:
