@@ -1,0 +1,74 @@
+{
+ "behavior_credit_awarded": 0,
+ "behavior_pass_measured": false,
+ "coverage_promotion_claimed": false,
+ "metrics": {
+  "AMBIGUOUS_RATE": {
+   "after": 0.00032673914334937327,
+   "before": 0.00032673914334937327
+  },
+  "MANUAL_REVIEW_RATE": {
+   "after": 0.036921523198479175,
+   "before": 0.042832531337254204
+  },
+  "PARSE_RATE": {
+   "after": 1.0,
+   "before": 1.0
+  },
+  "READY_FOR_RUNTIME_QUALIFICATION": {
+   "after": 10815,
+   "before": 10559
+  },
+  "RULES_ADJUDICATION_RATE": {
+   "after": 0.6371710330897642,
+   "before": 0.638121546961326
+  },
+  "SKELETON_ELIGIBLE_RATE": {
+   "after": 1.0,
+   "before": 1.0
+  },
+  "STRUCTURED_RATE": {
+   "after": 0.9466524089585933,
+   "before": 0.9466524089585933
+  },
+  "UNKNOWN_CONSTRUCT_COUNT": {
+   "after": 0,
+   "before": 218
+  },
+  "UNKNOWN_VERB_COUNT": {
+   "after": 0,
+   "before": 104
+  },
+  "UNKNOWN_VERB_FILE_OCCURRENCES": {
+   "after": 0,
+   "before": 1667
+  },
+  "UNSUPPORTED_RATE": {
+   "after": 0.004336719539000772,
+   "before": 0.005079308501158439
+  }
+ },
+ "note": "Scaffolding metrics only. Parser-rate improvement is mechanical preparation quality, never simulator correctness.",
+ "provenance": {
+  "after": {
+   "inventory": "evidence/corpus-inventory.json",
+   "parser_version": "q6-forge-parser-0.2.0",
+   "registries": [
+    "q6-verb-registry-0.2.0",
+    "q6-trigger-mode-registry-0.2.0",
+    "q6-static-mode-registry-0.2.0",
+    "q6-unsupported-registry-0.2.0"
+   ]
+  },
+  "before": {
+   "inventory": "evidence/corpus-inventory-before.json",
+   "parser_version": "q6-forge-parser-0.1.0",
+   "registries": "task-2A seed tables"
+  },
+  "corpus": "forge-card-scripts",
+  "forge_pin": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+  "inventory_hash": "b8d0b2b4f274ea88d17e0e2355635f0b2aadec4105dddcb599d9932be4ee7040",
+  "population": 33666
+ },
+ "schema": "q6.parser-before-after.v1"
+}

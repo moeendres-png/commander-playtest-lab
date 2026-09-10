@@ -131,3 +131,11 @@ def test_trigger_condition_maps_to_triggered_family():
     feats = _features("Name:X\nA:AB$ DelayedTrigger | Mode$ SpellCast | Execute$ Foo\n")
     classification = classify_card("id-tc", feats)
     assert "TRIGGERED_CHOICE" in classification.capability_families
+
+
+def test_comma_separated_static_modes_classify_independently():
+    feats = _features("Name:X\nS:Mode$ CantAttack,CantBlock | ValidCard$ Creature\n")
+    assert feats["unknown_static_modes"] == []
+    assert "STATIC_COMBAT" in feats["static_mode_classes"]
+    assert feats["has_combat"] is True
+    assert feats["has_trigger"] is False

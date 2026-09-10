@@ -1,14 +1,14 @@
 {
   "configuration": {},
-  "manifest_hash": "44bcde97cd4afc1e8df09297a01d73a43beeac6225a6890018c68d0ee5e00daa",
-  "manifest_id": "q6-bounded-sample-14",
+  "manifest_hash": "3805ea0d59d4cc4da2f6bc570719602a29bfed65f429d84d269b623e38bc6026",
+  "manifest_id": "q6-stratified-sample-55",
   "queue_summary": {
     "AMBIGUOUS_PARSE": 0,
-    "MANUAL_SCENARIO_REVIEW": 11,
+    "MANUAL_SCENARIO_REVIEW": 57,
     "PROVENANCE_REVIEW": 0,
-    "RULES_ADJUDICATION": 10,
-    "RUNTIME_QUALIFICATION_READY": 5,
-    "UNSUPPORTED_CAPABILITY": 1
+    "RULES_ADJUDICATION": 50,
+    "RUNTIME_QUALIFICATION_READY": 14,
+    "UNSUPPORTED_CAPABILITY": 4
   },
   "records": [
     {
@@ -29,6 +29,64 @@
       "state": "READY_FOR_RUNTIME_QUALIFICATION"
     },
     {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "X_COST_VALUE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Ajani Unrelenting",
+      "input_hash": "0fe7a11a405962cc7994fb4673154ea89767638a859da65bb82cbe9d92244a49",
+      "intake_id": "03fc6b71683f8fbfbdcf3778cbc106af",
+      "reasons": [
+        "rules_question:TRIGGERED_CHOICE",
+        "rules_question:X_COST_VALUE"
+      ],
+      "skeleton_id": "skel-03fc6b71683f8fbf-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/ajani_unrelenting.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "MODAL_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "MODAL_CHOICE"
+      ],
+      "card_name_hint": "Cryptic Command",
+      "input_hash": "2648a0153b98c6a90a8f67d8041a9b9db1c4f2052a5bb0ac2aeaf3db051337ba",
+      "intake_id": "07de2c9c6bee4d8d1bc4d878344c5a4b",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-07de2c9c6bee4d8d-modal_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/cryptic_command.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "REPLACEMENT_EFFECT",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "REPLACEMENT_EFFECT",
+        "SBA_SENSITIVE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Cryptic Spires",
+      "input_hash": "3dc33793d5fdeca83af69b7657a51192e44902c2cd9a1a7760244fd980e1852c",
+      "intake_id": "1ccdbc01de73ce0c78c66aabaaaef7ec",
+      "reasons": [
+        "unsupported_construct:topkey:SETCOLORID"
+      ],
+      "skeleton_id": "skel-1ccdbc01de73ce0c-replacement_effect",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/cryptic_spires.txt",
+      "state": "UNSUPPORTED"
+    },
+    {
       "capability": "MANA_PAYMENT_CHOICE",
       "capability_families": [
         "MANA_PAYMENT_CHOICE"
@@ -43,6 +101,179 @@
       "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
       "source_path": "forge-gui/res/cardsfolder/d/divination.txt",
       "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "REPLACEMENT_EFFECT",
+        "SBA_SENSITIVE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Rest in Peace",
+      "input_hash": "7b2c4c5c44a4b05eb23751e557c3abdaee0e7af60195d39fd5dd29fdfc06f94b",
+      "intake_id": "1e62c71a81d7d9b1264b5f40fb7725d5",
+      "reasons": [
+        "rules_question:REPLACEMENT_EFFECT",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-1e62c71a81d7d9b1-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/r/rest_in_peace.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "LAYER_CHARACTERISTIC",
+      "capability_families": [
+        "LAYER_CHARACTERISTIC",
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Artificial Evolution",
+      "input_hash": "1a300f3773dd186b1e6c2f2979628e3a2ba24b4fb686b024ebf8dd9bfeaecdec",
+      "intake_id": "1f331d1166c65ce5b2291d57dc2e75d4",
+      "reasons": [
+        "rules_question:LAYER_CHARACTERISTIC"
+      ],
+      "skeleton_id": "skel-1f331d1166c65ce5-layer_characteristic",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/artificial_evolution.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "SBA_SENSITIVE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Circling Vultures",
+      "input_hash": "30c9af3e5b8bc348a877a6e7690610000ebea3f87d7b3014d4a628b196f35950",
+      "intake_id": "1f83194a7171df1624564e2d8dd9e50a",
+      "reasons": [
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-1f83194a7171df16-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/circling_vultures.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "REPLACEMENT_EFFECT",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "REPLACEMENT_EFFECT",
+        "SBA_SENSITIVE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Doubling Season",
+      "input_hash": "8f17a3d7ea7c8f217e4b7b60cffa25dfae5d651dfc2bce717dd42121f2ef4afb",
+      "intake_id": "1f974952e966569ba48077f5fbf9f862",
+      "reasons": [
+        "rules_question:REPLACEMENT_EFFECT"
+      ],
+      "skeleton_id": "skel-1f974952e966569b-replacement_effect",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/doubling_season.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Spirit of Resilience",
+      "input_hash": "42cc1e4e18fc2fcca759ae327b01be72d0d712b7af5183771a1489481719118b",
+      "intake_id": "2904d93a4411eaa3ad2bc5b194b3ba9b",
+      "reasons": [
+        "rules_question:COPY_CONTROL",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-2904d93a4411eaa3-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/spirit_of_resilience.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "RANDOMNESS",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "RANDOMNESS",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Karplusan Minotaur",
+      "input_hash": "a3db841aace44c989e3a9243cfa89ef6804f0527b35c1856205b4686711d27fd",
+      "intake_id": "329089491885e22f1fdfe899a9b71630",
+      "reasons": [
+        "rules_question:RANDOMNESS",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-329089491885e22f-randomness",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/k/karplusan_minotaur.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "X_COST_VALUE",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "X_COST_VALUE"
+      ],
+      "card_name_hint": "Finale of Devastation",
+      "input_hash": "b20b42e4fb6945a433a0bafd6c8e3df5ff2fcdee92ad0fbbeacb3cb123a8621f",
+      "intake_id": "338a2217a5099fe4168da6512199c033",
+      "reasons": [
+        "rules_question:X_COST_VALUE"
+      ],
+      "skeleton_id": "skel-338a2217a5099fe4-x_cost_value",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/finale_of_devastation.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "ADDITIONAL_ALTERNATIVE_COST",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "COMBAT",
+        "MANA_PAYMENT_CHOICE",
+        "SBA_SENSITIVE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Propaganda",
+      "input_hash": "920a93f6961ff3658355f0d2e1de645a40abe5dc43a3e718c68a1852b88cd63c",
+      "intake_id": "338d78d90bbc266cfb1883e1f3542a15",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-338d78d90bbc266c-additional_alternative_cost",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/p/propaganda.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Aggravate",
+      "input_hash": "bc67c0aa6a4efdc808e6c0f9ac940cc3ad3bf67f0a982f621ee86754f2a95af1",
+      "intake_id": "34b172c08450caf49a989c4441598a56",
+      "reasons": [
+        "nested_svar_chain"
+      ],
+      "skeleton_id": "skel-34b172c08450caf4-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aggravate.txt",
+      "state": "MANUAL_REVIEW_REQUIRED"
     },
     {
       "capability": "HIDDEN_INFORMATION",
@@ -88,6 +319,42 @@
     {
       "capability": "RANDOMNESS",
       "capability_families": [
+        "RANDOMNESS",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Akroma, Angel of Wrath Avatar",
+      "input_hash": "297d1db73eeaa34e0f832f6f7011f72a5d0454ad9a636015487c0bce20037bf2",
+      "intake_id": "404b6e52dc2eea9fbafa33f66f4436b9",
+      "reasons": [
+        "unsupported_construct:topkey:HandLifeModifier"
+      ],
+      "skeleton_id": "skel-404b6e52dc2eea9f-randomness",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/akroma_angel_of_wrath_avatar.txt",
+      "state": "UNSUPPORTED"
+    },
+    {
+      "capability": "RANDOMNESS",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "RANDOMNESS",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Flay",
+      "input_hash": "28b3d36115d772b8676ee06d84cbf0d83b3413b07b86ad61b9dc98fb94fce308",
+      "intake_id": "40d2620752d175633c7937a72b6eb691",
+      "reasons": [
+        "rules_question:RANDOMNESS"
+      ],
+      "skeleton_id": "skel-40d2620752d17563-randomness",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/flay.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "RANDOMNESS",
+      "capability_families": [
         "ADDITIONAL_ALTERNATIVE_COST",
         "MANA_PAYMENT_CHOICE",
         "RANDOMNESS"
@@ -101,6 +368,114 @@
       "skeleton_id": "skel-4cadf01c284079cf-randomness",
       "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
       "source_path": "forge-gui/res/cardsfolder/f/frenetic_efreet.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Counterspell",
+      "input_hash": "893b826ac94d6c73d4dd80c975ff6e2bbb0fd3d9a8f26fe08b050f7999bb2c0c",
+      "intake_id": "4e084c115f210aa4d5822e7f58a86eb1",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-4e084c115f210aa4-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/counterspell.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "MANA_PAYMENT_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Rampant Growth",
+      "input_hash": "2af8f19de6b282fd7da174d80d72d5f9934fefcde99e8de29f0e6f5079f483fc",
+      "intake_id": "4fa34c0886c334a546075ebb62215b74",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-4fa34c0886c334a5-mana_payment_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/r/rampant_growth.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Phantasmal Image",
+      "input_hash": "ed66684243cc875eaffd8a43a5ce21b96275fa9e7945dfe26aaccf7a7eb1979a",
+      "intake_id": "5f504cb5112dcb8815acd918dd4d051c",
+      "reasons": [
+        "rules_question:COPY_CONTROL"
+      ],
+      "skeleton_id": "skel-5f504cb5112dcb88-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/p/phantasmal_image.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "X_COST_VALUE",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "X_COST_VALUE"
+      ],
+      "card_name_hint": "Astral Cornucopia",
+      "input_hash": "f47dacf69dd824ee3238de60a5e0918c32a85b46173a4aea1b142aa5fd605466",
+      "intake_id": "656f188edf1585ad9e0a1f6881151cf0",
+      "reasons": [
+        "rules_question:X_COST_VALUE"
+      ],
+      "skeleton_id": "skel-656f188edf1585ad-x_cost_value",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/astral_cornucopia.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "MULTIPLAYER_OPPONENT_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "MULTIPLAYER_OPPONENT_SELECTION",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Aggressive Sabotage",
+      "input_hash": "200fb7d94d917c2a4f0210db375f7ae1e0cd10d0d4484814b1835ab90a668c81",
+      "intake_id": "67d83ebac2b07dad800de1077d16e17a",
+      "reasons": [
+        "rules_question:MULTIPLAYER_OPPONENT_SELECTION"
+      ],
+      "skeleton_id": "skel-67d83ebac2b07dad-multiplayer_opponent_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aggressive_sabotage.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "HIDDEN_INFORMATION",
+      "capability_families": [
+        "COPY_CONTROL",
+        "HIDDEN_INFORMATION",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Metamorphic Alteration",
+      "input_hash": "994ba84113a9b81cc3c9dd8c0f4298c33e452d90d37b9e07074dc62c56a8e6bc",
+      "intake_id": "69a7f6c1bf2e883a2ca64fdb4ff3d21e",
+      "reasons": [
+        "rules_question:COPY_CONTROL",
+        "rules_question:HIDDEN_INFORMATION",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-69a7f6c1bf2e883a-hidden_information",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/m/metamorphic_alteration.txt",
       "state": "RULES_ADJUDICATION_REQUIRED"
     },
     {
@@ -119,6 +494,82 @@
       "skeleton_id": "skel-6cb3c05c0b294c0a-triggered_choice",
       "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
       "source_path": "forge-gui/res/cardsfolder/s/soul_warden.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Doom Blade",
+      "input_hash": "8b048328719c832fd3889b86c9b19916f179bd1081d1ed907e091dd82dcb6ce2",
+      "intake_id": "727eee0202873ae611a9277a1d06239e",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-727eee0202873ae6-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/doom_blade.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Dreadhorde Invasion",
+      "input_hash": "187c3c6f69eb3d8deed03d61aff9276a268dcff60dd43ce4608d1620e0d9436f",
+      "intake_id": "73bd995a424ea2a999ffabaa9d3e0ec7",
+      "reasons": [
+        "rules_question:COPY_CONTROL",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-73bd995a424ea2a9-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/dreadhorde_invasion.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Adaptive Training Post",
+      "input_hash": "4ecb5b0b8ffd979eddeeac94b2345a1bdef36aa00d84ad4648db222555993bc7",
+      "intake_id": "7a8c4cd08d3d90b1e29ae760adec0ed9",
+      "reasons": [
+        "rules_question:COPY_CONTROL",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-7a8c4cd08d3d90b1-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/adaptive_training_post.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Inexorable Tide",
+      "input_hash": "c026d995d607c5fe7fc33ab3598c1ae8838caa7798ffd337220d1a7832f89302",
+      "intake_id": "7f0a064b0c55892e92f1b5a2e3a9efb7",
+      "reasons": [
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-7f0a064b0c55892e-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/i/inexorable_tide.txt",
       "state": "RULES_ADJUDICATION_REQUIRED"
     },
     {
@@ -179,6 +630,22 @@
       "state": "UNSUPPORTED"
     },
     {
+      "capability": "MANA_PAYMENT_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Teferi's Protection",
+      "input_hash": "2aae3a433d13bc43427f194ce36b354596d17d9d37b89c9a8eb79e4bc5d68357",
+      "intake_id": "957a51074055f7d392faeebedcac566a",
+      "reasons": [
+        "nested_svar_chain"
+      ],
+      "skeleton_id": "skel-957a51074055f7d3-mana_payment_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/t/teferis_protection.txt",
+      "state": "MANUAL_REVIEW_REQUIRED"
+    },
+    {
       "capability": "MULTIPLAYER_OPPONENT_SELECTION",
       "capability_families": [
         "MANA_PAYMENT_CHOICE",
@@ -199,6 +666,28 @@
       "state": "RULES_ADJUDICATION_REQUIRED"
     },
     {
+      "capability": "RANDOMNESS",
+      "capability_families": [
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE",
+        "RANDOMNESS",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Delina, Wild Mage",
+      "input_hash": "4e086551c2bb52ff1c8f79b092993931a7c7d00df88eba92c368a19bee2f81e4",
+      "intake_id": "9d4e109db01179dbf7a1c556ddeb8462",
+      "reasons": [
+        "rules_question:COPY_CONTROL",
+        "rules_question:RANDOMNESS",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-9d4e109db01179db-randomness",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/d/delina_wild_mage.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
       "capability": "ADDITIONAL_ALTERNATIVE_COST",
       "capability_families": [
         "ADDITIONAL_ALTERNATIVE_COST",
@@ -213,6 +702,59 @@
       "skeleton_id": "skel-a8242c17c2915c07-additional_alternative_cost",
       "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
       "source_path": "forge-gui/res/cardsfolder/a/altars_reap.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Contagion Clasp",
+      "input_hash": "4a06eeb979ad89a1f4156105ac199808fe56ce465952ddbdfdd1cf5c24c3c849",
+      "intake_id": "ac2db55265e5c964f9b8edc47a501cec",
+      "reasons": [
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-ac2db55265e5c964-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/contagion_clasp.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "ADDITIONAL_ALTERNATIVE_COST",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Llanowar Elves",
+      "input_hash": "f8eab9c6d1b3bc9c180228a150d3a386248c10b8563f2ac54319129d7570e7f3",
+      "intake_id": "b16f392be28d33d679a1a69070bc3a14",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-b16f392be28d33d6-additional_alternative_cost",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/l/llanowar_elves.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Time Warp",
+      "input_hash": "f0a5911bc4aeb818da0918ecf5c54318863783a812f136e97a619ac9dbe23d9e",
+      "intake_id": "b25210572ddd1e1417cea80cd2bf4187",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-b25210572ddd1e14-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/t/time_warp.txt",
       "state": "READY_FOR_RUNTIME_QUALIFICATION"
     },
     {
@@ -233,6 +775,179 @@
       "state": "READY_FOR_RUNTIME_QUALIFICATION"
     },
     {
+      "capability": "MANA_PAYMENT_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Fog",
+      "input_hash": "7c3c29212eab26eb4540fd09e01b5f43a0bb4fd2de3d2e43f93d30f2c28170d1",
+      "intake_id": "b58499c2fdc9f00fecee10cd0c4f7667",
+      "reasons": [
+        "rules_question:REPLACEMENT_EFFECT"
+      ],
+      "skeleton_id": "skel-b58499c2fdc9f00f-mana_payment_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/f/fog.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "MANA_PAYMENT_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Wrath of God",
+      "input_hash": "8d27ced15f70fe5767d0cd3d5f5f7b978470966bf32eb856622d6fad64f60bd3",
+      "intake_id": "b7188d963bc11ddb83b5cbe56104b14e",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-b7188d963bc11ddb-mana_payment_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/w/wrath_of_god.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Strict Proctor",
+      "input_hash": "0789d98bf15d64c65933a3b84569c9617b8385801221bd4c32b945635474956b",
+      "intake_id": "bc22ddd7e0020e16e5c1e82bd961802c",
+      "reasons": [
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-bc22ddd7e0020e16-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/s/strict_proctor.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "HIDDEN_INFORMATION",
+      "capability_families": [
+        "HIDDEN_INFORMATION",
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Aether Searcher",
+      "input_hash": "e419b6379fc127c4696a3d1b2fcdbeaea310ea129a556b40f443ecb20c670c34",
+      "intake_id": "c1df98f1c158b43c6d59f72dfd36a986",
+      "reasons": [
+        "unsupported_construct:topkey:Draft"
+      ],
+      "skeleton_id": "skel-c1df98f1c158b43c-hidden_information",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aether_searcher.txt",
+      "state": "UNSUPPORTED"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Aethersnatch",
+      "input_hash": "a41b8a3b9c0e498519595a39265153718bb49710d5072efcc6786ebe8bb2211c",
+      "intake_id": "c7ea2c6e99292053dbe398d7ef514d53",
+      "reasons": [
+        "verb_manual_review:ControlSpell"
+      ],
+      "skeleton_id": "skel-c7ea2c6e99292053-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/aethersnatch.txt",
+      "state": "MANUAL_REVIEW_REQUIRED"
+    },
+    {
+      "capability": "COMMANDER_MECHANIC",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "COMMANDER_MECHANIC",
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Command Tower",
+      "input_hash": "5a8965cbfa406f827c6869c807452397767af128693c2a5ed1ecf924880eab7d",
+      "intake_id": "ca201c2ad4dbe1718c41605a75555515",
+      "reasons": [
+        "rules_question:COMMANDER_MECHANIC"
+      ],
+      "skeleton_id": "skel-ca201c2ad4dbe171-commander_mechanic",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/command_tower.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TRIGGERED_CHOICE",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Archangel of Thune",
+      "input_hash": "76dac8f4021959e6eceed93d1633b8afa3a91c0f5834e67857a5bce4248e4e49",
+      "intake_id": "cb5ca97da96539a6dae3d1d18a110eab",
+      "reasons": [
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-cb5ca97da96539a6-triggered_choice",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/a/archangel_of_thune.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "TARGET_SELECTION",
+      "capability_families": [
+        "MANA_PAYMENT_CHOICE",
+        "TARGET_SELECTION"
+      ],
+      "card_name_hint": "Giant Growth",
+      "input_hash": "b38c4fefb0a2f9c02ec94a5eceb789c8c8f7ea0a03f27afc83ec12d6fb961560",
+      "intake_id": "cfc875b7ff16c30b6abbc9c3c3f76177",
+      "reasons": [
+        "mechanical_prerequisites_complete"
+      ],
+      "skeleton_id": "skel-cfc875b7ff16c30b-target_selection",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/g/giant_growth.txt",
+      "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "COPY_CONTROL"
+      ],
+      "card_name_hint": "",
+      "input_hash": "30c313a210f6f97bc692c99b6c94bfc38389b2c7b20cae29304b8d393220fc90",
+      "intake_id": "d36c22d8deeaf4013f3736929c14505e",
+      "reasons": [
+        "rules_question:COPY_CONTROL"
+      ],
+      "skeleton_id": "skel-d36c22d8deeaf401-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/b/bind_liberate.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "COPY_CONTROL",
+      "capability_families": [
+        "COPY_CONTROL",
+        "MANA_PAYMENT_CHOICE"
+      ],
+      "card_name_hint": "Clone",
+      "input_hash": "9473363c4d0937de3a4d607298926ba9e3bb4303a938535189e433db6a2ac9e2",
+      "intake_id": "e9f3ed4c8c50e98764b65dd419ec7deb",
+      "reasons": [
+        "rules_question:COPY_CONTROL"
+      ],
+      "skeleton_id": "skel-e9f3ed4c8c50e987-copy_control",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/c/clone.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
       "capability": "TARGET_SELECTION",
       "capability_families": [
         "ADDITIONAL_ALTERNATIVE_COST",
@@ -251,6 +966,51 @@
       "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
       "source_path": "forge-gui/res/cardsfolder/f/force_of_will.txt",
       "state": "READY_FOR_RUNTIME_QUALIFICATION"
+    },
+    {
+      "capability": "COMMANDER_MECHANIC",
+      "capability_families": [
+        "COMMANDER_MECHANIC",
+        "MANA_PAYMENT_CHOICE",
+        "RANDOMNESS",
+        "TRIGGERED_CHOICE",
+        "X_COST_VALUE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Vial Smasher the Fierce",
+      "input_hash": "a27c9a475b79bdba3525313a746340fc09f8360881c924c52fb57a4ba82df54a",
+      "intake_id": "ea616ecd011a7bb5c28568347302bf1f",
+      "reasons": [
+        "rules_question:COMMANDER_MECHANIC",
+        "rules_question:RANDOMNESS",
+        "rules_question:TRIGGERED_CHOICE",
+        "rules_question:X_COST_VALUE"
+      ],
+      "skeleton_id": "skel-ea616ecd011a7bb5-commander_mechanic",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/v/vial_smasher_the_fierce.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
+    },
+    {
+      "capability": "RANDOMNESS",
+      "capability_families": [
+        "ADDITIONAL_ALTERNATIVE_COST",
+        "MANA_PAYMENT_CHOICE",
+        "RANDOMNESS",
+        "TRIGGERED_CHOICE",
+        "ZONE_CHANGE"
+      ],
+      "card_name_hint": "Mana Crypt",
+      "input_hash": "61746355582480a5f9128adefbaae91066f493a87125a8d35e7086d20df5947c",
+      "intake_id": "eda7fa917050f6c5232e3f4ee0a8dbf2",
+      "reasons": [
+        "rules_question:RANDOMNESS",
+        "rules_question:TRIGGERED_CHOICE"
+      ],
+      "skeleton_id": "skel-eda7fa917050f6c5-randomness",
+      "source_commit": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+      "source_path": "forge-gui/res/cardsfolder/m/mana_crypt.txt",
+      "state": "RULES_ADJUDICATION_REQUIRED"
     },
     {
       "capability": "REPLACEMENT_EFFECT",

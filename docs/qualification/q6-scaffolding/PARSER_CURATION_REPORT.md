@@ -159,3 +159,89 @@ plus adjudication routing, without encoding Rules semantics.
   inferred.
 - The 10 Task-2A `RULES_ADJUDICATION` queue items are not resolved here;
   Task-2B only improves their machine-readable context.
+
+## 6. Task-2B AFTER measurements (same corpus, curated parser)
+
+Tool: same `corpus_inventory.py`, note listing `q6-forge-parser-0.2.0` plus
+all three grammar registries. Evidence:
+`docs/qualification/q6-scaffolding/evidence/corpus-inventory.json`
+(same content inventory hash `b8d0b2b4...`: the corpus did not change, the
+parser did). Metrics sealed in `evidence/parser-before-after.json`.
+
+| Metric | BEFORE | AFTER |
+|---|---|---|
+| PARSE_RATE | 1.0000 | 1.0000 |
+| STRUCTURED_RATE | 0.9467 | 0.9467 |
+| SKELETON_ELIGIBLE_RATE | 1.0000 | 1.0000 |
+| MANUAL_REVIEW_RATE | 0.0428 (1,442) | 0.0369 (1,243) |
+| RULES_ADJUDICATION_RATE | 0.6381 (21,483) | 0.6372 (21,451) |
+| UNSUPPORTED_RATE | 0.0051 (171) | 0.0043 (146) |
+| AMBIGUOUS_RATE | 0.0003 (11) | 0.0003 (11) |
+| UNKNOWN_VERB distinct / occurrences | 104 / 1,667 | **0 / 0** |
+| UNKNOWN_CONSTRUCT (verbs+modes) | 218 | **0** |
+| READY_FOR_RUNTIME_QUALIFICATION | 10,559 | 10,815 |
+
+BEHAVIOR_PASS = NOT_MEASURED · BEHAVIOR_CREDIT = 0 ·
+COVERAGE_PROMOTION = FALSE. Parser-rate improvement is mechanical
+preparation quality, never simulator correctness.
+
+Composition notes: READY +256 comes from resolved unknowns with no
+remaining adjudication need (vanilla mass removal/turn spells) while 199
+manual items moved into more precise states; adjudication holds ~steady
+because layer/prevention/multiplayer questions were added where the
+mechanics genuinely need them (COMBAT 1,241 and LAYER_CHARACTERISTIC 1,496
+families newly populated; X_COST_VALUE 1,307→2,661 via SVar-body numeric
+slots; multiplayer 2,354→3,182 via new phrases minus devoted/steam false
+positives; randomness 3,432→1,031 after hint-line/shuffle separation with
+kinds SHUFFLE 1,460 / SELECT 633 / ORDER 393 / DIE 148 / DISCARD 111 /
+COIN 86 / UNKNOWN 17).
+
+## 7. Review-queue impact (55-card stratified sample, before→after routing)
+
+Every observed transition moves into a *more precise* state; no item is
+silently claimed as supported. Examples of every transition class:
+
+- UNSUPPORTED → RULES_ADJUDICATION_REQUIRED: Bind/Liberate
+  (`CopyFaceFrom` now a face record; copy question), Spirit of Resilience
+  (`DBCleanup` now parsed; copy+trigger questions).
+- MANUAL → RULES_ADJUDICATION: Artificial Evolution (ChangeText →
+  layers question), Fog (prevention question).
+- MANUAL → READY: Wrath of God (DestroyAll shaped, generic prereqs
+  complete), Time Warp (AddTurn shaped).
+- MANUAL reasons narrowed: Aggravate keeps `nested_svar_chain`, drops the
+  unknown-verb reason.
+- ADJUDICATION → MANUAL (more precise): Aethersnatch (ControlSpell needs
+  curator design, not just copy adjudication).
+- READY → ADJUDICATION (under-claim fixed): Aggressive Sabotage
+  (target-opponent signal).
+- Questions added: Ajani/Vial Smasher (+X_COST_VALUE), Rest in Peace
+  (−spurious RANDOMNESS from the `AI:RemoveDeck:Random` hint line).
+
+Full-corpus MANUAL 1,442→1,243 (−199) decomposes into unknowns resolved
+to READY (+256 net with other flows) and unknowns/manual-verbs routed to
+precise MANUAL/ADJUDICATION reasons. REVIEW-queue totals for the
+55-sample: MANUAL_SCENARIO_REVIEW 57, RULES_ADJUDICATION 50,
+RUNTIME_QUALIFICATION_READY 14, UNSUPPORTED_CAPABILITY 4,
+AMBIGUOUS_PARSE 0, PROVENANCE_REVIEW 0.
+
+## 8. Pass-impossibility regression (extended, all green)
+
+179/179 `tests/q6_scaffolding` tests pass; `ruff check` and `ruff format
+--check` clean. New structural proofs: registries and both inventory
+documents validate clean under the output gate; contaminated
+registry-shaped input is rejected; a script smuggling `behavior_pass$`
+fails closed at `classify` (exit 2, no partial output); intake stays
+byte-opaque (content gates live downstream); unknown tripwires never route
+READY; manual-review and new-question artifacts carry no credit fields.
+All Task-2A pass-impossibility tests remain green unchanged in intent.
+
+## 9. Automation ceiling (confirmed, not crossed)
+
+Subgame/RestartGame/player-control/game-outcome/variant-track verbs are
+known tokens that always route to curator review. Replacement, prevention,
+layer, copy/control interpretation stops at hypotheses plus adjudication
+questions; the parser records no timestamps, layer orders, outcomes, or
+legal options. Variant-game directives stay UNSUPPORTED. Commander damage:
+0 corpus signals; absence recorded. The 10 Task-2A RULES_ADJUDICATION
+items are not resolved here; their machine-readable context improved
+(exact construct, verb/mode values, witness requirements).

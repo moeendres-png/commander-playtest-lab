@@ -216,6 +216,10 @@
    "class": "STATIC_RESTRICTION",
    "provenance": "Task-2B S-mode census (see registry provenance)."
   },
+  "CantCrew": {
+   "class": "STATIC_RESTRICTION",
+   "provenance": "Task-2B AFTER-census residue: crew-activation restriction (3 files)."
+  },
   "CantDiscard": {
    "class": "STATIC_RESTRICTION",
    "provenance": "Task-2B S-mode census (see registry provenance)."

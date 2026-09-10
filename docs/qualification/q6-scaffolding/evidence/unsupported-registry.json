@@ -1,0 +1,166 @@
+{
+ "registry": {
+  "constructs": [
+   {
+    "construct_id": "UC-TOPKEY-HANDLIFEMODIFIER",
+    "first_examples": [
+     "forge-gui/res/cardsfolder/a/akroma_angel_of_wrath_avatar.txt"
+    ],
+    "frequency": {
+     "files_before": 106,
+     "source": "corpus-inventory-before.json unsupported_constructs"
+    },
+    "mechanical_reason": "Vanguard/avatar/scheme starting hand-size and life-total modifier (e.g. HandLifeModifier:+1/+7). Needs variant-game configuration (which Vanguard is in play, starting values) that scaffolding cannot set up.",
+    "owning_subsystem": "scenario-setup (variant-game configuration, human operator)",
+    "pattern": "topkey:HandLifeModifier",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": true,
+    "safely_scaffolding_implementable": false
+   },
+   {
+    "construct_id": "UC-TOPKEY-DRAFT",
+    "first_examples": [
+     "forge-gui/res/cardsfolder/a/aether_searcher.txt"
+    ],
+    "frequency": {
+     "files_before": 24,
+     "source": "corpus-inventory-before.json unsupported_constructs"
+    },
+    "mechanical_reason": "Draft-matters directives (reveal/note cards as drafted). Need a draft context (picks, noted names) that does not exist in constructed Commander qualification.",
+    "owning_subsystem": "scenario-setup (draft-context provider, out of scope)",
+    "pattern": "topkey:Draft",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": true,
+    "safely_scaffolding_implementable": false
+   },
+   {
+    "construct_id": "UC-TOPKEY-MELDPAIR",
+    "first_examples": [
+     "forge-gui/res/cardsfolder/g/gisela_the_broken_blade_brisela_voice_of_nightmares.txt"
+    ],
+    "frequency": {
+     "files_before": 14,
+     "source": "corpus-inventory-before.json unsupported_constructs"
+    },
+    "mechanical_reason": "Meld-pair reference (two cards exiling and melding into one oversized permanent). Pair-card setup plus combined-permanent state is bespoke scenario design; kept as a systemic unsupported construct (no card-name exception).",
+    "owning_subsystem": "scenario-setup plus runtime qualifier (meld-pair state design)",
+    "pattern": "topkey:MeldPair",
+    "rules_adjudication_required": true,
+    "runtime_qualification_required": true,
+    "safely_scaffolding_implementable": false
+   },
+   {
+    "construct_id": "UC-TOPKEY-SETCOLORID",
+    "first_examples": [
+     "forge-gui/res/cardsfolder/c/cryptic_spires.txt"
+    ],
+    "frequency": {
+     "files_before": 1,
+     "source": "corpus-inventory-before.json unsupported_constructs"
+    },
+    "mechanical_reason": "Deck-construction color choice (circle two colors). The choice happens before the game and changes mana identity; scaffolding cannot make deckbuilding choices.",
+    "owning_subsystem": "scenario-setup (human operator deck choice)",
+    "pattern": "topkey:SETCOLORID",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": true,
+    "safely_scaffolding_implementable": false
+   },
+   {
+    "construct_id": "UC-TOPKEY-LIGHTS",
+    "first_examples": [
+     "forge-gui/res/cardsfolder/f/ferris_wheel.txt"
+    ],
+    "frequency": {
+     "files_before": 1,
+     "source": "corpus-inventory-before.json unsupported_constructs"
+    },
+    "mechanical_reason": "Un-set variant mechanic (Ferris Wheel lights). Silver-border/acorn variant game piece outside Commander qualification scope.",
+    "owning_subsystem": "scope decision (Coordinator; currently out of scope)",
+    "pattern": "topkey:Lights",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": true,
+    "safely_scaffolding_implementable": false
+   },
+   {
+    "construct_id": "UC-CLASS-UNKNOWN-VERB",
+    "first_examples": [
+     "forge-gui/res/cardsfolder/a/aggravate.txt"
+    ],
+    "frequency": {
+     "distinct_before": 104,
+     "file_occurrences_before": 1667,
+     "source": "corpus-inventory-before.json unknown_ability_verbs (Task-2A baseline; Task-2B registers all of them, so this class now guards genuinely new mechanics)"
+    },
+    "mechanical_reason": "Tripwire class: a never-seen ability verb may be a new mechanic. Reported exactly (unknown_ability_verbs) and routed to manual review; the curator extends the verb registry from public documentation or records the family out of scope.",
+    "owning_subsystem": "q6 parser curator (registry extension)",
+    "pattern": "container verb SP$/AB$/DB$/ST$ outside verb_registry.json",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": false,
+    "safely_scaffolding_implementable": true
+   },
+   {
+    "construct_id": "UC-CLASS-UNKNOWN-TMODE",
+    "first_examples": [
+     "forge-gui/res/cardsfolder/a/ajani_unrelenting.txt"
+    ],
+    "frequency": {
+     "distinct_before": 114,
+     "file_occurrences_before": 1724,
+     "source": "corpus-inventory-before.json unknown_trigger_modes (Task-2A baseline; Task-2B registers all observed values, so this class now guards genuinely new trigger conditions)"
+    },
+    "mechanical_reason": "Tripwire class: a never-seen trigger condition may be a new mechanic. Reported exactly (unknown_trigger_modes) and routed to manual review.",
+    "owning_subsystem": "q6 parser curator (registry extension)",
+    "pattern": "T-line Mode$ value outside trigger_mode_registry.json",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": false,
+    "safely_scaffolding_implementable": true
+   },
+   {
+    "construct_id": "UC-CLASS-UNKNOWN-STATIC-MODE",
+    "first_examples": [
+     "none observed at q6-static-mode-registry-0.2.0 (all 75 census values registered)"
+    ],
+    "frequency": {
+     "distinct_before": 0,
+     "source": "Task-2B census (registry covers the full observed set; class guards future mechanics)"
+    },
+    "mechanical_reason": "Tripwire class for future static modes. Reported exactly (unknown_static_modes) and routed to manual review.",
+    "owning_subsystem": "q6 parser curator (registry extension)",
+    "pattern": "S-line Mode$ value outside static_mode_registry.json static_modes",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": false,
+    "safely_scaffolding_implementable": true
+   },
+   {
+    "construct_id": "UC-CLASS-UNKNOWN-ABILITY-MODE",
+    "first_examples": [
+     "none observed at q6-static-mode-registry-0.2.0 (all 22 census values registered)"
+    ],
+    "frequency": {
+     "distinct_before": 0,
+     "source": "Task-2B census (registry covers the full observed set; class guards future mechanics)"
+    },
+    "mechanical_reason": "Tripwire class for future ability effect/trigger modifiers. Reported exactly (unknown_ability_modes) and routed to manual review. Never silently coerced into a modal choice.",
+    "owning_subsystem": "q6 parser curator (registry extension)",
+    "pattern": "A-line Mode$ value outside static_mode_registry.json ability_modes",
+    "rules_adjudication_required": false,
+    "runtime_qualification_required": false,
+    "safely_scaffolding_implementable": true
+   }
+  ],
+  "provenance": {
+   "forge_pin": "8c7e9afb8e6caee88644b94e25da5852e36f8928",
+   "inventory": "docs/qualification/q6-scaffolding/evidence/corpus-inventory-before.json",
+   "inventory_hash": "b8d0b2b4f274ea88d17e0e2355635f0b2aadec4105dddcb599d9932be4ee7040",
+   "method": "Task-2B full-corpus BEFORE inventory (Task-2A baseline) frequencies plus direct observation of pinned files. No card-name exceptions: patterns are generic grammar constructs."
+  },
+  "registry_version": "q6-unsupported-registry-0.2.0",
+  "related_verb_review_flags": "verb_registry.json MANUAL_REVIEW-flagged verbs (Subgame, RestartGame, ControlPlayer, ...) are known tokens that always route to MANUAL_REVIEW_REQUIRED; they are curator-review by construction, not unsupported constructs.",
+  "schema": "q6.unsupported-registry.v1"
+ },
+ "registry_version": "q6-unsupported-registry-0.2.0",
+ "schema": "q6.unsupported-registry-seal.v1",
+ "sealed_constructs": 9,
+ "source_path": "tools/q6_scaffolding/unsupported_registry.json",
+ "source_sha256": "04e1d593056c0c888630799d8dbd71665d23bee9191286a8855f5c54e4ab3fb3"
+}

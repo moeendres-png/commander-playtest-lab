@@ -176,6 +176,8 @@ _DIE_RE = re.compile(
 )
 _RANDOM_RE = re.compile(r"\brandom\b", re.IGNORECASE)
 _AT_RANDOM_RE = re.compile(r"\bat\s+random\b", re.IGNORECASE)
+_RANDOM_ORDER_RE = re.compile(r"\brandom\s+order\b", re.IGNORECASE)
+_RANDOM_ORDER_KEY_RE = re.compile(r"RandomOrder", re.IGNORECASE)
 
 # Copy/control mechanical signals (observation layer). ``clone`` is matched
 # via the Clone verb shape, not substring (``cyclone`` is not a copy).
@@ -555,11 +557,13 @@ def _svar_fragment_kind(name: str, value: str) -> str:
     if head in _COMPUTED_SVAR_HEADS:
         return "COMPUTED_FRAGMENT"
     if head == "Mode":
-        mode_match = re.match(r"^\s*Mode\$\s*([A-Za-z0-9_]+)", value)
-        mode = mode_match.group(1) if mode_match else ""
-        if static_mode_class("S", mode) is not None:
+        mode_match = re.match(r"^\s*Mode\$\s*([A-Za-z0-9_, ]+)", value)
+        modes = (
+            [m.strip() for m in mode_match.group(1).split(",") if m.strip()] if mode_match else []
+        )
+        if any(static_mode_class("S", mode) is not None for mode in modes):
             return "STATIC_FRAGMENT"
-        if is_known_trigger_mode(mode):
+        if any(is_known_trigger_mode(mode) for mode in modes):
             return "TRIGGER_FRAGMENT"
         return "REFERENCED_OTHER_FRAGMENT"
     if head == "SVar":
@@ -571,9 +575,10 @@ def _random_kinds(text: str, features: dict, ability_text: str) -> list[str]:
     """Mechanically distinguish randomness variants (classification only).
 
     SHUFFLE (library shuffle operation) never implies discretionary
-    randomness. Coin flip, die roll, random discard, random selection, and
-    otherwise-unclassified random-like constructs are separated so the
-    RNG-attribution question fires only for genuine Rules randomness.
+    randomness. Coin flip, die roll, random discard, random selection,
+    random ordering, and otherwise-unclassified random-like constructs are
+    separated so the RNG-attribution question fires only for genuine Rules
+    randomness.
     """
     lowered = text.lower()
     kinds: set[str] = set()
@@ -608,6 +613,15 @@ def _random_kinds(text: str, features: dict, ability_text: str) -> list[str]:
         kinds.add("RANDOM_DISCARD")
     if _AT_RANDOM_RE.search(lowered) and not discard_context:
         kinds.add("RANDOM_SELECT")
+    if features.get("_random_key_hit"):
+        # Param-level random selectors (AtRandom$ True, Random$ True,
+        # RandomKeyword$): random selection by construct, not card name.
+        kinds.add("RANDOM_SELECT")
+    if _RANDOM_ORDER_RE.search(lowered) or _RANDOM_ORDER_KEY_RE.search(text):
+        # Random library ordering ("put the rest on the bottom in a random
+        # order", RestRandomOrder$): a random permutation, hence Rules
+        # randomness, distinct from a library shuffle operation.
+        kinds.add("RANDOM_ORDER")
     if "RANDOMNESS" in features.get("_shape_flags", []) and not (
         coin_verb or die_verb or seek_flag
     ):
@@ -628,6 +642,7 @@ def extract_features(parsed: dict, text: str) -> dict:
         "has_ability": False,
         "has_svar": False,
         "has_keyword": False,
+        "_random_key_hit": False,
         "svar_names": [],
         "svar_edge_count": 0,
         "max_svar_depth": 0,
@@ -699,6 +714,10 @@ def extract_features(parsed: dict, text: str) -> dict:
                 klow = pkey.lower()
                 if "tgt" in klow or "validtgts" in klow or "targetmin" in klow:
                     feats["has_targets"] = True
+                if "random" in klow and "remrandomdeck" not in klow:
+                    # Param-level random selectors (AtRandom$ True,
+                    # RandomKeyword$): random selection by construct.
+                    feats["_random_key_hit"] = True
                 if (
                     "mode" in klow
                     or "choice" in klow
@@ -716,38 +735,45 @@ def extract_features(parsed: dict, text: str) -> dict:
                     feats["has_choices"] = True
                     feats["has_modal_choice"] = True
                 if pkey in ("Mode", "Mode$"):
+                    # Mode values may be comma-separated multi-modes
+                    # (Arrest shape: ``Mode$ CantAttack,CantBlock``); each
+                    # element classifies independently, raw values kept.
+                    mode_values = [m.strip() for m in praw.split(",") if m.strip()]
                     if kind == "Trigger":
-                        feats["trigger_modes"].append(praw)
-                        if not is_known_trigger_mode(praw):
-                            feats["unknown_trigger_modes"].append(praw)
+                        for mode in mode_values:
+                            feats["trigger_modes"].append(mode)
+                            if not is_known_trigger_mode(mode):
+                                feats["unknown_trigger_modes"].append(mode)
                     elif kind == "Static":
-                        cls = static_mode_class("S", praw)
-                        if cls is None:
-                            feats["unknown_static_modes"].append(praw)
-                        else:
-                            static_mode_classes.add(cls)
-                            if cls == "STATIC_COST_CHOICE":
-                                # Static alternative/optional-cost mode
-                                # (Force of Will shape): a payment choice.
-                                feats["has_alternative_cost"] = True
-                            elif cls == "STATIC_COMBAT":
-                                feats["has_combat"] = True
+                        for mode in mode_values:
+                            cls = static_mode_class("S", mode)
+                            if cls is None:
+                                feats["unknown_static_modes"].append(mode)
+                            else:
+                                static_mode_classes.add(cls)
+                                if cls == "STATIC_COST_CHOICE":
+                                    # Static alternative/optional-cost mode
+                                    # (Force of Will shape): a payment choice.
+                                    feats["has_alternative_cost"] = True
+                                elif cls == "STATIC_COMBAT":
+                                    feats["has_combat"] = True
                     elif kind == "Ability":
-                        cls = ability_mode_class(praw)
-                        if cls is None:
-                            feats["unknown_ability_modes"].append(praw)
-                        else:
-                            ability_mode_classes.add(cls)
-                            if cls == "MODAL_META":
-                                feats["has_modal_choice"] = True
-                            elif cls == "TRIGGER_CONDITION":
-                                # Ability-carried trigger condition
-                                # (Adaptive Training Post DelayedTrigger
-                                # shape): a trigger will exist at runtime,
-                                # but this is not a modal choice.
-                                feats["has_trigger_condition"] = True
-                            elif cls == "RANDOMNESS_SELECTOR":
-                                shape_flags.add("RANDOMNESS")
+                        for mode in mode_values:
+                            cls = ability_mode_class(mode)
+                            if cls is None:
+                                feats["unknown_ability_modes"].append(mode)
+                            else:
+                                ability_mode_classes.add(cls)
+                                if cls == "MODAL_META":
+                                    feats["has_modal_choice"] = True
+                                elif cls == "TRIGGER_CONDITION":
+                                    # Ability-carried trigger condition
+                                    # (Adaptive Training Post DelayedTrigger
+                                    # shape): a trigger will exist at
+                                    # runtime, but this is not modal choice.
+                                    feats["has_trigger_condition"] = True
+                                elif cls == "RANDOMNESS_SELECTOR":
+                                    shape_flags.add("RANDOMNESS")
                 if pkey in ABILITY_CONTAINERS:
                     if pkey == "ST":
                         # Static ability carried on an A: line (Circling
@@ -789,6 +815,8 @@ def extract_features(parsed: dict, text: str) -> dict:
             for param in line.get("params", []):
                 pkey = param.get("key", "")
                 praw = param.get("raw", "")
+                if "random" in pkey.lower():
+                    feats["_random_key_hit"] = True
                 # Standalone X in a numeric slot of an SVar effect body
                 # (Ajani Unrelenting ``NumCards$ X`` shape): a variable
                 # amount, same rule as ability records. SVar *names* and
@@ -906,6 +934,7 @@ def extract_features(parsed: dict, text: str) -> dict:
     del feats["_verb_shapes"]
     del feats["_shape_flags"]
     del feats["_verb_shape_set"]
+    del feats["_random_key_hit"]
     feats["diagnostic_count"] = len(parsed["diagnostics"]) + sum(
         len(line.get("diagnostics", [])) for line in parsed["lines"] if isinstance(line, dict)
     )

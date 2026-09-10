@@ -6,11 +6,18 @@ queues, and manifests for actual cards. It is structurally incapable of
 awarding card behavior PASS, qualification credit, or coverage promotion.
 
 - Tooling surface: `tools/q6_scaffolding/`
-- Tests: `tests/q6_scaffolding/` (89 tests, all green)
-- Bounded validation sample: `tests/q6_scaffolding/fixtures/` (14 real
+- Tests: `tests/q6_scaffolding/` (179 tests, all green)
+- Grammar registries: `verb_registry.json` (198 verbs),
+  `trigger_mode_registry.json`, `static_mode_registry.json`
+  (76 static + 22 ability modes), `unsupported_registry.json` — all
+  versioned, provenance-bearing, generic by construct (see
+  `PARSER_CURATION_REPORT.md`)
+- Bounded validation sample: `tests/q6_scaffolding/fixtures/` (55 real
   Forge card scripts pinned to `Card-Forge/forge@8c7e9afb`, per-file
-  sha256 in `inputs.json`)
-- Evidence: `docs/qualification/q6-scaffolding/evidence/`
+  sha256 in `inputs.json`; stratified per `VALIDATION_SAMPLE.md`)
+- Evidence: `docs/qualification/q6-scaffolding/evidence/` (full-corpus
+  before/after inventories, before/after metrics, sealed unsupported
+  registry, sample queues/manifest/routing table)
 
 Evidence class of everything produced here: SYNTHETIC (tooling output).
 Authoritative behavior truth comes only from the Rules Core plus official
@@ -52,6 +59,7 @@ INTAKE_ONLY -> PARSED -> STRUCTURED -> SKELETON_GENERATED
 ```
 
 Routing priority (first match wins): AMBIGUOUS > UNSUPPORTED >
+registry-flagged curator-review verbs > unknown-grammar tripwires >
 RULES_ADJUDICATION_REQUIRED > MANUAL_REVIEW_REQUIRED >
 READY_FOR_RUNTIME_QUALIFICATION.
 
@@ -114,12 +122,14 @@ manifest (`manifest_hash` recomputable via `validate`).
 
 ## 6. Capability clustering and pre-tags
 
-Seed taxonomy (15 families, extensible only via explicit
+Seed taxonomy (16 families, extensible only via explicit
 provenance-bearing `register_family`): TARGET_SELECTION, MODAL_CHOICE,
 MANA_PAYMENT_CHOICE, X_COST_VALUE, ADDITIONAL_ALTERNATIVE_COST,
 REPLACEMENT_EFFECT, TRIGGERED_CHOICE, COMBAT, COMMANDER_MECHANIC,
 MULTIPLAYER_OPPONENT_SELECTION, HIDDEN_INFORMATION, RANDOMNESS,
-COPY_CONTROL, ZONE_CHANGE, SBA_SENSITIVE.
+COPY_CONTROL, LAYER_CHARACTERISTIC, ZONE_CHANGE, SBA_SENSITIVE. COMBAT
+and LAYER_CHARACTERISTIC are assigned from Task 2B (combat-restriction
+statics/combat verbs; characteristic-setting verbs).
 
 Decision-surface pre-tags are HYPOTHESES ONLY (D4c: one mechanic != one
 callback). Every pre-tag carries `authority:

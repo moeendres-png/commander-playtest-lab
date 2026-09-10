@@ -97,3 +97,13 @@ def test_synthetic_coin_flip_phrase():
     feats = _features("Name:X\nA:AB$ Effect | SpellDescription$ Flip a coin.\n")
     assert "COIN_FLIP" in feats["random_kinds"]
     assert feats["has_random"] is True
+
+
+def test_random_order_is_randomness_not_shuffle():
+    feats = _features(
+        "Name:X\n"
+        "A:SP$ Dig | DigNum$ 5 | RestRandomOrder$ True | "
+        "SpellDescription$ Put the rest on the bottom in a random order.\n"
+    )
+    assert "RANDOM_ORDER" in feats["random_kinds"]
+    assert feats["has_random"] is True

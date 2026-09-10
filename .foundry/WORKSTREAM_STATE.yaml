@@ -1,117 +1,110 @@
 schema_version: "1.0"
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/q6-scaffolding-pipeline-20260910
-branch: qualification/q6-scaffolding-pipeline-20260910
-audit_base_sha: c162871ba416c338d37f83a44fbd5b054e79ca0e
-audit_base_tree: b75a51d3326f502f33f0af2ce5d897ac89d60cc5
-current_head: d256af13e2820f9da17623575a88c437938800f0
-objective: Implement the scalable Q6 actual-card intake/scaffolding pipeline (Task 2A, parallel-safe subset of post-D1-D7 Task 2) that automates mechanical qualification preparation while being structurally incapable of awarding card behavior PASS, qualification credit, or coverage promotion.
+worktree: /home/moeen/code/q6-capability-curation-20260910
+branch: qualification/q6-capability-curation-20260910
+audit_base_sha: a33d5d97cef4df46129e543707886e4a42e64f4c
+audit_base_tree: b7e640cbb9b5cb957ec9e46055817a2a778b2d04
+current_head: 82d08f2812a0a213265eeab994e31d6600100ed6
+objective: "Industrialize the Task-2A Q6 scaffolding parser/classification layer against the full pinned actual-card corpus (Task 2B) - measure grammar gaps, implement the smallest maintainable registry-driven extension covering the major actual-card grammar families, validate on a 55-card stratified sample. Scaffolding only; structurally incapable of behavior PASS, qualification PASS, or coverage promotion."
 in_scope:
-- tools/q6_scaffolding/ self-contained pipeline surface (intake, parser, classify, skeleton, queues, manifest, gate, CLI, WS50 boundary spec)
-- tests/q6_scaffolding/ focused automated tests incl. structural PASS-impossibility tests
-- docs/qualification/q6-scaffolding/ pipeline docs plus bounded-sample evidence
-- Bounded 14-card real-script fixture sample pinned to Card-Forge/forge@8c7e9afb
-- D3 clean-room parser port (project-authored logic only) and D2 BOUNDED_REUSE input rules
+- tools/q6_scaffolding/ self-contained surface (parser, registries, classify, skeleton, queues, manifest, gate, CLI, corpus inventory tool)
+- tools/q6_scaffolding/verb_registry.json, trigger_mode_registry.json, static_mode_registry.json, unsupported_registry.json (versioned, provenance-bearing)
+- tests/q6_scaffolding/ focused tests incl. structural PASS-impossibility tests
+- docs/qualification/q6-scaffolding/ curation docs plus corpus/sample evidence
+- Bounded 55-card real-script fixture sample pinned to Card-Forge/forge@8c7e9afb
+- D3 clean-room parser lineage (project-authored logic only) and D2 BOUNDED_REUSE input rules
 out_of_scope:
 - WS50-owned surfaces (Forge runtime/provider/bootstrap, decision transport, option binding, live sequences, callbacks, observations, frame journal/replay, live-game construction, WS48-derived surfaces)
 - qualification/providers/forge/**, bridge code, vendor/**, WS47 books/denominator, coverage truth, production simulator code
 - Sequence-harness implementation, Rules-engine work, Forge/XMage runtime work, Full107, WS48/WS50 behavior probes, engine builds
 - Awarding behavior PASS, qualification credit, or coverage promotion (structurally impossible)
 - PRs, merges, main modification, Production Repository, provider selection, Architecture Freeze
-ownership: TASK-2A Q6-scaffolding session (sole writer on branch qualification/q6-scaffolding-pipeline-20260910 in /home/moeen/code/q6-scaffolding-pipeline-20260910)
+ownership: TASK-2B Q6-capability session (sole writer on branch qualification/q6-capability-curation-20260910 in /home/moeen/code/q6-capability-curation-20260910)
 dependencies:
-- origin/main at c162871b/tree b75a51d3 (verified via ls-remote + rev-parse)
-- D1-D7 final reconciliation at 6e6ac21f (roadmap Task 2 design, gate sequence)
-- D2 BOUNDED_REUSE at bf2c4711/tree e43b566f (input-only rules, valueless checklists, provenance blocks)
-- D3 BUILD_CLEAN_ROOM_EQUIVALENT at moeendres-png/mage@a766f900/tree 6c429f68 (SYNTHETIC, zero behavior credit; clean-room parser lineage)
-- Forge corpus pin 8c7e9afb (external pinned INPUT, never vendored)
+- Task-2A terminal at a33d5d97/tree b7e640cb (PASS within scaffolding tooling scope)
+- D3 BUILD_CLEAN_ROOM_EQUIVALENT at moeendres-png/mage@a766f900/tree 6c429f68 (SYNTHETIC, zero behavior credit; historical research facts re-verified, never promoted)
+- Forge corpus pin 8c7e9afb (external pinned INPUT, never vendored; 33,666 files verified)
 - tools/foundry/cluster_failures.py (read-only import, never edited)
 hard_gates:
-- Scaffolding schemas exclude behavior-credit fields by construction; gate.py rejects promotion/contamination fail-closed
+- Scaffolding schemas exclude behavior-credit fields by construction; gate.py rejects promotion/contamination fail-closed on keys AND snake_case text markers
 - READY_FOR_RUNTIME_QUALIFICATION means prerequisites ready, never card-behavior PASS
 - Pre-tags HYPOTHESIS_NON_AUTHORITATIVE; runtime native options authoritative with no scaffolding veto
 - Zero WS50-owned implementation paths changed (drift-checked per checkpoint)
-- 89 focused tests pass; ruff check and format clean on new surfaces
+- 179 focused tests pass; 42 foundry governance tests pass; ruff check and format clean
+- Unknown grammar stays exactly reported with no catch-all supported; no card-name hacks
 - No Forge/XMage builds, no Full107, no engine probes
 forbidden_shortcuts:
 - first/random/default/AI/GUI/silent-skip/parent fallbacks
 - fabricated legal actions, manual outcome injection, second hidden Rules Engine in helpers
 - expected-outcome import (XMage assertions, Forge script content, reference parity, readback, green CI) promoted to truth
 - UNKNOWN/PARTIAL/NOT_RUN promoted to PASS; coverage promotion from scaffolding
+- substring-only Mode$-implies-trigger; shuffle-implies-randomness; SVar-name-X-implies-X-mechanic
 validated_gates:
-- Checkpoint A committed (schema + provenance + stable intake identity)
-- Checkpoint B committed (classification + skeleton + decision-pretag system)
-- Checkpoint C committed (review queues + manifest + PASS-impossibility tests, 89/89 green)
-- Full CLI pipeline green over bounded 14-card sample; manifest validates (hash 44bcde97)
-- WS50 drift check clean at Checkpoint A-C commit (only untracked WS50 checkpoint evidence, untouched)
-- Checkpoint D committed (d256af13); full regression 131/131 (89 q6 + 42 foundry); ruff clean; pushed to origin, remote HEAD verified d256af13
+- Checkpoint A committed+pushed (inventory tool, BEFORE census b8d0b2b4, gap ranking)
+- Checkpoint B committed+pushed (verb/trigger/static registries, parser 0.2.0, taxonomy 0.2.0)
+- Checkpoint C committed+pushed (taxonomy corrections, unsupported registry, 55-card sample, gate hardening, 177 green)
+- Checkpoint D (this state): AFTER census (unknown verbs/modes 0), before/after metrics sealed, queue-transition analysis, 179/179 + 42/42 green, ruff clean
+- Intake IDs stable (Q6_SCAFFOLDING_VERSION unchanged); manifest q6-stratified-sample-55 VALID (hash 3805ea0d...)
+- WS50 drift check clean at every checkpoint (only WS50-owned candidate-qualification paths touched by WS50)
 failed_gates: []
 invalidated_gates: []
 do_not_rerun:
-- Source-lock verification (immutable SHAs reverified this session)
-- 89-test suite unless pipeline code changes
+- Full-corpus BEFORE census (sealed evidence/corpus-inventory-before.json, content hash b8d0b2b4..., Task-2A code at a33d5d97)
+- Full-corpus AFTER census (sealed evidence/corpus-inventory.json, same content hash)
+- D3 historical re-verification (recorded in PARSER_CURATION_REPORT.md section 2)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Scope COMPLETE. State HEAD sync plus final authorized push remain.
+current_hypothesis: Scope COMPLETE. Final commit plus authorized push plus terminal handoff remain.
 files_modified:
-- tools/q6_scaffolding/__init__.py
-- tools/q6_scaffolding/states.py
-- tools/q6_scaffolding/gate.py
-- tools/q6_scaffolding/provenance.py
-- tools/q6_scaffolding/intake.py
+- tools/q6_scaffolding/corpus_inventory.py
+- tools/q6_scaffolding/registries.py
+- tools/q6_scaffolding/verb_registry.json
+- tools/q6_scaffolding/trigger_mode_registry.json
+- tools/q6_scaffolding/static_mode_registry.json
+- tools/q6_scaffolding/unsupported_registry.json
 - tools/q6_scaffolding/forge_parser.py
 - tools/q6_scaffolding/classify.py
 - tools/q6_scaffolding/skeleton.py
-- tools/q6_scaffolding/queues.py
-- tools/q6_scaffolding/manifest.py
-- tools/q6_scaffolding/integration.py
+- tools/q6_scaffolding/gate.py
 - tools/q6_scaffolding/cli.py
-- tests/q6_scaffolding/__init__.py
-- tests/q6_scaffolding/support.py
-- tests/q6_scaffolding/test_intake_provenance.py
-- tests/q6_scaffolding/test_parser_classification.py
-- tests/q6_scaffolding/test_pass_impossibility.py
-- tests/q6_scaffolding/test_skeleton_queues_manifest.py
-- tests/q6_scaffolding/test_integration_boundary.py
-- tests/q6_scaffolding/test_cli.py
-- tests/q6_scaffolding/fixtures/inputs.json
-- tests/q6_scaffolding/fixtures/cards/*.txt (14 real scripts at forge pin 8c7e9afb)
-- docs/qualification/q6-scaffolding/PIPELINE.md
-- docs/qualification/q6-scaffolding/WS50_INTEGRATION_BOUNDARY.md
-- docs/qualification/q6-scaffolding/VALIDATION_SAMPLE.md
-- docs/qualification/q6-scaffolding/SOURCE_LOCK_AND_OWNERSHIP.md
-- docs/qualification/q6-scaffolding/evidence/queues.json
-- docs/qualification/q6-scaffolding/evidence/manifest.json
-- docs/qualification/q6-scaffolding/evidence/routing-table.json
+- tools/q6_scaffolding/intake.py
+- tests/q6_scaffolding/ (7 new test files; fixtures 14->55 cards; inputs.json)
+- docs/qualification/q6-scaffolding/ (CAPABILITY_INVENTORY.md, UNSUPPORTED_CONSTRUCTS.md, PARSER_CURATION_REPORT.md, VALIDATION_SAMPLE.md, PIPELINE.md deltas, evidence/*)
 - .foundry/WORKSTREAM_STATE.yaml
 tests_run:
-- pytest tests/q6_scaffolding/ -q (89 passed)
+- pytest tests/q6_scaffolding/ -q (179 passed)
+- pytest tests/foundry/ -q (42 passed)
 - ruff check tools/q6_scaffolding tests/q6_scaffolding (pass)
 - ruff format --check tools/q6_scaffolding tests/q6_scaffolding (pass)
-- full CLI pipeline over bounded sample + validate (VALID, manifest hash 44bcde97)
+- full CLI pipeline over stratified 55-card sample + validate (VALID, manifest hash 3805ea0d)
+- before/after CLI routing comparison over 55-sample via pristine Task-2A package (transition analysis)
 evidence:
-- DIRECTLY_VERIFIED: origin/main SHA/tree, D1-D7/D2/D3 SHAs/trees, forge pin object, WS50 worktree clean/drift-free vs own paths, per-file fixture hashes
-- SYNTHETIC: pipeline outputs (intake records, skeletons, queues, manifest), 89-test suite outcomes
-- CODE_DERIVED: D2 report conclusions, D3 report metrics consumed as documented requirements
+- DIRECTLY_VERIFIED: base/D3 SHAs/trees, forge pin object + 33,666 population, per-file fixture hashes, WS50 path-disjointness per checkpoint, remote push verification
+- SYNTHETIC: inventory censuses, 55-sample pipeline outputs, 179-test suite outcomes, transition analysis
+- CODE_DERIVED: D3 report metrics consumed as documented historical requirements only
 remaining_scope:
-- Final full-suite regression check (foundry + q6 tests) and ruff
 - Checkpoint D commit, exact-diff plus ownership verification, authorized non-force push
 - Terminal handoff (this file plus final message)
 status: ACTIVE
 ownership_conflict: NONE (WS50 worktree inspected read-only per checkpoint; own paths disjoint; no overlap recorded)
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
-hypotheses_rejected: []
+hypotheses_rejected:
+- T-line Mode$ unknown values as trigger-semantics gap (they are trigger conditions by format construction; registered explicitly, raw kept)
+- A-line Mode$ as modal choice (effect/trigger modifiers; only Charm/faces/CanRepeatModes mark modal)
+- shuffle/coin-word substrings as randomness (word-boundary taxonomy; hint lines excluded)
+- bare exchange/clone substrings as copy/control (verb shapes authoritative; exchange-life and Cyclonic Rift excluded)
 technical_decisions:
-- Bare ALTERNATE face separators are documented format, not parser ambiguity (generic mechanism from observed corpus structure).
-- Mode$ on non-Trigger records is modal/static-mode signal, not trigger mode; Static Mode$ AlternativeCost is a payment choice (Force of Will shape).
-- X-value detection requires standalone X token in numeric slot or mana cost; SVar cross-references named X excluded (Braids shape).
-- Tutor shuffle recorded as has_shuffle, not Rules randomness (Sundering Eruption shape).
-- AI: hint lines allowlisted as benign metadata per D3 section-5 decomposition; verb/mode tables stay minimal so gaps route to review.
-- Primary capability selects most distinctive family first (multiplayer/commander/hidden/random/copy/trigger priority).
-- expected_hash exempted from the expected-* input prefix ban as content-integrity metadata (documented in gate.py).
+- Verb registry 198 entries with mechanical shapes + closed flag vocabulary; unknown is first-class (exact report, MANUAL before adjudication).
+- Trigger registry = observed T/Mode$ union ValidMode$ refs; Once-variants keep base linkage.
+- Static registry 76 S-modes in 6 classes + 22 A-modes in 9 classes; comma multi-modes split; AlternativeCost generalized to cost-choice; combat statics feed COMBAT family.
+- X rule: standalone X in numeric slots (ability + SVar bodies) or mana cost; SVar-X names/refs recorded by kind, never mechanics alone.
+- Randomness kinds SHUFFLE/COIN/DIE/DISCARD/SELECT/ORDER/UNKNOWN; shuffle never randomness; hint lines excluded from game-text signals.
+- Multiplayer single words match on word boundaries; new generic phrases added.
+- Layer/prevention verbs route to adjudication questions; exotic verbs always curator-review; variant directives stay UNSUPPORTED.
+- Intake stays byte-opaque; content gates live at classify/output; output gate scans keys and snake_case markers.
 authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
-next_action: Commit state HEAD sync, verify exact diff and ownership, push normally, deliver terminal handoff.
-exact_next_action: Commit .foundry/WORKSTREAM_STATE.yaml HEAD sync only; git push origin qualification/q6-scaffolding-pipeline-20260910; no PR, no merge; then hand off as TASK_2A PASS (scaffolding tooling only).
+next_action: Commit checkpoint D, verify exact diff and ownership, push normally, deliver terminal handoff.
+exact_next_action: Commit remaining Task-2B paths only; git push origin qualification/q6-capability-curation-20260910; no PR, no merge; then hand off as TASK_2B PASS (scaffolding tooling only).

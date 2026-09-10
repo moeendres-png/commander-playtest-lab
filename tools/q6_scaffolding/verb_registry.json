@@ -54,6 +54,12 @@
   "ZONE_CHANGE_SHAPE"
  ],
  "verbs": {
+  "Abandon": {
+   "corpus_files_before": 20,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "ActivateAbility": {
    "corpus_files_before": 1,
    "flags": [],
@@ -176,17 +182,53 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "OTHER_STRUCTURED_SHAPE"
   },
+  "BlankLine": {
+   "corpus_files_before": 5,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "Blight": {
    "corpus_files_before": 1,
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "OTHER_STRUCTURED_SHAPE"
   },
+  "Block": {
+   "corpus_files_before": 3,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "COMBAT_SHAPE"
+  },
   "Branch": {
    "corpus_files_before": 24,
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "CHOICE_SHAPE"
+  },
+  "Camouflage": {
+   "corpus_files_before": 1,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "HIDDEN_SHAPE"
+  },
+  "ChangeCombatants": {
+   "corpus_files_before": 9,
+   "flags": [
+    "COMBAT"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "COMBAT_SHAPE"
+  },
+  "ChangeSpeed": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "ChangeTargets": {
    "corpus_files_before": 23,
@@ -202,6 +244,12 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "LAYER_SHAPE"
   },
+  "ChangeX": {
+   "corpus_files_before": 2,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "ChangeZone": {
    "corpus_files_before": 2063,
    "flags": [],
@@ -213,6 +261,12 @@
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "MASS_ZONE_CHANGE_SHAPE"
+  },
+  "ChaosEnsues": {
+   "corpus_files_before": 9,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "Charm": {
    "corpus_files_before": 556,
@@ -276,6 +330,12 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "CHOICE_SHAPE"
   },
+  "ClaimThePrize": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "Clash": {
    "corpus_files_before": 2,
    "flags": [],
@@ -287,6 +347,14 @@
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Cloak": {
+   "corpus_files_before": 11,
+   "flags": [
+    "HIDDEN"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "HIDDEN_SHAPE"
   },
   "Clone": {
    "corpus_files_before": 23,
@@ -359,6 +427,12 @@
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "MASS_DAMAGE_SHAPE"
+  },
+  "DamageResolve": {
+   "corpus_files_before": 64,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "DAMAGE_SHAPE"
   },
   "DayTime": {
    "corpus_files_before": 3,
@@ -446,6 +520,12 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "OTHER_STRUCTURED_SHAPE"
   },
+  "DrainMana": {
+   "corpus_files_before": 5,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "Draw": {
    "corpus_files_before": 943,
    "flags": [],
@@ -469,6 +549,12 @@
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "EndCombatPhase": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "TURN_SHAPE"
   },
   "EndTurn": {
    "corpus_files_before": 5,
@@ -509,6 +595,28 @@
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "LIFE_SHAPE"
+  },
+  "ExchangePower": {
+   "corpus_files_before": 2,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "LAYER_SHAPE"
+  },
+  "ExchangeTextBox": {
+   "corpus_files_before": 2,
+   "flags": [
+    "LAYER_ADJUDICATION"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "LAYER_SHAPE"
+  },
+  "ExchangeZone": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "Exile": {
    "corpus_files_before": 0,
@@ -590,6 +698,14 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "COPY_CONTROL_SHAPE"
   },
+  "GameDrawn": {
+   "corpus_files_before": 2,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "GenericChoice": {
    "corpus_files_before": 36,
    "flags": [],
@@ -604,6 +720,20 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "COMBAT_SHAPE"
   },
+  "HealDamage": {
+   "corpus_files_before": 2,
+   "flags": [
+    "PREVENTION_ADJUDICATION"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "PREVENTION_SHAPE"
+  },
+  "Heist": {
+   "corpus_files_before": 8,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "ImmediateTrigger": {
    "corpus_files_before": 1,
    "flags": [
@@ -616,6 +746,12 @@
    "corpus_files_before": 4,
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
+  "Intensify": {
+   "corpus_files_before": 20,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
    "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "Investigate": {
@@ -643,6 +779,14 @@
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "LIFE_SHAPE"
+  },
+  "LosePerpetual": {
+   "corpus_files_before": 2,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "LosesGame": {
    "corpus_files_before": 3,
@@ -776,11 +920,23 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "TURN_SHAPE"
   },
+  "Planeswalk": {
+   "corpus_files_before": 28,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "Play": {
    "corpus_files_before": 35,
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "ZONE_CHANGE_SHAPE"
+  },
+  "PlayLandVariant": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "Poison": {
    "corpus_files_before": 3,
@@ -842,11 +998,23 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "MASS_COUNTER_SHAPE"
   },
+  "Radiation": {
+   "corpus_files_before": 22,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "COUNTER_SHAPE"
+  },
   "RearrangeTopOfLibrary": {
    "corpus_files_before": 13,
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "SEARCH_SHAPE"
+  },
+  "Recruit": {
+   "corpus_files_before": 10,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "Regenerate": {
    "corpus_files_before": 233,
@@ -854,6 +1022,14 @@
     "PREVENTION_ADJUDICATION"
    ],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "PREVENTION_SHAPE"
+  },
+  "Regeneration": {
+   "corpus_files_before": 3,
+   "flags": [
+    "PREVENTION_ADJUDICATION"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
    "shape": "PREVENTION_SHAPE"
   },
   "RemoveCounter": {
@@ -875,6 +1051,20 @@
    ],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "COMBAT_SHAPE"
+  },
+  "RemoveFromGame": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "EXILE_SHAPE"
+  },
+  "RemoveFromMatch": {
+   "corpus_files_before": 2,
+   "flags": [
+    "MANUAL_REVIEW"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
   },
   "ReorderZone": {
    "corpus_files_before": 1,
@@ -902,12 +1092,36 @@
    "provenance": "Task-2B sample review: SVar-head replacement verb (Doubling Season shape); counted from Task-2B work, full-census frequency lands in the AFTER inventory.",
    "shape": "REPLACEMENT_SHAPE"
   },
+  "ReplaceDamage": {
+   "corpus_files_before": 38,
+   "flags": [
+    "REPLACEMENT"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "REPLACEMENT_SHAPE"
+  },
   "ReplaceEffect": {
    "corpus_files_before": 0,
    "flags": [
     "REPLACEMENT"
    ],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "REPLACEMENT_SHAPE"
+  },
+  "ReplaceMana": {
+   "corpus_files_before": 22,
+   "flags": [
+    "REPLACEMENT"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "REPLACEMENT_SHAPE"
+  },
+  "ReplaceSplitDamage": {
+   "corpus_files_before": 20,
+   "flags": [
+    "REPLACEMENT"
+   ],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
    "shape": "REPLACEMENT_SHAPE"
   },
   "ReplaceToken": {
@@ -972,6 +1186,12 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "RANDOM_SHAPE"
   },
+  "RunChaos": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "Sacrifice": {
    "corpus_files_before": 127,
    "flags": [],
@@ -1004,6 +1224,12 @@
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
    "shape": "SEARCH_SHAPE"
   },
+  "SetInMotion": {
+   "corpus_files_before": 2,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "OTHER_STRUCTURED_SHAPE"
+  },
   "SetLife": {
    "corpus_files_before": 11,
    "flags": [],
@@ -1028,6 +1254,12 @@
    "corpus_files_before": 4,
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TURN_SHAPE"
+  },
+  "SkipTurn": {
+   "corpus_files_before": 13,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
    "shape": "TURN_SHAPE"
   },
   "StoreSVar": {
@@ -1082,6 +1314,18 @@
    "corpus_files_before": 25,
    "flags": [],
    "provenance": "Task-2A seed verb tables (public Forge wiki format + bounded 14-card sample) extended by Task-2B full-corpus inventory b8d0b2b4f274ea88 (forge pin 8c7e9afb, 33666 files). Shapes name mechanical structure only; no Rules outcome is inferred from any label.",
+   "shape": "TAP_SHAPE"
+  },
+  "TapOrUntapAll": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
+   "shape": "TAP_SHAPE"
+  },
+  "TaporUntapAll": {
+   "corpus_files_before": 1,
+   "flags": [],
+   "provenance": "Task-2B AFTER-census pass 2: SVar-head verbs surfaced by the Task-2B unknown-verb tripwire (full-corpus AFTER inventory). Same mechanical-shape method as pass 1.",
    "shape": "TAP_SHAPE"
   },
   "TimeTravel": {

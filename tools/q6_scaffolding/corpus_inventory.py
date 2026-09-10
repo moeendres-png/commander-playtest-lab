@@ -406,6 +406,13 @@ def main(argv: list[str] | None = None) -> int:
     diag_counter: Counter = Counter()
     unknown_verbs: Counter = Counter()
     unknown_tmodes: Counter = Counter()
+    unknown_smodes: Counter = Counter()
+    unknown_amodes: Counter = Counter()
+    manual_verbs: Counter = Counter()
+    layer_verbs: Counter = Counter()
+    prevention_verbs: Counter = Counter()
+    random_kinds: Counter = Counter()
+    x_sources: Counter = Counter()
     observed_verbs: Counter = Counter()
     observed_tmodes: Counter = Counter()
     feat_files_with: Counter = Counter()
@@ -531,8 +538,23 @@ def main(argv: list[str] | None = None) -> int:
                 observed_tmodes[v] += 1
             for v in features.get("unknown_trigger_modes", []):
                 unknown_tmodes[v] += 1
+            for v in features.get("unknown_static_modes", []):
+                unknown_smodes[v] += 1
+            for v in features.get("unknown_ability_modes", []):
+                unknown_amodes[v] += 1
+            for v in features.get("manual_review_verbs", []):
+                manual_verbs[v] += 1
+            for v in features.get("layer_adjudication_verbs", []):
+                layer_verbs[v] += 1
+            for v in features.get("prevention_adjudication_verbs", []):
+                prevention_verbs[v] += 1
+            for v in features.get("random_kinds", []):
+                random_kinds[v] += 1
+            for v in features.get("x_sources", []):
+                x_sources[v] += 1
             for feat_key in (
                 "has_trigger",
+                "has_trigger_condition",
                 "has_replacement",
                 "has_static",
                 "has_ability",
@@ -542,6 +564,7 @@ def main(argv: list[str] | None = None) -> int:
                 "has_choices",
                 "has_modes",
                 "has_modal_choice",
+                "has_combat",
                 "has_mana_cost",
                 "has_additional_cost",
                 "has_alternative_cost",
@@ -643,6 +666,13 @@ def main(argv: list[str] | None = None) -> int:
             "observed_trigger_modes": _top(observed_tmodes, 300),
             "unknown_trigger_modes": _top(unknown_tmodes, 300),
             "unknown_tmode_distinct": len(unknown_tmodes),
+            "unknown_static_modes": _top(unknown_smodes, 100),
+            "unknown_ability_modes": _top(unknown_amodes, 100),
+            "manual_review_verbs": _top(manual_verbs, 100),
+            "layer_adjudication_verbs": _top(layer_verbs, 100),
+            "prevention_adjudication_verbs": _top(prevention_verbs, 100),
+            "random_kinds": _top(random_kinds, 20),
+            "x_sources": _top(x_sources, 20),
             "feature_files": dict(sorted(feat_files_with.items())),
             "false_positive_probes": false_positive_probes,
             "total_params": total_params,
