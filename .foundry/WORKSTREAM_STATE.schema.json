@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Foundry Workstream State",
-  "description": "Operational continuation index for one workstream. Not Source Authority; Git/test/evidence reality wins on conflict.",
+  "description": "Operational continuation index for one workstream. Not Source Authority; Git/test/evidence reality wins on conflict. Schema 2.0 identity: audit_base_sha/tree is the immutable source lock; validated_head (nullable) is the newest commit with actual validation evidence; state_written_against_head is descriptive only; current_runtime_head is never stored (derive live via state.py --workdir).",
   "type": "object",
   "required": [
     "schema_version",
@@ -10,7 +10,7 @@
     "branch",
     "audit_base_sha",
     "audit_base_tree",
-    "current_head",
+    "state_written_against_head",
     "objective",
     "in_scope",
     "out_of_scope",
@@ -40,9 +40,15 @@
       "type": "string",
       "pattern": "^[0-9a-f]{40}$"
     },
-    "current_head": {
+    "state_written_against_head": {
       "type": "string",
-      "pattern": "^[0-9a-f]{40}$"
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Descriptive HEAD at document production time. Never a validation claim."
+    },
+    "validated_head": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Newest commit with actual validation evidence; null means none beyond the audit base."
     },
     "objective": {
       "type": "string",

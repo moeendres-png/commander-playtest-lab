@@ -170,6 +170,26 @@ def test_artifact_index_hashes(tmp_path: Path) -> None:
 def _valid_state() -> dict:
     sha = "a" * 40
     return {
+        "schema_version": "2.0",
+        "repository": "moeendres-png/commander-playtest-lab",
+        "worktree": "/tmp/wt",
+        "branch": "project/x",
+        "audit_base_sha": sha,
+        "audit_base_tree": sha,
+        "state_written_against_head": sha,
+        "validated_head": None,
+        "objective": "do the thing",
+        "in_scope": ["a"],
+        "out_of_scope": ["b"],
+        "ownership": "tester",
+        "status": "ACTIVE",
+        "exact_next_action": "next",
+    }
+
+
+def _legacy_v1_state() -> dict:
+    sha = "a" * 40
+    return {
         "schema_version": "1.0",
         "repository": "moeendres-png/commander-playtest-lab",
         "worktree": "/tmp/wt",
@@ -186,6 +206,17 @@ def _valid_state() -> dict:
     }
 
 
+def test_state_schema_v1_remains_parseable_and_migrates() -> None:
+    legacy = _legacy_v1_state()
+    assert state_mod.validate(legacy) == []
+    migrated = state_mod.migrate(legacy)
+    assert migrated["schema_version"] == "2.0"
+    assert migrated["state_written_against_head"] == "a" * 40
+    assert migrated["validated_head"] is None
+    assert "current_head" not in migrated
+    assert state_mod.validate(migrated) == []
+
+
 def test_state_schema_accepts_valid() -> None:
     assert state_mod.validate(_valid_state()) == []
 
@@ -193,10 +224,10 @@ def test_state_schema_accepts_valid() -> None:
 def test_state_schema_rejects_bad_status_and_sha() -> None:
     bad = _valid_state()
     bad["status"] = "DONE"
-    bad["current_head"] = "xyz"
+    bad["state_written_against_head"] = "xyz"
     errors = state_mod.validate(bad)
     assert any("status" in e for e in errors)
-    assert any("current_head" in e for e in errors)
+    assert any("state_written_against_head" in e for e in errors)
 
 
 def test_state_schema_rejects_missing_and_bad_class() -> None:
@@ -517,12 +548,12 @@ def test_state_head_mismatch_warns(repo: Path, tmp_path: Path) -> None:
 
     head = _git(["rev-parse", "HEAD"], repo)
     state = _valid_state()
-    state["current_head"] = head
+    state["state_written_against_head"] = head
     state_path = tmp_path / "STATE.yaml"
     state_path.write_text(_yaml.safe_dump(state), encoding="utf-8")
     assert state_mod.check_head_mismatch(str(state_path), str(repo)) == []
     bad = dict(state)
-    bad["current_head"] = "0" * 40
+    bad["state_written_against_head"] = "0" * 40
     state_path.write_text(_yaml.safe_dump(bad), encoding="utf-8")
     warnings = state_mod.check_head_mismatch(str(state_path), str(repo))
     assert any("HEAD_MISMATCH" in w for w in warnings)
