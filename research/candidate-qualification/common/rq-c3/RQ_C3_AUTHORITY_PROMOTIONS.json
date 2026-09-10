@@ -1,0 +1,551 @@
+{
+  "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+  "non_promoted": "No other assertion is promoted. Corrected Sol-directed outcomes for C01/H02/F02/A03/E02/G03 are recorded as EXTERNALLY_RULE_VALIDATED in RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json under their correction authority (not as item-10/G04/K02 promotions). Candidate conformance remains NOT_RUN everywhere.",
+  "promotions": [
+    {
+      "approved_by": "Sol High RQ-C3 G04 PROMOTE",
+      "authority": [
+        "800.4a (+ verbatim Mind Control example)",
+        "104.3a",
+        "110.2/108.3"
+      ],
+      "claims": [
+        "P0 absent; P1/P2/P3 present",
+        "Control Magic left game with owner P0",
+        "Bear on battlefield controller P1 owner P1",
+        "Zero triggered abilities created"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact packet \u00a76 assertions; no broadening; candidate behavior NOT_RUN",
+      "packet": "Q-G04",
+      "scope": "G04"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 K02 PROMOTE",
+      "authority": [
+        "704.5j",
+        "700.4",
+        "704.3",
+        "603.10/603.10a",
+        "614.1c/707.2"
+      ],
+      "claims": [
+        "Cross-controller: two Ghaltas coexist (P0 copy + P1 original); no SBA transit",
+        "Cross-controller: zero Blood Artist triggers",
+        "Gated variant: legend transit to graveyard counts as dies (700.4) so Artist fires exactly once with legally chosen target; kept remains per 704.5j"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact packet \u00a77 assertions; rejected readings (a)/(b) remain rejected; candidate behavior NOT_RUN",
+      "packet": "Q-K02",
+      "scope": "K02"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "614.1a",
+        "701.8a",
+        "700.4",
+        "603.10",
+        "400.7"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-A01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-A01",
+      "scenario": "RQ-C1-A01",
+      "scope": "Q-A01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "616.1",
+        "616.1e",
+        "616.1f",
+        "614.1c",
+        "601.2b"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-A04 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-A04",
+      "scenario": "RQ-C1-A04",
+      "scope": "Q-A04"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "603.3b",
+        "603.3a",
+        "101.4",
+        "608.1"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-B01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-B01",
+      "scenario": "RQ-C1-B01",
+      "scope": "Q-B01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "603.7a",
+        "603.7b",
+        "603.7d",
+        "400.7"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-B02 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-B02",
+      "scenario": "RQ-C1-B02",
+      "scope": "Q-B02"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "603.4",
+        "608.2a"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-B03 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-B03",
+      "scenario": "RQ-C1-B03",
+      "scope": "Q-B03"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "603.3b",
+        "603.3d",
+        "603.10",
+        "700.4",
+        "113.7a"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-B04 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-B04",
+      "scenario": "RQ-C1-B04",
+      "scope": "Q-B04"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "601.2b",
+        "601.2c",
+        "601.2d",
+        "601.2f"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-C03 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-C03",
+      "scenario": "RQ-C1-C03",
+      "scope": "Q-C03"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "118.9",
+        "118.9a",
+        "601.2b",
+        "601.2e"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-C04 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-C04",
+      "scenario": "RQ-C1-C04",
+      "scope": "Q-C04"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "700.2",
+        "700.2c",
+        "700.2d",
+        "601.2b",
+        "601.2c",
+        "608.2c",
+        "608.2n"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-D01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-D01",
+      "scenario": "RQ-C1-D01",
+      "scope": "Q-D01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "707.10",
+        "707.10c",
+        "608.2n"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-D02 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-D02",
+      "scenario": "RQ-C1-D02",
+      "scope": "Q-D02"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "608.1",
+        "608.2b",
+        "704.5g"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-D03 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-D03",
+      "scenario": "RQ-C1-D03",
+      "scope": "Q-D03"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "614.1c",
+        "707.2",
+        "603.3d",
+        "608.2b",
+        "608.2n"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-D04 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-D04",
+      "scenario": "RQ-C1-D04",
+      "scope": "Q-D04"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "601.2b",
+        "601.2c",
+        "601.2d",
+        "601.2f",
+        "704.5g"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-D05 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-D05",
+      "scenario": "RQ-C1-D05",
+      "scope": "Q-D05"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "700.2",
+        "700.2d",
+        "700.2c",
+        "601.2c",
+        "608.2c"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-D06 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-D06",
+      "scenario": "RQ-C1-D06",
+      "scope": "Q-D06"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "508.1c",
+        "508.1g",
+        "508.1h",
+        "508.1j"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-E01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-E01",
+      "scenario": "RQ-C1-E01",
+      "scope": "Q-E01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "509.1",
+        "510.1c",
+        "510.2",
+        "704.5g",
+        "704.5h",
+        "702.2b"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-E03 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-E03",
+      "scenario": "RQ-C1-E03",
+      "scope": "Q-E03"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "701.23a",
+        "701.23b",
+        "701.23e",
+        "701.24a"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-F01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-F01",
+      "scenario": "RQ-C1-F01",
+      "scope": "Q-F01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "702.37c",
+        "702.37e",
+        "116.2b",
+        "708.2",
+        "708.5",
+        "603.3d",
+        "704.5g"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-F03 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-F03",
+      "scenario": "RQ-C1-F03",
+      "scope": "Q-F03"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "701.38a",
+        "608.2c"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-G01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-G01",
+      "scenario": "RQ-C1-G01",
+      "scope": "Q-G01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "903.9a",
+        "903.8",
+        "704.3"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-G02 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-G02",
+      "scenario": "RQ-C1-G02",
+      "scope": "Q-G02"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "603.5",
+        "608.2e",
+        "608.2c"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-G05 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-G05",
+      "scenario": "RQ-C1-G05",
+      "scope": "Q-G05"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "613.1a",
+        "613.1f",
+        "613.1g",
+        "613.4b",
+        "613.7",
+        "707.2"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-H01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-H01",
+      "scenario": "RQ-C1-H01",
+      "scope": "Q-H01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "400.7",
+        "122.2",
+        "704.5m"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-I01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-I01",
+      "scenario": "RQ-C1-I01",
+      "scope": "Q-I01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "108.3",
+        "110.2",
+        "202.3",
+        "400.7",
+        "608.2c"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-I02 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-I02",
+      "scenario": "RQ-C1-I02",
+      "scope": "Q-I02"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "700.4",
+        "111.7",
+        "111.8",
+        "704.5d",
+        "603.10",
+        "118.8",
+        "601.2h"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-I03 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-I03",
+      "scenario": "RQ-C1-I03",
+      "scope": "Q-I03"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "705.1",
+        "705.2",
+        "603.1"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-J01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-J01",
+      "scenario": "RQ-C1-J01",
+      "scope": "Q-J01"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "706.1",
+        "706.3",
+        "706.3c",
+        "707.2",
+        "111.3",
+        "603.5",
+        "603.7"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-J02 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-J02",
+      "scenario": "RQ-C1-J02",
+      "scope": "Q-J02"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "701.9a",
+        "701.9b"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-J03 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-J03",
+      "scenario": "RQ-C1-J03",
+      "scope": "Q-J03"
+    },
+    {
+      "approved_by": "Sol High RQ-C3 item-10 batch promotion",
+      "authority": [
+        "700.4",
+        "603.10",
+        "603.10a",
+        "603.3a",
+        "603.3b",
+        "603.3d",
+        "701.8a"
+      ],
+      "claims": [
+        "All RQ-C2 EXPECTED_ASSERTION_REVIEW SUPPORTED_DIRECTLY terminal assertions for RQ-C1-K01 (see RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json)"
+      ],
+      "classification": "EXTERNALLY_RULE_VALIDATED",
+      "limits": "Only exact RQ-C2-classified ready claims; no adjacent/candidate/fixture/setup promotion",
+      "packet": "Q-K01",
+      "scenario": "RQ-C1-K01",
+      "scope": "Q-K01"
+    }
+  ],
+  "schema": "rq-c3.authority-promotions.v1"
+}

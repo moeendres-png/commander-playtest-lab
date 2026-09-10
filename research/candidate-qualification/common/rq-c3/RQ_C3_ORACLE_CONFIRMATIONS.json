@@ -1,0 +1,39 @@
+{
+  "confirmations": [
+    {
+      "card": "Murder",
+      "mana_cost": "{1}{B}{B}",
+      "official_page": "https://gatherer.wizards.com/ANB/en-us/53/murder",
+      "oracle_id": "938b4e2c-88d9-4637-bc00-e228920c9a78",
+      "oracle_text": "Destroy target creature.",
+      "provenance": "RQ-C2 Gatherer-direct 2026-09-10 + Scryfall crosscheck agree (see RQ_C2_ORACLE_INDEX.json)",
+      "substitution_required": false,
+      "type_line": "Instant",
+      "verification_status": "ORACLE_TEXT_VERIFIED"
+    },
+    {
+      "card": "Cultivate",
+      "mana_cost": "{2}{G}",
+      "official_page": "https://gatherer.wizards.com/M21/en-us/177/cultivate",
+      "oracle_id": "8b755881-a72d-4e21-a369-d2924eb4585a",
+      "oracle_text": "Search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle.",
+      "provenance": "RQ-C2 Gatherer-direct 2026-09-10 + Scryfall crosscheck agree (see RQ_C2_ORACLE_INDEX.json)",
+      "substitution_required": false,
+      "type_line": "Sorcery",
+      "verification_status": "ORACLE_TEXT_VERIFIED"
+    },
+    {
+      "card": "Ornithopter",
+      "mana_cost": "{0}",
+      "official_page": "https://gatherer.wizards.com/M11/en-us/211/ornithopter",
+      "oracle_id": "a3a98bc9-caa0-49b7-951c-fe4e4f54e4ba",
+      "oracle_text": "Flying",
+      "provenance": "RQ-C2 Gatherer-direct 2026-09-10 + Scryfall crosscheck agree (see RQ_C2_ORACLE_INDEX.json)",
+      "substitution_required": false,
+      "type_line": "Artifact Creature \u2014 Thopter",
+      "verification_status": "ORACLE_TEXT_VERIFIED"
+    }
+  ],
+  "note": "Adopt RQ-C2 official Gatherer-direct results. No card substitution required for those three. RQ-C3-C01 pitch card Turn to Frog reuses its RQ-C2 ORACLE_TEXT_VERIFIED record (no new Oracle work).",
+  "schema": "rq-c3.oracle-confirmations.v1"
+}

@@ -1,0 +1,203 @@
+{
+  "corrections": [
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 A03 AMEND_REQUIRED + RQ-C2 L04 (701.19a+616.1) + L03 (702.13->701.19)",
+      "parent_artifact_sha256": "81c60315ba328155bf2495f4591152e0f583d163d37f02d7e4df5953a75a4951",
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_scenario": "RQ-C3-A03",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED (no RQ-C2/Sol correction; item-10 promotion Q-A04)",
+      "parent_artifact_sha256": "c346aa91f2708b81540af1b933a546536ee9a0a42b02b9208f054e05196eafd9",
+      "parent_scenario_id": "RQ-C1-A04",
+      "rqc3_scenario": "RQ-C3-A04",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-B01)",
+      "parent_artifact_sha256": "93ac087ff322598601e0e839396c7b49cf1076b5339443503d8b119dd6323714",
+      "parent_scenario_id": "RQ-C1-B01",
+      "rqc3_scenario": "RQ-C3-B01",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 C01 AMEND_REQUIRED + RQ-C2 L02 (105.2+305.6) + L01 (118.9/601.2b)",
+      "parent_artifact_sha256": "39fa0340ef26d063adbe84bfcba6cb6806ad8bcca19a607043d36fd09ca34ba4",
+      "parent_scenario_id": "RQ-C1-C01",
+      "rqc3_scenario": "RQ-C3-C01",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-C03)",
+      "parent_artifact_sha256": "358d19048b34133a8d0223b974220609a55197628d2713fe7379f77f726e6de5",
+      "parent_scenario_id": "RQ-C1-C03",
+      "rqc3_scenario": "RQ-C3-C03",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED semantics; provenance updated: Ornithopter ORACLE_TEXT_VERIFIED + 700.2 supplied (item-10 Q-D06)",
+      "parent_artifact_sha256": "ee9310b72991ff4305e5f97d8a7186a82cd146456258dc20e629313f3a7e0a83",
+      "parent_scenario_id": "RQ-C1-D06",
+      "rqc3_scenario": "RQ-C3-D06",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-E01)",
+      "parent_artifact_sha256": "2bf1ee8a0e3abe3d90ad92a96ee9f14ce842f08f0ad4db122ad2bc50c7bf0122",
+      "parent_scenario_id": "RQ-C1-E01",
+      "rqc3_scenario": "RQ-C3-E01",
+      "setup_boundary": "PRE_STEP_NATIVE_PROGRESSION"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 E02 AMEND_REQUIRED + RQ-C2 L05 (510.1c/510.1e; no ordering) + L06 (702.19b compliant divisions)",
+      "parent_artifact_sha256": "e57aa252f453fbad2d6dfabdefd9058536e8016a0827951e202548e4ecc93aee",
+      "parent_scenario_id": "RQ-C1-E02",
+      "rqc3_scenario": "RQ-C3-E02",
+      "setup_boundary": "PRE_STEP_NATIVE_PROGRESSION"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED semantics; citation 701.19b->701.23b applied (item-10 Q-F01)",
+      "parent_artifact_sha256": "264d1c95b755e5e4a05047486dba8b7975ec47f0dc352b96dcf4447fa171a5ab",
+      "parent_scenario_id": "RQ-C1-F01",
+      "rqc3_scenario": "RQ-C3-F01",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 F02 AMEND_REQUIRED + RQ-C2 L08 (701.20a; no memory-wipe)",
+      "parent_artifact_sha256": "567f784199de3e0bb3cfae9a6564e2500cbe5bdd24371d4afbf6102e563f403e",
+      "parent_scenario_id": "RQ-C1-F02",
+      "rqc3_scenario": "RQ-C3-F02",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED semantics; Murder ORACLE_TEXT_VERIFIED + 10-mana funding obligation carried (item-10 Q-G02)",
+      "parent_artifact_sha256": "6aca709b2728bafe408e33c1991a98aa7041b414edfa25c2975a5e4afcd3bfce",
+      "parent_scenario_id": "RQ-C1-G02",
+      "rqc3_scenario": "RQ-C3-G02",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 G03 APPROVED WITH FIXTURE BOUNDARY + RQ-C2 L10 (704.5c->903.10a) + setup review G03",
+      "parent_artifact_sha256": "6dadaf809f8d5c6cd558af2e95fbb81aba6dbb50d6c9c5f2f93818fccdb68e68",
+      "parent_scenario_id": "RQ-C1-G03",
+      "rqc3_scenario": "RQ-C3-G03",
+      "setup_boundary": "PRE_DECISION_CONSTRUCTION"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 G04 PROMOTE + RQ-C2 Q_G04 packet (800.4a + verbatim Mind Control example)",
+      "parent_artifact_sha256": "3f430511a2d5aad69af77edfdc97c662454ede98c9e478b7fbb67ae983e6f430",
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_scenario": "RQ-C3-G04",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-H01)",
+      "parent_artifact_sha256": "b38d8630be786fd54775470cec1661f302258760e7b02fda06c2c33697fde1ae",
+      "parent_scenario_id": "RQ-C1-H01",
+      "rqc3_scenario": "RQ-C3-H01",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 H02 REFRAME + RQ-C2 L11 (613.4b/c + Frog rulings)",
+      "parent_artifact_sha256": "c71149bd68d6aab8772a643f4884de7475730add75a2b0f88df83088c0637965",
+      "parent_scenario_id": "RQ-C1-H02",
+      "rqc3_scenario": "RQ-C3-H02",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-I01)",
+      "parent_artifact_sha256": "f621b7a38465049ad5af126e2b46523028cd387da0cd834cc29c424faa9efbe2",
+      "parent_scenario_id": "RQ-C1-I01",
+      "rqc3_scenario": "RQ-C3-I01",
+      "setup_boundary": "NATURAL_GAME_START"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "CARRY_FORWARD_UNCHANGED (item-10 promotion Q-J02)",
+      "parent_artifact_sha256": "641e67cfd4d6240cd04749e5b0af14c5f11dbcb5cd4ebb5e56ccea71aa271578",
+      "parent_scenario_id": "RQ-C1-J02",
+      "rqc3_scenario": "RQ-C3-J02",
+      "setup_boundary": "PRE_STEP_NATIVE_PROGRESSION"
+    },
+    {
+      "authority_provenance_ref": "RQ_C2 packets + RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "behavior_credit": 0,
+      "candidate_behavior_status": "NOT_RUN",
+      "coordinator_direction_ref": "RQ_C3_COORDINATOR_ADJUDICATION.md",
+      "correction_source": "Sol High RQ-C3 K02 PROMOTE + RQ-C2 Q_K02 packet (704.5j + 700.4 + 603.10/603.10a)",
+      "parent_artifact_sha256": "c3e684e68dfb14d7ae1a59bde99713fa3d80120585bc0b6660aa889b78fc7f3e",
+      "parent_scenario_id": "RQ-C1-K02",
+      "rqc3_scenario": "RQ-C3-K02",
+      "setup_boundary": "NATURAL_GAME_START"
+    }
+  ],
+  "schema": "rq-c3.correction-application.v1"
+}

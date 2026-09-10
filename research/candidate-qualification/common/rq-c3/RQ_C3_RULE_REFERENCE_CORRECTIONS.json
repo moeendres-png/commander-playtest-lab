@@ -1,0 +1,71 @@
+{
+  "baseline": "Comprehensive Rules effective August 7, 2026 (RQ-C2 baseline; media.wizards.com 20260819 TXT, sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)",
+  "discipline": "Apply only to assertions identified in RQ-C2 (above). No global search/replace of unrelated rule references.",
+  "mappings": [
+    {
+      "affected_assertions": [
+        "RQ-C1-A03 authority packet Q-A03; RQ-C3-A03 all regeneration assertions"
+      ],
+      "corrected": "701.19 (Regenerate; 702.13=Intimidate in baseline)",
+      "rq_c1_value": "702.13 (regenerate reminder semantics)",
+      "source": "RQ-C2 L03"
+    },
+    {
+      "affected_assertions": [
+        "RQ-C1-F03 packet Q-F03"
+      ],
+      "corrected": "702.37 (Morph) + 708 + 116.2b (702.36=Fear)",
+      "rq_c1_value": "702.36 (morph)",
+      "source": "RQ-C2 L09"
+    },
+    {
+      "affected_assertions": [
+        "RQ-C1-C01 packet Q-C01; RQ-C3-C01 cost-fork assertions"
+      ],
+      "corrected": "118.9 (alternative costs) + 601.2b (announce intentions; 602=activated abilities)",
+      "rq_c1_value": "602 alternative/additional costs family",
+      "source": "RQ-C2 L01"
+    },
+    {
+      "affected_assertions": [
+        "RQ-C1-F01 packet Q-F01; RQ-C3-F01 search assertions"
+      ],
+      "corrected": "701.23b (hidden-zone stated-quality search may fail to find; 701.19b=static regenerate)",
+      "rq_c1_value": "701.19b for fail-to-find",
+      "source": "RQ-C2 L07"
+    },
+    {
+      "affected_assertions": [
+        "RQ-C1-G03 packet Q-G03; RQ-C3-G03 loss assertions"
+      ],
+      "corrected": "903.10a (21+ combat damage from same commander = SBA loss; 704.5c=poison)",
+      "rq_c1_value": "commander-damage loss (proposed 704.5c-adjacent)",
+      "source": "RQ-C2 L10"
+    },
+    {
+      "affected_assertions": [
+        "RQ-C1-G01 packet Q-G01"
+      ],
+      "corrected": "701.38a (vote in turn order)",
+      "rq_c1_value": "will-of-council voting (proposed, no number)",
+      "source": "RQ-C2 L12"
+    },
+    {
+      "affected_assertions": [
+        "RQ-C1-D01, RQ-C1-D06 packets Q-D01/Q-D06; RQ-C3-D06 mode assertions"
+      ],
+      "corrected": "700.2 / 700.2c / 700.2d (modal spells/abilities)",
+      "rq_c1_value": "modal-spell rules (proposed section only)",
+      "source": "RQ-C2 L13"
+    },
+    {
+      "affected_assertions": [
+        "RQ-C1-J03 packet Q-J03"
+      ],
+      "corrected": "701.9a/701.9b (random-discard exception)",
+      "rq_c1_value": "at-random selection from hidden zone (proposed)",
+      "source": "RQ-C2 L14"
+    }
+  ],
+  "schema": "rq-c3.rule-reference-corrections.v1"
+}
