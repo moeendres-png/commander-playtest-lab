@@ -1,6 +1,7 @@
 # Commander Simulator Next — OpenCode/Muse Technical Decision Authority
 
-Status: COORDINATOR_POLICY_PENDING_CONSOLIDATION
+POLICY = ACTIVE
+EXECUTION_SYSTEM_INTEGRATION = PENDING_PR172_MERGE
 Date: 2026-09-10
 
 This document records the current Coordinator authority model for OpenCode Go + Muse Spark 1.3 Contributor. It is governance/coordination only. It does not claim Architecture Freeze or select a Production Provider.
@@ -115,7 +116,11 @@ The adjudicator should be able to inspect repository state, Git history, logs, t
 
 ## Current integration state
 
-This policy should be folded into the existing local execution-system consolidation workstream rather than implemented through a competing governance branch.
+POLICY = ACTIVE. EXECUTION_SYSTEM_INTEGRATION = PENDING_PR172_MERGE: the
+consolidation line below is not canonical on `main` until PR #172 merges.
+Do not claim the execution system is canonical on `main` before merge.
+
+This policy is folded into the existing local execution-system consolidation workstream rather than implemented through a competing governance branch.
 
 Expected consolidation line from the latest handoff:
 - branch: project/opencode-execution-system-consolidation-20260910

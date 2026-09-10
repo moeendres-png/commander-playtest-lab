@@ -1,0 +1,232 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Foundry Workstream State",
+  "description": "Operational continuation index for one workstream. Not Source Authority; Git/test/evidence reality wins on conflict.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "repository",
+    "worktree",
+    "branch",
+    "audit_base_sha",
+    "audit_base_tree",
+    "current_head",
+    "objective",
+    "in_scope",
+    "out_of_scope",
+    "ownership",
+    "status",
+    "exact_next_action"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "worktree": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "audit_base_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "audit_base_tree": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "current_head": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "in_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ownership": {
+      "type": "string"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hard_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_shortcuts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "validated_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "failed_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "invalidated_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "do_not_rerun": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "current_failure": {
+      "type": "string"
+    },
+    "failure_class": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "ENGINE_DEFECT",
+        "PROVIDER_ADAPTER_DEFECT",
+        "HARNESS_DEFECT",
+        "FIXTURE_DEFECT",
+        "EVIDENCE_PIPELINE_DEFECT",
+        "INFRASTRUCTURE_DEFECT",
+        "UPSTREAM_DEFECT",
+        "UNKNOWN"
+      ]
+    },
+    "current_hypothesis": {
+      "type": "string"
+    },
+    "files_modified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tests_run": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "remaining_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "WAITING",
+        "BLOCKED",
+        "STALE",
+        "SUPERSEDED",
+        "COMPLETE"
+      ]
+    },
+    "technical_decision_authority": {
+      "type": "string",
+      "description": "Default AUTONOMOUS_WITHIN_CONTRACT; technical decisions are owned in-scope."
+    },
+    "current_reasoning_tier": {
+      "type": "string",
+      "enum": [
+        "high",
+        "xhigh"
+      ]
+    },
+    "hypotheses_rejected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "technical_decisions": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "authority_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "first_failing_boundary": {
+      "type": "string"
+    },
+    "root_cause_class": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "ENGINE_DEFECT",
+        "PROVIDER_ADAPTER_DEFECT",
+        "HARNESS_DEFECT",
+        "FIXTURE_DEFECT",
+        "EVIDENCE_PIPELINE_DEFECT",
+        "INFRASTRUCTURE_DEFECT",
+        "UPSTREAM_DEFECT",
+        "UNKNOWN"
+      ]
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Short operational pointer; exact_next_action remains binding."
+    },
+    "exact_next_action": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}
