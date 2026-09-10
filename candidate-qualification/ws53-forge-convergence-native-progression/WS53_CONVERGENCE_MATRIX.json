@@ -1,1 +1,156 @@
-{"adjudication_status":"DRAFT_PENDING_XHIGH","class_totals":{"ALREADY_PRESENT_EQUIVALENT":0,"EVIDENCE_ONLY_NO_PORT":2,"SAFE_ORTHOGONAL_PORT":5,"SEMANTIC_CONFLICT":0,"SUPERSEDED_BY_WS48_REPAIR01":3,"SUPERSEDED_BY_WS51":1,"UNKNOWN":0},"delta_count":11,"deltas":[{"affected_files":["candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py"],"class":"SUPERSEDED_BY_WS48_REPAIR01","id":"WS50-D01","interaction_repair01":"Direct collision: WS50 copy carries the pre-Repair-01 double-add plus absent guards. Current tree has the strictly stronger port (zero-add projection + cardinality guard + index range check + priority_binding record). Porting this hunk would resurrect the exact resurrected-forbidden failure.","interaction_ws51":"None (WS51 additive-only, no overlay contact).","originating_commit":"lineage artifact of fork at 10a7f8f6 (pre-Repair-01); visible as f8bd8b2d..e636e705 diff hunk","requalification_required":false,"semantic_purpose":"(Apparent) WS48 overlay state in WS50 lineage: extra nativeOptions.add(sa), no cardinality/binding guards"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_provider_overlay.py (PRIORITY_DOUBLE_ADD hunk)"],"class":"SUPERSEDED_BY_WS48_REPAIR01","id":"WS50-D02","interaction_repair01":"Same invariant, weaker form (single-add restore only, no guards). Anchor text (doubled add) does not exist in current-tree overlay output; hunk MUST be omitted from the WS53 chained overlay (fail-loud if ever matched).","interaction_ws51":"None.","originating_commit":"c3864218 (WS50-ADAPTER-REPAIR-01, Checkpoint C)","requalification_required":false,"semantic_purpose":"WS50 chained single-add repair"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_provider_overlay.py (DISCARD hunk)"],"class":"SAFE_ORTHOGONAL_PORT","id":"WS50-D03","interaction_repair01":"None: touches chooseCardsToDiscardToMaximumHandSize only; priority path untouched. Reuses WS48:OPT label grammar + ws48Enc/ws48CardRef/ws48Choose helpers already present post-WS48-overlay.","interaction_ws51":"None: WS51 touched no frame/transport surfaces (HIDDEN_INFO_IMPACT=NO_IMPACT).","originating_commit":"c3864218 (Checkpoint C; discard transport upgrade)","requalification_required":true,"semantic_purpose":"Per-card WS48:OPT labeled discard transport replacing unbindable NATIVE_OPTION labels; zero/ambiguous still fail closed harness-side"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_provider_overlay.py (frame-metadata hunks: CHOOSE/OPTS/STATIC_HELPERS)"],"class":"SAFE_ORTHOGONAL_PORT","id":"WS50-D04","interaction_repair01":"Additive DECISION_FRAME payload fields only (frame_seq, cancel_offered, rng, state_snapshot/fingerprint, per-principal observations+fingerprints); old drivers ignore unknown fields. Anchors (choose() def, DECISION_FRAME emitter, esc() helper) outside Repair-01 regions; anchor presence re-verified at build time (fail-loud).","interaction_ws51":"New provider-side observation projection surface (WS48 had none per-frame). Hidden-info impact is ADDITIVE (new emitted views), so C4 targeted adversary rerun is required; cannot claim NO_IMPACT without it.","originating_commit":"c3864218 (Checkpoint C), metadata consumed by runner/replay/static gates","requalification_required":true,"semantic_purpose":"Authoritative external Decision frames: engine sequence number, decline-offer flag, RNG identity, state snapshot, redacted principal observations"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_sequence_runner.py (driver core: WS50Driver, ws50_answer incl. declare subject-scoping, KIND_FAMILIES, journal/replay comparator, finish/classify taxonomy)"],"class":"SAFE_ORTHOGONAL_PORT","id":"WS50-D05","interaction_repair01":"Orthogonal: consumes priority_binding-capable provider; relies on exact native binding but does not reimplement it. Base Driver API verified present in current tree.","interaction_ws51":"Core is entry-mode agnostic; entry-mode BINDING (BASE_FIXTURE/INTENT_B scenario-B selection) is split out into WS50-D06.","originating_commit":"ac7c5c5a (A), 504f9a4a (B), c3864218 (C), e636e705 (D subject-scoping + front-position probes)","requalification_required":true,"semantic_purpose":"External-pilot sequence driver: strict native-option binding (zero/multi fail closed), structural PASS waiting, per-frame observation audit, semantic replay, negative probes"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_sequence_runner.py (BASE_FIXTURE WS50-B-ATTACK selection + INTENT_B; NATIVE_STATE_LOAD/PILOT_CHOOSE_MODE credited use)"],"class":"SUPERSEDED_BY_WS51","id":"WS50-D06","interaction_repair01":"None.","interaction_ws51":"Direct: WS51 RESTORE_PATH_REJECTED covers continuation from frozen/restored state at/after decision-bearing steps. Scenario-B setup (NATIVE_STATE_LOAD) is restore-adjacent; its credited use is closed. Retained only as non-credited diagnostic reference (e.g. negative-probe mechanics), never as native-progression witness. Pending XHIGH confirmation.","originating_commit":"504f9a4a (Checkpoint B)","requalification_required":false,"semantic_purpose":"State-load-seeded attack/blocker/target sequence (8 kinds, 92 frames)"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_sequence_runner.py (scenario-C mechanics: PILOT_MULLIGAN NATURAL_GAME_START + intent-file override path + INTENT_C)"],"class":"SAFE_ORTHOGONAL_PORT","id":"WS50-D07","interaction_repair01":"None.","interaction_ws51":"Aligned: NATURAL_GAME_START with real shuffle/startup/mulligans is precisely the WS51-recommended replacement shape (restore strictly pre-decision / natural start; engine enters decisions). WS53 native-progression witness builds on this path with fresh intent.","originating_commit":"c3864218 (Checkpoint C)","requalification_required":true,"semantic_purpose":"Fully native construction + multi-turn sequence (495 frames, 9 kinds) from natural game start"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_static_gates.py"],"class":"SAFE_ORTHOGONAL_PORT","id":"WS50-D08","interaction_repair01":"None (static audit + journal controls; no engine contact).","interaction_ws51":"None.","originating_commit":"e636e705 (Checkpoint D)","requalification_required":true,"semantic_purpose":"Forbidden-fallback audit + hidden-info adversary positive/negative controls; paths adapted to WS53 layout, run on fresh journals","note":"--root default points at WS50 worktree; WS53 port takes explicit paths"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/ws50_build_checkpoint_a.sh","candidate-qualification/ws50-forge-decision-sequence/ws50_build_sequence.sh"],"class":"EVIDENCE_ONLY_NO_PORT","id":"WS50-D09","interaction_repair01":"Build chain order (WS48 overlay then chained overlay) reused; WS53 authors its own build script with WS53 paths + adapted overlay step. No blind copy (absolute worktree paths differ).","interaction_ws51":"None.","originating_commit":"ac7c5c5a, c3864218","requalification_required":true,"semantic_purpose":"Provider build chains (generate -> overlays -> javac against pinned prebuilt classes)","note":"Mechanism donor for WS53 build script; scripts themselves not copied verbatim"},{"affected_files":["candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_A_SOURCE_LOCK.json","candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_B_SUMMARY.json","candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_C_SUMMARY.json","candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_D_SUMMARY.json","candidate-qualification/ws50-forge-decision-sequence/ev-checkpoint-a/*","candidate-qualification/ws50-forge-decision-sequence/ev-sequence/*.json","candidate-qualification/ws50-forge-decision-sequence/ev-sequence/*.txt"],"class":"EVIDENCE_ONLY_NO_PORT","id":"WS50-D10","interaction_repair01":"Authoritative only on WS50 source lock; guides WS53 test design (kinds, negatives, replay method, digests as shape reference). No runtime credit transfer (fresh-evidence rule).","interaction_ws51":"PRIMARY_SLICE=PASS retained as historical conclusion; restore_path OPEN item closed by WS51 against restore-continuation architecture.","originating_commit":"ac7c5c5a, 504f9a4a, c3864218, e636e705","requalification_required":false,"semantic_purpose":"All WS50 journals, digests, summaries"},{"affected_files":["tests/qualification/test_ws48_repair01_selection_execution.py (absent in WS50 lineage)"],"class":"SUPERSEDED_BY_WS48_REPAIR01","id":"WS50-D11","interaction_repair01":"The test guards Repair-01, which postdates the WS50 fork; absence is a fork artifact. Current tree RETAINS the test; it forms part of C1 static evidence. Deletion is not ported.","interaction_ws51":"None.","originating_commit":"lineage artifact (file created in 3ae62299, post-fork)","requalification_required":true,"semantic_purpose":"R1f regression test (14 tests); retained and rerun in WS53"}]}
+{
+  "adjudication_status": "ADJUDICATED_PASS_WITH_BINDING_CORRECTIONS_2026-09-10",
+  "class_totals": {
+    "ALREADY_PRESENT_EQUIVALENT": 0,
+    "EVIDENCE_ONLY_NO_PORT": 2,
+    "SAFE_ORTHOGONAL_PORT": 5,
+    "SEMANTIC_CONFLICT": 0,
+    "SUPERSEDED_BY_WS48_REPAIR01": 3,
+    "SUPERSEDED_BY_WS51": 1,
+    "UNKNOWN": 0
+  },
+  "delta_count": 11,
+  "deltas": [
+    {
+      "affected_files": [
+        "candidate-qualification/ws48-forge-v1.0.5/ws48_behavior_provider_overlay.py"
+      ],
+      "class": "SUPERSEDED_BY_WS48_REPAIR01",
+      "id": "WS50-D01",
+      "interaction_repair01": "Direct collision: WS50 copy carries the pre-Repair-01 double-add plus absent guards. Current tree has the strictly stronger port (zero-add projection + cardinality guard + index range check + priority_binding record). Porting this hunk would resurrect the exact resurrected-forbidden failure.",
+      "interaction_ws51": "None (WS51 additive-only, no overlay contact).",
+      "originating_commit": "lineage artifact of fork at 10a7f8f6 (pre-Repair-01); visible as f8bd8b2d..e636e705 diff hunk",
+      "requalification_required": false,
+      "semantic_purpose": "(Apparent) WS48 overlay state in WS50 lineage: extra nativeOptions.add(sa), no cardinality/binding guards"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_provider_overlay.py (PRIORITY_DOUBLE_ADD hunk)"
+      ],
+      "class": "SUPERSEDED_BY_WS48_REPAIR01",
+      "id": "WS50-D02",
+      "interaction_repair01": "Same invariant, weaker form (single-add restore only, no guards). Anchor text (doubled add) does not exist in current-tree overlay output; hunk MUST be omitted from the WS53 chained overlay (fail-loud if ever matched).",
+      "interaction_ws51": "None.",
+      "originating_commit": "c3864218 (WS50-ADAPTER-REPAIR-01, Checkpoint C)",
+      "requalification_required": false,
+      "semantic_purpose": "WS50 chained single-add repair"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_provider_overlay.py (DISCARD hunk)"
+      ],
+      "class": "SAFE_ORTHOGONAL_PORT",
+      "id": "WS50-D03",
+      "interaction_repair01": "None: touches chooseCardsToDiscardToMaximumHandSize only; priority path untouched. Reuses WS48:OPT label grammar + ws48Enc/ws48CardRef/ws48Choose helpers already present post-WS48-overlay.",
+      "interaction_ws51": "None: WS51 touched no frame/transport surfaces (HIDDEN_INFO_IMPACT=NO_IMPACT).",
+      "originating_commit": "c3864218 (Checkpoint C; discard transport upgrade)",
+      "requalification_required": true,
+      "semantic_purpose": "Per-card WS48:OPT labeled discard transport replacing unbindable NATIVE_OPTION labels; zero/ambiguous still fail closed harness-side"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_provider_overlay.py (frame-metadata hunks: CHOOSE/OPTS/STATIC_HELPERS)"
+      ],
+      "class": "SAFE_ORTHOGONAL_PORT",
+      "id": "WS50-D04",
+      "interaction_repair01": "Additive DECISION_FRAME payload fields only (frame_seq, cancel_offered, rng, state_snapshot/fingerprint, per-principal observations+fingerprints); old drivers ignore unknown fields. Anchors (choose() def, DECISION_FRAME emitter, esc() helper) outside Repair-01 regions; anchor presence re-verified at build time (fail-loud).",
+      "interaction_ws51": "New provider-side observation projection surface (WS48 had none per-frame). Hidden-info impact is ADDITIVE (new emitted views), so C4 targeted adversary rerun is required; cannot claim NO_IMPACT without it.",
+      "originating_commit": "c3864218 (Checkpoint C), metadata consumed by runner/replay/static gates",
+      "requalification_required": true,
+      "semantic_purpose": "Authoritative external Decision frames: engine sequence number, decline-offer flag, RNG identity, state snapshot, redacted principal observations"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_sequence_runner.py (driver core: WS50Driver, ws50_answer incl. declare subject-scoping, KIND_FAMILIES, journal/replay comparator, finish/classify taxonomy)"
+      ],
+      "class": "SAFE_ORTHOGONAL_PORT",
+      "id": "WS50-D05",
+      "interaction_repair01": "Orthogonal: consumes priority_binding-capable provider; relies on exact native binding but does not reimplement it. Base Driver API verified present in current tree.",
+      "interaction_ws51": "Core is entry-mode agnostic; entry-mode BINDING (BASE_FIXTURE/INTENT_B scenario-B selection) is split out into WS50-D06.",
+      "originating_commit": "ac7c5c5a (A), 504f9a4a (B), c3864218 (C), e636e705 (D subject-scoping + front-position probes)",
+      "requalification_required": true,
+      "semantic_purpose": "External-pilot sequence driver: strict native-option binding (zero/multi fail closed), structural PASS waiting, per-frame observation audit, semantic replay, negative probes"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_sequence_runner.py (BASE_FIXTURE WS50-B-ATTACK selection + INTENT_B; NATIVE_STATE_LOAD/PILOT_CHOOSE_MODE credited use)"
+      ],
+      "class": "SUPERSEDED_BY_WS51",
+      "id": "WS50-D06",
+      "interaction_repair01": "None.",
+      "interaction_ws51": "Direct: WS51 RESTORE_PATH_REJECTED covers continuation from frozen/restored state at/after decision-bearing steps. Scenario-B setup (NATIVE_STATE_LOAD) is restore-adjacent; its credited use is closed. Retained only as non-credited diagnostic reference (e.g. negative-probe mechanics), never as native-progression witness. Pending XHIGH confirmation.",
+      "originating_commit": "504f9a4a (Checkpoint B)",
+      "requalification_required": false,
+      "semantic_purpose": "State-load-seeded attack/blocker/target sequence (8 kinds, 92 frames)"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_sequence_runner.py (scenario-C mechanics: PILOT_MULLIGAN NATURAL_GAME_START + intent-file override path + INTENT_C)"
+      ],
+      "class": "SAFE_ORTHOGONAL_PORT",
+      "id": "WS50-D07",
+      "interaction_repair01": "None.",
+      "interaction_ws51": "Aligned: NATURAL_GAME_START with real shuffle/startup/mulligans is precisely the WS51-recommended replacement shape (restore strictly pre-decision / natural start; engine enters decisions). WS53 native-progression witness builds on this path with fresh intent.",
+      "originating_commit": "c3864218 (Checkpoint C)",
+      "requalification_required": true,
+      "semantic_purpose": "Fully native construction + multi-turn sequence (495 frames, 9 kinds) from natural game start"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_static_gates.py"
+      ],
+      "class": "SAFE_ORTHOGONAL_PORT",
+      "id": "WS50-D08",
+      "interaction_repair01": "None (static audit + journal controls; no engine contact).",
+      "interaction_ws51": "None.",
+      "note": "--root default points at WS50 worktree; WS53 port takes explicit paths",
+      "originating_commit": "e636e705 (Checkpoint D)",
+      "requalification_required": true,
+      "semantic_purpose": "Forbidden-fallback audit + hidden-info adversary positive/negative controls; paths adapted to WS53 layout, run on fresh journals"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_build_checkpoint_a.sh",
+        "candidate-qualification/ws50-forge-decision-sequence/ws50_build_sequence.sh"
+      ],
+      "class": "EVIDENCE_ONLY_NO_PORT",
+      "id": "WS50-D09",
+      "interaction_repair01": "Build chain order (WS48 overlay then chained overlay) reused; WS53 authors its own build script with WS53 paths + adapted overlay step. No blind copy (absolute worktree paths differ).",
+      "interaction_ws51": "None.",
+      "note": "Mechanism donor for WS53 build script; scripts themselves not copied verbatim",
+      "originating_commit": "ac7c5c5a, c3864218",
+      "requalification_required": true,
+      "semantic_purpose": "Provider build chains (generate -> overlays -> javac against pinned prebuilt classes)"
+    },
+    {
+      "affected_files": [
+        "candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_A_SOURCE_LOCK.json",
+        "candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_B_SUMMARY.json",
+        "candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_C_SUMMARY.json",
+        "candidate-qualification/ws50-forge-decision-sequence/WS50_CHECKPOINT_D_SUMMARY.json",
+        "candidate-qualification/ws50-forge-decision-sequence/ev-checkpoint-a/*",
+        "candidate-qualification/ws50-forge-decision-sequence/ev-sequence/*.json",
+        "candidate-qualification/ws50-forge-decision-sequence/ev-sequence/*.txt"
+      ],
+      "class": "EVIDENCE_ONLY_NO_PORT",
+      "id": "WS50-D10",
+      "interaction_repair01": "Authoritative only on WS50 source lock; guides WS53 test design (kinds, negatives, replay method, digests as shape reference). No runtime credit transfer (fresh-evidence rule).",
+      "interaction_ws51": "PRIMARY_SLICE=PASS retained as historical conclusion; restore_path OPEN item closed by WS51 against restore-continuation architecture.",
+      "originating_commit": "ac7c5c5a, 504f9a4a, c3864218, e636e705",
+      "requalification_required": false,
+      "semantic_purpose": "All WS50 journals, digests, summaries"
+    },
+    {
+      "affected_files": [
+        "tests/qualification/test_ws48_repair01_selection_execution.py (absent in WS50 lineage)"
+      ],
+      "class": "SUPERSEDED_BY_WS48_REPAIR01",
+      "id": "WS50-D11",
+      "interaction_repair01": "The test guards Repair-01, which postdates the WS50 fork; absence is a fork artifact. Current tree RETAINS the test; it forms part of C1 static evidence. Deletion is not ported.",
+      "interaction_ws51": "None.",
+      "originating_commit": "lineage artifact (file created in 3ae62299, post-fork)",
+      "requalification_required": true,
+      "semantic_purpose": "R1f regression test (14 tests); retained and rerun in WS53"
+    }
+  ]
+}

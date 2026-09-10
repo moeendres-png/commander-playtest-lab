@@ -1,8 +1,8 @@
 audit_base_sha: 66d5aa44a45cb574cabba2853de149c032e7942e
 audit_base_tree: 3025858d8de706029fa3a9a27920ace51ba35cd0
 branch: ws53/forge-convergence-native-progression-20260910
-exact_next_action: Commit Milestone A (source lock + draft convergence matrix), then invoke
-  foundry-adjudicator XHIGH on the convergence plan before any WS50-derived port.
+exact_next_action: Implement WS53 ports (overlay, runner, gates, build script) per adjudicated
+  authorized list; then C1 static gate + pytest on converged provider build.
 in_scope:
 - Converge WS50 Decision-sequence mechanisms into repaired WS48/WS51 lineage (semantic,
   no history operations)
@@ -49,8 +49,8 @@ decisions:
 - 2026-09-10: WS48 R1f test + evidence retained (WS50 absence is a pre-Repair-01 fork
   artifact, not a semantic delta to port).
 milestones:
-  A_source_lock_inventory: IN_PROGRESS
-  B_xhigh_adjudication: PENDING
+  A_source_lock_inventory: COMPLETED
+  B_xhigh_adjudication: COMPLETED_VERDICT_PASS_WITH_BINDING_CORRECTIONS
   C_converged_implementation: PENDING
   D_selection_decision_regression: PENDING
   E_native_progression: PENDING
