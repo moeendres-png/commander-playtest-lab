@@ -1,0 +1,102 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/rq-c3-rules-authority-closure
+branch: research/rules-authority-closure-rq-c3-20260910
+audit_base_sha: fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8
+audit_base_tree: 7abcb331fd378a9663bd9222eb8135ad34dff102
+objective: RQ-C3 Rules Authority Closure + corrected execution pack (immutable candidate-neutral derivative of RQ-C1/RQ-C2 with Sol High adjudication; 15-scenario First Wave; no candidate execution)
+in_scope:
+- research/candidate-qualification/common/rq-c3/** only (corrected scenarios, manifests, execution pack, decision/hidden/setup/authority layers, validators, reports)
+- RQ-C1/RQ-C2 read-only as provenance (byte-identical; no mutation)
+- Sol High section-3 directions implemented mechanically (C01/H02/F02/A03/E02/G03/G04/K02 + oracle flags + rule refs + item-10)
+out_of_scope:
+- RQ-C1 modification (forbidden)
+- RQ-C2 modification (forbidden)
+- Any candidate execution (Forge/XMage/Argentum) (forbidden)
+- Full107 (NOT_RUN)
+- Production Repository creation, provider selection, Architecture Freeze claims
+ownership: RQ-C3-RULES-AUTHORITY-CLOSURE session (branch research/rules-authority-closure-rq-c3-20260910)
+dependencies:
+- RQ-C1 parent HEAD 714ad417c1c090eb4ddf1ccd0828a2e869a80a74 / TREE 709a5944c9826dbaaa433052f3538425c8f0573b
+- RQ-C2 parent HEAD fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8 / TREE 7abcb331fd378a9663bd9222eb8135ad34dff102
+- Official CR baseline effective 2026-08-07 (RQ-C2 captured; sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f)
+- Gatherer Oracle direct pages retrieved 2026-09-10 (11 cards; RQ-C2 index)
+hard_gates:
+- model stays opencode-go/muse-spark-1.3-contributor; HIGH default
+- Rules Authority and Evidence semantics preserved verbatim
+- No second Rules Engine (no layer/combat/cost/replacement/Commander solver)
+- No test/assertion weakening to obtain green
+- No push/merge/rebase/PR without approval
+- No secrets in prompts/logs/evidence/commits
+forbidden_shortcuts:
+- first/random/default/AI/GUI/silent-skip/parent fallbacks
+- fabricated legal actions or manual outcome injection
+- second hidden Rules Engine in any helper or validator
+- UNKNOWN/PARTIAL/NOT_RUN promoted to PASS
+- Island-as-blue pitch; PATH_A 1/1; private-only Duress reveal; fabricated A03 may; obsolete E02 ordering; overbroad promotion
+validated_gates:
+- RQ-C1 byte-identical (validator: git status/diff clean for rq-c1/)
+- RQ-C2 byte-identical (validator: git status/diff clean for rq-c2/)
+- exactly 15 First-Wave IDs, no duplicates, files match manifest
+- C01 corrected (Turn to Frog blue nonland pitch; 5 Islands mana; NORMAL+ALTERNATE routes; hidden-zone selection)
+- A03 corrected (no may at destruction)
+- E02 corrected (no ordering; 2/1/4 retained)
+- F02 corrected (reveal PUBLIC TO ALL; retained knowledge not leak)
+- H02 corrected (both 4/4; sublayer reverser)
+- G03 fixture boundary (PRE_DECISION_CONSTRUCTION; BEHAVIOR_CREDIT=0)
+- G04/K02 promotion scope matches packets; item-10 exact 29; no overbroad promotion
+- rule-ref mappings consistent (5 corrections + 3 supplied; applied only to RQ-C2-identified assertions)
+- parent hashes match; candidate NOT_RUN + credit 0; deterministic rebuild
+- 6 negative controls rejected (Island-as-pitch, A03 may, E02 ordering, H02 1/1, F02 private-only, overbroad promotion)
+failed_gates: []
+invalidated_gates: []
+do_not_rerun:
+- RQ-C1/RQ-C2 hash verification unless drift (immutable for this workstream; reverify only on drift)
+current_failure: NONE
+failure_class: NONE
+current_hypothesis: Corrected 15-scenario First Wave mechanically complete; every execution assertion has explicit authority; validator green; ready for Coordinator gate answers.
+files_modified:
+- research/candidate-qualification/common/rq-c3/RQ_C3_SOURCE_LOCK.md
+- research/candidate-qualification/common/rq-c3/RQ_C3_COORDINATOR_ADJUDICATION.md
+- research/candidate-qualification/common/rq-c3/RQ_C3_PARENT_HASHES.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_PARENT_IMMUTABILITY.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_CORRECTION_APPLICATION.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_AUTHORITY_PROMOTIONS.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_RULE_REFERENCE_CORRECTIONS.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_ORACLE_CONFIRMATIONS.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_CORRECTED_SCENARIO_MANIFEST.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_CORRECTED_SCENARIO_MANIFEST.csv
+- research/candidate-qualification/common/rq-c3/RQ_C3_FIRST_WAVE_EXECUTION_PACK.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_FIRST_WAVE_DECISION_REQUIREMENTS.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_DECISION_REQUIREMENT_DELTA.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_HIDDEN_INFO_EXPECTATIONS.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_SETUP_BOUNDARIES.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_EXECUTION_ASSERTION_AUTHORITY.json
+- research/candidate-qualification/common/rq-c3/RQ_C3_FINAL_REPORT.md
+- research/candidate-qualification/common/rq-c3/WORKSTREAM_STATE.yaml
+- research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-*.json (18 files)
+- research/candidate-qualification/common/rq-c3/validate_rqc3.py
+tests_run:
+- python3 research/candidate-qualification/common/rq-c3/validate_rqc3.py (PASS all checks incl. 6 negative controls)
+evidence:
+- DIRECTLY_VERIFIED: branch/HEAD/tree/status, RQ-C1/RQ-C2 HEADs/TREEs, per-file sha256/git-blob hashes, CR baseline sha, Gatherer page list via RQ-C2 index, validator PASS output
+- EXTERNALLY_RULE_VALIDATED: Sol-approved expected outcomes only (corrected C01/H02/F02/A03/E02/G03 terminals+events; G04 packet 4 claims; K02 packet 3 claims; item-10 29-packet SUPPORTED_DIRECTLY terminals)
+- MODELED: PRE_DECISION_CONSTRUCTION seeded ledger (BEHAVIOR_CREDIT=0) + future candidate conformance (NOT_RUN)
+- UNKNOWN: any unlisted assertion (fail closed)
+- No TECHNICALLY_CONFORMANT awarded; BEHAVIOR_CREDIT_CHANGE=0
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+hypotheses_rejected: []
+technical_decisions:
+- Turn to Frog selected as C01 blue nonland pitch fuel: only RQ-C2 ORACLE_TEXT_VERIFIED blue nonland card ({1}{U} Instant; color blue per 105.2); text not invoked when exiled as cost; avoids new Oracle provenance with no benefit. Alternatives (Willbender/Clone/Twincast/Cryptic) rejected as only SCRYFALL_CROSSCHECK_CONSISTENT.
+- K02 gated variant carried as promoted second path (exact packet §7 assertions) rather than withheld: Sol High K02 PROMOTE covers documented 704.5j/700.4 pack which includes variant reading; scope not broadened.
+- All 18 corrected terminals classified EXTERNALLY_RULE_VALIDATED (Sol-approved) with candidate_conformance NOT_RUN; only seeded construction classified MODELED; unlisted stays UNKNOWN. No overbroad promotion.
+- Validator active-field scoping for historical quotations (retired defect phrases in notes/directions allowed; active semantic fields must be clean).
+authority_gates: []
+first_failing_boundary: NONE
+root_cause_class: NONE
+status: ACTIVE
+next_action: 'Terminal: seal evidence, commit checkpoints, hand off with RULES_AUTHORITY_CLOSURE_PASS.'
+exact_next_action: Run validate_rqc3.py green, verify git diff scoped to rq-c3/ only, make focused local commits per persistence checkpoints, return full handoff with terminal verdict and dependency answers.
+state_written_against_head: fb7d493e6b04a59d09bc43d1de3cd8c2eaf59bc8
+validated_head: null
