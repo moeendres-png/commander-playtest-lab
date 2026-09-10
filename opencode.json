@@ -6,10 +6,38 @@
   "instructions": ["docs/foundry-execution/ROUTING_AND_EFFORT.md"],
   "enabled_providers": ["opencode-go"],
   "permission": {
-    "read": "allow",
-    "glob": "allow",
-    "grep": "allow",
-    "list": "allow",
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/*.env": "deny",
+      "**/*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "glob": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/*.env": "deny",
+      "**/*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "grep": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/*.env": "deny",
+      "**/*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "list": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/*.env": "deny",
+      "**/*.env.*": "deny",
+      "*.env.example": "allow"
+    },
     "lsp": "allow",
     "webfetch": "allow",
     "websearch": "allow",
@@ -20,7 +48,10 @@
     "edit": {
       "*": "allow",
       "*.env": "deny",
-      "*.env.*": "deny"
+      "*.env.*": "deny",
+      "**/*.env": "deny",
+      "**/*.env.*": "deny",
+      "*.env.example": "allow"
     },
     "bash": {
       "*": "ask",
@@ -34,13 +65,15 @@
       "git ls-files*": "allow",
       "git ls-tree*": "allow",
       "git for-each-ref*": "allow",
+      "git add*": "allow",
+      "git commit*": "allow",
       "pytest*": "allow",
       "python*": "allow",
       "ruff*": "allow",
       "mypy*": "allow",
       "gh run view*": "allow",
       "gh run list*": "allow",
-      "gh api*": "allow",
+      "gh api*": "ask",
       "git push*": "ask",
       "git merge*": "ask",
       "git rebase*": "ask",
@@ -59,7 +92,7 @@
     },
     "external_directory": {
       "*": "ask",
-      "/home/moeen/code/*": "allow",
+      "/home/moeen/code/*": "ask",
       "/tmp/*": "allow"
     }
   },

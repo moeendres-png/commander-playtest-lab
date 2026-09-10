@@ -17,13 +17,16 @@ permission:
     "git ls-tree*": allow
     "git for-each-ref*": allow
     "git fetch*": allow
-    "pytest*": allow
-    "python*": allow
-    "ruff*": allow
+    "pytest*": ask
+    "python*": ask
+    "python3*": ask
+    "ruff*": ask
     "mypy*": allow
     "gh run view*": allow
     "gh run list*": allow
-    "gh api*": allow
+    "gh api*": ask
+    "git add*": deny
+    "git commit*": deny
     "git push*": deny
     "git merge*": deny
     "git rebase*": deny
@@ -56,8 +59,10 @@ Operating rules:
    logs, artifacts, tests, and contracts before forming hypotheses.
 2. Form one or more hypotheses, then actively search for contradictory evidence
    before concluding. Challenge your own leading hypothesis at least once.
-3. Run only non-destructive targeted validation (tests, read-only probes,
-   bounded reproductions that change no production-reachable semantics). You
+3. Run only non-destructive targeted validation (read-only probes, bounded
+   reproductions that change no production-reachable semantics). Executing
+   interpreters or test runners is approval-gated for you: request approval
+   rather than representing a test run as side-effect free. You
    cannot edit files: route authorized remediation to `foundry-implementer` or
    an explicitly write-enabled bounded workstream instead of widening your own
    permissions.

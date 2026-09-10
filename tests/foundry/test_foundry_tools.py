@@ -21,7 +21,13 @@ TOOLS_DIR = REPO_ROOT / "tools" / "foundry"
 
 sys.path.insert(0, str(REPO_ROOT / "tools"))
 
-from foundry import cluster_failures, evidence, metrics, worktree_inventory  # noqa: E402
+from foundry import (  # noqa: E402
+    cluster_failures,
+    evidence,
+    metrics,
+    permission_battery,
+    worktree_inventory,
+)
 from foundry import source_lock as lock_mod  # noqa: E402
 from foundry import state as state_mod  # noqa: E402
 
@@ -261,8 +267,10 @@ def test_adjudicator_exists_and_configured() -> None:
     assert adjudicator["permission"]["edit"] == "deny"
     bash = adjudicator["permission"]["bash"]
     assert bash["*"] == "ask"
-    for allowed in ("pytest*", "python*", "git diff*", "git log*"):
+    for allowed in ("git diff*", "git log*", "mypy*"):
         assert bash[allowed] == "allow"
+    for gated in ("pytest*", "python*", "python3*", "ruff*", "gh api*"):
+        assert bash[gated] == "ask"
     for denied in ("git push*", "git rebase*", "rm -rf*", "gh auth token*"):
         assert bash[denied] == "deny"
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
@@ -272,9 +280,8 @@ def test_adjudicator_exists_and_configured() -> None:
 def test_adjudicator_narrower_than_implementer() -> None:
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     implementer = _agent_frontmatter("foundry-implementer.md")
-    assert implementer["permission"]["edit"] == "allow"
+    assert "permission" not in implementer
     assert adjudicator["permission"]["edit"] == "deny"
-    assert implementer["permission"]["bash"] == "allow"
     assert isinstance(adjudicator["permission"]["bash"], dict)
 
 
@@ -319,6 +326,121 @@ def test_reviewer_remains_high_and_read_only() -> None:
     assert reviewer["model"] == "opencode-go/muse-spark-1.3-contributor"
     assert reviewer["variant"] == "high"
     assert reviewer["permission"]["edit"] == "deny"
+
+
+def _root_permission() -> dict:
+    return json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))["permission"]
+
+
+def test_implementer_has_no_broad_agent_override() -> None:
+    implementer = _agent_frontmatter("foundry-implementer.md")
+    permission = implementer.get("permission", {})
+    assert permission.get("edit") != "allow"
+    bash = permission.get("bash", {})
+    if isinstance(bash, dict):
+        assert bash.get("*") != "allow"
+    else:
+        assert bash != "allow"
+
+
+def test_env_deny_rules_win_by_order() -> None:
+    permission = _root_permission()
+    for tool in ("read", "glob", "grep", "list", "edit"):
+        rules = permission[tool]
+        assert isinstance(rules, dict)
+        keys = list(rules)
+        assert keys[0] == "*"
+        assert rules["*"] == "allow"
+        for pattern in ("*.env", "*.env.*", "**/*.env", "**/*.env.*"):
+            assert rules[pattern] == "deny"
+            assert keys.index(pattern) > keys.index("*")
+        assert rules["*.env.example"] == "allow"
+        assert keys.index("*.env.example") > keys.index("*.env.*")
+
+
+def test_generic_gh_api_is_not_allow() -> None:
+    permission = _root_permission()
+    assert permission["bash"]["gh api*"] != "allow"
+    adjudicator = _agent_frontmatter("foundry-adjudicator.md")
+    assert adjudicator["permission"]["bash"]["gh api*"] != "allow"
+
+
+def test_adjudicator_has_no_silent_write_interpreter() -> None:
+    bash = _agent_frontmatter("foundry-adjudicator.md")["permission"]["bash"]
+    for pattern in ("python*", "python3*", "pytest*", "ruff*"):
+        assert bash.get(pattern) != "allow"
+    assert bash["git add*"] == "deny"
+    assert bash["git commit*"] == "deny"
+
+
+def test_reviewer_bash_default_deny() -> None:
+    bash = _agent_frontmatter("foundry-reviewer.md")["permission"]["bash"]
+    assert bash["*"] == "deny"
+    assert _agent_frontmatter("foundry-reviewer.md")["permission"]["task"] == "deny"
+
+
+def test_provider_lock_and_sharing() -> None:
+    config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    assert config["enabled_providers"] == ["opencode-go"]
+    assert config["share"] == "disabled"
+    assert config["default_agent"] == "foundry-implementer"
+
+
+def test_battery_last_match_wins() -> None:
+    rules = [
+        {"permission": "bash", "pattern": "*", "action": "ask"},
+        {"permission": "bash", "pattern": "git status*", "action": "allow"},
+        {"permission": "bash", "pattern": "git push*", "action": "ask"},
+    ]
+    assert permission_battery.evaluate_rule(rules, "bash", "git status") == (
+        "ENFORCED_ALLOW",
+        "git status*",
+    )
+    assert permission_battery.evaluate_rule(rules, "bash", "git push origin x") == (
+        "ASK_GATED",
+        "git push*",
+    )
+    assert permission_battery.evaluate_rule(rules, "bash", "rm -rf /tmp/y") == ("ASK_GATED", "*")
+    assert permission_battery.evaluate_rule(rules, "bash", "git status")[0] == "ENFORCED_ALLOW"
+
+
+def test_battery_env_deny_beats_allow_all() -> None:
+    rules = [
+        {"permission": "read", "pattern": "*", "action": "allow"},
+        {"permission": "read", "pattern": "*.env", "action": "deny"},
+        {"permission": "read", "pattern": "**/*.env", "action": "deny"},
+    ]
+    assert permission_battery.evaluate_rule(rules, "read", "/proj/.env") == ("DENIED", "**/*.env")
+    assert permission_battery.evaluate_rule(rules, "read", "/proj/src/a.py") == (
+        "ENFORCED_ALLOW",
+        "*",
+    )
+
+
+def test_battery_unknown_without_match() -> None:
+    assert permission_battery.evaluate_rule([], "bash", "anything") == (
+        "UNKNOWN",
+        "no matching rule",
+    )
+
+
+def test_battery_full_probe_set_runs() -> None:
+    rules = [{"permission": "bash", "pattern": "*", "action": "ask"}]
+    resolved = {
+        "foundry-implementer": rules,
+        "foundry-adjudicator": rules,
+        "foundry-reviewer": rules,
+    }
+    rows = permission_battery.run_battery(resolved)
+    assert len(rows) == len(permission_battery.PROBES)
+    assert {r["verdict"] for r in rows} <= {
+        "ENFORCED_ALLOW",
+        "ASK_GATED",
+        "DENIED",
+        "INSTRUCTION_ONLY",
+        "BYPASSABLE",
+        "UNKNOWN",
+    }
 
 
 def test_inventory_marks_clean_true_and_strips_refs(repo: Path) -> None:
