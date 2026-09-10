@@ -297,6 +297,23 @@ def answer_mode_pick(drv: Any, actor: str, opts: list[dict[str, Any]],
     return str(opts[hits[0]]["option_id"])
 
 
+def _ws55_seq_match(want: list[str], seq_texts: list[str],
+                    seq_hids: list[str]) -> bool:
+    """One scripted element matches by native hid (MINTED-xxx pattern) or by
+    case-insensitive text substring. All positions must match; exactly one
+    label may match overall (enforced by caller)."""
+    if len(want) != len(seq_texts):
+        return False
+    for w, text, hid in zip(want, seq_texts, seq_hids):
+        if w.startswith("minted-"):
+            hid_id = (base.ref_identity(hid) or hid or "").lower()
+            if w != hid_id:
+                return False
+        elif w not in (text or "").lower():
+            return False
+    return True
+
+
 def answer_trigger_order_n(drv: Any, actor: str, opts: list[dict[str, Any]],
                            labels: list[dict[str, str]], phase: Any,
                            turn: Any) -> str:
@@ -307,20 +324,23 @@ def answer_trigger_order_n(drv: Any, actor: str, opts: list[dict[str, Any]],
         if lb.get("_kind") != "ORDER":
             continue
         perm = [s for s in (lb.get("order", "") or "").split(",") if s]
-        if len(perm) != len(want):
-            continue
         if "first" in lb or "second" in lb:
+            # Size-2 legacy labels: the [first,second] segments ARE the result
+            # sequence for BOTH permutations (o0:[SA0,SA1], o1:[SA1,SA0] with
+            # segs bound to the returned order). Match the sequence only.
+            if len(want) != 2:
+                continue
             seq = [lb.get("first", "").lower(), lb.get("second", "").lower()]
-            if len(want) == 2 and want[0] in seq[0] and want[1] in seq[1] and perm == ["0", "1"]:
-                hits.append(i)
-            if len(want) == 2 and want[0] in seq[1] and want[1] in seq[0] and perm == ["1", "0"]:
+            seq_hids = [lb.get("hidfirst", "").lower(), lb.get("hidsecond", "").lower()]
+            if _ws55_seq_match(want, seq, seq_hids):
                 hits.append(i)
             continue
         seq = [lb.get(f"m{k}", "").lower() for k in range(len(want))]
-        if all(w in s for w, s in zip(want, seq)):
-            # verify the permutation actually realizes this sequence:
-            # mK holds the K-th element, so any matched label is the witness
-            # for exactly the scripted sequence (labels enumerate all perms).
+        seq_hids = [lb.get(f"h{k}", "").lower() for k in range(len(want))]
+        if _ws55_seq_match(want, seq, seq_hids):
+            # mK holds the K-th element of this permutation's sequence, so a
+            # matched label is the witness for exactly the scripted sequence
+            # (labels enumerate all perms).
             hits.append(i)
     if len(hits) != 1:
         drv.script.insert(0, d)

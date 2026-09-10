@@ -62,7 +62,8 @@ def check(provider: str) -> dict:
     gate("S2_trigger_n", "orderSimultaneousSa:N:" in provider
          and "WS55_TRIGGER_BAD_PERMUTATION" in provider)
     gate("S2_trigger_two_legacy_intact",
-         "WS48:ORDER:order=0,1:first=" in provider)
+         "WS48:ORDER:order=0,1:first=" in provider
+         and "hidfirst=" in provider)
     gate("S2_deck_env", "COMMANDER_LAB_FORGE_DECK_MAIN" in provider
          and "FINALIST_CANONICAL_DECK_RULES_MISSING" in provider
          and "getAllCards(" in provider)
@@ -76,13 +77,19 @@ def check(provider: str) -> dict:
          and "RANGE_TOO_WIDE" not in provider
          and "ws55obs" in provider
          and "ws55state" in provider)
+    gate("S2_trigger_confirm_exec",
+         "confirmTrigger:ENTERED" in provider
+         and "WS48:CONFIRM:opt=YES:host=" in provider
+         and "confirmTrigger:COST_TRIGGER_NATIVE_TRUE" in provider
+         and "playTrigger:ENTERED" in provider
+         and "playSaFromPlayEffect:ENTERED" in provider
+         and 'throw failClosed("confirmTrigger");' not in provider
+         and 'throw failClosed("playTrigger");' not in provider
+         and 'throw failClosed("playSaFromPlayEffect");' not in provider)
     gate("S2_permutations", "ws55Permutations" in provider
          and "PERMUTATION_BOUND" in provider)
 
     for name, stub in [
-        ("S3_confirmTrigger", 'throw failClosed("confirmTrigger");'),
-        ("S3_playTrigger", 'throw failClosed("playTrigger");'),
-        ("S3_playSaFromPlayEffect", 'throw failClosed("playSaFromPlayEffect");'),
         ("S3_vote", 'throw failClosed("vote");'),
         ("S3_chooseCardsPile", 'throw failClosed("chooseCardsPile");'),
         ("S3_sacrifice", 'throw failClosed("choosePermanentsToSacrifice");'),

@@ -1,7 +1,7 @@
 {
   "evidence_class": "CODE_DERIVED",
   "fail_count": 0,
-  "gate_count": 32,
+  "gate_count": 30,
   "gates": {
     "S1_cardinality_guard": {
       "detail": "",
@@ -51,6 +51,10 @@
       "detail": "",
       "verdict": "PASS"
     },
+    "S2_trigger_confirm_exec": {
+      "detail": "",
+      "verdict": "PASS"
+    },
     "S2_trigger_n": {
       "detail": "",
       "verdict": "PASS"
@@ -64,10 +68,6 @@
       "verdict": "PASS"
     },
     "S3_chooseCardsPile": {
-      "detail": "fail-closed stub retained",
-      "verdict": "PASS"
-    },
-    "S3_confirmTrigger": {
       "detail": "fail-closed stub retained",
       "verdict": "PASS"
     },
@@ -85,14 +85,6 @@
     },
     "S3_more_than_two_removed": {
       "detail": "",
-      "verdict": "PASS"
-    },
-    "S3_playSaFromPlayEffect": {
-      "detail": "fail-closed stub retained",
-      "verdict": "PASS"
-    },
-    "S3_playTrigger": {
-      "detail": "fail-closed stub retained",
       "verdict": "PASS"
     },
     "S3_sacrifice": {

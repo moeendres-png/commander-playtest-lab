@@ -53,6 +53,15 @@ Additions (all systemic, no card-name hacks, no per-card branches):
      (parse + min<=v<=max; missing/malformed/out-of-range fail closed).
      Human integer-dialog mirror; no legality reconstructed. Width<=64
      keeps exact NUM enumeration; min==max keeps the automatic record.
+ J9. Optional-trigger confirmation + choiceless trigger execution:
+     confirmTrigger(WrappedAbility) offers an external YES/NO over the
+     engine-identified trigger (host + trigger text projected; Human asks
+     unless auto-yield/cost-trigger, both absent headless: cost-triggers
+     mirror Human with recordAutomatic + true). playTrigger /
+     playSaFromPlayEffect mirror Human exactly (native
+     playSpellAbilityNoStack / playSpellAbility execution; nested
+     discretionary choices re-enter the controller). Broker kind
+     "confirm" (same CONFIRM grammar as confirmAction).
 
 Explicitly NOT changed (remain fail-closed, recorded as gaps):
  - chooseCombatDamage / chooseAmountDistribution (already present via the
@@ -298,12 +307,14 @@ TRIGGER_N_OLD = """            if (activePlayerSAs.size() != 2) throw failClosed
 
 TRIGGER_N_NEW = """            if (activePlayerSAs.size() == 2) {
                 java.util.List<String> identities = new java.util.ArrayList<>();
+                java.util.List<String> hidIds = new java.util.ArrayList<>();
                 for (SpellAbility o : activePlayerSAs) {
                     identities.add(ws48CardName(o.getHostCard()) + ":" + ws48Clip(String.valueOf(o), 120));
+                    hidIds.add(ws48CardRef(o.getHostCard()));
                 }
                 java.util.List<String> labels = java.util.List.of(
-                    "WS48:ORDER:order=0,1:first=" + ws48Enc(identities.get(0)) + ":second=" + ws48Enc(identities.get(1)),
-                    "WS48:ORDER:order=1,0:first=" + ws48Enc(identities.get(1)) + ":second=" + ws48Enc(identities.get(0)));
+                    "WS48:ORDER:order=0,1:first=" + ws48Enc(identities.get(0)) + ":hidfirst=" + ws48Enc(hidIds.get(0)) + ":second=" + ws48Enc(identities.get(1)) + ":hidsecond=" + ws48Enc(hidIds.get(1)),
+                    "WS48:ORDER:order=1,0:first=" + ws48Enc(identities.get(1)) + ":hidfirst=" + ws48Enc(hidIds.get(1)) + ":second=" + ws48Enc(identities.get(0)) + ":hidsecond=" + ws48Enc(hidIds.get(0)));
                 int idx = ws48Choose("trigger_order", this.player, labels);
                 if (idx == 0) return java.util.List.of(activePlayerSAs.get(0), activePlayerSAs.get(1));
                 return java.util.List.of(activePlayerSAs.get(1), activePlayerSAs.get(0));
@@ -321,7 +332,9 @@ TRIGGER_N_NEW = """            if (activePlayerSAs.size() == 2) {
                 for (int k = 0; k < perm.size(); k++) {
                     SpellAbility o = activePlayerSAs.get(perm.get(k));
                     ws55Sb.append(":m").append(k).append('=')
-                        .append(ws48Enc(ws48CardName(o.getHostCard()) + ":" + ws48Clip(String.valueOf(o), 120)));
+                        .append(ws48Enc(ws48CardName(o.getHostCard()) + ":" + ws48Clip(String.valueOf(o), 120)))
+                        .append(":h").append(k).append('=')
+                        .append(ws48Enc(ws48CardRef(o.getHostCard())));
                 }
                 ws55Labels.add(ws55Sb.toString());
             }
@@ -512,6 +525,47 @@ NUMBER_RANGED_NEW = """            if ((long) max - (long) min > 64) {
                 return broker.chooseRanged("announce_x", this.player, min, max, title);
             }"""
 
+# ---------------------------------------------------------------- J9: trigger confirm/exec
+CONFIRM_TRIGGER_OLD = """        public boolean confirmTrigger(WrappedAbility sa) {
+            throw failClosed("confirmTrigger");
+        }"""
+
+PLAY_TRIGGER_OLD = """        public boolean playTrigger(Card host, WrappedAbility wrapperAbility, boolean isMandatory) {
+            throw failClosed("playTrigger");
+        }"""
+
+PLAY_SA_OLD = """        public boolean playSaFromPlayEffect(SpellAbility tgtSA) {
+            throw failClosed("playSaFromPlayEffect");
+        }"""
+
+CONFIRM_TRIGGER_NEW = """        @Override
+        public boolean confirmTrigger(WrappedAbility sa) {
+            ws48Milestone("confirmTrigger:ENTERED");
+            if (sa == null || sa.getWrappedAbility() == null) throw failClosed("confirmTrigger:NULL");
+            SpellAbility inner = sa.getWrappedAbility();
+            if (inner.hasParam("Cost") && !inner.getParam("Cost").equals("0")) {
+                broker.recordAutomatic("confirmTrigger:COST_TRIGGER_NATIVE_TRUE");
+                return true;
+            }
+            String host = sa.getHostCard() == null ? "null" : ws48CardRef(sa.getHostCard());
+            String trig = ws48Clip(String.valueOf(sa.getTrigger()), 200);
+            return "o0".equals(broker.choose("confirm", player, java.util.List.of(
+                "WS48:CONFIRM:opt=YES:host=" + ws48Enc(host) + ":trig=" + ws48Enc(trig),
+                "WS48:CONFIRM:opt=NO:host=" + ws48Enc(host) + ":trig=" + ws48Enc(trig))));
+        }"""
+
+PLAY_TRIGGER_NEW = """        @Override
+        public boolean playTrigger(Card host, WrappedAbility wrapperAbility, boolean isMandatory) {
+            ws48Milestone("playTrigger:ENTERED");
+            return PlaySpellAbility.playSpellAbilityNoStack(this, player, wrapperAbility, false);
+        }"""
+
+PLAY_SA_NEW = """        @Override
+        public boolean playSaFromPlayEffect(SpellAbility tgtSA) {
+            ws48Milestone("playSaFromPlayEffect:ENTERED");
+            return PlaySpellAbility.playSpellAbility(this, player, tgtSA);
+        }"""
+
 # ---------------------------------------------------------------- static helper
 STATIC_ANCHOR = "    static String ws48Enc(String v) {"
 
@@ -568,6 +622,9 @@ def main() -> int:
     p = once(p, BROKER_RANGED_ANCHOR, BROKER_RANGED_ADD, "ranged broker method")
     p = once(p, ANNOUNCE_RANGED_OLD, ANNOUNCE_RANGED_NEW, "ranged announce")
     p = once(p, NUMBER_RANGED_OLD, NUMBER_RANGED_NEW, "ranged chooseNumber")
+    p = once(p, CONFIRM_TRIGGER_OLD, CONFIRM_TRIGGER_NEW, "trigger confirm")
+    p = once(p, PLAY_TRIGGER_OLD, PLAY_TRIGGER_NEW, "playTrigger mirror")
+    p = once(p, PLAY_SA_OLD, PLAY_SA_NEW, "playSaFromPlayEffect mirror")
     p = once(p, STATIC_ANCHOR, STATIC_ADD, "permutation helper")
     # Collapse doubled @Override from annotation-including replacements.
     while "        @Override\n        @Override\n" in p:
@@ -590,6 +647,9 @@ def main() -> int:
                 "throw failClosed(\"orderBlockers\");",
                 "throw failClosed(\"orderBlocker\");",
                 "throw failClosed(\"orderAttackers\");",
+                "throw failClosed(\"confirmTrigger\");",
+                "throw failClosed(\"playTrigger\");",
+                "throw failClosed(\"playSaFromPlayEffect\");",
                 "RANGE_TOO_WIDE",
                 "DEPENDENT_MULTI_CHOICE", "MORE_THAN_TWO"):
         if gap in p:
