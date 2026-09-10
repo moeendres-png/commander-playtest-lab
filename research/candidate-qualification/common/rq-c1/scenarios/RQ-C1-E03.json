@@ -1,0 +1,183 @@
+{
+ "actual_cards": [
+  {
+   "name": "Runeclaw Bear",
+   "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+   "oracle_text": "(Vanilla 2/2.)",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY). 2/2 attacker.",
+   "role": "attacker"
+  },
+  {
+   "name": "Deadly Recluse",
+   "oracle_id": "6b941291-1802-4ced-9869-39fa43825550",
+   "oracle_text": "Reach (This creature can block creatures with flying.)\nDeathtouch (Any amount of damage this deals to a creature is enough to destroy it.)",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY; 1/2). Chosen as the minimal deathtouch blocker: 1 power is enough for deathtouch-lethal. No simpler deathtouch body needed.",
+   "role": "deathtouch blocker"
+  }
+ ],
+ "architecture_reverser_axes": [
+  "COMBAT",
+  "RULES_CORRECTNESS",
+  "DECISION_SEAM"
+ ],
+ "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+ "candidate_reference_provenance": [
+  "OFFICIAL_RULES_DERIVED: constructed from Oracle reminder text; no candidate output consulted."
+ ],
+ "commander_relevance": false,
+ "decision_criticality": "MEDIUM",
+ "decision_kinds": [
+  "attackers",
+  "defender per attacker",
+  "blockers",
+  "combat damage assignment",
+  "pass"
+ ],
+ "execution_complexity": "LOW",
+ "expected_rules_events": [
+  "ATTACK: Runeclaw Bear -> P0",
+  "BLOCK: Deadly Recluse blocks Bear",
+  "DAMAGE simultaneously: Bear deals 2 to Recluse (lethal, toughness 2); Recluse deals 1 deathtouch-lethal to Bear",
+  "SBA: BOTH creatures destroyed (deathtouch 1 damage is lethal; 2 damage >= 2 toughness)"
+ ],
+ "expected_terminal_assertions": [
+  {
+   "assertion": "Bear and Recluse both in graveyards",
+   "target": "graveyards"
+  },
+  {
+   "assertion": "no damage to any player",
+   "target": "life"
+  }
+ ],
+ "external_decision_script": [
+  {
+   "actor": "P1",
+   "chosen_option": "Runeclaw Bear -> P0",
+   "decision_kind": "attackers",
+   "legal_set_expectation": "Bear eligible; P0 legal defender",
+   "seq": 1
+  },
+  {
+   "actor": "P0",
+   "chosen_option": "Deadly Recluse blocks Bear",
+   "decision_kind": "blockers",
+   "legal_set_expectation": "Recluse eligible blocker",
+   "seq": 2
+  },
+  {
+   "actor": "ALL",
+   "chosen_option": "pass to damage; single-blocker assignment automatic",
+   "decision_kind": "pass",
+   "legal_set_expectation": "no ordering decision (single blocker)",
+   "seq": 3
+  }
+ ],
+ "first_wave": false,
+ "hidden_information_checkpoints": [
+  {
+   "checkpoint": "damage outcome",
+   "expectation": "mutual destruction public to all",
+   "principal": "ALL"
+  }
+ ],
+ "information_gain": "MEDIUM",
+ "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+ "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+ "negative_controls": [
+  "NC-QUAL-WRONG-OUTCOME"
+ ],
+ "neutral_initial_state": {
+  "active_player": "P1",
+  "battlefield": [
+   {
+    "card": "Runeclaw Bear",
+    "controller": "P1",
+    "owner": "P1"
+   },
+   {
+    "card": "Deadly Recluse",
+    "controller": "P0",
+    "owner": "P0"
+   }
+  ],
+  "command_zone": [],
+  "continuous_effects_present": [],
+  "decision_script": [],
+  "exile": {},
+  "graveyards": {
+   "P0": [],
+   "P1": [],
+   "P2": [],
+   "P3": []
+  },
+  "hands": {
+   "P0": "HIDDEN:4",
+   "P1": "HIDDEN:4",
+   "P2": "HIDDEN:4",
+   "P3": "HIDDEN:4"
+  },
+  "known_private_information": [],
+  "libraries": {
+   "P0": {
+    "count": 90
+   },
+   "P1": {
+    "count": 90
+   },
+   "P2": {
+    "count": 90
+   },
+   "P3": {
+    "count": 90
+   }
+  },
+  "life": {
+   "P0": 40,
+   "P1": 40,
+   "P2": 40,
+   "P3": 40
+  },
+  "phase": "DECLARE_ATTACKERS",
+  "player_count": 4,
+  "players": [
+   {
+    "id": "P0",
+    "life": 40,
+    "seat": 0
+   },
+   {
+    "id": "P1",
+    "life": 40,
+    "seat": 1
+   },
+   {
+    "id": "P2",
+    "life": 40,
+    "seat": 2
+   },
+   {
+    "id": "P3",
+    "life": 40,
+    "seat": 3
+   }
+  ],
+  "rng_starting_contract": null,
+  "schema": "rq-c1.neutral-state.v1",
+  "stack": [],
+  "turn_number": 4
+ },
+ "notes": "Deathtouch-lethal isolation (single blocker, no ordering decision by design). Adaptable to 2 players.",
+ "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+ "player_count": 4,
+ "q6_provenance": "DEFERRED-relevant: no Q6 entry; Q6 COMBAT family background only.",
+ "reverses": [
+  "COMBAT: 1 deathtouch damage must count as lethal in mutual-destruction SBA (falsifies toughness-only lethal checks)"
+ ],
+ "rng_operations": [],
+ "rules_provenance": "Oracle deathtouch reminder + simultaneous damage + lethal SBA proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+ "scenario_id": "RQ-C1-E03",
+ "semantic_objective": "Prove deathtouch-lethal: a 2/2 blocked by a 1/2 deathtouch must result in mutual destruction with no player damage.",
+ "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+ "title": "Deathtouch blocker mutual destruction"
+}

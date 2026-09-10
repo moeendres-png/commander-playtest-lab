@@ -1,7 +1,7 @@
 audit_base_sha: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
 audit_base_tree: 215611ac8d1ea93353c2fcc4c8d7e06dabb4ca51
 branch: research/candidate-neutral-architecture-reverser-corpus-rq-c1-20260910
-exact_next_action: Fetch Scryfall Oracle-text metadata for ~43 candidate-neutral cards, then draft scenario families A-K.
+exact_next_action: Coordinator adjudicates RQ_C1_RULES_AUTHORITY_QUEUE.md (37 packets; gates G04/K02); confirm Murder/Cultivate/Ornithopter Oracle texts.
 in_scope:
 - research/candidate-qualification/common/rq-c1/** only
 - neutral corpus design, schemas, manifests, matrices, negative controls, execution-contract template, Rules-authority queue, redundancy adjudication, validator, final report
@@ -24,12 +24,12 @@ validated_head: null
 worktree: /home/moeen/code/rq-c1-neutral-architecture-reverser-corpus
 milestones:
   A_source_locks_input_provenance: COMPLETE
-  B_taxonomy_scenario_schema: PENDING
-  C_card_discovery: PENDING
-  D_first_wave_corpus: PENDING
-  E_rules_authority_queue: PENDING
-  F_negative_controls_execution_contract: PENDING
-  G_redundancy_audit_final_seal: PENDING
+  B_taxonomy_scenario_schema: COMPLETE
+  C_card_discovery: COMPLETE
+  D_first_wave_corpus: COMPLETE
+  E_rules_authority_queue: COMPLETE
+  F_negative_controls_execution_contract: COMPLETE
+  G_redundancy_audit_final_seal: COMPLETE
 donor_locks_verified:
   cpl_base_head: d2bd60885325a00d6ce8d8d1d0ed2ddcde445e68
   cpl_base_tree: 215611ac8d1ea93353c2fcc4c8d7e06dabb4ca51
@@ -48,3 +48,5 @@ standing_state:
   PRODUCTION_PROVIDER: NOT SELECTED
   FULL107: NOT_RUN
   CURRENT_BEHAVIOR_CREDIT: 0/107
+terminal_verdict: NEUTRAL_CORPUS_READY_PENDING_RULES_ADJUDICATION
+validator: PASS (40 scenarios, first-wave=15)

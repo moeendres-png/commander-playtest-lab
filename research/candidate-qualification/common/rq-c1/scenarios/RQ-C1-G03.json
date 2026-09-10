@@ -1,0 +1,183 @@
+{
+ "actual_cards": [
+  {
+   "name": "Ghalta, Stampede Tyrant",
+   "oracle_id": "b8f16311-be5a-4648-b024-849a61dff0bc",
+   "oracle_text": "Trample\nWhen Ghalta enters, put any number of creature cards from your hand onto the battlefield. (12/12.)",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY; 12/12 trample confirmed). Chosen as the commander damage vehicle: 12-power trample makes per-commander damage accounting observable in few combats. ETB declined (empty hand).",
+   "role": "commander damage dealer"
+  }
+ ],
+ "architecture_reverser_axes": [
+  "COMMANDER",
+  "MULTIPLAYER",
+  "RULES_CORRECTNESS",
+  "COMBAT"
+ ],
+ "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+ "candidate_reference_provenance": [
+  "OFFICIAL_RULES_DERIVED: constructed from Oracle + commander-damage loss rule; Q6 recorded zero commander-damage script signals (absence noted, never inferred)."
+ ],
+ "commander_relevance": true,
+ "decision_criticality": "HIGH",
+ "decision_kinds": [
+  "attackers",
+  "defender per attacker",
+  "blockers",
+  "pass"
+ ],
+ "execution_complexity": "MEDIUM",
+ "expected_rules_events": [
+  "PRIOR_STATE: P1 has 12 commander damage from Ghalta recorded (pre-game seeded, see notes)",
+  "ATTACK: Ghalta -> P1, unblocked",
+  "COMBAT_DAMAGE: 12 commander damage to P1 (total 24 >= 21)",
+  "STATE_BASED_LOSS: P1 loses the game by commander damage",
+  "LEAVE_GAME_CLEANUP begins for P1 (existence asserted; full 800.4 sequencing is G04)"
+ ],
+ "expected_terminal_assertions": [
+  {
+   "assertion": "P1 has lost the game (commander damage total 24 from Ghalta)",
+   "target": "players.P1"
+  },
+  {
+   "assertion": "P0, P2, P3 remain in game",
+   "target": "players"
+  },
+  {
+   "assertion": "Ghalta on battlefield under P0",
+   "target": "battlefield"
+  }
+ ],
+ "external_decision_script": [
+  {
+   "actor": "P0",
+   "chosen_option": "Ghalta -> P1",
+   "decision_kind": "attackers",
+   "legal_set_expectation": "Ghalta eligible; P1 legal defender",
+   "seq": 1
+  },
+  {
+   "actor": "P1",
+   "chosen_option": "no blockers",
+   "decision_kind": "blockers",
+   "legal_set_expectation": "blocker pass offered",
+   "seq": 2
+  },
+  {
+   "actor": "ALL",
+   "chosen_option": "pass to damage; loss checked after",
+   "decision_kind": "pass",
+   "legal_set_expectation": "damage then SBA loss",
+   "seq": 3
+  }
+ ],
+ "first_wave": true,
+ "hidden_information_checkpoints": [
+  {
+   "checkpoint": "damage ledger",
+   "expectation": "per-commander damage totals public to all",
+   "principal": "ALL"
+  }
+ ],
+ "information_gain": "HIGH",
+ "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+ "native_setup_boundary": "PRE_DECISION_CONSTRUCTION",
+ "negative_controls": [
+  "NC-QUAL-WRONG-OUTCOME"
+ ],
+ "neutral_initial_state": {
+  "active_player": "P0",
+  "battlefield": [
+   {
+    "card": "Ghalta, Stampede Tyrant (P0 commander)",
+    "controller": "P0",
+    "owner": "P0"
+   }
+  ],
+  "command_zone": [],
+  "continuous_effects_present": [],
+  "decision_script": [],
+  "exile": {},
+  "graveyards": {
+   "P0": [],
+   "P1": [],
+   "P2": [],
+   "P3": []
+  },
+  "hands": {
+   "P0": "HIDDEN:4",
+   "P1": "HIDDEN:4",
+   "P2": "HIDDEN:4",
+   "P3": "HIDDEN:4"
+  },
+  "known_private_information": [],
+  "libraries": {
+   "P0": {
+    "count": 90
+   },
+   "P1": {
+    "count": 90
+   },
+   "P2": {
+    "count": 90
+   },
+   "P3": {
+    "count": 90
+   }
+  },
+  "life": {
+   "P0": 40,
+   "P1": 40,
+   "P2": 40,
+   "P3": 40
+  },
+  "phase": "DECLARE_ATTACKERS",
+  "player_count": 4,
+  "players": [
+   {
+    "commander": "Ghalta, Stampede Tyrant",
+    "commander_casts_from_command": 0,
+    "commander_damage_taken": {},
+    "id": "P0",
+    "life": 40,
+    "seat": 0
+   },
+   {
+    "commander": null,
+    "commander_damage_taken": {
+     "Ghalta, Stampede Tyrant (P0)": 12
+    },
+    "id": "P1",
+    "life": 40,
+    "seat": 1
+   },
+   {
+    "id": "P2",
+    "life": 40,
+    "seat": 2
+   },
+   {
+    "id": "P3",
+    "life": 40,
+    "seat": 3
+   }
+  ],
+  "rng_starting_contract": null,
+  "schema": "rq-c1.neutral-state.v1",
+  "stack": [],
+  "turn_number": 10
+ },
+ "notes": "REDESIGNED per XHIGH adjudication Q3 (WS51 gate): prior 12 damage is PRE-GAME seeded ledger state (construction, strictly before the first decision-bearing step), NOT mid-combat injection. The final 12 is dealt by a fully native attack/block/damage sequence. Gated first-wave member: ships only with this seeding locus. Requires 2+ players; 4P primary.",
+ "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+ "player_count": 4,
+ "q6_provenance": "DEFERRED-relevant: Q6 found zero commander-damage signals; this scenario is independent construction, not Q6-derived.",
+ "reverses": [
+  "COMMANDER: per-commander damage ledger plus loss-at-21 must trigger from combat damage (falsifies life-only loss checks and missing damage ledgers)"
+ ],
+ "rng_operations": [],
+ "rules_provenance": "Oracle P/T + commander-damage loss rule proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+ "scenario_id": "RQ-C1-G03",
+ "semantic_objective": "Prove commander-damage loss: with 12 pre-ledgered, one native unblocked 12-power commander hit must take P1 to 24 and eliminate P1.",
+ "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+ "title": "Commander damage loss at 21"
+}

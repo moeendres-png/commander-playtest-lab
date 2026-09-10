@@ -1,0 +1,202 @@
+{
+ "actual_cards": [
+  {
+   "name": "Delina, Wild Mage",
+   "oracle_id": "8d57dadb-c689-4691-b331-aba15daf46ff",
+   "oracle_text": "Whenever Delina attacks, choose target creature you control, then roll a d20.\n1\u201414 | Create a tapped and attacking token that's a copy of that creature, except it's not legendary and it has \"At end of combat, exile this token.\"\n15\u201420 | Create one of those tokens. You may roll again.",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY; 3/2 legendary). Chosen because one attack trigger fuses target choice + d20 + token-copy + recursion: the densest RNG vehicle in the corpus. Q6 RULES_ADJUDICATION entry (COPY_CONTROL/RANDOMNESS/TRIGGERED_CHOICE).",
+   "role": "d20 + recursion under test"
+  },
+  {
+   "name": "Runeclaw Bear",
+   "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+   "oracle_text": "(Vanilla 2/2.)",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY). Copy original (nonlegendary; token copy noted as nonlegendary regardless).",
+   "role": "copy original"
+  }
+ ],
+ "architecture_reverser_axes": [
+  "RULES_RNG",
+  "TRIGGERS",
+  "ZONE_IDENTITY",
+  "REPLAY",
+  "COMBAT",
+  "DECISION_SEAM"
+ ],
+ "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+ "candidate_reference_provenance": [
+  "CLEAN_ROOM_DERIVED_CASE_IDEA: Q6 Delina routing entry (RULES_ADJUDICATION_REQUIRED) as discovery pointer only."
+ ],
+ "commander_relevance": false,
+ "decision_criticality": "HIGH",
+ "decision_kinds": [
+  "attackers",
+  "defender per attacker",
+  "targets",
+  "pass"
+ ],
+ "execution_complexity": "HIGH",
+ "expected_rules_events": [
+  "ATTACK: Delina -> P0 (scripted attacker P1? Delina controlled by P0 attacking P1)",
+  "TRIGGER: choose target creature P0 controls (Bear)",
+  "D20_ROLL (Rules RNG, journaled): scripted 17 (15-20 band)",
+  "TOKEN_CREATED: tapped and attacking Bear-copy (nonlegendary, end-of-combat exile)",
+  "MAY_ROLL_AGAIN offered; scripted DECLINE",
+  "END_OF_COMBAT: token exiled"
+ ],
+ "expected_terminal_assertions": [
+  {
+   "assertion": "exactly one token was created and then exiled at end of combat (no token remains)",
+   "target": "token existence"
+  },
+  {
+   "assertion": "Delina and Bear survive on battlefield",
+   "target": "battlefield"
+  },
+  {
+   "assertion": "RNG journal contains the d20 entry (domain 1-20, sampled 17, band 15-20) plus the decline of may-roll-again",
+   "target": "rng journal"
+  }
+ ],
+ "external_decision_script": [
+  {
+   "actor": "P0",
+   "chosen_option": "Delina -> P1",
+   "decision_kind": "attackers",
+   "legal_set_expectation": "Delina eligible; P1 legal defender",
+   "seq": 1
+  },
+  {
+   "actor": "P0",
+   "chosen_option": "Runeclaw Bear (own)",
+   "decision_kind": "targets",
+   "legal_set_expectation": "a creature P0 controls offered",
+   "seq": 2
+  },
+  {
+   "actor": "P0",
+   "chosen_option": "decline roll-again (after scripted 17)",
+   "decision_kind": "pass",
+   "legal_set_expectation": "may-roll-again offered as explicit yes/no; scripted no",
+   "seq": 3
+  }
+ ],
+ "first_wave": true,
+ "hidden_information_checkpoints": [
+  {
+   "checkpoint": "roll",
+   "expectation": "d20 result public to all immediately",
+   "principal": "ALL"
+  }
+ ],
+ "information_gain": "VERY_HIGH",
+ "legal_reuse_class": "CLEAN_ROOM_DERIVED_CASE_IDEA",
+ "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+ "negative_controls": [
+  "NC-REPLAY-CHANGED-RNG",
+  "NC-REPLAY-CHANGED-DECISION",
+  "NC-QUAL-WRONG-OUTCOME"
+ ],
+ "neutral_initial_state": {
+  "active_player": "P0",
+  "battlefield": [
+   {
+    "card": "Delina, Wild Mage",
+    "controller": "P0",
+    "owner": "P0"
+   },
+   {
+    "card": "Runeclaw Bear",
+    "controller": "P0",
+    "owner": "P0"
+   }
+  ],
+  "command_zone": [],
+  "continuous_effects_present": [],
+  "decision_script": [],
+  "exile": {},
+  "graveyards": {
+   "P0": [],
+   "P1": [],
+   "P2": [],
+   "P3": []
+  },
+  "hands": {
+   "P0": "HIDDEN:4",
+   "P1": "HIDDEN:4",
+   "P2": "HIDDEN:4",
+   "P3": "HIDDEN:4"
+  },
+  "known_private_information": [],
+  "libraries": {
+   "P0": {
+    "count": 90
+   },
+   "P1": {
+    "count": 90
+   },
+   "P2": {
+    "count": 90
+   },
+   "P3": {
+    "count": 90
+   }
+  },
+  "life": {
+   "P0": 40,
+   "P1": 40,
+   "P2": 40,
+   "P3": 40
+  },
+  "phase": "DECLARE_ATTACKERS",
+  "player_count": 4,
+  "players": [
+   {
+    "id": "P0",
+    "life": 40,
+    "seat": 0
+   },
+   {
+    "id": "P1",
+    "life": 40,
+    "seat": 1
+   },
+   {
+    "id": "P2",
+    "life": 40,
+    "seat": 2
+   },
+   {
+    "id": "P3",
+    "life": 40,
+    "seat": 3
+   }
+  ],
+  "rng_starting_contract": "RNG-J02-D20",
+  "schema": "rq-c1.neutral-state.v1",
+  "stack": [],
+  "turn_number": 6
+ },
+ "notes": "Scripted roll 17 exercises the 15-20 band plus the may-roll-again decision (declined). A 1-14 band variant and an accept-recursion variant are noted second paths for later harnesses. PRE_STEP native attack progression only. Adaptable to 2 players.",
+ "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+ "player_count": 4,
+ "q6_provenance": "SELECTED: Q6 Delina routing entry as discovery pointer; zero behavior credit.",
+ "reverses": [
+  "RULES_RNG: d20 must originate in Rules RNG with journaled band mapping (falsifies harness-side dice and band-mapping bugs)",
+  "REPLAY: token-copy plus decline must replay exactly (falsifies unjournaled recursion)",
+  "TRIGGERS/ZONE_IDENTITY: tapped-attacking token copy with scheduled exile must be created and cleaned (falsifies token-copy and delayed-exile gaps)"
+ ],
+ "rng_operations": [
+  {
+   "assertion": "replay from recorded seed reproduces 17 and the token sequence; changed seed is a negative control",
+   "domain": "1-20 integer, bands 1-14 / 15-20",
+   "operation": "d20 roll",
+   "purpose": "decide Delina token band and roll-again offer"
+  }
+ ],
+ "rules_provenance": "Oracle attack-trigger sentences; band mapping mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+ "scenario_id": "RQ-C1-J02",
+ "semantic_objective": "Prove journaled d20 with recursion offer: Delina attacking must roll in Rules RNG, create the tapped-attacking token on 17, offer roll-again, and exile the token at end of combat.",
+ "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+ "title": "Delina d20 with roll-again"
+}

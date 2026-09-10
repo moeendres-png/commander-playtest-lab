@@ -1,0 +1,211 @@
+{
+ "actual_cards": [
+  {
+   "name": "Carnage Tyrant",
+   "oracle_id": "8c411f4e-a091-447c-9450-d895b10b4985",
+   "oracle_text": "This spell can't be countered.\nTrample, hexproof (7/6).",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY; P/T 7/6 confirmed). Chosen as the trample attacker whose oversized body forces ordering + lethal + rollover arithmetic across two blockers. Hexproof/cannot-be-countered are irrelevant here.",
+   "role": "trample attacker"
+  },
+  {
+   "name": "Runeclaw Bear",
+   "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+   "oracle_text": "(Vanilla 2/2.)",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY). Blocker A.",
+   "role": "blocker A"
+  },
+  {
+   "name": "Llanowar Elves",
+   "oracle_id": "68954295-54e3-4303-a6bc-fc4547a4e3a3",
+   "oracle_text": "{T}: Add {G}.",
+   "provenance": "Scryfall metadata mirror (METADATA_ONLY). Blocker B (1/1).",
+   "role": "blocker B"
+  }
+ ],
+ "architecture_reverser_axes": [
+  "COMBAT",
+  "DECISION_SEAM",
+  "RULES_CORRECTNESS"
+ ],
+ "authority_status": "MECHANICALLY_DERIVED_FROM_OFFICIAL_AUTHORITY",
+ "candidate_reference_provenance": [
+  "OFFICIAL_RULES_DERIVED: constructed from Oracle text; no candidate output consulted."
+ ],
+ "commander_relevance": false,
+ "decision_criticality": "BLOCKING",
+ "decision_kinds": [
+  "attackers",
+  "defender per attacker",
+  "blockers",
+  "ordering",
+  "combat damage assignment",
+  "pass"
+ ],
+ "execution_complexity": "MEDIUM",
+ "expected_rules_events": [
+  "ATTACK: Carnage Tyrant -> P0",
+  "DOUBLE_BLOCK: Bear + Elves assigned to Tyrant by P0",
+  "BLOCKER_ORDERING by P1 (attacker orders): Bear first, Elves second",
+  "DAMAGE_ASSIGNMENT: lethal to Bear (2 of 7), lethal to Elves (1 of remaining 5), trample remainder 4 to P0",
+  "SBA: Bear + Elves destroyed; P0 takes 4"
+ ],
+ "expected_terminal_assertions": [
+  {
+   "assertion": "P0 life is 36 (4 trample rollover)",
+   "target": "life"
+  },
+  {
+   "assertion": "Bear and Elves in P0 graveyard; Tyrant alive with no damage marked (survived; blockers dealt 2+1=3 < 6)",
+   "target": "graveyards.P0"
+  },
+  {
+   "assertion": "Carnage Tyrant on battlefield under P1",
+   "target": "battlefield"
+  }
+ ],
+ "external_decision_script": [
+  {
+   "actor": "P1",
+   "chosen_option": "Carnage Tyrant -> P0",
+   "decision_kind": "attackers",
+   "legal_set_expectation": "Tyrant eligible; P0 legal defender",
+   "seq": 1
+  },
+  {
+   "actor": "P0",
+   "chosen_option": "Bear + Elves block Tyrant",
+   "decision_kind": "blockers",
+   "legal_set_expectation": "both eligible blockers offered",
+   "seq": 2
+  },
+  {
+   "actor": "P1",
+   "chosen_option": "Bear first, Elves second",
+   "decision_kind": "ordering",
+   "legal_set_expectation": "both blocker orders offered (2 permutations)",
+   "seq": 3
+  },
+  {
+   "actor": "P1",
+   "chosen_option": "2 to Bear, 1 to Elves, 4 trample to P0",
+   "decision_kind": "combat damage assignment",
+   "legal_set_expectation": "lethal-first assignment enforced; remainder to defending player",
+   "seq": 4
+  }
+ ],
+ "first_wave": true,
+ "hidden_information_checkpoints": [
+  {
+   "checkpoint": "ordering and assignment",
+   "expectation": "blocker order and damage split public to all",
+   "principal": "ALL"
+  }
+ ],
+ "information_gain": "VERY_HIGH",
+ "legal_reuse_class": "OFFICIAL_RULES_DERIVED",
+ "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+ "negative_controls": [
+  "NC-DECISION-REORDERED",
+  "NC-DECISION-WRONG-KIND",
+  "NC-QUAL-WRONG-OUTCOME"
+ ],
+ "neutral_initial_state": {
+  "active_player": "P1",
+  "battlefield": [
+   {
+    "card": "Carnage Tyrant",
+    "controller": "P1",
+    "owner": "P1"
+   },
+   {
+    "card": "Runeclaw Bear",
+    "controller": "P0",
+    "owner": "P0"
+   },
+   {
+    "card": "Llanowar Elves",
+    "controller": "P0",
+    "owner": "P0"
+   }
+  ],
+  "command_zone": [],
+  "continuous_effects_present": [],
+  "decision_script": [],
+  "exile": {},
+  "graveyards": {
+   "P0": [],
+   "P1": [],
+   "P2": [],
+   "P3": []
+  },
+  "hands": {
+   "P0": "HIDDEN:4",
+   "P1": "HIDDEN:3",
+   "P2": "HIDDEN:4",
+   "P3": "HIDDEN:4"
+  },
+  "known_private_information": [],
+  "libraries": {
+   "P0": {
+    "count": 90
+   },
+   "P1": {
+    "count": 90
+   },
+   "P2": {
+    "count": 90
+   },
+   "P3": {
+    "count": 90
+   }
+  },
+  "life": {
+   "P0": 40,
+   "P1": 40,
+   "P2": 40,
+   "P3": 40
+  },
+  "phase": "DECLARE_ATTACKERS",
+  "player_count": 4,
+  "players": [
+   {
+    "id": "P0",
+    "life": 40,
+    "seat": 0
+   },
+   {
+    "id": "P1",
+    "life": 40,
+    "seat": 1
+   },
+   {
+    "id": "P2",
+    "life": 40,
+    "seat": 2
+   },
+   {
+    "id": "P3",
+    "life": 40,
+    "seat": 3
+   }
+  ],
+  "rng_starting_contract": null,
+  "schema": "rq-c1.neutral-state.v1",
+  "stack": [],
+  "turn_number": 7
+ },
+ "notes": "Attacker power 7 vs (2+1) toughness: rollover 4 asserted. Ordering permutations asserted as offered set of size 2. PRE_STEP native progression only (WS50/WS51: never inject attackers at declare-blockers). Adaptable to 2 players.",
+ "oracle_provenance": "Scryfall API metadata mirror 2026-09-10 (METADATA_ONLY); official Oracle/Gatherer text to be confirmed at Coordinator adjudication.",
+ "player_count": 4,
+ "q6_provenance": "DEFERRED-relevant: no Q6 entry; constructed for the blockers/damage-assignment gap (Q6 COMBAT family background only).",
+ "reverses": [
+  "COMBAT: blocker ordering plus lethal-first assignment plus trample rollover must compose exactly (falsifies adapter-required blocker mapping gaps and damage-division shortcuts)",
+  "DECISION_SEAM: ordering and assignment must be explicit externally-selected options"
+ ],
+ "rng_operations": [],
+ "rules_provenance": "Oracle trample + P/T; ordering/lethal/rollover rules proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+ "scenario_id": "RQ-C1-E02",
+ "semantic_objective": "Prove multi-blocker damage composition: a double-blocked 7/6 trampler with Bear-first ordering must destroy both blockers and roll 4 to the defender.",
+ "status": "READY_FOR_COORDINATOR_RULES_ADJUDICATION",
+ "title": "Double-blocked trampler ordering and rollover"
+}

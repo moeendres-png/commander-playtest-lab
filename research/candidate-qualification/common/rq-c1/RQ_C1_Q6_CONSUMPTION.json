@@ -1,0 +1,131 @@
+{
+ "q6_donor": {
+  "BEHAVIOR_CREDIT": 0,
+  "head": "c6b2105098dff066adf2d18252d2ddeb49e4412b",
+  "note": "Q6 is scaffolding evidence only and NEVER proof of Magic behavior. All Q6 states below are mechanical-readiness hypotheses consumed as discovery pointers.",
+  "tree": "c3700d2a933e5004ba3d482487d12c80b4b70e04"
+ },
+ "q6_taxonomy_consumption": {
+  "consumed": [
+   "33-shape verb registry scopes the RQ-C1 decision-kind vocabulary (no new evidence class invented)",
+   "trigger/mode disambiguation rules (MODAL_META only; trigger-conditions; standalone-X) applied when drafting modal/X scenarios",
+   "randomness taxonomy with shuffle-separated informs the RNG-journal contract shape",
+   "replacement/prevention/copy/control hypothesis counts size the A/H/D scenario spread",
+   "unsupported registry (HandLifeModifier/Draft/MeldPair/SETCOLORID/Lights) excludes cases from the neutral corpus"
+  ],
+  "not_consumed_as_authority": [
+   "READY_FOR_RUNTIME_QUALIFICATION (mechanical readiness, never behavior PASS)",
+   "parser/structured/skeleton status (never execution evidence)",
+   "UNKNOWN_VERB=0 (parser coverage, never Rules coverage)",
+   "55-card sample as final corpus (sampling asset only)"
+  ]
+ },
+ "rejected_authority_unclear": {
+  "Aether Searcher": "UNSUPPORTED topkey Draft; draft context absent in Commander qualification",
+  "Aethersnatch": "manual-review ControlSpell; bespoke exotic, Control Magic (G04) chosen as minimal control vehicle",
+  "Akroma, Angel of Wrath Avatar": "UNSUPPORTED topkey HandLifeModifier; Vanguard setup needs variant-game design",
+  "Cryptic Spires": "UNSUPPORTED topkey SETCOLORID; pre-game deckbuilding choice needs human setup",
+  "Gisela, the Broken Blade": "UNSUPPORTED topkey MeldPair; pair-card setup bespoke",
+  "Teferi's Protection": "manual nested_svar_chain; phased-out semantics need bespoke design plus Rules adjudication"
+ },
+ "rejected_candidate_biased": {},
+ "rejected_low_information": {},
+ "rejected_redundant": {
+  "Adaptive Training Post": "copy/control via D04/H01",
+  "Aggravate": "DamageAll via K01 mass-SBA",
+  "Aggressive Sabotage": "target-opponent via G01/G05/E01",
+  "Ajani Unrelenting": "Count-defined X via C03",
+  "Archangel of Thune": "trigger plus counters via B01/A04",
+  "Astral Cornucopia": "XXX cost via C03/D05",
+  "Boros Charm": "XHIGH adjudication CUT: choose-one subsumed by D01 (choose-two) + D06 (choose-one-or-more); planeswalker nuance hits no listed candidate gap",
+  "Circling Vultures": "ST-container static; low reverser per cost",
+  "Contagion Clasp": "proliferate counters via A04",
+  "Counterspell": "bare counter via C01/C04/D01",
+  "Divination": "draw/ordering via F04/I03",
+  "Dreadhorde Invasion": "amass/copy via D04/H01",
+  "Finale of Devastation": "X cost via C03",
+  "Flay": "random-discard via J03 Hymn (simpler, chooser-free)",
+  "Inexorable Tide": "proliferate trigger via B01",
+  "Karplusan Minotaur": "coin flip via J01",
+  "Metamorphic Alteration": "copy via D04/H01/K02",
+  "Spirit of Resilience": "copy plus trigger via D04/B02",
+  "Strict Proctor": "triggered-choice via B01/B04",
+  "Sundering Eruption": "search plus shuffle via F01"
+ },
+ "deferred": {
+  "Artificial Evolution": "text-changing layer-3 case deserves its own family later (H01/H02 cover copy/set first)",
+  "Command Tower": "commander mana plus color-identity later",
+  "Frenetic Efreet": "coin plus phasing axis later",
+  "Time Warp": "extra-turn structure axis later",
+  "Vial Smasher the Fierce": "partner plus random-opponent fan-out later",
+  "UNNAMED_COPY_CONTROL_INTAKE": "55th routing-table row has empty card name (Q6 intake artifact); unidentified, deferred, never counted"
+ },
+ "selected_as_discovery_pointer": {
+  "primary": [
+   "Altar's Reap",
+   "Braids, Arisen Nightmare",
+   "Clone",
+   "Council's Judgment",
+   "Cryptic Command",
+   "Delina, Wild Mage",
+   "Doubling Season",
+   "Fierce Guardianship",
+   "Fireball",
+   "Fog",
+   "Force of Will",
+   "Giant Growth",
+   "Mana Crypt",
+   "Phantasmal Image",
+   "Propaganda",
+   "Rampant Growth",
+   "Rest in Peace",
+   "Soul Warden",
+   "Willbender",
+   "Wrath of God"
+  ],
+  "supporting_only": [
+   "Doom Blade",
+   "Lightning Bolt",
+   "Llanowar Elves"
+  ],
+  "note": "Boros Charm is NOT selected (see rejected_redundant per XHIGH adjudication CUT)."
+ },
+ "added_independent_of_q6_sample": [
+  "Blood Artist",
+  "Carnage Tyrant",
+  "Casualties of War",
+  "Control Magic",
+  "Cultivate (UNVERIFIED text)",
+  "Deadly Recluse",
+  "Doomed Traveler",
+  "Drudge Skeletons",
+  "Duress",
+  "Felidar Sovereign",
+  "Flickerwisp",
+  "Ghalta, Stampede Tyrant",
+  "Hardened Scales",
+  "Humility",
+  "Hymn to Tourach",
+  "Kokusho, the Evening Star",
+  "Momentary Blink",
+  "Murder (UNVERIFIED text)",
+  "Ornithopter (UNVERIFIED text)",
+  "Pacifism",
+  "Preordain",
+  "Reanimate",
+  "Rolling Thunder",
+  "Runeclaw Bear",
+  "Stonecoil Serpent",
+  "Turn to Frog",
+  "Twincast"
+ ],
+ "totals": {
+  "deferred": 6,
+  "rejected_authority_unclear": 6,
+  "rejected_candidate_biased": 0,
+  "rejected_low_information": 0,
+  "rejected_redundant": 20,
+  "selected_primary": 20,
+  "selected_supporting": 3
+ }
+}

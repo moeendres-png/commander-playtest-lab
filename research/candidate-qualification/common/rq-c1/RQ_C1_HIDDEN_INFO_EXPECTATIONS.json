@@ -1,0 +1,501 @@
+{
+ "schema": "rq-c1.hidden-info-expectations.v1",
+ "note": "Per-scenario principal-scoped observation checkpoints. Adversarial rule: any principal not listed for a fact must observe zero bytes of that fact.",
+ "scenarios": [
+  {
+   "scenario_id": "RQ-C1-A01",
+   "title": "Rest in Peace replaces destroy with exile",
+   "checkpoints": [
+    {
+     "checkpoint": "pre-cast hand knowledge",
+     "expectation": "Doom Blade identity known only to P0",
+     "principal": "P0"
+    },
+    {
+     "checkpoint": "post-cast stack knowledge",
+     "expectation": "all principals observe Doom Blade on stack with target Runeclaw Bear",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-A02",
+   "title": "Fog prevents all combat damage",
+   "checkpoints": [
+    {
+     "checkpoint": "pre-cast hand knowledge",
+     "expectation": "Fog identity known only to P0",
+     "principal": "P0"
+    },
+    {
+     "checkpoint": "post combat",
+     "expectation": "all principals observe zero damage dealt and unchanged life",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-A03",
+   "title": "Regeneration shield as optional replacement",
+   "checkpoints": [
+    {
+     "checkpoint": "pre-activation",
+     "expectation": "no private information beyond hands",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-A04",
+   "title": "Two counter replacements with divergent orders",
+   "checkpoints": [
+    {
+     "checkpoint": "ordering offer",
+     "expectation": "both orders visible to all; no private information",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-B01",
+   "title": "Five Wardens trigger across four players",
+   "checkpoints": [
+    {
+     "checkpoint": "trigger creation",
+     "expectation": "all 5 triggers and APNAP stack order public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-B02",
+   "title": "Flickerwisp blink with delayed return",
+   "checkpoints": [
+    {
+     "checkpoint": "exile identity",
+     "expectation": "all principals observe Bear in exile face-up (not hidden)",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-B03",
+   "title": "Felidar Sovereign intervening-if flipped in response",
+   "checkpoints": [
+    {
+     "checkpoint": "trigger legality",
+     "expectation": "trigger existence and condition values public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-B04",
+   "title": "Kokusho dies with Blood Artist watching",
+   "checkpoints": [
+    {
+     "checkpoint": "trigger targets",
+     "expectation": "Artist target (P1) public on stacking",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-C01",
+   "title": "Force of Will pitch versus hard-cast",
+   "checkpoints": [
+    {
+     "checkpoint": "pitch selection",
+     "expectation": "exiled blue card was known only to P0 until exile; exile is public after",
+     "principal": "P0"
+    },
+    {
+     "checkpoint": "stack knowledge",
+     "expectation": "both spells and Force target public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-C02",
+   "title": "Altar's Reap additional-cost sacrifice",
+   "checkpoints": [
+    {
+     "checkpoint": "drawn cards",
+     "expectation": "two drawn identities known only to P0 after draw",
+     "principal": "P0"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-C03",
+   "title": "Fireball X with per-target increase",
+   "checkpoints": [
+    {
+     "checkpoint": "division",
+     "expectation": "even split is rules-determined (no chooser decision offered); public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-C04",
+   "title": "Fierce Guardianship free with commander",
+   "checkpoints": [
+    {
+     "checkpoint": "condition",
+     "expectation": "commander control is public; cost-route choice by P0",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-D01",
+   "title": "Cryptic Command choose-two plus targets",
+   "checkpoints": [
+    {
+     "checkpoint": "mode legality",
+     "expectation": "mode combination set and per-mode targets public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-D02",
+   "title": "Twincast copies Lightning Bolt with new target",
+   "checkpoints": [
+    {
+     "checkpoint": "copy targets",
+     "expectation": "copy existence and new target public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-D03",
+   "title": "Bolt answered by Giant Growth",
+   "checkpoints": [
+    {
+     "checkpoint": "response window",
+     "expectation": "no private information; stack and targets public",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-D04",
+   "title": "Phantasmal Image copy then sacrificed",
+   "checkpoints": [
+    {
+     "checkpoint": "copy choice",
+     "expectation": "chosen original public on entry",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-D05",
+   "title": "Rolling Thunder chooser division",
+   "checkpoints": [
+    {
+     "checkpoint": "division",
+     "expectation": "announced division is public (chosen on casting)",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-D06",
+   "title": "Casualties of War choose one or more",
+   "checkpoints": [
+    {
+     "checkpoint": "mode legality",
+     "expectation": "mode subset and per-mode targets public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-E01",
+   "title": "Propaganda multi-defender attack tax",
+   "checkpoints": [
+    {
+     "checkpoint": "attack legality",
+     "expectation": "defender mapping and per-creature tax public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-E02",
+   "title": "Double-blocked trampler ordering and rollover",
+   "checkpoints": [
+    {
+     "checkpoint": "ordering and assignment",
+     "expectation": "blocker order and damage split public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-E03",
+   "title": "Deathtouch blocker mutual destruction",
+   "checkpoints": [
+    {
+     "checkpoint": "damage outcome",
+     "expectation": "mutual destruction public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-F01",
+   "title": "Rampant Growth search plus shuffle",
+   "checkpoints": [
+    {
+     "checkpoint": "during search",
+     "expectation": "library contents visible ONLY to P0; others observe 'P0 is searching' plus count hints only",
+     "principal": "P0"
+    },
+    {
+     "checkpoint": "found card",
+     "expectation": "found Forest revealed to all on moving to battlefield (public zone)",
+     "principal": "ALL"
+    },
+    {
+     "checkpoint": "post-shuffle",
+     "expectation": "library order unknown to all principals including P0",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-F02",
+   "title": "Duress scoped reveal and choice",
+   "checkpoints": [
+    {
+     "checkpoint": "during reveal",
+     "expectation": "P1 hand identities visible ONLY to P0; P2/P3 observe 'P1 reveals to P0' with counts only",
+     "principal": "P0"
+    },
+    {
+     "checkpoint": "after resolution",
+     "expectation": "unpicked cards private to P1 again; picked card public in graveyard",
+     "principal": "P1"
+    },
+    {
+     "checkpoint": "adversarial",
+     "expectation": "P2/P3 observations must contain zero P1-hand identities at every checkpoint",
+     "principal": "P2"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-F03",
+   "title": "Willbender morph redirect",
+   "checkpoints": [
+    {
+     "checkpoint": "face-down tenure",
+     "expectation": "Willbender identity (name, text) hidden from ALL including P0 opponents; P0 knows (owner knowledge)",
+     "principal": "P0"
+    },
+    {
+     "checkpoint": "face-down observation",
+     "expectation": "all principals observe only 'face-down 2/2 creature'; power/toughness 2/2 public, identity hidden",
+     "principal": "ALL"
+    },
+    {
+     "checkpoint": "after turn-up",
+     "expectation": "Willbender identity public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-F04",
+   "title": "Preordain scry ordering",
+   "checkpoints": [
+    {
+     "checkpoint": "during scry",
+     "expectation": "top-two identities visible ONLY to P0",
+     "principal": "P0"
+    },
+    {
+     "checkpoint": "after resolution",
+     "expectation": "bottomed/drawn identities remain known only to P0; others observe counts only",
+     "principal": "P0"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-G01",
+   "title": "Council's Judgment tied vote",
+   "checkpoints": [
+    {
+     "checkpoint": "voting",
+     "expectation": "will-of-council votes are open: each vote public to all as cast",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-G02",
+   "title": "Commander movement choice and tax",
+   "checkpoints": [
+    {
+     "checkpoint": "movement choice",
+     "expectation": "movement choice and tax accounting public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-G03",
+   "title": "Commander damage loss at 21",
+   "checkpoints": [
+    {
+     "checkpoint": "damage ledger",
+     "expectation": "per-commander damage totals public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-G04",
+   "title": "Control Magic controller leaves game",
+   "checkpoints": [
+    {
+     "checkpoint": "post-cleanup ownership",
+     "expectation": "remaining control/ownership mapping public to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-G05",
+   "title": "Braids each-opponent sacrifice",
+   "checkpoints": [
+    {
+     "checkpoint": "sacrifice choices",
+     "expectation": "each sacrifice/decline public in turn order",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-H01",
+   "title": "Clone under Humility",
+   "checkpoints": [
+    {
+     "checkpoint": "copy choice",
+     "expectation": "chosen original public on entry",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-H02",
+   "title": "Growth versus Frog timestamp orders",
+   "checkpoints": [
+    {
+     "checkpoint": "layer outcome",
+     "expectation": "final P/T and color public to all in both paths",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-I01",
+   "title": "Blink drops counters and Aura",
+   "checkpoints": [
+    {
+     "checkpoint": "identity",
+     "expectation": "exile-then-return as new object is public; no carried state",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-I02",
+   "title": "Reanimate steals from graveyard",
+   "checkpoints": [
+    {
+     "checkpoint": "graveyard knowledge",
+     "expectation": "graveyards are public zones: Bear-in-graveyard known to all",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-I03",
+   "title": "Token sacrificed, triggers, ceases",
+   "checkpoints": [
+    {
+     "checkpoint": "token lifecycle",
+     "expectation": "token creation, sacrifice, trigger, and ceasing all public",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-J01",
+   "title": "Mana Crypt journaled coin flip",
+   "checkpoints": [
+    {
+     "checkpoint": "flip",
+     "expectation": "flip outcome public to all immediately",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-J02",
+   "title": "Delina d20 with roll-again",
+   "checkpoints": [
+    {
+     "checkpoint": "roll",
+     "expectation": "d20 result public to all immediately",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-J03",
+   "title": "Hymn random discard",
+   "checkpoints": [
+    {
+     "checkpoint": "during selection",
+     "expectation": "P1 hand visible to NOBODY except P1 (not even partial to P0)",
+     "principal": "P1"
+    },
+    {
+     "checkpoint": "after discard",
+     "expectation": "discarded 2 public in graveyard; retained 2 private to P1; P2/P3 learn nothing beyond counts",
+     "principal": "P1"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-K01",
+   "title": "Wrath trigger accounting",
+   "checkpoints": [
+    {
+     "checkpoint": "trigger accounting",
+     "expectation": "3 Artist triggers, 0 Warden triggers, all public",
+     "principal": "ALL"
+    }
+   ]
+  },
+  {
+   "scenario_id": "RQ-C1-K02",
+   "title": "Clone across controllers: no legend transit",
+   "checkpoints": [
+    {
+     "checkpoint": "legend check",
+     "expectation": "controller mapping and no-transit outcome public",
+     "principal": "ALL"
+    }
+   ]
+  }
+ ]
+}

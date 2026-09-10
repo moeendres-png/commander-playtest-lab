@@ -1,0 +1,59 @@
+{
+ "schema": "rq-c1.rng-expectations.v1",
+ "journal_contract": "Each RNG operation requires: purpose, valid domain, candidate-set fingerprint, sampled result, Rules event, replay assertion. RNG originates in the Rules Core with explicit seed authority; no harness-side randomness.",
+ "unspecified_placeholder_policy": "Domains marked EXECUTION_PRESCRIBED are fixed at future execution time by the execution contract (seed authority + journal), never invented by the corpus.",
+ "scenarios": [
+  {
+   "scenario_id": "RQ-C1-F01",
+   "title": "Rampant Growth search plus shuffle",
+   "rng_operations": [
+    {
+     "assertion": "journal records shuffle event with pre/post library fingerprint and seed authority; replay reproduces post-shuffle fingerprint",
+     "domain": "library permutation (order unknown to all)",
+     "operation": "shuffle",
+     "purpose": "randomize P0 library after search"
+    }
+   ],
+   "rng_starting_contract": "RNG-F01-SHUFFLE"
+  },
+  {
+   "scenario_id": "RQ-C1-J01",
+   "title": "Mana Crypt journaled coin flip",
+   "rng_operations": [
+    {
+     "assertion": "replay from recorded seed reproduces the sampled result; changed seed/input is a negative control (NC-REPLAY-CHANGED-RNG)",
+     "domain": "{win, loss}",
+     "operation": "coin flip",
+     "purpose": "decide Mana Crypt trigger damage"
+    }
+   ],
+   "rng_starting_contract": "RNG-J01-COIN"
+  },
+  {
+   "scenario_id": "RQ-C1-J02",
+   "title": "Delina d20 with roll-again",
+   "rng_operations": [
+    {
+     "assertion": "replay from recorded seed reproduces 17 and the token sequence; changed seed is a negative control",
+     "domain": "1-20 integer, bands 1-14 / 15-20",
+     "operation": "d20 roll",
+     "purpose": "decide Delina token band and roll-again offer"
+    }
+   ],
+   "rng_starting_contract": "RNG-J02-D20"
+  },
+  {
+   "scenario_id": "RQ-C1-J03",
+   "title": "Hymn random discard",
+   "rng_operations": [
+    {
+     "assertion": "replay from recorded seed reproduces the discarded pair; changed seed is a negative control",
+     "domain": "2-element subsets of the 4-card hand",
+     "operation": "random discard",
+     "purpose": "choose 2 discard victims without chooser input"
+    }
+   ],
+   "rng_starting_contract": "RNG-J03-RANDOM-DISCARD"
+  }
+ ]
+}
