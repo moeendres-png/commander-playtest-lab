@@ -1,1 +1,125 @@
-{"audit_id":"CROSS-REPO-CONFORMANCE-BASELINE-2026-09-10","audit_utc":"2026-09-10","branch":"project/opencode-muse-cross-repo-hardening-v2-20260910","checkpoint":"A","cli_installed_version":"1.18.30","cli_project_pin":"1.18.29","origin_main_sha":"c162871ba416c338d37f83a44fbd5b054e79ca0e","origin_main_tree":"b75a51d3326f502f33f0af2ce5d897ac89d60cc5","repository":"moeendres-png/commander-playtest-lab","requirements":{"ARTIFACT_EVIDENCE_AUTOMATION":{"classification":"PASS","evidence":"tools/foundry/evidence.py artifact-index + handoff skeleton; tests green (DIRECTLY_VERIFIED)"},"COMPACTION_STRATEGY":{"classification":"PARTIAL","evidence":"COMPACTION_HOOK=DEFERRED with verified schema reason; Git+state+evidence resumability by design, hook intentionally deferred (CODE_DERIVED)"},"CPL_CONTROL_PLANE":{"classification":"PARTIAL","evidence":"AGENTS.md + opencode.json + 3 agents + 5 skills + 8 tools + docs exist and resolve (DIRECTLY_VERIFIED); safe-auto, single-writer, launcher, profiles, state-v2, autocapture missing"},"CROSS_REPO_POLICY_DRIFT_CHECK":{"classification":"FAIL","evidence":"no drift checker exists; stale mage AGENTS.md reachable (DIRECTLY_VERIFIED)"},"DEEP_RESEARCH_REQUIREMENTS":{"classification":"PARTIAL","evidence":"this ledger tracks all themes; implementation pending"},"ENGINE_PIN_INTEGRITY":{"classification":"PASS","evidence":"no engine commits by this workstream; mage-d3q6 HEAD a766f9006 recorded; forge engine remote-only locally (DIRECTLY_VERIFIED)"},"FAILURE_CLUSTERING":{"classification":"PASS","evidence":"tools/foundry/cluster_failures.py + tests green (DIRECTLY_VERIFIED)"},"FORGE_EXECUTION_PROFILE":{"classification":"FAIL","evidence":"no forge profile; no local forge engine clone; current Forge work (WS50) runs inside CPL tree under CPL policy (DIRECTLY_VERIFIED)"},"HIGH_XHIGH_BENCHMARK":{"classification":"PARTIAL","evidence":"harness spec exists (HIGH_XHIGH_BENCHMARK.md); benchmark NOT_RUN by design (CODE_DERIVED)"},"HIGH_XHIGH_ROUTING":{"classification":"PASS","evidence":"opencode.json variants high/xhigh enabled, below-HIGH disabled, default high; workflow VARIANT high; prior 1.18.29 runtime smoke recorded (CODE_DERIVED + prior RUNTIME_VERIFIED)"},"MAGE_EXECUTION_PROFILE":{"classification":"FAIL","evidence":"no mage profile; mage roots carry stale WS33 AGENTS.md, production-reachable when CWD=mage; no mage opencode.json/.opencode (DIRECTLY_VERIFIED)"},"METRICS_AUTOCAPTURE":{"classification":"FAIL","evidence":"metrics.py caller-supplied only; opencode stats/export exist as sources but unwired (DIRECTLY_VERIFIED)"},"MODEL_LOCK":{"classification":"PASS","evidence":"debug config resolves model opencode-go/muse-spark-1.3-contributor + whitelist + provider policies; global config carries no model override (DIRECTLY_VERIFIED)"},"SAFE_AUTO":{"classification":"FAIL","evidence":"--auto auto-approves non-denied (CLI help text); ASK is not a boundary under --auto; interpreter bypass BYPASSABLE per permission_battery analysis (DIRECTLY_VERIFIED)"},"SELECTIVE_TEST_TOOLING":{"classification":"PARTIAL","evidence":"test-impact skill is advisory text only; no deterministic changed-surface to test mapper (CODE_DERIVED)"},"SINGLE_WRITER_ENFORCEMENT":{"classification":"FAIL","evidence":"observed defect stands: same-CWD second TUI undetected by worktree_inventory (duplicate-branch check only) (DIRECTLY_VERIFIED)"},"SOURCE_LOCK_AUTOMATION":{"classification":"PARTIAL","evidence":"source_lock.py + state.py + worktree_inventory.py work individually; no unified BOOTSTRAP_PASS gate (CODE_DERIVED)"},"STALE_ROUTING":{"classification":"FAIL","evidence":"mage WS33 AGENTS.md production-reachable (combined, conflicts unresolved per official docs); full inventory pending (DIRECTLY_VERIFIED sample)"},"STATE_RESUMABILITY":{"classification":"PARTIAL","evidence":"state+continuation skill function; current_head self-reference semantic bug open (CODE_DERIVED)"},"WORKSTREAM_LAUNCHER":{"classification":"FAIL","evidence":"no launcher exists (DIRECTLY_VERIFIED)"}},"verdict_scale":["PASS","PARTIAL","FAIL","NOT_RUN","EXPERIMENT_REQUIRED","UNSUPPORTED_BY_CURRENT_PLATFORM","UNKNOWN"]}
+{
+  "audit_id": "CROSS-REPO-CONFORMANCE-2026-09-10",
+  "audit_utc": "2026-09-10",
+  "branch": "project/opencode-muse-cross-repo-hardening-v2-20260910",
+  "checkpoint": "G-FINAL",
+  "cli_installed_version": "1.18.30",
+  "cli_project_pin": "1.18.29",
+  "declarations": {
+    "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+    "BEHAVIOR_CREDIT_CHANGE": 0,
+    "CLI_PIN_CHANGE": "NOT_AUTHORIZED",
+    "CLI_UPGRADE_CANDIDATE": "NO",
+    "COMPACTION_HOOK": "INTENTIONALLY_DEFERRED",
+    "COVERAGE_PROMOTION": false,
+    "ENGINE_PIN_INTEGRITY": "PRESERVED",
+    "HIGH_XHIGH_BENCHMARK": "NOT_RUN",
+    "PRODUCTION_PROVIDER": "NOT SELECTED",
+    "PRODUCTION_REPOSITORY": "NOT CREATED",
+    "SIMULATOR_SEMANTIC_IMPACT": "NONE"
+  },
+  "engine_pins": {
+    "forge_remote_head": "8a41f4a18e800732dea7feb09d72e639e0b358ab",
+    "mage_remote_head": "ff09f5425c6f9cae3a6d8e2c3b7dc9d96ae8c793",
+    "q6_worktree_head": "82d08f2812a0a213265eeab994e31d6600100ed6",
+    "ws50_worktree_head": "e636e7055478709010cbd778846683065e31655b"
+  },
+  "origin_main_sha": "c162871ba416c338d37f83a44fbd5b054e79ca0e",
+  "origin_main_tree": "b75a51d3326f502f33f0af2ce5d897ac89d60cc5",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "requirements": {
+    "ARTIFACT_EVIDENCE_AUTOMATION": {
+      "classification": "PASS",
+      "evidence": "evidence.py + skeleton retained; suite green"
+    },
+    "COMPACTION_STRATEGY": {
+      "classification": "PARTIAL",
+      "evidence": "Git/state-2.0 authority + continuation skill; hook intentionally deferred with verified schema reason; live loss-recovery drill not run"
+    },
+    "CPL_CONTROL_PLANE": {
+      "classification": "PASS",
+      "evidence": "config/agents/skills/tools/docs/launcher/profiles/drift/bootstrap/telemetry validated; 117/117 + live resolution proofs"
+    },
+    "CROSS_REPO_POLICY_DRIFT_CHECK": {
+      "classification": "PASS",
+      "evidence": "drift_check.py + 8 tests + live DRIFT_FAIL on mage-d3q6 (SUPERSEDED_BUT_REACHABLE)"
+    },
+    "DEEP_RESEARCH_REQUIREMENTS": {
+      "classification": "PARTIAL",
+      "evidence": "all themes addressed; benchmark NOT_RUN and compaction hook intentionally deferred"
+    },
+    "ENGINE_PIN_INTEGRITY": {
+      "classification": "PASS",
+      "evidence": "mage worktree/remote + forge remote HEADs unchanged; WS50 untouched; Q6 advanced by its owner (external); zero engine commits by this workstream"
+    },
+    "FAILURE_CLUSTERING": {
+      "classification": "PASS",
+      "evidence": "cluster_failures.py retained; suite green"
+    },
+    "FORGE_EXECUTION_PROFILE": {
+      "classification": "PARTIAL",
+      "evidence": "forge.json profile + 3-profile launcher smoke green; engine remote-only locally; WS50 runs under CPL policy"
+    },
+    "HIGH_XHIGH_BENCHMARK": {
+      "classification": "PARTIAL",
+      "evidence": "harness spec + metrics provenance ready; benchmark NOT_RUN by design (deferred, cheap, non-conflicting later)"
+    },
+    "HIGH_XHIGH_ROUTING": {
+      "classification": "PASS",
+      "evidence": "variants/default/workflow pinned; resolved identically on 1.18.29 + 1.18.30"
+    },
+    "MAGE_EXECUTION_PROFILE": {
+      "classification": "PARTIAL",
+      "evidence": "mage.json profile + drift + launcher smoke proven; unattended writer launch correctly gated on stale WS33 file (human-external remediation)"
+    },
+    "METRICS_AUTOCAPTURE": {
+      "classification": "PASS",
+      "evidence": "launcher/push/export autocapture with AUTOCAPTURED/CALLER_SUPPLIED/UNAVAILABLE/UNKNOWN provenance; compaction count honestly unavailable"
+    },
+    "MODEL_LOCK": {
+      "classification": "PASS",
+      "evidence": "debug-config resolution on both CLIs; canonical-drift refusal tested"
+    },
+    "OPENCODE_MUSE_CROSS_REPO_READINESS": {
+      "classification": "PARTIAL",
+      "evidence": "every mechanism proven with adversarial evidence; engine-side stale-file remediation + benchmark execution remain (both human-external or deferred by design)"
+    },
+    "SAFE_AUTO": {
+      "classification": "PARTIAL",
+      "evidence": "72-probe battery green on both CLIs (all destructive direct shapes DENIED); safe_push + hook proven; residuals R1-R3 (interpreter children, redirection, assignment-prefix) are platform limitations with instruction+audit+review mitigations, declared not hidden"
+    },
+    "SELECTIVE_TEST_TOOLING": {
+      "classification": "PASS",
+      "evidence": "deterministic test_impact.py mapper with built-in contract override; contract suites always included; 3 tests"
+    },
+    "SINGLE_WRITER_ENFORCEMENT": {
+      "classification": "PASS",
+      "evidence": "flock authority + 9 real-process concurrency tests + live PR172-defect reproduction now guarded by launcher refusal"
+    },
+    "SOURCE_LOCK_AUTOMATION": {
+      "classification": "PASS",
+      "evidence": "bootstrap.py emits BOOTSTRAP_PASS/fail-closed reason; tested incl. holder/CWD/drift paths"
+    },
+    "STALE_ROUTING": {
+      "classification": "PARTIAL",
+      "evidence": "CPL zero production-reachable (sweep evidenced); engine stale detected + failed closed; file remediation human-external"
+    },
+    "STATE_RESUMABILITY": {
+      "classification": "PASS",
+      "evidence": "schema 2.0 + migration (zero fabricated credit) + ancestry gates + CHECKPOINT_CLEAN + continuation skill; 14 tests"
+    },
+    "WORKSTREAM_LAUNCHER": {
+      "classification": "PASS",
+      "evidence": "init/launch/hold-across-exec/exit-passthrough/telemetry proven (stub-child test); 3-profile smoke green; effort/model/drift gates tested"
+    }
+  },
+  "verdict_scale": [
+    "PASS",
+    "PARTIAL",
+    "FAIL",
+    "NOT_RUN",
+    "EXPERIMENT_REQUIRED",
+    "UNSUPPORTED_BY_CURRENT_PLATFORM",
+    "UNKNOWN"
+  ]
+}

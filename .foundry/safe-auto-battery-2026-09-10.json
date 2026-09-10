@@ -1,0 +1,366 @@
+{
+ "cli": "1.18.30",
+ "source": "opencode debug agent (isolated HOME)",
+ "probes": [
+  {
+   "id": "I01",
+   "agent": "foundry-implementer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "I02",
+   "agent": "foundry-implementer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "I03",
+   "agent": "foundry-implementer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "I04",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I05",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I06",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I07",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I08",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I09",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I10",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I11",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I12",
+   "agent": "foundry-implementer",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "I13",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "I14",
+   "agent": "foundry-implementer",
+   "verdict": "BYPASSABLE"
+  },
+  {
+   "id": "I15",
+   "agent": "foundry-implementer",
+   "verdict": "BYPASSABLE"
+  },
+  {
+   "id": "I16",
+   "agent": "foundry-implementer",
+   "verdict": "BYPASSABLE"
+  },
+  {
+   "id": "I17",
+   "agent": "foundry-implementer",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "A18",
+   "agent": "foundry-adjudicator",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "A19",
+   "agent": "foundry-adjudicator",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "A20",
+   "agent": "foundry-adjudicator",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "A21",
+   "agent": "foundry-adjudicator",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "A22",
+   "agent": "foundry-adjudicator",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "A23",
+   "agent": "foundry-adjudicator",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "A24",
+   "agent": "foundry-adjudicator",
+   "verdict": "INSTRUCTION_ONLY"
+  },
+  {
+   "id": "A25",
+   "agent": "foundry-adjudicator",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "A26",
+   "agent": "foundry-adjudicator",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "A27",
+   "agent": "foundry-adjudicator",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "S33",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "S34",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "S35",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "S36",
+   "agent": "foundry-implementer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "S37",
+   "agent": "foundry-implementer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "R28",
+   "agent": "foundry-reviewer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "R29",
+   "agent": "foundry-reviewer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "R30",
+   "agent": "foundry-reviewer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "R31",
+   "agent": "foundry-reviewer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "R32",
+   "agent": "foundry-reviewer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P01",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P02",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P03",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P04",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P05",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P06",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P07",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P08",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P09",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P10",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P11",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P12",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P13",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P14",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P15",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P16",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P17",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P18",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P19",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P20",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P21",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P22",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P23",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P24",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P25",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P26",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "P27",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "G01",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "G02",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "G03",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "G04",
+   "agent": "foundry-implementer",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "X01",
+   "agent": "foundry-implementer",
+   "verdict": "DENIED"
+  },
+  {
+   "id": "X02",
+   "agent": "foundry-implementer",
+   "verdict": "ENFORCED_ALLOW"
+  },
+  {
+   "id": "X03",
+   "agent": "foundry-implementer",
+   "verdict": "ASK_GATED"
+  },
+  {
+   "id": "R33",
+   "agent": "foundry-implementer",
+   "verdict": "INSTRUCTION_ONLY"
+  }
+ ]
+}
