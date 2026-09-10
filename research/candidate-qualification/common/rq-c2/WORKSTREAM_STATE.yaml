@@ -30,16 +30,16 @@ forbidden_shortcuts:
 - fabricated legal actions, manual outcome injection, direct sa.resolve substitutes
 - weakening tests/assertions/denominators to obtain green
 status: ACTIVE
-state_written_against_head: 714ad417c1c090eb4ddf1ccd0828a2e869a80a74
+state_written_against_head: e42cd1309794451671e5846dabc0c6f9e7499769
 validated_head: null
 milestones:
   A_source_lock_authority_baseline: DONE
   B_oracle_index_rule_index: DONE
-  C_first_wave_verification: PENDING
-  D_complete_37_packet_verification: PENDING
-  E_G04_K02_deep_packets: PENDING
-  F_correction_ledger: PENDING
-  G_sol_queue_validation_final_report: PENDING
+  C_first_wave_verification: DONE
+  D_complete_37_packet_verification: DONE
+  E_G04_K02_deep_packets: DONE
+  F_correction_ledger: DONE
+  G_sol_queue_validation_final_report: DONE
 key_findings_to_date:
 - Murder/Cultivate/Ornithopter all ORACLE_TEXT_VERIFIED via direct Gatherer pages
 - 5 stale CR citations in RQ-C1 queue (702.13, 702.36, 602-as-costs, 701.19b-as-search,
@@ -54,6 +54,4 @@ technical_decisions:
 - Single coherent authority baseline: CR effective 2026-08-07 for all 37 packets
 - Scryfall is SECONDARY_METADATA_CROSSCHECK only, never authority
 - Preparation classifications are source-preparation only, never evidence promotion
-exact_next_action: Write milestones C-D artifacts (packet status, first-wave status,
-  expected-assertion review), then E (G04/K02 packets, hidden-info/RNG/setup reviews),
-  then F-G (correction ledger, Sol queue, validation, final report); commit per milestone.
+exact_next_action: TERMINAL. Pack complete; verdict RULES_AUTHORITY_PACK_READY_FOR_SOL. Sol High works RQ_C2_SOL_ADJUDICATION_QUEUE.md items 1-9 (C01 first), then batch-promotes item 10.
