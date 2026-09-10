@@ -60,8 +60,15 @@ validated_gates:
   pts/3 in this worktree)
 - 'Checkpoint B code commit b46aa5f6 validated at its time: pytest 63/63, ruff clean
   (superseded as validated_head by Checkpoint C)'
-- 'Checkpoint C code commit a121896f validated on clean tree: pytest 79/79, ruff check
-  clean, ruff format clean (validated_head names this commit)'
+- 'Checkpoint C code commit a121896f validated at its time: pytest 79/79, ruff clean
+  (superseded as validated_head by Checkpoint D)'
+- 'Checkpoint D code commits 9af7ea47 (profiles + drift) and 557f7339 (bootstrap +
+  launcher + hook) validated on clean tree: pytest 103/103, ruff check clean, ruff
+  format clean (validated_head names 557f7339)'
+- 'Drift checker fails closed live on mage-d3q6 (SUPERSEDED_BUT_REACHABLE WS33 AGENTS.md);
+  launcher init refuses own tree while pre-launcher PID 59205 occupies CWD (PR172 defect
+  class now guarded) and reaches LAUNCH_READY with explicit allowance; injected env
+  resolves live (model lock + push deny + canonical skills) in an engine-like CWD'
 - 'SAFE_AUTO battery (72 probes) against CLI-resolved 1.18.30 rules: every destructive
   direct shape DENIED (push/force/main/merge/rebase/reset/clean/branch/worktree/checkout-main/rewrite/tag/stash/git-C/absolute/command/nesting/sudo/env/rm/gh-auth/gh-repo-write/gh-api-write/pipe-to-shell);
   residuals stay declared BYPASSABLE/INSTRUCTION_ONLY, never weakened'
@@ -78,8 +85,8 @@ do_not_rerun:
   reverify only on drift)
 current_failure: NONE
 failure_class: NONE
-current_hypothesis: Checkpoint C complete (threat model + deny hardening + safe_push
-  validated at a121896f); proceeding to Checkpoint D cross-repo profiles + launcher.
+current_hypothesis: Checkpoint D complete (profiles + drift + bootstrap + launcher validated
+  at 557f7339); proceeding to Checkpoint E telemetry + selective-test/skill reconciliation.
 files_modified:
 - .foundry/WORKSTREAM_STATE.yaml (new source lock for this workstream)
 - .foundry/conformance-ledger-2026-09-10.json (new, Checkpoint A machine-readable
@@ -90,6 +97,7 @@ tests_run:
 - pytest tests/foundry/ -q (42 passed, clean-tree baseline 2026-09-10)
 - pytest tests/foundry/ -q (63 passed on Checkpoint B code commit b46aa5f6: 42 + 9 writer-lock + 12 state-v2)
 - pytest tests/foundry/ -q (79 passed on Checkpoint C code commit a121896f: 63 + 15 safe-push + 1 deny-pin)
+- pytest tests/foundry/ -q (103 passed on Checkpoint D code commit 557f7339: 79 + 8 drift + 16 launcher/bootstrap)
 - ruff check tools/foundry tests/foundry (pass)
 - ruff format --check tools/foundry tests/foundry (pass)
 - tools/foundry/state.py --state .foundry/WORKSTREAM_STATE.yaml --workdir . --check-validated (STATE_OK schema 2.0, ancestry silent-clean)
@@ -133,10 +141,10 @@ authority_gates: []
 first_failing_boundary: NONE
 root_cause_class: NONE
 status: ACTIVE
-next_action: 'Checkpoint D: cross-repo profiles + drift check + launcher (validated dry-runs
-  for CPL/Mage/Forge).'
-exact_next_action: Implement repo profiles, drift checker, bootstrap gate, and foundry
-  launcher with OPENCODE_CONFIG_CONTENT/DIR injection; smoke-test all three profiles
-  without engine mutation; no broad Muse sessions in engine repos.
-state_written_against_head: a121896fe20e7851c54c8328e16b77b7852db285
-validated_head: a121896fe20e7851c54c8328e16b77b7852db285
+next_action: 'Checkpoint E: telemetry autocapture classification + selective-test tool +
+  skill reconciliation.'
+exact_next_action: Extend metrics with provenance classification + launcher autocapture;
+  implement changed-surface test mapper (advisory, contract overrides); add missing skills
+  (component-change-review, rules-escalation-gate); validate; commit locally.
+state_written_against_head: 557f7339c0f37a577e6dc7613c748677fca8a560
+validated_head: 557f7339c0f37a577e6dc7613c748677fca8a560
