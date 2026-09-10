@@ -474,6 +474,92 @@ def test_battery_full_probe_set_runs() -> None:
     }
 
 
+def test_safe_auto_deny_set_pinned() -> None:
+    """Every SAFE_AUTO threat-model deny shape must stay deny in opencode.json.
+
+    Guards against silent ask-downgrades. Live resolution is proven separately
+    by the adversarial battery against `opencode debug agent` output.
+    """
+    config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
+    bash = config["permission"]["bash"]
+    for pattern in (
+        "git push*",
+        "git merge*",
+        "git rebase*",
+        "git reset --hard*",
+        "git clean*",
+        "git branch -D*",
+        "git branch -d*",
+        "git worktree add*",
+        "git worktree remove*",
+        "git worktree move*",
+        "git checkout main",
+        "git checkout master",
+        "git checkout -b*",
+        "git switch main",
+        "git switch master",
+        "git switch -c*",
+        "git update-ref*",
+        "git symbolic-ref*",
+        "git filter-branch*",
+        "git filter-repo*",
+        "git tag -d*",
+        "git tag -f*",
+        "git stash drop*",
+        "git stash clear*",
+        "git -C*",
+        "/usr/bin/git*",
+        "/bin/git*",
+        "command *",
+        "sh -c*",
+        "bash -c*",
+        "sudo*",
+        "su *",
+        "env",
+        "env *",
+        "printenv*",
+        "rm -rf*",
+        "rm -fr*",
+        "gh auth*",
+        "gh repo create*",
+        "gh repo delete*",
+        "gh repo fork*",
+        "gh api -X POST*",
+        "gh api -X PUT*",
+        "gh api -X PATCH*",
+        "gh api -X DELETE*",
+        "gh api --method POST*",
+        "gh api --method PUT*",
+        "gh api --method PATCH*",
+        "gh api --method DELETE*",
+        "*| sh",
+        "*| sh *",
+        "*|sh",
+        "*|sh *",
+        "*| bash",
+        "*| bash *",
+        "*|bash",
+        "*|bash *",
+    ):
+        assert bash.get(pattern) == "deny", pattern
+    # Routine engineering must still proceed unattended.
+    for pattern in (
+        "git status*",
+        "git diff*",
+        "git log*",
+        "pytest*",
+        "python*",
+        "ruff*",
+        "git add*",
+        "git commit*",
+    ):
+        assert bash.get(pattern) == "allow", pattern
+    ext = config["permission"]["external_directory"]
+    assert ext["/home/moeen/code/ws50-forge-decision-sequence-slice*"] == "deny"
+    assert ext["/home/moeen/code/q6-capability-curation-20260910*"] == "deny"
+    assert ext["/tmp/*"] == "allow"
+
+
 def test_inventory_marks_clean_true_and_strips_refs(repo: Path) -> None:
     entries = worktree_inventory.inventory(str(repo))
     assert len(entries) == 1
