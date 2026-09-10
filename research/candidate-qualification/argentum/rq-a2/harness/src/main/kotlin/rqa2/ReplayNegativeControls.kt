@@ -78,14 +78,19 @@ fun main(args: Array<String>) {
 
     fun evaluate(id: String, desc: String, mutated: List<GameAction>, mSeed: Long = seed): ControlResult {
         val (re, err, _) = foldFrom(mSeed, decks, gameName, mutated)
-        return if (err != null) {
-            val at = err.substringAfter("rejected at ").substringBefore(" ").toInt()
-            val prefixOk = re.zip(liveDigests).take(at + 1).all { (a, b) -> a == b }
-            ControlResult(id, desc, true, "REJECTED_AT $at",
-                err, if (prefixOk) at + 1 else -1)
+        if (err != null) {
+            val at = Regex("rejected at (\\d+)").find(err)?.groupValues?.get(1)?.toIntOrNull() ?: -1
+            // Earliest semantic divergence, if any, precedes the rejection point.
+            val firstDiff = re.zip(liveDigests).indexOfFirst { (a, b) -> a != b }.takeIf { it >= 0 }
+            val (mechanism, prefix) = if (firstDiff != null && (at < 0 || firstDiff <= at)) {
+                "DIVERGED_AT_${firstDiff}_THEN_REJECTED_AT_$at" to firstDiff
+            } else {
+                "REJECTED_AT_$at" to if (at >= 0) at + 1 else 0
+            }
+            return ControlResult(id, desc, true, mechanism, err, prefix)
         } else {
             val (diverged, at) = compareStreams(liveDigests, re)
-            if (diverged) {
+            return if (diverged) {
                 // Earliest-divergence causality: prefix before the mutation must match.
                 ControlResult(id, desc, true, "DIVERGED_AT $at",
                     "re-fold applied but digest differs at frame $at", at ?: -1)
@@ -149,8 +154,9 @@ fun main(args: Array<String>) {
     run {
         val (re, err, _) = foldFrom(seed + 1, decks, gameName, live.actions)
         if (err != null) {
+            val at = Regex("rejected at (\\d+)").find(err)?.groupValues?.get(1)?.toIntOrNull() ?: -1
             results.add(ControlResult("N2-altered-seed", "seed+1 with identical inputs",
-                true, "REJECTED_AT ?", err, 0))
+                true, "REJECTED_AT_$at", err, 0))
         } else {
             val (diverged, at) = compareStreams(liveDigests, re)
             results.add(ControlResult("N2-altered-seed", "seed+1 with identical inputs",
@@ -179,8 +185,9 @@ fun main(args: Array<String>) {
         val mutated = live.actions.drop(1)
         val (re, err, _) = foldFrom(seed, decks, gameName, mutated)
         if (err != null) {
+            val at = Regex("rejected at (\\d+)").find(err)?.groupValues?.get(1)?.toIntOrNull() ?: -1
             results.add(ControlResult("N4-omitted-input", "dropped action 0 (${actionSummary(live.actions[0])})",
-                true, "REJECTED_AT ?", err, 1))
+                true, "REJECTED_AT_$at", err, 1))
         } else {
             // Frame alignment shifts by one; compare re[i] against live[i+1].
             var at: Int? = null

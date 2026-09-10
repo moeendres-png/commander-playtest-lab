@@ -10,7 +10,7 @@ argentum_checkout: /tmp/rq-a2-argentum-src
 state_written_against_head: a3080896e054c4c8d92d0de961bafe47105d644d
 validated_head: null
 ownership: RQ-A2-ARGENTUM-COMPARABLE-ARCHITECTURE-QUALIFICATION
-status: ACTIVE
+status: COMPLETE
 objective: "Resolve the highest-value RQ-A1 UNKNOWNs (U19 replay round-trip first, then U22 identity, U16 hidden-info, U10 5-player, U5 card-behavior linkage, U1 rules-dense probes, U2/U3 authority packets, U12/U15/freshness, commander-shortcut audit, RNG closure) strongly enough to decide whether Argentum deserves promotion into a bounded runtime/behavior contender campaign. Qualification only; candidate source stays semantically read-only; no provider selection; no freeze."
 in_scope:
 - "research/candidate-qualification/argentum/rq-a2/** (harness, drivers, fixtures, evidence, reports, state)"
@@ -70,23 +70,35 @@ validated_gates:
 - "Harness hygiene: harness/.gradle untracked + gitignored (was accidentally committed in U19)"
 - "U16-adversary (DIRECTLY_VERIFIED): 4P Commander pod, per-principal Visibility authority vs 3 projection surfaces. Managed Gym obs 0 leaks/0 overmasks; spectator DTO clean; errors clean; decision-status path clean; revealAll control fires (384 findings); in-process full-state caveat DEMONSTRATED structurally."
 - "U16-DEFECT-1 (ARGENTUM_ENGINE_DEFECT, high): ClientEventTransformer ZoneChangeEvent to HAND/LIBRARY names the card to all viewers (every draw leaks: Opponent's Forest went to hand); production-reachable via per-viewer broadcast."
-- "U16-DEFECT-2 (ARGENTUM_ENGINE_DEFECT, low, authority-gated): server DTO discloses controller the true name of face-down exiled cards (CR 708.5 question); gym masks it."
+- "U16-DIVERGENCE-PENDING-AUTHORITY (was logged as DEFECT-2; downgraded per XHIGH adjudication): server DTO discloses controller the true name of face-down exiled cards (CR 708.5 question, AUTHORITY_GATE-4); gym masks it. Defect classification awaits Sol High."
 - "Existing masking suites green: ObservationVisibilityTest 6/6, GameMaskingTest 3/3, CombatDamageMaskingEnricherTest 1/1."
 - "U10-five-player (DIRECTLY_VERIFIED): 5P FFA init/rotation/priority green; 5P Commander pod (40 life, command zones, registries) green; elimination ladder 5->1 with correct winner and post-leave rotation skipping the leaver; 6P smoke green. Static scan: no engine player-count cap; product caps rules-correct (2HG=4, TvT even>=4) or dev-surface (scenario injection 2-4 seats, lobby default max 8)."
 - "U5-linkage (DIRECTLY_VERIFIED mechanical): 13,402 declared; 11,144 canonical; 2,227 generated (exact RQ-A1 match); 4,532 behavior-linked (~34%, mixed strong/heuristic); 10 named multiplayer + 1 named commander; 7,621 UNKNOWN (~57%). Goblin Psychopath and Fog implemented with zero test signal."
+- "U1-rules-dense (DIRECTLY_VERIFIED behavior, 13/13): priority/stack, costs, counter, persist, layers, copy, control+EOT, SBA, APNAP, lethal, multi-defender, search-as-select, commander chain. Zero EXTERNALLY_RULE_VALIDATED."
+- "U2/U3-fixtures (BEHAVIOR-RECORDED): theft reverts + Watcher silent off 5-object mass removal; 2HG fan-out fires once (30->29). Questions open (AUTHORITY_GATE-1/2/3)."
+- "Seams (DIRECTLY_VERIFIED): U12 config-only (3 seats); U15 trigger ordering AUTOMATIC (RQ-A1 row 17 corrected); freshness F1-F5 fail-closed; shortcut unreachable (NO); RNG closure split (tested-path DIRECTLY_VERIFIED, exhaustive CODE_DERIVED)."
+- "Existing complements green: CompactReplayReconstructionTest 2/2, ReproducibilityTest 5/5."
+- "XHIGH adjudication applied: SEMANTIC_REPLAY TECHNICALLY_CONFORMANT-bounded; seat-id control-not-defect (reworded); U22 normalization safe on tested paths with 3 UNKNOWN holes; D1 PROVEN high defect; D2 downgraded to DIVERGENCE_PENDING_AUTHORITY; N1b/N2/N4 reporting repaired and evidence regenerated."
+- "Terminal disposition: ARGENTUM_REMEDIATION_REQUIRED_BEFORE_RUNTIME. Ranking: no ranking effect. FULL107 NOT_RUN."
 failed_gates: []
 invalidated_gates: []
 do_not_rerun: []
-current_failure: NONE
-failure_class: NONE
-current_hypothesis: "Existing candidate replay tests (CompactReplayReconstructionTest pass-only game; ReproducibilityTest init-level determinism; opt-in ReplayDivergenceReproTest fuzzer) leave U19 open for decision-bearing plus Rules-random round-trips with negative controls; CPL-side engine-level drivers plus ReplayReconstructor reuse close it without candidate mutation."
+current_hypothesis: "Campaign complete: replay/identity/RNG/seams evidenced with two bounded defects (D1 repair-gated, D2 authority-gated); disposition REMEDIATION_REQUIRED_BEFORE_RUNTIME (adjudicated XHIGH)."
 technical_decisions:
 - "RQ-A1 evidence taken as input, not automatic PASS carry-forward (per contract section 3)"
 - ".foundry/WORKSTREAM_STATE.yaml left untouched (owned by another workstream surface per RQ-A1 source-lock note); RQ-A2 persistence lives in rq-a2/WORKSTREAM_STATE.yaml plus commits"
 - "Driver topology decided: CPL-side Kotlin harness against lock-built candidate jars; no new test files inside candidate checkout (would be tracked mutations)"
-- "ReplaySetup seat ids use explicit non-colliding strings (production GameSession topology). Engine-minted e<N> seat ids collide with card instantiation on reconstruction (counter not advanced for explicit ids) — driver-verified; production path unaffected (string seat ids). Recorded as U19-N5 control, not a candidate defect."
+- "ReplaySetup seat ids use explicit non-colliding strings (production topology uses non-e<N> lobby-assigned ids; driver mirrors with rq-a2-*-p<N>). Engine-minted e<N> seat ids collide with card instantiation on reconstruction (counter not advanced for explicit ids) — driver-verified; e<N>-as-seat-id is an unsupported configuration that fails closed (N5). Recorded as U19-N5 control, not a candidate defect."
 - "U19 verdict (pending final adjudication): ENGINE_DETERMINISM/REEXECUTION DIRECTLY_VERIFIED; SEMANTIC_REPLAY TECHNICALLY_CONFORMANT bounded (cross-process and cross-version open, U20/U22)"
-authority_gates: []
-first_failing_boundary: NONE
-root_cause_class: NONE
-exact_next_action: "Commit U5 milestone; then U1 rules-dense probes (priority/stack, costs/mana, targets, replacement, layers, copy/control, SBA, APNAP, elimination, commander, multi-defender combat, hidden-zone choice, random effect)."
+authority_gates:
+- "AUTHORITY_GATE-1 (U2): CR 800.4a/d remaining-LTB triggers off mass leave-game removals"
+- "AUTHORITY_GATE-2 (U2b): CR 800.4c static-ability exile (no fixture; question only)"
+- "AUTHORITY_GATE-3 (U3): CR 805.4d per-opposing-teammate fan-out (fires-once recorded)"
+- "AUTHORITY_GATE-4 (U16-D2): CR 708.5 controller vision of own face-down exile"
+- "AUTHORITY_GATE-5 (U15): CR 603.3b automatic same-controller trigger ordering"
+- "AUTHORITY_GATE-6 (U1-obs): priority owed in declare-attackers with no attackers"
+first_failing_boundary: "ClientEventTransformer.transform ZoneChangeEvent to HAND/LIBRARY per-viewer broadcast (unmasked entityName; GameSession.kt:1011 path)"
+root_cause_class: "ARGENTUM_ENGINE_DEFECT (view-layer masking omission; repair out of scope)"
+current_failure: "U16-D1 draw leak (open)"
+failure_class: "ARGENTUM_ENGINE_DEFECT"
+exact_next_action: "Coordinator: charter D1 remediation repair + U16 requalification, adjudicate the six authority gates, then decide on the bounded runtime/behavior discriminator. No RQ-A2 follow-up work remains."

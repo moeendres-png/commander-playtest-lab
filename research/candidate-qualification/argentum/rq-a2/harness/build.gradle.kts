@@ -60,6 +60,7 @@ probeTask("rqA2HiddenInfo", "rqa2.HiddenInfoProbeKt", "$evDir/ARGENTUM_HIDDEN_IN
 probeTask("rqA2FivePlayer", "rqa2.FivePlayerProbeKt", "$evDir/ARGENTUM_FIVE_PLAYER_PROBE.json")
 probeTask("rqA2RulesDense", "rqa2.RulesDenseProbeKt", "$evDir/ARGENTUM_RULES_DENSE_PROBES.json")
 probeTask("rqA2Freshness", "rqa2.FreshnessProbeKt", "$evDir/ARGENTUM_DECISION_FRESHNESS.json")
+probeTask("rqA2Authority", "rqa2.AuthorityProbeKt", "$evDir/ARGENTUM_AUTHORITY_PROBES.json")
 
 // U22 cross-process matrix: each task execution forks a fresh JVM.
 for (spec in listOf("S1-study", "S2-activation", "S3-storm", "S4-ping")) {

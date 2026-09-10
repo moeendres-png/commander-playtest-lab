@@ -1,9 +1,12 @@
 # RQ-A2 — RNG Use-Site Closure (U15b)
 
 Question: does discoverable Rule-relevant randomness actually route through `GameRng`,
-or do production Rules paths bypass it? Classification: `CODE_DERIVED` (exhaustive grep
-at the lock) + `DIRECTLY_VERIFIED` runtime (seed control, seed+1 detection, coin-flip
-reproduction in U19/U22 probes).
+or do production Rules paths bypass it?
+
+Evidence split (per adjudication): tested-path seed/RNG reproduction is `DIRECTLY_VERIFIED`
+(U19/U22 runtime: recorded seed == config seed; seed+1 rejected at frame 0; G3's 9 coin
+flips identical across folds); the exhaustive no-bypass closure below is `CODE_DERIVED`
+(grep at the lock), not runtime proof for every consumer.
 
 ## RULES_RNG — everything in-game routes through state-threaded `GameRng`
 
