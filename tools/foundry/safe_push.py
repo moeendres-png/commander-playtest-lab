@@ -19,8 +19,13 @@ Fail-closed preconditions, in order:
 8. tree clean (no partial pushes);
 9. audit_base_sha is an ancestor of HEAD (never leaves the source lock);
 10. remote ref state: absent -> creation only when audit_base descends from
-    (or equals) the remote HEAD; present -> fast-forward only (remote SHA must
-    be a strict ancestor of HEAD); equal -> UP_TO_DATE no-op success;
+    (or equals) the creation anchor: by default the remote main/master HEAD;
+    when --expected-audit-base-ref names an exact pre-existing remote source
+    branch, the anchor is that branch's tip instead (audit_base must be equal
+    to or an ancestor of it; the source branch must exist as exactly
+    refs/heads/<name> on the already-validated expected remote); present ->
+    fast-forward only (remote SHA must be a strict ancestor of HEAD);
+    equal -> UP_TO_DATE no-op success;
 11. push exactly ``HEAD:refs/heads/<branch>`` to the named remote.
 
 Exit codes: 0 PUSHED / UP_TO_DATE / DRY_RUN_OK; 2 PUSH_REJECT with reason.
@@ -109,6 +114,88 @@ def _valid_branch_name(branch: str, workdir: str) -> str | None:
     return None
 
 
+def _valid_source_ref_name(branch: str, target_branch: str, workdir: str) -> str | None:
+    """Strict format gate for --expected-audit-base-ref (source identity only).
+
+    Source-reference semantics differ deliberately from push-destination
+    semantics: a legitimate historical source branch is identity evidence, not
+    a push target, so the protected-branch ban does NOT apply here. Everything
+    else is strict: no empty names, no HEAD, no refs/ prefixes, no SHA-like
+    pseudo-refs, no tag-like or refspec-like shapes, and git check-ref-format
+    must accept the name (this also excludes ls-remote wildcard characters,
+    so the remote lookup below is always a literal exact-ref query).
+    """
+    if not branch or not branch.strip():
+        return "empty expected audit-base ref"
+    if branch == target_branch:
+        return f"source ref {branch!r} must not equal the push target branch"
+    if branch == "HEAD" or branch.startswith("refs/"):
+        return f"non-branch ref {branch!r}"
+    if branch.startswith("-") or branch.startswith("."):
+        return f"leading dash/dot in {branch!r}"
+    if re.search(r"\s|:|\.\.|[~^:?*\[\\]|\.\.|@{", branch):
+        return f"unsafe characters in {branch!r}"
+    if re.fullmatch(r"[0-9a-fA-F]{40}", branch):
+        return f"SHA-like pseudo-ref {branch!r} (name an exact remote branch)"
+    proc = subprocess.run(
+        ["git", "check-ref-format", "--branch", branch],
+        cwd=workdir,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return f"git check-ref-format rejects {branch!r}"
+    return None
+
+
+def _resolve_expected_remote_base(
+    canonical: str,
+    remote: str,
+    source_ref: str,
+    target_branch: str,
+    audit_base: str,
+) -> str:
+    """Resolve the tip of an explicitly named remote source branch (read-only).
+
+    Uses only ``git ls-remote <remote> refs/heads/<source_ref>``: no wildcard
+    search, no branch enumeration. Returns the tip SHA when the ref exists as
+    exactly one remote ref AND audit_base is equal to or an ancestor of that
+    tip (proving the source lock is already part of trusted remote history).
+    Raises _PushReject otherwise. Never writes.
+    """
+    bad = _valid_source_ref_name(source_ref, target_branch, canonical)
+    if bad:
+        raise _PushReject(bad)
+    want = f"refs/heads/{source_ref}"
+    try:
+        out = _run(["git", "ls-remote", remote, want], canonical)
+    except RuntimeError as exc:
+        raise _PushReject(f"cannot resolve source ref {source_ref!r}: {exc}") from exc
+    lines = [line for line in out.splitlines() if line.strip()]
+    if len(lines) != 1:
+        raise _PushReject(
+            f"source ref {source_ref!r} absent on remote {remote!r} "
+            "(name the exact pre-existing remote source branch)"
+        )
+    fields = lines[0].split()
+    if len(fields) != 2 or fields[1] != want:
+        raise _PushReject(f"source ref {source_ref!r} resolved ambiguously (refusing)")
+    tip = fields[0]
+    proved = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", audit_base, tip],
+        cwd=canonical,
+        capture_output=True,
+        check=False,
+    )
+    if audit_base != tip and proved.returncode != 0:
+        raise _PushReject(
+            f"source ref {source_ref!r} does not contain the audit base "
+            "(unrelated remote lineage; refusing creation)"
+        )
+    return tip
+
+
 def _ancestor_pids() -> set[int]:
     """PIDs on this process's parent chain (Linux /proc)."""
     chain: set[int] = set()
@@ -192,6 +279,7 @@ def _decide_push(
     expected_slug: str,
     dry_run: bool,
     ctx: dict,
+    expected_audit_base_ref: str | None = None,
 ) -> str:
     """Run all gates; perform the push. Returns 'RESULT branch@sha'; raises _PushReject."""
     canonical = os.path.realpath(os.path.abspath(worktree))
@@ -315,28 +403,42 @@ def _decide_push(
                 "never force-push: reconcile by hand outside the launcher)"
             )
     else:
-        remote_main = None
-        for candidate in ("refs/heads/main", "refs/heads/master"):
-            try:
-                out = _run(["git", "ls-remote", remote, candidate], canonical)
-            except RuntimeError as exc:
-                raise _PushReject(f"cannot resolve remote HEAD for creation gate: {exc}") from exc
-            if out:
-                remote_main = out.split()[0]
-                break
-        if remote_main is None:
-            raise _PushReject(
-                "cannot resolve remote main/master for creation gate "
-                "(unknown remote state; refusing)"
+        if expected_audit_base_ref is not None:
+            # Explicit non-main lineage: the caller names one exact
+            # pre-existing remote source branch that must already contain the
+            # audit base. Identity evidence only; never a refspec.
+            _resolve_expected_remote_base(
+                canonical, remote, expected_audit_base_ref, expected_branch, base
             )
-        created = subprocess.run(
-            ["git", "merge-base", "--is-ancestor", base, remote_main],
-            cwd=canonical,
-            capture_output=True,
-            check=False,
-        )
-        if base != remote_main and created.returncode != 0:
-            raise _PushReject("branch creation refused: audit base is outside the remote history")
+            # Proven: audit_base is reachable from the named remote source
+            # branch, so creation from this lineage is permitted.
+        else:
+            remote_main = None
+            for candidate in ("refs/heads/main", "refs/heads/master"):
+                try:
+                    out = _run(["git", "ls-remote", remote, candidate], canonical)
+                except RuntimeError as exc:
+                    raise _PushReject(
+                        f"cannot resolve remote HEAD for creation gate: {exc}"
+                    ) from exc
+                if out:
+                    remote_main = out.split()[0]
+                    break
+            if remote_main is None:
+                raise _PushReject(
+                    "cannot resolve remote main/master for creation gate "
+                    "(unknown remote state; refusing)"
+                )
+            created = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", base, remote_main],
+                cwd=canonical,
+                capture_output=True,
+                check=False,
+            )
+            if base != remote_main and created.returncode != 0:
+                raise _PushReject(
+                    "branch creation refused: audit base is outside the remote history"
+                )
 
     # 11. the single authorized write: exact refspec, no flags by construction.
     if dry_run:
@@ -364,12 +466,20 @@ def safe_push(
     expected_slug: str = "moeendres-png/commander-playtest-lab",
     dry_run: bool = False,
     metrics_path: str | None = None,
+    expected_audit_base_ref: str | None = None,
 ) -> int:
     """Narrow safe checkpoint push with fail-closed gates and metric emission."""
     ctx: dict = {"task_id": "UNKNOWN", "source_sha": None}
     try:
         outcome = _decide_push(
-            worktree, expected_branch, state_path, remote, expected_slug, dry_run, ctx
+            worktree,
+            expected_branch,
+            state_path,
+            remote,
+            expected_slug,
+            dry_run,
+            ctx,
+            expected_audit_base_ref,
         )
     except _PushReject as rej:
         reason = str(rej)
@@ -394,6 +504,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--metrics", default=None, help="Append AUTOCAPTURED push record here.")
+    parser.add_argument(
+        "--expected-audit-base-ref",
+        default=None,
+        help=(
+            "Exact pre-existing remote source branch proving the audit base is "
+            "already part of trusted remote history (e.g. "
+            "'foundry/ws39-commander-history-state-restore'). Only consulted "
+            "when the target branch does not yet exist on the remote: the "
+            "audit base must be equal to or an ancestor of this branch's tip. "
+            "Without it, creation stays anchored to remote main/master. "
+            "Branch name only: no refspecs, tags, SHAs, or wildcards."
+        ),
+    )
     args = parser.parse_args(argv)
     return safe_push(
         args.worktree,
@@ -403,6 +526,7 @@ def main(argv: list[str] | None = None) -> int:
         args.expected_slug,
         args.dry_run,
         args.metrics,
+        args.expected_audit_base_ref,
     )
 
 

@@ -333,3 +333,361 @@ if __name__ == "__main__":
     import pytest as _pytest
 
     raise SystemExit(_pytest.main([__file__, "-q"]))
+
+
+# ---------------------------------------------------------------------------
+# WS57: explicit remote-source-lineage creation (--expected-audit-base-ref).
+# ---------------------------------------------------------------------------
+
+LINEAGE_BRANCH = "target/ws"
+LINEAGE_SOURCE = "source/lineage"
+LINEAGE_UNRELATED = "unrelated/line"
+LINEAGE_OWNER = "TEST-WS"
+
+
+@pytest.fixture()
+def lineage_rig(tmp_path: Path) -> dict:
+    """Remote main at A plus a diverged source branch at B (WS54 shape).
+
+    main advances past the fork point so B is NOT in main ancestry; the local
+    target/ws branch descends from B with audit_base_sha=B and the target
+    remote branch absent.
+    """
+    locks = tmp_path / "locks"
+    locks.mkdir()
+    env = _git_env()
+    remote = tmp_path / "test-host" / "fixture-repo" / "remote.git"
+    remote.parent.mkdir(parents=True)
+    _git(["init", "--bare", "-b", "main", str(remote)], tmp_path, env)
+    seed = tmp_path / "seed"
+    _git(["clone", str(remote), str(seed)], tmp_path, env)
+    (seed / "f.txt").write_text("v1\n", encoding="utf-8")
+    _git(["add", "."], seed, env)
+    _git(["commit", "-m", "init"], seed, env)
+    _git(["push", "origin", "HEAD:refs/heads/main"], seed, env)
+    _git(["checkout", "-b", LINEAGE_SOURCE], seed, env)
+    (seed / "s.txt").write_text("lineage\n", encoding="utf-8")
+    _git(["add", "."], seed, env)
+    _git(["commit", "-m", "lineage B"], seed, env)
+    _git(["push", "origin", f"HEAD:refs/heads/{LINEAGE_SOURCE}"], seed, env)
+    audit_base = _git(["rev-parse", "HEAD"], seed, env)
+    # Advance main elsewhere so the lineage is outside main ancestry.
+    _git(["checkout", "main"], seed, env)
+    (seed / "m.txt").write_text("main2\n", encoding="utf-8")
+    _git(["add", "."], seed, env)
+    _git(["commit", "-m", "main advance"], seed, env)
+    _git(["push", "origin", "HEAD:refs/heads/main"], seed, env)
+    # Unrelated branch at the main tip (never contains the audit base).
+    _git(["checkout", "-b", LINEAGE_UNRELATED], seed, env)
+    _git(["push", "origin", f"HEAD:refs/heads/{LINEAGE_UNRELATED}"], seed, env)
+
+    wt = tmp_path / "wt"
+    _git(["clone", str(remote), str(wt)], tmp_path, env)
+    _git(["checkout", "-b", LINEAGE_BRANCH, f"origin/{LINEAGE_SOURCE}"], wt, env)
+    (wt / "work.txt").write_text("work\n", encoding="utf-8")
+    _git(["add", "."], wt, env)
+    _git(["commit", "-m", "work"], wt, env)
+    head = _git(["rev-parse", "HEAD"], wt, env)
+    state = {
+        "schema_version": "2.0",
+        "repository": "test-host/fixture-repo",
+        "worktree": str(wt),
+        "branch": LINEAGE_BRANCH,
+        "audit_base_sha": audit_base,
+        "audit_base_tree": "0" * 40,
+        "state_written_against_head": head,
+        "validated_head": head,
+        "objective": "x",
+        "in_scope": [],
+        "out_of_scope": [],
+        "ownership": LINEAGE_OWNER,
+        "status": "ACTIVE",
+        "exact_next_action": "push",
+    }
+    state_path = wt / "STATE.yaml"
+    state_path.write_text(yaml.safe_dump(state), encoding="utf-8")
+    _git(["add", "."], wt, env)
+    _git(["commit", "-m", "checkpoint state"], wt, env)
+    checkpoint_head = _git(["rev-parse", "HEAD"], wt, env)
+    # Reproduce the WS54 shape: audit base outside main ancestry.
+    diverged = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", audit_base, "origin/main"],
+        cwd=wt,
+        capture_output=True,
+        check=False,
+        env=env,
+    )
+    assert diverged.returncode != 0, "rig must place B outside main ancestry"
+    return {
+        "wt": wt,
+        "seed": seed,
+        "remote": remote,
+        "locks": locks,
+        "state": state_path,
+        "env": env,
+        "audit_base": audit_base,
+        "checkpoint_head": checkpoint_head,
+    }
+
+
+def _run_lineage_push(
+    rig: dict, *extra: str, via_holder: bool = True, env_extra: dict | None = None
+) -> subprocess.CompletedProcess:
+    cmd = [
+        sys.executable,
+        str(TOOL),
+        "--worktree",
+        str(rig["wt"]),
+        "--expected-branch",
+        LINEAGE_BRANCH,
+        "--state",
+        str(rig["state"]),
+        "--expected-slug",
+        SLUG,
+        *extra,
+    ]
+    env = dict(rig["env"])
+    env["FOUNDRY_LOCK_DIR"] = str(rig["locks"])
+    env["PYTHONPATH"] = str(TOOLS_DIR)
+    if env_extra:
+        env.update(env_extra)
+    if not via_holder:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=60, env=env)
+    driver = (
+        "import subprocess, sys; "
+        "from foundry import writer_lock; "
+        f"lock = writer_lock.WriterLock(sys.argv[1], {LINEAGE_OWNER!r}, "
+        f"{LINEAGE_BRANCH!r}, 'ses-t'); "
+        "lock.acquire(); "
+        "p = subprocess.run(sys.argv[2:], capture_output=True, text=True); "
+        "sys.stdout.write(p.stdout); sys.stderr.write(p.stderr); "
+        "lock.release(); "
+        "sys.exit(p.returncode)"
+    )
+    return subprocess.run(
+        [sys.executable, "-c", driver, str(rig["wt"]), *cmd],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        env=env,
+    )
+
+
+def test_lineage_creation_dry_run_with_source_ref(lineage_rig: dict) -> None:
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+    proc = _run_lineage_push(lineage_rig, "--dry-run", "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert proc.returncode == 0, proc.stderr
+    assert "DRY_RUN_OK" in proc.stdout
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_creation_pushes_with_source_ref(lineage_rig: dict) -> None:
+    proc = _run_lineage_push(lineage_rig, "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert proc.returncode == 0, proc.stderr
+    assert "PUSHED" in proc.stdout
+    assert (
+        _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") == lineage_rig["checkpoint_head"]
+    )
+    second = _run_lineage_push(lineage_rig, "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert second.returncode == 0
+    assert "UP_TO_DATE" in second.stdout
+
+
+def test_lineage_creation_allows_advanced_source_tip(lineage_rig: dict) -> None:
+    # The source branch advances past the audit base; creation stays permitted
+    # while the audit base remains an ancestor of the source tip.
+    seed = lineage_rig["seed"]
+    env = lineage_rig["env"]
+    _git(["checkout", LINEAGE_SOURCE], seed, env)
+    (seed / "s2.txt").write_text("lineage-advance\n", encoding="utf-8")
+    _git(["add", "."], seed, env)
+    _git(["commit", "-m", "lineage advance"], seed, env)
+    _git(["push", "origin", f"HEAD:refs/heads/{LINEAGE_SOURCE}"], seed, env)
+    _git(["fetch", "origin", LINEAGE_SOURCE], lineage_rig["wt"], env)
+    proc = _run_lineage_push(lineage_rig, "--dry-run", "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert proc.returncode == 0, proc.stderr
+    assert "DRY_RUN_OK" in proc.stdout
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_creation_rejected_without_source_ref(lineage_rig: dict) -> None:
+    proc = _run_lineage_push(lineage_rig, "--dry-run")
+    assert proc.returncode == 2
+    assert "audit base is outside the remote history" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_absent_source_ref_rejected(lineage_rig: dict) -> None:
+    proc = _run_lineage_push(
+        lineage_rig, "--dry-run", "--expected-audit-base-ref", "source/missing"
+    )
+    assert proc.returncode == 2
+    assert "absent on remote" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_unrelated_source_ref_rejected(lineage_rig: dict) -> None:
+    for ref in (LINEAGE_UNRELATED, "main"):
+        proc = _run_lineage_push(lineage_rig, "--dry-run", "--expected-audit-base-ref", ref)
+        assert proc.returncode == 2, ref
+        assert "does not contain the audit base" in proc.stderr, ref
+        assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_malformed_source_refs_rejected(lineage_rig: dict) -> None:
+    evil = [
+        "x --force",
+        "HEAD:refs/heads/other",
+        "-u",
+        "a:b",
+        "a..b",
+        "a b",
+        "refs/heads/source/lineage",
+        "HEAD",
+        "source/*",
+        "a@{1}",
+        LINEAGE_BRANCH,  # must not equal the push target
+        "0" * 40,  # SHA-like pseudo-ref
+    ]
+    for name in evil:
+        reason = safe_push_mod._valid_source_ref_name(name, LINEAGE_BRANCH, str(lineage_rig["wt"]))
+        assert reason is not None, name
+    # End-to-end: a representative subset must reject before any remote write.
+    for name in ("x --force", "a:b", "refs/heads/source/lineage", "0" * 40, LINEAGE_BRANCH):
+        proc = _run_lineage_push(lineage_rig, "--dry-run", "--expected-audit-base-ref", name)
+        assert proc.returncode == 2, name
+        assert "PUSH_REJECT" in proc.stderr, name
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_source_ref_allows_protected_names_as_identity(
+    lineage_rig: dict,
+) -> None:
+    # Protected-branch semantics govern push destinations, not source identity
+    # evidence: "main" passes source-ref format validation (ancestry still
+    # decides, and rejects it here because the lineage diverged from main).
+    assert (
+        safe_push_mod._valid_source_ref_name("main", LINEAGE_BRANCH, str(lineage_rig["wt"])) is None
+    )
+    assert safe_push_mod._valid_branch_name("main", str(lineage_rig["wt"])) is not None
+
+
+def test_lineage_wrong_remote_rejected(lineage_rig: dict) -> None:
+    proc = _run_lineage_push(
+        lineage_rig,
+        "--dry-run",
+        "--expected-audit-base-ref",
+        LINEAGE_SOURCE,
+        "--expected-slug",
+        "someone-else/other-repo",
+    )
+    assert proc.returncode == 2
+    assert "WRONG_REMOTE" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_dirty_tree_rejected(lineage_rig: dict) -> None:
+    (lineage_rig["wt"] / "uncommitted.txt").write_text("dirty\n", encoding="utf-8")
+    proc = _run_lineage_push(lineage_rig, "--dry-run", "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert proc.returncode == 2
+    assert "dirty worktree" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_missing_lock_rejected(lineage_rig: dict) -> None:
+    proc = _run_lineage_push(
+        lineage_rig,
+        "--dry-run",
+        "--expected-audit-base-ref",
+        LINEAGE_SOURCE,
+        via_holder=False,
+    )
+    assert proc.returncode == 2
+    assert "writer lock" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_sibling_lock_rejected(lineage_rig: dict) -> None:
+    env = dict(lineage_rig["env"])
+    env["FOUNDRY_LOCK_DIR"] = str(lineage_rig["locks"])
+    env["PYTHONPATH"] = str(TOOLS_DIR)
+    holder = subprocess.Popen(
+        [
+            sys.executable,
+            str(ROOT / "tools" / "foundry" / "writer_lock.py"),
+            "acquire",
+            "--worktree",
+            str(lineage_rig["wt"]),
+            "--workstream",
+            LINEAGE_OWNER,
+            "--branch",
+            LINEAGE_BRANCH,
+            "--hold",
+        ],
+        env=env,
+        cwd=str(lineage_rig["wt"]),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    assert holder.stdout is not None
+    while "WRITER_OK" not in (holder.stdout.readline() or ""):
+        pass
+    try:
+        proc = _run_lineage_push(
+            lineage_rig,
+            "--dry-run",
+            "--expected-audit-base-ref",
+            LINEAGE_SOURCE,
+            via_holder=False,
+        )
+        assert proc.returncode == 2
+        assert "not an ancestor" in proc.stderr
+        assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+    finally:
+        holder.terminate()
+        holder.wait(timeout=10)
+
+
+def test_lineage_null_validated_head_rejected(lineage_rig: dict) -> None:
+    _rewrite_state(lineage_rig, validated_head=None)
+    proc = _run_lineage_push(lineage_rig, "--dry-run", "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert proc.returncode == 2
+    assert "validated_head is null" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_audit_base_outside_head_rejected(lineage_rig: dict) -> None:
+    main_tip = _remote_sha(lineage_rig, "refs/heads/main")
+    assert main_tip is not None
+    _rewrite_state(lineage_rig, audit_base_sha=main_tip)
+    proc = _run_lineage_push(lineage_rig, "--dry-run", "--expected-audit-base-ref", LINEAGE_SOURCE)
+    # A foreign audit base breaks validation credit (gate 7) before the
+    # source-lock ancestry gate (gate 9) is reached; either way no write.
+    assert proc.returncode == 2
+    assert "VALIDATED_OUTSIDE_LOCK" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") is None
+
+
+def test_lineage_non_fast_forward_rejected(lineage_rig: dict) -> None:
+    first = _run_lineage_push(lineage_rig, "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert first.returncode == 0, first.stderr
+    pushed = _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}")
+    assert pushed == lineage_rig["checkpoint_head"]
+    rival = lineage_rig["wt"].parent / "rival"
+    _git(
+        ["clone", str(lineage_rig["remote"]), str(rival)],
+        lineage_rig["wt"].parent,
+        lineage_rig["env"],
+    )
+    _git(["checkout", LINEAGE_BRANCH], rival, lineage_rig["env"])
+    (rival / "rival.txt").write_text("rival\n", encoding="utf-8")
+    _git(["add", "."], rival, lineage_rig["env"])
+    _git(["commit", "-m", "rival"], rival, lineage_rig["env"])
+    _git(["push", "origin", f"HEAD:refs/heads/{LINEAGE_BRANCH}"], rival, lineage_rig["env"])
+    rival_sha = _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}")
+    assert rival_sha != pushed
+    proc = _run_lineage_push(lineage_rig, "--expected-audit-base-ref", LINEAGE_SOURCE)
+    assert proc.returncode == 2
+    assert "non-fast-forward" in proc.stderr
+    assert _remote_sha(lineage_rig, f"refs/heads/{LINEAGE_BRANCH}") == rival_sha
