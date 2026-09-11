@@ -1,0 +1,66 @@
+{
+  "artifact_version": "commander-lab.ws43-evidence-index/1.0.0",
+  "workstream": "WS-43",
+  "classification": "COMPLETE / TERMINAL_FAIL_DIGEST_INTEGRITY_DEFECT",
+  "persistent_checkpoint_commit": "e3ed92b2a677a2957390c40ac24625139e7cbd6e",
+  "evidence": [
+    {
+      "path": "candidate-qualification/ws43-successor-v1.0.4/WS43_WORKSTREAM_CONTRACT.md",
+      "role": "binding workstream contract"
+    },
+    {
+      "path": "candidate-qualification/ws43-successor-v1.0.4/WS43_COORDINATOR_INPUT_WS42_TERMINAL.md",
+      "role": "terminal WS-42 coordinator input"
+    },
+    {
+      "path": "candidate-qualification/ws43-successor-v1.0.4/WS43_SOURCE_LOCK.json",
+      "role": "fresh WS-43/predecessor source lock"
+    },
+    {
+      "path": "candidate-qualification/ws43-successor-v1.0.4/WS43_WS41_PREDECESSOR_NAMESPACE_INTEGRITY.json",
+      "role": "complete 18-path pinned-vs-observed predecessor namespace identity matrix and G43-01 result"
+    },
+    {
+      "path": "candidate-qualification/ws43-successor-v1.0.4/WS43_VALIDATION.json",
+      "role": "terminal gate state and fail-closed classification"
+    },
+    {
+      "path": "candidate-qualification/ws43-successor-v1.0.4/WS43_FINAL_HANDOFF.md",
+      "role": "self-contained terminal handoff"
+    }
+  ],
+  "external_git_evidence": {
+    "pinned_predecessor_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "pinned_predecessor_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "pinned_ws41_namespace_tree": "af8a26e7e74a859d5f4a983b69e4ff108e7123f4",
+    "observed_ws43_initial_head": "6dae51bf6554f34466552f1c331e4347641a1a11",
+    "observed_ws43_initial_tree": "c619e65ff6c5f6153c9601d9a5e9c9189e39718e",
+    "observed_ws41_namespace_tree": "cf40fe6157d4681dda31c1fe2b2aacb9cecbb374",
+    "post_lock_attestation_commit": "a5f6d4bdfa47634e16f1f8b8aa6647e9ffe6c1d3",
+    "post_lock_regeneration_commit": "e83e6998aa16cdb4cb422ceecab6c517043ab742"
+  },
+  "success_outputs_intentionally_absent_due_terminal_stop": [
+    "WS43_WS40_MICRO_DEFECT_REPRODUCTION.json",
+    "WS43_MICRO_TARGET_IDENTITY_ADJUDICATION.json",
+    "WS43_REFERENCE_FIELD_INVENTORY.json",
+    "WS43_REFERENTIAL_INTEGRITY_AUDIT_135.json",
+    "WS43_REFERENTIAL_INTEGRITY_LINTER_RULES.json",
+    "successor linter implementation",
+    "negative/positive linter regression suite",
+    "SEMANTIC_FIXTURE_SCHEMA_v1_0_4.json",
+    "SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json",
+    "WS43_SEMANTIC_EXECUTABILITY_REPORT_135.json",
+    "WS43_PROVIDER_DENOMINATOR_107.json",
+    "WS43_DIGEST_LINEAGE.json",
+    "SUPERSEDES_v1_0_3.json",
+    "WS43_SHA256SUMS",
+    "complete CI freeze artifact"
+  ],
+  "absence_reason": "The binding contract requires immediate fail-closed stop if predecessor immutability cannot be proven. G43-01 failed before any v1.0.4 mutation or downstream gate execution.",
+  "provider_runtime_evidence_included": false,
+  "provider_runtime_executed": false,
+  "provider_pass_imported": false,
+  "af07_granted": false,
+  "architecture_freeze": false,
+  "successor_contract_frozen": false
+}
