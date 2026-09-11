@@ -1,0 +1,479 @@
+name: H4 Docker Materialization
+
+# WS-A1D-H4 qualification lane (bounded, Docker-capable).
+#
+# Produces real runtime evidence for the supported Docker/Compose engine path:
+# manifest-authoritative image builds (xmage + forge), in-image source HEAD +
+# provenance identity, fail-closed startup provenance gate (positive + negative
+# controls on the real images), and — xmage only — a real container handshake
+# against the verified conforming Lab bridge over the supported
+# wrapper -> compose -> entrypoint path.
+#
+# Evidence semantics: image construction alone is NOT H4; no synthetic bridge,
+# health endpoint, or injected handshake may substitute. Forge has no
+# conforming bridge in canonical source (see integrations/forge/README.md and
+# the J-P3D production_bridge=not_built record), so the forge job proves
+# image + gate evidence only and records bridge runtime as NOT_RUN. H4
+# PASS/FAIL/PARTIAL/UNKNOWN stays a Coordinator adjudication over the
+# uploaded verdicts; this lane fails closed (non-zero) on any mismatch.
+#
+# Triggering: `pull_request` is the initial remote-execution path for this new
+# workflow: PR runs evaluate the workflow file from the PR merge ref, so
+# opening or updating a PR that touches the paths below executes this lane.
+# `workflow_dispatch` is available once this workflow exists on the default branch;
+# after that, `--ref` may select another ref for execution.
+# Do not attempt workflow_dispatch before merge merely to test it.
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/h4-docker-materialization.yml"
+      - "config/rules_engines.json"
+      - "docker/**"
+      - "docker-compose.engine.yml"
+      - "engine-bridge/**"
+      - "integrations/xmage/README.md"
+      - "integrations/forge/README.md"
+      - "docs/engine_setup.md"
+      - "scripts/docker_build_engine.sh"
+      - "scripts/docker_resolve_engine_pin.py"
+      - "scripts/verify_container_provenance.py"
+      - "scripts/engine_container_entrypoint.sh"
+      - "scripts/verify_engine.sh"
+      - "scripts/h4_verify_materialization_evidence.py"
+      - "src/commander_lab/engine/rules/bridge.py"
+      - "src/commander_lab/engine/process_manager.py"
+      - "src/commander_lab/models/engine_runtime.py"
+      - "src/commander_lab/cli/app.py"
+      - "tests/unit/test_h4_verify_materialization_evidence.py"
+      - "tests/unit/test_ws_a1d_docker_pin_authority.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Long engine builds must not be cancelled by a newer push while they are
+# producing qualification evidence; each run completes or fails on its own.
+concurrency:
+  group: h4-${{ github.head_ref || github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install lab (test deps for the H4-adjacent unit batteries)
+        run: python -m pip install -e '.[dev,api]'
+      - name: Lane inputs exist (fail fast before heavy builds)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in \
+            config/rules_engines.json \
+            docker/xmage/Dockerfile \
+            docker/forge/Dockerfile \
+            docker-compose.engine.yml \
+            scripts/docker_build_engine.sh \
+            scripts/docker_resolve_engine_pin.py \
+            scripts/verify_container_provenance.py \
+            scripts/engine_container_entrypoint.sh \
+            scripts/verify_engine.sh \
+            scripts/h4_verify_materialization_evidence.py \
+            engine-bridge/pom.xml ; do
+            test -f "$f" || { echo "H4 lane input is missing: $f" >&2; exit 3; }
+          done
+      - name: Canonical identity resolution matrix (no Docker needed)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/docker_resolve_engine_pin.py --provider xmage
+          python3 scripts/docker_resolve_engine_pin.py --provider forge
+          if python3 scripts/docker_resolve_engine_pin.py --provider unknown; then
+            echo "unknown provider must fail closed" >&2
+            exit 1
+          fi
+      - name: WS-A1D authority battery + H4 verifier battery + H4 workflow-structure battery
+        run: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py tests/unit/test_h4_workflow_structure.py
+      - name: Ruff on H4 harness files
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check scripts/h4_verify_materialization_evidence.py tests/unit/test_h4_verify_materialization_evidence.py
+          ruff format --check scripts/h4_verify_materialization_evidence.py tests/unit/test_h4_verify_materialization_evidence.py
+
+  h4-xmage:
+    needs: [preflight]
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      ENGINE_PROVIDER: xmage
+      ENGINE_MODE: external
+      ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
+      PYTHONHASHSEED: "0"
+      # Build-time Compose model resolution only (NOT bridge evidence):
+      # docker-compose.engine.yml requires non-empty ENGINE_START_COMMAND
+      # interpolation before ANY compose command runs, so the lane supplies
+      # this benign value. The real bridge command explicitly overrides it
+      # in the handshake step; negatives override it with a sentinel.
+      ENGINE_START_COMMAND: "true"
+      # Unique explicit project so the built service image reference is
+      # deterministic (COMPOSE_PROJECT_NAME-xmage) and evidence binds to it.
+      COMPOSE_PROJECT_NAME: h4-xmage-${{ github.run_id }}
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          # No pip cache in Docker-heavy jobs: post-job cache save must not
+          # traverse mutable Docker-overlay state created/removed by this job
+          # (run 34573843323 Forge post-cache failure). CI hygiene only.
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5 immutable revision
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Install lab (engine-verify consumer)
+        run: python -m pip install -e '.[dev,api]'
+      - name: Resolve canonical XMage pin from manifest authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p h4-evidence-xmage
+          python3 scripts/docker_resolve_engine_pin.py --provider xmage --format json | tee h4-evidence-xmage/xmage-pin.json
+          python3 -c "import json; print(json.load(open('h4-evidence-xmage/xmage-pin.json'))['commit'])" > h4-evidence-xmage/xmage-commit.txt
+          echo "XMAGE_COMMIT=$(cat h4-evidence-xmage/xmage-commit.txt)" >> "$GITHUB_ENV"
+      - name: Checkout pinned XMage (canonical repository + commit only)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Verify XMage source identity
+        shell: bash
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+          git show --no-patch --format=fuller "$XMAGE_COMMIT"
+      - name: Build pinned XMage (canonical direct-source build)
+        shell: bash
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -o pipefail
+          if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi 2>&1 | tee "$GITHUB_WORKSPACE/h4-evidence-xmage/xmage-mvn-install.log"
+      - name: Build + verify Lab XMage bridge, stage documented container path
+        shell: bash
+        working-directory: engine-bridge
+        run: |
+          set -o pipefail
+          mvn -B -ntp verify 2>&1 | tee "$GITHUB_WORKSPACE/h4-evidence-xmage/bridge-mvn-verify.log"
+          sha256sum target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar | tee "$GITHUB_WORKSPACE/h4-evidence-xmage/xmage-bridge.sha256"
+          mkdir -p "$GITHUB_WORKSPACE/vendor/engine-binaries/xmage"
+          cp target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar "$GITHUB_WORKSPACE/vendor/engine-binaries/xmage/bridge.jar"
+      - name: Runner + Docker identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p h4-evidence-xmage
+          docker --version | tee h4-evidence-xmage/docker-version.txt
+          docker compose version | tee -a h4-evidence-xmage/docker-version.txt
+          df -h | tee h4-evidence-xmage/disk.txt
+      - name: Build canonical XMage image (manifest-authoritative wrapper only)
+        shell: bash
+        run: |
+          set -o pipefail
+          ./scripts/docker_build_engine.sh xmage build 2>&1 | tee h4-evidence-xmage/docker-build.log
+          echo "$?" > h4-evidence-xmage/docker-build-exit.txt
+          test "$(cat h4-evidence-xmage/docker-build-exit.txt)" = "0"
+      - name: Capture image identity (exact Compose project/service image)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Bind every later observation to the exact image THIS job built:
+          # with an explicit COMPOSE_PROJECT_NAME, Compose names the service
+          # image deterministically as <project>-<service>. Provider-label
+          # discovery is forbidden here: a stale image could satisfy it.
+          IMAGE_REF="${COMPOSE_PROJECT_NAME}-xmage"
+          IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE_REF")"
+          test -n "$IMAGE_ID"
+          printf '%s\n' "$IMAGE_REF" > h4-evidence-xmage/image-ref.txt
+          printf '%s\n' "$IMAGE_ID" > h4-evidence-xmage/image-id.txt
+          docker image inspect "$IMAGE_REF" > h4-evidence-xmage/docker-inspect.json
+          docker run --rm --entrypoint cat "$IMAGE_ID" /opt/engine-provenance.json | tee h4-evidence-xmage/engine-provenance.json
+          docker run --rm --entrypoint git "$IMAGE_ID" -C /opt/engine-source rev-parse HEAD | tee h4-evidence-xmage/engine-source-head.txt
+      - name: Positive provenance gate on the real image (supported path)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ENGINE_START_COMMAND=true
+          ./scripts/docker_build_engine.sh xmage run --rm -T xmage
+          echo "gate-only probe exited 0 on the real xmage image"
+      - name: Negative provenance controls (bounded; start must never execute)
+        shell: bash
+        run: |
+          set -euo pipefail
+          NEGDIR="$RUNNER_TEMP/h4neg-xmage"
+          mkdir -p "$NEGDIR"
+          python3 - "$NEGDIR" <<'EOF'
+          import json, sys
+          manifest = json.load(open("config/rules_engines.json"))
+          manifest["primary_engine"]["commit"] = "0" * 40
+          json.dump(manifest, open(f"{sys.argv[1]}/tampered-manifest.json", "w"), sort_keys=True)
+          EOF
+          run_negative() {
+            local manifest_path="$1" label="$2" expect="$3"
+            rm -f "$NEGDIR/started"
+            set +e
+            ENGINE_START_COMMAND='touch /h4neg/started' \
+            ./scripts/docker_build_engine.sh xmage run --rm -T -v "$NEGDIR:/h4neg" -e PIN_MANIFEST_PATH="$manifest_path" xmage >"$NEGDIR/$label-stdout.log" 2>"$NEGDIR/$label-stderr.log"
+            local rc=$?
+            set -e
+            echo "$label exit: $rc (expected $expect)"
+            test "$rc" = "$expect" || { echo "negative control $label misbehaved (rc=$rc)" >&2; exit 1; }
+            test ! -e "$NEGDIR/started" || { echo "ENGINE_START_COMMAND executed after provenance failure ($label)" >&2; exit 1; }
+            grep -Eq 'FAIL CLOSED|ERROR' "$NEGDIR/$label-stderr.log" || { echo "negative control $label lacks fail-closed diagnostics" >&2; exit 1; }
+            cp "$NEGDIR/$label-stderr.log" "h4-evidence-xmage/negative-$label-stderr.log"
+          }
+          run_negative /h4neg/tampered-manifest.json tampered 3
+          run_negative /h4neg/absent-manifest.json missing 3
+          echo "negative controls green: gate refused, start command never executed"
+      - name: Real container handshake (real bridge, supported path, protocol 2.0.0)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/h4_verify_materialization_evidence.py emit-handshake \
+            --provider xmage --manifest config/rules_engines.json \
+            --out-requests h4-evidence-xmage/handshake-requests.jsonl \
+            > h4-evidence-xmage/handshake-requests-pipe.jsonl
+          cmp h4-evidence-xmage/handshake-requests.jsonl h4-evidence-xmage/handshake-requests-pipe.jsonl
+          export ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar'
+          ./scripts/docker_build_engine.sh xmage run --rm -T xmage \
+            < h4-evidence-xmage/handshake-requests.jsonl \
+            > h4-evidence-xmage/handshake-transcript.jsonl
+          echo "$?" > h4-evidence-xmage/container-run-exit.txt
+          test "$(cat h4-evidence-xmage/container-run-exit.txt)" = "0"
+          test "$(grep -c . h4-evidence-xmage/handshake-transcript.jsonl)" = "4"
+      - name: engine-verify outcome vs manifest capability truth (recorded, consistency-gated)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ENGINE_PROVIDER=xmage ENGINE_MODE=external
+          export ENGINE_START_COMMAND="java -jar $PWD/vendor/engine-binaries/xmage/bridge.jar"
+          set +e
+          python -m commander_lab.cli.app engine-verify --root "$PWD" > h4-evidence-xmage/engine-verify.json 2>h4-evidence-xmage/engine-verify-stderr.log
+          rc=$?
+          set -e
+          echo "$rc" > h4-evidence-xmage/engine-verify-exit.txt
+          python3 - h4-evidence-xmage/engine-verify.json "$rc" <<'EOF'
+          import json, sys
+          record = json.load(open(sys.argv[1]))
+          rc = int(sys.argv[2])
+          manifest = json.load(open("config/rules_engines.json"))
+          missing = manifest["current_runtime"].get("required_missing_capabilities", [])
+          expected = "degraded" if missing else "healthy"
+          assert record.get("status") == expected, (
+              f"engine-verify status {record.get('status')!r} is inconsistent with manifest "
+              f"missing-capability truth {missing!r} (expected {expected!r})"
+          )
+          assert rc == (0 if expected == "healthy" else 1), f"unexpected engine-verify exit {rc}"
+          print(f"engine-verify consistency holds: status={expected} (missing caps: {missing})")
+          EOF
+      - name: Adjudicate XMage evidence (fail closed; never grants H4 PASS)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/h4_verify_materialization_evidence.py verify \
+            --provider xmage --manifest config/rules_engines.json \
+            --provenance h4-evidence-xmage/engine-provenance.json \
+            --source-head h4-evidence-xmage/engine-source-head.txt \
+            --image-id "$(cat h4-evidence-xmage/image-id.txt)" \
+            --image-tag "$(cat h4-evidence-xmage/image-ref.txt)" \
+            --build-exit-code "$(cat h4-evidence-xmage/docker-build-exit.txt)" \
+            --handshake-requests h4-evidence-xmage/handshake-requests.jsonl \
+            --handshake-transcript h4-evidence-xmage/handshake-transcript.jsonl \
+            --engine-verify h4-evidence-xmage/engine-verify.json \
+            --docker-version "$(cat h4-evidence-xmage/docker-version.txt | head -n 1)" \
+            --runner "ubuntu-latest run ${GITHUB_RUN_ID}" \
+            --lab-head "${GITHUB_SHA}" \
+            --out h4-evidence-xmage/h4-xmage-verdict.json
+          python3 -c "import json; v=json.load(open('h4-evidence-xmage/h4-xmage-verdict.json')); assert v['overall']=='EVIDENCE_COMPLETE', v['overall']"
+      - name: Checksums
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p h4-evidence-xmage
+          find h4-evidence-xmage -type f ! -name 'h4-evidence-checksums.sha256' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > h4-evidence-xmage/h4-evidence-checksums.sha256 || true
+      - name: Cleanup containers (best effort)
+        if: always()
+        shell: bash
+        run: docker compose -f docker-compose.engine.yml --profile xmage down --remove-orphans || true
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        if: always()
+        with:
+          name: h4-evidence-xmage-${{ github.sha }}
+          path: h4-evidence-xmage/
+          if-no-files-found: error
+
+  h4-forge-image:
+    needs: [preflight]
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      # Build-time Compose model resolution only (NOT bridge evidence):
+      # see the h4-xmage job env comment. Forge has no conforming bridge,
+      # so the benign value is never overridden by a real bridge command.
+      ENGINE_START_COMMAND: "true"
+      # Unique explicit project so the built service image reference is
+      # deterministic (COMPOSE_PROJECT_NAME-forge) and evidence binds to it.
+      COMPOSE_PROJECT_NAME: h4-forge-${{ github.run_id }}
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: "3.12"
+          # No pip cache in Docker-heavy jobs: post-job cache save must not
+          # traverse mutable Docker-overlay state created/removed by this job
+          # (run 34573843323 Forge post-cache failure). CI hygiene only.
+      - name: Resolve canonical Forge pin from manifest authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p h4-evidence-forge
+          python3 scripts/docker_resolve_engine_pin.py --provider forge --format json | tee h4-evidence-forge/forge-pin.json
+      - name: Record Forge bridge absence (no conforming bridge may be invented)
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "provider=forge"
+            echo "bridge_search_result=absent"
+            echo "reason=no conforming protocol-2.0.0 Forge bridge in canonical source;"
+            echo "  integrations/forge/README.md disclaims a runtime;"
+            echo "  J-P3D production_bridge=not_built (Forge P3C was feasibility only)."
+            echo "tracked forge-bridge-like files:"
+            git ls-files | grep -Ei 'forge.*bridge|bridge.*forge' || echo "  (none)"
+          } | tee h4-evidence-forge/forge-bridge-absence.txt
+          test -z "$(git ls-files | grep -Ei 'forge.*bridge|bridge.*forge' || true)" \
+            || { echo "unexpected Forge bridge file appeared; lane needs re-adjudication" >&2; exit 1; }
+      - name: Runner + Docker identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker --version | tee h4-evidence-forge/docker-version.txt
+          docker compose version | tee -a h4-evidence-forge/docker-version.txt
+          df -h | tee h4-evidence-forge/disk.txt
+      - name: Build canonical Forge image (manifest-authoritative wrapper only)
+        shell: bash
+        run: |
+          set -o pipefail
+          ./scripts/docker_build_engine.sh forge build 2>&1 | tee h4-evidence-forge/docker-build.log
+          echo "$?" > h4-evidence-forge/docker-build-exit.txt
+          test "$(cat h4-evidence-forge/docker-build-exit.txt)" = "0"
+      - name: Capture image identity (exact Compose project/service image)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Bind every later observation to the exact image THIS job built:
+          # with an explicit COMPOSE_PROJECT_NAME, Compose names the service
+          # image deterministically as <project>-<service>. Provider-label
+          # discovery is forbidden here: a stale image could satisfy it.
+          IMAGE_REF="${COMPOSE_PROJECT_NAME}-forge"
+          IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE_REF")"
+          test -n "$IMAGE_ID"
+          printf '%s\n' "$IMAGE_REF" > h4-evidence-forge/image-ref.txt
+          printf '%s\n' "$IMAGE_ID" > h4-evidence-forge/image-id.txt
+          docker image inspect "$IMAGE_REF" > h4-evidence-forge/docker-inspect.json
+          docker run --rm --entrypoint cat "$IMAGE_ID" /opt/engine-provenance.json | tee h4-evidence-forge/engine-provenance.json
+          docker run --rm --entrypoint git "$IMAGE_ID" -C /opt/engine-source rev-parse HEAD | tee h4-evidence-forge/engine-source-head.txt
+      - name: Positive provenance gate on the real image (supported path, no bridge invented)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Gate-only probe: ENGINE_START_COMMAND=true proves gate passage on
+          # the real image without starting (or faking) any engine.
+          export ENGINE_START_COMMAND=true
+          ./scripts/docker_build_engine.sh forge run --rm -T forge
+          echo "0" > h4-evidence-forge/gate-exit.txt
+          echo "gate-only probe exited 0 on the real forge image"
+      - name: Negative provenance controls (bounded; start must never execute)
+        shell: bash
+        run: |
+          set -euo pipefail
+          NEGDIR="$RUNNER_TEMP/h4neg-forge"
+          mkdir -p "$NEGDIR"
+          python3 - "$NEGDIR" <<'EOF'
+          import json, sys
+          manifest = json.load(open("config/rules_engines.json"))
+          manifest["secondary_engine"]["commit"] = "0" * 40
+          json.dump(manifest, open(f"{sys.argv[1]}/tampered-manifest.json", "w"), sort_keys=True)
+          EOF
+          run_negative() {
+            local manifest_path="$1" label="$2" expect="$3"
+            rm -f "$NEGDIR/started"
+            set +e
+            ENGINE_START_COMMAND='touch /h4neg/started' \
+            ./scripts/docker_build_engine.sh forge run --rm -T -v "$NEGDIR:/h4neg" -e PIN_MANIFEST_PATH="$manifest_path" forge >"$NEGDIR/$label-stdout.log" 2>"$NEGDIR/$label-stderr.log"
+            local rc=$?
+            set -e
+            echo "$label exit: $rc (expected $expect)"
+            test "$rc" = "$expect" || { echo "negative control $label misbehaved (rc=$rc)" >&2; exit 1; }
+            test ! -e "$NEGDIR/started" || { echo "ENGINE_START_COMMAND executed after provenance failure ($label)" >&2; exit 1; }
+            grep -Eq 'FAIL CLOSED|ERROR' "$NEGDIR/$label-stderr.log" || { echo "negative control $label lacks fail-closed diagnostics" >&2; exit 1; }
+            cp "$NEGDIR/$label-stderr.log" "h4-evidence-forge/negative-$label-stderr.log"
+          }
+          run_negative /h4neg/tampered-manifest.json tampered 3
+          run_negative /h4neg/absent-manifest.json missing 3
+          echo "negative controls green: gate refused, start command never executed"
+      - name: Adjudicate Forge evidence (bridge runtime NOT_RUN by authority, never PASS here)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/h4_verify_materialization_evidence.py verify \
+            --provider forge --manifest config/rules_engines.json \
+            --provenance h4-evidence-forge/engine-provenance.json \
+            --source-head h4-evidence-forge/engine-source-head.txt \
+            --image-id "$(cat h4-evidence-forge/image-id.txt)" \
+            --image-tag "$(cat h4-evidence-forge/image-ref.txt)" \
+            --build-exit-code "$(cat h4-evidence-forge/docker-build-exit.txt)" \
+            --gate-exit-code "$(cat h4-evidence-forge/gate-exit.txt)" \
+            --docker-version "$(cat h4-evidence-forge/docker-version.txt | head -n 1)" \
+            --runner "ubuntu-latest run ${GITHUB_RUN_ID}" \
+            --lab-head "${GITHUB_SHA}" \
+            --out h4-evidence-forge/h4-forge-verdict.json
+          python3 -c "import json; v=json.load(open('h4-evidence-forge/h4-forge-verdict.json')); assert v['overall']=='EVIDENCE_PARTIAL', v['overall']; assert v['boundaries']['bridge_handshake']['status']=='NOT_RUN'"
+      - name: Checksums
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p h4-evidence-forge
+          find h4-evidence-forge -type f ! -name 'h4-evidence-checksums.sha256' -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > h4-evidence-forge/h4-evidence-checksums.sha256 || true
+      - name: Cleanup containers (best effort)
+        if: always()
+        shell: bash
+        run: docker compose -f docker-compose.engine.yml --profile forge down --remove-orphans || true
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4 immutable revision
+        if: always()
+        with:
+          name: h4-evidence-forge-${{ github.sha }}
+          path: h4-evidence-forge/
+          if-no-files-found: error

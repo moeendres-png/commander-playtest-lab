@@ -107,10 +107,13 @@ enforces provider identity and bridge protocol version at runtime (see Start,
 status and stop).
 
 Inspect what an image actually materialized (provenance is also printed during
-`docker build`):
+`docker build`). The `--entrypoint` override is required because the image
+entrypoint unconditionally demands `ENGINE_START_COMMAND` and ignores
+container arguments:
 
 ```bash
-docker run --rm <image> cat /opt/engine-provenance.json
+docker run --rm --entrypoint cat <image> /opt/engine-provenance.json
+docker run --rm --entrypoint git <image> -C /opt/engine-source rev-parse HEAD
 ```
 
 A failed external start never silently falls back; the bridge handshake still
