@@ -1079,45 +1079,41 @@ final class Ws60Pilot {
         precious.addAll(searchPicks.values());
         int need = Math.max(minimum(frame), 1);
         List<JsonObject> offered = asList(options(frame));
-        List<JsonObject> basics = new ArrayList<>();
-        for (JsonObject option : offered) {
-            String name = label(option);
-            if (BASIC_LANDS.stream().anyMatch(name::contains)) {
-                basics.add(option);
-            }
-        }
-        List<JsonObject> spare = new ArrayList<>();
-        for (JsonObject option : offered) {
-            String name = label(option);
-            if (precious.stream().noneMatch(name::contains)) {
-                spare.add(option);
-            }
-        }
+        // Non-precious first (sought basics like fixing Islands are precious
+        // and preserved); precious only if forced. Deterministic by rank.
         java.util.Comparator<JsonObject> byRank = (left, right) -> Integer.compare(
                 discardRank(label(left)), discardRank(label(right)));
-        java.util.Comparator<JsonObject> byLabel = (left, right) ->
-                label(left).compareTo(label(right));
-        basics.sort(byRank);
-        spare.sort(byLabel);
+        List<JsonObject> candidates = new ArrayList<>();
+        List<JsonObject> fallback = new ArrayList<>();
+        for (JsonObject option : offered) {
+            String name = label(option);
+            if (precious.stream().anyMatch(name::contains)) {
+                fallback.add(option);
+            } else {
+                candidates.add(option);
+            }
+        }
+        candidates.sort(byRank);
+        fallback.sort(byRank);
         List<String> picks = new ArrayList<>();
-        for (JsonObject option : basics) {
+        for (JsonObject option : candidates) {
             if (picks.size() >= need) {
                 break;
             }
             picks.add(optionId(option));
         }
-        for (JsonObject option : spare) {
-            if (picks.size() >= need) {
-                break;
-            }
-            if (!picks.contains(optionId(option))) {
-                picks.add(optionId(option));
+        if (minimum(frame) > 0) {
+            for (JsonObject option : fallback) {
+                if (picks.size() >= need) {
+                    break;
+                }
+                if (!picks.contains(optionId(option))) {
+                    picks.add(optionId(option));
+                }
             }
         }
         if (picks.isEmpty()) {
-            List<JsonObject> fallback = new ArrayList<>(offered);
-            fallback.sort(byLabel);
-            picks.add(optionId(fallback.get(0)));
+            return gap("discard pick without options");
         }
         return ids(picks.toArray(new String[0]));
     }
@@ -1538,7 +1534,7 @@ final class Ws60Pilot {
     }
 
     private PilotAction decideMode(JsonObject frame) {
-        List<String> picked = modePicks.computeIfAbsent(frameKey(frame), ignored -> new ArrayList<>());
+        List<String> picked = modePicks.computeIfAbsent("modes", ignored -> new ArrayList<>());
         List<JsonObject> offered = asList(options(frame));
         for (String keyword : modeKeywords) {
             if (picked.contains(keyword)) {

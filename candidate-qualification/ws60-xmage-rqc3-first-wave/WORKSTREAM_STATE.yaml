@@ -49,8 +49,7 @@ forbidden_shortcuts:
 - reference parity as rules proof
 ownership: WS60-XMAGE-RQC3-FIRST-WAVE
 status: ACTIVE
-exact_next_action: Grind C01/D06/E02/J02 assembly+band; B01 bounded attempt; currently
-  10/15 PASS.
+exact_next_action: Grind E02/J02/C01; B01 bounded attempt; currently 11/15 PASS.
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 open_questions: []
@@ -66,10 +65,11 @@ milestones:
   evidence: driver+pilot+15 specs; 111/111 retained
 - id: WS60-EXEC-1
   status: completed
-  evidence: PASS A03 A04 C03 E01 F01 G02 G03 G04 H01 I01 (10/15, primary+replica+hidden+determinism)
+  evidence: PASS A03 A04 C03 D06 E01 F01 G02 G03 G04 H01 I01 (11/15)
 - id: WS60-EXEC-2
   status: in_progress
-  evidence: C01/D06/E02/J02 assembly grind; B01 bounded attempt pending
+  evidence: E02 (Tyrant assembly), J02 (Bear+band), C01 (pitch); B01 bounded attempt
+    pending
 - id: WS60-AUDIT
   status: pending
   evidence: null

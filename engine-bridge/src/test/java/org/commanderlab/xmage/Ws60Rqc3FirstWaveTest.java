@@ -76,7 +76,7 @@ class Ws60Rqc3FirstWaveTest {
 
     @Test
     void rqc3D06() throws Exception {
-        runAndSeal(Ws60Scenarios2.d06(), 4);
+        runAndSeal(Ws60Scenarios2.d06(), 6);
     }
 
     @Test

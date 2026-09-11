@@ -204,16 +204,16 @@ final class Ws60Scenarios2 {
                 idleSwamp());
         return new Ws60Suite.Spec("RQ-C3-D06",
                 "Casualties of War choose one or more",
-                "RQ-C3-D06", 6136L, 3000, seats,
+                "RQ-C3-D06", 6136L, 4000, seats,
                 () -> {
                     Ws60Pilot pilot = new Ws60Pilot("RQ-C3-D06");
                     commandersAll(pilot, seats);
                     pilot.seatLands(0, "Swamp", "Plains", "City of Brass",
                                     "Mana Confluence", "Island")
                             .seatLands(1, "Forest")
-                            .landOrder(0, "Command Tower", "Exotic Orchard",
+                            .landOrder(0, "Command Tower", "Island", "Exotic Orchard",
                                     "Reflecting Pool", "City of Brass", "Mana Confluence",
-                                    "Island", "Plains", "Swamp")
+                                    "Plains", "Swamp")
                             .seatLands(1, "Forest")
                             .landOrder(0, "Command Tower", "Exotic Orchard",
                                     "Reflecting Pool", "City of Brass", "Mana Confluence",
@@ -225,6 +225,7 @@ final class Ws60Scenarios2 {
                             .castGate(0, "Casualties of War", "Ornithopter", "Runeclaw Bear")
                             .allowCommanderCast(0).allowCommanderCast(1)
                             .assemblyFiltering(0).assemblyFiltering(1)
+                            .filterMaxPerTurn(1, 1)
                             .attackRoundRobin("Tymna the Weaver", List.of(2, 3))
                             .attackRoundRobin("Thrasios, Triton Hero", List.of(2, 3))
                             .bool("pay X life", true)
@@ -238,7 +239,7 @@ final class Ws60Scenarios2 {
                             .setupCast(1, "Ornithopter", "Runeclaw Bear")
                             .seek(0, 6, "Casualties of War",
                                     "Command Tower", "Exotic Orchard", "Reflecting Pool",
-                                    "Gemstone Mine", "Tendo Ice Bridge")
+                                    "Gemstone Mine", "Tendo Ice Bridge", "Island")
                             .critical("mode")
                             .critical("Casualties of War");
                     return pilot;
