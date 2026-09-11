@@ -714,32 +714,40 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public void selectAttackers(Game game, UUID attackingPlayerId) {
         List<Permanent> attackers = new ArrayList<>(getAvailableAttackers(game));
-        attackers.sort(Comparator.comparing(permanent -> permanent.getId().toString()));
         List<UUID> defenders = game.getCombat().getDefenders().stream()
                 .sorted(Comparator.comparing(UUID::toString))
                 .toList();
 
         for (Permanent attacker : attackers) {
             JsonArray options = new JsonArray();
-            String hold = optionId("attack", attacker.getId().toString(), "hold");
+            String hold = "hold_attacker";
+            JsonObject holdMetadata = new JsonObject();
+            holdMetadata.addProperty("attacker_id", attacker.getId().toString());
+            holdMetadata.addProperty("attacker_name", attacker.getName());
             options.add(XmageFullGameDecisionController.option(
                     hold,
                     "Do not attack with " + attacker.getName(),
                     "hold_attacker",
-                    objectMetadata(attacker.getId(), attacker.getName())
+                    holdMetadata
             ));
             Map<String, UUID> defenderByOption = new LinkedHashMap<>();
+            int defenderOrdinal = 0;
             for (UUID defenderId : defenders) {
                 if (!attacker.canAttack(defenderId, game)) {
                     continue;
                 }
-                String optionId = optionId(
-                        "attack",
-                        attacker.getId().toString(),
-                        defenderId.toString()
-                );
-                JsonObject metadata = objectMetadata(attacker.getId(), attacker.getName());
+                defenderOrdinal++;
+                int defenderSeat = XmageFullGameStateRedactor.seat(game, defenderId) + 1;
+                String optionId = defenderSeat > 0
+                        ? "defender-seat-" + defenderSeat
+                        : "defender-object-" + defenderOrdinal;
+                JsonObject metadata = new JsonObject();
+                metadata.addProperty("attacker_id", attacker.getId().toString());
+                metadata.addProperty("attacker_name", attacker.getName());
                 metadata.addProperty("defender_id", defenderId.toString());
+                if (defenderSeat > 0) {
+                    metadata.addProperty("defender_seat", defenderSeat);
+                }
                 options.add(XmageFullGameDecisionController.option(
                         optionId,
                         attacker.getName() + " attacks " + objectLabel(defenderId, game),
