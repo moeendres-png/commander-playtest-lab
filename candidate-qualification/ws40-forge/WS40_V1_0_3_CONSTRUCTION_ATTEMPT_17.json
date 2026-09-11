@@ -1,0 +1,43 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 17,
+  "status": "REMEDIABLE_PROVIDER_PATCHER_FAILURE",
+  "workflow": "WS40 Native Construction 107",
+  "run_id": 33906351123,
+  "job_id": 101132076235,
+  "commander_lab_commit": "b66fd67e6f8cdcd1e3b5bffe94e95f03b8dc1b55",
+  "commander_lab_tree": "ddc987e51f09a6f59b1da21dcf862a3a728dedc5",
+  "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+  "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+  "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+  "contract_lock_gate": {
+    "status": "PASS",
+    "provider_denominator": 107,
+    "independent_requested_state_digest_pass_count": 107,
+    "historical_successor_credit_imported": 0
+  },
+  "forge_checkout_build": "PASS",
+  "provider_compile": "NOT_REACHED_PATCHER_FAILURE",
+  "construction": {
+    "status": "NOT_RUN",
+    "successor_runtime_credit": "0/107"
+  },
+  "failure": {
+    "stage": "Build isolated WS40 provider with v1.0.3 native stack and revealed state",
+    "script": "scripts/ws40_v103_native_revealed_state.py",
+    "operation": "native revealed observation field",
+    "message": "RuntimeError: native revealed observation field: expected 1 occurrence, got 0",
+    "classification": "PATCHER_ANCHOR_MISMATCH",
+    "rules_semantics_affected": false,
+    "forge_source_change_required": false,
+    "remediable_in_scope": true
+  },
+  "artifact": {
+    "artifact_id": 9949655630,
+    "name": "ws40-v1.0.3-native-construction-107-b66fd67e6f8cdcd1e3b5bffe94e95f03b8dc1b55",
+    "zip_sha256": "4dda5927ee2cc53b1be9df87056f08df41ad2814c8691dd3a41c95167d51345d",
+    "size_bytes": 32094
+  },
+  "next_action": "Repair only the revealed-state patcher's cardJson native_revealed insertion anchor against the already transformed generated Java, then rerun the entire immutable v1.0.3 construction denominator from record 1."
+}

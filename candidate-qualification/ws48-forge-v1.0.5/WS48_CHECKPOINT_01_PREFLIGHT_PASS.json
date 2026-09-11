@@ -1,0 +1,51 @@
+{
+  "schema_version": "commander-lab.ws48-checkpoint/1.0.0",
+  "workstream": "WS-48",
+  "checkpoint": 1,
+  "status": "PASS",
+  "gate": "V1_0_5_PREFLIGHT_AND_ZERO_CREDIT_RECONSTRUCTION",
+  "source_lock": {
+    "ws47_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "ws47_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+    "ws47_namespace": "qualification/ws47",
+    "ws47_namespace_tree": "12af73695c801a42a0193ee895d5fc0843d16b0c",
+    "ws47_schema": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "ws47_materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "ws47_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_version": "2.0.15-SNAPSHOT"
+  },
+  "runtime": {
+    "qualification_head": "e20ec8a54fb3d249a35250aa401d5f8e0db85f22",
+    "workflow_run_id": 34242094044,
+    "job_id": 102114587925,
+    "artifact_id": 10062572692,
+    "artifact_name": "ws48-v105-preflight-e20ec8a54fb3d249a35250aa401d5f8e0db85f22",
+    "artifact_digest": "sha256:8143a7457af1afbf255dc8c451b4c2f364988bb137bc5aa47825fbf57fca3b69"
+  },
+  "verified_gates": {
+    "G48-01_exact_ws47_lock": "PASS",
+    "G48-02_forge_source_lock": "PASS",
+    "G48-03_independent_provider_denominator_and_requested_state_digests": "PASS",
+    "G48-04_exact_v1_0_4_to_v1_0_5_impact_diff": "PASS",
+    "G48-05_only_requested_state_repair_is_WS05_MP_BLOCK_4": "PASS"
+  },
+  "impact": {
+    "provider_denominator": 107,
+    "denominator_identity_and_order_equal_to_v1_0_4": true,
+    "changed_requested_state_record_count": 1,
+    "changed_fixture_ids": ["WS05-MP-BLOCK-4"],
+    "obligation_change_count": 0,
+    "repair_path": "combat_state.eligible_blockers",
+    "v1_0_4": ["obj:mp-p2-blocker"],
+    "v1_0_5": ["obj:P2-bears", "obj:mp-p2-blocker"]
+  },
+  "credit": {
+    "historical_successor_runtime_credit_imported": 0,
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "partial_credit_forbidden": true
+  },
+  "next_action": "Reconstruct the terminal WS45 provider overlay at exact Forge provenance, freshly prove v1.0.5 blocker-native legality/no request filtering, then run fresh strict no-request-echo followed by full construction from record 1."
+}

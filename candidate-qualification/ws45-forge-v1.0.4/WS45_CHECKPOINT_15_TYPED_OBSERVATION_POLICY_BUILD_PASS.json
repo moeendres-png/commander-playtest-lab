@@ -1,0 +1,37 @@
+{
+  "schema_version": "commander-lab.ws45-typed-observation-policy-build/1.0.0",
+  "workstream": "WS-45",
+  "status": "ENGINE_OBSERVATION_POLICY_BUILD_PASS_NO_RUNTIME_CREDIT",
+  "forge": {
+    "branch": "foundry/ws45-v104-observation-remediation",
+    "commit": "6d570a5e17e4fcbf77c98359a8bdb85287d207e0",
+    "tree": "b69c3975e7fd360fd93c49d843a753b714895cc2",
+    "parent": "d1a65fd4a376365bf2562b2247104abcada3d120",
+    "added_file": "forge-game/src/main/java/forge/game/qualification/Ws45ObservationPolicy.java"
+  },
+  "build_evidence": {
+    "workflow": "WS45 observation remediation",
+    "run_id": 34064173478,
+    "conclusion": "success"
+  },
+  "closed_step": [
+    "Knowledge/actor-observation state can now be represented inside the Forge rules process as typed policy records rather than canonical qualification JSON.",
+    "All card/player referents stored by the policy are native Forge IDs validated against the live Game object graph.",
+    "The engine-side serializer reconstructs provider-neutral semantic JSON through explicit native-ID resolvers and does not retain the incoming canonical knowledge_state JSON.",
+    "The policy exposes actor-view identity authority that combines native Forge visibility/may-look state with validated retained identity knowledge."
+  ],
+  "not_yet_proven": [
+    "The generated WS45 provider/state loader does not yet consume this class.",
+    "No fixed-native-state/request-perturbation runtime has executed yet.",
+    "Natural-game-start deck/temporal/RNG lifecycle observation is not yet closed.",
+    "Extra-turn creation, elimination, Commander zone-move and multiple-Commander relation outputs are not yet completely wired through native observation."
+  ],
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0,
+    "forge_successor_provider_qualified": false
+  },
+  "next_action": "Wire the typed Forge observation policy and NativeQualificationObservation RNG state into a reproducible WS45 v1.0.4 generated provider/state/runner overlay, remove all rules-state values from bound_config, compile against Forge 6d570a5e17e4fcbf77c98359a8bdb85287d207e0, and execute perturbation runtime before granting credit."
+}

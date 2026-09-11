@@ -1,0 +1,63 @@
+name: Finalist convergence exact contract extract
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CONTRACT_COMMIT: 9a8b8f5f5961466514eae6103be2d227324a27a8
+  CONTRACT_BUNDLE: ad1ec6e4baa83be48c0bc07e0bde66c2f8c003af29e411bad0953558154dcfee
+
+jobs:
+  exact-records:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.CONTRACT_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/finalist_convergence
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Export exact remaining convergence records
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/evidence/finalist-convergence-contract
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          src=Path('contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json')
+          p=json.loads(src.read_text())
+          assert p['schema_version']=='commander-lab.semantic-fixture-materialization/1.0.1'
+          assert p['canonical_bundle_digest']==os.environ['CONTRACT_BUNDLE']
+          wanted=[
+              'MICRO_STACK','MICRO_REPLACEMENT','WS05-MP-COMBAT-4',
+              'RNG_RULES_TAPE','REPLAY_DECISION_TAPE','REPLAY_EVENT_TAPE',
+              'REPLAY_CLEAN_PROCESS','REPLAY_STATE_HASHES','CARD_02'
+          ]
+          by={r['fixture_id']:r for r in p['records']}
+          missing=[x for x in wanted if x not in by]
+          assert not missing, missing
+          out={
+              'schema_version':p['schema_version'],
+              'canonical_bundle_digest':p['canonical_bundle_digest'],
+              'contract_commit':os.environ['CONTRACT_COMMIT'],
+              'records':[by[x] for x in wanted],
+          }
+          dst=Path('qualification/evidence/finalist-convergence-contract/EXACT_NEXT_RECORDS.json')
+          dst.write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps({x:by[x]['materialization_digest'] for x in wanted},indent=2,sort_keys=True))
+          PY
+          sha256sum qualification/evidence/finalist-convergence-contract/EXACT_NEXT_RECORDS.json > qualification/evidence/finalist-convergence-contract/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finalist-convergence-exact-next-records-${{ github.sha }}
+          path: qualification/evidence/finalist-convergence-contract
+          if-no-files-found: error

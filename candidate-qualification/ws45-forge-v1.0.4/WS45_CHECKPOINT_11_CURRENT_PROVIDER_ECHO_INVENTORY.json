@@ -1,0 +1,63 @@
+{
+  "schema_version": "commander-lab.ws45-current-provider-echo-inventory/1.0.0",
+  "workstream": "WS-45",
+  "status": "STRICT_NO_REQUEST_ECHO_REMEDIATION_IN_PROGRESS",
+  "source_lock": {
+    "commander_lab": {
+      "repository": "moeendres-png/commander-playtest-lab",
+      "branch": "ws45/forge-v1.0.4-successor-qualification",
+      "commit": "9d3d7fbd40517a6323acd039c013ea0763525795",
+      "authority": "PR 159 live head immediately before this checkpoint"
+    },
+    "forge": {
+      "repository": "moeendres-png/forge",
+      "branch": "foundry/ws45-v104-observation-remediation",
+      "commit": "d1a65fd4a376365bf2562b2247104abcada3d120",
+      "tree": "9cf8d7b817862e09a4c3bd5ff1d90d998f0d5c97"
+    },
+    "ws44_contract": {
+      "contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+      "freeze_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+      "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+      "provider_denominator": 107
+    }
+  },
+  "verified_current_inventory": {
+    "full_ws45_qualification_workflow_present": false,
+    "materialization_workflow_present": true,
+    "current_strict_observation_adapter": "qualification/providers/forge/gpl/Ws45StrictObservation.java",
+    "adapter_imports_restored_qualification_history": true,
+    "adapter_reads_request_environment": [
+      "COMMANDER_LAB_WS45_STATE_JSON",
+      "COMMANDER_LAB_WS45_KNOWLEDGE_JSON",
+      "COMMANDER_LAB_WS45_RNG_JSON",
+      "COMMANDER_LAB_WS45_EXTRA_TURNS_JSON",
+      "COMMANDER_LAB_WS45_PENDING_ELIMINATIONS_JSON",
+      "COMMANDER_LAB_WS45_COMMANDER_ZONE_MOVE_JSON"
+    ],
+    "adapter_roundtrips_through_restored_history": [
+      "extra_turns",
+      "pending_eliminations",
+      "knowledge",
+      "rules_randomness",
+      "commander_zone_moves"
+    ],
+    "prior_authoritative_rejection": "WS45_CHECKPOINT_06_TYPED_ROUNDTRIP_REJECTED.json",
+    "native_observer_build_verified": true,
+    "native_observer_class": "forge.game.qualification.NativeQualificationObservation"
+  },
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "forge_successor_provider_qualified": false,
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "hard_findings": [
+    "Ws45StrictObservation remains a request/environment -> RestoredQualificationHistory -> response roundtrip and therefore cannot satisfy strict no-request-echo.",
+    "No current WS-45 workflow performs the complete 107 construction plus 107 behavior qualification against v1.0.4.",
+    "The exact generated WS-40 provider/runner baseline must be materialized and audited before modifying qualification behavior, because generation and overlays define the production-reachable code rather than the unpatched source runner alone.",
+    "NativeQualificationObservation is build-verified only; production reachability and runtime semantic authority remain unproven."
+  ],
+  "next_action": "Materialize the exact generated WS-40 provider/runner baseline on the live WS-45 branch, inventory every request-derived result path, then implement a WS-45 overlay and Forge-native instrumentation that either observes actual execution or fails closed for each v1.0.4 surface before any 107-record credit is attempted."
+}

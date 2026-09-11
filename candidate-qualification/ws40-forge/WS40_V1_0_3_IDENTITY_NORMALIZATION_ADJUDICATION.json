@@ -1,0 +1,305 @@
+{
+  "ambiguous_target_count": 0,
+  "ambiguous_targets": [],
+  "candidate_rule": {
+    "card_default": "PRESERVE_CURRENT_SEMANTIC_ID",
+    "card_lineage_override": "ONLY_IF_CARD_LINEAGE_ID_SUFFIX_STARTS_WITH_obj:",
+    "card_name_matching": false,
+    "case_folding": false,
+    "owner_controller_guessing": false,
+    "player_identity": "PRESERVE",
+    "runtime_requested_target_dependency": false,
+    "unresolved_target_inference": false
+  },
+  "changed_projection_row_count": 1,
+  "changed_projection_rows": [
+    {
+      "denominator_index": 16,
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:P1-commander",
+      "requested_target": "obj:P1-commander",
+      "resolution_status": "UNIQUE_LINEAGE_SUFFIX",
+      "resolved_lineage_suffix": "obj:P1-commander",
+      "resolved_semantic_id": "obj:p1-commander-bf",
+      "source_semantic_id": "obj:pilot-unsummon"
+    }
+  ],
+  "checked_rows": [
+    {
+      "denominator_index": 7,
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "P1",
+      "requested_target": "P1",
+      "resolution_status": "PLAYER_ID",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:syphon"
+    },
+    {
+      "denominator_index": 11,
+      "fixture_id": "PILOT_CHOICE",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:forest",
+      "requested_target": "obj:forest",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "obj:forest",
+      "resolved_semantic_id": "obj:forest",
+      "source_semantic_id": "obj:utopia"
+    },
+    {
+      "denominator_index": 13,
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "P1",
+      "requested_target": "P1",
+      "resolution_status": "PLAYER_ID",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:opp-bolt"
+    },
+    {
+      "denominator_index": 16,
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:P1-commander",
+      "requested_target": "obj:P1-commander",
+      "resolution_status": "UNIQUE_LINEAGE_SUFFIX",
+      "resolved_lineage_suffix": "obj:P1-commander",
+      "resolved_semantic_id": "obj:p1-commander-bf",
+      "source_semantic_id": "obj:pilot-unsummon"
+    },
+    {
+      "denominator_index": 55,
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "P2",
+      "requested_target": "P2",
+      "resolution_status": "PLAYER_ID",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:micro-bolt"
+    },
+    {
+      "denominator_index": 56,
+      "fixture_id": "MICRO_PRIORITY",
+      "projection_equals_requested": false,
+      "refined_projected_identity": null,
+      "requested_target": "obj:P2-bears",
+      "resolution_status": "UNRESOLVED",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:micro-bolt"
+    },
+    {
+      "denominator_index": 57,
+      "fixture_id": "MICRO_STACK",
+      "projection_equals_requested": false,
+      "refined_projected_identity": null,
+      "requested_target": "obj:P2-bears",
+      "resolution_status": "UNRESOLVED",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:micro-bolt"
+    },
+    {
+      "denominator_index": 66,
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "P2",
+      "requested_target": "P2",
+      "resolution_status": "PLAYER_ID",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:micro-bolt-stack"
+    },
+    {
+      "denominator_index": 67,
+      "fixture_id": "MICRO_COPY",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:micro-bolt",
+      "requested_target": "obj:micro-bolt",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "obj:micro-bolt",
+      "resolved_semantic_id": "obj:micro-bolt",
+      "source_semantic_id": "obj:micro-flare"
+    },
+    {
+      "denominator_index": 67,
+      "fixture_id": "MICRO_COPY",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "P2",
+      "requested_target": "P2",
+      "resolution_status": "PLAYER_ID",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:micro-bolt"
+    },
+    {
+      "denominator_index": 72,
+      "fixture_id": "WS05-MP-PRIO-3",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:P3-bears",
+      "requested_target": "obj:P3-bears",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "obj:P3-bears",
+      "resolved_semantic_id": "obj:P3-bears",
+      "source_semantic_id": "obj:mp-bolt"
+    },
+    {
+      "denominator_index": 73,
+      "fixture_id": "WS05-MP-PRIO-5",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:P5-bears",
+      "requested_target": "obj:P5-bears",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "obj:P5-bears",
+      "resolved_semantic_id": "obj:P5-bears",
+      "source_semantic_id": "obj:mp-bolt"
+    },
+    {
+      "denominator_index": 83,
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "P1",
+      "requested_target": "P1",
+      "resolution_status": "PLAYER_ID",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:leave-bolt"
+    },
+    {
+      "denominator_index": 89,
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    },
+    {
+      "denominator_index": 90,
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    },
+    {
+      "denominator_index": 91,
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    },
+    {
+      "denominator_index": 92,
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    },
+    {
+      "denominator_index": 93,
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    },
+    {
+      "denominator_index": 94,
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    },
+    {
+      "denominator_index": 95,
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    },
+    {
+      "denominator_index": 96,
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "projection_equals_requested": true,
+      "refined_projected_identity": "obj:cmd-zone-test",
+      "requested_target": "obj:cmd-zone-test",
+      "resolution_status": "EXACT_SEMANTIC_ID",
+      "resolved_lineage_suffix": "cmd-zone-test",
+      "resolved_semantic_id": "obj:cmd-zone-test",
+      "source_semantic_id": "obj:cmd-zone-source"
+    }
+  ],
+  "duplicate_lineage_suffix_group_count": 0,
+  "historical_runtime_credit_imported": 0,
+  "next_gate": "If safe=true, implement stack-observer-only projection and rerun construction 0->107. Unresolved targets remain fail-closed.",
+  "projection_break_count": 0,
+  "projection_breaks": [],
+  "qualification_credit_granted": false,
+  "resolved_or_player_target_count": 19,
+  "safe_for_observer_stack_card_identity_projection": true,
+  "schema_version": "commander-lab.ws40-v1.0.3-identity-normalization-adjudication/1.0.0",
+  "scope_limit": "STACK_CARD_TARGET_NORMALIZATION_ONLY; does not authorize attachment/combat/global semanticOf changes",
+  "source_audit_schema": "commander-lab.ws40-v1.0.3-identity-normalization-projection-audit/1.0.0",
+  "source_lock": {
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "denominator_blob_sha": "8318f897a37d9f98a95dd786a93a5564bd5b6fc1",
+    "denominator_count": 107,
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47"
+  },
+  "stack_target_reference_count": 21,
+  "unresolved_target_count": 2,
+  "unresolved_targets": [
+    {
+      "denominator_index": 56,
+      "fixture_id": "MICRO_PRIORITY",
+      "projection_equals_requested": false,
+      "refined_projected_identity": null,
+      "requested_target": "obj:P2-bears",
+      "resolution_status": "UNRESOLVED",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:micro-bolt"
+    },
+    {
+      "denominator_index": 57,
+      "fixture_id": "MICRO_STACK",
+      "projection_equals_requested": false,
+      "refined_projected_identity": null,
+      "requested_target": "obj:P2-bears",
+      "resolution_status": "UNRESOLVED",
+      "resolved_lineage_suffix": null,
+      "resolved_semantic_id": null,
+      "source_semantic_id": "obj:micro-bolt"
+    }
+  ]
+}

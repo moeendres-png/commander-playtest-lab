@@ -1,0 +1,58 @@
+{
+  "adjudicated_at": "2026-09-06T00:32:00+02:00",
+  "completion_semantics": "COMPLETE_TERMINAL_ADJUDICATION_NOT_PROVIDER_QUALIFICATION",
+  "independent_open_defect": {
+    "no_request_echo_gate": "FAIL_REMEDIATION_REQUIRED",
+    "summary": "Current construction binding/normalization still reconstructs Rules-state-bearing fields from request-derived bound_config; this independently prevents full construction credit even absent the immutable MICRO defect.",
+    "terminal_root_cause": false
+  },
+  "pr_policy": "Keep Commander Lab PR #154 and Forge PR #1 open, Draft, and unmerged.",
+  "qualification_result": {
+    "AF04_24_of_24": "NOT_RUN_NOT_GRANTED",
+    "AF05_20_of_20": "NOT_RUN_NOT_GRANTED",
+    "AF06_17_of_17": "NOT_RUN_NOT_GRANTED",
+    "AF07": "OUT_OF_SCOPE_NOT_RUN",
+    "AF08_36_of_36": "NOT_RUN_NOT_GRANTED",
+    "AF09_5_of_5": "NOT_RUN_NOT_GRANTED",
+    "CARD_02": "NOT_RUN_NOT_GRANTED",
+    "architecture_freeze": "NOT_GRANTED",
+    "behavior_107": "NOT_RUN",
+    "construction_107_of_107": "FAIL",
+    "construction_credit_granted": false,
+    "construction_diagnostic_rows_before_terminal_failure": 55,
+    "engine_remediation_complete": true,
+    "forge_successor_provider_qualified": false
+  },
+  "required_upstream_action": [
+    "Do not modify v1.0.3 in place.",
+    "Repair MICRO_PRIORITY and MICRO_STACK target referential integrity in a new immutable materialization version.",
+    "Add linter validation that every semantic target identifier resolves to an authorized target namespace/referent.",
+    "Start a fresh Forge successor-provider qualification against that new source lock from zero historical runtime credit.",
+    "Retain the strict no-request-echo hardening requirement in the successor qualification."
+  ],
+  "runtime_policy": {
+    "further_v1_0_3_runtime_attempts_justified": false,
+    "reason": "Record 56 is mandatory in the 107-record denominator and cannot be constructed without guessing/fabricating target identity or mutating the immutable contract."
+  },
+  "schema": "commander-lab.ws40.v1_0_3-terminal-adjudication/1.0.0",
+  "source_locks": {
+    "commander_lab_pre_terminal_commit": "89df69bc7b621d553032b81f203f3a202dc4f922",
+    "commander_lab_pre_terminal_tree": "4d9be53eba6be11e6d32db8c90a0aa345c8c86c7",
+    "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "ws41_schema": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47"
+  },
+  "terminal": true,
+  "terminal_classification": "TERMINAL_FAIL_IMMUTABLE_CONTRACT_DEFECT",
+  "terminal_root_cause": {
+    "contract_defect": "The immutable requested stack target has no exact semantic-object referent. Two distinct P2 Grizzly Bears objects exist and the native procedure explicitly names obj:micro-target, so no provider-neutral deterministic alias is authorized.",
+    "fixture_id": "MICRO_PRIORITY",
+    "mandatory_record_index": 56,
+    "requested_target": "obj:P2-bears",
+    "runtime_failure": "WS40_STATE_TARGET_UNBOUND:obj:P2-bears"
+  },
+  "workstream": "WS-40"
+}

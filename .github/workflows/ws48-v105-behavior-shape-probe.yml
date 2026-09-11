@@ -1,0 +1,83 @@
+name: WS48 v1.0.5 behavior shape probe
+
+on:
+  push:
+    branches:
+      - ws48/forge-v1.0.5-successor-qualification
+    paths:
+      - '.github/workflows/ws48-v105-behavior-shape-probe.yml'
+      - 'candidate-qualification/ws48-forge-v1.0.5/**'
+
+permissions:
+  contents: read
+
+env:
+  WS47_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_SHA: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+
+jobs:
+  shape-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws47
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build behavior inventory and execution-shape summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(sha256sum contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')" = "$WS47_SHA"
+          mkdir -p artifacts/ws48-behavior-shape
+          python candidate-qualification/ws48-forge-v1.0.5/build_behavior_inventory.py \
+            --materialization contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json \
+            --denominator contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json \
+            --output artifacts/ws48-behavior-shape/INVENTORY.json
+          python - <<'PY'
+          import collections,json
+          p=json.load(open('artifacts/ws48-behavior-shape/INVENTORY.json'))
+          dec=collections.defaultdict(list); steps=collections.Counter(); posts=collections.Counter(); evs=collections.Counter(); modes=collections.Counter()
+          representative={}
+          procedure_representative={}
+          for r in p['rows']:
+              modes[r['execution_entry_mode']]+=1
+              for d in r['decision_script']:
+                  key=(d['decision_family'],d['selector_kind'])
+                  sample={'fixture_id':r['fixture_id'],'actor':d['actor'],'semantic_value':d['semantic_value'],'causal_step_id':d['causal_step_id']}
+                  if len(dec[key])<4 and sample not in dec[key]: dec[key].append(sample)
+                  representative.setdefault(key,r)
+              for s in r['native_procedure']:
+                  k=s.get('step') or s.get('operation') or s.get('action') or s.get('kind') or s.get('step_id') or '<UNNAMED>'
+                  steps[str(k)]+=1
+                  procedure_representative.setdefault(str(k),{'fixture_id':r['fixture_id'],'procedure_entry':s})
+              for x in r['terminal_postconditions']:
+                  if isinstance(x,dict): posts['DICT:'+','.join(sorted(x.keys()))]+=1
+                  else: posts[type(x).__name__.upper()+':'+str(x).split(':',1)[0]]+=1
+              ee=r['expected_events'] or {}
+              for x in ee.get('required_events') or []: evs[str(x).split(':',1)[0]]+=1
+          out={'schema_version':'commander-lab.ws48-behavior-shape/1.0.0','denominator':p['denominator'],'decision_count':p['decision_count'],'execution_entry_modes':dict(sorted(modes.items())),'decision_shapes':[{'decision_family':k[0],'selector_kind':k[1],'count':sum(1 for r in p['rows'] for d in r['decision_script'] if (d['decision_family'],d['selector_kind'])==k),'samples':v} for k,v in sorted(dec.items())],'native_steps':dict(sorted(steps.items())),'terminal_postcondition_shapes':dict(sorted(posts.items())),'required_event_prefixes':dict(sorted(evs.items()))}
+          samples=[]
+          for k,r in sorted(representative.items()):
+              samples.append({'decision_family':k[0],'selector_kind':k[1],'fixture_id':r['fixture_id'],'fixture_family':r['fixture_family'],'execution_entry_mode':r['execution_entry_mode'],'decision_script':r['decision_script'],'native_procedure':r['native_procedure'],'priority_script':r['priority_script'],'action_cost_state':r['action_cost_state'],'expected_events':r['expected_events'],'terminal_postconditions':r['terminal_postconditions'],'negative_fallback_probe':r['negative_fallback_probe']})
+          proc={'schema_version':'commander-lab.ws48-native-procedure-samples/1.0.0','procedures':[{'step':k,**v} for k,v in sorted(procedure_representative.items())]}
+          open('artifacts/ws48-behavior-shape/SHAPES.json','w').write(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          open('artifacts/ws48-behavior-shape/DECISION_SAMPLES.json','w').write(json.dumps(samples,indent=2,sort_keys=True)+'\n')
+          open('artifacts/ws48-behavior-shape/PROCEDURE_SAMPLES.json','w').write(json.dumps(proc,indent=2,sort_keys=True)+'\n')
+          print('WS48_BEHAVIOR_SHAPES='+json.dumps(out,sort_keys=True))
+          print('WS48_DECISION_SAMPLES='+json.dumps(samples,sort_keys=True,separators=(',',':')))
+          print('WS48_PROCEDURE_SAMPLES='+json.dumps(proc,sort_keys=True,separators=(',',':')))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws48-v105-behavior-shape-${{ github.sha }}
+          path: artifacts/ws48-behavior-shape/
+          if-no-files-found: error
+          retention-days: 90

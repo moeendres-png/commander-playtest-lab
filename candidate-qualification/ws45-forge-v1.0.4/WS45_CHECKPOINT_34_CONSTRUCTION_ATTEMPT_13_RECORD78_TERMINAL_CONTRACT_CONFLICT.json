@@ -1,0 +1,139 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 34,
+  "status": "BLOCKED_NON_REMEDIABLE_CONTRACT_CONFLICT",
+  "workstream": "WS45_FORGE_V1_0_4_SUCCESSOR_PROVIDER_QUALIFICATION",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "source_lock": {
+    "qualification_source_commit": "0038fa1974051a780243d01116706aafaeda57bd",
+    "qualification_source_tree": "60a955201552c24315f8ebea8aaec48088d4b730",
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "ws44_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "ws44_materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_version": "2.0.15-SNAPSHOT"
+  },
+  "workflow": {
+    "run_id": 34222473068,
+    "job_id": 102048601313,
+    "artifact_id": 10054440299,
+    "artifact_name": "ws45-v104-noecho-then-construction-0038fa1974051a780243d01116706aafaeda57bd",
+    "artifact_zip_sha256": "280f87b8aa01ae6400e32c1f19df2dbfe4af0aaddc871e3d5c191a645bed55e4"
+  },
+  "verified_gates": {
+    "immutable_ws44_lock": "PASS",
+    "exact_provider_denominator_107": "PASS",
+    "exact_forge_lock": "PASS",
+    "forge_build": "PASS",
+    "provider_compile": "PASS",
+    "strict_no_request_echo_refresh": "PASS",
+    "historical_successor_credit_imported": 0
+  },
+  "construction": {
+    "denominator": 107,
+    "sequential_diagnostic_pass_count": 77,
+    "first_failure_index": 78,
+    "first_failure_fixture_id": "WS05-MP-BLOCK-4",
+    "failure": "REQUESTED_NATIVE_STATE_MISMATCH",
+    "requested_eligible_blockers": [
+      "obj:mp-p2-blocker"
+    ],
+    "native_eligible_blockers": [
+      "obj:P2-bears",
+      "obj:mp-p2-blocker"
+    ],
+    "actor_phase_scope_isolation": "PASS",
+    "isolation_detail": "Prior global observer incorrectly included obj:P3-bears. After actor scoping and native COMBAT_DECLARE_BLOCKERS phase scoping, obj:P3-bears is absent while obj:P2-bears remains. The remaining discrepancy is therefore not observer actor/phase scope."
+  },
+  "immutable_record_audit": {
+    "fixture_id": "WS05-MP-BLOCK-4",
+    "materialization_digest": "f370e233ecd94a6b93bc713ff222918fadfee0170c3b3bb5d91cead961f02d08",
+    "obligation_digest": "66ec06a25c6e3c151607879a033a3e11e42bcf982615d659eafd389c83792b56",
+    "requested_state_digest": "6752ba04006885bb18b4a3fc55913607dac9c9bbfc2311070423e795a0f3fbd2",
+    "p2_bears": {
+      "semantic_id": "obj:P2-bears",
+      "card_identity": "Grizzly Bears",
+      "owner": "P2",
+      "controller": "P2",
+      "zone": "battlefield",
+      "tapped": false,
+      "face_down": false,
+      "counters": {}
+    },
+    "special_p2_blocker": {
+      "semantic_id": "obj:mp-p2-blocker",
+      "card_identity": "Runeclaw Bear",
+      "owner": "P2",
+      "controller": "P2",
+      "zone": "battlefield",
+      "tapped": false,
+      "face_down": false,
+      "counters": {}
+    },
+    "continuous_rules_effects_present": false,
+    "action_cost_state": [],
+    "terminal_postconditions": [
+      "P2 blocker options contain only attackers for which P2 is defending player."
+    ],
+    "decision_script_assignment": {
+      "obj:mp-p2-blocker": "obj:mp-a2"
+    },
+    "hidden_blocking_restriction_found": false
+  },
+  "frozen_obligation_authority": {
+    "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+    "manifest_axis": "MP_BLOCKING_SCOPE",
+    "obligation_summary": "Defender/blocker partition",
+    "manifest_expected_observation": "P2 legal blockers never include blockers controlled by P3 or P4 and never include attackers outside P2 defending scope.",
+    "required_assertions": [
+      "for each P2 blocker b, blocker_controller(b) == P2",
+      "if b blocks attacker a, defender_of(a) == P2"
+    ],
+    "ws44_supersession_status": "SUPERSEDED_REPRESENTATION_REPAIR",
+    "ws44_repair_detail": "Dangling blocker semantic ID obj:mp-blocker was repaired to obj:mp-p2-blocker.",
+    "ws44_obligation_changed": false,
+    "finding": "The frozen obligation requires defender/blocker partition but does not require obj:mp-p2-blocker to be the only otherwise-legal P2 blocker."
+  },
+  "current_rules_authority": {
+    "source": "Wizards of the Coast Magic Comprehensive Rules",
+    "effective_date": "2026-08-07",
+    "rules_page": "https://magic.wizards.com/en/rules",
+    "rules_text": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+    "relevant_rules": {
+      "302.6": "Summoning sickness limits attacking and activated abilities with tap/untap symbols; it does not prohibit blocking.",
+      "509.1a": "A defending player chooses untapped creatures they control to block, subject to restrictions and requirements.",
+      "509.1b": "Blocking restrictions are effects saying a creature cannot block or cannot block unless a condition is met.",
+      "802.4a": "In attack-multiple-players combat, a defending player can block only with creatures they control and only creatures attacking that defender/protected objects.",
+      "802.4b": "When determining that defender's legal blocks, attackers of other players and blockers controlled by other players are ignored."
+    },
+    "adjudication": "An untapped vanilla Grizzly Bears controlled by P2 has no rule-based reason to be excluded from P2's blocker legal-option surface in this state."
+  },
+  "provider_authority": {
+    "native_legality_api": "CombatUtil.canBlock(attacker, blocker, combat)",
+    "observer_scope": "P2 priority/defending actor during native PhaseType.COMBAT_DECLARE_BLOCKERS",
+    "request_filtering_used": false,
+    "requested_option_list_read_for_legality": false,
+    "finding": "Forge Rules Core independently exposes obj:P2-bears and obj:mp-p2-blocker as legal P2 blockers. Filtering obj:P2-bears solely to match the immutable requested singleton would move legality into the qualification/provider layer and violate the WS45 Rules-Core/no-request-echo boundary."
+  },
+  "terminal_adjudication": {
+    "stop_condition": "GENUINE_NON_REMEDIABLE_CONTRACT_DEFECT_AND_AUTHORITY_CONTRADICTION",
+    "contract_is_immutable_in_ws45": true,
+    "provider_can_be_safely_remediated_to_match": false,
+    "forge_rules_core_defect_proven": false,
+    "reason": "WS44 v1.0.4 freezes eligible_blockers as a singleton even though its inherited obligation is only defender/blocker partition and current Magic rules plus the exact Forge Rules Core independently make obj:P2-bears legal. Removing the legal P2 blocker in provider/observer code would be request-derived legality or fabricated legal options, explicitly prohibited by the workstream contract. WS45 is forbidden from editing WS44."
+  },
+  "credit": {
+    "strict_no_request_echo": "PASS",
+    "construction_credit": "0/107",
+    "behavior": "NOT_RUN",
+    "behavior_credit": "0/107",
+    "historical_successor_credit_imported": 0,
+    "forge_successor_provider_qualified": false,
+    "af07_granted": false,
+    "architecture_freeze_granted": false
+  },
+  "next_action": "Terminate WS45 fail-closed with a self-contained handoff. A separate contract-authority/coordinator workstream must supersede WS44 with a new immutable provider-neutral materialization that repairs WS05-MP-BLOCK-4 without weakening its frozen defender/blocker-partition obligation, then Forge successor qualification must restart fresh against that successor version with zero imported runtime credit."
+}

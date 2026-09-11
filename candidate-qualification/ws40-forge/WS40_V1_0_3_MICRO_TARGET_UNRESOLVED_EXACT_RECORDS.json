@@ -1,0 +1,979 @@
+{
+  "fixture_ids": [
+    "MICRO_PRIORITY",
+    "MICRO_STACK"
+  ],
+  "record_count": 2,
+  "records": [
+    {
+      "action_cost_state": [
+        {
+          "actor": "P2",
+          "card_identity": "Giant Growth",
+          "decision_index": 0,
+          "evidence_basis": "V1_0_1_EXECUTABILITY_PASS_UNCHANGED_CAST_STATE",
+          "explicit_payment_sources": [
+            "obj:micro-forest"
+          ],
+          "minimum_mana_or_equivalent": null,
+          "payable": true,
+          "source_semantic_id": "obj:micro-growth"
+        }
+      ],
+      "authority_provenance": {
+        "common_manifest_fixture_id": "MICRO_PRIORITY",
+        "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+        "cr_pdf_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
+        "rsp": "commander-lab.rules-service/1.1.0",
+        "ws29_base_commit": "362d9351f749b6f49d67cd1ef4eed298b8922b68",
+        "ws31_authority_domain_digest": "d8337dc0a243fddbede3e9d2cec7b3938a1007970a23dea04855149fbfc55d5e",
+        "ws31_authority_head": "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e"
+      },
+      "commander_state": {
+        "commander_damage_matrix": [],
+        "commanders": [
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P1-A",
+            "owner": "P1",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          },
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P2-A",
+            "owner": "P2",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          },
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P3-A",
+            "owner": "P3",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          },
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P4-A",
+            "owner": "P4",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          }
+        ],
+        "multiple_commander_relations": []
+      },
+      "construction_validation": {
+        "credit_condition": "REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST",
+        "digest_spec": "commander-lab.requested-state-digest/1.0.0",
+        "on_mismatch": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER_AND_NO_RUNTIME_CREDIT",
+        "provider_must_emit_normalized_constructed_state": true,
+        "required": true
+      },
+      "decision_script": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "priority",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_action",
+            "semantic_value": {
+              "action": "cast",
+              "object": "obj:micro-growth"
+            }
+          }
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "target",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_object",
+            "semantic_value": "obj:micro-target"
+          }
+        }
+      ],
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "execution_transaction_policy": {
+        "automatic_rules_actions": "RULES_CORE_ONLY",
+        "discretionary_choices": "ONLY_EXPLICIT_DECISION_SCRIPT_RESPONSES",
+        "fallbacks": "PROHIBITED",
+        "legal_actions": "RULES_CORE_ONLY",
+        "priority_passes": "EXPLICITLY_SCRIPTED_WHEN_NEEDED_TO_REACH_NEXT_DECLARED_CHECKPOINT"
+      },
+      "expected_events": {
+        "forbidden_events": [],
+        "ordering_constraints": [
+          [
+            "spell_cast:Giant_Growth",
+            "resolve:Giant_Growth"
+          ],
+          [
+            "resolve:Giant_Growth",
+            "resolve:Lightning_Bolt"
+          ]
+        ],
+        "partial_order_constraints": [],
+        "required_events": [
+          "priority:P2",
+          "spell_cast:Giant_Growth",
+          "stack_push:Giant_Growth",
+          "resolve:Giant_Growth",
+          "resolve:Lightning_Bolt"
+        ]
+      },
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PRIORITY",
+      "frozen_contract_binding": {
+        "af_mapping": "INHERIT_BY_REFERENCE_NO_REDEFINITION",
+        "manifest_fixture_id": "MICRO_PRIORITY",
+        "manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4"
+      },
+      "knowledge_state": {
+        "channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+        "viewer_states": [
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P1"
+          },
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P2"
+          },
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P3"
+          },
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P4"
+          }
+        ]
+      },
+      "materialization_digest": "8a5ca721a904b7307ee3c0b1d2f1fd98d5d283ea335a13eb0e98830e3cbf32b8",
+      "materialization_status": "OBLIGATION_PRESERVED",
+      "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.3",
+      "native_procedure": [
+        {
+          "details": {
+            "targets": [
+              "obj:micro-target"
+            ]
+          },
+          "operation": "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resume"
+        },
+        {
+          "actor": "P2",
+          "details": {
+            "cost": "{G}",
+            "from_zone": "hand",
+            "target_cardinality": 1
+          },
+          "operation": "NATIVE_CAST_SPELL",
+          "source_object": "obj:micro-growth",
+          "step_id": "cast-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-growth",
+          "step_id": "resolve-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resolve-bolt"
+        }
+      ],
+      "normalization": {
+        "ignored_provider_local": [
+          "raw_uuid",
+          "jvm_object_id",
+          "memory_identity",
+          "internal_stack_object_identity",
+          "engine_action_id",
+          "process_id",
+          "wall_clock"
+        ],
+        "retained_semantic": [
+          "player_id",
+          "semantic_object_id",
+          "card_lineage_id",
+          "commander_id",
+          "owner",
+          "controller",
+          "zone",
+          "zone_position_when_relevant",
+          "counters",
+          "attachments",
+          "commander_cast_count",
+          "commander_damage",
+          "knowledge_permissions",
+          "temporal_state",
+          "semantic_event_actor_object_value",
+          "rules_rng_operation"
+        ],
+        "stack_identity": "normalize by semantic source/controller/targets/modes/order, never provider object id"
+      },
+      "obligation_digest": "19b389f44ac320ca20245559207185647eb63bab4af9de0e532a9c6874ca4bf5",
+      "players": [
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P1",
+          "poison": 0,
+          "seat": 1,
+          "starting_life": 40
+        },
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P2",
+          "poison": 0,
+          "seat": 2,
+          "starting_life": 40
+        },
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P3",
+          "poison": 0,
+          "seat": 3,
+          "starting_life": 40
+        },
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P4",
+          "poison": 0,
+          "seat": 4,
+          "starting_life": 40
+        }
+      ],
+      "repair_provenance": {
+        "frozen_obligation_preserved": true,
+        "predecessor_record_digest": "6ea3fff3fbf3cde65b87662bb2612c8a22264fd36060213a9622ed3a9d262ee3",
+        "predecessor_version": "commander-lab.semantic-fixture-materialization/1.0.2",
+        "provider_semantics_used": false,
+        "ws41_repair_class": "SUCCESSOR_VERSION_AND_LINTER_HARDENING_ONLY"
+      },
+      "requested_state_digest": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae",
+      "rules_randomness": {
+        "channels": [],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242
+      },
+      "scenario_notes": [
+        "Minimal deterministic provider-neutral representative of the frozen obligation; provider-native construction and legality remain authoritative."
+      ],
+      "semantic_executability": "SEMANTIC_EXECUTABLE",
+      "semantic_objects": [
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P1-commander",
+          "commander_id": "cmd:P1-A",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:P1-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P2-commander",
+          "commander_id": "cmd:P2-A",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:P2-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P3-commander",
+          "commander_id": "cmd:P3-A",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:P3-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P4-commander",
+          "commander_id": "cmd:P4-A",
+          "controller": "P4",
+          "counters": {},
+          "face_down": false,
+          "owner": "P4",
+          "semantic_id": "obj:P4-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p1-bears",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:p1-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p2-bears",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:p2-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p3-bears",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:p3-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Lightning Bolt",
+          "card_lineage_id": "line:obj:micro-bolt",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:micro-bolt",
+          "tapped": false,
+          "zone": "stack"
+        },
+        {
+          "card_identity": "Giant Growth",
+          "card_lineage_id": "line:obj:micro-growth",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-growth",
+          "tapped": false,
+          "zone": "hand"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:micro-target",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-target",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Forest",
+          "card_lineage_id": "line:obj:micro-forest",
+          "controlled_since_turn_began": true,
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-forest",
+          "tapped": false,
+          "zone": "battlefield"
+        }
+      ],
+      "setup_validation": {
+        "compare_requested_vs_constructed": true,
+        "construct_inside_rules_process": true,
+        "expose_normalized_constructed_state": true,
+        "forbidden_external_rules": [
+          "legality_calculation",
+          "layers",
+          "state_based_actions",
+          "replacement_outcomes",
+          "fabricated_legal_options",
+          "silent_setup_correction"
+        ],
+        "native_structural_validation_required": true,
+        "on_mismatch": "FAIL_CLOSED",
+        "requested_vs_normalized_native_constructed_state_equality_required": true
+      },
+      "stack_state": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "obj:P2-bears"
+          ]
+        }
+      ],
+      "supersedes_record_digest": "7f6c4507c8f5631dd4780ead3a20217dad89ba7765042ac8418524ff0450c7f4",
+      "temporal_state": {
+        "active_player": "P1",
+        "extra_turn_queue": [],
+        "phase": "precombat_main",
+        "priority_player": "P2",
+        "step": "main",
+        "turn_number": 1
+      },
+      "terminal_postconditions": [
+        "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.",
+        "Stack is empty after both spells resolve."
+      ]
+    },
+    {
+      "action_cost_state": [
+        {
+          "actor": "P2",
+          "card_identity": "Giant Growth",
+          "decision_index": 0,
+          "evidence_basis": "V1_0_1_EXECUTABILITY_PASS_UNCHANGED_CAST_STATE",
+          "explicit_payment_sources": [
+            "obj:micro-forest"
+          ],
+          "minimum_mana_or_equivalent": null,
+          "payable": true,
+          "source_semantic_id": "obj:micro-growth"
+        }
+      ],
+      "authority_provenance": {
+        "common_manifest_fixture_id": "MICRO_STACK",
+        "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+        "cr_pdf_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
+        "rsp": "commander-lab.rules-service/1.1.0",
+        "ws29_base_commit": "362d9351f749b6f49d67cd1ef4eed298b8922b68",
+        "ws31_authority_domain_digest": "d8337dc0a243fddbede3e9d2cec7b3938a1007970a23dea04855149fbfc55d5e",
+        "ws31_authority_head": "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e"
+      },
+      "commander_state": {
+        "commander_damage_matrix": [],
+        "commanders": [
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P1-A",
+            "owner": "P1",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          },
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P2-A",
+            "owner": "P2",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          },
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P3-A",
+            "owner": "P3",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          },
+          {
+            "card_identity": "Rograkh, Son of Rohgahh",
+            "commander_id": "cmd:P4-A",
+            "owner": "P4",
+            "prior_command_zone_cast_count": 0,
+            "zone": "command"
+          }
+        ],
+        "multiple_commander_relations": []
+      },
+      "construction_validation": {
+        "credit_condition": "REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST",
+        "digest_spec": "commander-lab.requested-state-digest/1.0.0",
+        "on_mismatch": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER_AND_NO_RUNTIME_CREDIT",
+        "provider_must_emit_normalized_constructed_state": true,
+        "required": true
+      },
+      "decision_script": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "priority",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_action",
+            "semantic_value": {
+              "action": "cast",
+              "object": "obj:micro-growth"
+            }
+          }
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "target",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_object",
+            "semantic_value": "obj:micro-target"
+          }
+        }
+      ],
+      "execution_entry_mode": "NATIVE_STATE_LOAD",
+      "execution_transaction_policy": {
+        "automatic_rules_actions": "RULES_CORE_ONLY",
+        "discretionary_choices": "ONLY_EXPLICIT_DECISION_SCRIPT_RESPONSES",
+        "fallbacks": "PROHIBITED",
+        "legal_actions": "RULES_CORE_ONLY",
+        "priority_passes": "EXPLICITLY_SCRIPTED_WHEN_NEEDED_TO_REACH_NEXT_DECLARED_CHECKPOINT"
+      },
+      "expected_events": {
+        "forbidden_events": [],
+        "ordering_constraints": [
+          [
+            "spell_cast:Giant_Growth",
+            "resolve:Giant_Growth"
+          ],
+          [
+            "resolve:Giant_Growth",
+            "resolve:Lightning_Bolt"
+          ]
+        ],
+        "partial_order_constraints": [],
+        "required_events": [
+          "priority:P2",
+          "spell_cast:Giant_Growth",
+          "stack_push:Giant_Growth",
+          "resolve:Giant_Growth",
+          "resolve:Lightning_Bolt"
+        ]
+      },
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STACK",
+      "frozen_contract_binding": {
+        "af_mapping": "INHERIT_BY_REFERENCE_NO_REDEFINITION",
+        "manifest_fixture_id": "MICRO_STACK",
+        "manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4"
+      },
+      "knowledge_state": {
+        "channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+        "viewer_states": [
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P1"
+          },
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P2"
+          },
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P3"
+          },
+          {
+            "face_down_look_permissions": [],
+            "invalidation_conditions": [],
+            "known_library_ranges": [],
+            "known_object_identities": [],
+            "temporary_permissions": [],
+            "viewer": "P4"
+          }
+        ]
+      },
+      "materialization_digest": "fc5af0dd05bc10f4e26c93533e3b48c86692dc92c79931db948f6c549c092b4d",
+      "materialization_status": "OBLIGATION_PRESERVED",
+      "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.3",
+      "native_procedure": [
+        {
+          "details": {
+            "targets": [
+              "obj:micro-target"
+            ]
+          },
+          "operation": "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resume"
+        },
+        {
+          "actor": "P2",
+          "details": {
+            "cost": "{G}",
+            "from_zone": "hand",
+            "target_cardinality": 1
+          },
+          "operation": "NATIVE_CAST_SPELL",
+          "source_object": "obj:micro-growth",
+          "step_id": "cast-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-growth",
+          "step_id": "resolve-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resolve-bolt"
+        }
+      ],
+      "normalization": {
+        "ignored_provider_local": [
+          "raw_uuid",
+          "jvm_object_id",
+          "memory_identity",
+          "internal_stack_object_identity",
+          "engine_action_id",
+          "process_id",
+          "wall_clock"
+        ],
+        "retained_semantic": [
+          "player_id",
+          "semantic_object_id",
+          "card_lineage_id",
+          "commander_id",
+          "owner",
+          "controller",
+          "zone",
+          "zone_position_when_relevant",
+          "counters",
+          "attachments",
+          "commander_cast_count",
+          "commander_damage",
+          "knowledge_permissions",
+          "temporal_state",
+          "semantic_event_actor_object_value",
+          "rules_rng_operation"
+        ],
+        "stack_identity": "normalize by semantic source/controller/targets/modes/order, never provider object id"
+      },
+      "obligation_digest": "bd58a0a80630f44cc6933cdccc6250874ba5a578f264b71bb047979d262088d2",
+      "players": [
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P1",
+          "poison": 0,
+          "seat": 1,
+          "starting_life": 40
+        },
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P2",
+          "poison": 0,
+          "seat": 2,
+          "starting_life": 40
+        },
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P3",
+          "poison": 0,
+          "seat": 3,
+          "starting_life": 40
+        },
+        {
+          "eliminated": false,
+          "life": 40,
+          "lost": false,
+          "player_id": "P4",
+          "poison": 0,
+          "seat": 4,
+          "starting_life": 40
+        }
+      ],
+      "repair_provenance": {
+        "frozen_obligation_preserved": true,
+        "predecessor_record_digest": "00fc1c6c04b498cce5f8aacb976276648d91f69ff1c0fe7d764bf90d99889fec",
+        "predecessor_version": "commander-lab.semantic-fixture-materialization/1.0.2",
+        "provider_semantics_used": false,
+        "ws41_repair_class": "SUCCESSOR_VERSION_AND_LINTER_HARDENING_ONLY"
+      },
+      "requested_state_digest": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae",
+      "rules_randomness": {
+        "channels": [],
+        "pilot_randomness_prohibited": true,
+        "predetermined_semantic_draws": [],
+        "rules_seed": 424242
+      },
+      "scenario_notes": [
+        "Minimal deterministic provider-neutral representative of the frozen obligation; provider-native construction and legality remain authoritative."
+      ],
+      "semantic_executability": "SEMANTIC_EXECUTABLE",
+      "semantic_objects": [
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P1-commander",
+          "commander_id": "cmd:P1-A",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:P1-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P2-commander",
+          "commander_id": "cmd:P2-A",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:P2-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P3-commander",
+          "commander_id": "cmd:P3-A",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:P3-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "card_lineage_id": "line:obj:P4-commander",
+          "commander_id": "cmd:P4-A",
+          "controller": "P4",
+          "counters": {},
+          "face_down": false,
+          "owner": "P4",
+          "semantic_id": "obj:P4-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p1-bears",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:p1-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p2-bears",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:p2-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p3-bears",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:p3-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Lightning Bolt",
+          "card_lineage_id": "line:obj:micro-bolt",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:micro-bolt",
+          "tapped": false,
+          "zone": "stack"
+        },
+        {
+          "card_identity": "Giant Growth",
+          "card_lineage_id": "line:obj:micro-growth",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-growth",
+          "tapped": false,
+          "zone": "hand"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:micro-target",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-target",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Forest",
+          "card_lineage_id": "line:obj:micro-forest",
+          "controlled_since_turn_began": true,
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-forest",
+          "tapped": false,
+          "zone": "battlefield"
+        }
+      ],
+      "setup_validation": {
+        "compare_requested_vs_constructed": true,
+        "construct_inside_rules_process": true,
+        "expose_normalized_constructed_state": true,
+        "forbidden_external_rules": [
+          "legality_calculation",
+          "layers",
+          "state_based_actions",
+          "replacement_outcomes",
+          "fabricated_legal_options",
+          "silent_setup_correction"
+        ],
+        "native_structural_validation_required": true,
+        "on_mismatch": "FAIL_CLOSED",
+        "requested_vs_normalized_native_constructed_state_equality_required": true
+      },
+      "stack_state": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "obj:P2-bears"
+          ]
+        }
+      ],
+      "supersedes_record_digest": "7519fa4e4739bcd95071a967d4385e1888323d6090e3b6ff6bbe764950ea99fb",
+      "temporal_state": {
+        "active_player": "P1",
+        "extra_turn_queue": [],
+        "phase": "precombat_main",
+        "priority_player": "P2",
+        "step": "main",
+        "turn_number": 1
+      },
+      "terminal_postconditions": [
+        "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.",
+        "Stack is empty after both spells resolve."
+      ]
+    }
+  ],
+  "schema_version": "commander-lab.ws40-v1.0.3-micro-target-unresolved-extract/1.0.0",
+  "source_lock": {
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47"
+  }
+}

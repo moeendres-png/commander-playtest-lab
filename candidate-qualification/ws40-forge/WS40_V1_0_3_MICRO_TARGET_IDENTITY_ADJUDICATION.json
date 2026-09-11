@@ -1,0 +1,124 @@
+{
+  "adjudicated_at": "2026-09-06T00:32:00+02:00",
+  "adjudication": "TERMINAL_IMMUTABLE_CONTRACT_DEFECT",
+  "decision_scope": "immutable commander-lab.semantic-fixture-materialization/1.0.3 successor-provider construction qualification",
+  "forbidden_remediation_classes": [
+    "case-fold obj:P2-bears to obj:p2-bears",
+    "match by card name",
+    "match by owner/controller",
+    "cross-record or global guessed identity",
+    "copy the requested target into provider output without native identity validation",
+    "mutate immutable v1.0.3 in place"
+  ],
+  "provider_remediation_within_contract": false,
+  "reason": "Mandatory v1.0.3 construction requires an object target identifier that has no exact record-local referent, while a distinct native-procedure target exists. Any provider-side bridge would fabricate or guess identity or would mutate the frozen contract.",
+  "record_evidence": {
+    "MICRO_PRIORITY": {
+      "exact_requested_target_present_in_semantic_objects": false,
+      "native_procedure_resume_target": "obj:micro-target",
+      "obligation_digest_v1_0_2": "19b389f44ac320ca20245559207185647eb63bab4af9de0e532a9c6874ca4bf5",
+      "relevant_available_semantic_objects": [
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p2-bears",
+          "controller": "P2",
+          "owner": "P2",
+          "semantic_id": "obj:p2-bears"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:micro-target",
+          "controller": "P2",
+          "owner": "P2",
+          "semantic_id": "obj:micro-target"
+        }
+      ],
+      "requested_stack_target": "obj:P2-bears",
+      "requested_state_digest_v1_0_2": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae"
+    },
+    "MICRO_STACK": {
+      "exact_requested_target_present_in_semantic_objects": false,
+      "native_procedure_resume_target": "obj:micro-target",
+      "obligation_digest_v1_0_2": "bd58a0a80630f44cc6933cdccc6250874ba5a578f264b71bb047979d262088d2",
+      "relevant_available_semantic_objects": [
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:p2-bears",
+          "controller": "P2",
+          "owner": "P2",
+          "semantic_id": "obj:p2-bears"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "card_lineage_id": "line:obj:micro-target",
+          "controller": "P2",
+          "owner": "P2",
+          "semantic_id": "obj:micro-target"
+        }
+      ],
+      "requested_stack_target": "obj:P2-bears",
+      "requested_state_digest_v1_0_2": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae"
+    }
+  },
+  "referential_integrity": {
+    "ambiguity": "There are two distinct P2-controlled Grizzly Bears semantic objects; case-folding selects obj:p2-bears while the native procedure names obj:micro-target.",
+    "exact_referent_for_obj_P2_bears": false,
+    "historical_v1_0_1_provenance": "SUPPORTING_ONLY_NOT_REQUIRED_FOR_DECISION",
+    "record_local_explicit_alias_or_identity_map": false
+  },
+  "required_upstream_action": "Issue a new immutable semantic-fixture-materialization version that repairs the MICRO target identity and adds referential-integrity linting for all target identifiers; then begin fresh provider qualification from zero runtime credit.",
+  "runtime_evidence": {
+    "artifact_id": 9959955219,
+    "artifact_zip_sha256": "32704c208c54455902091aec043a9bb6a5a49017694102661c893a993d3ca104",
+    "attempt": 26,
+    "credit_note": "The 55 earlier equalities are diagnostic only because the independent no-request-echo gate remains failed.",
+    "diagnostic_equalities_before_failure": 55,
+    "failure": "WS40_STATE_TARGET_UNBOUND:obj:P2-bears",
+    "first_failure_fixture_id": "MICRO_PRIORITY",
+    "first_failure_record_index": 56,
+    "job": 101221261106,
+    "workflow_run": 33935065462
+  },
+  "schema": "commander-lab.ws40.micro-target-identity-adjudication/1.0.0",
+  "source_locks": {
+    "commander_lab_active_branch": {
+      "branch": "ws40/forge-core-remediation-requalification",
+      "pre_adjudication_commit": "89df69bc7b621d553032b81f203f3a202dc4f922",
+      "pre_adjudication_tree": "4d9be53eba6be11e6d32db8c90a0aa345c8c86c7",
+      "repository": "moeendres-png/commander-playtest-lab"
+    },
+    "forge": {
+      "branch": "foundry/ws40-af04-core-remediation",
+      "commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+      "repository": "moeendres-png/forge",
+      "tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+      "version": "2.0.15-SNAPSHOT"
+    },
+    "ws32_v1_0_2_predecessor": {
+      "byte_identity_verified": true,
+      "commit": "038d0f38635eecee4e331c99af41f148de267a26",
+      "materialization_sha256": "0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261",
+      "schema": "commander-lab.semantic-fixture-materialization/1.0.2",
+      "tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+      "verification_note": "Local frozen WS32 evidence copy hashed to the exact predecessor SHA-256 published by WS41 SUPERSEDES_v1_0_2.json."
+    },
+    "ws41_v1_0_3": {
+      "bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+      "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+      "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+      "provider_denominator": 107,
+      "repository": "moeendres-png/commander-playtest-lab",
+      "schema": "commander-lab.semantic-fixture-materialization/1.0.3",
+      "tree": "428bbe58b2ea7b869200521092a8768108029b47"
+    }
+  },
+  "workstream": "WS-40",
+  "ws41_supersession_fact": {
+    "meaning": "MICRO_PRIORITY and MICRO_STACK requested state are unchanged from immutable v1.0.2 into immutable v1.0.3.",
+    "micro_priority_changed": false,
+    "micro_stack_changed": false,
+    "requested_state_changed_fixture_ids": [
+      "PILOT_CHOICE"
+    ]
+  }
+}

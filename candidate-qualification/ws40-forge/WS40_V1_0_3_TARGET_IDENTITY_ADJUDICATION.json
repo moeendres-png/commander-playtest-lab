@@ -1,0 +1,97 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-target-identity-adjudication/1.0.0",
+  "status": "ADJUDICATED",
+  "qualification_credit": 0,
+  "source_lock": {
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5"
+  },
+  "evidence": {
+    "target_identity_audit": {
+      "run_id": 33920683329,
+      "persisted_commit": "9ad6109c0bcfae69a8d4eb43da70d668d34cf604",
+      "path": "candidate-qualification/ws40-forge/WS40_V1_0_3_TARGET_IDENTITY_AUDIT.json",
+      "blob_sha": "0842201ed946258576496fbdcaf636772b971fd7",
+      "record_count": 107,
+      "target_reference_count": 31,
+      "status_counts": {
+        "EXACT_SEMANTIC_ID": 21,
+        "PLAYER_ID": 7,
+        "UNIQUE_IDENTITY_ALIAS": 1,
+        "UNRESOLVED": 2
+      },
+      "ambiguous_count": 0,
+      "unresolved_count": 2
+    },
+    "micro_exact_extract": {
+      "run_id": 33921143680,
+      "run_conclusion": "success",
+      "persisted_commit": "4499e10cc68ddf4a7a1cf578cb00a01914ab2ffc",
+      "path": "candidate-qualification/ws40-forge/WS40_V1_0_3_MICRO_TARGET_UNRESOLVED_EXACT_RECORDS.json",
+      "blob_sha": "770fd964a26821a2da3ce322320ef2990cb3a5b2",
+      "fixture_ids": ["MICRO_PRIORITY", "MICRO_STACK"]
+    },
+    "pilot_replacement_exact_extract": {
+      "run_id": 33918880779,
+      "path": "candidate-qualification/ws40-forge/WS40_V1_0_3_PILOT_REPLACEMENT_EFFECT_EXACT_RECORD.json"
+    }
+  },
+  "findings": {
+    "PILOT_REPLACEMENT_EFFECT": {
+      "requested_stack_target": "obj:P1-commander",
+      "current_semantic_object": "obj:p1-commander-bf",
+      "current_card_lineage_id": "line:obj:P1-commander",
+      "commander_id": "cmd:P1-A",
+      "classification": "UNIQUE_EXACT_CARD_LINEAGE_BASE_ALIAS",
+      "provider_remediation_allowed": true,
+      "reason": "The frozen provider-neutral card_lineage_id exactly preserves the requested target identity as line:<target-id>; the corpus audit found exactly one such case and no ambiguity."
+    },
+    "MICRO_PRIORITY": {
+      "requested_stack_target": "obj:P2-bears",
+      "semantic_objects_relevant": [
+        {"semantic_id": "obj:p2-bears", "card_lineage_id": "line:obj:p2-bears", "card_identity": "Grizzly Bears"},
+        {"semantic_id": "obj:micro-target", "card_lineage_id": "line:obj:micro-target", "card_identity": "Grizzly Bears"}
+      ],
+      "native_resume_target": "obj:micro-target",
+      "decision_script_target": "obj:micro-target",
+      "classification": "FROZEN_RECORD_TARGET_IDENTITY_CONTRADICTION",
+      "provider_remediation_allowed": false,
+      "reason": "No exact provider-neutral identity bridge maps obj:P2-bears to obj:micro-target. Case-folding would instead suggest obj:p2-bears, a distinct simultaneously present Grizzly Bears object, contradicting the native procedure and scripted semantic target."
+    },
+    "MICRO_STACK": {
+      "requested_stack_target": "obj:P2-bears",
+      "semantic_objects_relevant": [
+        {"semantic_id": "obj:p2-bears", "card_lineage_id": "line:obj:p2-bears", "card_identity": "Grizzly Bears"},
+        {"semantic_id": "obj:micro-target", "card_lineage_id": "line:obj:micro-target", "card_identity": "Grizzly Bears"}
+      ],
+      "native_resume_target": "obj:micro-target",
+      "decision_script_target": "obj:micro-target",
+      "terminal_semantics": "The same Grizzly Bears protected by Giant Growth must survive Lightning Bolt.",
+      "classification": "FROZEN_RECORD_TARGET_IDENTITY_CONTRADICTION",
+      "provider_remediation_allowed": false,
+      "reason": "The requested stack target, native resume target, decision target and terminal semantics cannot all denote the same object under the frozen semantic IDs. Provider-side guessing would weaken fail-closed semantics."
+    }
+  },
+  "allowed_remediation": {
+    "scope": "PILOT_REPLACEMENT_EFFECT unique lineage-base alias only",
+    "algorithm": [
+      "Resolve player IDs exactly.",
+      "Resolve exact semantic_id exactly.",
+      "Otherwise search current semantic objects for card_lineage_id exactly equal to 'line:' + requested target ID, case-sensitive.",
+      "Return the card only if exactly one distinct native card matches.",
+      "On more than one distinct match fail closed with WS40_STATE_TARGET_AMBIGUOUS:<id>.",
+      "On zero matches retain WS40_STATE_TARGET_UNBOUND:<id>."
+    ],
+    "forbidden": [
+      "case-insensitive aliasing",
+      "card-name matching",
+      "owner/controller heuristic matching",
+      "first-match fallback",
+      "requested-state rewriting",
+      "mapping obj:P2-bears to obj:micro-target without frozen identity evidence"
+    ]
+  },
+  "expected_next_gate": "After the unique lineage remediation, rerun all 107 construction records from record 1. Any MICRO target failure must be preserved as frozen-contract evidence, not bypassed in the provider.",
+  "architecture_freeze_credit": "NONE"
+}

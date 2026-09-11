@@ -1,0 +1,1092 @@
+{
+  "behavior_credit": "0/107",
+  "construction_credit": "107/107",
+  "evidence_class": "TRANSCRIPT_PROBE",
+  "forge": {
+    "commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+  },
+  "grants_behavior_credit": false,
+  "historical_successor_runtime_credit_imported": 0,
+  "mutated": true,
+  "rows": [
+    {
+      "answered": 70,
+      "consumed": 2,
+      "decode_errors": 0,
+      "evidence_class": "TRANSCRIPT_PROBE",
+      "fixture_id": "PILOT_PRIORITY",
+      "frames": 70,
+      "frames_detail": [
+        {
+          "actor": "P3",
+          "kind": "chooseStartingPlayer",
+          "option_count": 4,
+          "options": [
+            "PLAYER:seat-1",
+            "PLAYER:seat-2",
+            "PLAYER:seat-3",
+            "PLAYER:seat-4"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "mulliganKeepHand",
+          "option_count": 2,
+          "options": [
+            "KEEP",
+            "MULLIGAN"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "mulliganKeepHand",
+          "option_count": 2,
+          "options": [
+            "KEEP",
+            "MULLIGAN"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "mulliganKeepHand",
+          "option_count": 2,
+          "options": [
+            "KEEP",
+            "MULLIGAN"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "mulliganKeepHand",
+          "option_count": 2,
+          "options": [
+            "KEEP",
+            "MULLIGAN"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 4,
+          "options": [
+            "PASS",
+            "WS48:ACT:host=obj%3Apilot-bolt:cmd=null:card=Lightning+Bolt:sa=Lightning+Bolt+deals+3+damage+to+any+target.",
+            "WS48:ACT:host=obj%3Apilot-mountain:cmd=null:card=Mountain:sa=%7BT%7D%3A+Add+%7BR%7D.",
+            "WS48:ACT:host=obj%3AP1-commander:cmd=cmd%3AP1-A:card=Rograkh%2C+Son+of+Rohgahh:sa=Rograkh%2C+Son+of+Rohgahh+-+Creature+0+%2F+1"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "target",
+          "option_count": 7,
+          "options": [
+            "WS48:TARGET:tgt=WS48%3Aplayer%3AP1%3Aseat-1",
+            "WS48:TARGET:tgt=WS48%3Aplayer%3AP2%3Aseat-2",
+            "WS48:TARGET:tgt=WS48%3Aplayer%3AP3%3Aseat-3",
+            "WS48:TARGET:tgt=WS48%3Aplayer%3AP4%3Aseat-4",
+            "WS48:TARGET:tgt=WS48%3Aobj%3Ap1-bears%3AGrizzly+Bears",
+            "WS48:TARGET:tgt=WS48%3Aobj%3Ap2-bears%3AGrizzly+Bears",
+            "WS48:TARGET:tgt=WS48%3Aobj%3Ap3-bears%3AGrizzly+Bears"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "mana_payment",
+          "option_count": 1,
+          "options": [
+            "WS48:MANA:src=WS48%3Aobj%3Apilot-mountain%3AMountain:ability=%7BT%7D%3A+Add+%7BR%7D."
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 2,
+          "options": [
+            "PASS",
+            "WS48:ACT:host=obj%3AP1-commander:cmd=cmd%3AP1-A:card=Rograkh%2C+Son+of+Rohgahh:sa=Rograkh%2C+Son+of+Rohgahh+-+Creature+0+%2F+1"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 2,
+          "options": [
+            "PASS",
+            "WS48:ACT:host=obj%3AP1-commander:cmd=cmd%3AP1-A:card=Rograkh%2C+Son+of+Rohgahh:sa=Rograkh%2C+Son+of+Rohgahh+-+Creature+0+%2F+1"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P2",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P3",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P4",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        },
+        {
+          "actor": "P1",
+          "kind": "priority",
+          "option_count": 1,
+          "options": [
+            "PASS"
+          ]
+        }
+      ],
+      "index": 1,
+      "mutated": true,
+      "native_event_tape": [
+        {
+          "event": "shuffle",
+          "facts": "seat-1"
+        },
+        {
+          "event": "shuffle",
+          "facts": "seat-2"
+        },
+        {
+          "event": "shuffle",
+          "facts": "seat-3"
+        },
+        {
+          "event": "shuffle",
+          "facts": "seat-4"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "UNTAP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "MAIN1"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "MAIN1"
+        },
+        {
+          "event": "priority_binding",
+          "facts": "idx=1:label=WS48:ACT:host=obj%3Apilot-bolt:cmd=null:card=Lightning+Bolt:sa=Lightning+Bolt+deals+3+damage+to+any+target.:hostId=405"
+        },
+        {
+          "event": "milestone:getCostDecisionMaker:ENTERED",
+          "facts": ""
+        },
+        {
+          "event": "milestone:payManaCost:ENTERED",
+          "facts": ""
+        },
+        {
+          "event": "milestone:applyManaToCost:ENTERED",
+          "facts": ""
+        },
+        {
+          "event": "milestone:getCostDecisionMaker:ENTERED",
+          "facts": ""
+        },
+        {
+          "event": "milestone:payManaCost:ENTERED",
+          "facts": ""
+        },
+        {
+          "event": "spell_cast",
+          "facts": "Lightning Bolt deals 3 damage to any target.|[seat-3]"
+        },
+        {
+          "event": "player_damaged",
+          "facts": "amount=3:combat=false"
+        },
+        {
+          "event": "spell_resolved",
+          "facts": "fizzled=false|Lightning Bolt (405) - Lightning Bolt (405) deals 3 damage to seat-3."
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_BEGIN"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DECLARE_ATTACKERS"
+        },
+        {
+          "event": "attackers_declared",
+          "facts": "0"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DECLARE_BLOCKERS"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DAMAGE"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_END"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "MAIN2"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "END_OF_TURN"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "CLEANUP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "UNTAP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "UPKEEP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "DRAW"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "MAIN1"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_BEGIN"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DECLARE_ATTACKERS"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DECLARE_BLOCKERS"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DAMAGE"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_END"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "MAIN2"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "END_OF_TURN"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "CLEANUP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "UNTAP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "UPKEEP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "DRAW"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "MAIN1"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_BEGIN"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DECLARE_ATTACKERS"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DECLARE_BLOCKERS"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_DAMAGE"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "COMBAT_END"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "MAIN2"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "END_OF_TURN"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "CLEANUP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "UNTAP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "UPKEEP"
+        },
+        {
+          "event": "turn_phase",
+          "facts": "DRAW"
+        }
+      ],
+      "native_events": 55,
+      "offered_digest": "ffe16b80d0c7f97f8b19e04ba753e9af8621038f3eecc9068311d8eb2bfbb478",
+      "raw_tail": [
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"DECISION_FRAME\",\"request_id\":\"d68\",\"session_id\":\"ws23-forge-session-1\",\"actor_id\":\"seat-1\",\"state_revision\":67,\"payload\":{\"decision_id\":\"d68\",\"decision_kind\":\"priority\",\"options_digest\":\"e9b55f2aead906fe90c9c48eeaae3995c2f1c7606f70f93f8d527cd269aeb37d\",\"options\":[{\"option_id\":\"o0\",\"kind\":\"PASS\"}]}}\n",
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"NATIVE_EVENT\",\"request_id\":\"ws48-native-event\",\"session_id\":\"ws23-forge-session-1\",\"payload\":{\"event\":\"turn_phase\",\"facts\":\"CLEANUP\"}}\n",
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"NATIVE_EVENT\",\"request_id\":\"ws48-native-event\",\"session_id\":\"ws23-forge-session-1\",\"payload\":{\"event\":\"turn_phase\",\"facts\":\"UNTAP\"}}\n",
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"NATIVE_EVENT\",\"request_id\":\"ws48-native-event\",\"session_id\":\"ws23-forge-session-1\",\"payload\":{\"event\":\"turn_phase\",\"facts\":\"UPKEEP\"}}\n",
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"DECISION_FRAME\",\"request_id\":\"d69\",\"session_id\":\"ws23-forge-session-1\",\"actor_id\":\"seat-4\",\"state_revision\":68,\"payload\":{\"decision_id\":\"d69\",\"decision_kind\":\"priority\",\"options_digest\":\"e9b55f2aead906fe90c9c48eeaae3995c2f1c7606f70f93f8d527cd269aeb37d\",\"options\":[{\"option_id\":\"o0\",\"kind\":\"PASS\"}]}}\n",
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"DECISION_FRAME\",\"request_id\":\"d70\",\"session_id\":\"ws23-forge-session-1\",\"actor_id\":\"seat-1\",\"state_revision\":69,\"payload\":{\"decision_id\":\"d70\",\"decision_kind\":\"priority\",\"options_digest\":\"e9b55f2aead906fe90c9c48eeaae3995c2f1c7606f70f93f8d527cd269aeb37d\",\"options\":[{\"option_id\":\"o0\",\"kind\":\"PASS\"}]}}\n",
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"NATIVE_EVENT\",\"request_id\":\"ws48-native-event\",\"session_id\":\"ws23-forge-session-1\",\"payload\":{\"event\":\"turn_phase\",\"facts\":\"DRAW\"}}\n",
+        "{\"protocol\":\"commander-lab.rules-service/1.1.0\",\"message_type\":\"SESSION_RESULT\",\"request_id\":\"ws23-result\",\"session_id\":\"ws23-forge-session-1\",\"state_revision\":70,\"payload\":{\"stop_reason\":\"FORGE_GAME_RETURNED\",\"priority_decisions\":63,\"snapshot\":{\"player_count\":1,\"turn\":\"4\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":0,\"library_count\":0,\"command_count\":1,\"commander\":\"Rograkh, Son of Rohgahh\"}]}}}\n"
+      ],
+      "ritual_answers": [
+        {
+          "kind": "chooseStartingPlayer",
+          "option_id": "o0"
+        },
+        {
+          "kind": "mulliganKeepHand",
+          "option_id": "o0"
+        },
+        {
+          "kind": "mulliganKeepHand",
+          "option_id": "o0"
+        },
+        {
+          "kind": "mulliganKeepHand",
+          "option_id": "o0"
+        },
+        {
+          "kind": "mulliganKeepHand",
+          "option_id": "o0"
+        }
+      ],
+      "script_remaining": [],
+      "session_snapshot": {
+        "phase": "DRAW",
+        "player_count": 1,
+        "players": [
+          {
+            "actor_id": "seat-1",
+            "command_count": 1,
+            "commander": "Rograkh, Son of Rohgahh",
+            "hand_count": 0,
+            "library_count": 0,
+            "life": 40
+          }
+        ],
+        "turn": "4"
+      },
+      "setup_stage_seen": true,
+      "stop_reason": "FORGE_GAME_RETURNED",
+      "structural_passes": [
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 2
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 2
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P2",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P3",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        },
+        {
+          "actor": "P4",
+          "frame_options": 1
+        },
+        {
+          "actor": "P1",
+          "frame_options": 1
+        }
+      ],
+      "verdict": "TRANSCRIPT_COMPLETE"
+    }
+  ],
+  "schema_version": "commander-lab.ws48-behavior-transcript-probe/1.0.0",
+  "summary": {
+    "TRANSCRIPT_COMPLETE": 1
+  },
+  "ws47": {
+    "bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "tree": "f596c54d2cb229b9827c6c94a278175e8312c65c"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": "commander-lab.ws45-strict-overlay-compile-pass/1.0.0",
+  "workstream": "WS-45",
+  "status": "STRICT_OVERLAY_COMPILE_PASS_NO_RUNTIME_CREDIT",
+  "source_lock": {
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "commander_lab_compile_head": "460659ead8ae3fecd3819113c36a21b507cd9685",
+    "forge_commit": "a248bf22ca9ce00908ee06fb26bfd5ea0fc6803d",
+    "forge_tree": "2a8e15cda48e7f26fb806c7c99d7c51bdf797bfb"
+  },
+  "workflow": {
+    "name": "WS45 strict observation overlay compile",
+    "run_id": 34074253302,
+    "job_id": 101597204514,
+    "conclusion": "success",
+    "artifact_id": 10001520995,
+    "artifact_name": "ws45-strict-overlay-compile-460659ead8ae3fecd3819113c36a21b507cd9685",
+    "artifact_digest": "sha256:5ea7e016ff2f0a35fbe7222f47eba81e19d7fceb365e013eb2240f40cc4c21a2"
+  },
+  "verified": {
+    "exact_forge_lock": true,
+    "forge_game_build": true,
+    "inherited_provider_generated": true,
+    "ws45_overlay_applied": true,
+    "deterministic_native_card_id_binding_present": true,
+    "historical_first_candidate_binding_absent": true,
+    "restored_qualification_history_absent_from_active_overlay": true,
+    "canonical_knowledge_json_passthrough_absent": true,
+    "bound_config_rules_state_output_absent": true,
+    "native_eligible_blockers_surface_present": true,
+    "rules_rng_installed_before_match_start": true,
+    "natural_lifecycle_hook_present": true,
+    "generated_provider_compiles": true,
+    "strict_observation_bridge_compiles": true
+  },
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED_BY_COMPILE_ONLY",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0,
+    "forge_successor_provider_qualified": false
+  },
+  "next_action": "Execute runtime fixed-native-state/request-perturbation tests plus provider-side negative perturbations against exact WS44 v1.0.4 representative records. Grant strict no-request-echo only if native output remains governed by Forge state/typed observation and all invalid operations fail closed; otherwise remediate and repeat."
+}

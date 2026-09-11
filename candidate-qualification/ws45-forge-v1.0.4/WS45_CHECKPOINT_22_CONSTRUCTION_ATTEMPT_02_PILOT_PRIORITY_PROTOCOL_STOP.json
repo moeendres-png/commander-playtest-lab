@@ -1,0 +1,51 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 22,
+  "workstream": "WS-45",
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "commander_lab_head": "a1527a7ca415bc0ab39f8f4d8879305ee48b834c",
+  "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+  "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+  "ws44": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "denominator": 107
+  },
+  "strict_no_request_echo": "PASS",
+  "historical_successor_credit_imported": 0,
+  "construction_credit": "0/107",
+  "behavior_credit": "0/107",
+  "attempt": {
+    "workflow_run_id": 34173062073,
+    "job_id": 101896987375,
+    "artifact_id": 10036343595,
+    "artifact_sha256": "9b75f9e8fc6d50c706365e42ad1696ee91c19c3324e36c8053a6e2c402c696b7",
+    "records_runtime_equal_before_failure": 4,
+    "records_runtime_equal_fixture_ids": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P"
+    ],
+    "failure_index": 5,
+    "failure_fixture_id": "PILOT_PRIORITY",
+    "failure_entry_mode": "NATIVE_STATE_LOAD",
+    "protocol_messages": [
+      "SESSION_CREATED",
+      "SESSION_RESULT",
+      "SHUTDOWN_ACK"
+    ],
+    "qualification_state_seen": false,
+    "session_result_seen": true,
+    "provider_exit_code": 0,
+    "exact_runner_error": "WS45_CONSTRUCTION_PROTOCOL_INCOMPLETE:PILOT_PRIORITY:session=True:raw=False:result=True:messages=['SESSION_CREATED', 'SESSION_RESULT', 'SHUTDOWN_ACK']:rc=0"
+  },
+  "finding": "The construction presence-semantics remediation is effective for the four natural player-count fixtures. PILOT_PRIORITY reaches a controlled provider SESSION_RESULT before the native QUALIFICATION_STATE construction snapshot is emitted. The current construction runner does not persist the SESSION_RESULT stop reason/payload in its protocol-incomplete diagnostic, so the exact provider fail-closed reason is not yet observable from the persisted attempt.",
+  "credit_policy": "No partial construction credit. Four in-run equal records are evidence only; construction remains 0/107 until all exact 107 pass in one fresh qualification run.",
+  "terminal": false,
+  "next_action": "Expose the exact SESSION_RESULT stop_reason/payload on construction protocol failure, rerun from record 1, diagnose and remediate the first native-state-load blocker without weakening identity, no-request-echo, or fail-closed semantics."
+}

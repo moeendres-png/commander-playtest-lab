@@ -1,0 +1,65 @@
+{
+  "schema_version": "commander-lab.ws48-checkpoint/1.0.0",
+  "workstream": "WS-48",
+  "checkpoint": 2,
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "source_lock": {
+    "qualification_source_head": "7195776b1ba42433be42236dd4a075d0f99a2f36",
+    "ws47_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "ws47_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+    "ws47_schema": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "ws47_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "ws47_materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_version": "2.0.15-SNAPSHOT"
+  },
+  "workflow": {
+    "run_id": 34243021236,
+    "job_id": 102117764246,
+    "artifact_id": 10063354322,
+    "artifact_name": "ws48-v105-noecho-construction-7195776b1ba42433be42236dd4a075d0f99a2f36",
+    "artifact_digest": "sha256:cbd1b111cc4a268771c458acb83b2548130bd03a5f10acae87538f7c47dbe581"
+  },
+  "verified_before_failure": {
+    "immutable_ws47_lock": "PASS",
+    "exact_forge_source_lock": "PASS",
+    "forge_build": "PASS",
+    "provider_compile": "PASS",
+    "ws05_mp_block_4_native_surface": "PASS",
+    "strict_no_request_echo_refresh": "PASS",
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "construction": {
+    "denominator": 107,
+    "sequential_diagnostic_pass_count": 94,
+    "first_failure_index": 95,
+    "first_failure_fixture_id": "WS05-CMD-ZONE-LIB-YES",
+    "failure": "RESTORE_STACK_ILLEGAL_TARGET_STATE",
+    "failure_path": [
+      "forge.game.zone.RestoredSpellCastHistory.restoreCompletedPaidSpell",
+      "forge.game.player.Ws40SuccessorState.applyStack",
+      "forge.game.player.Ws40SuccessorState.applyNativeState"
+    ],
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "partial_credit_forbidden": true
+  },
+  "adjudication": {
+    "classification": "PROVIDER_NATIVE_STATE_RESTORATION_BLOCKER_PENDING_EXACT_RECORD_AUDIT",
+    "terminal_contract_blocker_proven": false,
+    "forge_rules_core_defect_proven": false,
+    "remediable_in_scope": true,
+    "reason": "The failure is raised by Forge-native restored-spell target legality validation while reconstructing the immutable record. Exact record state, target identity/zone and restoration ordering must be audited before changing any provider/native-engine code. No request-derived legality filtering is authorized."
+  },
+  "credit": {
+    "historical_successor_runtime_credit_imported": 0,
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "forge_successor_provider_qualified": false,
+    "af07_granted": false,
+    "architecture_freeze_granted": false
+  },
+  "next_action": "Extract immutable WS47 WS05-CMD-ZONE-LIB-YES state; determine whether stack restoration currently validates targets before the requested commander zone-move/replacement state is represented; implement only the minimum rules-core/provider restoration correction if justified; then rerun strict no-request-echo and full construction from record 1."
+}

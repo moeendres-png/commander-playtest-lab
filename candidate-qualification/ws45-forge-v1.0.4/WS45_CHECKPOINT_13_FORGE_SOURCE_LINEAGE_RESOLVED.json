@@ -1,0 +1,27 @@
+{
+  "schema_version": "commander-lab.ws45-forge-source-lineage-resolved/1.0.0",
+  "workstream": "WS-45",
+  "status": "SOURCE_LINEAGE_RESOLVED",
+  "materialized_baseline": {
+    "forge_commit": "d468ed84c7781e41d5aed71cd9ea24bd5aa45ad5",
+    "forge_tree": "cf59cb41d2284ba33c5bd0710d1d6059141136a1"
+  },
+  "ws45_native_observer_head": {
+    "forge_commit": "d1a65fd4a376365bf2562b2247104abcada3d120",
+    "forge_tree": "9cf8d7b817862e09a4c3bd5ff1d90d998f0d5c97"
+  },
+  "github_compare": {
+    "status": "ahead",
+    "merge_base": "d468ed84c7781e41d5aed71cd9ea24bd5aa45ad5",
+    "ahead_by": 4,
+    "behind_by": 0,
+    "total_commits": 4
+  },
+  "adjudication": "The build-verified WS45 Forge head is a direct descendant of the exact Forge commit used by the generated WS40 v1.0.3 baseline materialization. WS45 can therefore supersede that baseline on d1a65fd4... without rebasing or importing an unrelated engine state.",
+  "qualification_credit": {
+    "strict_no_request_echo": "FAIL",
+    "construction": "0/107",
+    "behavior": "0/107"
+  },
+  "next_action": "Create a reproducible WS45 v1.0.4 overlay that generates from the WS40 baseline, compiles against Forge d1a65fd4..., replaces rules-state bound_config outputs with NativeQualificationObservation/direct live Forge observations or fail-closed paths, and adds strict perturbation tests before any 107-record credit."
+}

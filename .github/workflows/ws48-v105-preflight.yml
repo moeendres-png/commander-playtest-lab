@@ -1,0 +1,126 @@
+name: WS48 v1.0.5 independent preflight
+
+on:
+  push:
+    branches: [ws48/forge-v1.0.5-successor-qualification]
+    paths:
+      - '.github/workflows/ws48-v105-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS47_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_TREE: f596c54d2cb229b9827c6c94a278175e8312c65c
+  WS47_NAMESPACE_TREE: 12af73695c801a42a0193ee895d5fc0843d16b0c
+  WS47_SCHEMA: commander-lab.semantic-fixture-materialization/1.0.5
+  WS47_BUNDLE: 631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01
+  WS47_MATERIALIZATION_SHA256: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+  WS44_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  FORGE_COMMIT: 66caae16015bd403bc0a52fa6689afb5508f74d0
+  FORGE_TREE: 40fc8f29ce4de31a964972461db2b48b4221e07f
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_COMMIT }}
+          path: contract-v105
+          sparse-checkout: qualification/ws47
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_COMMIT }}
+          path: contract-v104
+          sparse-checkout: qualification/ws44
+          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: forge-lock
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact immutable locks and reconstruct contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws48-preflight
+          test "$(git -C contract-v105 rev-parse HEAD)" = "$WS47_COMMIT"
+          test "$(git -C contract-v105 rev-parse HEAD^{tree})" = "$WS47_TREE"
+          test "$(git -C contract-v105 rev-parse HEAD:qualification/ws47)" = "$WS47_NAMESPACE_TREE"
+          test "$(sha256sum contract-v105/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json | awk '{print $1}')" = "$WS47_MATERIALIZATION_SHA256"
+          test "$(git -C forge-lock rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C forge-lock rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q '<versionCode>2.0.15</versionCode>' forge-lock/pom.xml
+          grep -q '<snapshotName>-SNAPSHOT</snapshotName>' forge-lock/pom.xml
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+
+          OUT=Path('artifacts/ws48-preflight')
+          p105=Path('contract-v105/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json')
+          d105=Path('contract-v105/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json')
+          p104=Path('contract-v104/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json')
+          d104=Path('contract-v104/qualification/ws44/WS44_PROVIDER_DENOMINATOR_107.json')
+          doc105=json.loads(p105.read_bytes()); den105=json.loads(d105.read_text())
+          doc104=json.loads(p104.read_bytes()); den104=json.loads(d104.read_text())
+          assert doc105['schema_version']==os.environ['WS47_SCHEMA']
+          assert doc105['canonical_bundle_digest']==os.environ['WS47_BUNDLE']
+          assert len(doc105['records'])==135
+          assert len(den105['fixture_ids'])==107 and len(set(den105['fixture_ids']))==107
+
+          reconstructed=[r['fixture_id'] for r in doc105['records'] if r['fixture_family']!='actual_card' or r['fixture_id']=='CARD_02']
+          assert len(reconstructed)==107 and reconstructed==den105['fixture_ids']
+          assert reconstructed==den104['fixture_ids']
+
+          # Canonical requested-state digest semantics from ws32_lint_semantic_v1_0_2.py:
+          # hash only state keys actually present in the record; absent != explicit null.
+          keys=['execution_entry_mode','players','deck_state','commander_state','semantic_objects','temporal_state','knowledge_state','rules_randomness','combat_state','stack_state','continuous_rules_effects','extra_turn_creation','elimination_trigger','zone_move_event','setup_validation']
+          def canon(v): return json.dumps(v,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+          def digest(v): return hashlib.sha256(canon(v).encode()).hexdigest()
+          def state_projection(r): return {k:r[k] for k in keys if k in r}
+          by105={r['fixture_id']:r for r in doc105['records']}; by104={r['fixture_id']:r for r in doc104['records']}
+          digest_rows=[]
+          for i,fid in enumerate(reconstructed,1):
+              r=by105[fid]; got=digest(state_projection(r))
+              assert got==r['requested_state_digest'], (fid,got,r['requested_state_digest'])
+              digest_rows.append({'index':i,'fixture_id':fid,'fixture_family':r['fixture_family'],'requested_state_digest':got,'materialization_digest':r['materialization_digest'],'execution_entry_mode':r['execution_entry_mode']})
+
+          changed=[fid for fid in reconstructed if state_projection(by104[fid]) != state_projection(by105[fid])]
+          assert changed==['WS05-MP-BLOCK-4'], changed
+          obligation_changed=[fid for fid in reconstructed if by104[fid]['obligation_digest'] != by105[fid]['obligation_digest']]
+          assert obligation_changed==[], obligation_changed
+          a=by104['WS05-MP-BLOCK-4']; b=by105['WS05-MP-BLOCK-4']
+          assert a['combat_state']['eligible_blockers']==['obj:mp-p2-blocker']
+          assert b['combat_state']['eligible_blockers']==['obj:P2-bears','obj:mp-p2-blocker']
+          for k in keys:
+              if k!='combat_state': assert a.get(k)==b.get(k), k
+          ca=dict(a['combat_state']); cb=dict(b['combat_state']); ca.pop('eligible_blockers',None); cb.pop('eligible_blockers',None); assert ca==cb
+
+          denominator={'schema_version':'commander-lab.ws48-provider-denominator/1.0.0','source':'INDEPENDENT_RECONSTRUCTION_FROM_WS47_135','provider_denominator_count':107,'fixture_ids':reconstructed,'rows':digest_rows,'historical_successor_runtime_credit_imported':0}
+          impact={'schema_version':'commander-lab.ws48-v105-impact-diff/1.0.0','status':'PASS','predecessor':'commander-lab.semantic-fixture-materialization/1.0.4','successor':os.environ['WS47_SCHEMA'],'provider_denominator_identity_and_order_equal':True,'changed_requested_state_record_count':1,'changed_fixture_ids':changed,'obligation_change_count':0,'repair':{'fixture_id':'WS05-MP-BLOCK-4','path':'combat_state.eligible_blockers','v1_0_4':['obj:mp-p2-blocker'],'v1_0_5':['obj:P2-bears','obj:mp-p2-blocker']},'historical_successor_runtime_credit_imported':0}
+          source={'schema_version':'commander-lab.ws48-source-lock/1.0.0','status':'PASS','commander_lab_head':os.environ.get('GITHUB_SHA'),'ws47':{'commit':os.environ['WS47_COMMIT'],'tree':os.environ['WS47_TREE'],'namespace':'qualification/ws47','namespace_tree':os.environ['WS47_NAMESPACE_TREE'],'schema':os.environ['WS47_SCHEMA'],'bundle_digest':os.environ['WS47_BUNDLE'],'materialization_sha256':os.environ['WS47_MATERIALIZATION_SHA256']},'forge':{'commit':os.environ['FORGE_COMMIT'],'tree':os.environ['FORGE_TREE'],'version':os.environ['FORGE_VERSION']},'historical_successor_runtime_credit_imported':0,'construction_credit':'0/107','behavior_credit':'0/107'}
+          checkpoint={'schema_version':'commander-lab.ws48-checkpoint/1.0.0','checkpoint':'WS48_CHECKPOINT_01_PREFLIGHT','status':'PASS','gates':{'G48-01':'PASS','G48-02_SOURCE_LOCK':'PASS','G48-03':'PASS','G48-04':'PASS','G48-05':'PASS'},'next_action':'fresh strict no-request-echo then complete construction from record 1'}
+          for name,obj in [('WS48_SOURCE_LOCK.json',source),('WS48_PROVIDER_DENOMINATOR_107.json',denominator),('WS48_V105_IMPACT_DIFF.json',impact),('WS48_CHECKPOINT_01_PREFLIGHT.json',checkpoint)]:
+              (OUT/name).write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+          PY
+          find artifacts/ws48-preflight -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws48-preflight/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws48-v105-preflight-${{ github.sha }}
+          path: artifacts/ws48-preflight/
+          if-no-files-found: error
+          retention-days: 90

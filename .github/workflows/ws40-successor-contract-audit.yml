@@ -1,0 +1,47 @@
+name: WS40 Successor Contract Surface Audit
+
+on:
+  push:
+    branches: [ws40/forge-core-remediation-requalification]
+    paths:
+      - 'candidate-qualification/ws40-forge/audit_successor_contract.py'
+      - '.github/workflows/ws40-successor-contract-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: 038d0f38635eecee4e331c99af41f148de267a26
+          path: contract-lock
+          sparse-checkout: qualification/ws32
+      - name: Verify immutable WS32 lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = '038d0f38635eecee4e331c99af41f148de267a26'
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = '0d160128119f2bad30b220a17c43419b50b7edbe'
+          cd contract-lock/qualification/ws32
+          sha256sum -c SHA256SUMS_v1_0_2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit exact 107-record Forge denominator
+        run: |
+          python candidate-qualification/ws40-forge/audit_successor_contract.py \
+            --materialization contract-lock/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --output artifacts/ws40-contract/WS40_SUCCESSOR_CONTRACT_SURFACE.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws40-successor-contract-surface-${{ github.sha }}
+          path: artifacts/ws40-contract/
+          if-no-files-found: error
+          retention-days: 90

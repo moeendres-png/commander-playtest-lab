@@ -1,0 +1,75 @@
+{
+  "schema": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": "SOURCE_LOCK_AND_INITIAL_NO_REQUEST_ECHO_AUDIT",
+  "status": "PASS_CHECKPOINT_WITH_OPEN_REMEDIATION_GATE",
+  "runtime_credit": {
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_credit_imported": false
+  },
+  "commander_lab": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "ws45/forge-v1.0.4-successor-qualification",
+    "verified_bootstrap_head": "ab3dd96da46f71055e22d8cd46760db80a137659",
+    "verified_bootstrap_tree": "67306913b63238b895cc3a64ddd38d51897959e7",
+    "draft_pr": 159,
+    "draft_pr_state": "OPEN_DRAFT_UNMERGED"
+  },
+  "ws44_freeze": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace": "qualification/ws44",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "provider_denominator": 107,
+    "runtime_credit_carried_forward": false
+  },
+  "forge_baseline": {
+    "repository": "moeendres-png/forge",
+    "branch": "foundry/ws40-af04-core-remediation",
+    "commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+    "version": "2.0.15-SNAPSHOT",
+    "topology": "isolated GPL JVM"
+  },
+  "v1_0_4_impact": {
+    "representation_repairs": 11,
+    "unique_changed_fixture_ids_overall": 9,
+    "provider_relevant_changed_fixture_ids": 8,
+    "provider_excluded_changed_fixture_ids": ["CARD_01"],
+    "obligation_change": false,
+    "scope_change": false,
+    "authority_change": false,
+    "correction_basis": "fresh WS45 reconstruction from immutable WS44 SUPERSEDES_v1_0_3.json and v1.0.3-to-v1.0.4 stable-payload comparison"
+  },
+  "no_request_echo_gate": {
+    "status": "FAIL_REMEDIATION_REQUIRED",
+    "blocking_before_construction_credit": true,
+    "historically_flagged_request_derived_rules_state_fields": [
+      "knowledge_state",
+      "rules_randomness",
+      "extra_turn_creation",
+      "elimination_trigger",
+      "zone_move_event"
+    ],
+    "fresh_additional_request_dependency_findings": [
+      "continuous_rules_effects",
+      "deck_state for NATIVE_STATE_LOAD",
+      "setup_validation projection",
+      "request-seeded object metadata not independently read back",
+      "request-seeded stack metadata not independently read back",
+      "request-seeded combat metadata outside native attacker/blocker readback",
+      "request fallback for temporal/commander fields when native readback is absent",
+      "NATURAL_GAME_START returns the full requested projection unchanged"
+    ],
+    "evidence_basis": [
+      "candidate-qualification/ws40-forge/WS40_NO_REQUEST_ECHO_AUDIT.json",
+      "candidate-qualification/ws40-forge/run_native_construction_107.py",
+      "qualification/providers/forge/gpl/Ws40SuccessorState.java"
+    ]
+  },
+  "next_gate": "Implement WS45-specific independent native observation/normalization plus adversarial same-native-state request-perturbation tests; no construction credit before PASS."
+}

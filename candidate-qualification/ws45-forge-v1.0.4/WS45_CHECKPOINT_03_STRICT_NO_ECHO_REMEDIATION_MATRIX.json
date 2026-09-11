@@ -1,0 +1,83 @@
+{
+  "schema_version": "commander-lab.ws45-strict-no-echo-remediation-matrix/1.0.0",
+  "workstream": "WS-45",
+  "status": "REMEDIATION_DESIGN_COMPLETE_IMPLEMENTATION_PENDING",
+  "credit": {"construction": "0/107", "behavior": "0/107", "historical_runtime_credit_imported": 0},
+  "commander_lab_source": {"commit": "d279615d6bb5c1194f1249494dc58ec67e3d337e", "tree": "59f2e165ea078cecf7bc8d49eb05ec6ac057fb71"},
+  "ws44": {
+    "freeze_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "freeze_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "provider_denominator": 107
+  },
+  "forge_baseline": {"commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0", "tree": "e2f124f30d55e43f838615a969af4e09e7009471", "version": "2.0.15-SNAPSHOT", "topology": "isolated GPL JVM"},
+  "fresh_v104_profile": {
+    "knowledge_state_records": 107,
+    "knowledge_state_unique_values": 24,
+    "rules_randomness_records": 107,
+    "rules_randomness_unique_values": 8,
+    "extra_turn_creation_non_null_records": 2,
+    "elimination_trigger_non_null_records": 6,
+    "zone_move_event_non_null_records": 8,
+    "stack_state_records": 13,
+    "combat_state_records": 24,
+    "continuous_rules_effects_records": 0,
+    "setup_validation_records": 107,
+    "setup_validation_unique_values": 1
+  },
+  "binding_principles": {
+    "provider_bound_configuration_integrity_is_not_native_rules_state_observation": true,
+    "request_value_hashing_is_not_independent_observation": true,
+    "normalizer_must_not_read_rules_state_values_from_requested_record": true,
+    "native_setup_input_may_materialize_state_but_evidence_must_be_read_back_from_native_state_history_events_or_independent_execution": true,
+    "adversarial_tests_hold_native_setup_fixed_while_mutating_expected_request_projection": true,
+    "unsupported_observation_surface_fails_closed": true
+  },
+  "reuse_accepted_as_implementation_provenance_only": [
+    "WS40 v1.0.3 Forge-native restored spell cast history",
+    "WS40 v1.0.3 Forge-native revealed-state observation",
+    "WS40 v1.0.3 CombatUtil eligible-attacker observation",
+    "WS40 fail-closed unsupported callback boundary"
+  ],
+  "reuse_rejected_for_ws45_credit": [
+    "bound_config knowledge_state",
+    "bound_config rules_randomness",
+    "bound_config extra_turn_creation",
+    "bound_config elimination_trigger",
+    "bound_config zone_move_event",
+    "whole-record NATURAL_GAME_START projection",
+    "first-still-unbound duplicate physical card binding",
+    "lineage alias fallback unless the v1.0.4 contract explicitly requires the exact relation",
+    "request zero-counter value supplementation"
+  ],
+  "required_native_surfaces": {
+    "semantic_object_identity": "exact Forge native card/object id mapping established during GameState materialization; no name/owner/controller/zone heuristic binding",
+    "knowledge_state": "typed actor-entitled observation-policy state validated against Forge-native zones/views and emitted from the isolated rules process",
+    "rules_randomness": "actual configured Forge Rules RNG identity plus native RNG-call/history observation and deterministic replay evidence",
+    "extra_turn_creation": "Forge-native restored/observed extra-turn creation history including order/player/source",
+    "elimination_trigger": "Forge-native player outcome/elimination history including player/reason",
+    "zone_move_event": "Forge-native restored/observed commander zone-move history including from/to/timing",
+    "setup_validation": "derived from checks actually executed by the provider/rules process, never copied from the request",
+    "stack_state": "existing Forge-native restored spell-cast history plus native stack observation",
+    "combat_state": "native Combat plus Forge Rules-Core legality APIs",
+    "temporal_state": "PhaseHandler/native history including extra-turn queue rather than requested fallback",
+    "commander_state": "native Commander registration/cast/damage state plus provider-neutral exact identity mapping",
+    "deck_state": "native RegisteredPlayer/Deck observation",
+    "controlled_since_turn_began": "native summoning-sickness/control history observation",
+    "zero_counter_representation": "field-shape metadata may require explicit zero, but the numeric zero is emitted only when native counter absence is observed"
+  },
+  "mandatory_gate_sequence": [
+    "implement exact native identity and missing history/observation surfaces",
+    "static no-request-value audit",
+    "adversarial fixed-native-state/request-perturbation suite",
+    "NO_REQUEST_ECHO_GATE=PASS",
+    "fresh construction 107/107 from record 1",
+    "fresh behavior 107/107 from record 1",
+    "fresh AF04/05/06/08/09 plus CARD_02/hidden-info/RNG-replay/fallback evidence"
+  ],
+  "terminal_blocker": null,
+  "next_action": "Create isolated WS45 Forge remediation branch from exact f83b77 baseline, implement minimum native qualification-history/observation API and WS45-only provider/runner/workflow patches, then execute adversarial gate."
+}

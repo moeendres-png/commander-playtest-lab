@@ -1,0 +1,58 @@
+name: Finalist convergence scope audit
+
+on:
+  push:
+    branches:
+      - program/finalist-convergence-forge
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scope-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout convergence branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout exact neutral contract
+        uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: 9a8b8f5f5961466514eae6103be2d227324a27a8
+          path: neutral
+          fetch-depth: 1
+
+      - name: Verify neutral contract commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C neutral rev-parse HEAD)" = "9a8b8f5f5961466514eae6103be2d227324a27a8"
+
+      - name: Run terminal convergence scope audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/finalist_convergence_scope_audit.py \
+            --neutral-root neutral \
+            --output qualification/evidence/finalist-convergence-scope/CONVERGENCE_SCOPE_AUDIT.json
+          python - <<'PY'
+          import json
+          p=json.load(open('qualification/evidence/finalist-convergence-scope/CONVERGENCE_SCOPE_AUDIT.json'))
+          assert p['starter18']['count'] == 18
+          assert p['starter18']['contract_status_counts'] == {'PASS': 18}
+          assert p['known_pass_union50']['count'] == 50
+          assert p['full_135']['count'] == 135
+          assert p['full_135']['contract_status_counts'] == {'PASS': 72, 'SEMANTIC_EXECUTABILITY_DEFECT': 63}
+          PY
+          sha256sum qualification/evidence/finalist-convergence-scope/CONVERGENCE_SCOPE_AUDIT.json \
+            > qualification/evidence/finalist-convergence-scope/SHA256SUMS
+
+      - name: Upload scope audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: finalist-convergence-scope-audit-${{ github.sha }}
+          path: qualification/evidence/finalist-convergence-scope

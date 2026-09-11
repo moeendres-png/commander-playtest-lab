@@ -1,0 +1,68 @@
+name: WS48 v1.0.5 record95 restoration diagnostic
+
+on:
+  push:
+    branches: [ws48/forge-v1.0.5-successor-qualification]
+    paths:
+      - '.github/workflows/ws48-v105-record95-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WS47_COMMIT: 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+  WS47_TREE: f596c54d2cb229b9827c6c94a278175e8312c65c
+  WS47_MATERIALIZATION_SHA256: 0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3
+
+jobs:
+  record95-diagnostic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS47_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws47
+          fetch-depth: 1
+      - name: Extract immutable record and restoration-sensitive fields
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS47_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS47_TREE"
+          mat=contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json
+          test "$(sha256sum "$mat" | awk '{print $1}')" = "$WS47_MATERIALIZATION_SHA256"
+          mkdir -p artifacts/ws48-record95
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('contract-lock/qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json')
+          doc=json.loads(p.read_text())
+          rows=[r for r in doc['records'] if r['fixture_id']=='WS05-CMD-ZONE-LIB-YES']
+          assert len(rows)==1
+          r=rows[0]
+          Path('artifacts/ws48-record95/WS05-CMD-ZONE-LIB-YES.json').write_text(json.dumps(r,indent=2,sort_keys=True)+'\n')
+          selected={k:r.get(k) for k in ['fixture_id','execution_entry_mode','players','commander_state','semantic_objects','temporal_state','stack_state','zone_move_event','decision_script','native_procedure','expected_events','terminal_postconditions','requested_state_digest','obligation_digest']}
+          Path('artifacts/ws48-record95/WS05-CMD-ZONE-LIB-YES_SELECTED.json').write_text(json.dumps(selected,indent=2,sort_keys=True)+'\n')
+          provider_ids=json.loads(Path('contract-lock/qualification/ws47/WS47_PROVIDER_DENOMINATOR_107.json').read_text())['fixture_ids']
+          by={x['fixture_id']:x for x in doc['records']}
+          inventory=[]
+          for fid in provider_ids:
+              rec=by[fid]
+              for st in rec.get('stack_state') or []:
+                  source=next((o for o in rec.get('semantic_objects') or [] if o.get('semantic_id')==st.get('source_semantic_id')),None)
+                  inventory.append({'fixture_id':fid,'source_semantic_id':st.get('source_semantic_id'),'card_identity':None if source is None else source.get('card_identity'),'modes':st.get('modes'),'targets':st.get('targets'),'zone_move_event':rec.get('zone_move_event')})
+          Path('artifacts/ws48-record95/STACK_MODE_INVENTORY_107.json').write_text(json.dumps(inventory,indent=2,sort_keys=True)+'\n')
+          print('WS48_RECORD95='+json.dumps(selected,sort_keys=True))
+          print('WS48_STACK_MODE_INVENTORY='+json.dumps(inventory,sort_keys=True))
+          PY
+          sha256sum artifacts/ws48-record95/* > artifacts/ws48-record95/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ws48-record95-${{ github.sha }}
+          path: artifacts/ws48-record95/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,76 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": 30,
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "STRICT_NO_REQUEST_ECHO_REFRESH_THEN_FRESH_CONSTRUCTION_107",
+  "source_lock": {
+    "commander_lab_commit": "dedc28b5216a879132fdd8f1f8d41f9b0e86455a",
+    "commander_lab_tree": "6886a8001165f795a018b76d5dc3c42a88a02f32",
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "ws44_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "ws44_materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+  },
+  "runtime": {
+    "workflow_run_id": 34215831770,
+    "job_id": 102027219228,
+    "artifact_id": 10051972400,
+    "artifact_name": "ws45-v104-noecho-then-construction-dedc28b5216a879132fdd8f1f8d41f9b0e86455a",
+    "artifact_sha256": "26c35622bd559542e3395585d928d061341b5659a4673471f5e44e4a9e514285"
+  },
+  "strict_no_request_echo": {
+    "status": "PASS",
+    "fresh_after_opaque_library_capacity_change": true,
+    "historical_successor_credit_imported": 0,
+    "proofs": {
+      "comparison_canaries_do_not_influence_native_observation": true,
+      "invalid_native_operations_fail_closed": true,
+      "typed_knowledge_native_ids": true,
+      "rules_rng_installed_at_native_boundary": true,
+      "setup_validation_provider_truth_not_request": true
+    }
+  },
+  "fresh_construction": {
+    "denominator": 107,
+    "runtime_verified_prefix_pass_count": 75,
+    "failure_index": 76,
+    "failure_fixture_id": "WS05-MP-COMBAT-4",
+    "failure_class": "NATIVE_COMBAT_ELIGIBLE_ATTACKER_STATE_MISMATCH",
+    "requested_eligible_attackers": ["obj:mp-attacker-0", "obj:mp-attacker-1"],
+    "native_eligible_attackers": ["obj:P1-bears", "obj:mp-attacker-0", "obj:mp-attacker-1"],
+    "finding": "The two mp-attacker objects explicitly carry controlled_since_turn_began=true. obj:P1-bears does not, yet the Forge native combat legality observer also reports obj:P1-bears eligible. The state loader therefore fails to preserve the requested temporal control/summoning-sickness distinction at this construction checkpoint.",
+    "notable_closed_blocks": {
+      "HIDDEN_10": "PASS_RUNTIME_VERIFIED",
+      "HIDDEN_11": "PASS_RUNTIME_VERIFIED",
+      "HIDDEN_12": "PASS_RUNTIME_VERIFIED",
+      "HIDDEN_13_through_19_and_honey": "PASS_RUNTIME_VERIFIED",
+      "RNG_REPLAY_5": "PASS_CONSTRUCTION_STATE_EQUALITY",
+      "MICRO_RULES_17": "PASS_CONSTRUCTION_STATE_EQUALITY",
+      "CARD_02": "PASS_CONSTRUCTION_STATE_EQUALITY",
+      "WS05_MP_PRIO_3_5": "PASS_CONSTRUCTION_STATE_EQUALITY",
+      "WS05_MP_TRIG_3_5": "PASS_CONSTRUCTION_STATE_EQUALITY"
+    },
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "partial_credit_forbidden": true
+  },
+  "remediation_boundary": {
+    "allowed": "Preserve native Forge summoning-sickness/control-duration state from immutable semantic object metadata so cards lacking controlled_since_turn_began are not made attack-eligible merely by state loading, while cards explicitly true remain eligible. Continue to obtain eligible_attackers exclusively from Forge native combat legality.",
+    "forbidden": [
+      "filter eligible_attackers in Python from the requested list",
+      "remove obj:P1-bears from native options by comparator special case",
+      "compute combat legality in pilot or runner",
+      "import historical successor credit"
+    ]
+  },
+  "credit": {
+    "historical_successor_credit_imported": 0,
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107"
+  },
+  "next_action": "Audit the generated Ws40SuccessorState card GameState serialization and Forge GameState sickness/control-duration APIs; implement the minimum native-state representation of controlled_since_turn_began; rerun strict-noecho then all 107 construction records from record 1."
+}

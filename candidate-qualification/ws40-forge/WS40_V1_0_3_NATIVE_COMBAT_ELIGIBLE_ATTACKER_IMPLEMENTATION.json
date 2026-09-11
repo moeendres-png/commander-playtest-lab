@@ -1,0 +1,42 @@
+{
+  "artifact_version": "commander-lab.ws40-native-combat-eligible-attacker-implementation/1.0.0",
+  "audit_evidence": "candidate-qualification/ws40-forge/WS40_V1_0_3_NATIVE_COMBAT_LEGAL_SURFACE_AUDIT.json",
+  "forge_source_changed": false,
+  "implementation": {
+    "patch_script": "scripts/ws40_v103_native_combat_legal_surface.py",
+    "patch_script_commit": "6db71aa795850d858c82f27d76e29e20bbee8d63",
+    "patch_script_sha256": "477aae5254e5b45e7fafc1d56e12bf64619c504528b95acd6fcd84e926871efe",
+    "provider_behavior": [
+      "imports forge.game.combat.CombatUtil",
+      "calls CombatUtil.getPossibleAttackers(activePlayer)",
+      "projects each returned native Card through existing semantic binding",
+      "fails closed on unbound native eligible Card identity",
+      "sorts emitted semantic IDs deterministically",
+      "does not consume requested eligible_attackers values"
+    ],
+    "runner_behavior": [
+      "accepts eligible_attackers only from raw_native.combat.eligible_attackers",
+      "validates native result is a duplicate-free string list",
+      "retains eligible_blockers as fail-closed unsupported",
+      "does not calculate Magic attack legality"
+    ],
+    "workflow_commit": "44885f77f80c1ae58bca4796223d3540ea2f3c0f",
+    "workflow_tree": "8d647523e6bb2a2665930fd642b8ec39932a1726"
+  },
+  "runtime_verification": {
+    "conclusion": null,
+    "run_id": 33935065462,
+    "run_number": 26,
+    "status_at_checkpoint": "queued"
+  },
+  "source_lock": {
+    "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+    "historical_successor_runtime_credit_imported": 0,
+    "ws41_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47"
+  },
+  "status": "IMPLEMENTED_AWAITING_RUNTIME_VERIFICATION"
+}
