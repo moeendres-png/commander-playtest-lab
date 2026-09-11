@@ -4,34 +4,38 @@ worktree: /home/moeen/code/ws-a1d-h4-docker-materialization
 branch: architecture/ws-a1d-h4-docker-materialization-20260911
 audit_base_sha: e207286200854bf9bff557e67bf3b37b5e428392
 audit_base_tree: 6e89a980bf0a7e40273ba11b108fe3febed39d47
-state_written_against_head: 1aab012196b391260b2287f94cbcaa04f625e509
+state_written_against_head: 946ab5b9e106f345585e7e8a4854211c2c4710c2
 validated_head: 1aab012196b391260b2287f94cbcaa04f625e509
-objective: >
-  WS-A1D-H4 Docker materialization and runtime requalification (XHIGH
-  continuation of WS-A1D, predecessor PR #177 merged as e2072862). Close hard
-  gate H4 (currently UNKNOWN/NOT_RUN) with real runtime evidence only: canonical
-  engine identity resolution, real XMage + Forge image construction via
-  scripts/docker_build_engine.sh, in-image source HEAD + provenance identity,
-  fail-closed startup provenance gate (positive + negative controls), real
-  container startup through the supported entrypoint/Compose path, real
-  conforming provider bridge(s) only where Phase 1 verifies one exists,
-  protocol-2.0.0 health/handshake. Image construction alone is not H4; no
-  synthetic bridge/health may substitute. Local Docker is absent (no CLI, no
-  daemon), so Phases 2-4 are NOT_RUN locally and Phase 5 (bounded
-  Docker-capable CI qualification lane, prepared locally, pushed only with
-  Coordinator authorization) is the execution vehicle. Provider truth preserved
-  (NO_PROVIDER_READY, provider_selected=false, production_provider=null).
+objective: 'WS-A1D-H4 Docker materialization and runtime requalification (XHIGH continuation
+  of WS-A1D, predecessor PR #177 merged as e2072862). Close hard gate H4 (currently
+  UNKNOWN/NOT_RUN) with real runtime evidence only: canonical engine identity resolution,
+  real XMage + Forge image construction via scripts/docker_build_engine.sh, in-image
+  source HEAD + provenance identity, fail-closed startup provenance gate (positive
+  + negative controls), real container startup through the supported entrypoint/Compose
+  path, real conforming provider bridge(s) only where Phase 1 verifies one exists,
+  protocol-2.0.0 health/handshake. Image construction alone is not H4; no synthetic
+  bridge/health may substitute. Local Docker is absent (no CLI, no daemon), so Phases
+  2-4 are NOT_RUN locally and Phase 5 (bounded Docker-capable CI qualification lane,
+  prepared locally, pushed only with Coordinator authorization) is the execution vehicle.
+  Provider truth preserved (NO_PROVIDER_READY, provider_selected=false, production_provider=null).
   ARCHITECTURE_FREEZE NOT CLAIMED. RULES_BEHAVIOR_CREDIT_CHANGE = 0.
+
+  '
 in_scope:
 - Phase 0 state/contract replacement (schema 2.0) + execution-environment inventory
-- Phase 1 bridge authority discovery (XMage + Forge real conforming bridge search + classification)
-- Phase 2 real image materialization evidence via scripts/docker_build_engine.sh (xmage + forge)
+- Phase 1 bridge authority discovery (XMage + Forge real conforming bridge search
+  + classification)
+- Phase 2 real image materialization evidence via scripts/docker_build_engine.sh (xmage
+  + forge)
 - Phase 3 startup provenance-gate positive + negative controls on the real images
-- Phase 4 container + bridge runtime via supported entrypoint/Compose path (real bridges only)
-- Phase 5 minimal Docker-capable CI qualification lane if local Docker absent (it is)
+- Phase 4 container + bridge runtime via supported entrypoint/Compose path (real bridges
+  only)
+- Phase 5 minimal Docker-capable CI qualification lane if local Docker absent (it
+  is)
 - H4 qualification harness + directly required tests + bounded qualification docs/evidence
-- Docker/Compose qualification fix ONLY if H4 reveals a real runtime defect in merged PR #177 semantics
-- state/checkpoint maintenance (no PR #177 history rewrite; focused new commits; no push)
+- Docker/Compose qualification fix ONLY if H4 reveals a real runtime defect in merged
+  PR
+- state/checkpoint maintenance (no PR
 out_of_scope:
 - engine repinning or manifest edits (config/rules_engines.json untouched; sole authority)
 - copying manifest SHAs into any new volatile authority
@@ -45,18 +49,25 @@ out_of_scope:
 - push, PR, merge, rebase, history rewrite, branch/worktree deletion, remote compute
 ownership: WS-A1D-H4 session (branch architecture/ws-a1d-h4-docker-materialization-20260911)
 dependencies:
-- origin/main at e207286200854bf9bff557e67bf3b37b5e428392 (verified no drift at entry; STOP fail closed on drift)
-- config/rules_engines.json sole machine-readable pin authority (xmage 77d7646da6958fdf8125ee7c8f4aabd130d21d4c moeendres-png/mage; forge a37a865a53280dd8ad6fad3384d69611e8c5a42f Card-Forge/forge; protocol 2.0.0)
-- Docker-capable Linux runner (GitHub ubuntu-latest) for Phases 2-4; local host has no Docker
+- origin/main at e207286200854bf9bff557e67bf3b37b5e428392 (verified no drift at entry;
+  STOP fail closed on drift)
+- config/rules_engines.json sole machine-readable pin authority (xmage 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  moeendres-png/mage; forge a37a865a53280dd8ad6fad3384d69611e8c5a42f Card-Forge/forge;
+  protocol 2.0.0)
+- Docker-capable Linux runner (GitHub ubuntu-latest) for Phases 2-4; local host has
+  no Docker
 - engine upstreams + Maven Central reachable from the CI runner
-- predecessor PR #177 semantics intact (H1-H3, H5-H11 validated at entry: 37-test WS-A1D battery green)
+- predecessor PR
 hard_gates:
-- H1 single pin authority (config/rules_engines.json remains current authority; no second pin file)
+- H1 single pin authority (config/rules_engines.json remains current authority; no
+  second pin file)
 - H2 no silent stale fallback (unresolved authority stops the build path)
 - H3 correct repository is part of engine identity (not merely the commit hash)
-- H4 materialization evidence (CODE_DERIVED is not runtime/image verification; H4A alone is not H4)
+- H4 materialization evidence (CODE_DERIVED is not runtime/image verification; H4A
+  alone is not H4)
 - H5 historical impact adjudicated (unchanged from WS-A1D)
-- H6 protocol drift adjudicated SAME-SCOPE CORRECTION (nothing speaks 1.0.0 as bridge protocol)
+- H6 protocol drift adjudicated SAME-SCOPE CORRECTION (nothing speaks 1.0.0 as bridge
+  protocol)
 - H7 provider truth preserved (NO_PROVIDER_READY, selected=false, provider=null)
 - H8 no Architecture Freeze claim
 - H9 no Rules-credit theater (RULES_BEHAVIOR_CREDIT_CHANGE = 0)
@@ -66,15 +77,20 @@ forbidden_shortcuts:
 - second hidden Rules Engine in any pilot, adapter, harness or test helper
 - first-option / random-option / default yes-no / silent-skip legality substitutes
 - fabricated legal actions, manual outcome injection, direct sa.resolve() substitutes
-- dummy HTTP server, fake JSONL bridge, test shim (incl. tactical_rules_bridge.py), synthetic health endpoint, sleep infinity, manually injected handshake as H4B evidence
-- weakening assertions, denominators, HEALTHY bars, or H4 criteria to obtain green results
-- copying SHAs into docs/workflows as new pin authority (cite the manifest; resolve at runtime)
+- dummy HTTP server, fake JSONL bridge, test shim (incl. tactical_rules_bridge.py),
+  synthetic health endpoint, sleep infinity, manually injected handshake as H4B evidence
+- weakening assertions, denominators, HEALTHY bars, or H4 criteria to obtain green
+  results
+- copying SHAs into docs/workflows as new pin authority (cite the manifest; resolve
+  at runtime)
 validated_gates: []
 failed_gates: []
 invalidated_gates: []
 do_not_rerun:
-- unrelated suites for reassurance (CI-wide pytest beyond the WS-A1D battery and new-harness tests)
-- B3/B4/external-engine suites locally (no vendor source or bridge build; adjudicated UNAFFECTED by WS-A1D)
+- unrelated suites for reassurance (CI-wide pytest beyond the WS-A1D battery and new-harness
+  tests)
+- B3/B4/external-engine suites locally (no vendor source or bridge build; adjudicated
+  UNAFFECTED by WS-A1D)
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: xhigh
 current_failure: NONE
@@ -86,91 +102,219 @@ hypotheses_rejected: []
 technical_decisions:
 - id: TD-H4-01-source-lock-verified
   decision: Source lock holds at entry; proceed (no STOP).
-  evidence: HEAD==origin/main==e2072862; HEAD tree 6e89a980 matches AUDIT_BASE_TREE; git log shows ec4e4a07/dfbe18e9/e1bc5572 ancestors; canonical manifest pins + provider truth intact.
+  evidence: HEAD==origin/main==e2072862; HEAD tree 6e89a980 matches AUDIT_BASE_TREE;
+    git log shows ec4e4a07/dfbe18e9/e1bc5572 ancestors; canonical manifest pins +
+    provider truth intact.
 - id: TD-H4-02-local-docker-absent
-  decision: Local image/container evidence classified NOT_RUN; continue to Phase 1 source discovery then Phase 5 CI-lane design. No host Docker install (not authorized).
-  evidence: python shutil.which docker None, docker-compose None; disk free ~991GB; 16 CPU; mem ~16GB; java 21.0.12; mvn 3.9.12.
+  decision: Local image/container evidence classified NOT_RUN; continue to Phase 1
+    source discovery then Phase 5 CI-lane design. No host Docker install (not authorized).
+  evidence: python shutil.which docker None, docker-compose None; disk free ~991GB;
+    16 CPU; mem ~16GB; java 21.0.12; mvn 3.9.12.
 - id: TD-H4-03-xmage-bridge-real
-  decision: XMage has a REAL conforming bridge candidate in canonical source (DIRECTLY_VERIFIED implementation; container runtime NOT_RUN).
-  evidence: engine-bridge/ Java (Main no-arg JSONL B4-D bridge; shaded fat jar, Main-Class set); XmageProvider ENGINE=xmage PROTOCOL 2.0.0 engine_commit=manifest pin; JsonlBridge enforces+stamps 2.0.0 and serves start_engine/get_provider_version/get_capabilities/shutdown_engine; wire names match EngineMessageType; build+run commands per .github/workflows/external-engine-integration.yml (vendor checkout at pin, mvn install, mvn verify, java -jar xmage-engine-bridge-0.1.0-SNAPSHOT.jar via COMMANDER_LAB_XMAGE_BRIDGE_CMD).
+  decision: XMage has a REAL conforming bridge candidate in canonical source (DIRECTLY_VERIFIED
+    implementation; container runtime NOT_RUN).
+  evidence: engine-bridge/ Java (Main no-arg JSONL B4-D bridge; shaded fat jar, Main-Class
+    set); XmageProvider ENGINE=xmage PROTOCOL 2.0.0 engine_commit=manifest pin; JsonlBridge
+    enforces+stamps 2.0.0 and serves start_engine/get_provider_version/get_capabilities/shutdown_engine;
+    wire names match EngineMessageType; build+run commands per .github/workflows/external-engine-integration.yml
+    (vendor checkout at pin, mvn install, mvn verify, java -jar xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+    via COMMANDER_LAB_XMAGE_BRIDGE_CMD).
 - id: TD-H4-04-forge-bridge-absent
-  decision: No conforming Forge bridge exists (UNKNOWN); H4B-forge blocked. Do not fabricate.
-  evidence: integrations/forge/README disclaims runtime; no forge bridge source/artifact/build command in canonical source; only placeholder jar path in legacy docs; J-P3D production_bridge=not_built (Forge P3C was feasibility spike, HISTORICAL_ONLY, not a protocol-2.0.0 JSONL bridge).
+  decision: No conforming Forge bridge exists (UNKNOWN); H4B-forge blocked. Do not
+    fabricate.
+  evidence: integrations/forge/README disclaims runtime; no forge bridge source/artifact/build
+    command in canonical source; only placeholder jar path in legacy docs; J-P3D production_bridge=not_built
+    (Forge P3C was feasibility spike, HISTORICAL_ONLY, not a protocol-2.0.0 JSONL
+    bridge).
 - id: TD-H4-05-engine-verify-bar
-  decision: engine-verify HEALTHY is unreachable against the honest B4-D bridge (requires legal_actions_supported + action_submission_supported; bridge truthfully reports false); expected outcome is DEGRADED, not failure of the container path. Dockerfile HEALTHCHECK outcome must be recorded honestly; no production HEALTHCHECK semantic change without runtime evidence (not available locally).
-  evidence: EngineProcessManager.healthcheck required-capability list vs XmageProvider capabilities flags; manifest missing_required_capabilities.
+  decision: engine-verify HEALTHY is unreachable against the honest B4-D bridge (requires
+    legal_actions_supported + action_submission_supported; bridge truthfully reports
+    false); expected outcome is DEGRADED, not failure of the container path. Dockerfile
+    HEALTHCHECK outcome must be recorded honestly; no production HEALTHCHECK semantic
+    change without runtime evidence (not available locally).
+  evidence: EngineProcessManager.healthcheck required-capability list vs XmageProvider
+    capabilities flags; manifest missing_required_capabilities.
 - id: TD-H4-06-phase85-not-h4-authority
-  decision: commander-lab validate-engine-phase85 is NOT H4 evidence (historical Phase-8.5 scope per WS-A1D H5); H4 uses handshake + providerVersion identity + provenance gate + engine-verify outcome.
-  evidence: contract scope rule; external_runtime_setup.md step 7 reference treated as stale for H4 purposes.
+  decision: commander-lab validate-engine-phase85 is NOT H4 evidence (historical Phase-8.5
+    scope per WS-A1D H5); H4 uses handshake + providerVersion identity + provenance
+    gate + engine-verify outcome.
+  evidence: contract scope rule; external_runtime_setup.md step 7 reference treated
+    as stale for H4 purposes.
 - id: TD-H4-07-container-bridge-path
-  decision: Supported H4B-xmage ENGINE_START_COMMAND is the operator-built shaded jar at the documented vendor/engine-binaries/xmage/bridge.jar location (workspace mount); Dockerfiles correctly do NOT bundle the Lab bridge (building upstream engine alone does not create the bridge per docs/engine_setup.md). CI lane builds the jar from the pinned vendor checkout. vendor/ currently holds only README.md.
-  evidence: docs/engine_setup.md Docker section; vendor/README.md; Dockerfiles build engine-source only; pom shade config proves jar self-containment.
+  decision: Supported H4B-xmage ENGINE_START_COMMAND is the operator-built shaded
+    jar at the documented vendor/engine-binaries/xmage/bridge.jar location (workspace
+    mount); Dockerfiles correctly do NOT bundle the Lab bridge (building upstream
+    engine alone does not create the bridge per docs/engine_setup.md). CI lane builds
+    the jar from the pinned vendor checkout. vendor/ currently holds only README.md.
+  evidence: docs/engine_setup.md Docker section; vendor/README.md; Dockerfiles build
+    engine-source only; pom shade config proves jar self-containment.
 - id: TD-H4-08-sysmodules-registration
-  decision: 'Fixed a real defect in the new H4 verifier harness (same latent pattern documented in the WS-A1D battery): script modules loaded via spec_from_file_location must be registered in sys.modules before exec, or @dataclass processing crashes on Python 3.14. Found by the new unit tests (14 errors + 2 failures), fixed in both the script and the test, 17/17 green after.'
-  evidence: 'pytest output before/after; mirrors tests/unit/test_ws_a1d_docker_pin_authority.py _load_script comment.'
+  decision: 'Fixed a real defect in the new H4 verifier harness (same latent pattern
+    documented in the WS-A1D battery): script modules loaded via spec_from_file_location
+    must be registered in sys.modules before exec, or @dataclass processing crashes
+    on Python 3.14. Found by the new unit tests (14 errors + 2 failures), fixed in
+    both the script and the test, 17/17 green after.'
+  evidence: pytest output before/after; mirrors tests/unit/test_ws_a1d_docker_pin_authority.py
+    _load_script comment.
 - id: TD-H4-09-docs-inspect-command
-  decision: 'Corrected the stale docs/engine_setup.md image-inspect command (bounded qualification-doc fix, no semantic change): the merged entrypoint requires ENGINE_START_COMMAND (exit 64) and ignores container args, so the documented docker run inspect form could never print provenance. Replaced with --entrypoint overrides; the CI lane uses the corrected form.'
-  evidence: 'scripts/engine_container_entrypoint.sh lines 3 and 18 (CODE_DERIVED certainty).'
+  decision: 'Corrected the stale docs/engine_setup.md image-inspect command (bounded
+    qualification-doc fix, no semantic change): the merged entrypoint requires ENGINE_START_COMMAND
+    (exit 64) and ignores container args, so the documented docker run inspect form
+    could never print provenance. Replaced with --entrypoint overrides; the CI lane
+    uses the corrected form.'
+  evidence: scripts/engine_container_entrypoint.sh lines 3 and 18 (CODE_DERIVED certainty).
 - id: TD-H4-10-compose-env-forwarding
-  decision: 'CI lane passes PIN_MANIFEST_PATH overrides via compose run -e (found by static review): compose does not forward host env into containers except through interpolation or -e, so an inline host export would never reach the entrypoint and the tampered-manifest negative would have wrongly passed the gate. ENGINE_START_COMMAND needs no -e (compose interpolates it on the host into the service environment).'
-  evidence: 'docker-compose.engine.yml environment/interpolation review; no Docker host to execute, so this stays a reviewed-not-executed step (flagged for first remote run).'
+  decision: 'CI lane passes PIN_MANIFEST_PATH overrides via compose run -e (found
+    by static review): compose does not forward host env into containers except through
+    interpolation or -e, so an inline host export would never reach the entrypoint
+    and the tampered-manifest negative would have wrongly passed the gate. ENGINE_START_COMMAND
+    needs no -e (compose interpolates it on the host into the service environment).'
+  evidence: docker-compose.engine.yml environment/interpolation review; no Docker
+    host to execute, so this stays a reviewed-not-executed step (flagged for first
+    remote run).
 - id: TD-H4-11-remote-review-verdict
-  decision: 'Initial publication 98f3f6a0 received Coordinator remote review FAIL_REMEDIATION_REQUIRED with three publication-blocking lane defects (TD-H4-12/13/14). Repaired locally as remediation 01; remote execution remains NOT_RUN; H4 remains UNKNOWN / NOT_RUN; PR creation remains NOT AUTHORIZED pending remediation review. No push performed in this session.'
-  evidence: 'Coordinator REMOTE REVIEW REMEDIATION 01 contract; local branch published at 98f3f6a0 and unchanged remotely.'
+  decision: Initial publication 98f3f6a0 received Coordinator remote review FAIL_REMEDIATION_REQUIRED
+    with three publication-blocking lane defects (TD-H4-12/13/14). Repaired locally
+    as remediation 01; remote execution remains NOT_RUN; H4 remains UNKNOWN / NOT_RUN;
+    PR creation remains NOT AUTHORIZED pending remediation review. No push performed
+    in this session.
+  evidence: Coordinator REMOTE REVIEW REMEDIATION 01 contract; local branch published
+    at 98f3f6a0 and unchanged remotely.
 - id: TD-H4-12-build-time-interpolation
-  decision: 'Both Docker jobs now declare benign job-level ENGINE_START_COMMAND true plus unique explicit COMPOSE_PROJECT_NAME (h4-xmage / h4-forge suffixed by run id) so Compose resolves the service model before build. The benign value is build-time interpolation only, never bridge evidence: the XMage handshake step still overrides it with the real bridge jar command and negatives still override it with the sentinel touch command. The Compose required-value guard and docker-compose.engine.yml are untouched.'
-  evidence: 'Coordinator Finding 1; repaired workflow job env blocks; locked by structural tests 1, 2 and 6.'
+  decision: 'Both Docker jobs now declare benign job-level ENGINE_START_COMMAND true
+    plus unique explicit COMPOSE_PROJECT_NAME (h4-xmage / h4-forge suffixed by run
+    id) so Compose resolves the service model before build. The benign value is build-time
+    interpolation only, never bridge evidence: the XMage handshake step still overrides
+    it with the real bridge jar command and negatives still override it with the sentinel
+    touch command. The Compose required-value guard and docker-compose.engine.yml
+    are untouched.'
+  evidence: Coordinator Finding 1; repaired workflow job env blocks; locked by structural
+    tests 1, 2 and 6.
 - id: TD-H4-13-exact-image-binding
-  decision: 'Image evidence now binds to the exact deterministic Compose reference COMPOSE_PROJECT_NAME plus service name, with immutable image-ID resolution via docker image inspect, recorded image-ref.txt and image-id.txt, and the verifier receiving the recorded truthful ref and ID. Provider-label discovery (docker images plus filter plus head) and invented verdict tags (h4-provider plus short-SHA) are removed. Engine pin authority untouched.'
-  evidence: 'Coordinator Finding 2; repaired capture and adjudicate steps in both jobs; locked by structural tests 3, 4 and 5.'
+  decision: Image evidence now binds to the exact deterministic Compose reference
+    COMPOSE_PROJECT_NAME plus service name, with immutable image-ID resolution via
+    docker image inspect, recorded image-ref.txt and image-id.txt, and the verifier
+    receiving the recorded truthful ref and ID. Provider-label discovery (docker images
+    plus filter plus head) and invented verdict tags (h4-provider plus short-SHA)
+    are removed. Engine pin authority untouched.
+  evidence: Coordinator Finding 2; repaired capture and adjudicate steps in both jobs;
+    locked by structural tests 3, 4 and 5.
 - id: TD-H4-14-dispatch-semantics
-  decision: 'Workflow header comment now states truthful GitHub semantics: pull_request via the PR merge ref is the initial remote-execution path; workflow_dispatch is available once the workflow exists on the default branch and only then may ref select another ref; no dispatch attempt before merge.'
-  evidence: 'Coordinator Finding 3; repaired header comment; locked by structural test 9.'
+  decision: 'Workflow header comment now states truthful GitHub semantics: pull_request
+    via the PR merge ref is the initial remote-execution path; workflow_dispatch is
+    available once the workflow exists on the default branch and only then may ref
+    select another ref; no dispatch attempt before merge.'
+  evidence: Coordinator Finding 3; repaired header comment; locked by structural test
+    9.
 - id: TD-H4-15-first-remote-run-partial
-  decision: 'First real remote run 34573843323 on PR 179 merge-ref 9c96cd4861493965c39fa87b36c573f6c47fff87 yields H4 PARTIAL: H4A-XMage PASS DIRECTLY_VERIFIED, H4B-XMage PASS DIRECTLY_VERIFIED (complete XMage job SUCCESS), H4A-Forge PASS DIRECTLY_VERIFIED with every substantive Forge H4 step green, H4B-Forge UNKNOWN NOT_RUN as an authority blocker (no conforming Forge protocol-2.0.0 bridge exists). The Forge job FAILURE occurred only at the setup-python post-job pip-cache save (Docker-overlay traversal), classified CI_HYGIENE_FAILURE, and invalidates no Forge H4A evidence. Remediation 02 required before merge. RULES_BEHAVIOR_CREDIT_CHANGE stays 0; ARCHITECTURE_FREEZE NOT CLAIMED; Production Provider NOT SELECTED.'
-  evidence: 'Coordinator runtime adjudication: preflight PASS; XMage artifact h4-evidence-xmage-9c96cd4861493965c39fa87b36c573f6c47fff87 ID 10189249454 digest sha256:98641e58dff396f447d9ccc81bd4e4a26794bb75ecb71bd129c377bd6540dc8c; Forge artifact h4-evidence-forge-9c96cd4861493965c39fa87b36c573f6c47fff87 ID 10189037467 digest sha256:c3927c1c290e4bcd45b5dd13e1f427543774b7e1d77527cd459535d02df4f1d2.'
+  decision: 'First real remote run 34573843323 on PR 179 merge-ref 9c96cd4861493965c39fa87b36c573f6c47fff87
+    yields H4 PARTIAL: H4A-XMage PASS DIRECTLY_VERIFIED, H4B-XMage PASS DIRECTLY_VERIFIED
+    (complete XMage job SUCCESS), H4A-Forge PASS DIRECTLY_VERIFIED with every substantive
+    Forge H4 step green, H4B-Forge UNKNOWN NOT_RUN as an authority blocker (no conforming
+    Forge protocol-2.0.0 bridge exists). The Forge job FAILURE occurred only at the
+    setup-python post-job pip-cache save (Docker-overlay traversal), classified CI_HYGIENE_FAILURE,
+    and invalidates no Forge H4A evidence. Remediation 02 required before merge. RULES_BEHAVIOR_CREDIT_CHANGE
+    stays 0; ARCHITECTURE_FREEZE NOT CLAIMED; Production Provider NOT SELECTED.'
+  evidence: 'Coordinator runtime adjudication: preflight PASS; XMage artifact h4-evidence-xmage-9c96cd4861493965c39fa87b36c573f6c47fff87
+    ID 10189249454 digest sha256:98641e58dff396f447d9ccc81bd4e4a26794bb75ecb71bd129c377bd6540dc8c;
+    Forge artifact h4-evidence-forge-9c96cd4861493965c39fa87b36c573f6c47fff87 ID 10189037467
+    digest sha256:c3927c1c290e4bcd45b5dd13e1f427543774b7e1d77527cd459535d02df4f1d2.'
 - id: TD-H4-16-pip-cache-hygiene
-  decision: 'Docker-heavy H4 jobs (h4-xmage, h4-forge-image) drop the setup-python pip cache so post-job teardown cannot traverse mutable Docker-overlay state; preflight keeps its cache (Docker-free). H4 preflight now also runs the workflow-structure battery so the lane guards its own structure. No Dockerfile, compose, manifest, resolver, verifier, bridge, or engine change: CI hygiene only, no H4 criteria weakened.'
-  evidence: 'Coordinator remediation 02 changes 1-3; repaired setup-python steps and preflight invocation; locked by 2 new structural tests (11 total in the structure battery).'
+  decision: 'Docker-heavy H4 jobs (h4-xmage, h4-forge-image) drop the setup-python
+    pip cache so post-job teardown cannot traverse mutable Docker-overlay state; preflight
+    keeps its cache (Docker-free). H4 preflight now also runs the workflow-structure
+    battery so the lane guards its own structure. No Dockerfile, compose, manifest,
+    resolver, verifier, bridge, or engine change: CI hygiene only, no H4 criteria
+    weakened.'
+  evidence: Coordinator remediation 02 changes 1-3; repaired setup-python steps and
+    preflight invocation; locked by 2 new structural tests (11 total in the structure
+    battery).
 tests_run:
-- 'Entry: python3 scripts/docker_resolve_engine_pin.py --provider xmage/forge -> canonical identity (repo+40-hex commit+protocol 2.0.0+release); --provider unknown -> exit 3 (DIRECTLY_VERIFIED identity resolution)'
-- 'Entry: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py -> 37 passed (H1-H3/H10 intact at entry)'
-- 'Phase 5: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_ws_a1r_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py -> 58 passed (37 WS-A1D + 4 WS-A1R + 17 new H4 verifier)'
-- 'Phase 5: ruff check . -> All checks passed; ruff format --check . -> 761 files formatted (repo-wide green)'
-- 'Phase 5: verifier CLI smoke (emit-handshake xmage -> verify with manifest-derived fixtures) -> EVIDENCE_COMPLETE exit 0'
-- 'Phase 5: gate CLI positive (real manifest + derived provenance) -> exit 0; tampered commit -> exit 3 FAIL CLOSED; missing manifest -> exit 3 FAIL CLOSED'
-- 'Phase 5: workflow validation -> YAML parses, 3 jobs, pull_request+workflow_dispatch triggers, all 10 uses: SHA-pinned (4 repo-precedented pins), no secrets, contents:read, no direct docker build, wrapper builds both providers, forge verdict locked to EVIDENCE_PARTIAL/NOT_RUN, embedded heredoc python AST-parses'
-- 'Remediation 01: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py tests/unit/test_h4_workflow_structure.py -> 63 passed (37 WS-A1D + 17 H4 verifier + 9 new workflow-structure)'
-- 'Remediation 01: ruff check . -> All checks passed; ruff format --check . -> 762 files formatted (repo-wide green)'
-- 'Remediation 01: workflow YAML re-parses after repair (3 jobs); no label discovery or invented tags remain (text assertion)'
-- 'Remediation 02: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py tests/unit/test_h4_workflow_structure.py -> 65 passed (37 WS-A1D + 17 H4 verifier + 11 workflow-structure incl. 2 pip-cache regression)'
-- 'Remediation 02: ruff check . -> All checks passed; ruff format --check . -> 762 files formatted (repo-wide green)'
-- 'Remediation 02: workflow YAML re-parses (3 jobs); preflight retains cache pip; heavy jobs carry no pip cache; exact image binding, XMage bridge path, and Forge PARTIAL lock intact'
+- 'Entry: python3 scripts/docker_resolve_engine_pin.py --provider xmage/forge -> canonical
+  identity (repo+40-hex commit+protocol 2.0.0+release); --provider unknown -> exit
+  3 (DIRECTLY_VERIFIED identity resolution)'
+- 'Entry: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py -> 37 passed (H1-H3/H10
+  intact at entry)'
+- 'Phase 5: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_ws_a1r_pin_authority.py
+  tests/unit/test_h4_verify_materialization_evidence.py -> 58 passed (37 WS-A1D +
+  4 WS-A1R + 17 new H4 verifier)'
+- 'Phase 5: ruff check . -> All checks passed; ruff format --check . -> 761 files
+  formatted (repo-wide green)'
+- 'Phase 5: verifier CLI smoke (emit-handshake xmage -> verify with manifest-derived
+  fixtures) -> EVIDENCE_COMPLETE exit 0'
+- 'Phase 5: gate CLI positive (real manifest + derived provenance) -> exit 0; tampered
+  commit -> exit 3 FAIL CLOSED; missing manifest -> exit 3 FAIL CLOSED'
+- 'Phase 5: workflow validation -> YAML parses, 3 jobs, pull_request+workflow_dispatch
+  triggers, all 10 uses: SHA-pinned (4 repo-precedented pins), no secrets, contents:read,
+  no direct docker build, wrapper builds both providers, forge verdict locked to EVIDENCE_PARTIAL/NOT_RUN,
+  embedded heredoc python AST-parses'
+- 'Remediation 01: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py
+  tests/unit/test_h4_workflow_structure.py -> 63 passed (37 WS-A1D + 17 H4 verifier
+  + 9 new workflow-structure)'
+- 'Remediation 01: ruff check . -> All checks passed; ruff format --check . -> 762
+  files formatted (repo-wide green)'
+- 'Remediation 01: workflow YAML re-parses after repair (3 jobs); no label discovery
+  or invented tags remain (text assertion)'
+- 'Remediation 02: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py
+  tests/unit/test_h4_workflow_structure.py -> 65 passed (37 WS-A1D + 17 H4 verifier
+  + 11 workflow-structure incl. 2 pip-cache regression)'
+- 'Remediation 02: ruff check . -> All checks passed; ruff format --check . -> 762
+  files formatted (repo-wide green)'
+- 'Remediation 02: workflow YAML re-parses (3 jobs); preflight retains cache pip;
+  heavy jobs carry no pip cache; exact image binding, XMage bridge path, and Forge
+  PARTIAL lock intact'
 evidence:
-- 'H4 item 1 (identity resolution): DIRECTLY_VERIFIED locally for both providers (resolver CLI matrix above)'
-- 'XMage bridge implementation/protocol: DIRECTLY_VERIFIED (source-read); container runtime: UNKNOWN/NOT_RUN (no Docker host)'
-- 'Forge bridge: UNKNOWN (absent); feasibility history HISTORICAL_ONLY (J-P3C, no JSONL bridge)'
-- 'WS-A1D Dockerfile/Compose/gate logic: CODE_DERIVED plus executed shell-guard evidence (prior workstream); image/container behavior: NOT_RUN here'
-- 'H4 verifier non-Docker logic: DIRECTLY_VERIFIED locally (17 unit tests + CLI smoke + gate CLI matrix)'
-- 'H4 CI lane non-Docker structure: DIRECTLY_VERIFIED locally (YAML/structural assertions); remote execution: NOT_RUN (lane prepared, published at 98f3f6a0, remediation 01 pending review, never triggered)'
-- 'Remediation 01 lane repairs: DIRECTLY_VERIFIED locally (9 structural tests green); remote behavior of repaired steps: NOT_RUN'
-- 'First remote run 34573843323 (PR 179, merge-ref 9c96cd4861493965c39fa87b36c573f6c47fff87): preflight PASS; XMage job SUCCESS with H4A and H4B PASS DIRECTLY_VERIFIED; Forge substantive H4 steps PASS with H4A PASS DIRECTLY_VERIFIED and H4B UNKNOWN NOT_RUN (absent bridge); Forge job FAILURE isolated to setup-python post-cache save (CI_HYGIENE_FAILURE); overall H4 PARTIAL; artifacts uploaded (see TD-H4-15)'
-- 'Remediation 02 hygiene: DIRECTLY_VERIFIED locally (pip-cache regression tests green, preflight coverage extended); H4 criteria unweakened'
+- 'H4 item 1 (identity resolution): DIRECTLY_VERIFIED locally for both providers (resolver
+  CLI matrix above)'
+- 'XMage bridge implementation/protocol: DIRECTLY_VERIFIED (source-read); container
+  runtime: UNKNOWN/NOT_RUN (no Docker host)'
+- 'Forge bridge: UNKNOWN (absent); feasibility history HISTORICAL_ONLY (J-P3C, no
+  JSONL bridge)'
+- 'WS-A1D Dockerfile/Compose/gate logic: CODE_DERIVED plus executed shell-guard evidence
+  (prior workstream); image/container behavior: NOT_RUN here'
+- 'H4 verifier non-Docker logic: DIRECTLY_VERIFIED locally (17 unit tests + CLI smoke
+  + gate CLI matrix)'
+- 'H4 CI lane non-Docker structure: DIRECTLY_VERIFIED locally (YAML/structural assertions);
+  remote execution: NOT_RUN (lane prepared, published at 98f3f6a0, remediation 01
+  pending review, never triggered)'
+- 'Remediation 01 lane repairs: DIRECTLY_VERIFIED locally (9 structural tests green);
+  remote behavior of repaired steps: NOT_RUN'
+- 'First remote run 34573843323 (PR 179, merge-ref 9c96cd4861493965c39fa87b36c573f6c47fff87):
+  preflight PASS; XMage job SUCCESS with H4A and H4B PASS DIRECTLY_VERIFIED; Forge
+  substantive H4 steps PASS with H4A PASS DIRECTLY_VERIFIED and H4B UNKNOWN NOT_RUN
+  (absent bridge); Forge job FAILURE isolated to setup-python post-cache save (CI_HYGIENE_FAILURE);
+  overall H4 PARTIAL; artifacts uploaded (see TD-H4-15)'
+- 'Remediation 02 hygiene: DIRECTLY_VERIFIED locally (pip-cache regression tests green,
+  preflight coverage extended); H4 criteria unweakened'
 artifacts:
-- 'scripts/h4_verify_materialization_evidence.py (H4 evidence verifier: emit-handshake + verify, stdlib only, fail closed)'
-- 'tests/unit/test_h4_verify_materialization_evidence.py (17 tests, no Docker, no restated pins)'
-- 'tests/unit/test_h4_workflow_structure.py (11 workflow-structure regression tests for remediations 01-02)'
-- '.github/workflows/h4-docker-materialization.yml (bounded H4 qualification lane: preflight + h4-xmage + h4-forge-image)'
-- 'Remote: h4-evidence-xmage-9c96cd4861493965c39fa87b36c573f6c47fff87 (ID 10189249454, sha256:98641e58dff396f447d9ccc81bd4e4a26794bb75ecb71bd129c377bd6540dc8c)'
-- 'Remote: h4-evidence-forge-9c96cd4861493965c39fa87b36c573f6c47fff87 (ID 10189037467, sha256:c3927c1c290e4bcd45b5dd13e1f427543774b7e1d77527cd459535d02df4f1d2)'
+- 'scripts/h4_verify_materialization_evidence.py (H4 evidence verifier: emit-handshake
+  + verify, stdlib only, fail closed)'
+- tests/unit/test_h4_verify_materialization_evidence.py (17 tests, no Docker, no restated
+  pins)
+- tests/unit/test_h4_workflow_structure.py (11 workflow-structure regression tests
+  for remediations 01-02)
+- '.github/workflows/h4-docker-materialization.yml (bounded H4 qualification lane:
+  preflight + h4-xmage + h4-forge-image)'
+- 'Remote: h4-evidence-xmage-9c96cd4861493965c39fa87b36c573f6c47fff87 (ID 10189249454,
+  sha256:98641e58dff396f447d9ccc81bd4e4a26794bb75ecb71bd129c377bd6540dc8c)'
+- 'Remote: h4-evidence-forge-9c96cd4861493965c39fa87b36c573f6c47fff87 (ID 10189037467,
+  sha256:c3927c1c290e4bcd45b5dd13e1f427543774b7e1d77527cd459535d02df4f1d2)'
 files_modified:
-- .github/workflows/h4-docker-materialization.yml (remediation 02: no pip cache in Docker-heavy jobs, structure battery in preflight)
+- .github/workflows/h4-docker-materialization.yml (remediation 02: no pip cache in
+    Docker-heavy jobs, structure battery in preflight)
 - tests/unit/test_h4_workflow_structure.py (remediation 02: pip-cache regression tests)
 - .foundry/WORKSTREAM_STATE.yaml (this contract state)
 remaining_scope:
-- remediation-02 review handoff (H4 PARTIAL per remote adjudication; Forge H4B UNKNOWN NOT_RUN by authority; merge NOT AUTHORIZED pending Coordinator review)
-- safe-push authorization, automatic PR rerun observation, and merge adjudication are OUT of this local session (no push, no rerun, no merge here)
+- remediation-02 review handoff (H4 PARTIAL per remote adjudication; Forge H4B UNKNOWN
+  NOT_RUN by authority; merge NOT AUTHORIZED pending Coordinator review)
+- safe-push authorization, automatic PR rerun observation, and merge adjudication
+  are OUT of this local session (no push, no rerun, no merge here)
 status: ACTIVE
 authority_gates: []
-next_action: Return remediation 02 for Coordinator review; await safe-push authorization (no push yet).
-exact_next_action: Commit this state as a state-only CHECKPOINT_CLEAN commit with a clean tree and no push; then return the remediation-02 handoff (runtime evidence preserved, CI_HYGIENE_FAILURE root cause, validation, H4 PARTIAL matrix, H1-H11 intact) and await Coordinator review, safe-push authorization, automatic PR rerun, and merge adjudication.
+next_action: Return remediation 02 for Coordinator review; await safe-push authorization
+  (no push yet).
+exact_next_action: Commit this state as a state-only CHECKPOINT_CLEAN commit with
+  a clean tree and no push; then return the remediation-02 handoff (runtime evidence
+  preserved, CI_HYGIENE_FAILURE root cause, validation, H4 PARTIAL matrix, H1-H11
+  intact) and await Coordinator review, safe-push authorization, automatic PR rerun,
+  and merge adjudication.
