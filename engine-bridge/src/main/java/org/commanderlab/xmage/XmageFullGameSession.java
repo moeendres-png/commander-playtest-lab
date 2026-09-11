@@ -32,7 +32,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class XmageFullGameSession {
 
-    static final int PLAYER_COUNT = 4;
+    static final int MIN_PLAYER_COUNT = 2;
+    static final int MAX_PLAYER_COUNT = 5;
     static final String EVIDENCE_CLASS = "technical_conformance_only";
 
     private final String protocolGameId;
@@ -41,6 +42,7 @@ final class XmageFullGameSession {
     private final List<XmageFullGamePlayer> players;
     private final XmageFullGameDecisionController controller;
     private final int startingPlayerSeat;
+    private final int configuredPlayerCount;
     private final AtomicReference<Throwable> engineFailure = new AtomicReference<>();
     private final List<String> engineErrorDiagnostics =
             Collections.synchronizedList(new ArrayList<>());
@@ -59,13 +61,14 @@ final class XmageFullGameSession {
         if (protocolGameId == null || protocolGameId.isBlank()) {
             throw new IllegalArgumentException("game_id must be nonblank");
         }
-        if (deckHandles == null || deckHandles.size() != PLAYER_COUNT) {
+        int observedPlayers = deckHandles == null ? -1 : deckHandles.size();
+        if (!supportsPlayerCount(observedPlayers)) {
             throw new IllegalArgumentException(
-                    "FULL_GAME_REQUIRES_EXACTLY_FOUR_PLAYERS: observed "
-                            + (deckHandles == null ? "null" : deckHandles.size())
+                    "FULL_GAME_REQUIRES_2_TO_5_PLAYERS: observed "
+                            + (deckHandles == null ? "null" : observedPlayers)
             );
         }
-        if (startingPlayerSeat < 0 || startingPlayerSeat >= PLAYER_COUNT) {
+        if (startingPlayerSeat < 0 || startingPlayerSeat >= observedPlayers) {
             throw new IllegalArgumentException("invalid starting_player_seat");
         }
         if (startingLife < 1) {
@@ -78,9 +81,10 @@ final class XmageFullGameSession {
         this.protocolGameId = protocolGameId;
         this.seed = seed;
         this.startingPlayerSeat = startingPlayerSeat;
+        this.configuredPlayerCount = observedPlayers;
         this.controller = new XmageFullGameDecisionController(Duration.ofMinutes(2));
 
-        List<Deck> decks = new ArrayList<>(PLAYER_COUNT);
+        List<Deck> decks = new ArrayList<>(configuredPlayerCount);
         for (String deckHandle : deckHandles) {
             decks.add(deckImporter.requireDeck(deckHandle));
         }
@@ -96,7 +100,7 @@ final class XmageFullGameSession {
                 startingLife,
                 7
         );
-        game.setNumPlayers(PLAYER_COUNT);
+        game.setNumPlayers(configuredPlayerCount);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
         game.setGameOptions(options);
@@ -115,8 +119,8 @@ final class XmageFullGameSession {
             );
         });
 
-        List<XmageFullGamePlayer> createdPlayers = new ArrayList<>(PLAYER_COUNT);
-        for (int index = 0; index < PLAYER_COUNT; index++) {
+        List<XmageFullGamePlayer> createdPlayers = new ArrayList<>(configuredPlayerCount);
+        for (int index = 0; index < configuredPlayerCount; index++) {
             Deck deck = decks.get(index);
             XmageFullGamePlayer player = new XmageFullGamePlayer(
                     "Full Game Seat " + (index + 1),
@@ -129,12 +133,22 @@ final class XmageFullGameSession {
             game.addPlayer(player, deck);
             createdPlayers.add(player);
         }
-        if (game.getPlayers().size() != PLAYER_COUNT) {
+        if (game.getPlayers().size() != configuredPlayerCount) {
             throw new IllegalStateException(
-                    "XMAGE_PLAYER_SETUP_FAILED: expected 4, observed " + game.getPlayers().size()
+                    "XMAGE_PLAYER_SETUP_FAILED: expected " + configuredPlayerCount
+                            + ", observed " + game.getPlayers().size()
             );
         }
         this.players = List.copyOf(createdPlayers);
+        XmageFullGameStateRedactor.registerSeats(game, this.players);
+    }
+
+    static boolean supportsPlayerCount(int playerCount) {
+        return playerCount >= MIN_PLAYER_COUNT && playerCount <= MAX_PLAYER_COUNT;
+    }
+
+    int playerCount() {
+        return configuredPlayerCount;
     }
 
     synchronized JsonObject start() {
@@ -254,7 +268,8 @@ final class XmageFullGameSession {
         JsonObject payload = new JsonObject();
         payload.addProperty("game_id", protocolGameId);
         payload.addProperty("engine_game_id", game.getId().toString());
-        payload.addProperty("player_count", game.getPlayers().size());
+        payload.addProperty("player_count", configuredPlayerCount);
+        payload.addProperty("live_player_count", game.getPlayers().size());
         payload.addProperty("starting_player_seat", startingPlayerSeat);
         payload.addProperty("seed", seed);
         payload.addProperty("started", started);
@@ -270,7 +285,8 @@ final class XmageFullGameSession {
         payload.addProperty("evidence_class", EVIDENCE_CLASS);
         payload.addProperty("consumed_gameplay_evidence", false);
         payload.addProperty("holdout_consumed", false);
-        payload.addProperty("operational_pod_size", PLAYER_COUNT);
+        payload.addProperty("operational_pod_size", configuredPlayerCount);
+        payload.add("live_player_order", XmageFullGameStateRedactor.livePlayerOrder(game));
 
         Throwable failure = engineFailure.get();
         if (failure == null && controller.terminalFailure() == null) {
@@ -287,11 +303,13 @@ final class XmageFullGameSession {
             payload.add("failure", error);
         }
 
+        // Outcomes are emitted in immutable original-seat order. A player that
+        // has left the live XMage player map retains its original external seat.
         JsonArray outcomes = new JsonArray();
-        int seat = 0;
-        for (Player player : game.getPlayers().values()) {
+        for (int seat = 0; seat < players.size(); seat++) {
+            Player player = players.get(seat);
             JsonObject item = new JsonObject();
-            item.addProperty("seat", seat++);
+            item.addProperty("seat", seat);
             item.addProperty("player_id", player.getId().toString());
             item.addProperty("life", player.getLife());
             item.addProperty("won", player.hasWon());

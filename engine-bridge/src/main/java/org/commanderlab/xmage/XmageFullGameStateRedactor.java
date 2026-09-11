@@ -14,12 +14,34 @@ import mage.game.stack.StackObject;
 import mage.players.Player;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 /** Actor-scoped XMage state projection. Raw engine objects never leave the JVM. */
 final class XmageFullGameStateRedactor {
 
+    private static final Map<Game, Map<UUID, Integer>> STABLE_SEATS =
+            Collections.synchronizedMap(new WeakHashMap<>());
+
     private XmageFullGameStateRedactor() {
+    }
+
+    static void registerSeats(Game game, List<? extends Player> players) {
+        if (game == null || players == null) {
+            throw new IllegalArgumentException("game and players are required for seat registration");
+        }
+        Map<UUID, Integer> mapping = new LinkedHashMap<>();
+        for (int index = 0; index < players.size(); index++) {
+            UUID playerId = players.get(index).getId();
+            if (mapping.put(playerId, index) != null) {
+                throw new IllegalArgumentException("duplicate player id in seat registration");
+            }
+        }
+        STABLE_SEATS.put(game, Map.copyOf(mapping));
     }
 
     static JsonObject actorView(Game game, Player actor) {
@@ -28,6 +50,9 @@ final class XmageFullGameStateRedactor {
         view.addProperty("actor_id", actor.getId().toString());
         view.addProperty("seat", seat(game, actor.getId()));
         view.addProperty("turn_number", game.getState().getTurnNum());
+        view.addProperty("player_count", stablePlayerCount(game));
+        view.addProperty("live_player_count", game.getPlayers().size());
+        view.add("live_player_order", livePlayerOrder(game));
         addUuid(view, "active_player_id", game.getActivePlayerId());
         addUuid(view, "priority_player_id", game.getPriorityPlayerId());
         if (game.getTurnPhaseType() == null) {
@@ -42,11 +67,10 @@ final class XmageFullGameStateRedactor {
         }
 
         JsonArray players = new JsonArray();
-        int currentSeat = 0;
         for (Player player : game.getPlayers().values()) {
             JsonObject p = new JsonObject();
             p.addProperty("player_id", player.getId().toString());
-            p.addProperty("seat", currentSeat++);
+            p.addProperty("seat", seat(game, player.getId()));
             p.addProperty("life", player.getLife());
             p.addProperty("poison_counters", player.getCountersCount(CounterType.POISON));
             p.addProperty("hand_count", player.getHand().size());
@@ -54,6 +78,7 @@ final class XmageFullGameStateRedactor {
             p.addProperty("graveyard_count", player.getGraveyard().size());
             p.addProperty("has_lost", player.hasLost());
             p.addProperty("has_won", player.hasWon());
+            p.addProperty("has_left", player.hasLeft());
             p.addProperty("is_actor", player.getId().equals(actor.getId()));
 
             JsonArray battlefield = new JsonArray();
@@ -61,8 +86,7 @@ final class XmageFullGameStateRedactor {
                 if (!player.getId().equals(permanent.getControllerId())) {
                     continue;
                 }
-                JsonObject item = publicPermanent(permanent);
-                battlefield.add(item);
+                battlefield.add(publicPermanent(permanent));
             }
             p.add("battlefield", battlefield);
 
@@ -83,7 +107,8 @@ final class XmageFullGameStateRedactor {
             p.add("command", command);
 
             // Exile may contain face-down private cards. Expose only the public count here;
-            // card identities are deliberately absent until XMage marks them publicly known.
+            // card identities are deliberately absent until a dedicated XMage visibility
+            // authority can prove that an individual exile object is public to this actor.
             p.addProperty("exile_count", game.getExile().getCardsOwned(game, player.getId()).size());
 
             if (player.getId().equals(actor.getId())) {
@@ -122,13 +147,36 @@ final class XmageFullGameStateRedactor {
         return view;
     }
 
+    static JsonArray livePlayerOrder(Game game) {
+        JsonArray order = new JsonArray();
+        for (Player player : game.getPlayers().values()) {
+            JsonObject item = new JsonObject();
+            item.addProperty("player_id", player.getId().toString());
+            item.addProperty("seat", seat(game, player.getId()));
+            order.add(item);
+        }
+        return order;
+    }
+
+    static int stablePlayerCount(Game game) {
+        Map<UUID, Integer> mapping = STABLE_SEATS.get(game);
+        return mapping == null ? game.getPlayers().size() : mapping.size();
+    }
+
     static int seat(Game game, UUID playerId) {
-        int seat = 0;
+        Map<UUID, Integer> mapping = STABLE_SEATS.get(game);
+        if (mapping != null) {
+            Integer stableSeat = mapping.get(playerId);
+            if (stableSeat != null) {
+                return stableSeat;
+            }
+        }
+        int fallbackSeat = 0;
         for (Player player : game.getPlayers().values()) {
             if (player.getId().equals(playerId)) {
-                return seat;
+                return fallbackSeat;
             }
-            seat++;
+            fallbackSeat++;
         }
         return -1;
     }

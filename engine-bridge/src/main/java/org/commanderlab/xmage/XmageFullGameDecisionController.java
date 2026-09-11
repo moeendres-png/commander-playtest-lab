@@ -97,6 +97,24 @@ final class XmageFullGameDecisionController {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: invalid selection bounds");
         }
 
+        XmageFullGameObservationGateway.SafeDecision safeDecision;
+        try {
+            safeDecision = XmageFullGameObservationGateway.validate(
+                    game,
+                    actor,
+                    prompt,
+                    context,
+                    legalOptions,
+                    sourceObject
+            );
+        } catch (IllegalStateException exc) {
+            DecisionException failure = new DecisionException(exc.getMessage(), exc);
+            terminalFailure = failure;
+            recordFailure(failure.getMessage());
+            notifyAll();
+            throw failure;
+        }
+
         decisionOffset++;
         String actorId = actor.getId().toString();
         String gameId = game.getId().toString();
@@ -107,7 +125,7 @@ final class XmageFullGameDecisionController {
                 decisionClass
         );
 
-        JsonObject actorView = XmageFullGameStateRedactor.actorView(game, actor);
+        JsonObject actorView = safeDecision.actorView();
         String actorViewHash = XmageAuditEventLog.stateHash(actorView);
 
         JsonObject request = new JsonObject();
@@ -118,15 +136,20 @@ final class XmageFullGameDecisionController {
         request.addProperty("actor_id", actorId);
         request.addProperty("seat", XmageFullGameStateRedactor.seat(game, actor.getId()));
         request.addProperty("decision_class", decisionClass);
-        request.addProperty("prompt", prompt == null ? "" : prompt);
-        request.add("context", context == null ? new JsonObject() : context.deepCopy());
+        request.addProperty("prompt", safeDecision.prompt());
+        request.add("context", safeDecision.context());
         request.addProperty("minimum_selections", minimumSelections);
         request.addProperty("maximum_selections", maximumSelections);
-        request.add("legal_options", legalOptions == null ? new JsonArray() : legalOptions.deepCopy());
+        request.add("legal_options", safeDecision.legalOptions());
         request.addProperty("public_state_reference", "actor-view:" + actorViewHash);
         request.addProperty("private_actor_state_reference", "actor-view:" + actorViewHash);
         request.addProperty("timeout_millis", timeoutMillis);
-        request.add("source_object", sourceObject == null ? JsonNull.INSTANCE : sourceObject.deepCopy());
+        request.add(
+                "source_object",
+                safeDecision.sourceObject() == null
+                        ? JsonNull.INSTANCE
+                        : safeDecision.sourceObject()
+        );
         request.addProperty("xmage_identity", game.getClass().getName());
         request.addProperty("protocol_identity", PROTOCOL_VERSION);
         request.add("pilot_state", actorView);

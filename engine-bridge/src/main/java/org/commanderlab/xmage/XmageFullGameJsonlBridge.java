@@ -7,14 +7,7 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Dedicated JSONL surface for one isolated full Commander game.
- *
- * <p>This class is intentionally separate from {@link JsonlBridge}. The B3/B4
- * compatibility bridge keeps its previously validated capability semantics;
- * full-game conformance must be selected explicitly by launching Main with the
- * {@code full-game} subcommand.</p>
- */
+/** Dedicated JSONL surface for one isolated full Commander game. */
 final class XmageFullGameJsonlBridge {
 
     private final XmageDeckImporter deckImporter = new XmageDeckImporter();
@@ -50,11 +43,7 @@ final class XmageFullGameJsonlBridge {
 
         return switch (messageType) {
             case "start_engine" -> success(requestId, startedPayload(), false);
-            case "get_provider_version" -> success(
-                    requestId,
-                    XmageProvider.providerVersion(),
-                    false
-            );
+            case "get_provider_version" -> success(requestId, XmageProvider.providerVersion(), false);
             case "get_capabilities" -> success(requestId, capabilitiesPayload(), false);
             case "import_deck" -> importDeck(requestId, request);
             case "create_full_game" -> createFullGame(requestId, request);
@@ -76,12 +65,7 @@ final class XmageFullGameJsonlBridge {
         try {
             JsonObject payload = requireObjectPayload(request, "IMPORT_DECK requires payload");
             if (!payload.has("deck") || !payload.get("deck").isJsonObject()) {
-                return error(
-                        requestId,
-                        "invalid_deck_payload",
-                        "IMPORT_DECK requires payload.deck",
-                        false
-                );
+                return error(requestId, "invalid_deck_payload", "IMPORT_DECK requires payload.deck", false);
             }
             JsonObject deck = payload.getAsJsonObject("deck");
             String deckId = requiredText(deck, "deck_id");
@@ -110,10 +94,7 @@ final class XmageFullGameJsonlBridge {
             handle.addProperty("handle_id", imported.deckHandle());
             handle.addProperty("deck_id", imported.deckId());
             handle.addProperty("deck_hash", imported.deckHash());
-            handle.addProperty(
-                    "accepted_cards",
-                    imported.mainboardCount() + imported.commanderCount()
-            );
+            handle.addProperty("accepted_cards", imported.mainboardCount() + imported.commanderCount());
             JsonArray commanderNames = new JsonArray();
             commanders.forEach(commanderNames::add);
             handle.add("commander_names", commanderNames);
@@ -126,12 +107,7 @@ final class XmageFullGameJsonlBridge {
         } catch (XmageDeckImporter.ImportException exc) {
             return error(requestId, "deck_import_failed", exc.getMessage(), false);
         } catch (Exception exc) {
-            return error(
-                    requestId,
-                    "invalid_deck_payload",
-                    exceptionMessage(exc),
-                    false
-            );
+            return error(requestId, "invalid_deck_payload", exceptionMessage(exc), false);
         }
     }
 
@@ -151,11 +127,11 @@ final class XmageFullGameJsonlBridge {
             );
             String gameId = requiredText(payload, "game_id");
             List<String> deckHandles = requiredStringArray(payload, "deck_handles");
-            if (deckHandles.size() != XmageFullGameSession.PLAYER_COUNT) {
+            if (!XmageFullGameSession.supportsPlayerCount(deckHandles.size())) {
                 return error(
                         requestId,
                         "invalid_player_count",
-                        "Full-game conformance requires exactly four players; observed "
+                        "Full-game conformance requires 2 through 5 players; observed "
                                 + deckHandles.size(),
                         false
                 );
@@ -183,33 +159,22 @@ final class XmageFullGameJsonlBridge {
 
             JsonObject responsePayload = new JsonObject();
             responsePayload.addProperty("game_id", gameId);
-            responsePayload.addProperty("player_count", XmageFullGameSession.PLAYER_COUNT);
+            responsePayload.addProperty("player_count", session.playerCount());
             responsePayload.addProperty("starting_player_seat", startingPlayerSeat);
             responsePayload.addProperty("starting_life", startingLife);
             responsePayload.addProperty("seed", seed);
             responsePayload.addProperty("seed_controlled", true);
-            responsePayload.addProperty(
-                    "seed_scope",
-                    "single_isolated_jvm_process"
-            );
+            responsePayload.addProperty("seed_scope", "single_isolated_jvm_process");
             responsePayload.addProperty(
                     "decision_protocol_version",
                     XmageFullGameDecisionController.PROTOCOL_VERSION
             );
-            responsePayload.addProperty(
-                    "evidence_class",
-                    XmageFullGameSession.EVIDENCE_CLASS
-            );
+            responsePayload.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
             responsePayload.addProperty("holdout_consumed", false);
             responsePayload.addProperty("official_campaign_eligible", false);
             return success(requestId, responsePayload, false);
         } catch (Exception exc) {
-            return error(
-                    requestId,
-                    "full_game_creation_failed",
-                    exceptionMessage(exc),
-                    false
-            );
+            return error(requestId, "full_game_creation_failed", exceptionMessage(exc), false);
         }
     }
 
@@ -217,12 +182,7 @@ final class XmageFullGameJsonlBridge {
         try {
             return success(requestId, requireSession().start(), false);
         } catch (Exception exc) {
-            return error(
-                    requestId,
-                    "full_game_start_failed",
-                    exceptionMessage(exc),
-                    false
-            );
+            return error(requestId, "full_game_start_failed", exceptionMessage(exc), false);
         }
     }
 
@@ -230,12 +190,7 @@ final class XmageFullGameJsonlBridge {
         try {
             return success(requestId, requireSession().pendingDecisionPayload(), false);
         } catch (Exception exc) {
-            return error(
-                    requestId,
-                    "full_game_decision_failed",
-                    exceptionMessage(exc),
-                    false
-            );
+            return error(requestId, "full_game_decision_failed", exceptionMessage(exc), false);
         }
     }
 
@@ -259,19 +214,9 @@ final class XmageFullGameJsonlBridge {
                     false
             );
         } catch (XmageFullGameDecisionController.DecisionException exc) {
-            return error(
-                    requestId,
-                    "external_pilot_decision_rejected",
-                    exc.getMessage(),
-                    false
-            );
+            return error(requestId, "external_pilot_decision_rejected", exc.getMessage(), false);
         } catch (Exception exc) {
-            return error(
-                    requestId,
-                    "invalid_full_game_decision",
-                    exceptionMessage(exc),
-                    false
-            );
+            return error(requestId, "invalid_full_game_decision", exceptionMessage(exc), false);
         }
     }
 
@@ -279,12 +224,7 @@ final class XmageFullGameJsonlBridge {
         try {
             return success(requestId, requireSession().resultPayload(), false);
         } catch (Exception exc) {
-            return error(
-                    requestId,
-                    "full_game_result_failed",
-                    exceptionMessage(exc),
-                    false
-            );
+            return error(requestId, "full_game_result_failed", exceptionMessage(exc), false);
         }
     }
 
@@ -300,7 +240,14 @@ final class XmageFullGameJsonlBridge {
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
         capabilities.addProperty("multiplayer_supported", true);
-        capabilities.addProperty("max_players", XmageFullGameSession.PLAYER_COUNT);
+        capabilities.addProperty("min_players", XmageFullGameSession.MIN_PLAYER_COUNT);
+        capabilities.addProperty("max_players", XmageFullGameSession.MAX_PLAYER_COUNT);
+        JsonArray supportedPlayerCounts = new JsonArray();
+        for (int count = XmageFullGameSession.MIN_PLAYER_COUNT;
+                count <= XmageFullGameSession.MAX_PLAYER_COUNT; count++) {
+            supportedPlayerCounts.add(count);
+        }
+        capabilities.add("supported_player_counts", supportedPlayerCounts);
         capabilities.addProperty("headless_supported", true);
         capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
@@ -330,7 +277,7 @@ final class XmageFullGameJsonlBridge {
 
         JsonArray notes = new JsonArray();
         notes.add("Dedicated full-game lane; existing B3/B4 JsonlBridge capability truth is unchanged");
-        notes.add("Operational scope is exactly four-player Commander");
+        notes.add("Operational technical scope is 2 through 5 Commander players");
         notes.add("XMage is rules authority; Commander Lab external pilots are discretionary decision authority");
         notes.add("No Tactical, Structural, XMage-AI, random or default discretionary fallback is permitted");
         notes.add("Rules randomness remains XMage-owned and uses an explicit per-process seed");
@@ -342,7 +289,9 @@ final class XmageFullGameJsonlBridge {
         JsonObject lane = new JsonObject();
         lane.addProperty("lane", "xmage_full_game_external_pilots");
         lane.addProperty("decision_protocol_version", XmageFullGameDecisionController.PROTOCOL_VERSION);
-        lane.addProperty("operational_pod_size", XmageFullGameSession.PLAYER_COUNT);
+        lane.addProperty("min_players", XmageFullGameSession.MIN_PLAYER_COUNT);
+        lane.addProperty("max_players", XmageFullGameSession.MAX_PLAYER_COUNT);
+        lane.add("supported_player_counts", supportedPlayerCounts.deepCopy());
         lane.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
@@ -361,7 +310,8 @@ final class XmageFullGameJsonlBridge {
         payload.addProperty("started", true);
         payload.addProperty("lane", "xmage_full_game_external_pilots");
         payload.addProperty("one_game_per_process", true);
-        payload.addProperty("operational_pod_size", XmageFullGameSession.PLAYER_COUNT);
+        payload.addProperty("min_players", XmageFullGameSession.MIN_PLAYER_COUNT);
+        payload.addProperty("max_players", XmageFullGameSession.MAX_PLAYER_COUNT);
         payload.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         return payload;
     }
@@ -458,12 +408,7 @@ final class XmageFullGameJsonlBridge {
         return new Result(response.toString(), shutdown);
     }
 
-    private static Result error(
-            String requestId,
-            String code,
-            String message,
-            boolean retryable
-    ) {
+    private static Result error(String requestId, String code, String message, boolean retryable) {
         JsonObject response = baseResponse(requestId);
         response.addProperty("success", false);
         response.addProperty("status", "error");
@@ -494,7 +439,6 @@ final class XmageFullGameJsonlBridge {
 
     private static String exceptionMessage(Exception exc) {
         String message = exc.getMessage();
-        return exc.getClass().getSimpleName() + ": "
-                + (message == null ? "<no message>" : message);
+        return exc.getClass().getSimpleName() + ": " + (message == null ? "<no message>" : message);
     }
 }
