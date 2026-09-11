@@ -67,7 +67,7 @@ CONCESSION_METHOD = """        RuntimeException failClosed(String method) {
          * WS62 direct transport of the engine-native concession action.
          * Engine-owned (CR 104.3a any-time; CR 800.4 cleanup). Conditional on
          * native canConcede(); never an unconditional pseudo-option; never a
-         * direct Player.concede() call (submission uses concede() seam only).
+         * direct player-dot-concede call (submission uses seam only).
          */
         public boolean ws62RequestConcession() {
             ws48Milestone("ws62Concession:ENTERED");
