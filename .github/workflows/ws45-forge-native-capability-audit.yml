@@ -1,0 +1,110 @@
+name: WS45 Forge native capability audit
+
+on:
+  push:
+    branches: [ws45/forge-v1.0.4-successor-qualification]
+    paths:
+      - '.github/workflows/ws45-forge-native-capability-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORGE_COMMIT: 140075525379a0fa4bccaed34d1e3801fc3e9dc3
+  FORGE_TREE: fc9d03543807136f6c96271ff268979ed63239d7
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: forge-source
+          fetch-depth: 1
+      - name: Verify source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C forge-source rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C forge-source rev-parse HEAD^{tree})" = "$FORGE_TREE"
+      - name: Extract native capability evidence fail-closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, re, hashlib
+          from pathlib import Path
+
+          repo = Path('forge-source')
+          out = Path('artifacts/ws45-native-capability')
+          snippets = out / 'snippets'
+          snippets.mkdir(parents=True, exist_ok=True)
+
+          roots = [repo/'forge-game/src/main/java', repo/'forge-core/src/main/java']
+          for root in roots:
+              if not root.is_dir():
+                  raise SystemExit(f'MISSING_SOURCE_ROOT:{root}')
+
+          patterns = {
+              'extra_turn': re.compile(r'extra.?turn|extraTurn|extra turns', re.I),
+              'rng': re.compile(r'random|rng|shuffle|MyRandom|Random', re.I),
+              'visibility': re.compile(r'can.?see|visibility|visible|reveal|look at|face.?down|known|hidden|knowledge', re.I),
+              'elimination': re.compile(r'loseGame|hasLost|lost|eliminat|life.?0|life.?zero|state.?based', re.I),
+              'zone_move': re.compile(r'zone.?change|zone.?move|moveTo|commander.*zone|command.*zone|replacement.*commander|state.?based.*commander', re.I),
+              'partner': re.compile(r'partner', re.I),
+              'natural_lifecycle': re.compile(r'mulligan|opening.?hand|starting.?hand|startGame|chooseStartingPlayer', re.I),
+              'native_identity_state': re.compile(r'getId\(\)|getCard\(|card.*id|GameState|devModeSet', re.I),
+          }
+
+          files = sorted({p for root in roots for p in root.rglob('*.java')})
+          if len(files) < 100:
+              raise SystemExit(f'INSUFFICIENT_JAVA_SOURCE_COUNT:{len(files)}')
+
+          counts = {}
+          for name, pat in patterns.items():
+              lines = []
+              for p in files:
+                  rel = p.relative_to(repo)
+                  try:
+                      text = p.read_text(errors='replace').splitlines()
+                  except Exception as exc:
+                      raise SystemExit(f'READ_FAILURE:{rel}:{exc}')
+                  for lineno, line in enumerate(text, 1):
+                      if pat.search(line):
+                          lines.append(f'{rel}:{lineno}:{line}')
+              (snippets/f'{name}.txt').write_text('\n'.join(lines) + ('\n' if lines else ''))
+              counts[name] = len(lines)
+
+          obj = {
+              'schema':'commander-lab.ws45-forge-native-capability-audit/1.0.1',
+              'forge_commit':os.environ['FORGE_COMMIT'],
+              'forge_tree':os.environ['FORGE_TREE'],
+              'java_source_file_count':len(files),
+              'grep_line_counts':counts,
+              'scanner':'python_re_fail_closed',
+              'qualification_credit':'NONE_SOURCE_AUDIT_ONLY'
+          }
+          (out/'SUMMARY.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+
+          entries=[]
+          for p in sorted(out.rglob('*')):
+              if p.is_file() and p.name != 'SHA256SUMS':
+                  digest=hashlib.sha256(p.read_bytes()).hexdigest()
+                  entries.append(f'{digest}  {p.as_posix()}')
+          (out/'SHA256SUMS').write_text('\n'.join(entries)+'\n')
+
+          if not any(counts.values()):
+              raise SystemExit('SOURCE_AUDIT_ZERO_MATCHES')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ws45-forge-native-capability-${{ github.sha }}
+          path: artifacts/ws45-native-capability/
+          if-no-files-found: error
+          retention-days: 90

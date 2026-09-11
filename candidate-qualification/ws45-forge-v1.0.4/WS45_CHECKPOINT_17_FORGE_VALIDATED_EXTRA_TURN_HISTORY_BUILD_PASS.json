@@ -1,0 +1,34 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": 17,
+  "status": "FORGE_VALIDATED_EXTRA_TURN_HISTORY_BUILD_PASS_PROVIDER_WIRING_OPEN",
+  "commander_lab_parent_head": "3f54c485034fbafbe12ffecc36e7e9b379eb7fe8",
+  "forge": {
+    "repository": "moeendres-png/forge",
+    "branch": "foundry/ws45-v104-observation-remediation",
+    "commit": "a248bf22ca9ce00908ee06fb26bfd5ea0fc6803d",
+    "tree": "2a8e15cda48e7f26fb806c7c99d7c51bdf797bfb",
+    "change": "Added qualification-only Ws45ValidatedExtraTurnHistory. Historical extra-turn facts are admitted only after native Forge CardRules exposes AddTurn; player/source are stored as native IDs and resolution kind is derived from native source-controller relation. The surface is not consulted by Forge legality or turn-order decisions."
+  },
+  "ci": {
+    "ws45_observation_remediation": {
+      "run_id": 34069922172,
+      "conclusion": "success"
+    },
+    "forge_test_build": {
+      "run_id": 34069922203,
+      "conclusion": "success"
+    }
+  },
+  "credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0,
+    "forge_successor_provider_qualified": false,
+    "AF07_GRANTED": false,
+    "ARCHITECTURE_FREEZE": false
+  },
+  "next_action": "Wire the exact generated WS40 provider/state baseline to Forge a248bf22 via the WS45 strict observation overlay; replace RestoredQualificationHistory and first-unbound identity binding; compile in CI; then execute static and adversarial no-request-echo tests before any construction credit."
+}

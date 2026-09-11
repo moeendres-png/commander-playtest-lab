@@ -1,0 +1,72 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": 19,
+  "status": "PASS",
+  "gate": "STRICT_NO_REQUEST_ECHO",
+  "result": "PASS",
+  "historical_successor_credit_imported": 0,
+  "credit_after_checkpoint": {
+    "construction": "0/107",
+    "behavior": "0/107"
+  },
+  "commander_lab": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "ws45/forge-v1.0.4-successor-qualification",
+    "gate_head": "72c480ed0f01914002169050aaf2951557df05be"
+  },
+  "ws44": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "provider_denominator": 107
+  },
+  "forge": {
+    "repository": "moeendres-png/forge",
+    "branch": "foundry/ws40-af04-core-remediation",
+    "baseline_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "qualified_observation_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "qualified_observation_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "version": "2.0.15-SNAPSHOT",
+    "process_boundary": "SEPARATE_GPL_JVM",
+    "identity_binding": "FORGE_GAMESTATE_NATIVE_ID_TO_CARD_MAP"
+  },
+  "ci": {
+    "workflow": ".github/workflows/ws45-no-request-echo-runtime-v2.yml",
+    "run_id": 34097049258,
+    "job_id": 101662901685,
+    "conclusion": "success",
+    "artifact_id": 10009049738,
+    "artifact_name": "ws45-strict-no-request-echo-v2-72c480ed0f01914002169050aaf2951557df05be",
+    "artifact_digest": "sha256:81772a11d90081391c9b771222765727774c21db339aa47e4eb07e77b56f47d1",
+    "runtime_report_sha256": "ca24874794a3764e03096f568142d843ca9fe8ad61147c1553eab37576501c4c"
+  },
+  "proof": {
+    "test_count": 19,
+    "all_tests_pass": true,
+    "comparison_canaries_do_not_influence_native_observation": true,
+    "invalid_native_operations_fail_closed": true,
+    "elimination_derived_from_native_life_state": true,
+    "typed_knowledge_native_ids": true,
+    "rules_rng_installed_at_native_boundary": true,
+    "extra_turn_source_validated_by_native_card_rules": true,
+    "commander_move_timing_native_surface": true,
+    "partner_native_card_rules_validation": true,
+    "setup_validation_provider_truth_not_request": true,
+    "report_forge_lock_matches_executed_source_lock": true
+  },
+  "representatives": {
+    "knowledge": "HIDDEN_01",
+    "rng": "RNG_RULES_TAPE",
+    "extra": "WS05-MP-TURN-3",
+    "elim": "WS05-MP-ELIM-OWNED-3",
+    "zone": "WS05-CMD-ZONE-GY-YES",
+    "partner": "WS05-CMD-DMG-SPLIT",
+    "identity": "PILOT_PRIORITY"
+  },
+  "next_gate": "FRESH_CONSTRUCTION_107_OF_107",
+  "architecture_freeze_granted": false,
+  "af07_granted": false
+}

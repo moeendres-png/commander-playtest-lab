@@ -1,0 +1,60 @@
+name: WS40 v1.0.3 Target Identity Audit
+on:
+  push:
+    branches: [ws40/forge-core-remediation-requalification]
+    paths:
+      - '.github/workflows/ws40-v103-target-identity-audit.yml'
+      - 'candidate-qualification/ws40-forge/audit_v103_target_identity_aliases.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ws40/forge-core-remediation-requalification
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: 24152acf36b5a560c23ccacfed3f31d3039537eb
+          path: ws41-lock
+          sparse-checkout: qualification/ws41
+      - name: Verify immutable WS41 source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C ws41-lock rev-parse HEAD)" = '24152acf36b5a560c23ccacfed3f31d3039537eb'
+          test "$(git -C ws41-lock rev-parse HEAD^{tree})" = '428bbe58b2ea7b869200521092a8768108029b47'
+          echo '8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5  ws41-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json' | sha256sum -c -
+      - name: Audit all target identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 candidate-qualification/ws40-forge/audit_v103_target_identity_aliases.py \
+            ws41-lock/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --out candidate-qualification/ws40-forge/WS40_V1_0_3_TARGET_IDENTITY_AUDIT.json
+      - name: Persist audit report if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf ws41-lock
+          report='candidate-qualification/ws40-forge/WS40_V1_0_3_TARGET_IDENTITY_AUDIT.json'
+          if git diff --quiet -- "$report" && git ls-files --error-unmatch "$report" >/dev/null 2>&1; then
+            echo 'Target identity audit already persisted.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$report"
+          git commit -m 'ws40: persist v1.0.3 target identity audit'
+          git push origin HEAD:ws40/forge-core-remediation-requalification
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws40-v103-target-identity-audit
+          path: candidate-qualification/ws40-forge/WS40_V1_0_3_TARGET_IDENTITY_AUDIT.json
+          if-no-files-found: error

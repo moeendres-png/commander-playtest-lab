@@ -1,0 +1,38 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 15,
+  "status": "REMEDIABLE_COMPILE_FAILURE",
+  "workflow": "WS40 Native Construction 107",
+  "run_id": 33889291570,
+  "job_id": 101076731516,
+  "commander_lab_commit": "8c8ed7196e5678290b0fe4a1c02d62091b845c3f",
+  "commander_lab_tree": "16d145aff4bb9c9b73e16c9386e139d0dbdf3249",
+  "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+  "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+  "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+  "contract_lock_gate": {
+    "status": "PASS",
+    "provider_denominator": 107,
+    "independent_requested_state_digest_pass_count": 107,
+    "historical_successor_credit_imported": 0
+  },
+  "forge_checkout_and_build": "PASS",
+  "provider_compile": {
+    "status": "FAIL",
+    "error": "Ws40SuccessorState.java:368 incompatible types: GameObject cannot be converted to GameEntity",
+    "cause": "The v1.0.3 stack-target adapter broadened the shared target helper return type from GameEntity to GameObject so it can represent SpellAbility stack targets; the combat caller still assigned the helper directly to GameEntity.",
+    "classification": "ADAPTER_TYPE_INTEGRATION_DEFECT",
+    "rules_semantics_affected": false,
+    "remediable_in_scope": true
+  },
+  "construction_runtime": "NOT_RUN",
+  "successor_runtime_credit": "0/107",
+  "artifact": {
+    "artifact_id": 9943177902,
+    "name": "ws40-v1.0.3-native-construction-107-8c8ed7196e5678290b0fe4a1c02d62091b845c3f",
+    "zip_sha256": "6a5a721c780e5312a7108a159478285afd2a084676a0d2b4e3126d96974ef3b8",
+    "size_bytes": 54737
+  },
+  "next_action": "Preserve the GameObject-capable stack target helper and make only the combat caller assert/cast its known Player/Card GameEntity target, then rerun the complete v1.0.3 construction workflow from record 1."
+}

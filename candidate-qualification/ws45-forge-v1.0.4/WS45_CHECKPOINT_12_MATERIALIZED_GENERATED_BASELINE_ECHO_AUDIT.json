@@ -1,0 +1,75 @@
+{
+  "schema_version": "commander-lab.ws45-materialized-generated-baseline-echo-audit/1.0.0",
+  "workstream": "WS-45",
+  "status": "MATERIALIZED_BASELINE_AUDITED_STRICT_NO_ECHO_FAIL",
+  "qualification_credit": {
+    "strict_no_request_echo": "FAIL",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "materialization": {
+    "workflow": "WS45 materialize generated v1.0.3 baseline",
+    "run_id": 34058681903,
+    "job_id": 101555166879,
+    "head_commit": "8d5f013098c179ddff9b765d1898ad079b133de4",
+    "conclusion": "success",
+    "artifact_id": 9996763890,
+    "artifact_name": "ws45-generated-baseline-8d5f013098c179ddff9b765d1898ad079b133de4",
+    "artifact_digest": "sha256:e177456de920f488fb3d676c73f0cbf51b22e037c2d501f188ff72cc4c6b36e0",
+    "artifact_expired": false
+  },
+  "artifact_source_lock": {
+    "commander_lab_head": "8d5f013098c179ddff9b765d1898ad079b133de4",
+    "forge_commit": "d468ed84c7781e41d5aed71cd9ea24bd5aa45ad5",
+    "forge_tree": "cf59cb41d2284ba33c5bd0710d1d6059141136a1",
+    "purpose": "inspection-only generated baseline; no qualification credit"
+  },
+  "artifact_hashes_verified": {
+    "Ws40SuccessorState.java": "264da73a5c60bda06dffcb9598d29334b8443019e956ef06585b7e9027e528eb",
+    "run_native_construction_107.py": "2bb14cf8d25edab2840dc0e28f3be11de2e29169c3a183dc775fd0a8c7ea2d25",
+    "Ws23ForgeVerticalProvider.java": "c209389d6b7a39ffe0f3f576aa44b573e88e1c672d9bc878efca0cc2758787bc"
+  },
+  "direct_echo_paths": [
+    {
+      "file": "run_native_construction_107.py",
+      "lines": "529-534",
+      "source": "record",
+      "sink": "provider bound_config",
+      "fields": ["knowledge_state", "rules_randomness", "extra_turn_creation", "elimination_trigger", "zone_move_event", "setup_validation"]
+    },
+    {
+      "file": "run_native_construction_107.py",
+      "lines": "817-834",
+      "source": "provider-emitted bound_config",
+      "sink": "normalized constructed state",
+      "fields": ["knowledge_state", "rules_randomness", "extra_turn_creation", "elimination_trigger", "zone_move_event", "setup_validation"]
+    },
+    {
+      "file": "Ws40SuccessorState.java",
+      "lines": "117-126, 801-818",
+      "source": "COMMANDER_LAB_WS40_BOUND_CONFIG_B64",
+      "sink": "raw_native.bound_config",
+      "fields": "entire provider-neutral bound config including the above rules-state fields"
+    }
+  ],
+  "additional_request_derived_normalization": [
+    "NATURAL_GAME_START returns projection(record) after only partial native registration validation.",
+    "normalized_commander preserves multiple_commander_relations directly from record/bound metadata rather than native CardRules relation observation.",
+    "normalized_temporal returns requested temporal object after selected native equality/phase-marker checks.",
+    "eligible combat preconditions are partly preserved from requested data after object-existence checks."
+  ],
+  "negative_search": {
+    "RestoredQualificationHistory_in_materialized_three_files": false,
+    "Ws45StrictObservation_in_materialized_three_files": false,
+    "NativeQualificationObservation_in_materialized_three_files": false,
+    "meaning": "The strict-no-echo defect exists in the generated WS40 baseline even without the later typed-history adapter: rules-state values are still round-tripped through bound_config."
+  },
+  "adjudication": [
+    "Provider-side binding plus digest proves transport integrity, not independent native semantic observation.",
+    "A normalized value copied from bound_config cannot receive strict no-request-echo credit merely because the provider emitted the same bound_config and hashed it.",
+    "The materialized baseline's historical no_request_echo=true claim is superseded for WS-45 by this direct source audit and receives zero successor credit.",
+    "WS-45 must replace each rules-state b[field] output with post-setup/post-execution observation from live Forge state or fail closed."
+  ],
+  "next_action": "Resolve Forge source-lineage consistency between the materialized d468ed84... baseline and the build-verified WS45 native-observer d1a65fd4... branch, then build a WS45-specific generated overlay/runner that consumes NativeQualificationObservation/direct Forge state and executes strict perturbation gates before 107 construction/behavior credit."
+}

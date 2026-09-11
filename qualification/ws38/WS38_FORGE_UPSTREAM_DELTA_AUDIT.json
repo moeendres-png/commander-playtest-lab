@@ -1,0 +1,31 @@
+{
+  "adjacent_files_changed": [
+    {
+      "af04_effect": "No change to the inspected getLethalDamage rule primitive.",
+      "changes": "12 deletions",
+      "path": "forge-game/src/main/java/forge/game/card/Card.java"
+    },
+    {
+      "af04_effect": "No replacement of controller-owned combat-damage assignment boundary found.",
+      "changes": "19 additions / 8 deletions",
+      "path": "forge-game/src/main/java/forge/game/card/CardView.java"
+    }
+  ],
+  "af04_boundary_files_unchanged": [
+    "forge-game/src/main/java/forge/game/combat/Combat.java",
+    "forge-game/src/main/java/forge/game/player/PlayerController.java",
+    "forge-gui/src/main/java/forge/player/PlayerControllerHuman.java",
+    "forge-gui-desktop/src/main/java/forge/screens/match/VAssignCombatDamage.java",
+    "forge-ai/src/main/java/forge/ai/ComputerUtilCombat.java"
+  ],
+  "ahead_by": 25,
+  "base": "1e604105f9e279331063824943b9222b6589f5d8",
+  "behind_by": 0,
+  "best_remediation_base": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+  "compare_status": "ahead",
+  "conclusion": "The WS-33 AF04 architecture defect persists at fresh Forge head. Current head is the preferred remediation base because the relevant boundary is source-stable while upstream has advanced.",
+  "head": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+  "schema": "commander-lab.ws38.forge-upstream-delta-audit/1.0.0",
+  "version_after": "2.0.15-SNAPSHOT",
+  "version_before": "2.0.15-SNAPSHOT"
+}

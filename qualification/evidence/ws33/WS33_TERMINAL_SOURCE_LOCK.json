@@ -1,0 +1,26 @@
+{
+  "baseline_head": "170d169e252703685aca9d5d8b3e0dbc4154f8b6",
+  "forge_fresh_master": {
+    "commit": "c817743ecbda4a4983a4246a13375d1a6adf8a4e",
+    "same_terminal_af04_boundary": true,
+    "tree": "d0ff27956e44ffb76baa11be1645675e1b013a3a"
+  },
+  "forge_selected": {
+    "commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "decision": "RETAIN_QUALIFIED_PIN",
+    "tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+    "version": "2.0.15-SNAPSHOT"
+  },
+  "schema_version": "commander-lab.ws33-terminal-source-lock/1.0.0",
+  "topology": {
+    "forge_ai_or_gui_as_pilot": false,
+    "process_boundary": "SEPARATE_GPL_JVM"
+  },
+  "ws32": {
+    "bundle_digest": "61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b",
+    "commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "tree": "0d160128119f2bad30b220a17c43419b50b7edbe"
+  },
+  "ws33_branch": "ws33/forge-successor-provider-qualification-final",
+  "ws33_run_head": "f40227d7fe0491b2d5d8d1ef0d7f1d79af143e7e"
+}

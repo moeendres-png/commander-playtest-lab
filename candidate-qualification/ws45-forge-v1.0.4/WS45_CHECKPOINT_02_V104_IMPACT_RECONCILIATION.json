@@ -1,0 +1,51 @@
+{
+  "schema": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": "V1_0_4_IMPACT_RECONCILIATION",
+  "status": "PASS",
+  "runtime_credit": {
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_credit_imported": false
+  },
+  "source_head": "699bd64a9671d6b3a6e29532f80111a0381f03bf",
+  "ws44": {
+    "freeze_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "freeze_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35"
+  },
+  "reconstruction": {
+    "provider_denominator": 107,
+    "manifest_exact_match": true,
+    "requested_state_digest_pass": 107,
+    "requested_state_digest_fail": 0,
+    "af04": 24,
+    "af05": 20,
+    "af06": 17,
+    "af08": 36,
+    "af09": 5,
+    "card_02_count": 1,
+    "representation_repair_rows": 11,
+    "unique_changed_fixtures_overall": 9,
+    "provider_relevant_changed_fixtures": 8,
+    "provider_excluded_changed_fixtures": ["CARD_01"],
+    "stable_payload_changed_fixtures": 9,
+    "requested_state_digest_changed_fixtures": 6,
+    "provider_semantics_used_for_repairs": false,
+    "obligation_changed": false
+  },
+  "workflow_evidence": {
+    "run_id": 34054930691,
+    "job_id": 101545049339,
+    "run_conclusion": "success",
+    "job_conclusion": "success",
+    "artifact_id": 9995663496,
+    "artifact_name": "ws45-v104-impact-699bd64a9671d6b3a6e29532f80111a0381f03bf",
+    "artifact_digest": "sha256:66fd3e84560b0b5d55899bdf5da0830cd848cb13a1c73f9e249a91f51ca11561",
+    "artifact_retention_days": 90
+  },
+  "next_gate": "NO_REQUEST_ECHO_GATE must pass before any construction credit."
+}

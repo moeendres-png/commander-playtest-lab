@@ -1,0 +1,66 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": 28,
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "STRICT_NO_REQUEST_ECHO_REFRESH_THEN_FRESH_CONSTRUCTION_107",
+  "source_lock": {
+    "commander_lab_commit": "216bf4998c01804ea091b4da27c279a250634fa6",
+    "commander_lab_tree": "61dfee54ded0391db0a5200f97f4d9e86bcf73a6",
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "ws44_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "ws44_materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+    "forge_version": "2.0.15-SNAPSHOT"
+  },
+  "runtime": {
+    "workflow_run_id": 34214610205,
+    "job_id": 102023309068,
+    "artifact_id": 10051333015,
+    "artifact_name": "ws45-v104-noecho-then-construction-216bf4998c01804ea091b4da27c279a250634fa6",
+    "artifact_sha256": "00c787d971673f53c6dd4f38d45866247aec185b9a21d1e55ef317fcf4e7c4de"
+  },
+  "strict_no_request_echo": {
+    "status": "PASS",
+    "fresh_after_nullable_knowledge_change": true,
+    "historical_successor_credit_imported": 0,
+    "proofs": {
+      "comparison_canaries_do_not_influence_native_observation": true,
+      "invalid_native_operations_fail_closed": true,
+      "typed_knowledge_native_ids": true,
+      "rules_rng_installed_at_native_boundary": true,
+      "setup_validation_provider_truth_not_request": true
+    }
+  },
+  "fresh_construction": {
+    "denominator": 107,
+    "runtime_verified_prefix_pass_count": 37,
+    "failure_index": 38,
+    "failure_fixture_id": "HIDDEN_10",
+    "failure_class": "NATIVE_KNOWLEDGE_LIBRARY_RANGE_VALIDATION",
+    "exact_exception": "java.lang.IllegalArgumentException: WS45_KNOWLEDGE_LIBRARY_RANGE_INVALID",
+    "failure_path": [
+      "forge.game.qualification.Ws45ObservationPolicy.install",
+      "forge.game.player.Ws45StrictObservation.installKnowledge",
+      "forge.game.player.Ws45StrictObservation.afterNativeStateLoad",
+      "forge.game.player.Ws40SuccessorState.applyNativeState"
+    ],
+    "finding": "HIDDEN_10 requires a native known-library range of two cards at P1 library positions 0..1. The Forge typed observation policy correctly fails closed because the live P1 Library contains fewer than start+count cards after native state materialization.",
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107",
+    "partial_credit_forbidden": true
+  },
+  "remediation_boundary": {
+    "allowed": "Repair native state materialization so the required library objects exist in the live Forge Library with deterministic semantic identity/order, then retain the existing native range validation.",
+    "forbidden": [
+      "weaken WS45_KNOWLEDGE_LIBRARY_RANGE_INVALID validation",
+      "copy requested known_library_ranges into observation output without native objects",
+      "fabricate library range evidence in the runner",
+      "import historical successor credit"
+    ]
+  },
+  "next_action": "Inspect exact HIDDEN_10 materialized semantic objects and the generated Ws40SuccessorState native object-zone binding path from artifact 10051333015; implement the minimum native-library state-loader remediation; rerun the sequential strict-noecho-then-construction gate from record 1."
+}

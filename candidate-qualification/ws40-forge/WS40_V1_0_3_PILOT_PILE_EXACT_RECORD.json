@@ -1,0 +1,495 @@
+{
+  "record": {
+    "action_cost_state": [],
+    "authority_provenance": {
+      "common_manifest_fixture_id": "PILOT_PILE",
+      "common_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+      "cr_pdf_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
+      "rsp": "commander-lab.rules-service/1.1.0",
+      "ws29_base_commit": "362d9351f749b6f49d67cd1ef4eed298b8922b68",
+      "ws31_authority_domain_digest": "d8337dc0a243fddbede3e9d2cec7b3938a1007970a23dea04855149fbfc55d5e",
+      "ws31_authority_head": "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e"
+    },
+    "commander_state": {
+      "commander_damage_matrix": [],
+      "commanders": [
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P1-A",
+          "owner": "P1",
+          "prior_command_zone_cast_count": 0,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P2-A",
+          "owner": "P2",
+          "prior_command_zone_cast_count": 0,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P3-A",
+          "owner": "P3",
+          "prior_command_zone_cast_count": 0,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P4-A",
+          "owner": "P4",
+          "prior_command_zone_cast_count": 0,
+          "zone": "command"
+        }
+      ],
+      "multiple_commander_relations": []
+    },
+    "construction_validation": {
+      "credit_condition": "REQUESTED_STATE_DIGEST_EQUALS_CONSTRUCTED_STATE_DIGEST",
+      "digest_spec": "commander-lab.requested-state-digest/1.0.0",
+      "on_mismatch": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER_AND_NO_RUNTIME_CREDIT",
+      "provider_must_emit_normalized_constructed_state": true,
+      "required": true
+    },
+    "decision_script": [
+      {
+        "actor": "P2",
+        "causal_step_id": "cause-0",
+        "decision_family": "pile",
+        "forbidden_fallbacks": [
+          "first_option",
+          "random_option",
+          "default_yes_no",
+          "internal_ai",
+          "gui_default",
+          "silent_skip",
+          "parent_class_fallback"
+        ],
+        "notes": "",
+        "selection": {
+          "matches_only_provider_offered_legal_options": true,
+          "on_multiple_match": "FAIL_CLOSED",
+          "on_zero_match": "FAIL_CLOSED",
+          "selector_kind": "partition",
+          "semantic_value": {
+            "pile_a": [
+              "obj:fof-0",
+              "obj:fof-1"
+            ],
+            "pile_b": [
+              "obj:fof-2",
+              "obj:fof-3",
+              "obj:fof-4"
+            ]
+          }
+        }
+      }
+    ],
+    "execution_entry_mode": "NATIVE_STATE_LOAD",
+    "execution_transaction_policy": {
+      "automatic_rules_actions": "RULES_CORE_ONLY",
+      "discretionary_choices": "ONLY_EXPLICIT_DECISION_SCRIPT_RESPONSES",
+      "fallbacks": "PROHIBITED",
+      "legal_actions": "RULES_CORE_ONLY",
+      "priority_passes": "EXPLICITLY_SCRIPTED_WHEN_NEEDED_TO_REACH_NEXT_DECLARED_CHECKPOINT"
+    },
+    "expected_events": {
+      "forbidden_events": [],
+      "ordering_constraints": [],
+      "partial_order_constraints": [],
+      "required_events": [
+        "pile_frame:P2",
+        "partition_created:2/3"
+      ]
+    },
+    "fixture_family": "pilot_boundary",
+    "fixture_id": "PILOT_PILE",
+    "frozen_contract_binding": {
+      "af_mapping": "INHERIT_BY_REFERENCE_NO_REDEFINITION",
+      "manifest_fixture_id": "PILOT_PILE",
+      "manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4"
+    },
+    "knowledge_state": {
+      "channel_policy": "RSP actor-aware observation applies to prompts, context, options, source/ability metadata, events, transcripts and logs.",
+      "viewer_states": [
+        {
+          "face_down_look_permissions": [],
+          "invalidation_conditions": [],
+          "known_library_ranges": [],
+          "known_object_identities": [],
+          "temporary_permissions": [],
+          "viewer": "P1"
+        },
+        {
+          "face_down_look_permissions": [],
+          "invalidation_conditions": [],
+          "known_library_ranges": [],
+          "known_object_identities": [],
+          "temporary_permissions": [],
+          "viewer": "P2"
+        },
+        {
+          "face_down_look_permissions": [],
+          "invalidation_conditions": [],
+          "known_library_ranges": [],
+          "known_object_identities": [],
+          "temporary_permissions": [],
+          "viewer": "P3"
+        },
+        {
+          "face_down_look_permissions": [],
+          "invalidation_conditions": [],
+          "known_library_ranges": [],
+          "known_object_identities": [],
+          "temporary_permissions": [],
+          "viewer": "P4"
+        }
+      ]
+    },
+    "materialization_digest": "6a38640e3a8bbefd641890ccb3be8d3ea2280f702e7e4c5607502f8a7fc688f7",
+    "materialization_status": "OBLIGATION_PRESERVED",
+    "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "native_procedure": [
+      {
+        "details": {
+          "requested_state_digest_required": true
+        },
+        "operation": "NATIVE_CONSTRUCT_AND_VALIDATE_REQUESTED_STATE",
+        "step_id": "load"
+      },
+      {
+        "details": {
+          "actor": "P2",
+          "cause_kind": "PROVIDER_NATIVE_RULES_TRANSACTION",
+          "decision_family": "pile",
+          "no_hidden_default": true,
+          "semantic_selection_contract": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "partition",
+            "semantic_value": {
+              "pile_a": [
+                "obj:fof-0",
+                "obj:fof-1"
+              ],
+              "pile_b": [
+                "obj:fof-2",
+                "obj:fof-3",
+                "obj:fof-4"
+              ]
+            }
+          }
+        },
+        "operation": "NATIVE_RESOLVE_TOP_STACK_OBJECT_TO_PILE_DECISION",
+        "step_id": "cause-0"
+      },
+      {
+        "details": {
+          "decision_index": 0,
+          "matches_only_provider_offered_legal_options": true
+        },
+        "operation": "EXTERNAL_SUBMIT_SELECTED_SEMANTIC_RESPONSE",
+        "step_id": "external-0"
+      },
+      {
+        "details": {
+          "priority_passes_are_scripted_not_fallbacks": true
+        },
+        "operation": "NATIVE_CONTINUE_WITH_EXPLICIT_SCRIPTED_PRIORITY_PASSES_UNTIL_NEXT_DECLARED_DECISION",
+        "step_id": "advance-0"
+      },
+      {
+        "details": {
+          "automatic_rules_actions_engine_owned": true
+        },
+        "operation": "NATIVE_RESOLVE_OR_EVALUATE_DECLARED_RULES_CAUSE_TO_TERMINAL_CHECKPOINT",
+        "step_id": "settle"
+      }
+    ],
+    "normalization": {
+      "ignored_provider_local": [
+        "raw_uuid",
+        "jvm_object_id",
+        "memory_identity",
+        "internal_stack_object_identity",
+        "engine_action_id",
+        "process_id",
+        "wall_clock"
+      ],
+      "retained_semantic": [
+        "player_id",
+        "semantic_object_id",
+        "card_lineage_id",
+        "commander_id",
+        "owner",
+        "controller",
+        "zone",
+        "zone_position_when_relevant",
+        "counters",
+        "attachments",
+        "commander_cast_count",
+        "commander_damage",
+        "knowledge_permissions",
+        "temporal_state",
+        "semantic_event_actor_object_value",
+        "rules_rng_operation"
+      ],
+      "stack_identity": "normalize by semantic source/controller/targets/modes/order, never provider object id"
+    },
+    "obligation_digest": "1d38278f6c63896df8237acc96599b3d00e0306af7c253ddf25106b0b4f27acf",
+    "players": [
+      {
+        "eliminated": false,
+        "life": 40,
+        "lost": false,
+        "player_id": "P1",
+        "poison": 0,
+        "seat": 1,
+        "starting_life": 40
+      },
+      {
+        "eliminated": false,
+        "life": 40,
+        "lost": false,
+        "player_id": "P2",
+        "poison": 0,
+        "seat": 2,
+        "starting_life": 40
+      },
+      {
+        "eliminated": false,
+        "life": 40,
+        "lost": false,
+        "player_id": "P3",
+        "poison": 0,
+        "seat": 3,
+        "starting_life": 40
+      },
+      {
+        "eliminated": false,
+        "life": 40,
+        "lost": false,
+        "player_id": "P4",
+        "poison": 0,
+        "seat": 4,
+        "starting_life": 40
+      }
+    ],
+    "repair_provenance": {
+      "frozen_obligation_preserved": true,
+      "predecessor_record_digest": "400fbcdaff77982bf5fc5257ca50d095be601553b0520ad52b26f11dc8a499a0",
+      "predecessor_version": "commander-lab.semantic-fixture-materialization/1.0.2",
+      "provider_semantics_used": false,
+      "ws41_repair_class": "SUCCESSOR_VERSION_AND_LINTER_HARDENING_ONLY"
+    },
+    "requested_state_digest": "47cd6fcd2502c159379a4a8df6ea3deeaa6229fe1521b164931efcfbc93ab3f4",
+    "rules_randomness": {
+      "channels": [],
+      "pilot_randomness_prohibited": true,
+      "predetermined_semantic_draws": [],
+      "rules_seed": 424242
+    },
+    "scenario_notes": [
+      "Minimal deterministic provider-neutral representative of the frozen obligation; provider-native construction and legality remain authoritative."
+    ],
+    "semantic_executability": "SEMANTIC_EXECUTABLE",
+    "semantic_objects": [
+      {
+        "card_identity": "Rograkh, Son of Rohgahh",
+        "card_lineage_id": "line:obj:P1-commander",
+        "commander_id": "cmd:P1-A",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:P1-commander",
+        "tapped": false,
+        "zone": "command"
+      },
+      {
+        "card_identity": "Rograkh, Son of Rohgahh",
+        "card_lineage_id": "line:obj:P2-commander",
+        "commander_id": "cmd:P2-A",
+        "controller": "P2",
+        "counters": {},
+        "face_down": false,
+        "owner": "P2",
+        "semantic_id": "obj:P2-commander",
+        "tapped": false,
+        "zone": "command"
+      },
+      {
+        "card_identity": "Rograkh, Son of Rohgahh",
+        "card_lineage_id": "line:obj:P3-commander",
+        "commander_id": "cmd:P3-A",
+        "controller": "P3",
+        "counters": {},
+        "face_down": false,
+        "owner": "P3",
+        "semantic_id": "obj:P3-commander",
+        "tapped": false,
+        "zone": "command"
+      },
+      {
+        "card_identity": "Rograkh, Son of Rohgahh",
+        "card_lineage_id": "line:obj:P4-commander",
+        "commander_id": "cmd:P4-A",
+        "controller": "P4",
+        "counters": {},
+        "face_down": false,
+        "owner": "P4",
+        "semantic_id": "obj:P4-commander",
+        "tapped": false,
+        "zone": "command"
+      },
+      {
+        "card_identity": "Grizzly Bears",
+        "card_lineage_id": "line:obj:p1-bears",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:p1-bears",
+        "tapped": false,
+        "zone": "battlefield"
+      },
+      {
+        "card_identity": "Grizzly Bears",
+        "card_lineage_id": "line:obj:p2-bears",
+        "controller": "P2",
+        "counters": {},
+        "face_down": false,
+        "owner": "P2",
+        "semantic_id": "obj:p2-bears",
+        "tapped": false,
+        "zone": "battlefield"
+      },
+      {
+        "card_identity": "Grizzly Bears",
+        "card_lineage_id": "line:obj:p3-bears",
+        "controller": "P3",
+        "counters": {},
+        "face_down": false,
+        "owner": "P3",
+        "semantic_id": "obj:p3-bears",
+        "tapped": false,
+        "zone": "battlefield"
+      },
+      {
+        "card_identity": "Fact or Fiction",
+        "card_lineage_id": "line:obj:fof",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:fof",
+        "tapped": false,
+        "zone": "stack"
+      },
+      {
+        "card_identity": "Mountain",
+        "card_lineage_id": "line:obj:fof-0",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:fof-0",
+        "tapped": false,
+        "zone": "revealed",
+        "zone_position": 0
+      },
+      {
+        "card_identity": "Island",
+        "card_lineage_id": "line:obj:fof-1",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:fof-1",
+        "tapped": false,
+        "zone": "revealed",
+        "zone_position": 1
+      },
+      {
+        "card_identity": "Swamp",
+        "card_lineage_id": "line:obj:fof-2",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:fof-2",
+        "tapped": false,
+        "zone": "revealed",
+        "zone_position": 2
+      },
+      {
+        "card_identity": "Forest",
+        "card_lineage_id": "line:obj:fof-3",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:fof-3",
+        "tapped": false,
+        "zone": "revealed",
+        "zone_position": 3
+      },
+      {
+        "card_identity": "Plains",
+        "card_lineage_id": "line:obj:fof-4",
+        "controller": "P1",
+        "counters": {},
+        "face_down": false,
+        "owner": "P1",
+        "semantic_id": "obj:fof-4",
+        "tapped": false,
+        "zone": "revealed",
+        "zone_position": 4
+      }
+    ],
+    "setup_validation": {
+      "compare_requested_vs_constructed": true,
+      "construct_inside_rules_process": true,
+      "expose_normalized_constructed_state": true,
+      "forbidden_external_rules": [
+        "legality_calculation",
+        "layers",
+        "state_based_actions",
+        "replacement_outcomes",
+        "fabricated_legal_options",
+        "silent_setup_correction"
+      ],
+      "native_structural_validation_required": true,
+      "on_mismatch": "FAIL_CLOSED",
+      "requested_vs_normalized_native_constructed_state_equality_required": true
+    },
+    "stack_state": [
+      {
+        "cast_complete": true,
+        "controller": "P1",
+        "costs_paid": true,
+        "modes": [],
+        "source_semantic_id": "obj:fof",
+        "targets": []
+      }
+    ],
+    "supersedes_record_digest": "8b3a65d34cd4c2359827f76f9bbed01027a1c6ee5e033be7e608962a3042d79f",
+    "temporal_state": {
+      "active_player": "P1",
+      "extra_turn_queue": [],
+      "phase": "precombat_main",
+      "priority_player": "P1",
+      "step": "main",
+      "turn_number": 1
+    },
+    "terminal_postconditions": [
+      "Every revealed object appears in exactly one pile; no hidden identity is added to pile metadata."
+    ]
+  },
+  "record_path": "$.records[11]",
+  "schema_version": "commander-lab.ws40-v1.0.3-exact-record-extract/1.0.0",
+  "source_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+  "source_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+  "source_tree": "428bbe58b2ea7b869200521092a8768108029b47"
+}

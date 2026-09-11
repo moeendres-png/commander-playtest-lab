@@ -1,0 +1,93 @@
+{
+  "schema_version": "commander-lab.ws45-behavior-readiness-audit/1.0.0",
+  "workstream": "WS-45",
+  "status": "CODE_DERIVED_NOT_RUNTIME_CREDIT",
+  "authority": {
+    "ws44_commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "provider_denominator": 107,
+    "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+  },
+  "decision_contract": {
+    "records_with_decision_script": 58,
+    "records_without_decision_script": 49,
+    "decision_family_counts": {
+      "priority": 23,
+      "mulligan": 21,
+      "target": 11,
+      "choose_mode": 9,
+      "choice": 5,
+      "replacement_effect": 5,
+      "declare_attacker": 4,
+      "mana_payment": 3,
+      "choose_use": 2,
+      "declare_blocker": 2,
+      "choose_object": 1,
+      "target_amount": 1,
+      "pile": 1,
+      "announce_x": 1,
+      "multi_amount": 1,
+      "trigger_order": 1,
+      "choose_ability": 1
+    },
+    "selector_kind_counts": {
+      "semantic_action": 44,
+      "boolean": 10,
+      "semantic_mode_key": 7,
+      "fail_closed_probe": 6,
+      "semantic_player": 4,
+      "semantic_object": 3,
+      "mana_payment": 3,
+      "attacker_assignment": 3,
+      "amount_assignment": 2,
+      "semantic_stack_object": 2,
+      "blocker_assignment": 2,
+      "semantic_choice_key": 1,
+      "partition": 1,
+      "integer": 1,
+      "order": 1,
+      "semantic_ability_key": 1,
+      "semantic_objects": 1
+    },
+    "required_selection_semantics": {
+      "matches_only_provider_offered_legal_options": true,
+      "on_zero_match": "FAIL_CLOSED",
+      "on_multiple_match": "FAIL_CLOSED",
+      "pilot_may_compute_legality": false,
+      "provider_option_ids_opaque": true
+    }
+  },
+  "current_provider_protocol_findings": {
+    "decision_frames_are_externalized": true,
+    "submitted_option_id_must_have_been_offered": true,
+    "stale_or_wrong_decision_id_fails_closed": true,
+    "player_options_have_native_semantic_labels": "PLAYER:<native player name>",
+    "boolean_options_have_explicit_native_labels": true,
+    "rules_core_combat_damage_options_have_semantic_labels": true,
+    "rules_core_amount_distribution_options_have_semantic_labels": true,
+    "generic_choose_object_label": "NATIVE_OPTION",
+    "generic_priority_action_label": "FORGE_LEGAL_ACTION",
+    "generic_mode_and_replacement_choices_use_choose_object": true,
+    "classification": "OPTION_IDENTITY_PROJECTION_INCOMPLETE_FOR_FULL_WS44_DECISION_SCRIPT_MATCHING"
+  },
+  "required_bounded_remediation": {
+    "principle": "Enrich only the identity/semantic description of options already enumerated by native Forge or the remediated Rules-Core decision views. Do not create, remove, rank or legalize options in the pilot or qualification runner.",
+    "requirements": [
+      "Every provider-offered option receives enough provider-neutral semantic metadata to evaluate the applicable immutable WS44 selector kind.",
+      "The runner selects only by exact semantic match among currently offered options.",
+      "Zero semantic matches fail closed.",
+      "Multiple semantic matches fail closed.",
+      "Opaque provider option_id is submitted only after exact semantic matching.",
+      "No option index, first-option, random, default, AI, GUI or parent fallback is permitted.",
+      "Rules legality remains exclusively native Forge/Rules-Core authority."
+    ]
+  },
+  "credit": {
+    "historical_successor_credit_imported": 0,
+    "behavior_credit": "0/107",
+    "readiness_audit_grants_runtime_credit": false
+  },
+  "hard_gate": "Do not execute or grant fresh Behavior-107 credit until fresh Construction-107 has passed in one complete run."
+}

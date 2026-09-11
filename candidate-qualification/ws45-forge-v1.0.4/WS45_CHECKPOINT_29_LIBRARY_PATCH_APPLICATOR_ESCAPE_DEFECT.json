@@ -1,0 +1,31 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "workstream": "WS-45",
+  "checkpoint": 29,
+  "status": "REMEDIATED_NO_RUNTIME_CREDIT",
+  "gate": "STRICT_NO_REQUEST_ECHO_REFRESH_THEN_FRESH_CONSTRUCTION_107",
+  "attempt": {
+    "workflow_run_id": 34215498203,
+    "job_id": 102026163805,
+    "commander_lab_commit": "035749010458ca44ed65b1e4ed3830688f5cd40d",
+    "artifact_id": 10051645958,
+    "artifact_sha256": "6fd5845e4a3613eb9f72f12ae84e8bd8bd4a397697dec158ddd33001f9fb4c90",
+    "runtime_reached": false,
+    "failure_stage": "BUILD_EXACT_CURRENT_WS45_PROVIDER",
+    "failure": "WS45_LIBRARY_CAPACITY_ROWS: expected exactly one patch target, found 0"
+  },
+  "adjudication": "PATCH_APPLICATOR_ESCAPE_DEFECT_ONLY",
+  "finding": "The generated Java rows() implementation was unchanged and valid. The Python patch literal decoded Java \\n/\\t escape sequences one level too early, so its fail-closed exact source target did not match.",
+  "remediation": {
+    "library_patch_signature_fix_commit": "1c7deaa56a7d5c6fb0cde4a8151480ee199042d3",
+    "construction_recursive_presence_commit": "fb52ef64c49e98ba47e9eb4eb452cb3209578e1c",
+    "rerun_trigger_commit": "dedc28b5216a879132fdd8f1f8d41f9b0e86455a",
+    "next_workflow_run_id": 34215831770
+  },
+  "credit": {
+    "historical_successor_credit_imported": 0,
+    "construction_credit": "0/107",
+    "behavior_credit": "0/107"
+  },
+  "next_action": "Execute run 34215831770; require the corrected opaque-library patch to compile, then fresh strict no-request-echo PASS before construction may restart at record 1."
+}

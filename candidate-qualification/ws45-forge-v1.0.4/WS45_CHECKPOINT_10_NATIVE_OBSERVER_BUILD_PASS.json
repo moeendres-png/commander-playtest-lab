@@ -1,0 +1,35 @@
+{
+  "schema_version": "commander-lab.ws45-native-observer-build-pass/1.0.0",
+  "workstream": "WS-45",
+  "status": "NATIVE_OBSERVER_BUILD_PASS_PROVIDER_WIRING_PENDING",
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "forge_source_lock": {
+    "repository": "moeendres-png/forge",
+    "branch": "foundry/ws45-v104-observation-remediation",
+    "commit": "d1a65fd4a376365bf2562b2247104abcada3d120",
+    "tree": "9cf8d7b817862e09a4c3bd5ff1d90d998f0d5c97",
+    "parent_failed_commit": "867207a92eacbbc49f232e49098d3cf3e95e8f3a"
+  },
+  "dedicated_build": {
+    "workflow": "WS45 observation remediation",
+    "run_id": 34062549337,
+    "job_id": 101565525999,
+    "conclusion": "success",
+    "artifact_id": 9997943473,
+    "artifact_name": "ws45-forge-observation-d1a65fd4a376365bf2562b2247104abcada3d120",
+    "artifact_digest": "sha256:8cce53bd2567f232339b01af27dc440b33acc18fe2c999cb1a24ca17c2b6f1f2"
+  },
+  "general_build": {
+    "workflow": "Test build",
+    "run_id": 34062549320,
+    "conclusion": "success"
+  },
+  "verified_repair": "NativeQualificationObservation now invokes CardRules partner legality through the real instance API a.canBePartnerCommanders(b), and forge-game plus dependencies compile successfully.",
+  "source_truth_effect": "The native observation class is build-verified at the locked Forge commit. This does not prove provider reachability, strict no-request-echo, record construction, behavior, or any 107-record qualification gate.",
+  "next_action": "Audit and replace every production-reachable v1.0.4 provider/runner read from request-derived RestoredQualificationHistory with NativeQualificationObservation or direct native Forge state, then execute strict no-request-echo runtime gates."
+}

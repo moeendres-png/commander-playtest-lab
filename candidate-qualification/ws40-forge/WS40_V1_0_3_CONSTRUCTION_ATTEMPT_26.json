@@ -1,0 +1,56 @@
+{
+  "artifact_version": "commander-lab.ws40-v1.0.3-construction-attempt/26",
+  "attempt": 26,
+  "status": "FAIL_CLOSED_REMEDIABLE",
+  "qualification_credit": "NOT_GRANTED",
+  "source_lock": {
+    "commander_lab_workflow_commit": "44885f77f80c1ae58bca4796223d3540ea2f3c0f",
+    "commander_lab_workflow_tree": "8d647523e6bb2a2665930fd642b8ec39932a1726",
+    "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_schema": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "ws41_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "historical_successor_runtime_credit_imported": 0
+  },
+  "workflow": {
+    "name": "WS40 Native Construction 107",
+    "run_id": 33935065462,
+    "run_number": 26,
+    "job_id": 101221261106,
+    "conclusion": "failure",
+    "artifact_id": 9959955219,
+    "artifact_name": "ws40-v1.0.3-native-construction-107-44885f77f80c1ae58bca4796223d3540ea2f3c0f",
+    "artifact_size_bytes": 85596,
+    "artifact_zip_sha256": "32704c208c54455902091aec043a9bb6a5a49017694102661c893a993d3ca104"
+  },
+  "fresh_gates": {
+    "immutable_ws41_lock": "PASS",
+    "denominator_exact_107": "PASS",
+    "requested_state_digests_107": "PASS",
+    "forge_source_lock": "PASS",
+    "forge_build": "PASS",
+    "isolated_provider_compile": "PASS",
+    "native_eligible_attacker_patch_apply": "PASS",
+    "record_20_PILOT_DECLARE_ATTACKER": "PASS_RUNTIME_VERIFIED_NATIVE_OBSERVER"
+  },
+  "sequential_execution": {
+    "records_passed_before_first_failure": 55,
+    "first_failure_index": 56,
+    "first_failure_fixture_id": "MICRO_PRIORITY",
+    "first_failure": "WS40_STATE_TARGET_UNBOUND:obj:P2-bears",
+    "record_20_fixed": true,
+    "record_21_passed": true,
+    "hidden_records_29_through_48_executed_to_digest_equality_under_current_harness": true
+  },
+  "identity_failure_adjudication_status": "PENDING_FROZEN_LINEAGE_AND_AUTHORITY_REVIEW_NO_ALIAS_ALLOWED",
+  "no_request_echo_reaudit": {
+    "status": "FAIL_REMEDIATION_REQUIRED",
+    "reason": "Current v2 runner binds requested knowledge_state, rules_randomness, extra_turn_creation, elimination_trigger and zone_move_event inside provider bound_config and later reconstructs those requested-state fields directly from the emitted bound_config. Provider-side hashing proves transport integrity, not independent Forge Rules-state observation. The direct WS-40 continuation contract permits configuration binding only for genuine non-rules configuration and identity metadata with associated native validation.",
+    "source": "scripts/ws40_fix_construction_runner.py",
+    "effect": "Attempt 26 cannot grant complete 107 construction credit even if later identity blockers are repaired; a new no-request-echo-hardening attempt is mandatory."
+  },
+  "next_action": "Adjudicate obj:P2-bears against immutable lineage and frozen predecessor/authority evidence without aliasing; in parallel harden all request-derived Rules-state normalization before any final 107/107 construction credit."
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": "commander-lab.ws40-final-evidence/1.0.0",
+  "workstream": "WS-40",
+  "terminal_outcome": "TERMINAL_BLOCKED",
+  "immutable_successor_contract": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.2",
+    "bundle_digest": "ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23",
+    "materialization_sha256": "0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261",
+    "materialization_blob": "926e9f9769f91137b1e6d26f1d83ba42ce3b2719",
+    "denominator": 107,
+    "breakdown": {
+      "PLAYER_COUNT": 4,
+      "AF04": 24,
+      "AF05": 20,
+      "AF06": 17,
+      "AF08": 36,
+      "AF09": 5,
+      "CARD_02": 1
+    }
+  },
+  "tested_commander_lab_implementation": {
+    "branch": "ws40/forge-core-remediation-requalification",
+    "commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "tree": "da9ad40a8db9b65310f2590a72e9a6af8922f5b6"
+  },
+  "evidence_branch_checkpoint_before_manifest": {
+    "commit": "c0e04f736719350522235ffa37eb41d8b68c0064",
+    "tree": "19010fed140c2defe5ae853e96a2d1c6972ee99a"
+  },
+  "final_forge_lock": {
+    "repository": "moeendres-png/forge",
+    "branch": "foundry/ws40-af04-core-remediation",
+    "commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "tree": "37ef36359cef74273ca40a2c1c676b8ede84a431"
+  },
+  "forge_patch_reproducibility": {
+    "status": "PASS",
+    "run_id": 33776615398,
+    "artifact_id": 9901943490,
+    "artifact_name": "ws40-forge-patch-repro-49ea6df753fa6c749138296a1fe9421467136dda",
+    "artifact_size_bytes": 1870,
+    "artifact_sha256": "8c62d3c9c66f89b1818c021ccd001ca270ad68effd1fae1a029dc005065ace20"
+  },
+  "final_lock_provider_smoke": {
+    "status": "PASS",
+    "run_id": 33777908775,
+    "head_commit": "6d65822444adb4a539856768df958f85d373ec5b",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431"
+  },
+  "final_lock_state_loader_compile": {
+    "status": "PASS",
+    "run_id": 33777941124,
+    "head_commit": "6db2f35639317d6fb642fa1c7ff53416bbcb5294",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431"
+  },
+  "final_native_construction": {
+    "status": "FAIL_CLOSED",
+    "run_id": 33778130830,
+    "job_id": 100724863434,
+    "commander_lab_commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431",
+    "sequential_pass_count": 6,
+    "sequential_pass_records": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET"
+    ],
+    "first_failure": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE",
+    "artifact_id": 9902469599,
+    "artifact_name": "ws40-native-construction-107-d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "artifact_size_bytes": 72655,
+    "artifact_sha256": "409ac38fa3a0c0836cec52eeed9e8385306737a22d39390dc3b914c2b76e0755"
+  },
+  "historical_contract_defect_runtime_evidence": {
+    "credit": "EVIDENCE_ONLY_NO_FINAL_SUCCESSOR_CREDIT",
+    "run_id": 33742627946,
+    "job_id": 100607801377,
+    "sequential_pass_count_before_failure": 10,
+    "first_failing_record": "PILOT_CHOICE",
+    "failure": "native stack object missing obj:utopia",
+    "artifact_id": 9888376535,
+    "artifact_sha256": "be42770259f33bdf86a604647ab8a8878dc9d03af16e3b73510109a5f23b6a0c"
+  },
+  "no_request_echo": {
+    "audit_path": "candidate-qualification/ws40-forge/WS40_NO_REQUEST_ECHO_AUDIT.json",
+    "source_hardening": "PASS_FAIL_CLOSED",
+    "complete_gate": "NOT_GRANTED",
+    "blocker_class": "FORGE_PROVIDER_DEFECT",
+    "blocker": "Forge qualification state-loader lacks an independently observable native proof of historical cast/payment/mode facts for an already materialized stack state; request echo is forbidden."
+  },
+  "immutable_contract_defect": {
+    "status": "SOURCE_PROVEN",
+    "failure_class": "CONTRACT_DEFECT",
+    "record": "PILOT_CHOICE",
+    "evidence_path": "candidate-qualification/ws40-forge/WS40_CONTRACT_DEFECT_PILOT_CHOICE.json",
+    "materialization_digest": "f255fb5e8aaa115c659442bd60d617a8ba5128b2df945e3b013c5c6c3a2f90ba",
+    "requested_state_digest": "4c1c8ab42c351281cd9f0d34a770ea65eaff7ab8c909ad57b989671842456044",
+    "summary": "Immutable v1.0.2 requests a completed targetless Utopia Sprawl Aura spell on the stack; the state is not legal under current Aura casting semantics and Forge correctly rejects the targetless SpellAbility before a native stack instance is pushed."
+  },
+  "draft_pull_requests": {
+    "forge": {
+      "repository": "moeendres-png/forge",
+      "number": 1,
+      "state": "open",
+      "draft": true,
+      "merged": false
+    },
+    "commander_lab": {
+      "repository": "moeendres-png/commander-playtest-lab",
+      "number": 154,
+      "state": "open",
+      "draft": true,
+      "merged": false
+    }
+  },
+  "gate_matrix": {
+    "forge_core_compile_tests_raw_bypass": "PASS",
+    "forge_native_ws40_matrix": "PASS_15_OF_15",
+    "forge_patch_reproducibility": "PASS",
+    "final_lock_provider_smoke": "PASS",
+    "final_lock_state_loader_compile": "PASS",
+    "immutable_denominator": "PASS_107_RECORDS",
+    "requested_digest_reconstruction": "PASS_107_OF_107",
+    "native_construction_equality": "FAIL_CLOSED_6_OF_107_SEQUENTIAL_PASS",
+    "no_request_echo_complete_gate": "NOT_GRANTED",
+    "fresh_native_runtime_107": "NOT_RUN_BLOCKED_BY_CONSTRUCTION_GATE",
+    "AF04_fresh_successor": "NOT_RUN",
+    "AF05_fresh_successor": "NOT_RUN",
+    "AF06_fresh_successor": "NOT_RUN",
+    "AF08_fresh_successor": "NOT_RUN",
+    "AF09_fresh_successor": "NOT_RUN",
+    "CARD_02_fresh_successor": "NOT_RUN",
+    "forge_successor_provider_qualified": false,
+    "architecture_freeze": false
+  },
+  "terminal_blockers": [
+    {
+      "failure_class": "FORGE_PROVIDER_DEFECT",
+      "scope": "qualification state-construction proof",
+      "description": "Native stack cast/payment/mode history is not independently observable in the current loader path. The hardened implementation fails closed rather than echoing requested state."
+    },
+    {
+      "failure_class": "CONTRACT_DEFECT",
+      "scope": "immutable WS-32 v1.0.2 successor contract",
+      "description": "PILOT_CHOICE requires a completed targetless Utopia Sprawl Aura on the stack. This cannot be repaired inside WS-40 without violating Rules Correctness or immutability."
+    }
+  ],
+  "terminal_flags": {
+    "WS40_WORKSTREAM_TERMINAL": true,
+    "TASK_COMPLETE": false,
+    "completion_status": "TERMINAL_BLOCKED",
+    "FORGE_SUCCESSOR_PROVIDER_QUALIFIED": false,
+    "ARCHITECTURE_FREEZE": false
+  },
+  "exact_next_action": "External successor-contract authority must repair and refreeze the contradictory PILOT_CHOICE record. Any future qualification workstream must first lock the new immutable commit/tree/schema/digests, reconstruct its exact denominator, and rerun native construction from record 1 with no historical successor PASS credit. Independently, if provider-proof engineering is explicitly reopened, implement Forge-native cast/payment/mode-history construction and observation without request echo."
+}

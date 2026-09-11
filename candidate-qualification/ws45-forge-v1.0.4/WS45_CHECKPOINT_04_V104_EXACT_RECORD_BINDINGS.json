@@ -1,0 +1,60 @@
+{
+  "schema_version": "commander-lab.ws45-v104-exact-record-bindings/1.0.0",
+  "status": "PASS",
+  "credit": {"construction":"0/107","behavior":"0/107","historical_runtime_credit_imported":0},
+  "source": {
+    "commander_lab_head":"41b8646fcd2f833f9055e4ceb5bee1c0ab79225a",
+    "commander_lab_tree":"9cce51496cf63c0711409af8c689d70d46d52b01",
+    "ws44_freeze_commit":"12940248497a8795991cbbd2eedef72945528cfe",
+    "ws44_freeze_tree":"cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "ws44_namespace_tree":"6579e119605b90248426a3121a47c487b2bb13cd",
+    "materialization_sha256":"9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35"
+  },
+  "workflow": {
+    "run_id":34058053874,
+    "conclusion":"success",
+    "artifact_id":9996574989,
+    "artifact_name":"ws45-exact-v104-provider-records-41b8646fcd2f833f9055e4ceb5bee1c0ab79225a",
+    "artifact_digest":"sha256:07dd81033c1eb63e5dcce9bfa06709f1ff968ddfddfcdd792ce9c8a722929fb0"
+  },
+  "records": {
+    "count":107,
+    "unique_fixture_ids":107,
+    "entry_modes":{"NATIVE_STATE_LOAD":100,"NATURAL_GAME_START":7},
+    "natural_game_start_fixture_ids":["PLAYER_COUNT_2P","PLAYER_COUNT_3P","PLAYER_COUNT_4P","PLAYER_COUNT_5P","PILOT_MULLIGAN","WS05-CMD-MULL-2","WS05-CMD-MULL-4"]
+  },
+  "referential_integrity": {
+    "target_bearing_records_audited":107,
+    "allowed_namespaces":["semantic_objects.semantic_id","players.player_id","stack_state.source_semantic_id"],
+    "unresolved_stack_or_combat_references":0,
+    "provider_alias_required":false,
+    "name_case_controller_owner_heuristic_required":false,
+    "micro_priority_target":"obj:micro-target",
+    "micro_stack_target":"obj:micro-target",
+    "micro_target_exact_referent_present":true,
+    "v103_obj_P2_bears_defect_repaired":true
+  },
+  "knowledge_schema": {
+    "top_level_fields":["channel_policy","viewer_states"],
+    "base_viewer_fields":["face_down_look_permissions","invalidation_conditions","known_library_ranges","known_object_identities","temporary_permissions","viewer"],
+    "af05_extended_viewer_fields":["channels_under_test","honey_sentinels","obligation","ordered_known_information","permitted_public_metadata","prohibited_metadata"],
+    "extended_viewer_record_count":20,
+    "channel_policy_variants":2,
+    "unique_knowledge_states":24,
+    "typed_native_projection_required":true,
+    "canonical_json_passthrough_forbidden":true
+  },
+  "randomness": {
+    "unique_rules_randomness_states":8,
+    "typed_native_projection_required":true,
+    "request_env_values_may_not_be_used_by_evidence_serializer":true
+  },
+  "construction_implications": [
+    "The repaired v1.0.4 target identities eliminate the WS40 immutable MICRO referential blocker.",
+    "No provider-side lineage/name/controller/owner alias is authorized or required for stack/combat targets.",
+    "The seven NATURAL_GAME_START records require independent native deck/commander/temporal/RNG observation; whole-record projection is forbidden.",
+    "knowledge_state must be materialized into typed native observation-policy state and reconstructed from that state; canonical JSON passthrough is not sufficient for strict no-request-echo."
+  ],
+  "terminal_blocker":null,
+  "next_action":"Complete typed Forge knowledge/randomness/history model, strict native card-ID binding, and adversarial fixed-native-state/request-perturbation gate before construction credit."
+}

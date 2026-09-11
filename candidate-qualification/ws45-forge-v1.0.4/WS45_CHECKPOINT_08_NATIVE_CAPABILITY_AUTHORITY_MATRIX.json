@@ -1,0 +1,132 @@
+{
+  "schema_version": "commander-lab.ws45-native-capability-authority-matrix/1.0.0",
+  "workstream": "WS-45",
+  "status": "SOURCE_ADJUDICATION_COMPLETE_NO_RUNTIME_CREDIT",
+  "source_lock": {
+    "forge_commit": "140075525379a0fa4bccaed34d1e3801fc3e9dc3",
+    "forge_tree": "fc9d03543807136f6c96271ff268979ed63239d7",
+    "ws44_contract": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "ws44_denominator": 107
+  },
+  "corrected_source_audit": {
+    "run_id": 34061668590,
+    "artifact_id": 9997665452,
+    "artifact_digest": "sha256:57a5cde35693d12a3fb16abb4d354a47db6f76a595ad5228dd1153123c201d3d",
+    "scanner": "python_re_fail_closed",
+    "java_source_file_count": 2139,
+    "grep_line_counts": {
+      "elimination": 108,
+      "extra_turn": 25,
+      "native_identity_state": 354,
+      "natural_lifecycle": 55,
+      "partner": 43,
+      "rng": 1077,
+      "visibility": 134,
+      "zone_move": 244
+    },
+    "credit": "NONE_SOURCE_AUDIT_ONLY"
+  },
+  "authority_matrix": {
+    "extra_turn_creation": {
+      "classification": "EXISTING_NATIVE_EXECUTION_PLUS_CORE_OBSERVER_REQUIRED",
+      "native_sources": [
+        "forge-game/src/main/java/forge/game/phase/PhaseHandler.java:addExtraTurn / extraTurns",
+        "forge-game/src/main/java/forge/game/ability/effects/AddTurnEffect.java:resolve"
+      ],
+      "finding": "Forge creates and consumes real ExtraTurn objects in the PhaseHandler queue. AddTurnEffect resolves the rules effect and calls addExtraTurn for the actual affected player.",
+      "remaining_requirement": "Observe source/recipient/creation order from the actual AddTurnEffect/PhaseHandler execution path; do not restore an ExtraTurnCreation record from the request."
+    },
+    "elimination_trigger": {
+      "classification": "EXISTING_NATIVE_RULES_STATE_PLUS_TRANSITION_OBSERVER_REQUIRED",
+      "native_sources": [
+        "forge-game/src/main/java/forge/game/player/Player.java:checkLoseCondition",
+        "forge-game/src/main/java/forge/game/player/Player.java:loseConditionMet",
+        "forge-game/src/main/java/forge/game/player/Player.java:hasLost / PlayerOutcome"
+      ],
+      "finding": "Native state-based loss checks call loseConditionMet with concrete GameLossReason values. Life <= 0 maps to LifeReachedZero; empty-library draw maps to Milled; poison and Commander damage are likewise native loss reasons. GameLoss replacement handling executes before the loss becomes effective.",
+      "remaining_requirement": "Record the actual effective loss transition after replacement handling, including native player identity and native GameLossReason; no request-derived elimination record."
+    },
+    "zone_move_event": {
+      "classification": "EXISTING_NATIVE_EVENT_AND_COMMANDER_RULE_PATHS_PLUS_PROVENANCE_OBSERVER_REQUIRED",
+      "native_sources": [
+        "forge-game/src/main/java/forge/game/GameAction.java:GameEventCardChangeZone",
+        "forge-game/src/main/java/forge/game/GameAction.java:stateBasedAction_Commander",
+        "forge-game/src/main/java/forge/game/player/Player.java:CommanderMoveReplacement replacement effect"
+      ],
+      "finding": "Forge emits a native GameEventCardChangeZone after zone movement. Commander graveyard/exile movement to command is implemented through CR 903.9a stateBasedAction_Commander, while hand/library movement uses the CR 903.9b replacement effect marked CommanderMoveReplacement$ True.",
+      "remaining_requirement": "Attach timing/provenance at the actual SBA or replacement execution site and correlate it with the native zone-change event/card ID. Inference from requested timing is forbidden."
+    },
+    "multiple_commander_relations": {
+      "classification": "EXISTING_NATIVE_SEMANTIC_API",
+      "native_sources": [
+        "forge-core/src/main/java/forge/card/CardRules.java:canBePartnerCommanders",
+        "forge-core/src/main/java/forge/card/CardRules.java:getPartnerWith / hasPartner"
+      ],
+      "finding": "Partner compatibility is derivable directly from loaded CardRules for the actual commander cards, including Partner with and generic Partner semantics.",
+      "remaining_requirement": "Normalize the relation from actual command-zone card IDs/CardRules. Remove request relation value from observation/history."
+    },
+    "knowledge_state": {
+      "classification": "EXISTING_NATIVE_VISIBILITY_AND_REVEAL_SURFACES_PLUS_CORE_KNOWLEDGE_OBSERVER_REQUIRED",
+      "native_sources": [
+        "forge-game/src/main/java/forge/game/card/Card.java:mayPlayerLook / mayLook state",
+        "forge-game/src/main/java/forge/game/card/CardView.java:canBeShownTo",
+        "forge-game/src/main/java/forge/game/GameAction.java:reveal / revealTo"
+      ],
+      "finding": "Forge has native visibility state and reveal execution. Card.mayPlayerLook and CardView.canBeShownTo govern actual information visibility; GameAction.reveal/revealTo dispatch actual reveal actions. AI-only mayPlayerLookAi is not admissible production evidence.",
+      "remaining_requirement": "Add a rules-side observer for actual reveal/look/search-permission knowledge transitions sufficient to reconstruct WS-44 knowledge_state. GUI/controller presentation alone and a canonical request JSON stored in qualification history are not evidence."
+    },
+    "rules_randomness": {
+      "classification": "EXISTING_NATIVE_GLOBAL_RNG_BOUNDARY_PLUS_DETERMINISTIC_TRACE_REQUIRED",
+      "native_sources": [
+        "forge-core/src/main/java/forge/util/MyRandom.java:getRandom / setRandom",
+        "native game call sites including GameAction shuffles, Zone shuffle, FlipCoinEffect, RollDiceEffect and other rules consumers"
+      ],
+      "finding": "Forge routes extensive rules randomness through MyRandom.getRandom() and permits replacement of the Random instance via setRandom(Random).",
+      "remaining_requirement": "Install a deterministic tracing Random at the actual MyRandom boundary and derive evidence from calls actually consumed by native rules execution. A request-restored seed/draw list without native consumption is forbidden."
+    },
+    "natural_game_start": {
+      "classification": "EXISTING_NATIVE_LIFECYCLE",
+      "native_sources": [
+        "forge-game/src/main/java/forge/game/Match.java:startGame",
+        "forge-game/src/main/java/forge/game/GameAction.java:startGame",
+        "forge-game/src/main/java/forge/game/mulligan/MulliganService.java:perform/runPlayerMulligans",
+        "forge-game/src/main/java/forge/game/phase/PhaseHandler.java:setupFirstTurn/startFirstTurn"
+      ],
+      "finding": "Forge owns actual start-game, starting-player and mulligan lifecycle. MulliganService invokes the controller's mulliganKeepHand callback and applies the Commander multiplayer free-mulligan rule natively.",
+      "remaining_requirement": "Emit natural snapshots only from the real lifecycle locations. Registration-time snapshots before Match/GameAction start are invalid."
+    },
+    "physical_card_identity": {
+      "classification": "EXISTING_NATIVE_ID_PROVIDER_BINDING_REPAIR_REQUIRED",
+      "native_sources": [
+        "forge-game/src/main/java/forge/game/GameEntity.java:getId",
+        "forge-game/src/main/java/forge/game/Game.java native card lookup/state",
+        "forge-game/src/main/java/forge/game/card/Card.java native object identity"
+      ],
+      "finding": "Forge supplies stable native game-object/card IDs suitable for duplicate-card binding.",
+      "remaining_requirement": "Remove first-still-unbound/name-order binding and carry explicit native Card IDs through construction and normalization."
+    },
+    "setup_validation": {
+      "classification": "DERIVE_FROM_EXECUTED_CHECKS_NOT_REQUEST_STATE",
+      "finding": "setup_validation is a qualification result, not rules state that may be copied from the requested materialization.",
+      "remaining_requirement": "Compute each setup_validation field from checks that actually executed against native state."
+    }
+  },
+  "forbidden_as_credit": [
+    "request -> RestoredQualificationHistory -> serializer round-trip",
+    "canonical request JSON as observed knowledge state",
+    "request seed/draws reported without actual native RNG consumption",
+    "requested Commander relation copied to output",
+    "requested zone timing copied or inferred without the native SBA/replacement path",
+    "registration-time NATURAL_GAME_START snapshot before native lifecycle",
+    "first-still-unbound duplicate-card binding",
+    "AI-only hidden-information visibility helper"
+  ],
+  "qualification_credit": {
+    "strict_no_request_echo": "NOT_GRANTED",
+    "construction": "0/107",
+    "behavior": "0/107",
+    "historical_successor_runtime_credit_imported": 0,
+    "forge_successor_provider_qualified": false
+  },
+  "next_action": "Implement the minimum Forge-native observation/instrumentation surfaces on the isolated WS45 Forge branch, compile them, then bind the Commander-Lab provider to those surfaces and execute adversarial fixed-native-state/request-perturbation tests before any construction credit."
+}

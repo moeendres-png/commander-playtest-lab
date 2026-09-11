@@ -1,0 +1,72 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 25,
+  "workstream": "WS-45",
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "commander_lab_head": "62344840783ccdefbf67727e10303dcbf8d45c14",
+  "commander_lab_tree": "9289aaf68d20a270bf6ef78cb4174df2831a8d89",
+  "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+  "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+  "ws44": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "denominator": 107
+  },
+  "strict_no_request_echo": "PASS",
+  "historical_successor_credit_imported": 0,
+  "construction_credit": "0/107",
+  "behavior_credit": "0/107",
+  "attempt": {
+    "workflow_run_id": 34177113084,
+    "job_id": 101908610609,
+    "artifact_id": 10037655743,
+    "artifact_name": "ws45-v104-fresh-construction-107-62344840783ccdefbf67727e10303dcbf8d45c14",
+    "artifact_sha256": "786ecceeaa6911d601db95e6c87e782a1d7e1e57e8d5a26536c7268dc77a0992",
+    "records_runtime_equal_before_failure": 15,
+    "records_runtime_equal_fixture_ids": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET",
+      "PILOT_CHOOSE_OBJECT",
+      "PILOT_TARGET_AMOUNT",
+      "PILOT_MULLIGAN",
+      "PILOT_CHOOSE_USE",
+      "PILOT_CHOICE",
+      "PILOT_PILE",
+      "PILOT_MANA_PAYMENT",
+      "PILOT_ANNOUNCE_X",
+      "PILOT_MULTI_AMOUNT"
+    ],
+    "failure_index": 16,
+    "failure_fixture_id": "PILOT_REPLACEMENT_EFFECT",
+    "failure_entry_mode": "NATIVE_STATE_LOAD",
+    "mismatch": {
+      "dimension": "stack_state.targets[0]",
+      "source_semantic_id": "obj:pilot-unsummon",
+      "requested_target_semantic_id": "obj:p1-commander-bf",
+      "normalized_native_target_semantic_id": "obj:P1-commander",
+      "target_card_identity": "Rograkh, Son of Rohgahh",
+      "target_commander_id": "cmd:P1-A",
+      "target_card_lineage_id": "line:obj:P1-commander"
+    }
+  },
+  "finding": "The revealed-state repair is runtime-proven through PILOT_PILE and records 13-15. At PILOT_REPLACEMENT_EFFECT the native stack observer identifies the correct P1 commander card but projects the target through a stale/alternate semantic identity alias obj:P1-commander instead of the exact battlefield semantic object binding obj:p1-commander-bf. All other requested/native construction dimensions shown by the failure are equal. This is an exact native observation identity-projection blocker, not permission to canonicalize aliases in the comparator.",
+  "prohibited_repairs": [
+    "card-name matching",
+    "zone-order matching",
+    "first candidate",
+    "random candidate",
+    "Python semantic alias canonicalization",
+    "request-state echo"
+  ],
+  "credit_policy": "No partial construction credit. Fifteen runtime-equal records are evidence only; construction remains 0/107 until one fresh exact 107-record run passes every record.",
+  "terminal": false,
+  "next_action": "Audit the generated Forge state-loader and stack-observer identity path and bind every observed target to the exact final native Card object-to-semantic-id relationship established during deterministic state materialization; fail closed on zero or multiple bindings; then rerun all 107 from record 1."
+}

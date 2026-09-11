@@ -1,0 +1,65 @@
+{
+  "schema_version": "commander-lab.ws45-checkpoint/1.0.0",
+  "checkpoint": 24,
+  "workstream": "WS-45",
+  "status": "BLOCKED_REMEDIABLE",
+  "gate": "FRESH_CONSTRUCTION_107",
+  "commander_lab_head": "be6b35cb1f67b96ec6499d81ab5d428a32d744a6",
+  "commander_lab_tree": "fed4b07a98511df21a8db7396afafe589941cfe9",
+  "forge_commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+  "forge_tree": "40fc8f29ce4de31a964972461db2b48b4221e07f",
+  "ws44": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "denominator": 107
+  },
+  "strict_no_request_echo": "PASS",
+  "historical_successor_credit_imported": 0,
+  "construction_credit": "0/107",
+  "behavior_credit": "0/107",
+  "attempt": {
+    "workflow_run_id": 34173841262,
+    "job_id": 101899229080,
+    "artifact_id": 10036707217,
+    "artifact_sha256": "ec3c98b9377ddf241143658259c1ac4e3bb6ffd04c72550e04349799a25ffb83",
+    "artifact_name": "ws45-v104-fresh-construction-107-be6b35cb1f67b96ec6499d81ab5d428a32d744a6",
+    "records_runtime_equal_before_failure": 11,
+    "records_runtime_equal_fixture_ids": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET",
+      "PILOT_CHOOSE_OBJECT",
+      "PILOT_TARGET_AMOUNT",
+      "PILOT_MULLIGAN",
+      "PILOT_CHOOSE_USE",
+      "PILOT_CHOICE"
+    ],
+    "failure_index": 12,
+    "failure_fixture_id": "PILOT_PILE",
+    "failure_entry_mode": "NATIVE_STATE_LOAD",
+    "mismatch": {
+      "dimension": "semantic_objects.zone",
+      "semantic_ids": [
+        "obj:fof-0",
+        "obj:fof-1",
+        "obj:fof-2",
+        "obj:fof-3",
+        "obj:fof-4"
+      ],
+      "requested_zone": "revealed",
+      "normalized_zone": "library",
+      "zone_positions_equal": true,
+      "card_identity_owner_controller_equal": true
+    }
+  },
+  "finding": "Forge intentionally represents the provider-neutral transient revealed state as cards physically remaining in Library plus native reveal state tied to the actual RememberRevealed stack source. The already-applied Java half of scripts/ws40_v103_native_revealed_state.py constructs this native state and fail-closes unless isNativelyRevealed(game, card) is true. Its raw native observation emits native_revealed. The WS45 v1.0.4 construction normalizer currently projects raw zone directly and therefore loses the provider-neutral revealed semantic. This is a bounded observation-normalization integration defect, not a rules, identity, or no-request-echo regression.",
+  "credit_policy": "No partial construction credit. Eleven exact runtime-equal records are evidence only; construction remains 0/107 until one fresh exact 107-record run passes every record.",
+  "terminal": false,
+  "next_action": "Patch only the WS45 construction normalizer so zone is projected as revealed iff raw native_revealed is true, never from requested zone; retain raw native zone otherwise; then rerun all 107 from record 1."
+}
