@@ -1,44 +1,38 @@
 #!/usr/bin/env python3
-"""WS62 successor concession-transport provider overlay v1 (WS62-owned, qualification-only).
+"""WS62 successor provider overlay v2 (WS62-owned, qualification-only).
 
 Chained patch applied AFTER candidate-qualification/ws55-forge-mandatory-decision-breadth/
 ws55_provider_overlay.py onto the ephemeral generated GPL-side provider
 (Ws23ForgeVerticalProvider.java). Never touches pinned Forge source, shared
 scripts, WS48/WS53/WS55-owned files, or another workstream's files.
 
+Part 1 — concession transport (see v1):
 Rules-Core authority preserved: concession is engine-owned (CR 104.3a at any
-time, not priority-gated; CR 800.4 cleanup via GameAction.concede). Provider
-may transport ONLY as direct conditional delegation of the native seam:
+time, not priority-gated; CR 800.4 cleanup via GameAction concede path).
+Provider may transport ONLY as direct conditional delegation of the native seam:
+  PlayerController.canConcede() -> external decision -> controller seam
+Forbidden: unconditional standing pseudo-option, orchestration direct call,
+priority gating, heuristic legality, fabricated options, first/random/default,
+AI/GUI fallback, silent skip, manual outcome/target injection,
+requested-option filtering.
 
-  PlayerController.canConcede() -> external decision -> PlayerController.concede()
-
-Forbidden and verified absent here and in the output:
-- unconditional standing CONCEDE pseudo-option (this method fails closed when
-  canConcede() is false; it never appends CONCEDE to engine-enumerated ACTs)
-- orchestration direct Player.concede() (submission calls concede(), the
-  controller/native seam, never player.concede())
-- priority/phase gating (no phase check; canConcede() itself is not gated)
-- heuristic legality, fabricated options, first/random/default, AI/GUI fallback,
-  silent skip, manual outcome/target injection, requested-option filtering
-
-Method added to Ws23Controller (inner class extending PlayerController):
-
-  public boolean ws62RequestConcession()
-
-Behavior:
-- milestone ws62Concession:ENTERED (diagnostic NATIVE_EVENT)
-- boolean legal = canConcede() (native authority consulted first)
-- if (!legal) throw failClosed("ws62Concession:NOT_LEGAL")
-- labels: WS62:CONCEDE:authority=PlayerController.canConcede:true:player=<pid>
-  plus WS62:CONCEDE:opt=DECLINE (decline performs no engine call)
-- broker kind "concession" (new kind; harness must answer by exact identity)
-- idx 0 -> concede() (native seam) -> true; idx 1 -> recordAutomatic declined
-  -> false; else failClosed STALE (ws48Choose already range-checks)
-
-The engine never calls this method by itself (concession is an action, not a
-callback). Harness/test invokes it explicitly when a concession probe is due.
-2P/3P cleanup remains engine-owned (GameAction.concede ->
-checkGameOverCondition -> Game.onPlayerLost).
+Part 2 — stack-spell target binding (WS62 fix for C01 continuation):
+Human parity (forge-gui TargetSelection.chooseCardFromStack): for Stack-zone
+targets the engine-authorized choice is the SpellAbility on the stack, not the
+host Card proxy. The WS59 successor makes the host Card pass canTarget via a
+general proxy exception, but TargetChoices.add(Card) does not target the stack
+spell, so a FoW-style counter fizzles (Elves survives on battlefield). This
+patch binds the authoritative SpellAbility while keeping the harness-visible
+label on the host Card (MINTED-xxx stable identity):
+- enumerate exactly getAllCandidates + canTarget (engine authority, no filter)
+- for a Stack-zone host Card with TargetType: resolve the single authoritative
+  stack SA via game.getStack() + canTargetSpellAbility + host-ID match (fail
+  closed when zero/multiple; never fabricate)
+- verify canTarget(SA) (proxy-unfolded engine authority) and not already targeted
+- store the SA as the native option (cands holds the SA), label the host Card
+- milestone ws62Target:STACK_SA_BOUND (diagnostic parity with Human path)
+Non-stack candidates keep the exact WS48/WS55 path (Card/Player binding).
+No provider color filtering, cost solving, manual payment, or outcome injection.
 """
 from __future__ import annotations
 
@@ -92,6 +86,47 @@ CONCESSION_METHOD = """        RuntimeException failClosed(String method) {
             return true;
         }"""
 
+TARGET_STACK_OLD = """                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {
+                    if (!(cand instanceof GameObject)) continue;
+                    if (!currentAbility.canTarget((GameObject) cand)) continue;
+                    if (currentAbility.getTargets().contains(cand)) continue;
+                    cands.add(cand);
+                    labels.add("WS48:TARGET:tgt=" + ws48Enc(ws48EntityRef(cand)));
+                }"""
+
+TARGET_STACK_NEW = """                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {
+                    // WS62 stack-spell proxy: bind the authoritative SpellAbility (Human
+                    // chooseCardFromStack parity), label the host Card for harness identity.
+                    if (cand instanceof Card ws62Card
+                            && ws62Card.getZone() != null
+                            && ws62Card.getZone().is(ZoneType.Stack)
+                            && currentAbility.hasParam("TargetType")) {
+                        SpellAbility ws62sa = null;
+                        int ws62matches = 0;
+                        for (SpellAbilityStackInstance ws62si : getGame().getStack()) {
+                            SpellAbility ws62stackSA = ws62si.getSpellAbility();
+                            if (ws62stackSA == null || ws62stackSA.getHostCard() == null) continue;
+                            if (ws62stackSA.getHostCard().getId() != ws62Card.getId()
+                                    && !ws62stackSA.getHostCard().equals(ws62Card)) continue;
+                            if (!currentAbility.canTargetSpellAbility(ws62stackSA)) continue;
+                            ws62sa = ws62stackSA;
+                            ws62matches++;
+                        }
+                        if (ws62sa == null || ws62matches != 1) continue;
+                        if (!currentAbility.canTarget(ws62sa)) continue;
+                        if (currentAbility.getTargets().contains(ws62sa)) continue;
+                        cands.add(ws62sa);
+                        labels.add("WS48:TARGET:tgt=" + ws48Enc(ws48EntityRef(ws62Card)));
+                        ws48Milestone("ws62Target:STACK_SA_BOUND");
+                        continue;
+                    }
+                    if (!(cand instanceof GameObject)) continue;
+                    if (!currentAbility.canTarget((GameObject) cand)) continue;
+                    if (currentAbility.getTargets().contains(cand)) continue;
+                    cands.add(cand);
+                    labels.add("WS48:TARGET:tgt=" + ws48Enc(ws48EntityRef(cand)));
+                }"""
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -118,11 +153,13 @@ def main() -> int:
     if "Player.concede" in p or "player.concede()" in p:
         raise SystemExit("WS62_OVERLAY_INPUT_HAS_DIRECT_CONCEDE")
     p = once(p, FAILCLOSED_ANCHOR, CONCESSION_METHOD, "concession transport")
+    p = once(p, TARGET_STACK_OLD, TARGET_STACK_NEW, "stack-spell SA binding")
     args.provider.write_text(p, encoding="utf-8")
     required = ["ws62RequestConcession", "WS62:CONCEDE:authority=PlayerController.canConcede:true",
                 "WS62:CONCEDE:opt=DECLINE", 'ws48Choose("concession"',
                 "ws62Concession:ENTERED", "ws62Concession:NOT_LEGAL",
-                "ws62Concession:DECLINED"]
+                "ws62Concession:DECLINED",
+                "ws62Target:STACK_SA_BOUND", "canTargetSpellAbility(ws62stackSA)"]
     missing = [x for x in required if x not in p]
     if missing:
         raise SystemExit(f"WS62_OVERLAY_INCOMPLETE:{missing}")
@@ -134,6 +171,13 @@ def main() -> int:
     # No unconditional standing option: CONCEDE appears only inside ws62RequestConcession.
     if p.count("WS62:CONCEDE") != 2:
         raise SystemExit(f"WS62_OVERLAY_LABEL_COUNT:{p.count('WS62:CONCEDE')}")
+    if p.count("ws62Target:STACK_SA_BOUND") != 1:
+        raise SystemExit("WS62_OVERLAY_STACK_MILESTONE_COUNT")
+    # Stack binding must not fabricate: exactly one authoritative SA resolution path.
+    if p.count("canTargetSpellAbility(ws62stackSA)") != 1:
+        raise SystemExit("WS62_OVERLAY_STACK_AUTHORITY_COUNT")
+    print("WS62_PROVIDER_OVERLAY_V2=PASS")
+    # Back-compat: v1 gate string still emitted for build-script greps that expect it.
     print("WS62_CONCESSION_TRANSPORT_OVERLAY_V1=PASS")
 
 
