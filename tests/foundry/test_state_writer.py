@@ -520,3 +520,219 @@ def test_bootstrap_init_state_uses_canonical_writer(tmp_path: Path) -> None:
     target = tmp_path / "STATE.yaml"
     bootstrap_mod.state_mod.write_state(str(target), doc, workdir=str(wt))
     assert state_mod.validate(yaml.safe_load(target.read_text(encoding="utf-8"))) == []
+
+
+# --- PR #178 review remediation: P1 (validation credit requires workdir) ---
+
+
+def test_p1_api_write_state_nonnull_without_workdir_rejected(history: Path, tmp_path: Path) -> None:
+    """Gate 1: even ancestry-valid credit without workdir fails closed (API)."""
+    base, validated, live = _shas(history)
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc(base, live, None))
+    with pytest.raises(state_mod.StateWriteError, match="no workdir"):
+        state_mod.write_state(str(path), _doc(base, live, validated))
+    assert path.read_bytes() == before
+
+
+def test_p1_api_update_state_set_without_workdir_rejected(history: Path, tmp_path: Path) -> None:
+    """Gate 1b: update_state setting credit without workdir fails closed."""
+    base, validated, live = _shas(history)
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc(base, live, None))
+    with pytest.raises(state_mod.StateWriteError, match="no workdir"):
+        state_mod.update_state(str(path), {"status": "WAITING"}, validated_head=validated)
+    assert path.read_bytes() == before
+
+
+def test_p1_api_update_state_preserve_without_workdir_rejected(
+    history: Path, tmp_path: Path
+) -> None:
+    """Preserving stored non-null credit without workdir fails closed (API)."""
+    base, validated, live = _shas(history)
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc(base, live, validated))
+    with pytest.raises(state_mod.StateWriteError, match="no workdir"):
+        state_mod.update_state(str(path), {"status": "WAITING"})
+    assert path.read_bytes() == before
+
+
+def test_p1_api_clear_without_workdir_allowed(history: Path, tmp_path: Path) -> None:
+    """Clearing credit to null remains possible without a workdir."""
+    base, validated, live = _shas(history)
+    path = tmp_path / "S.yaml"
+    _seed(path, _doc(base, live, validated))
+    state_mod.update_state(str(path), {"status": "WAITING"}, validated_head=None)
+    reread = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert reread["validated_head"] is None
+    assert reread["status"] == "WAITING"
+
+
+def test_p1_cli_set_patch_without_workdir_rejected(history: Path, tmp_path: Path) -> None:
+    """Gate 2: CLI --set-validated-head + patch without --workdir rejects."""
+    base, validated, live = _shas(history)
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc(base, live, None))
+    patch = tmp_path / "patch.json"
+    patch.write_text(json.dumps({"status": "WAITING"}), encoding="utf-8")
+    rc = state_mod.main(
+        [
+            "--state",
+            str(path),
+            "--patch-file",
+            str(patch),
+            "--set-validated-head",
+            validated,
+        ]
+    )
+    assert rc != 0
+    assert path.read_bytes() == before
+
+
+def test_p1_cli_write_from_nonnull_without_workdir_rejected(history: Path, tmp_path: Path) -> None:
+    """Gate 3: --write-from carrying non-null credit without --workdir rejects."""
+    base, validated, live = _shas(history)
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc(base, live, None))
+    incoming = tmp_path / "incoming.json"
+    incoming.write_text(json.dumps(_doc(base, live, validated)), encoding="utf-8")
+    assert state_mod.main(["--state", str(path), "--write-from", str(incoming)]) != 0
+    assert path.read_bytes() == before
+
+
+def test_p1_cli_write_from_nonnull_with_workdir_allowed(history: Path, tmp_path: Path) -> None:
+    """Gate 12b: same --write-from with --workdir and valid ancestry succeeds."""
+    base, validated, live = _shas(history)
+    path = tmp_path / "S.yaml"
+    _seed(path, _doc(base, live, None))
+    incoming = tmp_path / "incoming.json"
+    incoming.write_text(json.dumps(_doc(base, live, validated)), encoding="utf-8")
+    assert (
+        state_mod.main(
+            ["--state", str(path), "--write-from", str(incoming), "--workdir", str(history)]
+        )
+        == 0
+    )
+    assert yaml.safe_load(path.read_text(encoding="utf-8"))["validated_head"] == validated
+
+
+def test_p1_cli_write_from_null_without_workdir_allowed(tmp_path: Path) -> None:
+    """Null credit stays valid without a workdir (bootstrap/migration shape)."""
+    path = tmp_path / "S.yaml"
+    _seed(path, _doc("a" * 40, "b" * 40, None))
+    incoming = tmp_path / "incoming.json"
+    incoming.write_text(
+        json.dumps(_doc("a" * 40, "b" * 40, None) | {"status": "WAITING"}),
+        encoding="utf-8",
+    )
+    assert state_mod.main(["--state", str(path), "--write-from", str(incoming)]) == 0
+    reread = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert reread["validated_head"] is None
+    assert reread["status"] == "WAITING"
+
+
+def test_p1_cli_rewritten_validated_head_rejected(history: Path, tmp_path: Path) -> None:
+    """Gate 5 (CLI): credit not ancestor of live HEAD rejects, bytes preserved."""
+    base, validated, _live = _shas(history)
+    _git(["reset", "--hard", "HEAD~2"], history)
+    live = _git(["rev-parse", "HEAD"], history)
+    assert live == base
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc(base, live, None))
+    patch = tmp_path / "patch.json"
+    patch.write_text(json.dumps({"status": "WAITING"}), encoding="utf-8")
+    rc = state_mod.main(
+        [
+            "--state",
+            str(path),
+            "--patch-file",
+            str(patch),
+            "--set-validated-head",
+            validated,
+            "--workdir",
+            str(history),
+        ]
+    )
+    assert rc != 0
+    assert path.read_bytes() == before
+
+
+# --- PR #178 review remediation: P2 (no silent write-intent no-op) ---
+
+
+def test_p2_set_without_write_mode_rejected(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Gate 6: --set-validated-head without a write mode rejects (no STATE_OK)."""
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc("a" * 40, "b" * 40, None))
+    rc = state_mod.main(["--state", str(path), "--set-validated-head", "a" * 40])
+    assert rc != 0
+    assert path.read_bytes() == before
+    captured = capsys.readouterr()
+    assert "STATE_REJECT" in captured.err
+    assert "STATE_OK" not in captured.out
+
+
+def test_p2_clear_without_write_mode_rejected(tmp_path: Path) -> None:
+    """Gate 7: --clear-validated-head without a write mode rejects."""
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc("a" * 40, "b" * 40, None))
+    assert state_mod.main(["--state", str(path), "--clear-validated-head"]) != 0
+    assert path.read_bytes() == before
+
+
+def test_p2_stamp_without_write_mode_rejected(tmp_path: Path) -> None:
+    """Gate 8: --stamp-head without a write mode rejects."""
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc("a" * 40, "b" * 40, None))
+    assert state_mod.main(["--state", str(path), "--stamp-head"]) != 0
+    assert path.read_bytes() == before
+
+
+def test_p2_allow_without_write_mode_rejected(tmp_path: Path) -> None:
+    """Gate 9: meaningless --allow-identity-change without a write op rejects."""
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc("a" * 40, "b" * 40, None))
+    assert state_mod.main(["--state", str(path), "--allow-identity-change"]) != 0
+    assert path.read_bytes() == before
+
+
+def test_p2_in_place_without_migrate_rejected(tmp_path: Path) -> None:
+    """Other write-only flag: --in-place without --migrate rejects."""
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc("a" * 40, "b" * 40, None))
+    assert state_mod.main(["--state", str(path), "--in-place"]) != 0
+    assert path.read_bytes() == before
+
+
+def test_p2_migrate_with_patch_file_rejected(tmp_path: Path) -> None:
+    """Conflicting modes: --migrate with --patch-file rejects (no silent drop)."""
+    path = tmp_path / "S.yaml"
+    before = _seed(path, _doc("a" * 40, "b" * 40, None))
+    patch = tmp_path / "patch.json"
+    patch.write_text(json.dumps({"status": "WAITING"}), encoding="utf-8")
+    assert state_mod.main(["--state", str(path), "--migrate", "--patch-file", str(patch)]) != 0
+    assert path.read_bytes() == before
+
+
+def test_p2_read_only_remains_ok(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """Gate 13: ordinary read-only validation stays STATE_OK."""
+    path = tmp_path / "S.yaml"
+    _seed(path, _doc("a" * 40, "b" * 40, None))
+    assert state_mod.main(["--state", str(path)]) == 0
+    captured = capsys.readouterr()
+    assert "STATE_OK" in captured.out
+
+
+def test_p2_clear_with_patch_without_workdir_allowed(tmp_path: Path) -> None:
+    """Clearing via a real write mode stays green without a workdir (gate 11)."""
+    path = tmp_path / "S.yaml"
+    _seed(path, _doc("a" * 40, "b" * 40, None))
+    patch = tmp_path / "patch.json"
+    patch.write_text(json.dumps({"status": "WAITING"}), encoding="utf-8")
+    assert (
+        state_mod.main(["--state", str(path), "--patch-file", str(patch), "--clear-validated-head"])
+        == 0
+    )
+    assert yaml.safe_load(path.read_text(encoding="utf-8"))["validated_head"] is None

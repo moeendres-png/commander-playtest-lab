@@ -347,7 +347,16 @@ def write_state(
     on-disk file is touched. validated_head is taken exactly as given and
     never auto-promoted. No enum normalization exists: invalid vocabulary
     (e.g. candidate-prefixed failure classes) is rejected, never coerced.
+
+    Validation-credit invariant (PR #178 P1): NO canonical normal writer path
+    may persist non-null validated_head without a workdir and proven
+    ancestry. A non-null validated_head with workdir=None fails closed here,
+    at the shared API boundary, so write_state and update_state (which
+    delegates here) are both covered -- including update_state preserving a
+    previously stored non-null credit without a workdir. Null stays honest
+    and needs no workdir; clearing to null stays possible without a workdir.
     """
+
     if not isinstance(doc, dict):
         raise StateWriteError("state document must be a mapping")
     errors = validate(doc)
@@ -369,7 +378,14 @@ def write_state(
                     f"(existing {existing.get(field)!r} vs proposed {doc.get(field)!r}); "
                     "pass allow_identity_change=True as an explicit rebind to change it"
                 )
-    if workdir is not None and doc.get("validated_head") is not None:
+    if doc.get("validated_head") is not None:
+        if workdir is None:
+            raise StateWriteError(
+                "validated_head is non-null but no workdir was supplied: "
+                "validation-credit ancestry cannot be proven without live Git; "
+                "pass workdir=... (or --workdir) to ancestry-check the claim, "
+                "or clear validation credit to null"
+            )
         problems = _check_proposed_ancestry(doc, workdir)
         if problems:
             raise StateWriteError(problems[0])
@@ -590,9 +606,27 @@ def _main_write(args: argparse.Namespace) -> int:
     if args.stamp_head and (not args.patch_file or not args.workdir):
         print("STATE_REJECT: --stamp-head requires --patch-file and --workdir", file=sys.stderr)
         return 1
+    # P1 (PR #178): claiming non-null validation credit without a workdir
+    # fails closed at the CLI as well as the shared API boundary. Clearing to
+    # null stays possible without a workdir; the preserved-credit case is
+    # enforced inside write_state/update_state.
+    if args.set_validated_head is not None and not args.workdir:
+        print(
+            "STATE_REJECT: --set-validated-head requires --workdir for "
+            "ancestry-checked validation credit",
+            file=sys.stderr,
+        )
+        return 1
     try:
         if args.write_from:
             doc = _load_structured(args.write_from, "input")
+            if isinstance(doc, dict) and doc.get("validated_head") is not None and not args.workdir:
+                print(
+                    "STATE_REJECT: --write-from document carries non-null "
+                    "validated_head without --workdir (ancestry cannot be proven)",
+                    file=sys.stderr,
+                )
+                return 1
             write_state(
                 args.state,
                 doc,
@@ -677,7 +711,8 @@ def main(argv: list[str] | None = None) -> int:
         "--set-validated-head",
         default=None,
         metavar="SHA",
-        help="Explicit validation-credit claim for update mode (requires --patch-file).",
+        help="Explicit validation-credit claim for update mode "
+        "(requires --patch-file and --workdir for ancestry proof).",
     )
     parser.add_argument(
         "--clear-validated-head",
@@ -693,9 +728,38 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--allow-identity-change",
         action="store_true",
-        help="Explicit rebind: permit source-lock identity field changes.",
+        help="Explicit rebind: permit source-lock identity field changes "
+        "(requires --write-from or --patch-file).",
     )
     args = parser.parse_args(argv)
+    # P2 (PR #178): any write-intent flag without a valid write mode must
+    # return nonzero STATE_REJECT and must never silently fall through to
+    # read-only validation (which would return STATE_OK). Valid write modes
+    # are --write-from / --patch-file (structured writes) and --migrate
+    # --in-place (migration write). Plain --migrate prints and stays read-only.
+    has_structured_write = bool(args.write_from or args.patch_file)
+    if args.in_place and not args.migrate:
+        print("STATE_REJECT: --in-place requires --migrate", file=sys.stderr)
+        return 1
+    if args.migrate and has_structured_write:
+        print(
+            "STATE_REJECT: --migrate is mutually exclusive with --write-from/--patch-file",
+            file=sys.stderr,
+        )
+        return 1
+    if (
+        args.set_validated_head is not None
+        or args.clear_validated_head
+        or args.stamp_head
+        or args.allow_identity_change
+    ) and not has_structured_write:
+        print(
+            "STATE_REJECT: --set-validated-head/--clear-validated-head/"
+            "--stamp-head/--allow-identity-change require --write-from or "
+            "--patch-file (refusing silent no-op)",
+            file=sys.stderr,
+        )
+        return 1
     if args.write_from or args.patch_file:
         return _main_write(args)
     try:
