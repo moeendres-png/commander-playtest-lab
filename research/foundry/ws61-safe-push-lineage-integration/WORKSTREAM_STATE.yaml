@@ -1,0 +1,44 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws61-foundry-safe-push-lineage-integration
+branch: ws61/foundry-safe-push-lineage-integration-20260911
+audit_base_sha: 55fd87f99462f9b30225f9ac8587e8a6abf75e88
+audit_base_tree: 4e1d594fefb7365d1c9117061a86f63ffb595033
+state_written_against_head: 55fd87f99462f9b30225f9ac8587e8a6abf75e88
+validated_head: null
+objective: WS61 integrate previously qualified WS57 safe-push source-lineage support
+  onto current post-WS58R main without importing stale workstream state or regressing
+  the hardened canonical state writer.
+in_scope:
+- tools/foundry/safe_push.py lineage-anchor semantics
+- tests/foundry/test_safe_push.py
+- required Foundry docs
+- WS61 integration evidence
+- compatibility with current WS58R state writer
+out_of_scope:
+- .foundry/WORKSTREAM_STATE.yaml replacement from WS57
+- engine/provider changes
+- candidate qualification
+- behavior credit
+dependencies:
+- WS57 remote terminal 9af19e627fa1b02fcf3ed94a2dfccbb51798ae9c
+- main 55fd87f99462f9b30225f9ac8587e8a6abf75e88
+hard_gates:
+- no wholesale stale-state cherry-pick
+- existing-target fast-forward semantics unchanged
+- new non-main branch creation requires exact named remote source branch
+- source ref strict validation
+- no fetch inside safe_push
+- WS58R state-writer invariants remain green
+- full Foundry regression green
+forbidden_shortcuts:
+- ordinary push
+- force push
+- --no-verify
+- manual FOUNDRY_SAFE_PUSH
+- foreign .foundry state replacement
+ownership: WS61-FOUNDRY-SAFE-PUSH-LINEAGE-INTEGRATION
+status: ACTIVE
+exact_next_action: Impact-adjudicate WS57 against current main before porting code.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
