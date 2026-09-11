@@ -241,10 +241,15 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError as exc:
             print(f"BOOTSTRAP_FAIL: {exc}", file=sys.stderr)
             return 1
-        import yaml
-
-        Path(resolved_state).parent.mkdir(parents=True, exist_ok=True)
-        Path(resolved_state).write_text(yaml.safe_dump(doc), encoding="utf-8")
+        try:
+            state_mod.write_state(
+                resolved_state,
+                doc,
+                workdir=os.path.realpath(os.path.abspath(args.worktree)),
+            )
+        except state_mod.StateWriteError as exc:
+            print(f"BOOTSTRAP_FAIL: cannot init state: {exc}", file=sys.stderr)
+            return 1
         print(f"BOOTSTRAP_NOTE: initialized minimal state at {resolved_state}")
     result = bootstrap(
         args.worktree,

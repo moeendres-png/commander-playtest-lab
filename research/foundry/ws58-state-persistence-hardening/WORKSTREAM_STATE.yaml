@@ -1,0 +1,39 @@
+audit_base_sha: e207286200854bf9bff557e67bf3b37b5e428392
+audit_base_tree: 6e89a980bf0a7e40273ba11b108fe3febed39d47
+branch: ws58/foundry-state-persistence-hardening-20260911
+exact_next_action: Write tests/foundry/test_state_writer.py (positive + adversarial
+  negatives, end-to-end CLI) and run impacted Foundry suites.
+in_scope:
+- canonical writer in tools/foundry/state.py (write_state/update_state/atomic_write_text/dump_state)
+- bootstrap --init-state integration on the shared primitive
+- migrate --in-place validate-before-replace + atomic hardening (semantics preserved)
+- adversarial negative + positive tests (tests/foundry/test_state_writer.py)
+- operator guidance in docs/foundry-execution + incident matrix
+- research evidence under research/foundry/ws58-state-persistence-hardening/
+objective: 'WS58 Foundry state-persistence hardening: canonical structured state-write/update
+  path (validate-before-replace, atomic persistence, immutable source-lock identity,
+  ancestry-checked validation credit) so malformed YAML and schema-invalid state become
+  unwritable through the normal API. No engine/qualification/behavior/provider changes.'
+out_of_scope:
+- WS57 safe_push lineage semantics
+- candidate engines/providers/qualification
+- old workstream state repair
+- remote pushes, PR creation, main merge, behavior execution
+ownership: WS58 session (branch ws58/foundry-state-persistence-hardening-20260911)
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+state_written_against_head: e207286200854bf9bff557e67bf3b37b5e428392
+status: ACTIVE
+validated_head: null
+worktree: /home/moeen/code/ws58-foundry-state-persistence-hardening
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+technical_decisions:
+- 'Extended tools/foundry/state.py instead of a new module: validate/write authority
+  stays in one file (no drift surface).'
+- tools/foundry carries its own small atomic primitive; src/commander_lab/storage/atomic.py
+  is layer-separated precedent, not a dependency (stdlib+PyYAML-only tools).
+- Directory fsync best-effort (durability hint); os.replace atomicity is the correctness
+  guarantee.
+- 'Branch-root .foundry/WORKSTREAM_STATE.yaml belongs to WS-A1D: left untouched; WS58
+  checkpoints live in the research state file.'
