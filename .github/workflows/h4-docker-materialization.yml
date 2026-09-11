@@ -17,11 +17,12 @@ name: H4 Docker Materialization
 # PASS/FAIL/PARTIAL/UNKNOWN stays a Coordinator adjudication over the
 # uploaded verdicts; this lane fails closed (non-zero) on any mismatch.
 #
-# Triggering: pull_request runs evaluate the workflow file from the PR merge
-# commit, so opening or updating a PR that touches the paths below executes
-# this lane. workflow_dispatch covers manual runs (post-merge or branch
-# runs via `gh workflow run --ref <branch>`); the GitHub UI lists only
-# default-branch workflows.
+# Triggering: `pull_request` is the initial remote-execution path for this new
+# workflow: PR runs evaluate the workflow file from the PR merge ref, so
+# opening or updating a PR that touches the paths below executes this lane.
+# `workflow_dispatch` is available once this workflow exists on the default branch;
+# after that, `--ref` may select another ref for execution.
+# Do not attempt workflow_dispatch before merge merely to test it.
 
 on:
   pull_request:
@@ -119,6 +120,15 @@ jobs:
       ENGINE_MODE: external
       ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
       PYTHONHASHSEED: "0"
+      # Build-time Compose model resolution only (NOT bridge evidence):
+      # docker-compose.engine.yml requires non-empty ENGINE_START_COMMAND
+      # interpolation before ANY compose command runs, so the lane supplies
+      # this benign value. The real bridge command explicitly overrides it
+      # in the handshake step; negatives override it with a sentinel.
+      ENGINE_START_COMMAND: "true"
+      # Unique explicit project so the built service image reference is
+      # deterministic (COMPOSE_PROJECT_NAME-xmage) and evidence binds to it.
+      COMPOSE_PROJECT_NAME: h4-xmage-${{ github.run_id }}
     steps:
       - name: Checkout lab
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -186,14 +196,20 @@ jobs:
           ./scripts/docker_build_engine.sh xmage build 2>&1 | tee h4-evidence-xmage/docker-build.log
           echo "$?" > h4-evidence-xmage/docker-build-exit.txt
           test "$(cat h4-evidence-xmage/docker-build-exit.txt)" = "0"
-      - name: Capture image identity (no mounts; entrypoint untouched)
+      - name: Capture image identity (exact Compose project/service image)
         shell: bash
         run: |
           set -euo pipefail
-          IMAGE_ID="$(docker images --no-trunc -q --filter 'label=org.commander-lab.engine-provider=xmage' | head -n 1)"
-          test -n "$IMAGE_ID" || { echo "no xmage image found" >&2; exit 1; }
-          echo "$IMAGE_ID" > h4-evidence-xmage/image-id.txt
-          docker inspect "$IMAGE_ID" > h4-evidence-xmage/docker-inspect.json
+          # Bind every later observation to the exact image THIS job built:
+          # with an explicit COMPOSE_PROJECT_NAME, Compose names the service
+          # image deterministically as <project>-<service>. Provider-label
+          # discovery is forbidden here: a stale image could satisfy it.
+          IMAGE_REF="${COMPOSE_PROJECT_NAME}-xmage"
+          IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE_REF")"
+          test -n "$IMAGE_ID"
+          printf '%s\n' "$IMAGE_REF" > h4-evidence-xmage/image-ref.txt
+          printf '%s\n' "$IMAGE_ID" > h4-evidence-xmage/image-id.txt
+          docker image inspect "$IMAGE_REF" > h4-evidence-xmage/docker-inspect.json
           docker run --rm --entrypoint cat "$IMAGE_ID" /opt/engine-provenance.json | tee h4-evidence-xmage/engine-provenance.json
           docker run --rm --entrypoint git "$IMAGE_ID" -C /opt/engine-source rev-parse HEAD | tee h4-evidence-xmage/engine-source-head.txt
       - name: Positive provenance gate on the real image (supported path)
@@ -282,7 +298,7 @@ jobs:
             --provenance h4-evidence-xmage/engine-provenance.json \
             --source-head h4-evidence-xmage/engine-source-head.txt \
             --image-id "$(cat h4-evidence-xmage/image-id.txt)" \
-            --image-tag "h4-xmage:${GITHUB_SHA::12}" \
+            --image-tag "$(cat h4-evidence-xmage/image-ref.txt)" \
             --build-exit-code "$(cat h4-evidence-xmage/docker-build-exit.txt)" \
             --handshake-requests h4-evidence-xmage/handshake-requests.jsonl \
             --handshake-transcript h4-evidence-xmage/handshake-transcript.jsonl \
@@ -316,6 +332,14 @@ jobs:
     needs: [preflight]
     runs-on: ubuntu-latest
     timeout-minutes: 300
+    env:
+      # Build-time Compose model resolution only (NOT bridge evidence):
+      # see the h4-xmage job env comment. Forge has no conforming bridge,
+      # so the benign value is never overridden by a real bridge command.
+      ENGINE_START_COMMAND: "true"
+      # Unique explicit project so the built service image reference is
+      # deterministic (COMPOSE_PROJECT_NAME-forge) and evidence binds to it.
+      COMPOSE_PROJECT_NAME: h4-forge-${{ github.run_id }}
     steps:
       - name: Checkout lab
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -358,14 +382,20 @@ jobs:
           ./scripts/docker_build_engine.sh forge build 2>&1 | tee h4-evidence-forge/docker-build.log
           echo "$?" > h4-evidence-forge/docker-build-exit.txt
           test "$(cat h4-evidence-forge/docker-build-exit.txt)" = "0"
-      - name: Capture image identity (no mounts; entrypoint untouched)
+      - name: Capture image identity (exact Compose project/service image)
         shell: bash
         run: |
           set -euo pipefail
-          IMAGE_ID="$(docker images --no-trunc -q --filter 'label=org.commander-lab.engine-provider=forge' | head -n 1)"
-          test -n "$IMAGE_ID" || { echo "no forge image found" >&2; exit 1; }
-          echo "$IMAGE_ID" > h4-evidence-forge/image-id.txt
-          docker inspect "$IMAGE_ID" > h4-evidence-forge/docker-inspect.json
+          # Bind every later observation to the exact image THIS job built:
+          # with an explicit COMPOSE_PROJECT_NAME, Compose names the service
+          # image deterministically as <project>-<service>. Provider-label
+          # discovery is forbidden here: a stale image could satisfy it.
+          IMAGE_REF="${COMPOSE_PROJECT_NAME}-forge"
+          IMAGE_ID="$(docker image inspect --format '{{.Id}}' "$IMAGE_REF")"
+          test -n "$IMAGE_ID"
+          printf '%s\n' "$IMAGE_REF" > h4-evidence-forge/image-ref.txt
+          printf '%s\n' "$IMAGE_ID" > h4-evidence-forge/image-id.txt
+          docker image inspect "$IMAGE_REF" > h4-evidence-forge/docker-inspect.json
           docker run --rm --entrypoint cat "$IMAGE_ID" /opt/engine-provenance.json | tee h4-evidence-forge/engine-provenance.json
           docker run --rm --entrypoint git "$IMAGE_ID" -C /opt/engine-source rev-parse HEAD | tee h4-evidence-forge/engine-source-head.txt
       - name: Positive provenance gate on the real image (supported path, no bridge invented)
@@ -416,7 +446,7 @@ jobs:
             --provenance h4-evidence-forge/engine-provenance.json \
             --source-head h4-evidence-forge/engine-source-head.txt \
             --image-id "$(cat h4-evidence-forge/image-id.txt)" \
-            --image-tag "h4-forge:${GITHUB_SHA::12}" \
+            --image-tag "$(cat h4-evidence-forge/image-ref.txt)" \
             --build-exit-code "$(cat h4-evidence-forge/docker-build-exit.txt)" \
             --gate-exit-code "$(cat h4-evidence-forge/gate-exit.txt)" \
             --docker-version "$(cat h4-evidence-forge/docker-version.txt | head -n 1)" \
