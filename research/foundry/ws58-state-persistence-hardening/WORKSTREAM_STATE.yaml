@@ -1,9 +1,9 @@
 audit_base_sha: e207286200854bf9bff557e67bf3b37b5e428392
 audit_base_tree: 6e89a980bf0a7e40273ba11b108fe3febed39d47
 branch: ws58/foundry-state-persistence-hardening-20260911
-exact_next_action: 'Coordinator review: WS58 terminal PASS (FOUNDRY_STATE_PERSISTENCE_HARDENING_PASS).
-  No push/merge requested. Suggested next: adopt canonical writer in future workstream
-  contracts; optionally schedule test_impact.py argv fix as minor tooling work.'
+exact_next_action: 'WS58R COMPLETE: P1/P2 remediated and requalified at validated_head
+  4bf61fc10ccb2b9fd587df8567920277b70ce2bb (53 writer / 169 foundry green, Ruff clean).
+  Next: checkpoint report/state, then safe_push fast-forward of ws58/foundry-state-persistence-hardening-20260911.'
 in_scope:
 - canonical writer in tools/foundry/state.py (write_state/update_state/atomic_write_text/dump_state)
 - bootstrap --init-state integration on the shared primitive
@@ -23,9 +23,9 @@ out_of_scope:
 ownership: WS58 session (branch ws58/foundry-state-persistence-hardening-20260911)
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: f056133c7eaf8cda13e8514a967f6b418494f189
+state_written_against_head: 4bf61fc10ccb2b9fd587df8567920277b70ce2bb
 status: COMPLETE
-validated_head: null
+validated_head: 4bf61fc10ccb2b9fd587df8567920277b70ce2bb
 worktree: /home/moeen/code/ws58-foundry-state-persistence-hardening
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
@@ -41,6 +41,14 @@ technical_decisions:
 - safe_push/test_safe_push failures under the sandbox push-guard env are environmental
   (remote.origin.pushurl override breaks local file-remote fixtures); full suite green
   with only that guard scrubbed for the pytest subprocess.
+- 'WS58R P1: validation-credit invariant enforced at the write_state shared API boundary
+  (non-null validated_head without workdir fails closed); update_state inherits via
+  delegation, including the preserve-credit case; CLI guards are defense in depth
+  only.'
+- 'WS58R P2: write-intent flags without a structured write mode return nonzero STATE_REJECT
+  and never silently fall through to STATE_OK; --in-place requires --migrate; --migrate
+  is mutually exclusive with structured writes; ordinary read-only --state FILE is
+  unchanged.'
 tests_run:
 - 'tests/foundry/test_state_writer.py: 36 passed (new: reproductions A-G end-to-end
   + 10 positives + 11 negatives, all negatives byte-identical)'
@@ -50,4 +58,12 @@ tests_run:
   tests/foundry/test_state_writer.py
 - 'terminal re-run: test_state_v2 11 passed, test_foundry_tools 45 passed, test_state_writer
   36 passed'
+- 'WS58R terminal (code HEAD 4bf61fc10ccb2b9fd587df8567920277b70ce2bb): tests/foundry/test_state_writer.py
+  53 passed (36 preserved + 17 new P1/P2 adversarial, all negatives byte-identical)'
+- 'WS58R terminal: tests/foundry/test_state_v2.py + test_foundry_tools.py 56 passed'
+- 'WS58R terminal: tests/foundry/ full suite 169 passed, 1 skipped (pre-existing live-export
+  skip; no GIT_CONFIG_* scrub needed, parent env clean)'
+- 'WS58R terminal: ruff check + format clean on tools/foundry/state.py, tests/foundry/test_state_writer.py'
 remaining_scope: []
+evidence:
+- research/foundry/ws58-state-persistence-hardening/WS58_PR178_REVIEW_REMEDIATION.md
