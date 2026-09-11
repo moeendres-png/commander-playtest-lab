@@ -58,20 +58,11 @@ def _read_json(path: Path):
 
 def check(provider: str, provenance_path: Path, manifest_path: Path) -> int:
     if provider not in _KNOWN_PROVIDERS:
-        return _fail(
-            f"ENGINE_PROVIDER {provider!r} is not a supported provider; "
-            "refusing to start"
-        )
+        return _fail(f"ENGINE_PROVIDER {provider!r} is not a supported provider; refusing to start")
     if not provenance_path.is_file():
-        return _fail(
-            f"no provenance record at {provenance_path}; "
-            "image identity cannot be proven"
-        )
+        return _fail(f"no provenance record at {provenance_path}; image identity cannot be proven")
     if not manifest_path.is_file():
-        return _fail(
-            f"no pin authority at {manifest_path}; "
-            "image identity cannot be adjudicated"
-        )
+        return _fail(f"no pin authority at {manifest_path}; image identity cannot be adjudicated")
     try:
         provenance = _read_json(provenance_path)
         manifest = _read_json(manifest_path)
@@ -97,20 +88,14 @@ def check(provider: str, provenance_path: Path, manifest_path: Path) -> int:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fail-closed container provenance gate.")
-    parser.add_argument(
-        "--provider", default=os.environ.get("ENGINE_PROVIDER", "")
-    )
+    parser.add_argument("--provider", default=os.environ.get("ENGINE_PROVIDER", ""))
     parser.add_argument(
         "--provenance",
-        default=os.environ.get(
-            "CONTAINER_PROVENANCE_PATH", "/opt/engine-provenance.json"
-        ),
+        default=os.environ.get("CONTAINER_PROVENANCE_PATH", "/opt/engine-provenance.json"),
     )
     parser.add_argument(
         "--manifest",
-        default=os.environ.get(
-            "PIN_MANIFEST_PATH", "/workspace/config/rules_engines.json"
-        ),
+        default=os.environ.get("PIN_MANIFEST_PATH", "/workspace/config/rules_engines.json"),
     )
     return parser.parse_args(argv)
 

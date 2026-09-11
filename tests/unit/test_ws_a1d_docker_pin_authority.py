@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 import pytest
+
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 CANONICAL_XMAGE_PIN = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
@@ -184,13 +185,16 @@ def test_cli_shell_output_resolves_without_stale_defaults(repo_root: Path) -> No
         values = dict(
             line.split("=", 1) for line in completed.stdout.strip().splitlines() if "=" in line
         )
-        assert values[f"{prefix}_ENGINE_COMMIT"] == _manifest(repo_root)[
-            "primary_engine" if provider == "xmage" else "secondary_engine"
-        ]["commit"]
+        assert (
+            values[f"{prefix}_ENGINE_COMMIT"]
+            == _manifest(repo_root)[
+                "primary_engine" if provider == "xmage" else "secondary_engine"
+            ]["commit"]
+        )
         assert values[f"{prefix}_ENGINE_REPOSITORY"].endswith(".git")
-        assert values[f"{prefix}_ENGINE_PROTOCOL_VERSION"] == _manifest(repo_root)[
-            "protocol_version"
-        ]
+        assert (
+            values[f"{prefix}_ENGINE_PROTOCOL_VERSION"] == _manifest(repo_root)["protocol_version"]
+        )
         assert STALE_XMAGE_PIN not in completed.stdout
         assert STALE_FORGE_PIN not in completed.stdout
 
@@ -328,7 +332,6 @@ def _gate_module(repo_root: Path):
 
 
 def _gate_fixture(tmp_path: Path, repo_root: Path, provider: str = "xmage"):
-    from pathlib import Path as _Path
 
     manifest = _manifest(repo_root)
     manifest_path = tmp_path / "rules_engines.json"
@@ -361,9 +364,7 @@ def test_provenance_gate_rejects_stale_commit(tmp_path: Path, repo_root: Path) -
     assert module.check("xmage", provenance_path, manifest_path) == 3
 
 
-def test_provenance_gate_rejects_cross_wired_repository(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_provenance_gate_rejects_cross_wired_repository(tmp_path: Path, repo_root: Path) -> None:
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
@@ -372,9 +373,7 @@ def test_provenance_gate_rejects_cross_wired_repository(
     assert module.check("xmage", provenance_path, manifest_path) == 3
 
 
-def test_provenance_gate_rejects_protocol_mismatch(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_provenance_gate_rejects_protocol_mismatch(tmp_path: Path, repo_root: Path) -> None:
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
@@ -383,18 +382,14 @@ def test_provenance_gate_rejects_protocol_mismatch(
     assert module.check("xmage", provenance_path, manifest_path) == 3
 
 
-def test_provenance_gate_fails_without_record_or_manifest(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_provenance_gate_fails_without_record_or_manifest(tmp_path: Path, repo_root: Path) -> None:
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     assert module.check("xmage", tmp_path / "absent.json", manifest_path) == 3
     assert module.check("xmage", provenance_path, tmp_path / "absent.json") == 3
 
 
-def test_provenance_gate_rejects_unreadable_record(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_provenance_gate_rejects_unreadable_record(tmp_path: Path, repo_root: Path) -> None:
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     provenance_path.write_text("{not json", encoding="utf-8")
@@ -407,18 +402,14 @@ def test_entrypoint_enforces_provenance_gate(repo_root: Path) -> None:
     assert "ENGINE_START_COMMAND is required" in text
 
 
-def test_provenance_gate_fails_for_unknown_provider(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_provenance_gate_fails_for_unknown_provider(tmp_path: Path, repo_root: Path) -> None:
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     assert module.check("upstream", provenance_path, manifest_path) == 3
     assert module.check("", provenance_path, manifest_path) == 3
 
 
-def test_provenance_gate_fails_for_unreadable_manifest(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_provenance_gate_fails_for_unreadable_manifest(tmp_path: Path, repo_root: Path) -> None:
     module = _gate_module(repo_root)
     provenance_path, _ = _gate_fixture(tmp_path, repo_root)
     bad_manifest = tmp_path / "bad-manifest.json"
@@ -426,9 +417,7 @@ def test_provenance_gate_fails_for_unreadable_manifest(
     assert module.check("xmage", provenance_path, bad_manifest) == 3
 
 
-def test_provenance_gate_fails_for_provider_mismatch(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_provenance_gate_fails_for_provider_mismatch(tmp_path: Path, repo_root: Path) -> None:
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
@@ -489,9 +478,7 @@ def _run_entrypoint(
     env = dict(os.environ)
     env["ENGINE_START_COMMAND"] = 'touch "$WS_A1D_MARKER"'
     env["WS_A1D_MARKER"] = str(marker)
-    env["CONTAINER_GATE_SCRIPT"] = str(
-        repo_root / "scripts/verify_container_provenance.py"
-    )
+    env["CONTAINER_GATE_SCRIPT"] = str(repo_root / "scripts/verify_container_provenance.py")
     env.update(extra_env)
     completed = subprocess.run(
         [_gnu_bash(), str(repo_root / "scripts/engine_container_entrypoint.sh")],
@@ -503,9 +490,7 @@ def _run_entrypoint(
     return completed, marker.exists()
 
 
-def test_entrypoint_starts_engine_for_canonical_provenance(
-    tmp_path: Path, repo_root: Path
-) -> None:
+def test_entrypoint_starts_engine_for_canonical_provenance(tmp_path: Path, repo_root: Path) -> None:
     provenance = tmp_path / "engine-provenance.json"
     manifest = tmp_path / "rules_engines.json"
     live_manifest = _manifest(repo_root)
