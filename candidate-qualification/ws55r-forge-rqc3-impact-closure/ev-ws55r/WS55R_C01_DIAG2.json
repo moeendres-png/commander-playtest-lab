@@ -1,0 +1,1481 @@
+{
+  "answered": 0,
+  "behavior_credit": "0/107",
+  "consumed_intent": 6,
+  "credited_path": true,
+  "decode_errors": 0,
+  "diagnostic_only": false,
+  "evidence_class": "DECISION_SEQUENCE",
+  "execution_entry_mode": "NATURAL_GAME_START",
+  "failure_class": {
+    "class": "ADAPTER_BINDING",
+    "note": "binding gap at priority: scripted MINTED-183: 0 offered matches of 2"
+  },
+  "fixture_id": "PILOT_MULLIGAN",
+  "forge": {
+    "commit": "66caae16015bd403bc0a52fa6689afb5508f74d0",
+    "tree": "40fc8f29ce4de31a964972461db2b48b4221e07f"
+  },
+  "frame_count": 17,
+  "frames": [
+    {
+      "actor": "P3",
+      "cancel_offered": false,
+      "engine_frame_id": "d1",
+      "engine_frame_seq": 1,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "chooseStartingPlayer",
+      "observation_fingerprints": {
+        "P1": "0e5bd7776edd8de0723a66f715cf20e62de49b42914db3581073cbf520a55bf2",
+        "P2": "a628b3074dcd79b19b85c72877e3224f9fb95dc3144e072c8f18d25a87e90259",
+        "P3": "561cc884a7ef84e5711aad822dbb8d69fc71fa830816059e5d079dc753bf89b7",
+        "P4": "209fa45c1550777724e6e4604309110a56aab9d038194d159ae1e9a86f8c6ff1"
+      },
+      "observations": [
+        {
+          "fingerprint": "0e5bd7776edd8de0723a66f715cf20e62de49b42914db3581073cbf520a55bf2",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "a628b3074dcd79b19b85c72877e3224f9fb95dc3144e072c8f18d25a87e90259",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "561cc884a7ef84e5711aad822dbb8d69fc71fa830816059e5d079dc753bf89b7",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "209fa45c1550777724e6e4604309110a56aab9d038194d159ae1e9a86f8c6ff1",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":0,\"cards\":[]},{\"owner\":\"P2\",\"count\":0,\"cards\":[]},{\"owner\":\"P3\",\"count\":0,\"cards\":[]},{\"owner\":\"P4\",\"count\":0,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":99},{\"owner\":\"P2\",\"count\":99},{\"owner\":\"P3\",\"count\":99},{\"owner\":\"P4\",\"count\":99}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PLAYER:seat-1",
+        "PLAYER:seat-2",
+        "PLAYER:seat-3",
+        "PLAYER:seat-4"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PLAYER:seat-1"
+        },
+        {
+          "id": "o1",
+          "kind": "PLAYER:seat-2"
+        },
+        {
+          "id": "o2",
+          "kind": "PLAYER:seat-3"
+        },
+        {
+          "id": "o3",
+          "kind": "PLAYER:seat-4"
+        }
+      ],
+      "option_count": 4,
+      "raw_actor": "seat-3",
+      "revision": 0,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PLAYER:seat-1",
+        "option_id": "o0"
+      },
+      "seq": 1,
+      "state_fingerprint": "5e58215f8a55a0c176ad6b82a384316ded75bf0f0059f53e2ac54c27b37215e7",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":0,\"library_count\":99,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": false,
+      "engine_frame_id": "d2",
+      "engine_frame_seq": 2,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "698344165a4c798f8cf9e2d36922e11ae6488cf4973bcc27eadb757e9516742e",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "698344165a4c798f8cf9e2d36922e11ae6488cf4973bcc27eadb757e9516742e",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":72,\"name\":\"Island\"},{\"id\":47,\"name\":\"Island\"},{\"id\":55,\"name\":\"Island\"},{\"id\":34,\"name\":\"Island\"},{\"id\":59,\"name\":\"Island\"},{\"id\":37,\"name\":\"Island\"},{\"id\":82,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-1",
+      "revision": 1,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "MULLIGAN",
+        "option_id": "o1"
+      },
+      "seq": 2,
+      "state_fingerprint": "75b22af0a07849a57f99dfeb0b4550abd811c9d9d7ce98998ca77d5adce86135",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P2",
+      "cancel_offered": false,
+      "engine_frame_id": "d3",
+      "engine_frame_seq": 3,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-2",
+      "revision": 2,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 3,
+      "state_fingerprint": "75b22af0a07849a57f99dfeb0b4550abd811c9d9d7ce98998ca77d5adce86135",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P3",
+      "cancel_offered": false,
+      "engine_frame_id": "d4",
+      "engine_frame_seq": 4,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-3",
+      "revision": 3,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 4,
+      "state_fingerprint": "75b22af0a07849a57f99dfeb0b4550abd811c9d9d7ce98998ca77d5adce86135",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P4",
+      "cancel_offered": false,
+      "engine_frame_id": "d5",
+      "engine_frame_seq": 5,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-4",
+      "revision": 4,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 5,
+      "state_fingerprint": "75b22af0a07849a57f99dfeb0b4550abd811c9d9d7ce98998ca77d5adce86135",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": false,
+      "engine_frame_id": "d6",
+      "engine_frame_seq": 6,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "mulliganKeepHand",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "KEEP",
+        "MULLIGAN"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "KEEP"
+        },
+        {
+          "id": "o1",
+          "kind": "MULLIGAN"
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-1",
+      "revision": 5,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "KEEP",
+        "option_id": "o0"
+      },
+      "seq": 6,
+      "state_fingerprint": "75b22af0a07849a57f99dfeb0b4550abd811c9d9d7ce98998ca77d5adce86135",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"0\",\"phase\":\"null\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d7",
+      "engine_frame_seq": 7,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+",
+        "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+        },
+        {
+          "id": "o2",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        },
+        {
+          "id": "o3",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+"
+        }
+      ],
+      "option_count": 4,
+      "raw_actor": "seat-1",
+      "revision": 6,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 7,
+      "state_fingerprint": "1df3743160bc9e5933ad318f35222756b9fac13e08f0ca8f1ba1e43b6a4e5472",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P2",
+      "cancel_offered": true,
+      "engine_frame_id": "d8",
+      "engine_frame_seq": 8,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-107:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-107:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-2",
+      "revision": 7,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 8,
+      "state_fingerprint": "1df3743160bc9e5933ad318f35222756b9fac13e08f0ca8f1ba1e43b6a4e5472",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P3",
+      "cancel_offered": true,
+      "engine_frame_id": "d9",
+      "engine_frame_seq": 9,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-208:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-208:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-3",
+      "revision": 8,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 9,
+      "state_fingerprint": "1df3743160bc9e5933ad318f35222756b9fac13e08f0ca8f1ba1e43b6a4e5472",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P4",
+      "cancel_offered": true,
+      "engine_frame_id": "d10",
+      "engine_frame_seq": 10,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+        "P2": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+        "P3": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+        "P4": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7"
+      },
+      "observations": [
+        {
+          "fingerprint": "6c0a8f41a2bb4944b410c3e3a7f8011a65fa48fd9e997432e160e341cd2c0abc",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "9fb2faac6a3f6a102eb885014c87865015d5eacf0145293ff5f880519337ca07",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "62f9ed52278d01338721062b5abef3bc7d2449d64c2a1a168dd534a25050cab8",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "e7dac9d55f476cd65c809e3e8084397ae29f37525fa90107d352fa02c2fc0ba7",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":92},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-314:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-314:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-4",
+      "revision": 9,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 10,
+      "state_fingerprint": "1df3743160bc9e5933ad318f35222756b9fac13e08f0ca8f1ba1e43b6a4e5472",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"UPKEEP\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d11",
+      "engine_frame_seq": 11,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+        "P2": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+        "P3": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+        "P4": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd"
+      },
+      "observations": [
+        {
+          "fingerprint": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Island\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+",
+        "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+        },
+        {
+          "id": "o2",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        },
+        {
+          "id": "o3",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+"
+        }
+      ],
+      "option_count": 4,
+      "raw_actor": "seat-1",
+      "revision": 10,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 11,
+      "state_fingerprint": "8daf17b893f1d5c20bbeee2ed56000c0e6b94be7ea18204b9e322fb6bab5f1f9",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P2",
+      "cancel_offered": true,
+      "engine_frame_id": "d12",
+      "engine_frame_seq": 12,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+        "P2": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+        "P3": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+        "P4": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd"
+      },
+      "observations": [
+        {
+          "fingerprint": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Island\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-107:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-107:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-2",
+      "revision": 11,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 12,
+      "state_fingerprint": "8daf17b893f1d5c20bbeee2ed56000c0e6b94be7ea18204b9e322fb6bab5f1f9",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P3",
+      "cancel_offered": true,
+      "engine_frame_id": "d13",
+      "engine_frame_seq": 13,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+        "P2": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+        "P3": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+        "P4": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd"
+      },
+      "observations": [
+        {
+          "fingerprint": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Island\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-208:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-208:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-3",
+      "revision": 12,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 13,
+      "state_fingerprint": "8daf17b893f1d5c20bbeee2ed56000c0e6b94be7ea18204b9e322fb6bab5f1f9",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P4",
+      "cancel_offered": true,
+      "engine_frame_id": "d14",
+      "engine_frame_seq": 14,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+        "P2": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+        "P3": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+        "P4": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd"
+      },
+      "observations": [
+        {
+          "fingerprint": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Island\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-314:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-314:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-4",
+      "revision": 13,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 14,
+      "state_fingerprint": "8daf17b893f1d5c20bbeee2ed56000c0e6b94be7ea18204b9e322fb6bab5f1f9",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"DRAW\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d15",
+      "engine_frame_seq": 15,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+        "P2": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+        "P3": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+        "P4": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd"
+      },
+      "observations": [
+        {
+          "fingerprint": "898359be2768d746444d30b7577571241a09269471264c15fad352404e3d7bd6",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"},{\"id\":22,\"name\":\"Island\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "32244d267bb36965419173a5221af5e9a0f4ac126865d64b10a85eae141cd41a",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "bfa9a28f88a1b651b23ea06c180fef1c8684473f71a1e75decd8feb573d2ade5",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "265ebe98068d815c0dddd3962dc55bcd5cbea67fab614b6e161eb221f6d62bcd",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":8,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-100:cmd=null:card=Edric%2C+Spymaster+of+Trest:sa=Edric%2C+Spymaster+of+Trest+-+Creature+2+%2F+2",
+        "WS48:ACT:host=MINTED-22:cmd=null:card=Island:sa=Play+land",
+        "WS48:ACT:host=MINTED-25:cmd=null:card=Island:sa=Play+land",
+        "WS48:ACT:host=MINTED-27:cmd=null:card=Island:sa=Play+land",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+",
+        "WS48:ACT:host=MINTED-77:cmd=null:card=Forest:sa=Play+land",
+        "WS48:ACT:host=MINTED-85:cmd=null:card=Forest:sa=Play+land",
+        "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1.",
+        "WS48:ACT:host=MINTED-95:cmd=null:card=Llanowar+Elves:sa=Llanowar+Elves+-+Creature+1+%2F+1"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-27:cmd=null:card=Island:sa=Play+land"
+        },
+        {
+          "id": "o2",
+          "kind": "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+        },
+        {
+          "id": "o3",
+          "kind": "WS48:ACT:host=MINTED-95:cmd=null:card=Llanowar+Elves:sa=Llanowar+Elves+-+Creature+1+%2F+1"
+        },
+        {
+          "id": "o4",
+          "kind": "WS48:ACT:host=MINTED-77:cmd=null:card=Forest:sa=Play+land"
+        },
+        {
+          "id": "o5",
+          "kind": "WS48:ACT:host=MINTED-25:cmd=null:card=Island:sa=Play+land"
+        },
+        {
+          "id": "o6",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        },
+        {
+          "id": "o7",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+"
+        },
+        {
+          "id": "o8",
+          "kind": "WS48:ACT:host=MINTED-85:cmd=null:card=Forest:sa=Play+land"
+        },
+        {
+          "id": "o9",
+          "kind": "WS48:ACT:host=MINTED-22:cmd=null:card=Island:sa=Play+land"
+        },
+        {
+          "id": "o10",
+          "kind": "WS48:ACT:host=MINTED-100:cmd=null:card=Edric%2C+Spymaster+of+Trest:sa=Edric%2C+Spymaster+of+Trest+-+Creature+2+%2F+2"
+        }
+      ],
+      "option_count": 11,
+      "raw_actor": "seat-1",
+      "revision": 14,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "WS48:ACT:host=MINTED-22:cmd=null:card=Island:sa=Play+land",
+        "option_id": "o9"
+      },
+      "seq": 15,
+      "state_fingerprint": "3d7ecf9c4b42f9fc5f4ee562119996557a976da2702c46320648d96360d4b48c",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"MAIN1\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":8,\"library_count\":91,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P1",
+      "cancel_offered": true,
+      "engine_frame_id": "d16",
+      "engine_frame_seq": 16,
+      "engine_response": "ACCEPTED_CONTINUED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "9d34f120e0e48f0e4988cca77760f507adec46a3b2cd01c1121151836ba84b4c",
+        "P2": "4316fd3ab4b64ca7b488f8f577d1ee73d3687c2c521e63ec7388c1c272eeb748",
+        "P3": "a6dcd547098eddd4b4a9829bd3bc12b651e0a2f4290bce4d1200a57be94d687b",
+        "P4": "0109c9dee77cd4d70f11bf51d2891aadf0ce4ad291272ef62c357304a0051b34"
+      },
+      "observations": [
+        {
+          "fingerprint": "9d34f120e0e48f0e4988cca77760f507adec46a3b2cd01c1121151836ba84b4c",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "4316fd3ab4b64ca7b488f8f577d1ee73d3687c2c521e63ec7388c1c272eeb748",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "a6dcd547098eddd4b4a9829bd3bc12b651e0a2f4290bce4d1200a57be94d687b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "0109c9dee77cd4d70f11bf51d2891aadf0ce4ad291272ef62c357304a0051b34",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-100:cmd=null:card=Edric%2C+Spymaster+of+Trest:sa=Edric%2C+Spymaster+of+Trest+-+Creature+2+%2F+2",
+        "WS48:ACT:host=MINTED-22:cmd=null:card=Island:sa=%7BT%7D%3A+Add+%7BU%7D.",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.",
+        "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+",
+        "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1.",
+        "WS48:ACT:host=MINTED-95:cmd=null:card=Llanowar+Elves:sa=Llanowar+Elves+-+Creature+1+%2F+1"
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-8:cmd=null:card=Turn+to+Frog:sa=Until+end+of+turn%2C+target+creature+loses+all+abilities+and+becomes+a+blue+Frog+with+base+power+and+toughness+1%2F1."
+        },
+        {
+          "id": "o2",
+          "kind": "WS48:ACT:host=MINTED-95:cmd=null:card=Llanowar+Elves:sa=Llanowar+Elves+-+Creature+1+%2F+1"
+        },
+        {
+          "id": "o3",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        },
+        {
+          "id": "o4",
+          "kind": "WS48:ACT:host=MINTED-3:cmd=null:card=Force+of+Will:sa=Counter+target+spell.+%28You+may+pay+1+life+and+exile+a+blue+card+from+your+hand+rather+than+pay+this+spell%27s+mana+cost.%29+"
+        },
+        {
+          "id": "o5",
+          "kind": "WS48:ACT:host=MINTED-22:cmd=null:card=Island:sa=%7BT%7D%3A+Add+%7BU%7D."
+        },
+        {
+          "id": "o6",
+          "kind": "WS48:ACT:host=MINTED-100:cmd=null:card=Edric%2C+Spymaster+of+Trest:sa=Edric%2C+Spymaster+of+Trest+-+Creature+2+%2F+2"
+        }
+      ],
+      "option_count": 7,
+      "raw_actor": "seat-1",
+      "revision": 15,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": {
+        "identity": "PASS",
+        "option_id": "o0"
+      },
+      "seq": 16,
+      "state_fingerprint": "6052952847909a86cd401a80c2084f4c57727dc4f6ce17e072feff5139c67de6",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"MAIN1\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":91,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    },
+    {
+      "actor": "P2",
+      "block": {
+        "detail": "scripted MINTED-183: 0 offered matches of 2",
+        "where": "priority"
+      },
+      "cancel_offered": true,
+      "engine_frame_id": "d17",
+      "engine_frame_seq": 17,
+      "engine_response": "HARNESS_FAIL_CLOSED",
+      "kind": "priority",
+      "observation_fingerprints": {
+        "P1": "9d34f120e0e48f0e4988cca77760f507adec46a3b2cd01c1121151836ba84b4c",
+        "P2": "4316fd3ab4b64ca7b488f8f577d1ee73d3687c2c521e63ec7388c1c272eeb748",
+        "P3": "a6dcd547098eddd4b4a9829bd3bc12b651e0a2f4290bce4d1200a57be94d687b",
+        "P4": "0109c9dee77cd4d70f11bf51d2891aadf0ce4ad291272ef62c357304a0051b34"
+      },
+      "observations": [
+        {
+          "fingerprint": "9d34f120e0e48f0e4988cca77760f507adec46a3b2cd01c1121151836ba84b4c",
+          "view": "{\"viewer\":\"P1\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[{\"id\":27,\"name\":\"Island\"},{\"id\":8,\"name\":\"Turn to Frog\"},{\"id\":95,\"name\":\"Llanowar Elves\"},{\"id\":77,\"name\":\"Forest\"},{\"id\":25,\"name\":\"Island\"},{\"id\":3,\"name\":\"Force of Will\"},{\"id\":85,\"name\":\"Forest\"}]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P1"
+        },
+        {
+          "fingerprint": "4316fd3ab4b64ca7b488f8f577d1ee73d3687c2c521e63ec7388c1c272eeb748",
+          "view": "{\"viewer\":\"P2\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[{\"id\":196,\"name\":\"Llanowar Elves\"},{\"id\":197,\"name\":\"Llanowar Elves\"},{\"id\":107,\"name\":\"Force of Will\"},{\"id\":167,\"name\":\"Island\"},{\"id\":149,\"name\":\"Island\"},{\"id\":154,\"name\":\"Island\"},{\"id\":183,\"name\":\"Forest\"}]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P2"
+        },
+        {
+          "fingerprint": "a6dcd547098eddd4b4a9829bd3bc12b651e0a2f4290bce4d1200a57be94d687b",
+          "view": "{\"viewer\":\"P3\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[{\"id\":227,\"name\":\"Island\"},{\"id\":278,\"name\":\"Forest\"},{\"id\":208,\"name\":\"Force of Will\"},{\"id\":276,\"name\":\"Forest\"},{\"id\":266,\"name\":\"Island\"},{\"id\":223,\"name\":\"Island\"},{\"id\":298,\"name\":\"Llanowar Elves\"}]},{\"owner\":\"P4\",\"count\":7,\"cards\":[]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P3"
+        },
+        {
+          "fingerprint": "0109c9dee77cd4d70f11bf51d2891aadf0ce4ad291272ef62c357304a0051b34",
+          "view": "{\"viewer\":\"P4\",\"hands\":[{\"owner\":\"P1\",\"count\":7,\"cards\":[]},{\"owner\":\"P2\",\"count\":7,\"cards\":[]},{\"owner\":\"P3\",\"count\":7,\"cards\":[]},{\"owner\":\"P4\",\"count\":7,\"cards\":[{\"id\":337,\"name\":\"Island\"},{\"id\":338,\"name\":\"Island\"},{\"id\":370,\"name\":\"Island\"},{\"id\":346,\"name\":\"Island\"},{\"id\":314,\"name\":\"Turn to Frog\"},{\"id\":389,\"name\":\"Forest\"},{\"id\":344,\"name\":\"Island\"}]}],\"libraries\":[{\"owner\":\"P1\",\"count\":91},{\"owner\":\"P2\",\"count\":92},{\"owner\":\"P3\",\"count\":92},{\"owner\":\"P4\",\"count\":92}],\"battlefield\":[{\"id\":22,\"face_down\":false,\"name\":\"Island\"}],\"graveyard\":[],\"exile\":[],\"command\":[{\"id\":100,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":101,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":201,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":202,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":302,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":303,\"face_down\":false,\"name\":\"Commander Effect\"},{\"id\":403,\"face_down\":false,\"name\":\"Edric, Spymaster of Trest\"},{\"id\":404,\"face_down\":false,\"name\":\"Commander Effect\"}],\"stack\":[]}",
+          "viewer": "P4"
+        }
+      ],
+      "offered_identities": [
+        "PASS",
+        "WS48:ACT:host=MINTED-107:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+      ],
+      "offered_options": [
+        {
+          "id": "o0",
+          "kind": "PASS"
+        },
+        {
+          "id": "o1",
+          "kind": "WS48:ACT:host=MINTED-107:cmd=null:card=Force+of+Will:sa=Counter+target+spell."
+        }
+      ],
+      "option_count": 2,
+      "raw_actor": "seat-2",
+      "revision": 16,
+      "rng": {
+        "effective_seed": "424242"
+      },
+      "selection": null,
+      "seq": 17,
+      "state_fingerprint": "6052952847909a86cd401a80c2084f4c57727dc4f6ce17e072feff5139c67de6",
+      "state_snapshot": "{\"player_count\":4,\"turn\":\"1\",\"phase\":\"MAIN1\",\"players\":[{\"actor_id\":\"seat-1\",\"life\":40,\"hand_count\":7,\"library_count\":91,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-2\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-3\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"},{\"actor_id\":\"seat-4\",\"life\":40,\"hand_count\":7,\"library_count\":92,\"command_count\":1,\"commander\":\"Edric, Spymaster of Trest\"}]}"
+    }
+  ],
+  "grants_behavior_credit": false,
+  "hidden_info_verdict": "PASS",
+  "intent": [
+    {
+      "actor": "P1",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-22"
+        }
+      },
+      "turns": [
+        1
+      ]
+    },
+    {
+      "actor": "P1",
+      "decision_family": "discard",
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "explicit_discard",
+        "semantic_value": {
+          "cards": [
+            "MINTED-95"
+          ]
+        }
+      }
+    },
+    {
+      "actor": "P2",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-183"
+        }
+      },
+      "turns": [
+        1
+      ]
+    },
+    {
+      "actor": "P1",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-99991"
+        }
+      },
+      "turns": [
+        99
+      ]
+    },
+    {
+      "actor": "P2",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-99992"
+        }
+      },
+      "turns": [
+        99
+      ]
+    },
+    {
+      "actor": "P3",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-99993"
+        }
+      },
+      "turns": [
+        99
+      ]
+    },
+    {
+      "actor": "P4",
+      "decision_family": "priority",
+      "phases": [
+        "MAIN1",
+        "MAIN2"
+      ],
+      "selection": {
+        "matches_only_provider_offered_legal_options": true,
+        "on_multiple_match": "FAIL_CLOSED",
+        "on_zero_match": "FAIL_CLOSED",
+        "selector_kind": "semantic_action",
+        "semantic_value": {
+          "action": "cast",
+          "object": "MINTED-99994"
+        }
+      },
+      "turns": [
+        99
+      ]
+    }
+  ],
+  "native_event_tape": [
+    {
+      "event": "shuffle",
+      "facts": "seat-1"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-2"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-3"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-4"
+    },
+    {
+      "event": "shuffle",
+      "facts": "seat-1"
+    },
+    {
+      "event": "mulligan",
+      "facts": "seat-1"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "UNTAP"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "UPKEEP"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "DRAW"
+    },
+    {
+      "event": "turn_phase",
+      "facts": "MAIN1"
+    },
+    {
+      "event": "priority_binding",
+      "facts": "idx=9:label=WS48:ACT:host=MINTED-22:cmd=null:card=Island:sa=Play+land:hostId=22"
+    }
+  ],
+  "native_events": 11,
+  "native_lifecycle": null,
+  "observation_violations": [],
+  "offered_digest": "abf9d2f82f84d2748ad13ebf2b46d648ae21d75cbdbe728709a0c9288ed4fabc",
+  "reason": "scripted MINTED-183: 0 offered matches of 2",
+  "ritual_answers": [
+    {
+      "kind": "chooseStartingPlayer",
+      "option_id": "o0"
+    }
+  ],
+  "scenario_id": "WS55-BREADTH",
+  "schema_version": "commander-lab.ws55-decision-breadth/1.0.0",
+  "script_remaining": [
+    {
+      "actor": "P2",
+      "family": "priority",
+      "selector": "semantic_action"
+    },
+    {
+      "actor": "P1",
+      "family": "discard",
+      "selector": "explicit_discard"
+    },
+    {
+      "actor": "P1",
+      "family": "priority",
+      "selector": "semantic_action"
+    },
+    {
+      "actor": "P2",
+      "family": "priority",
+      "selector": "semantic_action"
+    },
+    {
+      "actor": "P3",
+      "family": "priority",
+      "selector": "semantic_action"
+    },
+    {
+      "actor": "P4",
+      "family": "priority",
+      "selector": "semantic_action"
+    }
+  ],
+  "seed": 424242,
+  "seed_binding": "ws55-forge-mandatory-decision-breadth",
+  "session_created_snapshot": {
+    "phase": "null",
+    "player_count": 4,
+    "players": [
+      {
+        "actor_id": "seat-1",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-2",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-3",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      },
+      {
+        "actor_id": "seat-4",
+        "command_count": 0,
+        "commander": null,
+        "hand_count": 0,
+        "library_count": 0,
+        "life": 40
+      }
+    ],
+    "turn": "0"
+  },
+  "session_snapshot": null,
+  "stop_reason": null,
+  "structural_passes": 9,
+  "terminal_class": "HARNESS_INTENT_GAP",
+  "verdict": "BLOCKED_AT:priority",
+  "ws55_deck": {
+    "commander": "Edric, Spymaster of Trest",
+    "main": "Island*60,Forest*20,Force of Will*6,Turn to Frog*6,Llanowar Elves*7"
+  },
+  "ws55_order_combatants": null
+}

@@ -1,7 +1,7 @@
 audit_base_sha: 47a1e714903a91d8929f48df6451365e8b7a7996
 audit_base_tree: 8028eafca996021d2fdc667d9bee735c83081419
 branch: ws55r/forge-rqc3-impact-closure-20260911
-exact_next_action: 'Write impact ledger + E02 reclassification, then A04/C01 exact-fixture probes.'
+exact_next_action: 'A04 exact-fixture probe (Doubling Season + Hardened Scales + Serpent X=3), then hidden-info file + readiness + report.'
 in_scope:
 - Derive corrected 20-kind RQ-C3 denominator mechanically (triple-agree).
 - Impact-ledger every WS55 Decision family (NO_IMPACT preserved, no gratuitous reruns).
@@ -42,11 +42,15 @@ checkpoints:
     status: PENDING
     evidence: []
   C_c01_cost_pitch:
-    status: PENDING
-    evidence: []
+    status: DONE
+    evidence:
+    - ev-ws55r/WS55R_C01_EVID.json (837 frames; stages 1-5 PASS, 6-11 NOT_REACHED fail-closed)
+    - WS55R_C01_COST_PITCH.json (11-stage accounting + first-failing-boundary)
+    - ws55r_hidden_audit.py (planted-leak PASS, 18030 checks, 0 violations)
   G_g04_concession:
-    status: PENDING
-    evidence: []
+    status: DONE
+    evidence:
+    - WS55R_G04_CONCESSION.json (native architecture source-derived; gap honest)
   E_e02_reclassification:
     status: PENDING
     evidence: []
