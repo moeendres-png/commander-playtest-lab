@@ -16,8 +16,11 @@ evidence:
 - 'state.py/bootstrap.py/test_state_writer.py: empty diff vs main (WS58R hardening
   preserved)'
 - staged port diff stat identical to WS57 code commit 70c625c8
-exact_next_action: Commit the canonical WS61 state file, then safe_push --dry-run
-  from this branch (creation anchored to remote main), then terminal handoff.
+- 'safe_push --dry-run from launcher-held lock: SAFE_PUSH_OK DRY_RUN_OK ws61/foundry-safe-push-lineage-integration-20260911@9783af69,
+  rc 0; target branch confirmed still absent on remote (read-only ls-remote empty)'
+exact_next_action: 'Terminal handoff complete. Coordinator decides terminal push:
+  dry-run OK, target branch absent on remote, creation anchored to remote main, no
+  --expected-audit-base-ref required for WS61 itself.'
 failure_class: NONE
 forbidden_shortcuts:
 - ordinary push
@@ -51,8 +54,8 @@ out_of_scope:
 ownership: WS61-FOUNDRY-SAFE-PUSH-LINEAGE-INTEGRATION
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: fc4c451787fc2ff3d8d3315373099a4a21a7f9f7
-status: ACTIVE
+state_written_against_head: 9783af695b68c76a304887f4dadbaf5f6a5956da
+status: COMPLETE
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 validated_head: fc4c451787fc2ff3d8d3315373099a4a21a7f9f7
 worktree: /home/moeen/code/ws61-foundry-safe-push-lineage-integration
@@ -63,10 +66,7 @@ artifacts:
 files_modified:
 - tools/foundry/safe_push.py
 - tests/foundry/test_safe_push.py
-remaining_scope:
-- commit canonical state
-- safe_push dry-run
-- terminal handoff
+remaining_scope: []
 technical_decisions:
 - 'port method: cherry-pick -n of WS57 code commit 70c625c8 only; evidence/state commit
   9af19e62 not imported'
@@ -78,6 +78,8 @@ tests_run:
 - python3 -m pytest tests/foundry/test_safe_push.py -q -> 30 passed
 - python3 -m pytest tests/foundry/ -q -> 184 passed, 1 skipped
 - ruff check + ruff format --check on changed files -> clean
+- safe_push --dry-run (tested branch tool, launcher-held lock) -> DRY_RUN_OK rc 0,
+  remote untouched
 validated_gates:
 - strict source branch-name validation
 - literal exact remote lookup
