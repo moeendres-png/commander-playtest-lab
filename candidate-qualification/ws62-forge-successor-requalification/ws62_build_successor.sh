@@ -26,6 +26,7 @@ cp candidate-qualification/ws45-forge-v1.0.4/run_strict_no_echo_gate.py "$EV/run
 cp candidate-qualification/ws48-forge-v1.0.5/run_behavior_transcript_probe.py "$EV/runners/run_behavior_transcript_probe.py"
 python3 scripts/ws45_patch_noecho_runner_lineage.py --runner "$EV/runners/run_strict_no_echo_gate.py"
 python3 scripts/ws45_patch_noecho_runner_forge_lock.py --runner "$EV/runners/run_strict_no_echo_gate.py"
+python3 scripts/ws45_patch_noecho_runner_forge_lock.py --runner "$EV/runners/run_behavior_transcript_probe.py"
 python3 scripts/ws48_patch_v105_runner_identity.py --noecho-runner "$EV/runners/run_strict_no_echo_gate.py"
 out="$EV/generated"
 python3 scripts/ws40_generate_forge_provider.py --player-controller "$FORGE/forge-game/src/main/java/forge/game/player/PlayerController.java" --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
