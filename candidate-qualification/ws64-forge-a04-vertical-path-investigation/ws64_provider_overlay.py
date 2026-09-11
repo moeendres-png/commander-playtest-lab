@@ -31,6 +31,14 @@ Repair (transport only, no semantics):
 - options size >1 -> failClosed (discretionary multi-type choice needs
   future harness transport; failing closed per Milestone D, no synthesis).
 
+Tracing (observation only, no semantics, no decisions):
+- Battlefield counter observation: once per battlefield card id, when a
+  battlefield card carries counters, emit a ws64Battlefield:COUNTERS
+  native event with stable card id and engine counter multiset. This lets
+  qualification read the final Stonecoil counters (7 or 8) from the full
+  native tape without display-text heuristics and without touching Rules,
+  costs, or replacement logic.
+
 Forbidden items remain absent: no provider X solver, no counter arithmetic,
 no replacement synthesis, no outcome injection, no manual X/move/counter,
 no first/random/default, no AI/GUI fallback, no silent skip, no card-name
@@ -71,6 +79,45 @@ NEW = """        @Override
             throw failClosed("chooseCounterType:MULTI_UNSUPPORTED");
         }"""
 
+FIELD_OLD = """        final int stopAfterPriorityDecisions;"""
+
+FIELD_NEW = """        final int stopAfterPriorityDecisions;
+        final java.util.Set<Integer> ws64LoggedCounterCards = java.util.Collections.synchronizedSet(new java.util.HashSet<Integer>());"""
+
+TRACE_OLD = """        java.util.List<SpellAbility> choosePriority(Player actor, Game game) {
+            priorityDecisions++;
+            if (priorityDecisions > stopAfterPriorityDecisions) {
+                throw new ControlledStop("WS23_CONTROLLED_AFTER_PRIORITY_" + stopAfterPriorityDecisions);
+            }"""
+
+TRACE_NEW = """        java.util.List<SpellAbility> choosePriority(Player actor, Game game) {
+            priorityDecisions++;
+            if (priorityDecisions > stopAfterPriorityDecisions) {
+                throw new ControlledStop("WS23_CONTROLLED_AFTER_PRIORITY_" + stopAfterPriorityDecisions);
+            }
+            try {
+                for (Card ws64c : game.getCardsIn(ZoneType.Battlefield)) {
+                    if (ws64c == null || ws64c.getCounters() == null || ws64c.getCounters().isEmpty()) continue;
+                    int ws64cid;
+                    try { ws64cid = ws64c.getId(); } catch (Throwable ignore) { continue; }
+                    if (!ws64LoggedCounterCards.add(ws64cid)) continue;
+                    StringBuilder ws64cb = new StringBuilder();
+                    try {
+                        for (com.google.common.collect.Multiset.Entry<forge.game.card.CounterType> ws64e : ws64c.getCounters().entrySet()) {
+                            if (ws64cb.length() > 0) ws64cb.append(",");
+                            ws64cb.append(String.valueOf(ws64e.getElement())).append("=").append(ws64e.getCount());
+                        }
+                    } catch (Throwable ignore) {}
+                    out.println("{\\"protocol\\":" + esc(PROTOCOL)
+                        + ",\\"message_type\\":\\"NATIVE_EVENT\\""
+                        + ",\\"request_id\\":\\"ws64-trace\\""
+                        + ",\\"session_id\\":" + esc(SESSION_ID)
+                        + ",\\"payload\\":{\\"event\\":" + esc("ws64Battlefield:COUNTERS")
+                        + ",\\"facts\\":" + esc("cardId=" + ws64cid + ":counters=" + ws64cb) + "}}");
+                    out.flush();
+                }
+            } catch (Throwable ignore) {}"""
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -82,11 +129,15 @@ def main() -> int:
     if "chooseCounterType:MULTI_UNSUPPORTED" in p:
         raise SystemExit("WS64_OVERLAY_ALREADY_APPLIED")
     p = once(p, OLD, NEW, "countertype singleton transport")
+    p = once(p, FIELD_OLD, FIELD_NEW, "counter observation field")
+    p = once(p, TRACE_OLD, TRACE_NEW, "counter observation trace")
     args.provider.write_text(p, encoding="utf-8")
     required = [
         "chooseCounterType:MULTI_UNSUPPORTED",
         "SINGLE_NATIVE_OPTION:chooseCounterType",
         "chooseCounterType:NULL",
+        "ws64Battlefield:COUNTERS",
+        "ws64LoggedCounterCards",
     ]
     missing = [x for x in required if x not in p]
     if missing:
