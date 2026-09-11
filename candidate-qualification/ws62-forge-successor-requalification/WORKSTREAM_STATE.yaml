@@ -1,0 +1,62 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws62-forge-successor-requalification
+branch: ws62/forge-successor-requalification-20260911
+audit_base_sha: e39c7de053573625e51006b917bef43468161752
+audit_base_tree: 2a94ca9212b27c25231ba8ecacdb592508187d22
+state_written_against_head: e39c7de053573625e51006b917bef43468161752
+validated_head: null
+objective: 'WS62 Forge successor pin and CPL requalification: migrate the qualified
+  Forge candidate runtime from engine 66caae... to production successor a9a95db6662c2d28814390a9c0c2f986e39aa8b4,
+  requalify affected provider/adapter/decision/hidden-info/determinism surfaces, and
+  establish whether the corrected RQ-C3 First Wave may begin.'
+in_scope:
+- WS55R/WS53 Forge candidate qualification line
+- candidate-local exact Forge engine pin/provenance
+- CPL Forge provider/adapter transport required by the successor
+- selection and decision-sequence integrity
+- principal-scoped observations and hidden information
+- deterministic replay where impacted
+- A04/C01/G04 First-Wave entry-prerequisite requalification
+- fresh bounded evidence and impact adjudication
+out_of_scope:
+- Forge engine production edits
+- global current-main Docker/H4 manifest repin without separate authority
+- RQ-C3 scenario behavior credit
+- Full107
+- Architecture Freeze
+- Production Provider selection
+- unrelated provider redesign
+dependencies:
+- WS55R terminal e39c7de053573625e51006b917bef43468161752
+- WS59/WS59R FORGE_RQC3_ENGINE_REMEDIATION_PASS
+- Forge production successor a9a95db6662c2d28814390a9c0c2f986e39aa8b4
+- current canonical Foundry policy c1a760af21469fc1358dbdb9b821f79dcdfaf2db
+hard_gates:
+- exact successor repository/commit/tree identity
+- no use of WS59 qualification or terminal commit as engine pin
+- fresh provider build against successor source
+- Rules Core remains sole legality authority
+- no fabricated legal actions or heuristic legality
+- principal-scoped hidden information remains green
+- impacted deterministic replay remains reproducible
+- C01 decision continuation remains externally transportable
+- G04 concession transport is backed by native canConcede/concede only
+- A04 automatic replacement behavior requires no provider outcome injection
+- UNKNOWN is not PASS
+forbidden_shortcuts:
+- first option
+- random option
+- default yes/no
+- GUI default
+- internal engine AI fallback
+- provider pseudo-option without engine authority
+- manual target or outcome injection
+- requested-option filtering as reconstructed legality
+- old-pin prebuilt runtime evidence without impact adjudication
+ownership: WS62-FORGE-SUCCESSOR-REQUALIFICATION
+status: ACTIVE
+exact_next_action: Inventory all WS55R/WS53 Forge pin consumers and adjudicate old-pin
+  evidence impact before modifying CPL candidate transport.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
