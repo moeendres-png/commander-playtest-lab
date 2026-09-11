@@ -1,0 +1,5 @@
+{
+  "engine_semantic_disagreements": [],
+  "note": "No engine-semantic disagreement is adjudicable because no shared fixture cleared setup isomorphism.",
+  "schema_version": "ws28-semantic-disagreement-register/1.0.0"
+}

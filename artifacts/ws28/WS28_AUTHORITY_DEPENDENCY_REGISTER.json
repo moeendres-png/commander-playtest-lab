@@ -1,0 +1,37 @@
+{
+  "direct_authority_reverified": {
+    "CARD_02": "Rograkh, Son of Rohgahh",
+    "CARD_04": "Kediss, Emberclaw Familiar",
+    "CARD_24": "Warstorm Surge"
+  },
+  "engine_disagreements_requiring_adjudication": [],
+  "pending_ws29": [
+    "CARD_01",
+    "CARD_03",
+    "CARD_05",
+    "CARD_06",
+    "CARD_07",
+    "CARD_08",
+    "CARD_09",
+    "CARD_10",
+    "CARD_11",
+    "CARD_12",
+    "CARD_13",
+    "CARD_14",
+    "CARD_15",
+    "CARD_16",
+    "CARD_17",
+    "CARD_18",
+    "CARD_19",
+    "CARD_20",
+    "CARD_21",
+    "CARD_22",
+    "CARD_23",
+    "CARD_25",
+    "CARD_26",
+    "CARD_27",
+    "CARD_28",
+    "CARD_29"
+  ],
+  "schema_version": "ws28-authority-dependency-register/1.0.0"
+}

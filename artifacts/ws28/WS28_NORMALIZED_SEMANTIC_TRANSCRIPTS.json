@@ -1,0 +1,519 @@
+{
+  "note": "These are provider-neutral semantic signatures used to determine isomorphism; raw provider artifacts remain preserved by Actions artifact id/digest in WS28_SOURCE_LOCK.json.",
+  "rows": [
+    {
+      "fixture_id": "PLAYER_COUNT_2P",
+      "normalized_semantic_signature": {
+        "forge": {
+          "players": 2,
+          "prestart_hand_count": 0,
+          "prestart_library_count": 0,
+          "runtime_kind": "Forge lifecycle",
+          "starting_life": 20
+        },
+        "setup_difference": "starting life and deck/card state differ",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 2,
+          "runtime_kind": "XMage Commander lifecycle",
+          "starting_life": 40
+        }
+      },
+      "sha256": "c68927f8bde9d5d3d4b56b92a524542636bd1020d1a1c43b9754b709e57599f9"
+    },
+    {
+      "fixture_id": "PLAYER_COUNT_3P",
+      "normalized_semantic_signature": {
+        "forge": {
+          "players": 3,
+          "prestart_hand_count": 0,
+          "prestart_library_count": 0,
+          "runtime_kind": "Forge lifecycle",
+          "starting_life": 20
+        },
+        "setup_difference": "starting life and deck/card state differ",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 3,
+          "runtime_kind": "XMage Commander lifecycle",
+          "starting_life": 40
+        }
+      },
+      "sha256": "9e2fb875e9a1fe2197ec9fc86059bbbd48ae4cfda09bd7d4ed02444eecd26a1c"
+    },
+    {
+      "fixture_id": "PLAYER_COUNT_4P",
+      "normalized_semantic_signature": {
+        "forge": {
+          "players": 4,
+          "prestart_hand_count": 0,
+          "prestart_library_count": 0,
+          "runtime_kind": "Forge lifecycle",
+          "starting_life": 20
+        },
+        "setup_difference": "starting life and deck/card state differ",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 4,
+          "runtime_kind": "XMage Commander lifecycle",
+          "starting_life": 40
+        }
+      },
+      "sha256": "42d75e58501c13f5f81ab653c5fe4516aa4b42cfe3879807a2401f71f18284fe"
+    },
+    {
+      "fixture_id": "PLAYER_COUNT_5P",
+      "normalized_semantic_signature": {
+        "forge": {
+          "players": 5,
+          "prestart_hand_count": 0,
+          "prestart_library_count": 0,
+          "runtime_kind": "Forge lifecycle",
+          "starting_life": 20
+        },
+        "setup_difference": "starting life and deck/card state differ",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 5,
+          "runtime_kind": "XMage Commander lifecycle",
+          "starting_life": 40
+        }
+      },
+      "sha256": "a7fc02ce022d966238483c377feb388b10fbec50eaeee417d8511be9b5dacf49"
+    },
+    {
+      "fixture_id": "PILOT_MULLIGAN",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "Gate-D actual-card scenario differs from XMage Isamaru/Plains pilot smoke lifecycle",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 4,
+          "scenario": "ws22-pilot-smoke",
+          "starting_life": 40
+        }
+      },
+      "sha256": "a5c52b90b0dafbc01825ea98c7aa16e092aa1b15adc251b2bcb810ff0a3ac5ea"
+    },
+    {
+      "fixture_id": "PILOT_PRIORITY",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "Gate-D actual-card scenario differs from XMage Isamaru/Plains pilot smoke lifecycle",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 4,
+          "scenario": "ws22-pilot-smoke",
+          "starting_life": 40
+        }
+      },
+      "sha256": "a5c52b90b0dafbc01825ea98c7aa16e092aa1b15adc251b2bcb810ff0a3ac5ea"
+    },
+    {
+      "fixture_id": "PILOT_TARGET",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20,
+          "target_interaction": "Lightning Bolt target via Forge TargetRestrictions"
+        },
+        "setup_difference": "different source/target interaction and surrounding semantic state",
+        "xmage": {
+          "default_commander": "Kenrith, the Returned King",
+          "default_library": "Plains x24 per seat for injected WS26 scenarios",
+          "fixture_projection": "WS26 qualification scenario/native Mage.Tests",
+          "objects": [
+            "Mogg Fanatic",
+            "Grizzly Bears",
+            "Demonic Tutor(hidden)"
+          ],
+          "players": 4,
+          "provider": "xmage",
+          "scenario": "WS26-PILOT-TARGET-HIDDEN-METADATA",
+          "seed": 424242,
+          "starting_life": 40
+        }
+      },
+      "sha256": "b796d852910f30bdaf6aa8fd48cf76161f27722a97162ef68f695417b255b287"
+    },
+    {
+      "fixture_id": "HIDDEN_01",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "hidden_probe": "WS23 honey objects + facedown Grizzly Bears + library identity sentinel",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "different cards/decks and observation probe construction",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 4,
+          "scenario": "ws22-hidden-baseline",
+          "starting_life": 40
+        }
+      },
+      "sha256": "c878a0b63044048967973edb338e721595e9499b4a716b3d6b2ee76804367917"
+    },
+    {
+      "fixture_id": "HIDDEN_02",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "hidden_probe": "WS23 honey objects + facedown Grizzly Bears + library identity sentinel",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "different cards/decks and observation probe construction",
+        "xmage": {
+          "commander": "Isamaru, Hound of Konda",
+          "mainboard": "Plains x99",
+          "players": 4,
+          "scenario": "ws22-hidden-baseline",
+          "starting_life": 40
+        }
+      },
+      "sha256": "c878a0b63044048967973edb338e721595e9499b4a716b3d6b2ee76804367917"
+    },
+    {
+      "fixture_id": "MICRO_STACK",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "interaction": "Lightning Bolt enters native Forge stack",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "XMage includes an additional Giant Growth response and different terminal postcondition",
+        "xmage": {
+          "interaction": "Lightning Bolt targets Grizzly Bears; Giant Growth responds; Bears survives 5/5",
+          "native_test": "microStackTargetLifo",
+          "players": 4
+        }
+      },
+      "sha256": "9d181d49dc7ed13dc58079192873353d38914363a26f890c2a526d24dc7a5040"
+    },
+    {
+      "fixture_id": "MICRO_REPLACEMENT",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "interaction": "Commander hand-to-command replacement",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "different replacement effects and zones",
+        "xmage": {
+          "interaction": "Rest in Peace replaces graveyard destinations with exile",
+          "native_test": "microReplacementRestInPeace",
+          "players": 4
+        }
+      },
+      "sha256": "6a039860b8ce232a8d21a0ba4065bd7c38cb2f6923f7df2fd2a72680db8eaba7"
+    },
+    {
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "interaction": "Forge attack frame exposes multiple legal defenders with Grizzly Bears attacker/blocker scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "different attacker set, defender mapping and combat transcript",
+        "xmage": {
+          "interaction": "Grizzly Bears attacks player B and Runeclaw Bear attacks player C",
+          "native_test": "multiplayerMultipleDefenders4P",
+          "players": 4
+        }
+      },
+      "sha256": "28185a43112d786b0981dd11e35a3f4678d94bf435d8b363d69bfd41228af0f7"
+    },
+    {
+      "fixture_id": "RNG_RULES_TAPE",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "replay_scenario": "WS25/WS23 Gate-D broad scenario",
+          "rng_source": "FlipCoinEffect/MyRandom",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "entire replay scenario and rules-randomness interaction differ",
+        "xmage": {
+          "default_commander": "Kenrith, the Returned King",
+          "default_library": "Plains x24 per seat for injected WS26 scenarios",
+          "fixture_projection": "WS26 qualification scenario/native Mage.Tests",
+          "notable_object": "Goblin Bomb",
+          "players": 4,
+          "provider": "xmage",
+          "replay_scenario": "WS26-REPLAY-GOBLIN-BOMB",
+          "seed": 424242,
+          "starting_life": 40
+        }
+      },
+      "sha256": "152ee0c631d2a6fec3f6231857c1951d4efcc736ae3dc5cdb806a2fcf47f09b7"
+    },
+    {
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "replay_scenario": "WS25/WS23 Gate-D broad scenario",
+          "rng_source": "FlipCoinEffect/MyRandom",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "entire replay scenario and rules-randomness interaction differ",
+        "xmage": {
+          "default_commander": "Kenrith, the Returned King",
+          "default_library": "Plains x24 per seat for injected WS26 scenarios",
+          "fixture_projection": "WS26 qualification scenario/native Mage.Tests",
+          "notable_object": "Goblin Bomb",
+          "players": 4,
+          "provider": "xmage",
+          "replay_scenario": "WS26-REPLAY-GOBLIN-BOMB",
+          "seed": 424242,
+          "starting_life": 40
+        }
+      },
+      "sha256": "152ee0c631d2a6fec3f6231857c1951d4efcc736ae3dc5cdb806a2fcf47f09b7"
+    },
+    {
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "replay_scenario": "WS25/WS23 Gate-D broad scenario",
+          "rng_source": "FlipCoinEffect/MyRandom",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "entire replay scenario and rules-randomness interaction differ",
+        "xmage": {
+          "default_commander": "Kenrith, the Returned King",
+          "default_library": "Plains x24 per seat for injected WS26 scenarios",
+          "fixture_projection": "WS26 qualification scenario/native Mage.Tests",
+          "notable_object": "Goblin Bomb",
+          "players": 4,
+          "provider": "xmage",
+          "replay_scenario": "WS26-REPLAY-GOBLIN-BOMB",
+          "seed": 424242,
+          "starting_life": 40
+        }
+      },
+      "sha256": "152ee0c631d2a6fec3f6231857c1951d4efcc736ae3dc5cdb806a2fcf47f09b7"
+    },
+    {
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "replay_scenario": "WS25/WS23 Gate-D broad scenario",
+          "rng_source": "FlipCoinEffect/MyRandom",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "entire replay scenario and rules-randomness interaction differ",
+        "xmage": {
+          "default_commander": "Kenrith, the Returned King",
+          "default_library": "Plains x24 per seat for injected WS26 scenarios",
+          "fixture_projection": "WS26 qualification scenario/native Mage.Tests",
+          "notable_object": "Goblin Bomb",
+          "players": 4,
+          "provider": "xmage",
+          "replay_scenario": "WS26-REPLAY-GOBLIN-BOMB",
+          "seed": 424242,
+          "starting_life": 40
+        }
+      },
+      "sha256": "152ee0c631d2a6fec3f6231857c1951d4efcc736ae3dc5cdb806a2fcf47f09b7"
+    },
+    {
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "replay_scenario": "WS25/WS23 Gate-D broad scenario",
+          "rng_source": "FlipCoinEffect/MyRandom",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "entire replay scenario and rules-randomness interaction differ",
+        "xmage": {
+          "default_commander": "Kenrith, the Returned King",
+          "default_library": "Plains x24 per seat for injected WS26 scenarios",
+          "fixture_projection": "WS26 qualification scenario/native Mage.Tests",
+          "notable_object": "Goblin Bomb",
+          "players": 4,
+          "provider": "xmage",
+          "replay_scenario": "WS26-REPLAY-GOBLIN-BOMB",
+          "seed": 424242,
+          "starting_life": 40
+        }
+      },
+      "sha256": "152ee0c631d2a6fec3f6231857c1951d4efcc736ae3dc5cdb806a2fcf47f09b7"
+    },
+    {
+      "fixture_id": "CARD_02",
+      "normalized_semantic_signature": {
+        "forge": {
+          "fixture_projection": "WS25 Gate-D broad scenario",
+          "interaction": "Rograkh is moved through hand-to-command replacement then cast; commander cast count asserted",
+          "notable_objects": [
+            "Lightning Bolt",
+            "Fog",
+            "Rograkh, Son of Rohgahh",
+            "Grizzly Bears",
+            "Soul Warden x2"
+          ],
+          "players": 4,
+          "provider": "forge",
+          "rules_rng_seed": 230023,
+          "starting_life_runtime": 20
+        },
+        "setup_difference": "different initial zone path and asserted discriminator set",
+        "xmage": {
+          "interaction": "Rograkh begins in command zone, is cast, and 0/1 asserted",
+          "native_test": "actualRograkhCommanderCast",
+          "players": 4
+        }
+      },
+      "sha256": "5ddf336e5d5902c82f8e7b70dc530dd748913b8b59f2790ef6bad0e2d9604777"
+    }
+  ],
+  "schema_version": "ws28-normalized-semantic-transcripts/1.0.0"
+}
