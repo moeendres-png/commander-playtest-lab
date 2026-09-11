@@ -146,6 +146,8 @@ final class Ws60Scenarios3 {
                             .landOrder(1, "Command Tower", "Island", "Exotic Orchard",
                                     "Reflecting Pool", "Plains", "Swamp", "Forest")
                             .scryGas(0, 4)
+                            .secureWhen(0, "Runeclaw Bear", "Llanowar Elves")
+                            .secureWhen(1, "Carnage Tyrant")
                             .setupCast(0, "Runeclaw Bear", "Llanowar Elves")
                             .allowCommanderCast(0).allowCommanderCast(1)
                             .assemblyFiltering(0).assemblyFiltering(1)
