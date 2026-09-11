@@ -78,13 +78,50 @@ starting XMage, Forge, a mock, or the Tactical Oracle is insufficient.
 
 ## Docker
 
+The supported container path resolves engine identity from
+`config/rules_engines.json` (the sole pin authority) at build time. Never copy
+a commit SHA into a Docker command: run the wrapper, which derives the
+canonical provider repository, commit and bridge protocol version for BOTH
+providers and exports them for `docker-compose.engine.yml` build-arg
+interpolation (`--profile` still selects the requested service):
+
 ```bash
-ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar' \
-  docker compose -f docker-compose.engine.yml --profile xmage up --build
+export ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/bridge.jar'
+./scripts/docker_build_engine.sh xmage build
+./scripts/docker_build_engine.sh xmage up
+# Forge: ./scripts/docker_build_engine.sh forge build
 ```
 
-Docker was not available in the Phase-8.5 build container, so these Dockerfiles
-are prepared but not executed there.
+A plain `docker compose -f docker-compose.engine.yml --profile xmage build`
+without the wrapper fails closed (the required build variables are unset)
+instead of materializing a stale engine. The Dockerfiles declare their build
+args without defaults and re-validate repository shape, full 40-hex commit and
+provider match at materialization time, then record what was built in
+`/opt/engine-provenance.json`. At container start the entrypoint unconditionally
+verifies that record against the mounted manifest (provider, repository,
+commit, protocol) and refuses to start when identity cannot be proven or
+contradicts authority — missing record, missing manifest, missing gate
+tooling, unknown provider, or any mismatch all stop startup non-zero. A failed
+external start never silently falls back; the bridge handshake additionally
+enforces provider identity and bridge protocol version at runtime (see Start,
+status and stop).
+
+Inspect what an image actually materialized (provenance is also printed during
+`docker build`):
+
+```bash
+docker run --rm <image> cat /opt/engine-provenance.json
+```
+
+A failed external start never silently falls back; the bridge handshake still
+enforces provider identity and bridge protocol version at runtime (see Start,
+status and stop).
+
+Historical note: Docker was not available in the Phase-8.5 build container, so
+the Phase-8.5 Dockerfiles were prepared but not executed there. WS-A1D
+re-pinned the container path to manifest authority; whether an image was
+actually materialized during WS-A1D is recorded in the workstream handoff, not
+here. No container build output is Rules behavior evidence.
 
 ## Offline mode
 

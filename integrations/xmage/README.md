@@ -1,18 +1,13 @@
 # XMage bridge integration point
 
-## Current bounded B4-D bridge
+## Pin authority
 
-Repository:
-
-`https://github.com/moeendres-png/mage.git`
-
-Pinned commit:
-
-`77d7646da6958fdf8125ee7c8f4aabd130d21d4c`
-
-Current Lab bridge protocol:
-
-`2.0.0`
+The sole machine-readable authority for the current XMage pin is
+`config/rules_engines.json` (`primary_engine`: compatibility-fork repository,
+commit, `source_archive`, license; `protocol_version` for the current Lab
+bridge protocol). This README must not restate the commit or the protocol
+version and must not be read as a second pin source. If this file and the
+manifest ever disagree, the manifest wins and this file is stale.
 
 The Lab-owned Java bridge lives under `engine-bridge/` and identifies the real provider as:
 
