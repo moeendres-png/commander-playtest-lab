@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-a1d-h4-docker-materialization
 branch: architecture/ws-a1d-h4-docker-materialization-20260911
 audit_base_sha: e207286200854bf9bff557e67bf3b37b5e428392
 audit_base_tree: 6e89a980bf0a7e40273ba11b108fe3febed39d47
-state_written_against_head: 20adac8b44bc7af595eb69d65e28d760a2e6cd7f
-validated_head: 20adac8b44bc7af595eb69d65e28d760a2e6cd7f
+state_written_against_head: 1aab012196b391260b2287f94cbcaa04f625e509
+validated_head: 1aab012196b391260b2287f94cbcaa04f625e509
 objective: >
   WS-A1D-H4 Docker materialization and runtime requalification (XHIGH
   continuation of WS-A1D, predecessor PR #177 merged as e2072862). Close hard
@@ -126,6 +126,12 @@ technical_decisions:
 - id: TD-H4-14-dispatch-semantics
   decision: 'Workflow header comment now states truthful GitHub semantics: pull_request via the PR merge ref is the initial remote-execution path; workflow_dispatch is available once the workflow exists on the default branch and only then may ref select another ref; no dispatch attempt before merge.'
   evidence: 'Coordinator Finding 3; repaired header comment; locked by structural test 9.'
+- id: TD-H4-15-first-remote-run-partial
+  decision: 'First real remote run 34573843323 on PR 179 merge-ref 9c96cd4861493965c39fa87b36c573f6c47fff87 yields H4 PARTIAL: H4A-XMage PASS DIRECTLY_VERIFIED, H4B-XMage PASS DIRECTLY_VERIFIED (complete XMage job SUCCESS), H4A-Forge PASS DIRECTLY_VERIFIED with every substantive Forge H4 step green, H4B-Forge UNKNOWN NOT_RUN as an authority blocker (no conforming Forge protocol-2.0.0 bridge exists). The Forge job FAILURE occurred only at the setup-python post-job pip-cache save (Docker-overlay traversal), classified CI_HYGIENE_FAILURE, and invalidates no Forge H4A evidence. Remediation 02 required before merge. RULES_BEHAVIOR_CREDIT_CHANGE stays 0; ARCHITECTURE_FREEZE NOT CLAIMED; Production Provider NOT SELECTED.'
+  evidence: 'Coordinator runtime adjudication: preflight PASS; XMage artifact h4-evidence-xmage-9c96cd4861493965c39fa87b36c573f6c47fff87 ID 10189249454 digest sha256:98641e58dff396f447d9ccc81bd4e4a26794bb75ecb71bd129c377bd6540dc8c; Forge artifact h4-evidence-forge-9c96cd4861493965c39fa87b36c573f6c47fff87 ID 10189037467 digest sha256:c3927c1c290e4bcd45b5dd13e1f427543774b7e1d77527cd459535d02df4f1d2.'
+- id: TD-H4-16-pip-cache-hygiene
+  decision: 'Docker-heavy H4 jobs (h4-xmage, h4-forge-image) drop the setup-python pip cache so post-job teardown cannot traverse mutable Docker-overlay state; preflight keeps its cache (Docker-free). H4 preflight now also runs the workflow-structure battery so the lane guards its own structure. No Dockerfile, compose, manifest, resolver, verifier, bridge, or engine change: CI hygiene only, no H4 criteria weakened.'
+  evidence: 'Coordinator remediation 02 changes 1-3; repaired setup-python steps and preflight invocation; locked by 2 new structural tests (11 total in the structure battery).'
 tests_run:
 - 'Entry: python3 scripts/docker_resolve_engine_pin.py --provider xmage/forge -> canonical identity (repo+40-hex commit+protocol 2.0.0+release); --provider unknown -> exit 3 (DIRECTLY_VERIFIED identity resolution)'
 - 'Entry: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py -> 37 passed (H1-H3/H10 intact at entry)'
@@ -137,6 +143,9 @@ tests_run:
 - 'Remediation 01: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py tests/unit/test_h4_workflow_structure.py -> 63 passed (37 WS-A1D + 17 H4 verifier + 9 new workflow-structure)'
 - 'Remediation 01: ruff check . -> All checks passed; ruff format --check . -> 762 files formatted (repo-wide green)'
 - 'Remediation 01: workflow YAML re-parses after repair (3 jobs); no label discovery or invented tags remain (text assertion)'
+- 'Remediation 02: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py tests/unit/test_h4_workflow_structure.py -> 65 passed (37 WS-A1D + 17 H4 verifier + 11 workflow-structure incl. 2 pip-cache regression)'
+- 'Remediation 02: ruff check . -> All checks passed; ruff format --check . -> 762 files formatted (repo-wide green)'
+- 'Remediation 02: workflow YAML re-parses (3 jobs); preflight retains cache pip; heavy jobs carry no pip cache; exact image binding, XMage bridge path, and Forge PARTIAL lock intact'
 evidence:
 - 'H4 item 1 (identity resolution): DIRECTLY_VERIFIED locally for both providers (resolver CLI matrix above)'
 - 'XMage bridge implementation/protocol: DIRECTLY_VERIFIED (source-read); container runtime: UNKNOWN/NOT_RUN (no Docker host)'
@@ -145,19 +154,23 @@ evidence:
 - 'H4 verifier non-Docker logic: DIRECTLY_VERIFIED locally (17 unit tests + CLI smoke + gate CLI matrix)'
 - 'H4 CI lane non-Docker structure: DIRECTLY_VERIFIED locally (YAML/structural assertions); remote execution: NOT_RUN (lane prepared, published at 98f3f6a0, remediation 01 pending review, never triggered)'
 - 'Remediation 01 lane repairs: DIRECTLY_VERIFIED locally (9 structural tests green); remote behavior of repaired steps: NOT_RUN'
+- 'First remote run 34573843323 (PR 179, merge-ref 9c96cd4861493965c39fa87b36c573f6c47fff87): preflight PASS; XMage job SUCCESS with H4A and H4B PASS DIRECTLY_VERIFIED; Forge substantive H4 steps PASS with H4A PASS DIRECTLY_VERIFIED and H4B UNKNOWN NOT_RUN (absent bridge); Forge job FAILURE isolated to setup-python post-cache save (CI_HYGIENE_FAILURE); overall H4 PARTIAL; artifacts uploaded (see TD-H4-15)'
+- 'Remediation 02 hygiene: DIRECTLY_VERIFIED locally (pip-cache regression tests green, preflight coverage extended); H4 criteria unweakened'
 artifacts:
 - 'scripts/h4_verify_materialization_evidence.py (H4 evidence verifier: emit-handshake + verify, stdlib only, fail closed)'
 - 'tests/unit/test_h4_verify_materialization_evidence.py (17 tests, no Docker, no restated pins)'
-- 'tests/unit/test_h4_workflow_structure.py (9 workflow-structure regression tests for remediation 01)'
+- 'tests/unit/test_h4_workflow_structure.py (11 workflow-structure regression tests for remediations 01-02)'
 - '.github/workflows/h4-docker-materialization.yml (bounded H4 qualification lane: preflight + h4-xmage + h4-forge-image)'
+- 'Remote: h4-evidence-xmage-9c96cd4861493965c39fa87b36c573f6c47fff87 (ID 10189249454, sha256:98641e58dff396f447d9ccc81bd4e4a26794bb75ecb71bd129c377bd6540dc8c)'
+- 'Remote: h4-evidence-forge-9c96cd4861493965c39fa87b36c573f6c47fff87 (ID 10189037467, sha256:c3927c1c290e4bcd45b5dd13e1f427543774b7e1d77527cd459535d02df4f1d2)'
 files_modified:
-- .github/workflows/h4-docker-materialization.yml (remediation 01: build-time interpolation, exact image binding, dispatch comment)
-- tests/unit/test_h4_workflow_structure.py (new)
+- .github/workflows/h4-docker-materialization.yml (remediation 02: no pip cache in Docker-heavy jobs, structure battery in preflight)
+- tests/unit/test_h4_workflow_structure.py (remediation 02: pip-cache regression tests)
 - .foundry/WORKSTREAM_STATE.yaml (this contract state)
 remaining_scope:
-- remediation-review handoff (H4 UNKNOWN / NOT_RUN; PR creation NOT AUTHORIZED pending Coordinator remediation review)
-- remote execution itself (safe-push authorization, then PR authorization, then runner observation) is OUT of this local session
+- remediation-02 review handoff (H4 PARTIAL per remote adjudication; Forge H4B UNKNOWN NOT_RUN by authority; merge NOT AUTHORIZED pending Coordinator review)
+- safe-push authorization, automatic PR rerun observation, and merge adjudication are OUT of this local session (no push, no rerun, no merge here)
 status: ACTIVE
 authority_gates: []
-next_action: Return remediation 01 for Coordinator remote review; await safe-push authorization (no push yet).
-exact_next_action: Commit this state as a state-only CHECKPOINT_CLEAN commit with a clean tree and no push; then return the remediation handoff (findings reproduced, exact image-binding strategy, validation, H1-H11 matrix, H4 UNKNOWN) and await Coordinator remote review, safe-push authorization, and PR creation authorization.
+next_action: Return remediation 02 for Coordinator review; await safe-push authorization (no push yet).
+exact_next_action: Commit this state as a state-only CHECKPOINT_CLEAN commit with a clean tree and no push; then return the remediation-02 handoff (runtime evidence preserved, CI_HYGIENE_FAILURE root cause, validation, H4 PARTIAL matrix, H1-H11 intact) and await Coordinator review, safe-push authorization, automatic PR rerun, and merge adjudication.
