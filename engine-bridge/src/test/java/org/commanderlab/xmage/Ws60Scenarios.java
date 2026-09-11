@@ -125,6 +125,14 @@ final class Ws60Scenarios {
         return frame -> Ws60Pilot.frameClass(frame).equals(clazz);
     }
 
+    /** Frame-class alternation (engines vary target vs choose_object by cost type). */
+    static Predicate<JsonObject> frameIsAny(List<String> classes, String fragment) {
+        return frame -> classes.contains(Ws60Pilot.frameClass(frame))
+                && (Ws60Pilot.prompt(frame).contains(fragment)
+                        || Ws60Pilot.contextString(frame, "target_description").contains(fragment)
+                        || Ws60Pilot.sourceName(frame).contains(fragment));
+    }
+
     static Predicate<JsonObject> frameOffers(String fragment) {
         return frame -> {
             if (!frame.has("legal_options") || !frame.get("legal_options").isJsonArray()) {

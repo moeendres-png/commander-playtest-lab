@@ -54,8 +54,15 @@ final class Ws60Scenarios2 {
                             .stackGate(0, "Force of Will", "Llanowar Elves")
                             .holdForAnswer(0, "Force of Will", "Turn to Frog")
                             .reserveTaps(0, "Island")
-                            .filterMaxPerTurn(0, 3)
+                            .filterMaxPerTurn(0, 4)
                             .filterMinUntapped(0, 3)
+                            // P1 must find its own 1-of Elves by turn 65: same
+                            // filter cap plus scry-digging (Thrasios reveals are
+                            // 96% lands-to-battlefield, so the scry bottoms do
+                            // the finding). Tymna draws auto-decline once P1
+                            // secures Elves (secured mill guard).
+                            .filterMaxPerTurn(1, 3)
+                            .scryGas(1, 4)
                             .choice("alternative cost", "exile")
                             .allowCommanderCast(0).allowCommanderCast(1)
                             .assemblyFiltering(0).assemblyFiltering(1)
@@ -69,11 +76,13 @@ final class Ws60Scenarios2 {
                             .secureWhen(1, "Llanowar Elves")
                             .setupCast(1, "Llanowar Elves")
                             .turnGate(1, "Llanowar Elves", 65)
-                            .seek(0, 6, "Force of Will", "Turn to Frog", "Command Tower",
-                                    "Exotic Orchard", "Reflecting Pool", "Gemstone Mine",
-                                    "Tendo Ice Bridge")
-                            .seek(1, 6, "Llanowar Elves", "Command Tower", "Exotic Orchard",
-                                    "Reflecting Pool", "Gemstone Mine", "Tendo Ice Bridge")
+                            // Hard-seek both 1-of assembly pieces (opener piece
+                            // plus scry-dug draws); fixing-seek keeps would stop
+                            // mulligans before the pieces are found, and the old
+                            // diluted seeks decked all four seats by turn ~124
+                            // without ever meeting.
+                            .seek(0, 6, "Force of Will", "Turn to Frog")
+                            .seek(1, 6, "Llanowar Elves")
                             .critical("Force of Will")
                             .critical("blue card from your hand");
                     return pilot;
@@ -85,7 +94,10 @@ final class Ws60Scenarios2 {
                         && Ws60Views.life(view, 0) == 39),
                 () -> captureSet(
                         "pitch-selection",
-                        frameIs("target", "blue card from your hand"),
+                        // Pitch exile arrives as choose_object (cost payment),
+                        // not target: accept either engine rendering.
+                        frameIsAny(List.of("target", "choose_object"),
+                                "blue card from your hand"),
                         "cost-choice",
                         frameIs("choice", "Force of Will")),
                 List.of(

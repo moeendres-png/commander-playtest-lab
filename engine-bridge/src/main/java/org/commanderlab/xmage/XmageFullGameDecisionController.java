@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import mage.game.Game;
 import mage.players.Player;
 
@@ -571,10 +572,43 @@ final class XmageFullGameDecisionController {
     static JsonObject option(String optionId, String label, String optionType, JsonObject metadata) {
         JsonObject option = new JsonObject();
         option.addProperty("option_id", optionId);
-        option.addProperty("label", label == null ? optionId : label);
+        option.addProperty("label", redactObjectIds(label == null ? optionId : label));
         option.addProperty("option_type", optionType == null ? "generic" : optionType);
-        option.add("metadata", metadata == null ? new JsonObject() : metadata.deepCopy());
+        option.add("metadata", redactObjectIds(metadata == null ? new JsonObject() : metadata.deepCopy()));
         return option;
+    }
+
+    /** Per-game engine object identity carries no Rules content and must not
+     * enter twin-stable projections (primary and replica mint distinct ids). */
+    private static final java.util.regex.Pattern OBJECT_ID_UUID = java.util.regex.Pattern.compile(
+            "object_id='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'");
+
+    static String redactObjectIds(String text) {
+        return text == null ? null : OBJECT_ID_UUID.matcher(text).replaceAll("object_id='#'");
+    }
+
+    private static JsonObject redactObjectIds(JsonObject object) {
+        for (Map.Entry<String, com.google.gson.JsonElement> entry : object.entrySet()) {
+            if (entry.getValue().isJsonPrimitive()
+                    && entry.getValue().getAsJsonPrimitive().isString()) {
+                entry.setValue(new JsonPrimitive(
+                        redactObjectIds(entry.getValue().getAsString())));
+            } else if (entry.getValue().isJsonObject()) {
+                redactObjectIds(entry.getValue().getAsJsonObject());
+            } else if (entry.getValue().isJsonArray()) {
+                com.google.gson.JsonArray array = entry.getValue().getAsJsonArray();
+                for (int index = 0; index < array.size(); index++) {
+                    if (array.get(index).isJsonPrimitive()
+                            && array.get(index).getAsJsonPrimitive().isString()) {
+                        array.set(index, new com.google.gson.JsonPrimitive(
+                                redactObjectIds(array.get(index).getAsString())));
+                    } else if (array.get(index).isJsonObject()) {
+                        redactObjectIds(array.get(index).getAsJsonObject());
+                    }
+                }
+            }
+        }
+        return object;
     }
 
     static String stableId(String... parts) {

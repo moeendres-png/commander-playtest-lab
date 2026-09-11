@@ -428,11 +428,48 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean choose(Outcome outcome, Choice choice, Game game) {
+        // Key-mode choices (alternative-cost menus, modal menus) carry their
+        // items in keyChoices while the plain choice set stays empty; the old
+        // code projected zero options and returned false, silently cancelling
+        // the cast. Project key -> engine text and record the pick by key.
+        if (choice.isKeyChoice() && !choice.getKeyChoices().isEmpty()) {
+            List<String> keys = new ArrayList<>(choice.getKeyChoices().keySet());
+            keys.sort(String::compareTo);
+            JsonArray options = new JsonArray();
+            Map<String, String> byOption = new HashMap<>();
+            for (String key : keys) {
+                String text = choiceText(choice.getKeyChoices().get(key));
+                String optionId = optionId("choice-key", key);
+                JsonObject metadata = new JsonObject();
+                metadata.addProperty("choice_key", key);
+                metadata.addProperty("choice", text == null ? key : text);
+                options.add(XmageFullGameDecisionController.option(
+                        optionId, text == null ? key : text, "choice", metadata));
+                byOption.put(optionId, key);
+            }
+            String selected = requireSingle(request(
+                    game,
+                    "choice",
+                    choicePrompt(choice),
+                    1,
+                    1,
+                    options,
+                    outcomeContext(outcome),
+                    null
+            ));
+            String key = byOption.get(selected);
+            if (key == null) {
+                fail("ILLEGAL_ACTION", "choice option disappeared: " + selected);
+            }
+            choice.setChoiceByKey(key, false);
+            return true;
+        }
         List<String> values = new ArrayList<>(choice.getChoices());
         values.sort(String::compareTo);
         JsonArray options = new JsonArray();
         Map<String, String> choices = new HashMap<>();
-        for (String value : values) {
+        for (String raw : values) {
+            String value = choiceText(raw);
             String optionId = optionId("choice", value);
             JsonObject metadata = new JsonObject();
             metadata.addProperty("choice", value);
@@ -447,7 +484,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         String selected = requireSingle(request(
                 game,
                 "choice",
-                "Choose option",
+                choicePrompt(choice),
                 1,
                 1,
                 options,
@@ -460,6 +497,34 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         choice.setChoice(value);
         return true;
+    }
+
+    private static final java.util.regex.Pattern CHOICE_SHORT_ID =
+            java.util.regex.Pattern.compile(" \\[[0-9a-z]{1,8}\\]");
+
+    /** Strip per-game identity from engine choice text (UUIDs plus GameLog
+     * short-id suffixes like "Force of Will [bd5]"); Rules content untouched. */
+    private static String choiceText(String text) {
+        if (text == null) {
+            return null;
+        }
+        String redacted = XmageFullGameDecisionController.redactObjectIds(text);
+        return CHOICE_SHORT_ID.matcher(redacted).replaceAll(" [#]");
+    }
+
+    /** Engine choice message (with sub-message) or the legacy generic prompt. */
+    private static String choicePrompt(Choice choice) {        try {
+            String message = choice.getMessage();
+            String sub = choice.getSubMessage();
+            String combined = ((message == null ? "" : message)
+                    + " " + (sub == null ? "" : sub)).trim();
+            if (!combined.isEmpty()) {
+                return choiceText(combined);
+            }
+        } catch (RuntimeException ignored) {
+            // Fall through to the legacy prompt.
+        }
+        return "Choose option";
     }
 
     @Override
