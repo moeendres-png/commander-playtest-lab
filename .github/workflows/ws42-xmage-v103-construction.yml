@@ -1,0 +1,257 @@
+name: WS42 XMage v1.0.3 Census and Construction
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws42-xmage-v1.0.3/**'
+      - 'candidate-qualification/ws39-xmage-successor/**'
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - 'candidate-qualification/ws36-xmage-successor/**'
+      - 'candidate-qualification/finalist-convergence-xmage/**'
+      - '.github/workflows/ws42-xmage-v103-construction.yml'
+  push:
+    branches:
+      - ws42/xmage-v1.0.3-successor-qualification
+    paths:
+      - 'engine-bridge/**'
+      - 'candidate-qualification/ws42-xmage-v1.0.3/**'
+      - 'candidate-qualification/ws39-xmage-successor/**'
+      - 'candidate-qualification/ws34-xmage-successor/**'
+      - 'candidate-qualification/ws36-xmage-successor/**'
+      - 'candidate-qualification/finalist-convergence-xmage/**'
+      - '.github/workflows/ws42-xmage-v103-construction.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS41_FREEZE_COMMIT: 24152acf36b5a560c23ccacfed3f31d3039537eb
+  WS41_FREEZE_TREE: 428bbe58b2ea7b869200521092a8768108029b47
+  WS41_MATERIALIZATION_SHA256: 8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5
+  XMAGE_WS42_COMMIT: 7bde812727817723616c575759f39bfc4cda4607
+  XMAGE_WS42_TREE: a44f32e9d34109ac3f272494f0e8eb9ea3e6280c
+  COMMANDER_LAB_XMAGE_WS26_BRIDGE_CMD: >-
+    java -cp ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar:${{ github.workspace }}/engine-bridge/target/dependency/* org.commanderlab.xmage.XmageWs26QualificationMain full-game
+
+jobs:
+  census-and-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact WS42 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Record provider identity
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws42-v103-construction artifacts/ws39-ci
+          EXPECTED_PROVIDER_COMMIT='${{ github.event.pull_request.head.sha || github.sha }}'
+          ACTUAL_PROVIDER_COMMIT="$(git rev-parse HEAD)"
+          test "$ACTUAL_PROVIDER_COMMIT" = "$EXPECTED_PROVIDER_COMMIT"
+          printf '%s\n' "$EXPECTED_PROVIDER_COMMIT" > artifacts/ws42-v103-construction/EXPECTED_PROVIDER_COMMIT.txt
+          printf '%s\n' '${{ github.sha }}' > artifacts/ws42-v103-construction/TRIGGER_GITHUB_SHA.txt
+          printf '%s\n' '${{ github.event_name }}' > artifacts/ws42-v103-construction/TRIGGER_EVENT_NAME.txt
+          git rev-parse HEAD | tee artifacts/ws42-v103-construction/PROVIDER_COMMIT.txt
+          git rev-parse HEAD^{tree} | tee artifacts/ws42-v103-construction/PROVIDER_TREE.txt
+
+      - name: Checkout exact immutable WS41 contract
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS41_FREEZE_COMMIT }}
+          path: _ws41
+
+      - name: Checkout exact repaired XMage
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_WS42_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+
+      - name: Install Commander Lab runtime dependencies
+        run: python -m pip install -e .
+
+      - name: Verify exact source locks and immutable materialization
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws41 rev-parse HEAD)" = "$WS41_FREEZE_COMMIT"
+          test "$(git -C _ws41 rev-parse HEAD^{tree})" = "$WS41_FREEZE_TREE"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD)" = "$XMAGE_WS42_COMMIT"
+          test "$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})" = "$XMAGE_WS42_TREE"
+          MATERIALIZATION=_ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json
+          test "$(sha256sum "$MATERIALIZATION" | cut -d' ' -f1)" = "$WS41_MATERIALIZATION_SHA256"
+          printf '%s\n' "$WS41_FREEZE_COMMIT" > artifacts/ws42-v103-construction/WS41_COMMIT.txt
+          printf '%s\n' "$WS41_FREEZE_TREE" > artifacts/ws42-v103-construction/WS41_TREE.txt
+          printf '%s\n' "$XMAGE_WS42_COMMIT" > artifacts/ws42-v103-construction/XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_WS42_TREE" > artifacts/ws42-v103-construction/XMAGE_TREE.txt
+          python -m py_compile \
+            candidate-qualification/ws42-xmage-v1.0.3/successor_contract_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/build_denominator_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103_enriched.py \
+            candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103_enriched.py \
+            candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py \
+            candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py \
+            candidate-qualification/ws39-xmage-successor/run_tax3.py \
+            candidate-qualification/ws39-xmage-successor/canonical_v102.py
+
+      - name: Independently reconstruct exact v1.0.3 denominator and requested-state digests
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws42-xmage-v1.0.3/build_denominator_v103.py \
+            --contract _ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --output artifacts/ws42-v103-construction/WS42_DENOMINATOR_MANIFEST_107.json \
+            | tee artifacts/ws42-v103-construction/WS42_DENOMINATOR_STDOUT.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('artifacts/ws42-v103-construction/WS42_DENOMINATOR_MANIFEST_107.json').read_text())
+          assert p['provider_denominator'] == 107
+          assert p['unique_fixture_ids'] == 107
+          assert p['all_requested_state_digests_recomputed_equal'] is True
+          assert p['published_ws41_provider_denominator_consumed'] is False
+          assert p['historical_successor_pass_imported'] is False
+          assert p['fresh_runtime_credit_granted'] is False
+          assert p['family_counts'] == {
+              'actual_card': 1,
+              'hidden_information': 20,
+              'micro_rules': 17,
+              'multiplayer_commander': 36,
+              'pilot_boundary': 17,
+              'pilot_boundary_negative': 7,
+              'player_count': 4,
+              'replay_rng': 5,
+          }
+          PY
+
+      - name: Run native commander-history regression
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          mvn test -B -ntp \
+            -Dtest=CommanderPlaysCountStateRestoreTest \
+            -Dsurefire.failIfNoSpecifiedTests=false \
+            -Dxmage.dataCollectors.printGameLogs=false \
+            -Dlog4j.configuration=file:${PWD}/.travis/log4j.properties
+
+      - name: Apply qualification overlays including WS42 native-state extension and readback
+        run: |
+          set -euo pipefail
+          python candidate-qualification/finalist-convergence-xmage/apply_primitive_a_native_state_overlay.py
+          python candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py
+          python candidate-qualification/ws36-xmage-successor/apply_ws36_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_provider_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_runtime_evidence_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_state_surface_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_state_overlay.py
+          python candidate-qualification/ws39-xmage-successor/apply_ws39_stack_identity_overlay.py
+          python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py
+          python candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py
+          git diff --check
+          git -C vendor/engine-source/xmage diff --check
+          git diff -- engine-bridge > artifacts/ws42-v103-construction/QUALIFICATION_BRIDGE_OVERLAY.patch
+          git -C vendor/engine-source/xmage diff > artifacts/ws42-v103-construction/XMAGE_QUALIFICATION_OVERLAY.patch
+          cp artifacts/ws39-ci/WS39_XMAGE_RNG_SOURCE_TRANSFORM.json artifacts/ws42-v103-construction/
+
+      - name: Build exact repaired XMage
+        working-directory: vendor/engine-source/xmage
+        run: mvn -B -ntp -DskipTests install
+
+      - name: Build qualification bridge
+        working-directory: engine-bridge
+        run: |
+          set -o pipefail
+          mvn -B -ntp verify 2>&1 | tee ../artifacts/ws42-v103-construction/BRIDGE_BUILD.log
+
+      - name: Materialize runtime classpath
+        working-directory: engine-bridge
+        run: |
+          set -euo pipefail
+          mvn -B -ntp dependency:copy-dependencies \
+            -DincludeScope=runtime \
+            -DoutputDirectory="${{ github.workspace }}/engine-bridge/target/dependency"
+          test -n "$(find "${{ github.workspace }}/engine-bridge/target/dependency" -maxdepth 1 -name '*.jar' -print -quit)"
+
+      - name: Execute fresh fail-closed v1.0.3 full107 native construction probe
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103_enriched.py \
+            --contract _ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --output artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json \
+            | tee artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_STDOUT.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json').read_text())
+          assert p['denominator'] == 107 and p['record_count'] == 107
+          assert p['historical_pass_imported'] is False
+          assert p['runtime_credit_granted'] is False
+          assert p['legacy_request_echo_accepted_as_proof'] is False
+          assert p['independent_normalized_construction_gate_closed'] is False
+          assert p['max_workers'] == 1
+          assert p['parallel_probe_qualified'] is False
+          assert sum(p['counts'].values()) == 107
+          assert p['candidate_commit'] == Path('artifacts/ws42-v103-construction/PROVIDER_COMMIT.txt').read_text().strip()
+          PY
+
+      - name: Independently normalize native constructed state
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103_enriched.py \
+            --contract _ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --probe artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json \
+            --output artifacts/ws42-v103-construction/WS42_INDEPENDENT_CONSTRUCTION_NORMALIZATION.json \
+            | tee artifacts/ws42-v103-construction/WS42_INDEPENDENT_CONSTRUCTION_NORMALIZATION_STDOUT.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          n = json.loads(Path('artifacts/ws42-v103-construction/WS42_INDEPENDENT_CONSTRUCTION_NORMALIZATION.json').read_text())
+          p = json.loads(Path('artifacts/ws42-v103-construction/WS42_FULL107_CONSTRUCTION_PROBE.json').read_text())
+          provider = Path('artifacts/ws42-v103-construction/PROVIDER_COMMIT.txt').read_text().strip()
+          admitted = p['counts'].get('NATIVE_SETUP_PASS_AWAITING_INDEPENDENT_NORMALIZATION', 0)
+          assert n['denominator'] == 107 and n['record_count'] == 107
+          assert n['construction_credit_count'] == admitted
+          assert n['source_probe_native_setup_pass'] == admitted
+          assert n['candidate_commit'] == provider
+          assert n['historical_pass_imported'] is False
+          assert n['legacy_request_echo_consumed'] is False
+          assert n['whole_requested_state_object_copied'] is False
+          assert n['behavior_runtime_credit_granted'] is False
+          assert n['counts'].get('PASS_INDEPENDENT_NORMALIZATION', 0) == admitted
+          PY
+
+      - name: Seal construction evidence
+        if: always()
+        run: |
+          mkdir -p artifacts/ws42-v103-construction/surefire
+          find vendor/engine-source/xmage -path '*/target/surefire-reports/*CommanderPlaysCountStateRestoreTest*' -type f -exec cp {} artifacts/ws42-v103-construction/surefire/ \; || true
+          find artifacts/ws42-v103-construction -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws42-v103-construction/SHA256SUMS || true
+
+      - name: Upload WS42 construction evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws42-v103-construction-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/ws42-v103-construction/
+          if-no-files-found: error
