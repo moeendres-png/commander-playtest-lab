@@ -1,0 +1,60 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws64-forge-a04-vertical-path-investigation
+branch: ws64/forge-a04-vertical-path-investigation-20260911
+audit_base_sha: 63930f13e8308c8a1d17fff5fd5a82c62ef5519d
+audit_base_tree: e9eb007cc24bae8b0f35afae83f87ae4cadbde38
+state_written_against_head: 8cac11e9e5ec111a9d9901923f5a1c2d80165936
+validated_head: 8cac11e9e5ec111a9d9901923f5a1c2d80165936
+objective: 'WS64 A04 vertical-path investigation: explain and close, without Rules
+  reconstruction, why the WS62 CPL/provider ACT->cast path on accepted Forge pin a9a95db
+  produced no ETB replacement decisions while native Forge full-cast tests reproduce
+  correct CR 107.3m behavior.'
+in_scope:
+- WS62 candidate provider and harness ACT-to-cast transport
+- X decision submission and option identity
+- native SpellAbility object continuity through CPL transport
+- payment/resolution invocation path
+- Moved replacement-event generation and transport observation
+- minimal provider/harness transport remediation if root cause is non-Rules transport
+- comparison against WS63 diagnostics without adopting WS63 as engine pin
+- A04 readiness re-adjudication
+- targeted C01/G04 regression if shared provider surfaces change
+out_of_scope:
+- new Forge Rules semantics without a newly proven engine defect
+- adopting 3347084 as engine pin merely because it exists
+- provider counter arithmetic or replacement synthesis
+- First-Wave behavior credit
+- Full107
+- Architecture Freeze
+- Production Provider selection
+dependencies:
+- WS62 terminal 63930f13e8308c8a1d17fff5fd5a82c62ef5519d
+- accepted Forge pin a9a95db6662c2d28814390a9c0c2f986e39aa8b4
+- WS63 diagnostic terminal 17945295b8dddd5c41ea471432d3c03d581ed16a
+hard_gates:
+- reproduce WS62 vertical failure before remediation
+- prove exact ACT option and native SpellAbility identity across submission
+- prove native X decision reaches the actual cast ability
+- no Rules legality reconstruction in provider
+- no counter/replacement outcome synthesis
+- if provider/harness defect, repair transport only
+- if engine defect is newly proven, stop with exact Forge packet
+- A04 READY only after full CPL vertical path reaches native replacement framework
+- UNKNOWN is not PASS
+forbidden_shortcuts:
+- first option
+- random option
+- default yes/no
+- manual setXManaCostPaid as production transport
+- manual moveToStack/moveToPlay as credited CPL proof
+- manual counter injection
+- manual replacement injection
+- provider Rules solver
+- card-name legality
+ownership: WS64-FORGE-A04-VERTICAL-PATH-INVESTIGATION
+status: COMPLETE
+exact_next_action: 'Coordinator: accept WS64 evidence (validated HEAD 8cac11e9); schedule
+  First-Wave execution outside WS64; do not adopt 3347084; no behavior credit claimed.'
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high

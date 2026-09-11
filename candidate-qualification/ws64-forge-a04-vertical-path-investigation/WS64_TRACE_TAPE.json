@@ -1,0 +1,2594 @@
+{
+ "evidence_class": "DIRECTLY_VERIFIED (diagnostic observation-only milestones; behavior-preserving: 1282 frames, same verdict/fingerprints as exact repro)",
+ "forge": {
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+ },
+ "native_event_tape_full": [
+  {
+   "event": "shuffle",
+   "facts": "seat-1"
+  },
+  {
+   "event": "shuffle",
+   "facts": "seat-2"
+  },
+  {
+   "event": "shuffle",
+   "facts": "seat-3"
+  },
+  {
+   "event": "shuffle",
+   "facts": "seat-4"
+  },
+  {
+   "event": "shuffle",
+   "facts": "seat-1"
+  },
+  {
+   "event": "mulligan",
+   "facts": "seat-1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=942:hostId=95:isSpell=false:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=3:label=WS48:ACT:host=MINTED-95:cmd=null:card=Forest:sa=Play+land:hostId=95"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=942:hostId=95",
+   "facts": ""
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=941:hostId=8:isSpell=true:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=2:label=WS48:ACT:host=MINTED-8:cmd=null:card=Hardened+Scales:sa=Hardened+Scales:hostId=8"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=941:hostId=8",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=941:hostId=8:host=Hardened+Scales:x=null:api=PermanentNoncreature:isSpell=true:isRepl=false:hasETB=false:calcX=1:cost=:sa=Hardened+Scales",
+   "facts": ""
+  },
+  {
+   "event": "milestone:applyManaToCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=943:hostId=95:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "spell_cast",
+   "facts": "Hardened Scales|null"
+  },
+  {
+   "event": "spell_resolved",
+   "facts": "fizzled=false|Hardened Scales"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=944:hostId=77:isSpell=false:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=2:label=WS48:ACT:host=MINTED-77:cmd=null:card=Forest:sa=Play+land:hostId=77"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=944:hostId=77",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=951:hostId=85:isSpell=false:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=4:label=WS48:ACT:host=MINTED-85:cmd=null:card=Forest:sa=Play+land:hostId=85"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=951:hostId=85",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=1110:hostId=51:isSpell=false:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=5:label=WS48:ACT:host=MINTED-51:cmd=null:card=Forest:sa=Play+land:hostId=51"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=1110:hostId=51",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=1688:hostId=98:isSpell=false:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=8:label=WS48:ACT:host=MINTED-98:cmd=null:card=Forest:sa=Play+land:hostId=98"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=1688:hostId=98",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=939:hostId=27:isSpell=true:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=1:label=WS48:ACT:host=MINTED-27:cmd=null:card=Doubling+Season:sa=Doubling+Season:hostId=27"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=939:hostId=27",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=939:hostId=27:host=Doubling+Season:x=null:api=PermanentNoncreature:isSpell=true:isRepl=false:hasETB=false:calcX=0:cost=:sa=Doubling+Season",
+   "facts": ""
+  },
+  {
+   "event": "milestone:applyManaToCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=943:hostId=95:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=945:hostId=77:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=952:hostId=85:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=1111:hostId=51:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=1689:hostId=98:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "spell_cast",
+   "facts": "Doubling Season|null"
+  },
+  {
+   "event": "spell_resolved",
+   "facts": "fizzled=false|Doubling Season"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "ws64Priority:SELECTED",
+   "facts": "saId=1545:hostId=32:isSpell=true:x=null"
+  },
+  {
+   "event": "priority_binding",
+   "facts": "idx=6:label=WS48:ACT:host=MINTED-32:cmd=null:card=Stonecoil+Serpent:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29:hostId=32"
+  },
+  {
+   "event": "milestone:ws64PlayChosen:saId=1545:hostId=32",
+   "facts": ""
+  },
+  {
+   "event": "milestone:announceRequirements:RANGED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64Announce:RANGED_RETURNED:v=3:saId=1545:hostId=32",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=1545:hostId=32:host=Stonecoil+Serpent:x=3:api=PermanentCreature:isSpell=true:isRepl=false:hasETB=false:calcX=3:cost=:sa=Stonecoil+Serpent+-+Creature+0+%2F+0+%28X%3D0%29",
+   "facts": ""
+  },
+  {
+   "event": "milestone:applyManaToCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=943:hostId=95:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=945:hostId=77:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=952:hostId=85:host=Forest:x=null:api=Mana:isSpell=false:isRepl=false:hasETB=false:calcX=0:cost=%7BT%7D:sa=%7BT%7D%3A+Add+%7BG%7D.",
+   "facts": ""
+  },
+  {
+   "event": "spell_cast",
+   "facts": "Stonecoil Serpent - Creature 0 / 0 (X=0)|null"
+  },
+  {
+   "event": "milestone:chooseSingleReplacementEffect:CALLED:n=1",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64Repl:host=Stonecoil+Serpent:hostId=32:x=3:castSaId=1545:castX=3:unlinked=false:counterAmount=0:svarX=Count%24xPaid:saSvarX=Count%24xPaid:desc=Stonecoil+Serpent+%2832%29+-+Stonecoil+Serpent+enters+with+X+%2B1%2F%2B1+counters+on+it.",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64Stack:ssaId=1545:ssaHost=32:ssaX=3:cardId=32:castSaId=1545:cardX=3",
+   "facts": ""
+  },
+  {
+   "event": "milestone:getCostDecisionMaker:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:payManaCost:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64PayMana:saId=1993:hostId=32:host=Stonecoil+Serpent:x=null:api=PutCounter:isSpell=false:isRepl=true:hasETB=true:calcX=3:cost=%7B0%7D:sa=",
+   "facts": ""
+  },
+  {
+   "event": "milestone:ws64CounterType:CALLED:n=1:saId=1993:hostId=32:host=Stonecoil+Serpent:opts=P1P1",
+   "facts": ""
+  },
+  {
+   "event": "spell_resolved",
+   "facts": "fizzled=false|Stonecoil Serpent - Creature 0 / 0 (X=3)"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UNTAP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "UPKEEP"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "DRAW"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN1"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_BEGIN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_ATTACKERS"
+  },
+  {
+   "event": "attackers_declared",
+   "facts": "0"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DECLARE_BLOCKERS"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_FIRST_STRIKE_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_DAMAGE"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "COMBAT_END"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "MAIN2"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "END_OF_TURN"
+  },
+  {
+   "event": "turn_phase",
+   "facts": "CLEANUP"
+  },
+  {
+   "event": "milestone:chooseCardsToDiscardToMaximumHandSize:ENTERED",
+   "facts": ""
+  }
+ ],
+ "native_events": 646
+}
