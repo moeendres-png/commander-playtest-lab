@@ -1,0 +1,83 @@
+{
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "rig": "lineage_rig: remote main advanced past fork; remote source/lineage at audit base B (B NOT in main ancestry); local target/ws from B, audit_base_sha=B, target remote ref absent; real file:// repos; genuine lock-ancestry holder; ls-remote verified no-write on every negative",
+  "suite": "tests/foundry/test_safe_push.py",
+  "threat_cases": [
+    {
+      "kind": "positive",
+      "expects": "rc 0, SAFE_PUSH_OK: DRY_RUN_OK, remote target still absent",
+      "name": "test_lineage_creation_dry_run_with_source_ref"
+    },
+    {
+      "kind": "positive",
+      "expects": "rc 0 PUSHED at live HEAD, then UP_TO_DATE with flag",
+      "name": "test_lineage_creation_pushes_with_source_ref"
+    },
+    {
+      "kind": "positive",
+      "expects": "rc 0 DRY_RUN_OK after fetch; source tip advanced past audit base",
+      "name": "test_lineage_creation_allows_advanced_source_tip"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'audit base is outside the remote history' (legacy gate preserved)",
+      "name": "test_lineage_creation_rejected_without_source_ref"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'absent on remote'",
+      "name": "test_lineage_absent_source_ref_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'does not contain the audit base' for unrelated/line AND for main",
+      "name": "test_lineage_unrelated_source_ref_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 PUSH_REJECT for: 'x --force', 'HEAD:refs/heads/other', '-u', 'a:b', 'a..b', 'a b', 'refs/heads/source/lineage', 'HEAD', 'source/*', 'a@{1}', target-self, 40-hex SHA (unit + end-to-end subset)",
+      "name": "test_lineage_malformed_source_refs_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 WRONG_REMOTE",
+      "name": "test_lineage_wrong_remote_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'dirty worktree'",
+      "name": "test_lineage_dirty_tree_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'writer lock'",
+      "name": "test_lineage_missing_lock_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'not an ancestor' (sibling holder process)",
+      "name": "test_lineage_sibling_lock_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'validated_head is null'",
+      "name": "test_lineage_null_validated_head_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 VALIDATED_OUTSIDE_LOCK (gate 7 precedes gate 9; no write either way)",
+      "name": "test_lineage_audit_base_outside_head_rejected"
+    },
+    {
+      "kind": "negative",
+      "expects": "rc 2 'non-fast-forward', rival tip preserved",
+      "name": "test_lineage_non_fast_forward_rejected"
+    },
+    {
+      "kind": "unit",
+      "expects": "main passes source-ref format, fails destination format; ancestry still rejects it end-to-end",
+      "name": "test_lineage_source_ref_allows_protected_names_as_identity"
+    }
+  ],
+  "unit_note": "_valid_source_ref_name covers the full malformed list without remote contact; no negative control pushes anything"
+}
