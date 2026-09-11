@@ -25,7 +25,7 @@ source_lock:
   old_engine_commit: 0c1f455ea8c8fa48ab9d638ad5068ec242800428
   old_engine_tree: fdb8bf56a8bd8199a4ef372e468d93d6550b0649
   ws54_verdict: XMAGE_RNG_REEXECUTION_REMEDIATION_PASS
-state_written_against_head: 7023cbdf533df82d59a50a83d16baf816edb7307
+state_written_against_head: 1dc43619eff5b71cf20405c5c8da83493ff52732
 status: TERMINAL_PASS
 technical_decisions:
 - {decision: 'Consume exactly successor 7135d5e (no master, no other pin, XMage read-only)', evidence: 'WS56_SOURCE_LOCK.md + WS56_PIN_INTEGRATION.json (DIRECTLY_VERIFIED rev-parse/trees/ancestry/clean)'}
@@ -45,5 +45,5 @@ validated_gates:
   hidden_info: PASS
   mode_identity: CLOSED
   negatives: PASS
-validated_head: null
+validated_head: 1dc43619eff5b71cf20405c5c8da83493ff52732
 worktree: /home/moeen/code/ws56-xmage-successor-requalification
