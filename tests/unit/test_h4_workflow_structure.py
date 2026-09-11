@@ -33,7 +33,9 @@ def _text(repo_root: Path) -> str:
 
 
 def _job_block(text: str, job: str) -> str:
-    if job == "h4-xmage":
+    if job == "preflight":
+        pattern = r"(?m)^  preflight:\s*$"
+    elif job == "h4-xmage":
         pattern = r"(?m)^  h4-xmage:\s*$"
     elif job == "h4-forge-image":
         pattern = r"(?m)^  h4-forge-image:\s*$"
@@ -134,3 +136,49 @@ def test_workflow_dispatch_comment_matches_github_semantics(repo_root):
     assert "once this workflow exists on the default branch" in text
     assert "Do not attempt workflow_dispatch before merge" in text
     assert "covers manual runs (post-merge or branch" not in text
+
+
+def _setup_python_blocks(job_block: str) -> list:
+    """Return the raw text of each setup-python step inside a job block."""
+    lines = job_block.splitlines()
+    blocks = []
+    current: list | None = None
+    for line in lines:
+        stripped = line.lstrip()
+        indent = len(line) - len(stripped)
+        if indent == 6 and stripped.startswith("- "):
+            if current is not None:
+                blocks.append("\n".join(current))
+                current = None
+            if "actions/setup-python@" in stripped:
+                current = [line]
+        elif current is not None:
+            if stripped == "" or indent >= 8:
+                current.append(line)
+            else:
+                blocks.append("\n".join(current))
+                current = None
+    if current is not None:
+        blocks.append("\n".join(current))
+    return blocks
+
+
+def test_docker_heavy_jobs_use_no_setup_python_pip_cache(repo_root):
+    # Run 34573843323: the Forge job's substantive H4 evidence completed, but
+    # the setup-python post-job pip-cache save traversed Docker-overlay state
+    # and failed the job. Docker-heavy jobs must not use the pip cache.
+    text = _text(repo_root)
+    for job in ("h4-xmage", "h4-forge-image"):
+        steps = _setup_python_blocks(_job_block(text, job))
+        assert len(steps) == 1, f"{job} must keep exactly one setup-python step"
+        assert 'python-version: "3.12"' in steps[0], f"{job} setup-python step was gutted"
+        assert "cache: pip" not in steps[0], (
+            f"{job} must not use setup-python pip caching (Docker-overlay hygiene)"
+        )
+
+
+def test_preflight_may_retain_setup_python_pip_cache(repo_root):
+    text = _text(repo_root)
+    steps = _setup_python_blocks(_job_block(text, "preflight"))
+    assert len(steps) == 1, "preflight must keep exactly one setup-python step"
+    assert "cache: pip" in steps[0], "preflight is Docker-free and may retain the pip cache"
