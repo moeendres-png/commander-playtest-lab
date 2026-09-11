@@ -141,7 +141,7 @@ final class Ws60Scenarios5 {
         TokenFlags flags = new TokenFlags();
         return new Ws60Suite.Spec("RQ-C3-J02",
                 "Delina d20 with roll-again",
-                "RQ-C3-J02", 6192L, 3000, seats,
+                "RQ-C3-J02", 6192L, 4200, seats,
                 () -> {
                     Ws60Pilot pilot = new Ws60Pilot("RQ-C3-J02");
                     commandersAll(pilot, seats);
@@ -154,17 +154,26 @@ final class Ws60Scenarios5 {
                             .allowCommanderCast(0).assemblyFiltering(0)
                             .bool("pay X life", true)
                             .scryGas(0, 4)
-                            .attackRoundRobin("Tymna the Weaver", List.of(1, 2, 3))
+                            .attackRoundRobin("Tymna the Weaver", List.of(2, 3, 1))
                             .attackRoundRobin("Tana, the Bloodsower", List.of(1, 2, 3))
                             .secureWhen(0, "Delina, Wild Mage", "Runeclaw Bear")
                             .attackCountGate("Delina, Wild Mage", "Runeclaw Bear", 1)
                             .attacker("Delina, Wild Mage", 1)
                             .target("creature you control", "Runeclaw Bear")
+                            // Delina's token enters tapped-and-attacking, so the
+                            // engine asks for ITS defender via a TargetDefender
+                            // frame (no blockers exist anywhere and J02 asserts
+                            // no life totals, so the token joins Delina on P1).
+                            .targetPlayer(
+                                    "player, planeswalker, or battle to attack", 1)
                             .bool("Roll again?", false)
-                            .seek(0, 6, "Delina, Wild Mage", "Runeclaw Bear",
-                                    "Command Tower", "Exotic Orchard", "Reflecting Pool",
-                                    "Gemstone Mine", "Tendo Ice Bridge", "Plains",
-                                    "Swamp")
+                            // Hard-seek the two 1-of assembly pieces: an opener
+                            // holding Delina or Bear plus the natural fixing
+                            // density (50 lands/98) assembles natively, while
+                            // fixing-seek keeps would stop mulligans before a
+                            // piece is found. London bottoms still protect both
+                            // pieces via the seek list.
+                            .seek(0, 6, "Delina, Wild Mage", "Runeclaw Bear")
                             .critical("Roll again?")
                             .critical("Delina, Wild Mage");
                     return pilot;

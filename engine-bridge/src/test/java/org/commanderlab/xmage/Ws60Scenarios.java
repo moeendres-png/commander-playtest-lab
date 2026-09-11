@@ -162,7 +162,13 @@ final class Ws60Scenarios {
             }
             if (entry.has("amount")) {
                 try {
-                    out.add(Integer.parseInt(entry.get("amount").getAsString().split(" ")[0]));
+                    // Tape amounts render as "amount=N" (see Ws60EventTape):
+                    // strip the prefix before parsing the die result.
+                    String first = entry.get("amount").getAsString().split(" ")[0];
+                    if (first.startsWith("amount=")) {
+                        first = first.substring("amount=".length());
+                    }
+                    out.add(Integer.parseInt(first));
                 } catch (RuntimeException ignored) {
                     // Non-numeric amount text is ignored for band analysis.
                 }

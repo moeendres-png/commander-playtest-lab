@@ -121,6 +121,7 @@ class Ws60Rqc3FirstWaveTest {
 
     @Test
     void rqc3J02() throws Exception {
-        runAndSeal(Ws60Scenarios5.j02(), 12);
+        // Wide seed scan: assembly (~1/3) x 15-20 band (30%) needs samples.
+        runAndSeal(Ws60Scenarios5.j02(), 40);
     }
 }
