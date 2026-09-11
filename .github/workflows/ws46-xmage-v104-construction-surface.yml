@@ -1,0 +1,94 @@
+name: WS46 XMage v1.0.4 Construction Surface Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws46/xmage-v1.0.4-successor-qualification
+    paths:
+      - 'candidate-qualification/ws46-xmage-v1.0.4/audit_construction_surface_v104.py'
+      - 'candidate-qualification/ws46-xmage-v1.0.4/successor_contract_v104.py'
+      - '.github/workflows/ws46-xmage-v104-construction-surface.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS44_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  WS44_TREE: cd83c973b269711106d08ab5be2d7672f05bcb7c
+  WS44_MATERIALIZATION_SHA256: 9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35
+
+jobs:
+  audit-open-construction-surfaces:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact WS46 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Checkout immutable WS44
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_COMMIT }}
+          path: _ws44
+          fetch-depth: 1
+
+      - name: Verify exact source lock
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws46-construction-surface
+          test "$(git -C _ws44 rev-parse HEAD)" = "$WS44_COMMIT"
+          test "$(git -C _ws44 rev-parse HEAD^{tree})" = "$WS44_TREE"
+          M=_ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
+          test "$(sha256sum "$M" | cut -d' ' -f1)" = "$WS44_MATERIALIZATION_SHA256"
+          git rev-parse HEAD > artifacts/ws46-construction-surface/WS46_COMMIT.txt
+          git rev-parse HEAD^{tree} > artifacts/ws46-construction-surface/WS46_TREE.txt
+          printf '%s\n' "$WS44_COMMIT" > artifacts/ws46-construction-surface/WS44_COMMIT.txt
+          printf '%s\n' "$WS44_TREE" > artifacts/ws46-construction-surface/WS44_TREE.txt
+
+      - name: Extract exact open construction surfaces
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            candidate-qualification/ws46-xmage-v1.0.4/successor_contract_v104.py \
+            candidate-qualification/ws46-xmage-v1.0.4/audit_construction_surface_v104.py
+          python candidate-qualification/ws46-xmage-v1.0.4/audit_construction_surface_v104.py \
+            --contract _ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json \
+            --output artifacts/ws46-construction-surface/WS46_CONSTRUCTION_SURFACE_AUDIT.json \
+            | tee artifacts/ws46-construction-surface/audit.log
+
+      - name: Assert fresh v1.0.4 construction census
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('artifacts/ws46-construction-surface/WS46_CONSTRUCTION_SURFACE_AUDIT.json').read_text())
+          assert p['provider_denominator'] == 107
+          assert p['runtime_credit_granted'] is False
+          assert p['historical_pass_imported'] is False
+          assert p['provider_semantics_used'] is False
+          assert p['execution_entry_modes'] == {'NATIVE_STATE_LOAD': 100, 'NATURAL_GAME_START': 7}, p['execution_entry_modes']
+          assert p['record_count_with_open_surface'] == 39
+          assert p['counts'] == {
+              'combat_state': 12,
+              'elimination_trigger': 6,
+              'extra_turn_creation': 2,
+              'knowledge_grants': 11,
+              'zone_move_event': 8,
+          }, p['counts']
+          PY
+
+      - name: Seal evidence
+        if: always()
+        run: |
+          find artifacts/ws46-construction-surface -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws46-construction-surface/SHA256SUMS || true
+
+      - name: Upload construction surface audit
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws46-v104-construction-surface-${{ github.sha }}
+          path: artifacts/ws46-construction-surface/
+          if-no-files-found: error

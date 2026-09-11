@@ -1,0 +1,79 @@
+name: WS42 Contract Surface
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws42/xmage-v1.0.3-successor-qualification
+    paths:
+      - 'scripts/ws42_extract_contract_surface.py'
+      - 'candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py'
+      - 'candidate-qualification/ws42-xmage-v1.0.3/successor_contract_v103.py'
+      - 'candidate-qualification/ws42-xmage-v1.0.3/validate_translation_v103.py'
+      - '.github/workflows/ws42-contract-surface.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS41_COMMIT: 24152acf36b5a560c23ccacfed3f31d3039537eb
+  WS41_TREE: 428bbe58b2ea7b869200521092a8768108029b47
+  MATERIALIZATION_SHA256: 8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5
+
+jobs:
+  extract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS41_COMMIT }}
+          path: _ws41
+      - name: Verify lock and extract compact provider surface
+        run: |
+          set -euo pipefail
+          test "$(git -C _ws41 rev-parse HEAD)" = "$WS41_COMMIT"
+          test "$(git -C _ws41 rev-parse HEAD^{tree})" = "$WS41_TREE"
+          SRC=_ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json
+          test "$(sha256sum "$SRC" | cut -d' ' -f1)" = "$MATERIALIZATION_SHA256"
+          mkdir -p artifacts/ws42-contract-surface
+          python scripts/ws42_extract_contract_surface.py \
+            --input "$SRC" \
+            --output artifacts/ws42-contract-surface/WS42_CONTRACT_SURFACE_107.json
+
+      - name: Audit provider translation against all 107 immutable records
+        run: |
+          set -euo pipefail
+          SRC=_ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json
+          python -m py_compile \
+            candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/successor_contract_v103.py \
+            candidate-qualification/ws42-xmage-v1.0.3/validate_translation_v103.py
+          PYTHONPATH="candidate-qualification/ws42-xmage-v1.0.3" \
+            python candidate-qualification/ws42-xmage-v1.0.3/validate_translation_v103.py \
+              --contract "$SRC" \
+              --output artifacts/ws42-contract-surface/WS42_TRANSLATION_INTEGRITY_107.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('artifacts/ws42-contract-surface/WS42_TRANSLATION_INTEGRITY_107.json').read_text())
+          assert p['denominator'] == 107 and p['record_count'] == 107
+          assert p['all_request_digests_exact'] is True
+          assert p['all_rules_seeds_exact'] is True
+          assert p['historical_runtime_pass_imported'] is False
+          assert p['construction_credit_granted'] is False
+          assert p['behavior_runtime_credit_granted'] is False
+          PY
+
+      - name: Seal translation evidence
+        if: always()
+        run: |
+          find artifacts/ws42-contract-surface -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws42-contract-surface/SHA256SUMS || true
+
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: ws42-contract-surface-${{ github.sha }}
+          path: artifacts/ws42-contract-surface/
+          if-no-files-found: error
