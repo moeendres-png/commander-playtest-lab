@@ -28,6 +28,23 @@ Historical research, dated reports, and superseded proposals stay where they are
 keep their facts; only their execution-routing instructions are superseded, per
 `GOVERNANCE_SUPERSESSION.md`. Do not rewrite historical evidence to look current.
 
+## Workstream state writes (canonical)
+
+- Never hand-concatenate `WORKSTREAM_STATE.yaml`. Free-form scalars (colons,
+  `#`, quotes, newlines, Unicode) break naive YAML and have blocked
+  checkpoints before.
+- Use the canonical writer: `tools/foundry/state.py --patch-file PATCH
+  --state FILE` for checkpoints (full replacement via `--write-from INPUT`;
+  explicit `--set-validated-head SHA` / `--clear-validated-head` for credit;
+  `--stamp-head --workdir DIR` for the descriptive HEAD stamp), or
+  `write_state` / `update_state` from Python. Writes are validated before
+  replace, identity-locked, and atomic; failures leave the prior file
+  byte-identical.
+- Validate after every material checkpoint (`state.py --state FILE`, plus
+  `--workdir` / `--check-validated` ancestry where credit is claimed).
+- `validated_head` means actual validation evidence for that commit, never
+  merely current HEAD. `null` is the honest default.
+
 ## Skill precedence
 
 Repository-local project skills under `.opencode/skills/` take precedence over
