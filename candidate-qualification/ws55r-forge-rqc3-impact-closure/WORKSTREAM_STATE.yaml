@@ -1,7 +1,7 @@
 audit_base_sha: 47a1e714903a91d8929f48df6451365e8b7a7996
 audit_base_tree: 8028eafca996021d2fdc667d9bee735c83081419
 branch: ws55r/forge-rqc3-impact-closure-20260911
-exact_next_action: 'A04 exact-fixture probe (Doubling Season + Hardened Scales + Serpent X=3), then hidden-info file + readiness + report.'
+exact_next_action: 'Coordinator: confirm RQ-C3/Sol readiness; rule on AG-1/2/3; disposition A04/C01/G04 engine gaps (packets ready); commission first-wave execution separately.'
 in_scope:
 - Derive corrected 20-kind RQ-C3 denominator mechanically (triple-agree).
 - Impact-ledger every WS55 Decision family (NO_IMPACT preserved, no gratuitous reruns).
@@ -25,7 +25,8 @@ out_of_scope:
 ownership: WS55R-FORGE-RQC3-IMPACT-CLOSURE
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-status: ACTIVE
+status: COMPLETE
+terminal_verdict: FORGE_RQC3_ENGINE_CHANGE_REQUIRED
 validated_head: null
 worktree: /home/moeen/code/ws55r-forge-rqc3-impact-closure
 checkpoints:
@@ -36,28 +37,56 @@ checkpoints:
     - WS55R_CORRECTED_DENOMINATOR.json (20 kinds, triple-agree)
     - ws55r_derive_rqc3.py
   I_impact_ledger:
-    status: IN_PROGRESS
-    evidence: []
+    status: DONE
+    evidence:
+    - WS55R_RQC3_IMPACT_LEDGER.json (17/2/3/0/0, premises asserted)
+    - ws55r_impact_ledger.py
   A_a04_replacement_ordering:
-    status: PENDING
-    evidence: []
+    status: DONE
+    evidence:
+    - ev-ws55r/WS55R_A04_EVID.json (1282 frames; exact fixture; ordering unoffered)
+    - ev-ws55r/WS55R_A04_REPLAY.json (0-div)
+    - WS55R_A04_REPLACEMENT_ORDERING.json (gap + engine-change packet)
   C_c01_cost_pitch:
     status: DONE
     evidence:
-    - ev-ws55r/WS55R_C01_EVID.json (837 frames; stages 1-5 PASS, 6-11 NOT_REACHED fail-closed)
-    - WS55R_C01_COST_PITCH.json (11-stage accounting + first-failing-boundary)
+    - ev-ws55r/WS55R_C01_EVID.json (837 frames; stages 1-5 PASS, 6-11 NOT_REACHED)
+    - ev-ws55r/WS55R_C01_REPLAY.json (0-div)
+    - WS55R_C01_COST_PITCH.json (11 stages + first-failing-boundary)
     - ws55r_hidden_audit.py (planted-leak PASS, 18030 checks, 0 violations)
   G_g04_concession:
     status: DONE
     evidence:
     - WS55R_G04_CONCESSION.json (native architecture source-derived; gap honest)
   E_e02_reclassification:
-    status: PENDING
-    evidence: []
+    status: DONE
+    evidence:
+    - WS55R_E02_RECLASSIFICATION.json (unconditional READY, no rerun)
   H_hidden_info:
-    status: PENDING
-    evidence: []
+    status: DONE
+    evidence:
+    - WS55R_HIDDEN_INFO.json (in-run PASS + planted PASS + carried PASS)
   R_readiness_report:
-    status: PENDING
-    evidence: []
-technical_decisions: []
+    status: DONE
+    evidence:
+    - WS55R_CORRECTED_FIRST_WAVE_READINESS.json (12 READY / 3 NOT_READY / 0 UNKNOWN)
+    - WS55R_ENGINE_GAPS.md
+    - WS55R_SOL_GATES.md
+    - WS55R_FINAL_REPORT.md (FORGE_RQC3_ENGINE_CHANGE_REQUIRED)
+technical_decisions:
+- T1_ws55r_runner_copy: WS55 1024-frame/512-priority budgets insufficient for
+  5-land natural fixtures; WS55R owns a verbatim runner copy with stamped
+  config deltas only (journal 4096, priorities 2048). WS55 files untouched.
+- T2_exact_fixtures_not_proxies: A04 run with DS+HS+Serpent-X=3 (not WS55
+  counter/regen shapes); C01 run with 5 Islands+Frog+Elves-spell (not WS55
+  Merfolk shape). Native-progression equivalents where turn counts differ.
+- T3_no_concede_injection: no standing CONCEDE option; no orchestration
+  concession call (would prove orchestration, not a seam).
+- T4_replacement_entry_omitted: A04 EVID deliberately scripts no
+  replacement_effect entry so any offer fails closed unscripted (base
+  raises); no order injected.
+- T5 micro-unknowns documented: C01 exact abort predicate + A04 base-layer
+  inner cause stay UNKNOWN (engine-internal, read-only); non-blocking for
+  kind/scenario verdicts (zero UNKNOWN verdicts).
+- T6_no_reruns_without_cause: all NO_IMPACT evidence preserved without
+  rerun; E02 reclassified mechanically; WS55 negatives/gates carried.
