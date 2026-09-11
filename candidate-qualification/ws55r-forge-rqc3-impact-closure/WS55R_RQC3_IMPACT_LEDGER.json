@@ -1,0 +1,109 @@
+{
+ "authority": "RQ-C3 delta applied to WS55 (RQ-C1) evidence; mechanical premises asserted",
+ "evidence_class": "CODE_DERIVED",
+ "families": {
+  "Commander movement": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all Commander movement contributors (delta per_scenario_delta); WS55 kind proof stands (903.9a SBA confirm YES/NO both selectable (command zone vs graveyard); no provider default; 903.9b flag path verified si...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "X": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all X contributors (delta per_scenario_delta); WS55 kind proof stands (Ranged descriptor min=0/max=MAX_INT verbatim; value=1 -> 1 damage/life 39 (Fireball); value=0 bounds (Serpent); OOB/miss...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "activate": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all activate contributors (delta per_scenario_delta); WS55 kind proof stands (WS55_WBLACK_YES f477: regen ACT o3/6 non-first; mana paid; shield applied natively (95 lives/196 dies)....). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "alternate cost": {
+   "carried_subgap": "FoW-pitch end-to-end payment still NOT_REACHED behind the spell-stack target gap (WS55 matrix); tracked by WS55R_C01, not a kind invalidation.",
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all alternate cost contributors (delta per_scenario_delta); WS55 kind proof stands (KIND proven via dash: both SA variants engine-offered side-by-side; dash o4/o2 non-first; divergent mana paid; EOT retur...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "attackers": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all attackers contributors (delta per_scenario_delta); WS55 kind proof stands (WS53 10/10 + W-combat o1 non-first defender (P3); SKIP discipline; native attackers_declared events....). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "blockers": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all blockers contributors (delta per_scenario_delta); WS55 kind proof stands (WS53 nontrivial blocks + W-combat double-block exact bindings; SKIP; blockers_declared events; tapped-blocker absence is...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "cast": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all cast contributors (delta per_scenario_delta); WS55 kind proof stands (WS53_C_FINAL 440f + R1f o8 non-first + all breadth runs; priority ACT exact binding (Repair-01); native stack consequenc...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "combat damage assignment": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all combat damage assignment contributors (delta per_scenario_delta); WS55 kind proof stands (Core CombatDamageDecisionView enumeration only (no provider arithmetic); non-first splits both paths (free-assign 1+1; l...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "concession": {
+   "mechanical_basis": "Retained in RQ-C3 union via G04. WS55 status ENGINE_DECISION_NOT_EXTERNALLY_REACHABLE (never offered; no PlayerController seam) is preserved, NOT invalidated; G04 native concession architecture determination is new targeted work (WS55R_G04).",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  "copy choices": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all copy choices contributors (delta per_scenario_delta); WS55 kind proof stands (Copy-replacement YES/NO both selectable (decline dies natively); chooseSingleEntityForEffect o1 non-first (85 over 95); ...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "defender per attacker": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all defender per attacker contributors (delta per_scenario_delta); WS55 kind proof stands (Per-attacker defender options in declareAttackers; o1 non-first (P3 over P2); CombatUtil legality both axes....). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "hidden-zone selection": {
+   "mechanical_basis": "Extended in RQ-C3: C01 adds pitch-selection context (delta RETAINED+EXTENDED). WS55 F01 search proof stands for the search subpath; the C01 cost/pitch hidden-zone context was never reached (behind spell-stack target gap) and is new targeted work (WS55R_C01).",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  "mana payment": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all mana payment contributors (delta per_scenario_delta); WS55 kind proof stands (payManaCost native + applyManaToCost external choice + payManaFromAbility + restrictions gate; multi-mana sequences; no ...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "mana source": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all mana source contributors (delta per_scenario_delta); WS55 kind proof stands (MANA labels src-projected; competing sources; non-first o1 (W-combat f229); creature mana abilities enumerated (Elves)....). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "may": {
+   "mechanical_basis": "Present in RQ-C1 union (A03 contributor), absent in RQ-C3 union (delta REMOVED 701.19a automatic). WS55 proof (confirmTrigger NO, copy YES/NO, regen activation) preserved as non-required capability. No rerun; must not be counted toward the corrected 20.",
+   "verdict": "RECLASSIFIED_NONBLOCKING"
+  },
+  "modes": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all modes contributors (delta per_scenario_delta); WS55 kind proof stands (Single o1 (Piracy); multi sequential o1/o1 (Cryptic TapAll+Draw) with exact AbilitySub binding + native resolutions; Cou...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "ordering": {
+   "mechanical_basis": "Present in RQ-C1 union (E02 contributor), absent in RQ-C3 union (delta REMOVED 510.1c no ordering step). WS55 proofs (orderBlockers 2-perm + legacy damage under orderCombatants=1; zone-move 6/6) preserved as non-required capability. E02 is no longer conditional on orderCombatants merely for this kind. No rerun.",
+   "verdict": "RECLASSIFIED_NONBLOCKING"
+  },
+  "pass": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all pass contributors (delta per_scenario_delta); WS55 kind proof stands (WS53 412 structural passes + all breadth runs; PASS distinct from action; consecutive passes progress natively; replay 0...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "replacement ordering": {
+   "mechanical_basis": "Retained in RQ-C3 union via A04. WS55 status ENGINE_DECISION_NOT_EXTERNALLY_REACHABLE over three non-exact shapes (Serpent-ETB-alone, TravelPrep, regen-vs-RIP) is preserved, NOT invalidated; the exact RQ-C3 A04 fixture (Doubling Season + Hardened Scales + Serpent X=3) was never tried and is new targeted work (WS55R_A04).",
+   "verdict": "TARGETED_REQUALIFICATION_REQUIRED"
+  },
+  "search": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all search contributors (delta per_scenario_delta); WS55 kind proof stands (79-option engine fetchList; MINTED-11 o2 non-first to battlefield; native shuffle; 0 leaks....). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "targets": {
+   "carried_subgap": "Stack-spell candidacy engine raw=0 (WS55 EG-4) still blocks the C01 subpath only; battlefield/player targeting proof stands; tracked by WS55R_C01.",
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all targets contributors (delta per_scenario_delta); WS55 kind proof stands (Bolt o2/4; Fireball o2 + DONE; Piracy singleton-target; Murder singleton; Judith-trigger o2; TravelPrep + DONE. SUBGAP: ...). No rerun.",
+   "verdict": "NO_IMPACT"
+  },
+  "trigger ordering": {
+   "mechanical_basis": "RQ-C3 per-scenario delta empty for all trigger ordering contributors (delta per_scenario_delta); WS55 kind proof stands (Exactly-2 legacy path (B01 shape) + identical-twins hid-exact order [3,8] o1 non-first (P1 43) + distinct-pair order wit...). No rerun.",
+   "verdict": "NO_IMPACT"
+  }
+ },
+ "grants_behavior_credit": false,
+ "preservation_rule": "All NO_IMPACT evidence is preserved without rerun. No provider/shared/Forge file was modified by WS55R so far; no shared-implementation change exists that would force reruns.",
+ "rq_c3_ref": "897d72f0b57bb8febe045870acaa3d2dba4bde56",
+ "schema": "ws55r.rqc3-impact-ledger.v1",
+ "totals": {
+  "INVALIDATED": 0,
+  "NO_IMPACT": 17,
+  "RECLASSIFIED_NONBLOCKING": 2,
+  "TARGETED_REQUALIFICATION_REQUIRED": 3,
+  "UNKNOWN": 0
+ },
+ "warning": "Historical WS55 20/22 is NOT 20/20: the proven 20 included now-removed may + ordering; replacement ordering, concession, and C01 pitch context remain unproven under RQ-C3.",
+ "ws55_head": "47a1e714903a91d8929f48df6451365e8b7a7996"
+}

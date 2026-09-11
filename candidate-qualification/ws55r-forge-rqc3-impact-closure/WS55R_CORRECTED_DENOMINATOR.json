@@ -1,0 +1,172 @@
+{
+ "CORRECTED_FIRST_WAVE_REQUIRED_DECISION_KINDS": [
+  "Commander movement",
+  "X",
+  "activate",
+  "alternate cost",
+  "attackers",
+  "blockers",
+  "cast",
+  "combat damage assignment",
+  "concession",
+  "copy choices",
+  "defender per attacker",
+  "hidden-zone selection",
+  "mana payment",
+  "mana source",
+  "modes",
+  "pass",
+  "replacement ordering",
+  "search",
+  "targets",
+  "trigger ordering"
+ ],
+ "CORRECTED_FIRST_WAVE_REQUIRED_DECISION_KINDS_COUNT": 20,
+ "authority": "RQ-C3 binding (requirements + delta + execution pack triple-agree)",
+ "evidence_class": "CODE_DERIVED",
+ "extended_vs_rq_c1": {
+  "hidden-zone selection": [
+   "RQ-C3-C01",
+   "RQ-C3-F01"
+  ]
+ },
+ "first_wave_scenario_count": 15,
+ "grants_behavior_credit": false,
+ "per_scenario": {
+  "RQ-C3-A03": [
+   "activate",
+   "cast",
+   "mana payment",
+   "mana source",
+   "pass",
+   "targets"
+  ],
+  "RQ-C3-A04": [
+   "X",
+   "cast",
+   "mana payment",
+   "mana source",
+   "pass",
+   "replacement ordering"
+  ],
+  "RQ-C3-B01": [
+   "cast",
+   "mana payment",
+   "pass",
+   "trigger ordering"
+  ],
+  "RQ-C3-C01": [
+   "alternate cost",
+   "cast",
+   "hidden-zone selection",
+   "mana payment",
+   "mana source",
+   "pass",
+   "targets"
+  ],
+  "RQ-C3-C03": [
+   "X",
+   "cast",
+   "mana payment",
+   "pass",
+   "targets"
+  ],
+  "RQ-C3-D06": [
+   "cast",
+   "mana payment",
+   "modes",
+   "pass",
+   "targets"
+  ],
+  "RQ-C3-E01": [
+   "attackers",
+   "defender per attacker",
+   "mana payment",
+   "pass"
+  ],
+  "RQ-C3-E02": [
+   "attackers",
+   "blockers",
+   "combat damage assignment",
+   "defender per attacker",
+   "pass"
+  ],
+  "RQ-C3-F01": [
+   "cast",
+   "hidden-zone selection",
+   "mana payment",
+   "pass",
+   "search"
+  ],
+  "RQ-C3-G02": [
+   "Commander movement",
+   "cast",
+   "mana payment",
+   "pass",
+   "targets"
+  ],
+  "RQ-C3-G03": [
+   "attackers",
+   "blockers",
+   "defender per attacker",
+   "pass"
+  ],
+  "RQ-C3-G04": [
+   "concession",
+   "pass"
+  ],
+  "RQ-C3-H01": [
+   "cast",
+   "copy choices",
+   "mana payment",
+   "pass"
+  ],
+  "RQ-C3-I01": [
+   "cast",
+   "mana payment",
+   "pass",
+   "targets"
+  ],
+  "RQ-C3-J02": [
+   "attackers",
+   "defender per attacker",
+   "pass",
+   "targets"
+  ]
+ },
+ "removed_vs_rq_c1": [
+  "may",
+  "ordering"
+ ],
+ "retained_blocking": [
+  "alternate cost",
+  "combat damage assignment",
+  "replacement ordering",
+  "concession"
+ ],
+ "rq_c3_ref": "897d72f0b57bb8febe045870acaa3d2dba4bde56",
+ "rq_c3_tree": "1b8c8a46f1b81277f73a0ec808055dde25fadbe5",
+ "schema": "ws55r.corrected-denominator.v1",
+ "union_counts": {
+  "Commander movement": 1,
+  "X": 2,
+  "activate": 1,
+  "alternate cost": 1,
+  "attackers": 4,
+  "blockers": 2,
+  "cast": 10,
+  "combat damage assignment": 1,
+  "concession": 1,
+  "copy choices": 1,
+  "defender per attacker": 4,
+  "hidden-zone selection": 2,
+  "mana payment": 11,
+  "mana source": 3,
+  "modes": 1,
+  "pass": 15,
+  "replacement ordering": 1,
+  "search": 1,
+  "targets": 7,
+  "trigger ordering": 1
+ }
+}

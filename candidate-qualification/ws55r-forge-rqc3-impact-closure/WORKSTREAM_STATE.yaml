@@ -1,0 +1,59 @@
+audit_base_sha: 47a1e714903a91d8929f48df6451365e8b7a7996
+audit_base_tree: 8028eafca996021d2fdc667d9bee735c83081419
+branch: ws55r/forge-rqc3-impact-closure-20260911
+exact_next_action: 'Write impact ledger + E02 reclassification, then A04/C01 exact-fixture probes.'
+in_scope:
+- Derive corrected 20-kind RQ-C3 denominator mechanically (triple-agree).
+- Impact-ledger every WS55 Decision family (NO_IMPACT preserved, no gratuitous reruns).
+- A04 exact-fixture replacement-ordering reachability probe (no engine patch).
+- C01 exact-fixture cost/pitch hidden-zone requalification (11 stages, fail closed).
+- G04 native concession architecture determination (source-derived, no injection).
+- E02 corrected reclassification (no rerun absent shared impl change).
+- Fresh principal-scoped hidden-info validation for any new C01 projection.
+- Corrected 15-scenario readiness + terminal report (no behavior credit).
+objective: WS55R-FORGE-RQC3-IMPACT-CLOSURE - produce the authoritative corrected
+  Forge RQ-C3 Decision-Seam readiness disposition with minimal targeted runtime
+  work; preserve all WS55 evidence classified NO_IMPACT; recompute the 20-kind
+  corrected denominator mechanically (never 20/20 by inference); close A04/C01/G04/E02
+  under RQ-C3 authority with Forge strictly read-only.
+out_of_scope:
+- RQ-C3 first-wave actual-card execution (NOT_RUN here).
+- Sol High MTG Rules gates adjudication (persisted, not resolved).
+- Forge engine source changes (read-only; engine-change packet only if required).
+- Full107, behavior credit, provider selection, architecture freeze.
+- 2-5 player conformance.
+ownership: WS55R-FORGE-RQC3-IMPACT-CLOSURE
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+status: ACTIVE
+validated_head: null
+worktree: /home/moeen/code/ws55r-forge-rqc3-impact-closure
+checkpoints:
+  S_source_lock_denominator:
+    status: DONE
+    evidence:
+    - WS55R_SOURCE_LOCK.md
+    - WS55R_CORRECTED_DENOMINATOR.json (20 kinds, triple-agree)
+    - ws55r_derive_rqc3.py
+  I_impact_ledger:
+    status: IN_PROGRESS
+    evidence: []
+  A_a04_replacement_ordering:
+    status: PENDING
+    evidence: []
+  C_c01_cost_pitch:
+    status: PENDING
+    evidence: []
+  G_g04_concession:
+    status: PENDING
+    evidence: []
+  E_e02_reclassification:
+    status: PENDING
+    evidence: []
+  H_hidden_info:
+    status: PENDING
+    evidence: []
+  R_readiness_report:
+    status: PENDING
+    evidence: []
+technical_decisions: []
