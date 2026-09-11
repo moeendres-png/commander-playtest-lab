@@ -27,7 +27,7 @@ from commander_lab.models import (
 )
 from commander_lab.storage import atomic_write_text, canonical_json_bytes
 
-ENGINE_VERSION = "structural-0.6.1"
+ENGINE_VERSION = "structural-0.6.2"
 
 
 def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
@@ -183,6 +183,20 @@ class StructuralSimulator:
     def __init__(self, decks: dict[str, StructuralDeckProfile]) -> None:
         self.decks = decks
 
+    @staticmethod
+    def _deterministic_rng(seed: int, stream: str, relative_position: int) -> random.Random:
+        seed_raw = hashlib.sha256(
+            f"{ENGINE_VERSION}|{seed}|{stream}|{relative_position}".encode()
+        ).digest()
+        return random.Random(int.from_bytes(seed_raw[:8], "big"))
+
+    @staticmethod
+    def _relative_target_priority(actor: _Player, target: _Player, pod_size: int) -> int:
+        distance = (target.seat - actor.seat) % pod_size
+        if distance == 0:
+            return 0
+        return pod_size - distance
+
     def simulate(
         self,
         config: StructuralMatchConfig,
@@ -195,12 +209,12 @@ class StructuralSimulator:
         if missing:
             raise KeyError(f"missing deck profiles: {sorted(missing)}")
         capture = bool(event_log_path) if capture_events is None else capture_events
-        rng = random.Random(config.seed)
         recorder = _EventRecorder(config.match_id, capture=capture)
-        players = self._initialize_players(config, rng, recorder)
         starting_seat = config.starting_player_seat
         if starting_seat is None:
-            starting_seat = rng.randrange(len(players))
+            starting_rng = self._deterministic_rng(config.seed, "starting_player", 0)
+            starting_seat = starting_rng.randrange(len(config.deck_ids))
+        players = self._initialize_players(config, starting_seat, recorder)
         order = players[starting_seat:] + players[:starting_seat]
         recorder.emit(
             "game_started",
@@ -393,26 +407,26 @@ class StructuralSimulator:
     def _initialize_players(
         self,
         config: StructuralMatchConfig,
-        rng: random.Random,
+        starting_seat: int,
         recorder: _EventRecorder,
     ) -> list[_Player]:
         players: list[_Player] = []
+        pod_size = len(config.deck_ids)
         for seat, deck_id in enumerate(config.deck_ids):
             deck = self.decks[deck_id]
             commander_names = set(deck.commander_names)
             library = [card for card in deck.cards if card.oracle_name not in commander_names]
-            rng.shuffle(library)
+            relative_position = (seat - starting_seat) % pod_size
+            library_rng = self._deterministic_rng(config.seed, "library", relative_position)
+            library_rng.shuffle(library)
             pilot_config = config.pilot_configs[seat] if config.pilot_configs else PilotConfig()
             pilot = build_pilot(pilot_config, strategy=deck.commander_strategy)
-            pilot_seed_raw = hashlib.sha256(
-                f"{ENGINE_VERSION}|{config.seed}|{config.match_id}|pilot|{seat}".encode()
-            ).digest()
             player = _Player(
                 player_id=f"p{seat + 1}",
                 seat=seat,
                 deck=deck,
                 pilot=pilot,
-                pilot_rng=random.Random(int.from_bytes(pilot_seed_raw[:8], "big")),
+                pilot_rng=self._deterministic_rng(config.seed, "pilot", relative_position),
                 library=library,
                 commanders={
                     name: _Commander(
@@ -426,12 +440,12 @@ class StructuralSimulator:
             )
             if config.opening_hand_overrides and config.opening_hand_overrides[seat] is not None:
                 self._apply_opening_hand_override(
-                    player, config.opening_hand_overrides[seat] or (), rng, recorder
+                    player, config.opening_hand_overrides[seat] or (), library_rng, recorder
                 )
             else:
                 self._london_mulligan(
                     player,
-                    rng,
+                    library_rng,
                     recorder,
                     config.free_multiplayer_mulligan and len(config.deck_ids) >= 3,
                 )
@@ -829,9 +843,18 @@ class StructuralSimulator:
         )
         opponents: list[PilotOpponentView] = []
         prefix = f"{player.player_id}:"
-        for opponent in players:
-            if opponent.player_id == player.player_id or not opponent.alive:
-                continue
+        ordered_opponents = sorted(
+            (
+                opponent
+                for opponent in players
+                if opponent.player_id != player.player_id and opponent.alive
+            ),
+            key=lambda opponent: (
+                (opponent.seat - player.seat) % len(players),
+                opponent.player_id,
+            ),
+        )
+        for opponent in ordered_opponents:
             outgoing = {
                 key.removeprefix(prefix): value
                 for key, value in opponent.commander_damage_received.items()
@@ -1304,11 +1327,17 @@ class StructuralSimulator:
         players: list[_Player],
         recorder: _EventRecorder,
     ) -> None:
-        targets = [
-            opponent
-            for opponent in players
-            if opponent.alive and opponent.player_id != player.player_id
-        ]
+        targets = sorted(
+            (
+                opponent
+                for opponent in players
+                if opponent.alive and opponent.player_id != player.player_id
+            ),
+            key=lambda opponent: (
+                (opponent.seat - player.seat) % len(players),
+                opponent.player_id,
+            ),
+        )
         if not targets:
             return
         state = self._pilot_state(player, players, max(1, player.current_turn))
@@ -1328,7 +1357,8 @@ class StructuralSimulator:
                 default=0.0,
             )
             object_value = max(commander_value, permanent_value)
-            action_id = f"removal_target:{opponent.player_id}"
+            priority = self._relative_target_priority(player, opponent, len(players))
+            action_id = f"removal_target:r{priority}:{opponent.player_id}"
             target_actions.append(
                 PilotActionView(
                     action_id=action_id,
@@ -1572,18 +1602,25 @@ class StructuralSimulator:
         players: list[_Player],
         recorder: _EventRecorder,
     ) -> None:
-        targets = [
-            opponent
-            for opponent in players
-            if opponent.alive and opponent.player_id != player.player_id
-        ]
+        targets = sorted(
+            (
+                opponent
+                for opponent in players
+                if opponent.alive and opponent.player_id != player.player_id
+            ),
+            key=lambda opponent: (
+                (opponent.seat - player.seat) % len(players),
+                opponent.player_id,
+            ),
+        )
         if not targets:
             return
         state = self._pilot_state(player, players, max(1, player.current_turn))
         target_actions: list[PilotActionView] = []
         target_mapping: dict[str, _Player] = {}
         for opponent in targets:
-            action_id = f"graveyard_target:{opponent.player_id}"
+            priority = self._relative_target_priority(player, opponent, len(players))
+            action_id = f"graveyard_target:r{priority}:{opponent.player_id}"
             target_actions.append(
                 PilotActionView(
                     action_id=action_id,
@@ -1791,11 +1828,17 @@ class StructuralSimulator:
                 },
             )
             return damage, goldfish_life
-        targets = [
-            opponent
-            for opponent in players
-            if opponent.alive and opponent.player_id != player.player_id
-        ]
+        targets = sorted(
+            (
+                opponent
+                for opponent in players
+                if opponent.alive and opponent.player_id != player.player_id
+            ),
+            key=lambda opponent: (
+                (opponent.seat - player.seat) % len(players),
+                opponent.player_id,
+            ),
+        )
         state = self._pilot_state(player, players, turn)
         target_actions: list[PilotActionView] = []
         target_mapping: dict[str, _Player] = {}
@@ -1809,7 +1852,8 @@ class StructuralSimulator:
                 ),
                 default=0.0,
             )
-            action_id = f"combat_target:{opponent.player_id}"
+            priority = self._relative_target_priority(player, opponent, len(players))
+            action_id = f"combat_target:r{priority}:{opponent.player_id}"
             target_actions.append(
                 PilotActionView(
                     action_id=action_id,
@@ -1893,28 +1937,32 @@ class StructuralSimulator:
     def _check_eliminations(
         self, players: list[_Player], turn: int, recorder: _EventRecorder
     ) -> None:
+        alive_before = sum(item.alive for item in players)
+        eliminated: list[tuple[_Player, bool]] = []
         for player in players:
             if not player.alive:
                 continue
             commander_lethal = commander_damage_is_lethal(player.commander_damage_received)
             if player.life <= 0 or commander_lethal or player.elimination_reason == "empty_library":
-                alive_before = sum(item.alive for item in players)
-                player.alive = False
-                player.placement = alive_before
-                player.eliminated_turn = turn
-                if player.elimination_reason is None:
-                    player.elimination_reason = (
-                        "commander_damage" if commander_lethal else "life_total"
-                    )
-                recorder.emit(
-                    "player_eliminated",
-                    actor_id=player.player_id,
-                    payload={
-                        "placement": player.placement,
-                        "reason": player.elimination_reason,
-                        "turn": turn,
-                    },
-                )
+                eliminated.append((player, commander_lethal))
+        if not eliminated:
+            return
+        tied_placement = alive_before - len(eliminated) + 1
+        for player, commander_lethal in eliminated:
+            player.alive = False
+            player.placement = tied_placement
+            player.eliminated_turn = turn
+            if player.elimination_reason is None:
+                player.elimination_reason = "commander_damage" if commander_lethal else "life_total"
+            recorder.emit(
+                "player_eliminated",
+                actor_id=player.player_id,
+                payload={
+                    "placement": player.placement,
+                    "reason": player.elimination_reason,
+                    "turn": turn,
+                },
+            )
 
     @staticmethod
     def _assign_abort_placements(players: list[_Player]) -> None:

@@ -1,0 +1,46 @@
+name: Apply Structural Seat Symmetry Fix
+
+on:
+  push:
+    branches:
+      - fix/structural-seat-symmetry-20260825
+    paths:
+      - 'scripts/apply_structural_seat_symmetry_fix.py'
+      - '.github/workflows/apply-structural-seat-symmetry-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-verify-commit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: fix/structural-seat-symmetry-20260825
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install Commander Lab
+        run: python -m pip install -e '.[dev]'
+      - name: Apply minimal source fix
+        run: python scripts/apply_structural_seat_symmetry_fix.py
+      - name: Compile modified simulator
+        run: python -m py_compile src/commander_lab/engine/structural/simulator.py
+      - name: Run permutation-equivariance audit after fix
+        run: python scripts/audit_structural_seat_symmetry.py --root . --output artifacts/structural-seat-symmetry-after-fix
+      - name: Run focused regression tests
+        run: |
+          pytest -q tests/regressions/test_structural_seat_symmetry.py
+          pytest -q tests/property/test_structural_properties.py
+      - name: Ruff modified source and tests
+        run: ruff check src/commander_lab/engine/structural/simulator.py tests/regressions/test_structural_seat_symmetry.py scripts/audit_structural_seat_symmetry.py
+      - name: Commit verified source fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/commander_lab/engine/structural/simulator.py
+          git diff --cached --exit-code && { echo 'No source change produced'; exit 1; } || true
+          git commit -m 'fix: remove absolute seat bias from structural simulator [seat-fix-applied]'
+          git push origin HEAD:fix/structural-seat-symmetry-20260825
