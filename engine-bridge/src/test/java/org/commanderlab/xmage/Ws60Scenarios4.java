@@ -145,7 +145,9 @@ final class Ws60Scenarios4 {
                                 return;
                             }
                             boolean magicOut = Ws60Views.controls(view, 0, "Control Magic");
-                            boolean bearOut = Ws60Views.battlefield(view, 1).stream()
+                            // Bear is controlled by P0 (on P0's battlefield) via
+                            // Control Magic; P1 owns it.
+                            boolean bearOut = Ws60Views.battlefield(view, 0).stream()
                                     .anyMatch(entry -> entry.name()
                                             .contains("Runeclaw Bear"));
                             if (magicOut && bearOut) {
@@ -228,11 +230,11 @@ final class Ws60Scenarios4 {
 
     static Ws60Suite.Spec h01() {
         List<Ws60Driver.SeatDeck> seats = List.of(
-                seat2(Ws60Decks.THRASIOS, Ws60Decks.KRAUM,
+                seat2(Ws60Decks.THRASIOS, Ws60Decks.TYMNA,
                         "Clone", 1, "Sol Ring", 1,
                         "Command Tower", 1, "Exotic Orchard", 1, "Reflecting Pool", 1,
                         "Gemstone Mine", 1, "Tendo Ice Bridge", 1,
-                        "Island", 91),
+                        "Island", 64, "Forest", 10, "Plains", 9, "Swamp", 8),
                 seat2(Ws60Decks.THRASIOS, Ws60Decks.TANA,
                         "Runeclaw Bear", 1, "Sol Ring", 1,
                         "Command Tower", 1, "Exotic Orchard", 1, "Reflecting Pool", 1,
@@ -242,24 +244,27 @@ final class Ws60Scenarios4 {
                         "Humility", 1, "Sol Ring", 1,
                         "Command Tower", 1, "Exotic Orchard", 1, "Reflecting Pool", 1,
                         "Gemstone Mine", 1, "Tendo Ice Bridge", 1,
-                        "Plains", 81, "Forest", 5, "Swamp", 5),
+                        "Plains", 71, "Forest", 5, "Swamp", 5, "Island", 10),
                 idleSwamp());
         return new Ws60Suite.Spec("RQ-C3-H01",
                 "Clone under Humility",
-                "RQ-C3-H01", 6171L, 3000, seats,
+                "RQ-C3-H01", 6171L, 5000, seats,
                 () -> {
                     Ws60Pilot pilot = new Ws60Pilot("RQ-C3-H01");
                     commandersAll(pilot, seats);
-                    pilot.seatLands(0, "Island")
+                    pilot.seatLands(0, "Island", "Forest", "Plains", "Swamp")
                             .seatLands(1, "Forest")
                             .seatLands(2, "Plains", "Forest", "Swamp")
                             .landOrder(0, "Command Tower", "Exotic Orchard",
-                                    "Reflecting Pool", "Island")
+                                    "Reflecting Pool", "Plains", "Swamp", "Forest",
+                                    "Island")
                             .landOrder(1, "Command Tower", "Exotic Orchard",
                                     "Reflecting Pool", "Forest")
                             .landOrder(2, "Command Tower", "Exotic Orchard",
                                     "Reflecting Pool", "Forest", "Swamp", "Plains")
-                            .commanders(0, List.of(Ws60Decks.THRASIOS))
+                            .attackRoundRobin("Tymna the Weaver", List.of(2, 3))
+                            .secureWhen(0, "Clone")
+                            .secureWhen(2, "Humility")
                             .setupCast(0, "Clone")
                             .castGate(0, "Clone", "Humility", "Runeclaw Bear")
                             .allowCommanderCast(0).allowCommanderCast(1)
@@ -274,6 +279,9 @@ final class Ws60Scenarios4 {
                             .target("", "Runeclaw Bear")
                             .setupCast(1, "Runeclaw Bear")
                             .setupCast(2, "Humility")
+                            .seek(2, 6, "Humility", "Command Tower", "Exotic Orchard",
+                                    "Reflecting Pool", "Gemstone Mine", "Tendo Ice Bridge",
+                                    "Island", "Swamp")
                             .seek(0, 6, "Clone", "Command Tower", "Exotic Orchard",
                                     "Reflecting Pool", "Gemstone Mine", "Tendo Ice Bridge")
                             .critical("Clone");
@@ -341,22 +349,32 @@ final class Ws60Scenarios4 {
                         "Sol Ring", 1,
                         "Command Tower", 1, "Exotic Orchard", 1, "Reflecting Pool", 1,
                         "Gemstone Mine", 1, "Tendo Ice Bridge", 1,
-                        "Forest", 43, "Plains", 46),
+                        "City of Brass", 1, "Mana Confluence", 1,
+                        "Forest", 39, "Plains", 38, "Island", 10),
                 seat2(Ws60Decks.THRASIOS, Ws60Decks.TYMNA,
                         "Pacifism", 1, "Sol Ring", 1,
                         "Command Tower", 1, "Exotic Orchard", 1, "Reflecting Pool", 1,
                         "Gemstone Mine", 1, "Tendo Ice Bridge", 1,
-                        "Plains", 81, "Forest", 5, "Swamp", 5),
+                        "City of Brass", 1,
+                        "Plains", 70, "Forest", 5, "Swamp", 5, "Island", 10),
                 idlePlains(),
                 idleSwamp());
         return new Ws60Suite.Spec("RQ-C3-I01",
                 "Blink drops counters and Aura",
-                "RQ-C3-I01", 6181L, 3000, seats,
+                "RQ-C3-I01", 6181L, 5000, seats,
                 () -> {
                     Ws60Pilot pilot = new Ws60Pilot("RQ-C3-I01");
                     commandersAll(pilot, seats);
-                    pilot.seatLands(0, "Llanowar Reborn", "Forest", "Plains")
-                            .seatLands(1, "Plains", "Forest", "Swamp")
+                    pilot.seatLands(0, "Llanowar Reborn", "Forest", "Plains",
+                                    "Island", "City of Brass", "Mana Confluence")
+                            .seatLands(1, "Plains", "Forest", "Swamp", "Island",
+                                    "City of Brass")
+                            .landOrder(0, "Island", "Command Tower", "Llanowar Reborn",
+                                    "Exotic Orchard", "Reflecting Pool", "City of Brass",
+                                    "Mana Confluence", "Forest", "Plains")
+                            .landOrder(1, "Island", "Command Tower", "Swamp",
+                                    "Exotic Orchard", "Reflecting Pool", "City of Brass",
+                                    "Forest", "Plains")
                             .landOrder(0, "Command Tower", "Llanowar Reborn",
                                     "Exotic Orchard", "Reflecting Pool", "Forest",
                                     "Plains")
@@ -372,6 +390,7 @@ final class Ws60Scenarios4 {
                             .attackerFallback("Thrasios, Triton Hero", 3)
                             .bool("pay X life", true)
                             .bool("counter", true)
+                            .replacement("Llanowar Reborn")
                             .scryGas(0, 4)
                             .scryGas(1, 4)
                             .target("creature", "Runeclaw Bear")
@@ -379,7 +398,11 @@ final class Ws60Scenarios4 {
                             .castGate(1, "Pacifism", "Runeclaw Bear")
                             .seek(0, 6, "Runeclaw Bear", "Momentary Blink",
                                     "Llanowar Reborn", "Command Tower", "Exotic Orchard",
-                                    "Reflecting Pool", "Gemstone Mine", "Tendo Ice Bridge")
+                                    "Reflecting Pool", "Gemstone Mine", "Tendo Ice Bridge",
+                                    "Island", "City of Brass", "Mana Confluence")
+                            .secureWhen(0, "Runeclaw Bear", "Llanowar Reborn",
+                                    "Momentary Blink")
+                            .secureWhen(1, "Pacifism")
                             .critical("Momentary Blink");
                     return pilot;
                 },

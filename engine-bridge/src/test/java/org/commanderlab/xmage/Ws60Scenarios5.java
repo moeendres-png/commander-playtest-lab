@@ -132,11 +132,11 @@ final class Ws60Scenarios5 {
 
     static Ws60Suite.Spec j02() {
         List<Ws60Driver.SeatDeck> seats = List.of(
-                seat2(Ws60Decks.THRASIOS, Ws60Decks.ROGRAKH,
+                seat2(Ws60Decks.TYMNA, Ws60Decks.TANA,
                         "Delina, Wild Mage", 1, "Runeclaw Bear", 1, "Sol Ring", 1,
                         "Command Tower", 1, "Exotic Orchard", 1, "Reflecting Pool", 1,
                         "Gemstone Mine", 1, "Tendo Ice Bridge", 1,
-                        "Mountain", 45, "Forest", 45),
+                        "Mountain", 40, "Forest", 40, "Plains", 5, "Swamp", 5),
                 idleMountain(), idlePlains(), idleSwamp());
         TokenFlags flags = new TokenFlags();
         return new Ws60Suite.Spec("RQ-C3-J02",
@@ -145,19 +145,26 @@ final class Ws60Scenarios5 {
                 () -> {
                     Ws60Pilot pilot = new Ws60Pilot("RQ-C3-J02");
                     commandersAll(pilot, seats);
-                    pilot.seatLands(0, "Mountain", "Forest")
-                            .landOrder(0, "Command Tower", "Exotic Orchard",
-                                    "Reflecting Pool", "Mountain", "Forest")
+                    pilot.commanders(0, List.of(Ws60Decks.TYMNA, Ws60Decks.TANA));
+                    pilot.seatLands(0, "Mountain", "Forest", "Plains", "Swamp")
+                            .landOrder(0, "Command Tower", "Plains", "Swamp",
+                                    "Exotic Orchard", "Reflecting Pool", "Forest",
+                                    "Mountain")
                             .setupCast(0, "Delina, Wild Mage", "Runeclaw Bear")
                             .allowCommanderCast(0).assemblyFiltering(0)
                             .bool("pay X life", true)
                             .scryGas(0, 4)
+                            .attackRoundRobin("Tymna the Weaver", List.of(1, 2, 3))
+                            .attackRoundRobin("Tana, the Bloodsower", List.of(1, 2, 3))
+                            .secureWhen(0, "Delina, Wild Mage", "Runeclaw Bear")
+                            .attackCountGate("Delina, Wild Mage", "Runeclaw Bear", 1)
                             .attacker("Delina, Wild Mage", 1)
                             .target("creature you control", "Runeclaw Bear")
                             .bool("Roll again?", false)
                             .seek(0, 6, "Delina, Wild Mage", "Runeclaw Bear",
                                     "Command Tower", "Exotic Orchard", "Reflecting Pool",
-                                    "Gemstone Mine", "Tendo Ice Bridge")
+                                    "Gemstone Mine", "Tendo Ice Bridge", "Plains",
+                                    "Swamp")
                             .critical("Roll again?")
                             .critical("Delina, Wild Mage");
                     return pilot;

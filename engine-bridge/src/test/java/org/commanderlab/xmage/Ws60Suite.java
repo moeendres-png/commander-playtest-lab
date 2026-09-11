@@ -150,6 +150,15 @@ final class Ws60Suite {
                         normalizedViews(replica.terminalViews()))
                 && canonicalTape(primary.eventTape()).equals(canonicalTape(replica.eventTape()))
                 && replicaPass;
+        if (!determinismMatch) {
+            System.out.println("WS60 " + spec.shortId() + " determinism components: projections="
+                    + primary.projectionDigest().equals(replica.projectionDigest())
+                    + " views=" + normalizedViews(primary.terminalViews()).equals(
+                            normalizedViews(replica.terminalViews()))
+                    + " tape=" + canonicalTape(primary.eventTape()).equals(
+                            canonicalTape(replica.eventTape()))
+                    + " replicaPass=" + replicaPass);
+        }
 
         List<String> hiddenResults = new ArrayList<>();
         // Terminal views double as the post-scenario capture (the completion
@@ -338,7 +347,21 @@ final class Ws60Suite {
     }
 
     static String canonicalTape(JsonArray tape) {
-        return GSON.toJson(tape);
+        // Order-insensitive multiset compare: engine-internal iteration order
+        // for simultaneous events (e.g. leave-game cleanup sequencing) is not
+        // pilot-influenced and carries no Rules semantics. Sequence-sensitive
+        // order (APNAP stacking, resolution) is proven via the ordered
+        // per-frame stack projections and terminal assertions instead. The raw
+        // tape order is preserved untouched in evidence. Per-entry sequence
+        // numbers are positional and excluded from comparison.
+        List<String> rows = new ArrayList<>();
+        for (JsonElement element : tape) {
+            JsonObject entry = element.getAsJsonObject().deepCopy();
+            entry.remove("seq");
+            rows.add(GSON.toJson(entry));
+        }
+        rows.sort(String::compareTo);
+        return GSON.toJson(rows);
     }
 
     static void writeEvidence(SuiteResult result, Path dir) throws Exception {

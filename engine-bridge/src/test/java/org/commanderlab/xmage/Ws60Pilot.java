@@ -263,11 +263,18 @@ final class Ws60Pilot {
     }
     /** attacker name -> minimum own-battlefield count to attack. */
     private final Map<String, Integer> attackCountGates = new LinkedHashMap<>();
+    /** attacker name -> battlefield fragment to count (defaults to name). */
+    private final Map<String, String> attackCountFragments = new LinkedHashMap<>();
     /** attacker name -> ordered defender seats (per-occurrence). */
     private final Map<String, List<Integer>> attackSequences = new LinkedHashMap<>();
 
     Ws60Pilot attackCountGate(String attackerName, int minCount) {
+        return attackCountGate(attackerName, attackerName, minCount);
+    }
+
+    Ws60Pilot attackCountGate(String attackerName, String fragment, int minCount) {
         attackCountGates.put(attackerName, minCount);
+        attackCountFragments.put(attackerName, fragment);
         return this;
     }
 
@@ -276,9 +283,10 @@ final class Ws60Pilot {
         if (min == null) {
             return true;
         }
+        String fragment = attackCountFragments.getOrDefault(attacker, attacker);
         int seat = actorSeat(frame);
         long count = viewOwnBattlefieldNames(pilotState(frame), seat).stream()
-                .filter(name -> name.contains(attacker)).count();
+                .filter(name -> name.contains(fragment)).count();
         return count >= min;
     }
     /** attacker name -> occurrences consumed. */
@@ -1560,14 +1568,19 @@ final class Ws60Pilot {
 
     private PilotAction decideReplacement(JsonObject frame) {
         for (String preferred : replacementPreference) {
-            if (replacementPicked.contains(preferred)) {
-                continue;
-            }
+            List<JsonObject> matches = new ArrayList<>();
             for (JsonObject option : asList(options(frame))) {
-                if (label(option).contains(preferred) || meta(option, "source_name").contains(preferred)) {
-                    replacementPicked.add(preferred);
-                    return ids(optionId(option));
+                if ((label(option).contains(preferred)
+                                || meta(option, "source_name").contains(preferred))
+                        && !replacementPicked.contains(label(option))) {
+                    matches.add(option);
                 }
+            }
+            // Deterministic tie-break among same-preference options.
+            matches.sort((left, right) -> label(left).compareTo(label(right)));
+            if (!matches.isEmpty()) {
+                replacementPicked.add(label(matches.get(0)));
+                return ids(optionId(matches.get(0)));
             }
         }
         return gap("unmapped replacement choice: " + summarizeOptions(frame));
