@@ -90,6 +90,9 @@ final class Ws52Harness implements AutoCloseable {
                 MulliganType.LONDON.getMulligan(1),
                 startingLife,
                 7);
+        // WS56: successor per-game Rules seed (fail-closed when missing).
+        game.setRulesSeed(seed);
+        game.setRequireExplicitSeed(true);
         game.setNumPlayers(playerCount);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
@@ -217,6 +220,17 @@ final class Ws52Harness implements AutoCloseable {
         JsonObject response = new JsonObject();
         response.addProperty("decision_id", pending.get("decision_id").getAsString());
         response.addProperty("actor_id", pending.get("actor_id").getAsString());
+        if (pending.has("frame_digest") && !pending.get("frame_digest").isJsonNull()) {
+            response.addProperty("frame_digest", pending.get("frame_digest").getAsString());
+        }
+        if (pending.has("option_digest") && !pending.get("option_digest").isJsonNull()) {
+            response.addProperty("option_digest", pending.get("option_digest").getAsString());
+        }
+        if (pending.has("frame_revision") && !pending.get("frame_revision").isJsonNull()) {
+            response.addProperty("frame_revision", pending.get("frame_revision").getAsLong());
+        } else if (pending.has("decision_offset") && !pending.get("decision_offset").isJsonNull()) {
+            response.addProperty("frame_revision", pending.get("decision_offset").getAsLong());
+        }
         JsonArray selected = new JsonArray();
         selectedExternalIds.forEach(selected::add);
         response.add("selected_option_ids", selected);
@@ -355,6 +369,17 @@ final class Ws52Harness implements AutoCloseable {
             JsonObject response = new JsonObject();
             response.addProperty("decision_id", pending.get("decision_id").getAsString());
             response.addProperty("actor_id", pending.get("actor_id").getAsString());
+            if (pending.has("frame_digest") && !pending.get("frame_digest").isJsonNull()) {
+                response.addProperty("frame_digest", pending.get("frame_digest").getAsString());
+            }
+            if (pending.has("option_digest") && !pending.get("option_digest").isJsonNull()) {
+                response.addProperty("option_digest", pending.get("option_digest").getAsString());
+            }
+            if (pending.has("frame_revision") && !pending.get("frame_revision").isJsonNull()) {
+                response.addProperty("frame_revision", pending.get("frame_revision").getAsLong());
+            } else if (pending.has("decision_offset") && !pending.get("decision_offset").isJsonNull()) {
+                response.addProperty("frame_revision", pending.get("decision_offset").getAsLong());
+            }
             JsonArray selected = new JsonArray();
             selectedExternalIds.forEach(selected::add);
             response.add("selected_option_ids", selected);

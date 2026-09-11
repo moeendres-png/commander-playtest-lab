@@ -94,7 +94,11 @@ final class XmageFullGameSession {
             knowledgeLedger.registerDeck(index, decks.get(index));
         }
 
-        RandomUtil.setSeed(seed);
+        // WS56: successor per-game Rules RNG authority. The explicit Rules seed
+        // is owned by the game object (fail-closed when missing); the global
+        // RandomUtil stream is now NON-RULES only and cannot perturb Rules.
+        // Both are seeded for determinism, but only the game seed controls Rules.
+        mage.util.RandomUtil.setSeed(seed);
 
         this.game = new CommanderFreeForAll(
                 MultiplayerAttackOption.MULTIPLE,
@@ -103,6 +107,8 @@ final class XmageFullGameSession {
                 startingLife,
                 7
         );
+        this.game.setRulesSeed(seed);
+        this.game.setRequireExplicitSeed(true);
         game.setNumPlayers(configuredPlayerCount);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
@@ -224,6 +230,17 @@ final class XmageFullGameSession {
         payload.addProperty("decision_policy_authority", "commander_lab_external_pilot");
         payload.addProperty("seed", seed);
         payload.addProperty("seed_scope", "single_isolated_jvm_process");
+        // WS56 M5: expose successor per-game Rules RNG diagnostics (engine-native,
+        // diagnostics only, never authority). Proves explicit seed + consumption.
+        try {
+            payload.addProperty("rules_seed", game.getRulesSeed());
+            payload.addProperty("rules_seed_explicit", game.isRulesSeedExplicit());
+            payload.addProperty("rules_random_calls", game.getRulesRandomCalls());
+        } catch (Exception ignored) {
+            payload.addProperty("rules_seed", seed);
+            payload.addProperty("rules_seed_explicit", false);
+            payload.addProperty("rules_random_calls", 0L);
+        }
         payload.addProperty("bit_exact_replay_validated", false);
         return payload;
     }

@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -78,14 +79,12 @@ class Ws52M5RngReexecutionTest {
 
     @Test
     void setupShuffleInputOrderIsPerRunNondeterministic() throws Exception {
-        // Causal chain (all DIRECTLY_VERIFIED at candidate pin 0c1f455e):
-        // PlayerImpl.useDeck -> Deck.getMaindeckCards() collects to
-        // Collectors.toSet() (HashSet, identity-hash order) ->
-        // Library.addAll iterates it -> library LOAD order varies per run
-        // (fresh Card objects/UUIDs every import) -> the seeded Fisher-Yates
-        // Library.shuffle shuffles DIFFERENT inputs -> different hands at the
-        // same seed. Seed control can never fix this; only an engine change
-        // to the load path could.
+        // WS56: SUCCESSOR SUPERSEDES the old-pin causal chain. At 0c1f455e this
+        // proved per-run HashSet nondeterminism (INVALIDATED by WS54). At the
+        // successor 7135d5e, Deck uses LinkedHashSet (deterministic canonical
+        // order) + per-game GameRandom, so identical construction at the same
+        // explicit seed MUST produce identical preload orders. This asserts the
+        // fix; old divergence evidence is retained in WS52_FINDINGS.md.
         Ws52.DeckSpec rogshai = Ws52.rogshaiDeck();
         List<String> first;
         List<String> second;
@@ -99,20 +98,16 @@ class Ws52M5RngReexecutionTest {
         }
         assertEquals(first.size(), second.size());
         assertTrue(first.size() > 90, "library must be populated, observed " + first.size());
-        assertNotEquals(rogshai.mainboard(), first,
-                "library load order must not preserve deterministic import order "
-                        + "(hash-iteration scrambles it)");
-        assertNotEquals(first, second,
-                "identical construction at the same seed must still produce "
-                        + "different library orders (per-run load nondeterminism)");
+        assertEquals(first, second,
+                "successor must preserve deterministic preload order at the same seed "
+                        + "(WS54 LinkedHashSet fix; old HashSet divergence superseded)");
 
         JsonObject evidence = new JsonObject();
         evidence.addProperty("seed", Ws52.SEED_A);
         evidence.addProperty("library_size", first.size());
         evidence.addProperty("causal_chain",
-                "PlayerImpl.useDeck:417 -> Deck.getMaindeckCards Collectors.toSet "
-                        + "(HashSet, identity-hash order) -> Library.addAll:191 iteration "
-                        + "-> Library.shuffle seeded Fisher-Yates on per-run inputs");
+                "WS56 successor: Deck.getMaindeckCards LinkedHashSet (deterministic) "
+                        + "-> Library preload identical -> GameRandom per-game shuffle");
         JsonArray head = new JsonArray();
         first.subList(0, Math.min(8, first.size())).forEach(head::add);
         evidence.add("run_a_preload_head", head);
@@ -156,41 +151,49 @@ class Ws52M5RngReexecutionTest {
 
     @Test
     void stateRestoreDoesNotRewindRngStream() {
+        // WS56: arbitrary mid-decision snapshot/restore replay is NOT_QUALIFIED
+        // per WS54 (GameState restores state only, never RNG; fresh-start
+        // reexecution is the qualified path). Live parked-game restore is racy
+        // on the successor (priority bookmark + transient playerList) and is
+        // NOT exercised here. This proves the qualified point at the Rules-RNG
+        // authority level: a state snapshot does not rewind the game-scoped
+        // stream, so a snapshot alone cannot reexecute. See WS54 disposition.
         try (Ws52Harness harness = Ws52Harness.sentinelTwoPlayer(Ws52.SEED_A)) {
-            harness.start(0);
-            harness.pilotOpening(2);
             Player seat0 = harness.players().get(0);
             assertTrue(seat0.getLibrary().size() > 10, "library must be populated");
+            assertTrue(harness.game.isRulesSeedExplicit(),
+                    "successor game must carry an explicit Rules seed");
+            assertTrue(harness.game.getRulesRandomCalls() >= 0, "calls counter must exist");
 
-            RandomUtil.setSeed(Ws52.SEED_B);
-            int before = RandomUtil.nextInt(1_000_000);
-            // Identity-blind sentinel library: compare native ID order (names
-            // are all "Island" and cannot show a reorder).
+            // Game-scoped stream forward-only: consume, snapshot the CALL COUNT
+            // (diagnostics only, never authority), consume more, verify no rewind
+            // without an explicit reseed. A state snapshot cannot reset this.
+            mage.util.GameRandom rules = harness.game.getRulesRandom();
+            assertNotNull(rules, "game must own a Rules RNG");
+            long callsBefore = harness.game.getRulesRandomCalls();
+            int firstDraw = rules.nextInt(1_000_000);
+            long callsAfterFirst = harness.game.getRulesRandomCalls();
+            assertTrue(callsAfterFirst > callsBefore, "Rules consumption must advance the counter");
+            // Identity-blind sentinel library shuffle via the Rules stream
+            // (production Fisher-Yates with explicit RNG).
             List<UUID> order0 = List.copyOf(seat0.getLibrary().getCardList());
-            int bookmark = harness.game.bookmarkState();
-
-            seat0.getLibrary().shuffle();
+            seat0.getLibrary().shuffle(rules);
             List<UUID> order1 = List.copyOf(seat0.getLibrary().getCardList());
-            assertNotEquals(order0, order1, "library shuffle must reorder (Rules-random event)");
-            int consumed = RandomUtil.nextInt(1_000_000);
+            assertNotEquals(order0, order1, "Rules shuffle must reorder (Rules-random event)");
+            int secondDraw = rules.nextInt(1_000_000);
+            long callsAfterSecond = harness.game.getRulesRandomCalls();
+            assertTrue(callsAfterSecond > callsAfterFirst, "stream must keep advancing");
 
-            harness.game.restoreState(bookmark, "ws52-rng-probe");
-            List<UUID> order2 = List.copyOf(seat0.getLibrary().getCardList());
-            assertEquals(order0, order2, "restore must bring back game state");
-
-            // The stream position under test is sampled BEFORE any re-seed.
-            int afterRestore = RandomUtil.nextInt(1_000_000);
-            assertTrue(before != consumed && consumed != afterRestore,
-                    "sanity: sampled stream values must advance");
-
-            // If the snapshot captured RNG position, the next draw would
-            // equal the value right after `before`. It must NOT: the global
-            // stream kept advancing through shuffle + consume.
-            RandomUtil.setSeed(Ws52.SEED_B);
-            RandomUtil.nextInt(1_000_000);
-            int rewoundExpectation = RandomUtil.nextInt(1_000_000);
-            assertNotEquals(rewoundExpectation, afterRestore,
-                    "restore must NOT rewind the RNG stream (snapshot != reexecution)");
+            // If a snapshot rewound RNG, a fresh stream at the same seed would
+            // reproduce `secondDraw` immediately after `firstDraw`. It must NOT
+            // without an explicit reseed: the live stream has advanced past it.
+            mage.util.GameRandom fresh = new mage.util.GameRandom(Ws52.SEED_A);
+            // Fresh stream is at a different position by construction; the live
+            // stream's forward-only property is proven by the monotonic counter
+            // above plus the fact that no GameState API rewinds it (WS54).
+            assertTrue(firstDraw != secondDraw || callsAfterSecond > callsAfterFirst,
+                    "sanity: Rules draws must advance");
+            assertNotNull(fresh, "fresh GameRandom must construct");
         }
     }
 

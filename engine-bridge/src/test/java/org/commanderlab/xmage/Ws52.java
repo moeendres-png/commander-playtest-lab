@@ -229,6 +229,18 @@ final class Ws52 {
         JsonObject response = new JsonObject();
         response.addProperty("decision_id", decision.get("decision_id").getAsString());
         response.addProperty("actor_id", decision.get("actor_id").getAsString());
+        // WS56 Phase D: echo adapter-owned freshness binding (fail-closed on stale).
+        if (decision.has("frame_digest") && !decision.get("frame_digest").isJsonNull()) {
+            response.addProperty("frame_digest", decision.get("frame_digest").getAsString());
+        }
+        if (decision.has("option_digest") && !decision.get("option_digest").isJsonNull()) {
+            response.addProperty("option_digest", decision.get("option_digest").getAsString());
+        }
+        if (decision.has("frame_revision") && !decision.get("frame_revision").isJsonNull()) {
+            response.addProperty("frame_revision", decision.get("frame_revision").getAsLong());
+        } else if (decision.has("decision_offset") && !decision.get("decision_offset").isJsonNull()) {
+            response.addProperty("frame_revision", decision.get("decision_offset").getAsLong());
+        }
         JsonArray selected = new JsonArray();
         selectedOptionIds.forEach(selected::add);
         response.add("selected_option_ids", selected);

@@ -224,8 +224,13 @@ class Ws52M1NativeDecisionExtractionTest {
                 }
                 assertNotNull(direct.controller().terminalFailure(),
                         "mode decision must terminate the controller fail-closed");
-                assertTrue(direct.controller().terminalFailure().getMessage()
-                                .contains("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER"),
+                // WS56: successor mode identity now crosses for visible sources
+                // (opaque handles); this hidden-library source still fails
+                // closed, now via the hidden-info gateway (HIDDEN_INFORMATION_LEAK)
+                // instead of the old ledger-identity blocker. Both are fail-closed.
+                String modeFailure = direct.controller().terminalFailure().getMessage();
+                assertTrue(modeFailure.contains("COMMON_PROTOCOL_EXPRESSIVENESS_BLOCKER")
+                                || modeFailure.contains("HIDDEN_INFORMATION_LEAK"),
                         () -> "unexpected mode failure: "
                                 + direct.controller().terminalFailure().getMessage());
             } finally {

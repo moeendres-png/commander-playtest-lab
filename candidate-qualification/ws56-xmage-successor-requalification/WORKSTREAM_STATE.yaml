@@ -1,0 +1,49 @@
+audit_base_sha: 7023cbdf533df82d59a50a83d16baf816edb7307
+audit_base_tree: e4122b510e7bb3018f72ef74ce4e8ffdc8ac9076
+branch: ws56/xmage-successor-requalification-20260911
+exact_next_action: Coordinator adjudication of XMAGE_SUCCESSOR_REQUALIFICATION_PASS from sealed WS56 evidence; on PASS authorize RQ-C3 First Wave as separate workstream (WS56 executes no further engine work).
+in_scope:
+- Pin integration (0c1f455e -> 7135d5e, XMage read-only, no master upgrade)
+- M1-M5 requalification against successor through CPL (fresh-process M5 mandatory)
+- Phase C mode identity (engine-determined, opaque 1:1, no combination computation)
+- Phase D freshness (ADAPTER_OWNED binding, ENGINE_NATIVE vs ADAPTER_OWNED, older-frame fail-closed, no leak)
+- Historical impact, negative controls, hidden-info, readiness, final report
+objective: WS56 impact-requalifies WS52 M1-M5 against the sealed successor 7135d5e85ddb4c8aa4b49b4192ca51947c822704 and closes CPL adapter gaps for mode identity and state/frame freshness, with Rules correctness and authoritative engine ownership mandatory.
+out_of_scope:
+- XMage source edits (READ-ONLY)
+- RQ-C3 First Wave execution (boundary: ready but NOT run in WS56)
+- Full107 behavior (NOT_RUN), architecture freeze, production provider selection
+- Face-down/morph, face-down exile, lookAt/reveal, multi-card reveal, GameView redaction, arbitrary snapshot restore (all UNKNOWN, out of claimed scope)
+ownership: WS56-XMAGE-SUCCESSOR-REQUALIFICATION
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+source_lock:
+  cpl_head: 7023cbdf533df82d59a50a83d16baf816edb7307
+  cpl_tree: e4122b510e7bb3018f72ef74ce4e8ffdc8ac9076
+  new_successor_commit: 7135d5e85ddb4c8aa4b49b4192ca51947c822704
+  new_successor_tree: ea193e0d04493d53d962ed13ebd3b5d2f68838c7
+  old_engine_commit: 0c1f455ea8c8fa48ab9d638ad5068ec242800428
+  old_engine_tree: fdb8bf56a8bd8199a4ef372e468d93d6550b0649
+  ws54_verdict: XMAGE_RNG_REEXECUTION_REMEDIATION_PASS
+state_written_against_head: 7023cbdf533df82d59a50a83d16baf816edb7307
+status: TERMINAL_PASS
+technical_decisions:
+- {decision: 'Consume exactly successor 7135d5e (no master, no other pin, XMage read-only)', evidence: 'WS56_SOURCE_LOCK.md + WS56_PIN_INTEGRATION.json (DIRECTLY_VERIFIED rev-parse/trees/ancestry/clean)'}
+- {decision: 'Migrate CPL to per-game Rules seed (setRulesSeed + requireExplicitSeed); RandomUtil is NON-RULES only', evidence: 'XmageFullGameSession + Ws52Harness diff; Ws56M5 5/5 + fresh-process byte-identical'}
+- {decision: 'Mode identity via opaque stableId handles (no native UUIDs cross; availability via getAvailableModes only)', evidence: 'XmageFullGamePlayer diff; Ws56ModeIdentityTest 6/6 PASS'}
+- {decision: 'Freshness via ADAPTER_OWNED option/frame digests + revision + provenance; submit requires echo; mismatch=>STALE', evidence: 'XmageFullGameDecisionController diff; Ws56StateFreshnessTest 7/7 PASS'}
+- {decision: 'WS52 M1 mode hidden-source now leak-or-blocker (both fail-closed); M5 setup deterministic + snapshot GameRandom forward-only (WS54 supersession, not weakening)', evidence: 'Ws52M1/M5 diffs with WS56 comments; 24/24 + 111/111 PASS'}
+- {decision: 'Mid-decision snapshot restore NOT_QUALIFIED per WS54; qualified path is start-to-finish seeded reexecution', evidence: 'WS54_SNAPSHOT_REPLAY_DISPOSITION.md + WS56_M5_RNG_REEXECUTION.json'}
+terminal_verdict: XMAGE_SUCCESSOR_REQUALIFICATION_PASS
+validated_gates:
+  M1: PASS_BOUNDED
+  M2: PASS_BOUNDED
+  M3: PASS_BOUNDED
+  M4: PASS_BOUNDED
+  M5: PASS_BOUNDED_THROUGH_CPL
+  freshness: CLOSED
+  hidden_info: PASS
+  mode_identity: CLOSED
+  negatives: PASS
+validated_head: null
+worktree: /home/moeen/code/ws56-xmage-successor-requalification

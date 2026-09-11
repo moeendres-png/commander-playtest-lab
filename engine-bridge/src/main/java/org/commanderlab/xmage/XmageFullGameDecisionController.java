@@ -173,6 +173,36 @@ final class XmageFullGameDecisionController {
         JsonObject actorView = safeDecision.actorView();
         String actorViewHash = XmageAuditEventLog.stateHash(actorView);
 
+        // WS56 Phase D: adapter-owned freshness binding. Binds game identity,
+        // principal, decision kind, current authoritative option identities,
+        // and relevant current frame/state identity without introducing a
+        // second Rules engine. Digests are opaque hashes (no hidden leakage).
+        // ENGINE_NATIVE: game_id, actor_id, subject, decision_class, option
+        // set as issued by XMage. ADAPTER_OWNED: decision_id, offset,
+        // option_digest, frame_digest, revision, hashes, provenance map.
+        List<String> freshnessOptionIds = new ArrayList<>();
+        for (JsonElement element : safeDecision.legalOptions()) {
+            JsonObject option = element.getAsJsonObject();
+            if (option.has("option_id") && !option.get("option_id").isJsonNull()) {
+                freshnessOptionIds.add(option.get("option_id").getAsString());
+            }
+        }
+        List<String> sortedFreshnessIds = new ArrayList<>(freshnessOptionIds);
+        java.util.Collections.sort(sortedFreshnessIds);
+        List<String> digestParts = new ArrayList<>();
+        digestParts.add("options");
+        digestParts.add(decisionClass);
+        digestParts.addAll(sortedFreshnessIds);
+        String optionDigest = stableId(digestParts.toArray(new String[0]));
+        String frameDigest = stableId(
+                gameId,
+                Long.toString(decisionOffset),
+                actorId,
+                subjectId,
+                decisionClass,
+                optionDigest,
+                actorViewHash);
+
         JsonObject request = new JsonObject();
         request.addProperty("protocol_version", PROTOCOL_VERSION);
         request.addProperty("game_id", gameId);
@@ -190,6 +220,37 @@ final class XmageFullGameDecisionController {
         request.add("legal_options", safeDecision.legalOptions());
         request.addProperty("public_state_reference", "actor-view:" + actorViewHash);
         request.addProperty("private_actor_state_reference", "actor-view:" + actorViewHash);
+        request.addProperty("actor_view_hash", actorViewHash);
+        request.addProperty("option_digest", optionDigest);
+        request.addProperty("frame_digest", frameDigest);
+        request.addProperty("frame_revision", decisionOffset);
+        JsonObject freshness = new JsonObject();
+        freshness.addProperty("game_id", gameId);
+        freshness.addProperty("actor_id", actorId);
+        freshness.addProperty("decision_subject_id", subjectId);
+        freshness.addProperty("decision_kind", decisionClass);
+        freshness.addProperty("option_digest", optionDigest);
+        freshness.addProperty("frame_digest", frameDigest);
+        freshness.addProperty("frame_revision", decisionOffset);
+        freshness.addProperty("actor_view_hash", actorViewHash);
+        request.add("freshness", freshness);
+        JsonObject provenance = new JsonObject();
+        provenance.addProperty("game_id", "ENGINE_NATIVE");
+        provenance.addProperty("decision_id", "ADAPTER_OWNED");
+        provenance.addProperty("decision_offset", "ADAPTER_OWNED");
+        provenance.addProperty("actor_id", "ENGINE_NATIVE");
+        provenance.addProperty("decision_subject_id", "ENGINE_NATIVE");
+        provenance.addProperty("decision_class", "ENGINE_NATIVE");
+        provenance.addProperty("decision_kind", "ENGINE_NATIVE");
+        provenance.addProperty("legal_options", "ENGINE_NATIVE");
+        provenance.addProperty("option_digest", "ADAPTER_OWNED");
+        provenance.addProperty("frame_digest", "ADAPTER_OWNED");
+        provenance.addProperty("frame_revision", "ADAPTER_OWNED");
+        provenance.addProperty("actor_view_hash", "ADAPTER_OWNED");
+        provenance.addProperty("public_state_reference", "ADAPTER_OWNED");
+        provenance.addProperty("private_actor_state_reference", "ADAPTER_OWNED");
+        provenance.addProperty("pilot_state", "ENGINE_NATIVE");
+        request.add("field_provenance", provenance);
         request.addProperty("timeout_millis", timeoutMillis);
         request.add(
                 "source_object",
@@ -289,6 +350,50 @@ final class XmageFullGameDecisionController {
         }
         if (!expectedActorId.equals(actorId)) {
             throw new DecisionException("PILOT_RESPONSE_INVALID: wrong actor");
+        }
+        // WS56 Phase D: freshness binding. The response must echo the current
+        // frame's adapter-owned digests; an older frame's digests (or a
+        // tampered digest) fail closed as STALE_DECISION. This binds game
+        // identity, principal, decision kind, current option identities, and
+        // frame/state identity without a second Rules engine.
+        String expectedFrameDigest = pendingRequest.has("frame_digest")
+                && !pendingRequest.get("frame_digest").isJsonNull()
+                ? pendingRequest.get("frame_digest").getAsString() : "";
+        String expectedOptionDigest = pendingRequest.has("option_digest")
+                && !pendingRequest.get("option_digest").isJsonNull()
+                ? pendingRequest.get("option_digest").getAsString() : "";
+        long expectedRevision = pendingRequest.has("frame_revision")
+                ? pendingRequest.get("frame_revision").getAsLong()
+                : pendingRequest.get("decision_offset").getAsLong();
+        if (expectedFrameDigest.isBlank() || expectedOptionDigest.isBlank()) {
+            throw new DecisionException("BRIDGE_PROTOCOL_ERROR: pending frame has no freshness binding");
+        }
+        String submittedFrameDigest = submitted.has("frame_digest") && !submitted.get("frame_digest").isJsonNull()
+                ? submitted.get("frame_digest").getAsString().trim() : "";
+        String submittedOptionDigest = submitted.has("option_digest") && !submitted.get("option_digest").isJsonNull()
+                ? submitted.get("option_digest").getAsString().trim() : "";
+        long submittedRevision = submitted.has("frame_revision") && !submitted.get("frame_revision").isJsonNull()
+                ? submitted.get("frame_revision").getAsLong() : Long.MIN_VALUE;
+        // Backward-compatible alias: older helpers echo decision_offset as revision.
+        if (submittedRevision == Long.MIN_VALUE && submitted.has("decision_offset")
+                && !submitted.get("decision_offset").isJsonNull()) {
+            try {
+                submittedRevision = submitted.get("decision_offset").getAsLong();
+            } catch (RuntimeException ignored) {
+                submittedRevision = Long.MIN_VALUE;
+            }
+        }
+        if (submittedFrameDigest.isBlank() || submittedOptionDigest.isBlank()
+                || submittedRevision == Long.MIN_VALUE) {
+            throw new DecisionException(
+                    "PILOT_RESPONSE_INVALID: missing freshness binding (frame_digest/option_digest/frame_revision required)");
+        }
+        if (!expectedFrameDigest.equals(submittedFrameDigest)
+                || !expectedOptionDigest.equals(submittedOptionDigest)
+                || expectedRevision != submittedRevision) {
+            throw new DecisionException(
+                    "STALE_DECISION: freshness binding mismatch (expected frame " + expectedFrameDigest
+                            + " rev " + expectedRevision + ")");
         }
 
         List<String> selectedExternal = stringArray(submitted, "selected_option_ids");

@@ -670,6 +670,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public Mode chooseMode(Modes modes, Ability source, Game game) {
+        // WS56: XMage alone determines available/legal modes via
+        // modes.getAvailableModes(source, game). CPL only exposes opaque
+        // identity for those authoritative native options and never computes
+        // legal combinations. Each native mode UUID is bound to exactly one
+        // adapter-owned opaque handle for the current frame; the binding is
+        // per-frame via the decision controller and fails closed on stale,
+        // wrong-principal, or ambiguous use. No native mode UUID crosses the
+        // pilot boundary (metadata carries only the opaque handle).
         List<Mode> available = new ArrayList<>(modes.getAvailableModes(source, game));
         available.sort(Comparator.comparing(mode -> mode.getId().toString()));
         if (available.isEmpty()) {
@@ -678,17 +686,18 @@ final class XmageFullGamePlayer extends PlayerImpl {
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
         for (Mode mode : available) {
-            String optionId = mode.getId().toString();
+            String opaqueId = XmageFullGameDecisionController.stableId(
+                    "mode", mode.getId().toString());
             JsonObject metadata = new JsonObject();
-            metadata.addProperty("mode_id", mode.getId().toString());
+            metadata.addProperty("mode_ref", opaqueId);
             metadata.addProperty("paw_print_value", mode.getPawPrintValue());
             options.add(XmageFullGameDecisionController.option(
-                    optionId,
+                    opaqueId,
                     mode.toString(),
                     "mode",
                     metadata
             ));
-            byId.put(optionId, mode);
+            byId.put(opaqueId, mode);
         }
         int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
         XmageFullGameDecisionController.DecisionResponse response = request(
