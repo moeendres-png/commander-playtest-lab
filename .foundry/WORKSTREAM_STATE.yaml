@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-a1d-h4-docker-materialization
 branch: architecture/ws-a1d-h4-docker-materialization-20260911
 audit_base_sha: e207286200854bf9bff557e67bf3b37b5e428392
 audit_base_tree: 6e89a980bf0a7e40273ba11b108fe3febed39d47
-state_written_against_head: b790c246d5694bd42f7214192ae375653f1bb450
-validated_head: b790c246d5694bd42f7214192ae375653f1bb450
+state_written_against_head: 20adac8b44bc7af595eb69d65e28d760a2e6cd7f
+validated_head: 20adac8b44bc7af595eb69d65e28d760a2e6cd7f
 objective: >
   WS-A1D-H4 Docker materialization and runtime requalification (XHIGH
   continuation of WS-A1D, predecessor PR #177 merged as e2072862). Close hard
@@ -114,6 +114,18 @@ technical_decisions:
 - id: TD-H4-10-compose-env-forwarding
   decision: 'CI lane passes PIN_MANIFEST_PATH overrides via compose run -e (found by static review): compose does not forward host env into containers except through interpolation or -e, so an inline host export would never reach the entrypoint and the tampered-manifest negative would have wrongly passed the gate. ENGINE_START_COMMAND needs no -e (compose interpolates it on the host into the service environment).'
   evidence: 'docker-compose.engine.yml environment/interpolation review; no Docker host to execute, so this stays a reviewed-not-executed step (flagged for first remote run).'
+- id: TD-H4-11-remote-review-verdict
+  decision: 'Initial publication 98f3f6a0 received Coordinator remote review FAIL_REMEDIATION_REQUIRED with three publication-blocking lane defects (TD-H4-12/13/14). Repaired locally as remediation 01; remote execution remains NOT_RUN; H4 remains UNKNOWN / NOT_RUN; PR creation remains NOT AUTHORIZED pending remediation review. No push performed in this session.'
+  evidence: 'Coordinator REMOTE REVIEW REMEDIATION 01 contract; local branch published at 98f3f6a0 and unchanged remotely.'
+- id: TD-H4-12-build-time-interpolation
+  decision: 'Both Docker jobs now declare benign job-level ENGINE_START_COMMAND true plus unique explicit COMPOSE_PROJECT_NAME (h4-xmage / h4-forge suffixed by run id) so Compose resolves the service model before build. The benign value is build-time interpolation only, never bridge evidence: the XMage handshake step still overrides it with the real bridge jar command and negatives still override it with the sentinel touch command. The Compose required-value guard and docker-compose.engine.yml are untouched.'
+  evidence: 'Coordinator Finding 1; repaired workflow job env blocks; locked by structural tests 1, 2 and 6.'
+- id: TD-H4-13-exact-image-binding
+  decision: 'Image evidence now binds to the exact deterministic Compose reference COMPOSE_PROJECT_NAME plus service name, with immutable image-ID resolution via docker image inspect, recorded image-ref.txt and image-id.txt, and the verifier receiving the recorded truthful ref and ID. Provider-label discovery (docker images plus filter plus head) and invented verdict tags (h4-provider plus short-SHA) are removed. Engine pin authority untouched.'
+  evidence: 'Coordinator Finding 2; repaired capture and adjudicate steps in both jobs; locked by structural tests 3, 4 and 5.'
+- id: TD-H4-14-dispatch-semantics
+  decision: 'Workflow header comment now states truthful GitHub semantics: pull_request via the PR merge ref is the initial remote-execution path; workflow_dispatch is available once the workflow exists on the default branch and only then may ref select another ref; no dispatch attempt before merge.'
+  evidence: 'Coordinator Finding 3; repaired header comment; locked by structural test 9.'
 tests_run:
 - 'Entry: python3 scripts/docker_resolve_engine_pin.py --provider xmage/forge -> canonical identity (repo+40-hex commit+protocol 2.0.0+release); --provider unknown -> exit 3 (DIRECTLY_VERIFIED identity resolution)'
 - 'Entry: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py -> 37 passed (H1-H3/H10 intact at entry)'
@@ -122,28 +134,30 @@ tests_run:
 - 'Phase 5: verifier CLI smoke (emit-handshake xmage -> verify with manifest-derived fixtures) -> EVIDENCE_COMPLETE exit 0'
 - 'Phase 5: gate CLI positive (real manifest + derived provenance) -> exit 0; tampered commit -> exit 3 FAIL CLOSED; missing manifest -> exit 3 FAIL CLOSED'
 - 'Phase 5: workflow validation -> YAML parses, 3 jobs, pull_request+workflow_dispatch triggers, all 10 uses: SHA-pinned (4 repo-precedented pins), no secrets, contents:read, no direct docker build, wrapper builds both providers, forge verdict locked to EVIDENCE_PARTIAL/NOT_RUN, embedded heredoc python AST-parses'
+- 'Remediation 01: pytest -q tests/unit/test_ws_a1d_docker_pin_authority.py tests/unit/test_h4_verify_materialization_evidence.py tests/unit/test_h4_workflow_structure.py -> 63 passed (37 WS-A1D + 17 H4 verifier + 9 new workflow-structure)'
+- 'Remediation 01: ruff check . -> All checks passed; ruff format --check . -> 762 files formatted (repo-wide green)'
+- 'Remediation 01: workflow YAML re-parses after repair (3 jobs); no label discovery or invented tags remain (text assertion)'
 evidence:
 - 'H4 item 1 (identity resolution): DIRECTLY_VERIFIED locally for both providers (resolver CLI matrix above)'
 - 'XMage bridge implementation/protocol: DIRECTLY_VERIFIED (source-read); container runtime: UNKNOWN/NOT_RUN (no Docker host)'
 - 'Forge bridge: UNKNOWN (absent); feasibility history HISTORICAL_ONLY (J-P3C, no JSONL bridge)'
 - 'WS-A1D Dockerfile/Compose/gate logic: CODE_DERIVED plus executed shell-guard evidence (prior workstream); image/container behavior: NOT_RUN here'
 - 'H4 verifier non-Docker logic: DIRECTLY_VERIFIED locally (17 unit tests + CLI smoke + gate CLI matrix)'
-- 'H4 CI lane non-Docker structure: DIRECTLY_VERIFIED locally (YAML/structural assertions); remote execution: NOT_RUN (lane prepared, not pushed, never triggered)'
+- 'H4 CI lane non-Docker structure: DIRECTLY_VERIFIED locally (YAML/structural assertions); remote execution: NOT_RUN (lane prepared, published at 98f3f6a0, remediation 01 pending review, never triggered)'
+- 'Remediation 01 lane repairs: DIRECTLY_VERIFIED locally (9 structural tests green); remote behavior of repaired steps: NOT_RUN'
 artifacts:
 - 'scripts/h4_verify_materialization_evidence.py (H4 evidence verifier: emit-handshake + verify, stdlib only, fail closed)'
 - 'tests/unit/test_h4_verify_materialization_evidence.py (17 tests, no Docker, no restated pins)'
+- 'tests/unit/test_h4_workflow_structure.py (9 workflow-structure regression tests for remediation 01)'
 - '.github/workflows/h4-docker-materialization.yml (bounded H4 qualification lane: preflight + h4-xmage + h4-forge-image)'
 files_modified:
-- scripts/h4_verify_materialization_evidence.py (new)
-- tests/unit/test_h4_verify_materialization_evidence.py (new)
-- .github/workflows/h4-docker-materialization.yml (new)
-- docs/engine_setup.md (inspect command --entrypoint correction only)
+- .github/workflows/h4-docker-materialization.yml (remediation 01: build-time interpolation, exact image binding, dispatch comment)
+- tests/unit/test_h4_workflow_structure.py (new)
 - .foundry/WORKSTREAM_STATE.yaml (this contract state)
 remaining_scope:
-- checkpoint commit(s) on this branch (no push without Coordinator authorization)
-- final handoff with H4 adjudication (expected PARTIAL at best after remote run: H4A both providers + H4B xmage runnable remotely; H4B forge blocked by TD-H4-04)
-- remote execution itself (Coordinator-authorized publication + runner observation) is OUT of this local session
+- remediation-review handoff (H4 UNKNOWN / NOT_RUN; PR creation NOT AUTHORIZED pending Coordinator remediation review)
+- remote execution itself (safe-push authorization, then PR authorization, then runner observation) is OUT of this local session
 status: ACTIVE
 authority_gates: []
-next_action: Checkpoint-commit the validated H4 harness, then hand off for Coordinator review/push authorization.
-exact_next_action: Commit the validated H4 lane (verifier script + unit test + workflow + docs inspect fix + state) as focused local commit(s) with a clean tree and no push; then return the full H4 handoff (H4 adjudication UNKNOWN/PARTIAL-pending-remote, H1-H11 matrix, blockers, Coordinator publication authorization request).
+next_action: Return remediation 01 for Coordinator remote review; await safe-push authorization (no push yet).
+exact_next_action: Commit this state as a state-only CHECKPOINT_CLEAN commit with a clean tree and no push; then return the remediation handoff (findings reproduced, exact image-binding strategy, validation, H1-H11 matrix, H4 UNKNOWN) and await Coordinator remote review, safe-push authorization, and PR creation authorization.
