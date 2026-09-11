@@ -1,0 +1,138 @@
+{
+  "artifact_version": "commander-lab.ws47-source-lock/1.0.1",
+  "workstream": "WS-47",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "branch": "ws47/successor-contract-v1.0.5-freeze",
+  "predecessor": {
+    "workstream": "WS-44",
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace": "qualification/ws44",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "materialization_blob": "4e3344bac577aca677260a837dd78e2c096f72f1",
+    "provider_denominator": 107,
+    "record_count": 135,
+    "namespace_integrity": "PASS_BYTE_IDENTICAL"
+  },
+  "successor_freeze": {
+    "workstream": "WS-47",
+    "version": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "freeze_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "freeze_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+    "namespace": "qualification/ws47",
+    "namespace_tree": "12af73695c801a42a0193ee895d5fc0843d16b0c",
+    "canonical_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "record_count": 135,
+    "provider_denominator": 107,
+    "requested_state_changed_count": 1,
+    "requested_state_changed_fixture_ids": [
+      "WS05-MP-BLOCK-4"
+    ],
+    "obligation_changed_count": 0,
+    "referential_integrity": "135/135_PASS_DEFECTS_0",
+    "semantic_executability": "135/135_PASS_CONTRACT_DEFECTS_0",
+    "blocker_surface_regression": "PASS",
+    "decision_pilot_boundary": "PRESERVED",
+    "hidden_information": "PRESERVED",
+    "rng_replay": "PRESERVED",
+    "actual_card_records": "PRESERVED_EXCEPT_GLOBAL_VERSION_DIGEST_ENVELOPE",
+    "G47_01_through_G47_15": "PASS",
+    "SUCCESSOR_CONTRACT_FROZEN": true
+  },
+  "postfreeze_attestation": {
+    "workflow_run": 34235080565,
+    "job": 102090586149,
+    "run_head_sha": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "conclusion": "success",
+    "regeneration_diff": "PASS_BYTE_IDENTICAL",
+    "independent_validation": "PASS",
+    "artifact_id": 10059468815,
+    "artifact_name": "ws47-v105-postfreeze-192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "artifact_sha256": "77f6f758a5b432e9cafa0f3b6d802c8b634a941d8a10fb2dc3653368e0a9ae2e",
+    "attestation_commit": "4139621b5683649a5e4d1b27c5536a36403ff22c",
+    "attestation_blob": "744307644f166c3ce04726d82dd2817b9a7d3ef2",
+    "terminal_status": "PASS"
+  },
+  "authority": {
+    "current_comprehensive_rules_effective_date": "2026-08-07",
+    "rules": [
+      "302.6",
+      "509.1a",
+      "509.1b",
+      "802.4a",
+      "802.4b"
+    ],
+    "target_fixture": "WS05-MP-BLOCK-4",
+    "predecessor_eligible_blockers": [
+      "obj:mp-p2-blocker"
+    ],
+    "successor_eligible_blockers": [
+      "obj:P2-bears",
+      "obj:mp-p2-blocker"
+    ],
+    "provider_semantics_used_as_authority": false,
+    "obligation_changed": false
+  },
+  "ws46_cross_check": {
+    "live_head_at_freeze_review": "d599449faa4ceda17315c5db87ec783a241e20aa",
+    "live_tree": "b86edceb0cb9316f4c565ce9f89fc9f8c91c15f4",
+    "current_failure_shape_checkpoint": "WS46_CHECKPOINT_03K_IMMUTABLE_FAILURE_SHAPES.md",
+    "current_construction_state": "88/107_NOT_PASS",
+    "current_failure_count": 19,
+    "additional_terminal_provider_neutral_WS44_contract_defect": false,
+    "provider_credit_imported": 0
+  },
+  "frozen_generator_chain": [
+    {
+      "path": "scripts/ws44_build_successor.py",
+      "role": "base v1.0.4 successor builder; canonical serialization, record digest and semantic repair base"
+    },
+    {
+      "path": "scripts/ws44_build_successor_v2.py",
+      "role": "referential-integrity closure and final materialization assembly"
+    },
+    {
+      "path": "scripts/ws44_build_successor_v3.py",
+      "blob_sha": "4928521e99f77d3401ed05cca49f54473aca0e46",
+      "role": "Draft 2020-12 schema-composition closure only"
+    },
+    {
+      "path": "scripts/ws44_build_successor_v4.py",
+      "blob_sha": "a3c58c9cfe33b8ed2f7ceb24b51647ecfe4f2286",
+      "role": "exact schema exception modeling; predecessor production freeze entrypoint"
+    },
+    {
+      "path": "scripts/ws47_build_successor_v1_0_5.py",
+      "role": "provider-neutral v1.0.5 successor transformation with exact one-record blocker-surface repair"
+    },
+    {
+      "path": "scripts/ws47_finalize_evidence_metadata.py",
+      "role": "provider-neutral evidence metadata finalization"
+    },
+    {
+      "path": "scripts/ws47_validate_successor_v1_0_5.py",
+      "role": "independent v1.0.5 validation and exact change-accounting verification"
+    }
+  ],
+  "digest_mechanism": {
+    "canonical_json": "json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')",
+    "requested_state_digest": "SHA-256 over the frozen requested-state projection keys",
+    "obligation_digest": "SHA-256 over fixture_id, fixture_family, frozen_contract_binding, card_authority_binding, expected_events, terminal_postconditions",
+    "record_materialization_digest": "SHA-256(canonical_json(record with materialization_digest removed))",
+    "canonical_bundle_digest": "SHA-256(canonical_json(bundle with canonical_bundle_digest removed))",
+    "materialization_file_sha256": "SHA-256(canonical_json(bundle) + LF)"
+  },
+  "credit_policy": {
+    "provider_runtime_executed_by_WS47": false,
+    "historical_provider_runtime_credit_imported": 0,
+    "Forge_PASS_granted": false,
+    "XMage_PASS_granted": false,
+    "AF07_GRANTED": false,
+    "ARCHITECTURE_FREEZE": false
+  },
+  "terminal_status": "PASS_SUCCESSOR_CONTRACT_V1_0_5_FREEZE"
+}

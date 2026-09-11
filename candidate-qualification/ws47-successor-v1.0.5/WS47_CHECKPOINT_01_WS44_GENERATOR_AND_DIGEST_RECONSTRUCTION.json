@@ -1,0 +1,86 @@
+{
+  "artifact_version": "commander-lab.ws47-checkpoint/1.0.0",
+  "workstream": "WS-47",
+  "checkpoint": 1,
+  "title": "WS44 generator and digest reconstruction",
+  "input_source_lock_commit": "c7a73fdb9e92b0f73273ea92857583da9339bcee",
+  "predecessor_freeze": {
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "materialization_blob": "4e3344bac577aca677260a837dd78e2c096f72f1",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54"
+  },
+  "predecessor_byte_integrity": {
+    "comparison": "12940248497a8795991cbbd2eedef72945528cfe..831b12d390a73ac7d97b32f416e7ba708f426653",
+    "only_changed_path": "candidate-qualification/ws47-successor-v1.0.5/WS47_WORKSTREAM_CONTRACT.md",
+    "qualification_ws44_changed": false,
+    "status": "PASS"
+  },
+  "generator_entrypoint": {
+    "workflow": ".github/workflows/ws44-v104-freeze-v4.yml",
+    "script": "scripts/ws44_build_successor_v4.py",
+    "command": "python scripts/ws44_build_successor_v4.py --output <dir>",
+    "double_materialization": "diff -ru A B",
+    "schema_validation": "jsonschema.Draft202012Validator",
+    "referential_integrity_test": "scripts/ws44_test_referential_integrity.py"
+  },
+  "generator_call_chain": [
+    "ws44_build_successor_v4.patch_schema",
+    "ws44_build_successor_v2.build",
+    "ws44_build_successor base utilities",
+    "ws41_lint_semantic_v1_0_3 digest adapter",
+    "ws32_lint_semantic_v1_0_2 canonical projections"
+  ],
+  "digest_derivation": {
+    "canonical_bytes": "UTF-8 JSON; ensure_ascii=false; keys sorted; separators comma/colon; no insignificant whitespace",
+    "requested_state_digest": "SHA-256 of canonical requested-state projection over exact STATE_KEYS",
+    "obligation_digest": "SHA-256 of canonical obligation projection over exact OBLIGATION_KEYS",
+    "materialization_digest": "SHA-256 of canonical record after removing materialization_digest only",
+    "canonical_bundle_digest": "SHA-256 of canonical bundle after removing canonical_bundle_digest only",
+    "materialization_sha256": "SHA-256 of persisted canonical bundle bytes including final LF"
+  },
+  "requested_state_projection_keys": [
+    "execution_entry_mode",
+    "players",
+    "deck_state",
+    "commander_state",
+    "semantic_objects",
+    "temporal_state",
+    "knowledge_state",
+    "rules_randomness",
+    "combat_state",
+    "stack_state",
+    "continuous_rules_effects",
+    "extra_turn_creation",
+    "elimination_trigger",
+    "zone_move_event",
+    "setup_validation"
+  ],
+  "obligation_projection_keys": [
+    "fixture_id",
+    "fixture_family",
+    "frozen_contract_binding",
+    "card_authority_binding",
+    "expected_events",
+    "terminal_postconditions"
+  ],
+  "findings": [
+    "WS44 v4 is a schema-closure wrapper; it does not independently alter semantic record bytes.",
+    "The final semantic assembly and digest lineage are in ws44_build_successor_v2.build.",
+    "The successor canonical bundle digest is computed before writing support artifacts and excludes only its own top-level digest field.",
+    "The materialization file SHA-256 differs in domain from canonical_bundle_digest because persisted JSON includes the final LF and includes canonical_bundle_digest.",
+    "WS47 can therefore perform a bounded one-record requested-state repair while preserving the inherited obligation projection and deterministically recomputing the dependent digest envelope."
+  ],
+  "historical_provider_credit_imported": 0,
+  "gates": {
+    "G47-01_predecessor_identity": "PASS",
+    "G47-02_no_in_place_predecessor_mutation": "PASS_AT_CHECKPOINT",
+    "G47-03_authority_closure": "PENDING",
+    "G47-04_obligation_preservation": "PENDING_MATERIALIZATION",
+    "G47-14_deterministic_materialization": "PENDING"
+  },
+  "terminal_status": "PASS_CHECKPOINT",
+  "exact_next_action": "Freshly verify current official Magic blocking/multiplayer authority for WS05-MP-BLOCK-4, reconstruct the exact v1.0.4 record, and implement a provider-neutral v1.0.5 successor transformation plus blocker-surface regression without modifying qualification/ws44."
+}

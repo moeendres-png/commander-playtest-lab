@@ -1,0 +1,126 @@
+name: WS41 successor v1.0.3 freeze
+on:
+  push:
+    branches:
+      - ws41/successor-contract-v1.0.3-freeze
+    paths:
+      - scripts/ws41_*.py
+      - .github/workflows/ws41-successor-freeze.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - scripts/ws41_*.py
+      - qualification/ws41/**
+      - .github/workflows/ws41-successor-freeze.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reverify current official Wizards Comprehensive Rules lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL -A 'Mozilla/5.0' 'https://magic.wizards.com/en/rules' -o /tmp/rules-page.html
+          python - <<'PY' >/tmp/cr-url.txt
+          import html,re
+          from urllib.parse import quote
+          text=open('/tmp/rules-page.html',encoding='utf-8').read()
+          urls=re.findall(r'https://media\.wizards\.com/[^\"\'<>]+?\.txt', text, flags=re.I)
+          if not urls:
+              urls=re.findall(r'href=[\"\']([^\"\']+\.txt)[\"\']', text, flags=re.I)
+          if not urls:
+              raise SystemExit('official TXT link not found on Wizards rules page')
+          raw=html.unescape(urls[-1]).strip()
+          print(quote(raw, safe=':/'))
+          PY
+          txt_url="$(cat /tmp/cr-url.txt)"
+          echo "CURRENT_OFFICIAL_CR_URL=$txt_url"
+          curl -fsSL -A 'Mozilla/5.0' "$txt_url" -o /tmp/MagicCompRules-current.txt
+          actual="$(sha256sum /tmp/MagicCompRules-current.txt | awk '{print $1}')"
+          echo "CURRENT_OFFICIAL_CR_SHA256=$actual"
+          test "$actual" = '4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f'
+          grep -q 'These rules are effective as of August 7, 2026' /tmp/MagicCompRules-current.txt
+          grep -q '^303\.4a An Aura spell requires a target' /tmp/MagicCompRules-current.txt
+          grep -q '^115\.1b Aura spells are always targeted' /tmp/MagicCompRules-current.txt
+          grep -q '^601\.2c ' /tmp/MagicCompRules-current.txt
+      - name: Compile WS41 implementation
+        run: python -m py_compile scripts/ws41_lint_semantic_v1_0_3.py scripts/ws41_build_successor.py scripts/ws41_build_successor_final.py scripts/ws41_build_successor_terminal.py scripts/ws41_validate_freeze.py
+      - name: Deterministic double materialization
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ws41-a /tmp/ws41-b /tmp/ws41-checked-in
+          if [ "${{ github.event_name }}" != "push" ] && [ -d qualification/ws41 ]; then
+            cp -a qualification/ws41 /tmp/ws41-checked-in
+          fi
+          rm -rf qualification/ws41
+          if ! python scripts/ws41_build_successor_terminal.py --out qualification/ws41; then
+            if [ -f qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json ]; then
+              python - <<'PY'
+          import json
+          p='qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json'
+          r=json.load(open(p,encoding='utf-8'))
+          print('WS41_LINTER_DIAGNOSTIC_BEGIN')
+          for row in r.get('records',[]):
+              if row.get('status') != 'PASS':
+                  print(json.dumps(row,sort_keys=True,separators=(',',':')))
+          print('WS41_GLOBAL_ERRORS='+json.dumps(r.get('global_errors',[]),sort_keys=True,separators=(',',':')))
+          print('WS41_LINTER_DIAGNOSTIC_END')
+          PY
+            fi
+            exit 1
+          fi
+          cp -a qualification/ws41 /tmp/ws41-a
+          rm -rf qualification/ws41
+          python scripts/ws41_build_successor_terminal.py --out qualification/ws41
+          cp -a qualification/ws41 /tmp/ws41-b
+          diff -ruN /tmp/ws41-a /tmp/ws41-b
+          python scripts/ws41_validate_freeze.py qualification/ws41
+          if [ -d /tmp/ws41-checked-in ]; then
+            diff -ruN /tmp/ws41-checked-in qualification/ws41
+          fi
+      - name: Verify generated freeze independently
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ws41_validate_freeze.py qualification/ws41
+          python scripts/ws41_lint_semantic_v1_0_3.py qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json --predecessor qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json --report /tmp/ws41-lint-independent.json
+          cmp /tmp/ws41-lint-independent.json qualification/ws41/WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json
+      - name: Prove immutable WS32 namespace untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code 038d0f38635eecee4e331c99af41f148de267a26 -- qualification/ws32
+      - name: Persist generated freeze on branch
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git status --porcelain -- qualification/ws41 | grep -q .; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add qualification/ws41
+            git commit -m 'ws41: freeze semantic fixture materialization v1.0.3'
+            git push origin HEAD:ws41/successor-contract-v1.0.3-freeze
+          else
+            echo 'freeze already persisted'
+          fi
+      - name: Upload complete WS41 freeze evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws41-v1.0.3-freeze-evidence
+          path: |
+            qualification/ws41
+            /tmp/ws41-lint-independent.json
+          if-no-files-found: error
+          retention-days: 90

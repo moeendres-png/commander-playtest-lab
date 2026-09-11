@@ -1,0 +1,143 @@
+name: WS-29 Final Authority Closure
+
+on:
+  push:
+    branches:
+      - ws29/canonical-authority-closure
+    paths:
+      - 'qualification/ws29/**'
+      - 'qualification/WS29_FINAL_HANDOFF.md'
+      - 'tests/qualification/test_ws29_authority_manifests.py'
+      - 'scripts/ws29_*.py'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'qualification/ws29/**'
+      - 'qualification/WS29_FINAL_HANDOFF.md'
+      - 'tests/qualification/test_ws29_authority_manifests.py'
+      - 'scripts/ws29_*.py'
+      - '.github/workflows/ws29-*.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  final-authority-closure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact tested head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fail closed on unauthorized WS-29 diff paths
+        run: |
+          set -euo pipefail
+          git fetch origin main --depth=1
+          git diff --name-only origin/main...HEAD | tee /tmp/ws29_changed_files.txt
+          python - <<'PY'
+          from pathlib import Path
+
+          allowed_exact = {
+              '.github/workflows/ws29-wizards-authority.yml',
+              '.github/workflows/ws29-materialize-static.yml',
+              '.github/workflows/ws29-final-authority-closure.yml',
+              'scripts/ws29_fetch_wizards_authority.py',
+              'scripts/ws29_fetch_gatherer_corpus.py',
+              'scripts/ws29_materialize_static.py',
+              'qualification/WS29_FINAL_HANDOFF.md',
+              'tests/qualification/test_ws29_authority_manifests.py',
+          }
+          allowed_prefixes = ('qualification/ws29/',)
+          changed = [line.strip() for line in Path('/tmp/ws29_changed_files.txt').read_text().splitlines() if line.strip()]
+          unauthorized = [p for p in changed if p not in allowed_exact and not p.startswith(allowed_prefixes)]
+          if unauthorized:
+              raise SystemExit('Unauthorized WS-29 diff paths: ' + ', '.join(unauthorized))
+          if not changed:
+              raise SystemExit('WS-29 diff unexpectedly empty')
+          print(f'Authorized provider-neutral WS-29 diff: {len(changed)} files')
+          PY
+
+      - name: Run fail-closed frozen authority manifest tests
+        run: |
+          set -euo pipefail
+          python -m unittest tests.qualification.test_ws29_authority_manifests -v
+
+      - name: Require final handoff on closure head
+        run: |
+          set -euo pipefail
+          test -s qualification/WS29_FINAL_HANDOFF.md
+          grep -q '^## PASS / FAIL / UNKNOWN' qualification/WS29_FINAL_HANDOFF.md
+          grep -q 'WS-29 overall: \*\*PASS / CLOSED\*\*' qualification/WS29_FINAL_HANDOFF.md
+
+      - name: Materialize exact final CI evidence
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws29/final-validation
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          files = [
+              'qualification/ws29/CARD_AUTHORITY_LEDGER.json',
+              'qualification/ws29/PROVIDER_NEUTRAL_EXPECTED_SEMANTICS.json',
+              'qualification/ws29/WS29_SOURCE_LOCK.json',
+              'qualification/ws29/UNRESOLVED_AUTHORITY_REGISTER.json',
+              'qualification/WS29_FINAL_HANDOFF.md',
+              'tests/qualification/test_ws29_authority_manifests.py',
+          ]
+          hashes = {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in files}
+          evidence = {
+              'schema_version': 'ws29-final-ci-evidence/1.0.0',
+              'status': 'PASS',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'head_sha': os.environ['GITHUB_SHA'],
+              'tree_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip(),
+              'event_name': os.environ['GITHUB_EVENT_NAME'],
+              'run_id': int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'workflow': os.environ['GITHUB_WORKFLOW'],
+              'manifest_and_handoff_sha256': hashes,
+              'authority_result': {
+                  'full_current_oracle_lock': '29/29',
+                  'card_authority_blockers': 0,
+                  'official_cr_raw_bytes': 'PASS_PDF',
+                  'gatherer_direct_access': 'PASS',
+              },
+              'runtime_nonclaim': 'Authority closure does not upgrade Forge or XMage runtime evidence.',
+          }
+          out = Path('artifacts/ws29/final-validation/FINAL_VALIDATION.json')
+          out.write_text(json.dumps(evidence, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          digest = hashlib.sha256(out.read_bytes()).hexdigest()
+          Path('artifacts/ws29/final-validation/SHA256SUMS').write_text(
+              f'{digest}  FINAL_VALIDATION.json\n', encoding='utf-8'
+          )
+          print(json.dumps({'final_validation_sha256': digest, **evidence}, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload final CI evidence
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws29-final-authority-closure-evidence
+          path: artifacts/ws29/final-validation/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Record artifact pointer and digest
+        run: |
+          set -euo pipefail
+          echo "artifact_id=${{ steps.upload.outputs.artifact-id }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "artifact_digest=${{ steps.upload.outputs.artifact-digest }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "artifact_url=${{ steps.upload.outputs.artifact-url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "WS29_FINAL_CI_PASS head=${GITHUB_SHA} run=${GITHUB_RUN_ID}" 

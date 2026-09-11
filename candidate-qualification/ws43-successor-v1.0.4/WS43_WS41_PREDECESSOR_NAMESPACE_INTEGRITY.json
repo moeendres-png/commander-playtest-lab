@@ -1,0 +1,61 @@
+{
+  "artifact_version": "commander-lab.ws43-predecessor-namespace-integrity/1.0.0",
+  "workstream": "WS-43",
+  "gate": "G43-01",
+  "requirement": "WS-41 v1.0.3 namespace preserved byte-for-byte",
+  "pinned_predecessor": {
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "namespace": "qualification/ws41",
+    "namespace_tree": "af8a26e7e74a859d5f4a983b69e4ff108e7123f4"
+  },
+  "observed_ws43_branch": {
+    "head": "6dae51bf6554f34466552f1c331e4347641a1a11",
+    "tree": "c619e65ff6c5f6153c9601d9a5e9c9189e39718e",
+    "namespace_tree": "cf40fe6157d4681dda31c1fe2b2aacb9cecbb374"
+  },
+  "path_set_equal": true,
+  "path_count_pinned": 18,
+  "path_count_observed": 18,
+  "blob_identity_equal": false,
+  "mismatch_count": 5,
+  "matching_count": 13,
+  "rows": [
+    {"path":"SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json","pinned_blob":"a05106d42ff3e51fe68acf45bb03aa356784142c","observed_blob":"a05106d42ff3e51fe68acf45bb03aa356784142c","pinned_bytes":1334098,"observed_bytes":1334098,"status":"MATCH"},
+    {"path":"SEMANTIC_FIXTURE_SCHEMA_v1_0_3.json","pinned_blob":"09cf7473bc8cf38ba6bd8059b564baab456cca4b","observed_blob":"09cf7473bc8cf38ba6bd8059b564baab456cca4b","pinned_bytes":6372,"observed_bytes":6372,"status":"MATCH"},
+    {"path":"SUPERSEDES_v1_0_2.json","pinned_blob":"775741e2b09a0169d96f3d35c0383683eab2f20f","observed_blob":"775741e2b09a0169d96f3d35c0383683eab2f20f","pinned_bytes":915,"observed_bytes":915,"status":"MATCH"},
+    {"path":"WS41_BUNDLE_MANIFEST_v1_0_3.json","pinned_blob":"c4b3a41f63f07d7989ab4af0ca419cc7438841a7","observed_blob":"50adf0c5bb17dd0b37724c7aef8f6d6941a569bb","pinned_bytes":2880,"observed_bytes":2880,"status":"MISMATCH"},
+    {"path":"WS41_DIGEST_LINEAGE.json","pinned_blob":"1bc504f22ed9d642bc98debbb1cf6e58f14b5264","observed_blob":"1bc504f22ed9d642bc98debbb1cf6e58f14b5264","pinned_bytes":89471,"observed_bytes":89471,"status":"MATCH"},
+    {"path":"WS41_EVIDENCE_INDEX.json","pinned_blob":"3f28f637883dc0e792c17927ef28d562a12d7f6e","observed_blob":"b7cc4e26f8bef7aeba75f9bfc4f483c875491a65","pinned_bytes":1024,"observed_bytes":1067,"status":"MISMATCH"},
+    {"path":"WS41_FINAL_HANDOFF.md","pinned_blob":"b6f19995c20f831332e121defaeffb7b424ebcb3","observed_blob":"043b5de16e0594de116876bc993460778b1631bb","pinned_bytes":6403,"observed_bytes":7253,"status":"MISMATCH"},
+    {"path":"WS41_PILOT_CHOICE_SUPERSESSION_PROOF.json","pinned_blob":"18573c7388b4f63bd4bea4f78fae4780ee49ab8d","observed_blob":"18573c7388b4f63bd4bea4f78fae4780ee49ab8d","pinned_bytes":3360,"observed_bytes":3360,"status":"MATCH"},
+    {"path":"WS41_PROVIDER_DENOMINATOR_107.json","pinned_blob":"8318f897a37d9f98a95dd786a93a5564bd5b6fc1","observed_blob":"8318f897a37d9f98a95dd786a93a5564bd5b6fc1","pinned_bytes":2851,"observed_bytes":2851,"status":"MATCH"},
+    {"path":"WS41_REMAINING_DEFECTS_2.json","pinned_blob":"c04a050f45998d05f2eb4f501a9826bc3fc700a0","observed_blob":"c04a050f45998d05f2eb4f501a9826bc3fc700a0","pinned_bytes":6685,"observed_bytes":6685,"status":"MATCH"},
+    {"path":"WS41_SEMANTIC_EXECUTABILITY_REPORT_135.json","pinned_blob":"cce2cc2a6d362f252b18bfc8a9705f317455bb28","observed_blob":"cce2cc2a6d362f252b18bfc8a9705f317455bb28","pinned_bytes":8472,"observed_bytes":8472,"status":"MATCH"},
+    {"path":"WS41_SEMANTIC_LINTER_RULES.json","pinned_blob":"af9c0c77d345cd1e8207eafdb726c31f741dcae1","observed_blob":"af9c0c77d345cd1e8207eafdb726c31f741dcae1","pinned_bytes":3134,"observed_bytes":3134,"status":"MATCH"},
+    {"path":"WS41_SHA256SUMS","pinned_blob":"949755700bf8a324559518a665bf76bacd4257f4","observed_blob":"94a12e47701f9b8e3ccbdd27a80465f5bf3cb8ae","pinned_bytes":1684,"observed_bytes":1684,"status":"MISMATCH"},
+    {"path":"WS41_SOURCE_LOCK.json","pinned_blob":"7e3f5393a2983acc7ece77fb32fe4358f5d42971","observed_blob":"7e3f5393a2983acc7ece77fb32fe4358f5d42971","pinned_bytes":1692,"observed_bytes":1692,"status":"MATCH"},
+    {"path":"WS41_TARGETED_STACK_STATE_AUDIT_135.json","pinned_blob":"24881cdcdab2006fddb85de4e009b6086a522748","observed_blob":"24881cdcdab2006fddb85de4e009b6086a522748","pinned_bytes":21614,"observed_bytes":21614,"status":"MATCH"},
+    {"path":"WS41_VALIDATION.json","pinned_blob":"51e8e5fee09e2ce800490eede95898747b679c26","observed_blob":"41b7e26861e628fd810a04e35e798e0bc91056d3","pinned_bytes":1533,"observed_bytes":2320,"status":"MISMATCH"},
+    {"path":"WS41_WS32_CONTENT_INTEGRITY_COMPARISON.json","pinned_blob":"217e9eec0a8e46b683c864e5287fcf234079206f","observed_blob":"217e9eec0a8e46b683c864e5287fcf234079206f","pinned_bytes":7929,"observed_bytes":7929,"status":"MATCH"},
+    {"path":"WS41_WS39_CONTRADICTION_REPRODUCTION.json","pinned_blob":"0321071b607395e50c17dd50016f44d81901f914","observed_blob":"0321071b607395e50c17dd50016f44d81901f914","pinned_bytes":1399,"observed_bytes":1399,"status":"MATCH"}
+  ],
+  "canonical_semantic_materialization_unchanged": true,
+  "canonical_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+  "history": {
+    "post_lock_attestation_commit": "a5f6d4bdfa47634e16f1f8b8aa6647e9ffe6c1d3",
+    "post_lock_regeneration_commit": "e83e6998aa16cdb4cb422ceecab6c517043ab742",
+    "observed_change_character": "evidence/attestation only; canonical semantic materialization blob remained identical",
+    "authority_effect": "The current WS-43 contract nevertheless requires complete qualification/ws41 byte identity against the explicitly pinned predecessor commit/tree, not semantic-materialization-only identity."
+  },
+  "classification": "DIGEST_INTEGRITY_DEFECT",
+  "gate_result": "FAIL",
+  "terminal_for_current_contract": true,
+  "repair_within_current_scope": false,
+  "repair_reason": "Restoring the five files would require editing/reverting qualification/ws41 in the WS-43 branch, which the WS-43 contract explicitly places out of scope. Treating the later attestation namespace as the predecessor would silently replace the directly pinned source lock.",
+  "successor_contract_frozen": false,
+  "provider_runtime_executed": false,
+  "provider_pass_imported": false,
+  "af07_granted": false,
+  "architecture_freeze": false
+}

@@ -1,0 +1,129 @@
+{
+  "artifact_version": "commander-lab.ws47-terminal-freeze-result/1.0.0",
+  "workstream": "WS-47",
+  "status": "COMPLETE",
+  "terminal_status": "PASS_SUCCESSOR_CONTRACT_V1_0_5_FREEZE",
+  "WS47": "COMPLETE / PASS_SUCCESSOR_CONTRACT_V1_0_5_FREEZE",
+  "SUCCESSOR_CONTRACT_FROZEN": true,
+  "source_lock_seal_commit": "0d555ed68ecbbd184b84def319dee15454ade676",
+  "freeze": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "ws47/successor-contract-v1.0.5-freeze",
+    "version": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "freeze_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "freeze_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+    "namespace": "qualification/ws47",
+    "namespace_tree": "12af73695c801a42a0193ee895d5fc0843d16b0c",
+    "materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "canonical_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "record_count": 135,
+    "provider_denominator": 107
+  },
+  "predecessor": {
+    "version": "commander-lab.semantic-fixture-materialization/1.0.4",
+    "commit": "12940248497a8795991cbbd2eedef72945528cfe",
+    "tree": "cd83c973b269711106d08ab5be2d7672f05bcb7c",
+    "namespace_tree": "6579e119605b90248426a3121a47c487b2bb13cd",
+    "materialization_sha256": "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35",
+    "canonical_bundle_digest": "77b911195525c2fe8aff37f6c9573e5772f358b25646d0be5919314ed5e23b54",
+    "namespace_integrity": "PASS_BYTE_IDENTICAL"
+  },
+  "gates": {
+    "G47_01_PREDECESSOR_IDENTITY": "PASS",
+    "G47_02_NO_IN_PLACE_PREDECESSOR_MUTATION": "PASS",
+    "G47_03_AUTHORITY_CLOSURE": "PASS",
+    "G47_04_OBLIGATION_PRESERVATION": "PASS",
+    "G47_05_EXACT_CHANGE_ACCOUNTING": "PASS",
+    "G47_06_COMPLETE_DENOMINATOR": "PASS",
+    "G47_07_REFERENTIAL_INTEGRITY": "PASS_135_OF_135_DEFECTS_0",
+    "G47_08_SEMANTIC_EXECUTABILITY": "PASS_135_OF_135_CONTRACT_DEFECTS_0",
+    "G47_09_BLOCKER_SURFACE_COMPLETENESS_REGRESSION": "PASS",
+    "G47_10_DECISION_PILOT_BOUNDARY_PRESERVATION": "PASS",
+    "G47_11_HIDDEN_INFORMATION_PRESERVATION": "PASS",
+    "G47_12_RNG_REPLAY_PRESERVATION": "PASS",
+    "G47_13_ACTUAL_CARD_PRESERVATION": "PASS",
+    "G47_14_DETERMINISTIC_MATERIALIZATION": "PASS_DOUBLE_MATERIALIZATION_BYTE_IDENTICAL",
+    "G47_15_FREEZE_INTEGRITY": "PASS_POSTFREEZE_REGENERATION_BYTE_IDENTICAL"
+  },
+  "semantic_change": {
+    "requested_state_changed_count": 1,
+    "requested_state_changed_fixture_ids": [
+      "WS05-MP-BLOCK-4"
+    ],
+    "path": "combat_state.eligible_blockers",
+    "predecessor": [
+      "obj:mp-p2-blocker"
+    ],
+    "successor": [
+      "obj:P2-bears",
+      "obj:mp-p2-blocker"
+    ],
+    "obligation_changed": false,
+    "obligation_changed_count": 0,
+    "authority_effective_date": "2026-08-07",
+    "provider_semantics_used_as_authority": false
+  },
+  "validation": {
+    "referential_integrity_record_count": 135,
+    "referential_integrity_pass_count": 135,
+    "referential_integrity_defect_count": 0,
+    "referential_reference_count": 8559,
+    "semantic_executable_count": 135,
+    "semantic_contract_defect_count": 0,
+    "blocker_surface_regression": "PASS",
+    "independent_validation_A": "PASS",
+    "independent_validation_B": "PASS",
+    "A_B_byte_identity": "PASS",
+    "provider_denominator_count": 107,
+    "denominator_decreased_to_bypass_blocker": false
+  },
+  "runtime_evidence": {
+    "frozen_target_extraction": {
+      "run": 34230220407,
+      "artifact_id": 10057561581,
+      "artifact_sha256": "2189bad14dd33eb66600fcca06c0deabd4f51c5b63fe61c30b904e86ef3f43cd"
+    },
+    "deterministic_materialization": {
+      "run": 34230601287,
+      "job": 102075461596,
+      "artifact_id": 10057845744,
+      "artifact_sha256": "1adc9068af3f7fdbd8ba9a6abada2c2ff0f6966dabf894cc9284d3573b16658c",
+      "conclusion": "success"
+    },
+    "postfreeze_attestation": {
+      "run": 34235080565,
+      "job": 102090586149,
+      "artifact_id": 10059468815,
+      "artifact_sha256": "77f6f758a5b432e9cafa0f3b6d802c8b634a941d8a10fb2dc3653368e0a9ae2e",
+      "attestation_commit": "4139621b5683649a5e4d1b27c5536a36403ff22c",
+      "conclusion": "success"
+    }
+  },
+  "ws46_cross_check": {
+    "live_head_reviewed": "d599449faa4ceda17315c5db87ec783a241e20aa",
+    "current_construction_state": "88/107_NOT_PASS",
+    "current_failure_count": 19,
+    "additional_terminal_provider_neutral_WS44_contract_defect": false,
+    "provider_credit_imported": 0
+  },
+  "credit_boundary": {
+    "Forge_successor_provider_PASS": false,
+    "XMage_successor_provider_PASS": false,
+    "AF07_GRANTED": false,
+    "ARCHITECTURE_FREEZE": false,
+    "historical_provider_runtime_credit_imported": 0,
+    "WS47_provider_runtime_executed": false
+  },
+  "pr": {
+    "number": 162,
+    "state": "open",
+    "draft": true,
+    "merged": false
+  },
+  "remaining_blockers": [],
+  "dependencies_unblocked": [
+    "fresh Forge successor-provider qualification against immutable v1.0.5 with zero imported successor-runtime credit",
+    "fresh XMage successor-provider qualification against immutable v1.0.5 with zero imported successor-runtime credit"
+  ],
+  "exact_next_action": "Start fresh Forge and XMage qualification against freeze commit 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8 / qualification/ws47 namespace tree 12af73695c801a42a0193ee895d5fc0843d16b0c, importing zero successor-runtime credit."
+}

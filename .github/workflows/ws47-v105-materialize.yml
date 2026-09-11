@@ -1,0 +1,97 @@
+name: WS47 v1.0.5 deterministic materialization
+
+on:
+  push:
+    branches:
+      - ws47/successor-contract-v1.0.5-freeze
+    paths:
+      - scripts/ws47_build_successor_v1_0_5.py
+      - scripts/ws47_validate_successor_v1_0_5.py
+      - scripts/ws47_finalize_evidence_metadata.py
+      - .github/workflows/ws47-v105-materialize.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify immutable predecessor namespace
+        run: |
+          test "$(git rev-parse 12940248497a8795991cbbd2eedef72945528cfe^{tree})" = "cd83c973b269711106d08ab5be2d7672f05bcb7c"
+          test "$(git rev-parse 12940248497a8795991cbbd2eedef72945528cfe:qualification/ws44)" = "6579e119605b90248426a3121a47c487b2bb13cd"
+          git diff --exit-code 12940248497a8795991cbbd2eedef72945528cfe -- qualification/ws44
+          test "$(sha256sum qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json | awk '{print $1}')" = "9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35"
+      - name: Install validation dependency
+        run: python -m pip install --disable-pip-version-check 'jsonschema>=4,<5'
+      - name: Materialize A and B independently
+        run: |
+          rm -rf out-a out-b
+          mkdir out-a out-b
+          python scripts/ws47_build_successor_v1_0_5.py --output out-a
+          python scripts/ws47_finalize_evidence_metadata.py --input-dir out-a
+          python scripts/ws47_build_successor_v1_0_5.py --output out-b
+          python scripts/ws47_finalize_evidence_metadata.py --input-dir out-b
+          diff -ru out-a out-b
+      - name: Independent validation A and B
+        run: |
+          python scripts/ws47_validate_successor_v1_0_5.py --input-dir out-a --report out-a/WS47_INDEPENDENT_VALIDATION.json
+          python scripts/ws47_validate_successor_v1_0_5.py --input-dir out-b --report out-b/WS47_INDEPENDENT_VALIDATION.json
+          diff -u out-a/WS47_INDEPENDENT_VALIDATION.json out-b/WS47_INDEPENDENT_VALIDATION.json
+      - name: Seal deterministic candidate evidence
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          for d in (Path('out-a'), Path('out-b')):
+              report=json.loads((d/'WS47_FREEZE_RESULT.json').read_text())
+              report['G47_14']='PASS_DOUBLE_MATERIALIZATION_BYTE_IDENTICAL'
+              (d/'WS47_FREEZE_RESULT.json').write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, separators=(',',':'))+'\n')
+              files=sorted(p for p in d.iterdir() if p.is_file() and p.name not in {'WS47_SHA256SUMS','WS47_EVIDENCE_INDEX.json'})
+              rows=[(hashlib.sha256(p.read_bytes()).hexdigest(),p.name) for p in files]
+              (d/'WS47_SHA256SUMS').write_text(''.join(f'{h}  {n}\n' for h,n in rows))
+              idx={'artifact_version':'commander-lab.ws47-evidence-index/1.0.0','contract_version':'commander-lab.semantic-fixture-materialization/1.0.5','files':[{'path':n,'sha256':h,'role':'canonical_ws47_freeze_candidate_evidence'} for h,n in rows]}
+              idx['files'].append({'path':'WS47_SHA256SUMS','sha256':hashlib.sha256((d/'WS47_SHA256SUMS').read_bytes()).hexdigest(),'role':'sealed_checksum_manifest'})
+              (d/'WS47_EVIDENCE_INDEX.json').write_text(json.dumps(idx,ensure_ascii=False,sort_keys=True,separators=(',',':'))+'\n')
+          PY
+          diff -ru out-a out-b
+      - name: Verify source freshness and fast-forward onto live branch
+        run: |
+          BRANCH='ws47/successor-contract-v1.0.5-freeze'
+          RUN_BUILDER="$(git rev-parse "$GITHUB_SHA:scripts/ws47_build_successor_v1_0_5.py")"
+          RUN_VALIDATOR="$(git rev-parse "$GITHUB_SHA:scripts/ws47_validate_successor_v1_0_5.py")"
+          RUN_FINALIZER="$(git rev-parse "$GITHUB_SHA:scripts/ws47_finalize_evidence_metadata.py")"
+          RUN_WORKFLOW="$(git rev-parse "$GITHUB_SHA:.github/workflows/ws47-v105-materialize.yml")"
+          git fetch origin "$BRANCH"
+          test "$RUN_BUILDER" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_build_successor_v1_0_5.py")"
+          test "$RUN_VALIDATOR" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_validate_successor_v1_0_5.py")"
+          test "$RUN_FINALIZER" = "$(git rev-parse "origin/$BRANCH:scripts/ws47_finalize_evidence_metadata.py")"
+          test "$RUN_WORKFLOW" = "$(git rev-parse "origin/$BRANCH:.github/workflows/ws47-v105-materialize.yml")"
+          git rebase "origin/$BRANCH"
+      - name: Commit exact generated successor namespace
+        run: |
+          rm -rf qualification/ws47
+          mkdir -p qualification/ws47
+          cp -a out-a/. qualification/ws47/
+          git add qualification/ws47
+          if git diff --cached --quiet; then
+            echo 'WS47_NAMESPACE_ALREADY_CURRENT=TRUE'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'ws47: materialize deterministic v1.0.5 successor candidate'
+            git push origin HEAD:ws47/successor-contract-v1.0.5-freeze
+          fi
+      - name: Upload candidate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws47-v105-materialization-${{ github.sha }}
+          path: |
+            out-a
+            out-b
+          if-no-files-found: error

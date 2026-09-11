@@ -1,0 +1,29 @@
+name: WS47 exact frozen target extraction
+
+on:
+  push:
+    branches:
+      - ws47/successor-contract-v1.0.5-freeze
+    paths:
+      - scripts/ws47_extract_target_fixture.py
+      - .github/workflows/ws47-target-extract.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and verify exact WS44 target record
+        run: |
+          mkdir -p out
+          python scripts/ws47_extract_target_fixture.py --output out/WS47_EXACT_WS44_WS05_MP_BLOCK_4.json
+      - name: Upload exact target record
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws47-exact-ws44-ws05-mp-block-4-${{ github.sha }}
+          path: out/WS47_EXACT_WS44_WS05_MP_BLOCK_4.json
+          if-no-files-found: error
