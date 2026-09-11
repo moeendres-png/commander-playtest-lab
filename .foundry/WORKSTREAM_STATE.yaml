@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-a1d-docker-pin-requalification
 branch: architecture/ws-a1d-docker-pin-authority-requalification-20260910
 audit_base_sha: dd3be6026515e40f4b18a6121058877f5cab5725
 audit_base_tree: 3e73de272899c39963160c1884e5280cfe86276a
-state_written_against_head: e1bc5572ed154b176a8eb67863aa446e35e088d8
-validated_head: e1bc5572ed154b176a8eb67863aa446e35e088d8
+state_written_against_head: dfbe18e922f7e7fa874523c046a60552f121bde6
+validated_head: dfbe18e922f7e7fa874523c046a60552f121bde6
 objective: >
   WS-A1D Docker Pin Authority and Runtime Requalification under canonical
   Coordinator contract (XHIGH). Eliminate the executable Docker pin-authority
@@ -97,7 +97,9 @@ validated_gates:
 - H10 fail closed (missing/malformed/unknown/cross-wire/missing-tooling all non-zero; UNKNOWN/NOT_RUN never PASS; no grandfathered-image exception)
 - H11 no second Rules Engine (tooling routes identity only; no legality semantics invented)
 tests_run:
-- tests/unit/test_ws_a1d_docker_pin_authority.py (37 tests: resolver incl. provider-field identity, Dockerfile/Compose/protocol/provenance-gate, entrypoint subprocess matrix incl. start-command-never-ran proof, fake-docker wrapper matrix for both providers)
+- PR #177 CI/quality on 9fb40d2c (GitHub CI evidence, NOT local): Ruff lint FAILURE (I001 test file:14, F401 pathlib.Path test file:331) + Ruff format FAILURE (verify_container_provenance.py, test file); Mypy strict PASS; pytest 955 passed/3 skipped; compileall PASS; secret scan PASS; wheel PASS; CI/security PASS; Windows Hygiene PASS; Prod infra PASS; exact-main-admission expected SKIP
+- Ruff remediation (formatting/import-only, 2 files): ruff check . -> All checks passed; ruff format --check . -> 759 formatted; pytest WS-A1D file -> 37 passed (baseline met, no lost tests); compileall on both files OK
+- tests/unit/test_ws_a1d_docker_pin_authority.py covers: resolver incl. provider-field identity, Dockerfile/Compose/protocol/provenance-gate, entrypoint subprocess matrix incl. start-command-never-ran proof, fake-docker wrapper matrix for both providers
 - REMEDIATION-01 NEGATIVE CONTROL: 8 new fail-closed assertions failed against published pre-fix code (missing record/manifest, unknown provider, swapped/malformed provider fields, entrypoint proceed-cases, single-provider wrapper env), 0 failed post-fix
 - tests/unit/test_technical_truth.py + tests/contract/test_phase85_protocol.py + tests/contract/test_phase1213_provider_surface.py + tests/unit/test_external_engine_foundation.py + tests/unit/test_xmage_compatibility_provider.py + tests/integration/test_phase85_validation.py + tests/contract/test_phase86_phase85_claims.py + tests/unit/test_ws_a1r_pin_authority.py + tests/unit/test_phase85_bootstrap_files.py (59 total green post-remediation)
 - entrypoint gate verified end-to-end via subprocess (canonical proceeds; stale/missing-record/missing-manifest/missing-gate/missing-python all non-zero with start command never executed)
@@ -115,14 +117,13 @@ artifacts:
 - docs/WS_A1D_PIN_CONSUMER_AUDIT.md (Phase A/B record + C-E adjudication appendix)
 - scripts/docker_resolve_engine_pin.py + scripts/docker_build_engine.sh + scripts/verify_container_provenance.py
 remaining_scope:
-- Remediation-01 handoff (no push/PR/merge; Coordinator push adjudication pending)
+- Ruff-remediation handoff (no push/PR/merge; Coordinator push adjudication pending; PR #177 needs new CI on pushed head)
 - Phase H real image materialization + container runtime/bridge-health/engine-behavior evidence on a host with Docker (NOT_RUN here; H4 open)
 - Phase I B3/B4/external-engine suites on a capable host or CI (NOT_RUN locally; adjudicated UNAFFECTED)
 status: ACTIVE
-next_action: Return the remediation-01 handoff for Coordinator remote-review / push adjudication. Do NOT push, open a PR, merge, or delete anything.
+next_action: Return the Ruff-remediation handoff for Coordinator review / fast-forward safe-push adjudication. Do NOT push, open a PR, merge, or delete anything.
 exact_next_action: >
-  Hand off remediation-01 as locally COMPLETE and validated (69-test battery
-  green on the remediated tree, validated_head e1bc5572): unconditional
-  fail-closed provenance gate, complete wrapper environment, provider-field
-  identity validation. H4 remains NOT_RUN (no Docker host). Coordinator
-  decides push.
+  Hand off the Ruff-only remediation as locally COMPLETE and validated
+  (ruff check + format green repo-wide, 37-test WS-A1D battery green,
+  validated_head dfbe18e9): formatting/import-only, no semantic change.
+  H4 remains NOT_RUN (no Docker host). Coordinator decides push.
