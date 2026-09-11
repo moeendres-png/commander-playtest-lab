@@ -788,6 +788,10 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public void selectAttackers(Game game, UUID attackingPlayerId) {
         List<Permanent> attackers = new ArrayList<>(getAvailableAttackers(game));
+        // Twin-stable frame sequence: native UUIDs are random per game, so
+        // declaration order follows Rules-visible content (name, entry order,
+        // characteristics), never native identity.
+        attackers.sort(stablePermanentOrder(game));
         List<UUID> defenders = game.getCombat().getDefenders().stream()
                 .sorted(Comparator.comparing(UUID::toString))
                 .toList();
@@ -851,6 +855,24 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
     }
 
+    /**
+     * Twin-stable permanent order over Rules-visible content. Native UUIDs
+     * (and their string forms) are random per game and must never sequence
+     * decision frames; names, entry order (zone-change counter), and
+     * characteristics reproduce identically on twin re-execution.
+     */
+    private static Comparator<Permanent> stablePermanentOrder(Game game) {
+        return Comparator
+                .comparing(
+                        (Permanent permanent) -> permanent.getName(),
+                        Comparator.nullsFirst(String::compareTo))
+                .thenComparingInt(permanent -> permanent.getZoneChangeCounter(game))
+                .thenComparingInt(permanent -> permanent.getPower().getValue())
+                .thenComparingInt(permanent -> permanent.getToughness().getValue())
+                .thenComparing(permanent -> permanent.isTapped())
+                .thenComparingInt(Permanent::getDamage);
+    }
+
     @Override
     public void selectBlockers(
             Ability source,
@@ -858,7 +880,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
             UUID defendingPlayerId
     ) {
         List<Permanent> blockers = new ArrayList<>(getAvailableBlockers(game));
-        blockers.sort(Comparator.comparing(permanent -> permanent.getId().toString()));
+        // Twin-stable frame sequence (see selectAttackers): declaration order
+        // among co-blockers carries no Rules content by itself.
+        blockers.sort(stablePermanentOrder(game));
         List<UUID> attackers = game.getCombat().getAttackers().stream()
                 .sorted(Comparator.comparing(UUID::toString))
                 .toList();
