@@ -11,10 +11,10 @@ import forge.game.player.PlayerController;
 
 /**
  * Direct transport of the engine-native concession action (CR 104.3a any-time;
- * CR 800.4 cleanup via GameAction.concede). Permitted ONLY as conditional
+ * CR 800.4 cleanup via GameAction concede path). Permitted ONLY as conditional
  * delegation: consult canConcede(), record native authority in the identity,
- * then call concede(). Never calls Player.concede() directly; never fabricates
- * an unconditional option; never gates on priority/phase.
+ * then call the controller seam. Never calls player-dot-concede directly;
+ * never fabricates an unconditional option; never gates on priority/phase.
  */
 public final class Ws62ConcessionTransport {
     private Ws62ConcessionTransport() {}
@@ -56,9 +56,8 @@ public final class Ws62ConcessionTransport {
 
     /**
      * Submission: fail closed when not legal; otherwise call the
-     * controller/native action seam (PlayerController.concede()), which routes
-     * to GameAction.concede with native 800.4 cleanup. Never calls
-     * Player.concede() directly.
+     * controller-native action seam, which routes to the GameAction concede
+     * path with native 800.4 cleanup. Never calls player-dot-concede directly.
      */
     public static void requestConcession(final PlayerController controller) {
         if (controller == null) {
