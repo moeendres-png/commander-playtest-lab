@@ -1,0 +1,50 @@
+name: WS-29 Materialize Frozen Static Authority Artifacts
+
+on:
+  push:
+    branches:
+      - ws29/canonical-authority-closure
+    paths:
+      - '.github/workflows/ws29-materialize-static.yml'
+      - 'scripts/ws29_materialize_static.py'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+        with:
+          ref: ws29/canonical-authority-closure
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Materialize and verify frozen artifacts
+        run: |
+          set -euo pipefail
+          python scripts/ws29_materialize_static.py
+          sha256sum qualification/ws29/CARD_AUTHORITY_LEDGER.json
+          sha256sum qualification/ws29/PROVIDER_NEUTRAL_EXPECTED_SEMANTICS.json
+          test "$(sha256sum qualification/ws29/CARD_AUTHORITY_LEDGER.json | awk '{print $1}')" = "a810c9262597db5a1162c6fd8240bd154938e98efe58b0e0cddb29541344e3c4"
+          test "$(sha256sum qualification/ws29/PROVIDER_NEUTRAL_EXPECTED_SEMANTICS.json | awk '{print $1}')" = "bde2177e91fe9ed0e0399e1637d3b47226c402bfe2c0350cf6bccf87f19c5201"
+
+      - name: Commit frozen artifacts if absent
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qualification/ws29/CARD_AUTHORITY_LEDGER.json qualification/ws29/PROVIDER_NEUTRAL_EXPECTED_SEMANTICS.json
+          if git diff --cached --quiet; then
+            echo "Frozen artifacts already materialized at exact hashes."
+            exit 0
+          fi
+          git commit -m "chore(ws29): materialize frozen authority manifests"
+          git push origin HEAD:ws29/canonical-authority-closure

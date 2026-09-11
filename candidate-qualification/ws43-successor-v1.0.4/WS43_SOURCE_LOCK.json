@@ -1,0 +1,39 @@
+{
+  "artifact_version": "commander-lab.ws43-source-lock/1.0.0",
+  "workstream": "WS-43",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "branch": "ws43/successor-contract-v1.0.4-freeze",
+  "observed_branch_head_before_ws43_execution": "6dae51bf6554f34466552f1c331e4347641a1a11",
+  "observed_branch_tree_before_ws43_execution": "c619e65ff6c5f6153c9601d9a5e9c9189e39718e",
+  "predecessor": {
+    "workstream": "WS-41",
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "namespace": "qualification/ws41",
+    "namespace_tree_at_pinned_commit": "af8a26e7e74a859d5f4a983b69e4ff108e7123f4",
+    "contract_version": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "canonical_materialization_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "materialization_git_blob": "a05106d42ff3e51fe68acf45bb03aa356784142c",
+    "materialization_bytes": 1334098,
+    "provider_denominator": 107
+  },
+  "current_branch_predecessor_namespace": {
+    "qualification_tree": "8b6436f684630d5cd84498693d2a14cd07d1d426",
+    "namespace_tree": "cf40fe6157d4681dda31c1fe2b2aacb9cecbb374",
+    "path_count": 18,
+    "same_tree_as_pinned_predecessor": false
+  },
+  "ws40_terminal_defect_authority": {
+    "terminal_head": "87b0a571cb3f9d18378150e3546fbe8fac4b6366",
+    "evidence_commit": "fbb4b9c8534b11b8daf70a162fdb081d34ac2ab7",
+    "evidence_tree": "0697ea0c6821f4590290823b86a1f62b52947379",
+    "first_failure_fixture": "MICRO_PRIORITY",
+    "failure": "WS40_STATE_TARGET_UNBOUND:obj:P2-bears"
+  },
+  "source_truth_resolution": "The current WS-43 contract directly pins 24152acf36b5a560c23ccacfed3f31d3039537eb / 428bbe58b2ea7b869200521092a8768108029b47 as immutable predecessor authority. Later repository attestations cannot silently replace that explicit lock.",
+  "provider_runtime_executed": false,
+  "provider_pass_imported": false,
+  "af07_granted": false,
+  "architecture_freeze": false
+}

@@ -1,0 +1,137 @@
+name: WS44 v1.0.4 schema-closed deterministic freeze
+
+on:
+  push:
+    branches:
+      - ws44/v1.0.4-authority-reconciliation-freeze
+    paths:
+      - scripts/ws44_build_successor_v4.py
+      - .github/workflows/ws44-v104-freeze-v4.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-freeze-v4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compile closure implementation
+        run: |
+          python -m py_compile scripts/ws44_build_successor.py scripts/ws44_build_successor_v2.py scripts/ws44_build_successor_v3.py scripts/ws44_build_successor_v4.py scripts/ws44_test_referential_integrity.py
+
+      - name: Deterministic double materialization
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ws44-v4-a /tmp/ws44-v4-b
+          mkdir -p /tmp/ws44-v4-a /tmp/ws44-v4-b
+          python scripts/ws44_build_successor_v4.py --output /tmp/ws44-v4-a
+          python scripts/ws44_build_successor_v4.py --output /tmp/ws44-v4-b
+          diff -ru /tmp/ws44-v4-a /tmp/ws44-v4-b
+
+      - name: Referential-integrity regression tests
+        run: |
+          python scripts/ws44_test_referential_integrity.py /tmp/ws44-v4-a/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
+
+      - name: Validate generated Draft 2020-12 schema
+        run: |
+          python -m pip install --disable-pip-version-check 'jsonschema==4.25.1'
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import jsonschema
+          p=Path('/tmp/ws44-v4-a')
+          schema=json.loads((p/'SEMANTIC_FIXTURE_SCHEMA_v1_0_4.json').read_text())
+          mat=json.loads((p/'SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json').read_text())
+          jsonschema.Draft202012Validator.check_schema(schema)
+          errors=sorted(jsonschema.Draft202012Validator(schema).iter_errors(mat), key=lambda e:list(e.absolute_path))
+          if errors:
+              for e in errors[:50]:
+                  print(f"schema error at {list(e.absolute_path)}: {e.message}")
+              raise SystemExit(f"generated schema validation failed with {len(errors)} errors")
+          print('Generated v1.0.4 Draft 2020-12 schema validation PASS')
+          PY
+
+      - name: Assert complete static contract facts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/ws44-v4-a')
+          ref=json.loads((p/'WS44_REFERENTIAL_INTEGRITY_AUDIT_135.json').read_text())
+          sem=json.loads((p/'WS44_SEMANTIC_EXECUTABILITY_REPORT_135.json').read_text())
+          den=json.loads((p/'WS44_PROVIDER_DENOMINATOR_107.json').read_text())
+          lin=json.loads((p/'WS44_DIGEST_LINEAGE.json').read_text())
+          val=json.loads((p/'WS44_VALIDATION.json').read_text())
+          assert ref['terminal_status']=='PASS' and ref['record_count']==135 and ref['defect_count']==0
+          assert sem['terminal_status']=='PASS' and sem['semantic_executable_count']==135 and sem['contract_defect_count']==0
+          assert den['provider_denominator_count']==107 and den['predecessor_identity_set_equal'] is True
+          assert lin['obligation_changed_count']==0
+          assert val['provider_runtime_executed'] is False
+          assert val['provider_pass_imported'] is False
+          assert val['AF07_GRANTED'] is False
+          assert val['ARCHITECTURE_FREEZE'] is False
+          print('WS44 static contract facts PASS')
+          PY
+
+      - name: Install exact canonical namespace bytes
+        run: |
+          set -euo pipefail
+          rm -rf qualification/ws44
+          mkdir -p qualification/ws44
+          cp -a /tmp/ws44-v4-a/. qualification/ws44/
+          diff -ru /tmp/ws44-v4-a qualification/ws44
+
+      - name: Persist schema-valid immutable freeze
+        id: freeze
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qualification/ws44
+          if git diff --cached --quiet; then
+            echo "qualification/ws44 already equals deterministic schema-valid output"
+          else
+            git commit -m "ws44: freeze schema-valid semantic materialization v1.0.4"
+            git push origin HEAD:ws44/v1.0.4-authority-reconciliation-freeze
+          fi
+          echo "freeze_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "freeze_tree=$(git rev-parse HEAD^{tree})" >> "$GITHUB_OUTPUT"
+          echo "freeze_namespace_tree=$(git rev-parse HEAD:qualification/ws44)" >> "$GITHUB_OUTPUT"
+
+      - name: Emit freeze-run attestation
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          p=Path('qualification/ws44')
+          att={
+            'artifact_version':'commander-lab.ws44-freeze-run-attestation/1.0.2',
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'workflow_run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'input_sha':os.environ['GITHUB_SHA'],
+            'freeze_sha':'${{ steps.freeze.outputs.freeze_sha }}',
+            'freeze_tree':'${{ steps.freeze.outputs.freeze_tree }}',
+            'freeze_namespace_tree':'${{ steps.freeze.outputs.freeze_namespace_tree }}',
+            'deterministic_double_materialization':'PASS',
+            'referential_integrity_regressions':'PASS',
+            'generated_draft_2020_12_schema_validation':'PASS',
+            'static_contract_facts':'PASS',
+            'files':[{'path':f'qualification/ws44/{f.name}','sha256':hashlib.sha256(f.read_bytes()).hexdigest()} for f in sorted(x for x in p.iterdir() if x.is_file())],
+          }
+          Path('/tmp/WS44_FREEZE_RUN_ATTESTATION.json').write_text(json.dumps(att,sort_keys=True,separators=(',',':'))+'\n')
+          PY
+
+      - name: Upload complete freeze artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws44-v104-schema-closed-freeze-${{ steps.freeze.outputs.freeze_sha }}
+          path: |
+            qualification/ws44
+            /tmp/WS44_FREEZE_RUN_ATTESTATION.json
+          if-no-files-found: error
