@@ -86,7 +86,12 @@ CONCESSION_METHOD = """        RuntimeException failClosed(String method) {
             return true;
         }"""
 
-TARGET_STACK_OLD = """                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {
+TARGET_STACK_OLD = """                java.util.List<GameEntity> cands = new java.util.ArrayList<>();
+                java.util.List<String> labels = new java.util.ArrayList<>();
+                int ws55RawCands = 0;
+                for (GameEntity ws55cand : restrictions.getAllCandidates(currentAbility)) ws55RawCands++;
+                ws48Milestone("chooseTargetsFor:CANDIDATES:raw=" + ws55RawCands);
+                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {
                     if (!(cand instanceof GameObject)) continue;
                     if (!currentAbility.canTarget((GameObject) cand)) continue;
                     if (currentAbility.getTargets().contains(cand)) continue;
@@ -94,7 +99,12 @@ TARGET_STACK_OLD = """                for (GameEntity cand : restrictions.getAll
                     labels.add("WS48:TARGET:tgt=" + ws48Enc(ws48EntityRef(cand)));
                 }"""
 
-TARGET_STACK_NEW = """                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {
+TARGET_STACK_NEW = """                java.util.List<GameObject> cands = new java.util.ArrayList<>();
+                java.util.List<String> labels = new java.util.ArrayList<>();
+                int ws55RawCands = 0;
+                for (GameEntity ws55cand : restrictions.getAllCandidates(currentAbility)) ws55RawCands++;
+                ws48Milestone("chooseTargetsFor:CANDIDATES:raw=" + ws55RawCands);
+                for (GameEntity cand : restrictions.getAllCandidates(currentAbility)) {
                     // WS62 stack-spell proxy: bind the authoritative SpellAbility (Human
                     // chooseCardFromStack parity), label the host Card for harness identity.
                     if (cand instanceof Card ws62Card
