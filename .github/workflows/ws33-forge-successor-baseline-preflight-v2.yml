@@ -1,0 +1,181 @@
+name: WS-33 Forge Successor Baseline Preflight v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ws33/forge-successor-provider-qualification]
+    paths-ignore:
+      - "qualification/evidence/ws33/**"
+      - "handoffs/ws33/**"
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  WS32_COMMIT: 038d0f38635eecee4e331c99af41f148de267a26
+  WS32_TREE: 0d160128119f2bad30b220a17c43419b50b7edbe
+  WS32_BUNDLE: 61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b
+  WS32_MATERIALIZATION_CANONICAL: ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23
+  FINALIST_FORGE_BASE: 8fb95d53d168228a3785f6270f33d5785df989a3
+  FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+
+jobs:
+  baseline-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify WS-33 ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$FINALIST_FORGE_BASE")" = "$FINALIST_FORGE_BASE"
+          mkdir -p artifacts/ws33-baseline
+          printf '%s\n' "$GITHUB_SHA" > artifacts/ws33-baseline/WS33_RUN_HEAD.txt
+      - name: Checkout exact frozen WS-32 generated freeze
+        uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws32
+      - name: Verify WS-32 lock and denominator
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS32_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS32_TREE"
+          cd contract-lock/qualification/ws32
+          sha256sum -c SHA256SUMS_v1_0_2
+          python - <<'PY'
+          import json, os
+          m=json.load(open('WS32_BUNDLE_MANIFEST_v1_0_2.json'))
+          assert m['contract_version']=='commander-lab.semantic-fixture-materialization/1.0.2'
+          assert m['bundle_digest']==os.environ['WS32_BUNDLE']
+          p=json.load(open('SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json'))
+          assert p['schema_version']=='commander-lab.semantic-fixture-materialization/1.0.2'
+          assert p['canonical_bundle_digest']==os.environ['WS32_MATERIALIZATION_CANONICAL']
+          assert len(p['records'])==135
+          assert all(x['semantic_executability']=='SEMANTIC_EXECUTABLE' for x in p['records'])
+          ids={x['fixture_id'] for x in p['records']}
+          assert len({x for x in ids if not x.startswith('CARD_')}|{'CARD_02'})==107
+          g=json.load(open('CRITICAL_SUCCESSOR_GATE_v1_0_2.json'))
+          assert g['count']==81 and g['semantic_executable_count']==81
+          PY
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile preflight source
+        run: python -m py_compile candidate-qualification/ws33-forge/ws33_successor_preflight.py
+      - name: Checkout retained Forge pin
+        uses: actions/checkout@v4
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+      - name: Verify exact Forge lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q "GNU GENERAL PUBLIC LICENSE" vendor/engine-source/forge/LICENSE
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Build unmodified retained Forge
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+          git diff --exit-code
+      - name: Resolve classpath
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath \
+            -DincludeScope=compile -Dmdep.outputFile="$GITHUB_WORKSPACE/artifacts/ws33-baseline/dependency-classpath.txt"
+      - name: Generate existing Finalist Forge provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          out=artifacts/ws33-baseline/generated
+          mkdir -p "$out"
+          python scripts/finalist_generate_forge_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir "$out" --forge-commit "$FORGE_COMMIT" --forge-tree "$FORGE_TREE"
+          python scripts/finalist_generate_forge_bootstrap.py \
+            --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
+      - name: Compile isolated GPL provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat artifacts/ws33-baseline/dependency-classpath.txt)"
+          mkdir -p artifacts/ws33-baseline/classes
+          javac -cp "$cp" -d artifacts/ws33-baseline/classes \
+            artifacts/ws33-baseline/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java \
+            artifacts/ws33-baseline/generated/java/forge/game/player/Ws23ForgeBootstrap.java
+          printf '%s:%s:%s:%s\n' "$GITHUB_WORKSPACE/artifacts/ws33-baseline/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
+            "$(cat artifacts/ws33-baseline/dependency-classpath.txt)" > artifacts/ws33-baseline/provider.classpath
+          ! grep -Eq 'forge-(ai|gui)' artifacts/ws33-baseline/provider.classpath
+      - name: Handshake
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws33-baseline/provider.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python - <<'PY'
+          import json,os,shlex,subprocess
+          p=subprocess.Popen(shlex.split(os.environ['COMMANDER_LAB_FORGE_PROVIDER_CMD']),stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+          q={'protocol':'commander-lab.rules-service/1.1.0','message_type':'HANDSHAKE','request_id':'ws33-baseline','payload':{}}
+          out,err=p.communicate(json.dumps(q,separators=(',',':'))+'\n',timeout=60)
+          assert p.returncode==0,err
+          m=json.loads(out.strip()); assert m['payload']['verdict']=='PASS'; assert m['payload']['forge_commit']==os.environ['FORGE_COMMIT']
+          open('artifacts/ws33-baseline/HANDSHAKE.json','w').write(json.dumps(m,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Execute baseline construction probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat artifacts/ws33-baseline/provider.classpath) forge.game.player.Ws23ForgeBootstrap"
+          python candidate-qualification/ws33-forge/ws33_successor_preflight.py \
+            --materialization contract-lock/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --digest-spec contract-lock/qualification/ws32/REQUESTED_STATE_DIGEST_SPEC_v1_0_2.json \
+            --output-dir artifacts/ws33-baseline | tee artifacts/ws33-baseline/summary.json
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/ws33-baseline/WS33_BASELINE_PREFLIGHT.json'))
+          assert x['status']=='BASELINE_PROVIDER_GAP_CONFIRMED'
+          assert x['first_record_result']['narrow_native_snapshot_validation']=='PASS'
+          assert x['first_record_result']['provider_emitted_normalized_constructed_state'] is False
+          assert x['successor_behavioral_credit']==0
+          PY
+      - name: Hash evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          find artifacts/ws33-baseline -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws33-baseline/SHA256SUMS
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws33-forge-successor-baseline-v2-${{ github.sha }}
+          path: artifacts/ws33-baseline/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,43 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 23,
+  "status": "FAIL_DIAGNOSTIC_REMEDIATION_HARNESS",
+  "qualification_credit": 0,
+  "provider_semantics_reached": false,
+  "source_lock": {
+    "commander_lab_head": "b4d3f027ba3d719700450b758c1430f85dd4f348",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471"
+  },
+  "verified_steps": {
+    "immutable_contract_lock": "PASS",
+    "requested_state_digests": "107/107 PASS",
+    "forge_source_lock": "PASS",
+    "forge_build": "PASS",
+    "lineage_patcher_semantic_execution": "NOT_REACHED",
+    "construction_records": "NOT_RUN"
+  },
+  "workflow": {
+    "run_id": 33921495998,
+    "job_id": 101180611402,
+    "conclusion": "failure",
+    "failed_step": "Build isolated WS40 provider with v1.0.3 native stack and revealed state"
+  },
+  "artifact": {
+    "artifact_id": 9955216543,
+    "name": "ws40-v1.0.3-native-construction-107-b4d3f027ba3d719700450b758c1430f85dd4f348",
+    "zip_sha256": "9691a03a9c71fdf2eaf6ffc9a34f80f9724e7e72090414f4840e78c98176f025",
+    "size_bytes": 33088
+  },
+  "failure": {
+    "message": "target resolver: expected exactly one patch target, got 0",
+    "classification": "PATCHER_TARGETING_DEFECT_AFTER_PREEXISTING_JAVA_PATCHES",
+    "forge_semantics_implicated": false,
+    "ws41_semantics_implicated": false,
+    "provider_code_compile_reached": false
+  },
+  "next_action": "Inspect the generated Ws40SuccessorState.java from this exact artifact after all preceding Java patchers, retarget only the lineage resolver patcher to that generated form, then rerun the full construction gate from record 1."
+}

@@ -1,0 +1,262 @@
+name: Finalist convergence Forge Primitive A
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - program/finalist-convergence-forge
+    paths-ignore:
+      - "qualification/evidence/finalist-convergence-forge/**"
+      - "handoffs/finalist-convergence-forge/**"
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  CONTRACT_COMMIT: 9a8b8f5f5961466514eae6103be2d227324a27a8
+  CONTRACT_BUNDLE: ad1ec6e4baa83be48c0bc07e0bde66c2f8c003af29e411bad0953558154dcfee
+  FORGE_BASE: 09cfad8a24be12a87761e6645c48577387f0521b
+  FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+  XMAGE_CONVERGENCE_HEAD: 6dcf2359704e0f303752122bbed13a8687f99fa9
+  XMAGE_RUN_ID: "33487966523"
+  XMAGE_ARTIFACT_ID: "9792644328"
+  XMAGE_ARTIFACT_DIGEST: sha256:c03945c01ecdbbb48bde273bddf68ad42341fc056b10b2269557f1a2e578c24a
+  XMAGE_RESULTS_SHA256: 9faebc53feb505432366c3e3b29bef908cfb179d5d4c88cdd95f5ee2f468ecfd
+
+jobs:
+  primitive-a:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout exact convergence branch head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify convergence ancestry and source head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git merge-base HEAD "$FORGE_BASE")" = "$FORGE_BASE"
+          git merge-base --is-ancestor "$FORGE_BASE" HEAD
+          mkdir -p qualification/evidence/finalist-convergence-forge
+          printf '%s\n' "$GITHUB_SHA" > qualification/evidence/finalist-convergence-forge/CONVERGENCE_HEAD.txt
+
+      - name: Mount exact neutral v1.0.1 contract
+        uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.CONTRACT_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/finalist_convergence
+
+      - name: Verify neutral contract and Primitive-A digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = "$CONTRACT_COMMIT"
+          python - <<'PY'
+          import json, os
+          p=json.load(open('contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json'))
+          assert p['schema_version'] == 'commander-lab.semantic-fixture-materialization/1.0.1'
+          assert p['canonical_bundle_digest'] == os.environ['CONTRACT_BUNDLE']
+          by={r['fixture_id']:r for r in p['records']}
+          assert by['PILOT_PRIORITY']['materialization_digest'] == '252b416e0022cf41ce42cc1a516c55866c874c6b239f10d04043430fc3966d2a'
+          assert by['PILOT_TARGET']['materialization_digest'] == '854a5cb7e4a6aee3a733e004972decbd503f5e7fc53980a4b5c7fd640ed3351b'
+          PY
+
+      - name: Checkout exact Forge source
+        uses: actions/checkout@v4
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+
+      - name: Verify Forge source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/engine-source/forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          git -C vendor/engine-source/forge diff --exit-code
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check qualification sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/ws23_generate_forge_vertical_provider.py \
+            scripts/ws25_generate_forge_broad_provider.py \
+            scripts/finalist_generate_forge_provider.py \
+            scripts/finalist_generate_forge_bootstrap.py \
+            scripts/finalist_apply_forge_primitive_a_overlay.py \
+            scripts/finalist_fix_forge_primitive_a_sync.py \
+            candidate-qualification/finalist-convergence-forge/run_primitive_a.py \
+            candidate-qualification/finalist-convergence-forge/compare_same_records.py
+
+      - name: Build pinned unmodified Forge game modules
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+          git diff --exit-code
+
+      - name: Resolve isolated Forge classpath
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath \
+            -DincludeScope=compile \
+            -Dmdep.outputFile="$GITHUB_WORKSPACE/qualification/evidence/finalist-convergence-forge/dependency-classpath.txt"
+
+      - name: Generate existing provider and apply scoped Primitive-A overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          out="$ev/generated"
+          mkdir -p "$out"
+          python scripts/finalist_generate_forge_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir "$out" \
+            --forge-commit "$FORGE_COMMIT" \
+            --forge-tree "$FORGE_TREE" \
+            | tee "$ev/generator-summary.json"
+          python scripts/finalist_generate_forge_bootstrap.py \
+            --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python scripts/finalist_apply_forge_primitive_a_overlay.py \
+            --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          python scripts/finalist_fix_forge_primitive_a_sync.py \
+            --provider "$out/java/forge/game/player/Ws23ForgeVerticalProvider.java"
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('qualification/evidence/finalist-convergence-forge/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java').read_text()
+          assert 'TargetRestrictions.getAllCandidates' not in p  # call is via restrictions.getAllCandidates, not synthetic target list
+          assert 'restrictions.getAllCandidates(currentAbility)' in p
+          assert 'PlaySpellAbility.payManaCost(this' in p
+          assert 'payManaFromAbility(ability, toPay, chosen)' in p
+          assert 'GameEventSpellAbilityCast' in p and 'GameEventSpellResolved' in p
+          assert 'match.startGame(game, () -> applyPrimitiveAState' in p
+          assert 'FINALIST_PRIMITIVE_A_STATE_APPLY_TIMEOUT' in p
+          assert 'applyManaToCost:NO_USEFUL_NATIVE_MANA' in p
+          PY
+          git diff --check
+
+      - name: Assert prohibited AI and GUI provider dependencies absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' \
+            qualification/evidence/finalist-convergence-forge/generated/java
+          ! grep -Eq 'forge-(ai|gui)' qualification/evidence/finalist-convergence-forge/dependency-classpath.txt
+
+      - name: Compile separate GPL-side provider JVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
+          mkdir -p "$ev/classes"
+          javac -cp "$cp" -d "$ev/classes" \
+            "$ev/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java" \
+            "$ev/generated/java/forge/game/player/Ws23ForgeBootstrap.java"
+          printf '%s:%s:%s:%s\n' \
+            "$GITHUB_WORKSPACE/$ev/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
+            "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+          ! grep -Eq 'forge-(ai|gui)' "$ev/provider.classpath"
+          git -C vendor/engine-source/forge diff --exit-code
+
+      - name: Execute exact Primitive-A records
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          export COMMANDER_LAB_CONVERGENCE_BRANCH_HEAD="$GITHUB_SHA"
+          python candidate-qualification/finalist-convergence-forge/run_primitive_a.py \
+            --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
+            --output "$ev/PRIMITIVE_A_RESULTS.json"
+          python - <<'PY'
+          import json, os
+          p=json.load(open('qualification/evidence/finalist-convergence-forge/PRIMITIVE_A_RESULTS.json'))
+          assert p['selected_fixture_ids'] == ['PILOT_PRIORITY','PILOT_TARGET']
+          assert p['counts'] == {'PASS': 2}
+          assert p['convergence_branch_head'] == os.environ['GITHUB_SHA']
+          assert all(r['requested_native_state_equal'] for r in p['rows'])
+          assert all(r['terminal_postcondition_result'] == 'PASS' for r in p['rows'])
+          assert all(r['requested_semantic_state_digest'] == 'd744c9a5d51c394bbf15eb90a6eff5a67cba0f0312f5418c6f92ce6e761d1042' for r in p['rows'])
+          assert all(r['normalized_native_constructed_state_digest'] == 'd744c9a5d51c394bbf15eb90a6eff5a67cba0f0312f5418c6f92ce6e761d1042' for r in p['rows'])
+          assert all(r['terminal_native_assertions']['obj:pilot-mountain']['tapped'] is True for r in p['rows'])
+          PY
+
+      - name: Download exact XMage Primitive-A artifact
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ env.XMAGE_ARTIFACT_ID }}
+          path: qualification/evidence/finalist-convergence-forge/xmage-primitive-a-reference
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: moeendres-png/commander-playtest-lab
+          run-id: ${{ env.XMAGE_RUN_ID }}
+
+      - name: Execute exact Primitive-A differential
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          ref="$ev/xmage-primitive-a-reference/PRIMITIVE_A_RESULTS.json"
+          test -f "$ref"
+          echo "$XMAGE_RESULTS_SHA256  $ref" | sha256sum -c -
+          python candidate-qualification/finalist-convergence-forge/compare_same_records.py \
+            --forge "$ev/PRIMITIVE_A_RESULTS.json" \
+            --xmage "$ref" \
+            --output "$ev/PRIMITIVE_A_DIFFERENTIAL.json" \
+            --xmage-convergence-head "$XMAGE_CONVERGENCE_HEAD" \
+            --xmage-workflow-run "$XMAGE_RUN_ID" \
+            --xmage-artifact-id "$XMAGE_ARTIFACT_ID" \
+            --xmage-artifact-digest "$XMAGE_ARTIFACT_DIGEST" \
+            --fixture-id PILOT_PRIORITY \
+            --fixture-id PILOT_TARGET
+          python - <<'PY'
+          import json
+          p=json.load(open('qualification/evidence/finalist-convergence-forge/PRIMITIVE_A_DIFFERENTIAL.json'))
+          assert p['counts'] == {'DIFFERENTIAL_AGREEMENT_PASS': 2}
+          assert p['selected_fixture_ids'] == ['PILOT_PRIORITY', 'PILOT_TARGET']
+          PY
+
+      - name: Materialize checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          find "$ev" -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum > "$ev/SHA256SUMS"
+
+      - name: Upload Forge Primitive-A evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finalist-convergence-forge-primitive-a-${{ github.sha }}
+          path: qualification/evidence/finalist-convergence-forge
+          if-no-files-found: error

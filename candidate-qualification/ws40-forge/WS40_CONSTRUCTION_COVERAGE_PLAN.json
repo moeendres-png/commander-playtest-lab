@@ -1,0 +1,43 @@
+{
+  "schema_version": "ws40-construction-coverage-plan/1.0.0",
+  "ws32_contract": {
+    "commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "schema": "commander-lab.semantic-fixture-materialization/1.0.2",
+    "denominator": 107
+  },
+  "forge": {
+    "commit": "3f53c7c4e93c011e781680ae2a0c195dd71414c0",
+    "tree": "481d3ee3b4798b78b4f00a93cc8e2cb54d05391f",
+    "version": "2.0.15-SNAPSHOT"
+  },
+  "principles": {
+    "request_echo_allowed": false,
+    "provider_neutral_identity_mapping_allowed": true,
+    "provider_bound_non_rules_configuration_allowed": true,
+    "magic_legality_outside_forge_allowed": false,
+    "runtime_credit_requires_digest_equality": true
+  },
+  "fields": [
+    {"field":"execution_entry_mode","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"actual provider entry path selected and emitted by the isolated GPL process"},
+    {"field":"players","classification":"GAMESTATE_NATIVE","construction_source":"Forge Player state; seat/start metadata is provider identity/configuration mapping"},
+    {"field":"deck_state","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"Forge RegisteredPlayer/Deck pregame registration for NATURAL_GAME_START; absent otherwise"},
+    {"field":"commander_state","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"Forge Commander registration/cast-history/damage plus commander-id mapping"},
+    {"field":"semantic_objects","classification":"PROVIDER_IDENTITY_MAPPING","construction_source":"Forge native Card state joined to semantic/card-lineage identity metadata inside the isolated provider"},
+    {"field":"temporal_state","classification":"GAMESTATE_NATIVE","construction_source":"Forge PhaseHandler for NATIVE_STATE_LOAD; provider-bound pregame descriptor before natural game start"},
+    {"field":"knowledge_state","classification":"ACTOR_SAFE_OBSERVATION_DERIVED","construction_source":"provider-bound viewer policy; AF05 runtime must separately prove actor-safe Forge observation and non-leakage"},
+    {"field":"rules_randomness","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"provider-bound RNG configuration with actual Forge bootstrap seed binding; AF09 runtime separately proves native RNG calls/replay"},
+    {"field":"combat_state","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"Forge multiplayer Combat plus semantic identity mapping"},
+    {"field":"stack_state","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"Forge MagicStack/SpellAbility plus semantic identity mapping"},
+    {"field":"continuous_rules_effects","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"absent from all 107 frozen Forge-denominator records"},
+    {"field":"extra_turn_creation","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"provider-bound native transaction descriptor at construction; Forge runtime must prove actual extra-turn queue semantics"},
+    {"field":"elimination_trigger","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"provider-bound native transaction descriptor at construction; Forge runtime must prove actual elimination semantics"},
+    {"field":"zone_move_event","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"provider-bound native transaction descriptor at construction; Forge runtime must prove actual zone-change/replacement/SBA timing"},
+    {"field":"setup_validation","classification":"DIRECT_NATIVE_EXTENSION","construction_source":"qualification control-plane state executed by the isolated provider and emitted after validation"}
+  ],
+  "hard_gate": {
+    "all_fields_must_have_non_request_echo_provenance": true,
+    "requested_state_digest_equals_normalized_constructed_state_digest": true,
+    "mismatch_result": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER / NO_RUNTIME_CREDIT"
+  }
+}

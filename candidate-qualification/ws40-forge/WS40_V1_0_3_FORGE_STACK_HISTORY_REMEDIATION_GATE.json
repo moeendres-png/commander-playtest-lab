@@ -1,0 +1,50 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-forge-stack-history-remediation-gate/1.0.0",
+  "status": "PASS",
+  "historical_engine_lock": {
+    "commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "tree": "37ef36359cef74273ca40a2c1c676b8ede84a431",
+    "engine_remediation_complete": true
+  },
+  "new_forge_source_lock": {
+    "repository": "moeendres-png/forge",
+    "branch": "foundry/ws40-af04-core-remediation",
+    "commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "tree": "e2f124f30d55e43f838615a969af4e09e7009471"
+  },
+  "remediation": {
+    "classification": "FORGE_PROVIDER_CAPABILITY_DEFECT_REMEDIATED_IN_GPL_CORE",
+    "native_api": "forge.game.zone.RestoredSpellCastHistory",
+    "request_cast_complete_boolean_is_api_input": false,
+    "request_costs_paid_boolean_is_api_input": false,
+    "target_number_validation_owned_by_forge": true,
+    "target_legality_owned_by_forge": true,
+    "native_history_recorded_only_after_stack_admission": true,
+    "native_history_available_for_original_and_stack_spell_ability": true
+  },
+  "fresh_engine_gate": {
+    "workflow": "WS40 Forge Core Remediation",
+    "run_id": 33888588871,
+    "run_number": 15,
+    "job_id": 101074397400,
+    "conclusion": "success",
+    "verified_steps": [
+      "Verify exact WS40 parent",
+      "Apply bounded WS40 patch if not materialized",
+      "Normalize generated patch",
+      "Raw combat-map bypass audit",
+      "Compile affected engine modules",
+      "Run forge-game tests",
+      "Run WS40 native combat qualification matrix",
+      "Commit normalized generated source if needed"
+    ],
+    "branch_head_changed_by_workflow": false
+  },
+  "credit": {
+    "engine_remediation_complete": true,
+    "successor_construction_credit": "NOT_YET_GRANTED",
+    "successor_runtime_credit": "0/107",
+    "forge_successor_provider_qualified": false
+  },
+  "next_action": "Independently verify the immutable WS41 v1.0.3 denominator and all requested-state digests, then execute fresh native construction from record 1 against this exact Forge source lock."
+}

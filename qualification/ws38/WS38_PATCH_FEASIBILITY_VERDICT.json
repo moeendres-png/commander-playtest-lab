@@ -1,0 +1,33 @@
+{
+  "af04_pass_granted": false,
+  "architecture_freeze_granted": false,
+  "bounded_scope_estimate": {
+    "consumer_migrations": [
+      "forge-gui/.../PlayerControllerHuman.java",
+      "forge-gui-desktop/.../VAssignCombatDamage.java",
+      "mobile equivalent",
+      "forge-ai/.../PlayerControllerAi.java / ComputerUtilCombat.java"
+    ],
+    "modified_core_files": [
+      "forge-game/.../combat/Combat.java",
+      "forge-game/.../player/PlayerController.java",
+      "possibly forge-game/.../combat/CombatUtil.java or a new dedicated validator"
+    ],
+    "new_core_types": "approximately 2-4 classes/records under forge.game.combat",
+    "noncombat_callback_risk": "DamageDealEffect divideOnResolution must be separated or independently validated."
+  },
+  "confidence": "HIGH_SOURCE_DERIVED",
+  "not_major_refactor_reason": "No stack, priority, target, combat orchestration, damage application, or card rules subsystem rewrite is required to establish AF04 authority for combat-damage assignment.",
+  "prototype_reason": "WS-38 did not establish a writable isolated Forge fork/branch plus compile/test execution path. Upstream must not be modified silently. An exact patch architecture/spec is supplied in Commander Lab instead.",
+  "prototype_status": "NOT_IMPLEMENTED",
+  "provider_qualified": false,
+  "schema": "commander-lab.ws38.patch-feasibility-verdict/1.0.0",
+  "verdict": "FEASIBLE_BOUNDED_CORE_REMEDIATION",
+  "why": [
+    "Combat core already owns the combat graph, assigning player selection, source damage, defender topology, first/double-strike orchestration, damage-map commit and subsequent damage processing.",
+    "Core already exposes lethal-damage and keyword facts needed for trample/deathtouch and retains same-step assigned-damage bookkeeping.",
+    "Neighboring attack/block decisions already use CombatUtil core validators, proving an established Forge architectural pattern.",
+    "The missing work is localized to constructing a rules-owned combat-damage decision transaction, canonical validation, and migrating existing GUI/AI consumers to it.",
+    "No Commander Lab legality implementation is needed."
+  ]
+}

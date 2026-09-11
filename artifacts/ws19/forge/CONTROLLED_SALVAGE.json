@@ -1,0 +1,37 @@
+{
+  "schema_version": "ws19-controlled-salvage/1.0.0",
+  "old_branch": "ws19/forge-isolated-provider-requalification",
+  "old_head": "3e4e5b4da27c46638dfbf14bba9c03bcca3ddefd",
+  "old_tree": "ff9744728f49230bfdf32a22cb9133b7f7f074b8",
+  "old_base": "9665c9d5dc5e720240b99f88300176c7a4a0f4fa",
+  "old_pr": 132,
+  "old_pr_state": "DRAFT_OPEN_UNMERGED",
+  "old_commit_count": 16,
+  "old_changed_paths": [
+    ".github/workflows/ws19-forge-qualification.yml",
+    "artifacts/ws19/forge/README.md",
+    "artifacts/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json",
+    "scripts/ws19_generate_forge_probe.py",
+    "scripts/ws19_run_forge_provider.py",
+    "scripts/ws19_summarize_forge_results.py",
+    "tests/qualification/test_ws19_forge_isolation.py"
+  ],
+  "classification": {
+    "scripts/ws19_generate_forge_probe.py": "SALVAGE_CANDIDATE_CODE",
+    "scripts/ws19_run_forge_provider.py": "SALVAGE_CANDIDATE_CODE",
+    "scripts/ws19_summarize_forge_results.py": "SALVAGE_CANDIDATE_CODE_REEXECUTE_ONLY",
+    "tests/qualification/test_ws19_forge_isolation.py": "SALVAGE_TEST",
+    ".github/workflows/ws19-forge-qualification.yml": "REWRITE_FOR_NEW_BASELINE",
+    "artifacts/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json": "REWRITE_FOR_NEW_BASELINE",
+    "artifacts/ws19/forge/README.md": "REWRITE_FOR_NEW_BASELINE"
+  },
+  "dropped": [
+    "all pre-WS17R generated AF results",
+    "all pre-WS17R COMMON_RESULTS",
+    "all pre-WS17R candidate matrices",
+    "all pre-WS17R aggregate evidence",
+    "all stale runtime source-lock outputs"
+  ],
+  "shared_infrastructure_changes_transplanted": false,
+  "evidence_status": "PROVISIONAL_PRE_WS17R"
+}

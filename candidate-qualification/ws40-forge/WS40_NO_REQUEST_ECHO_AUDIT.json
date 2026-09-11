@@ -1,0 +1,165 @@
+{
+  "schema_version": "ws40-no-request-echo-audit/1.1.0",
+  "status": "SOURCE_HARDENED_FAIL_CLOSED_BUT_COMPLETE_GATE_NOT_GRANTED",
+  "failure_class": "FORGE_PROVIDER_DEFECT",
+  "credit_effect": "NO_COMPLETE_CONSTRUCTION_OR_RUNTIME_CREDIT; SOURCE_REQUEST_ECHO_REMOVED_BUT_NATIVE_STACK_HISTORY_PROOF_IS_UNAVAILABLE",
+  "source_lock": {
+    "commander_lab_implementation_commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "commander_lab_implementation_tree": "da9ad40a8db9b65310f2590a72e9a6af8922f5b6",
+    "ws32_commit": "038d0f38635eecee4e331c99af41f148de267a26",
+    "ws32_tree": "0d160128119f2bad30b220a17c43419b50b7edbe",
+    "ws32_schema": "commander-lab.semantic-fixture-materialization/1.0.2",
+    "ws32_bundle_digest": "ff3b3def5d2ee7c06a4f8eec2173ffa1dec576b5710b9332d5faa537c9653b23",
+    "ws32_materialization_sha256": "0d8ff372e1645806f37f5cca1ddeb309c094cee90b8ae4e0b12b8dab08afe261",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431"
+  },
+  "audited_sources": [
+    "candidate-qualification/ws40-forge/WS40_CONSTRUCTION_COVERAGE_PLAN.json",
+    "candidate-qualification/ws40-forge/run_native_construction_107.py",
+    "scripts/ws40_fix_construction_runner.py",
+    "scripts/ws40_fix_construction_runner_natural_objects.py",
+    "scripts/ws40_fix_successor_state_java.py",
+    "qualification/providers/forge/gpl/Ws40SuccessorState.java"
+  ],
+  "principle": {
+    "provider_bound_configuration_integrity_is_not_native_rules_state_observation": true,
+    "native_config_binding_is_eligible_only_for_true_non_rules_configuration": true,
+    "provider_identity_mapping_is_eligible_only_for_identity_metadata": true,
+    "rules_state_requires_native_observation_or_native_semantic_derivation": true,
+    "request_echo_allowed": false
+  },
+  "source_hardening": {
+    "rules_state_request_values_in_bound_config": false,
+    "stack_rules_state_is_not_reconstructed_from_request": true,
+    "combat_rules_state_is_not_reconstructed_from_request": true,
+    "workflow_markers": [
+      "WS40_ACTIVE_FORGE_PIN_MIGRATION=PASS",
+      "WS40_NO_REQUEST_ECHO_SOURCE_HARDENED=PASS"
+    ],
+    "status": "PASS_FAIL_CLOSED"
+  },
+  "final_construction_evidence": {
+    "workflow": "WS40 Native Construction 107",
+    "run_id": 33778130830,
+    "job_id": 100724863434,
+    "commander_lab_commit": "d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "forge_commit": "49ea6df753fa6c749138296a1fe9421467136dda",
+    "forge_tree": "37ef36359cef74273ca40a2c1c676b8ede84a431",
+    "result": "FAIL_CLOSED",
+    "sequential_pass_count": 6,
+    "sequential_pass_records": [
+      "PLAYER_COUNT_2P",
+      "PLAYER_COUNT_3P",
+      "PLAYER_COUNT_4P",
+      "PLAYER_COUNT_5P",
+      "PILOT_PRIORITY",
+      "PILOT_TARGET"
+    ],
+    "first_failure": "CANONICAL_SETUP_UNSUPPORTED_PROVIDER:STACK_CAST_HISTORY_NATIVE_OBSERVATION_UNAVAILABLE",
+    "artifact_id": 9902469599,
+    "artifact_name": "ws40-native-construction-107-d5ff5e920c424d3a157e121f50a1704bbcd069f3",
+    "artifact_size_bytes": 72655,
+    "artifact_sha256": "409ac38fa3a0c0836cec52eeed9e8385306737a22d39390dc3b914c2b76e0755"
+  },
+  "field_findings": [
+    {
+      "field": "execution_entry_mode",
+      "status": "PASS_CONFIG_BINDING",
+      "authority": "NATIVE_CONFIG_BINDING"
+    },
+    {
+      "field": "players",
+      "status": "PASS_WITH_IDENTITY_MAPPING",
+      "authority": "GAMESTATE_NATIVE"
+    },
+    {
+      "field": "deck_state",
+      "status": "PARTIAL",
+      "authority": "NATIVE_CONFIG_BINDING_PLUS_NATIVE_REGISTRATION_VALIDATION"
+    },
+    {
+      "field": "commander_state",
+      "status": "PARTIAL",
+      "authority": "DIRECT_NATIVE_EXTENSION_PLUS_IDENTITY_MAPPING"
+    },
+    {
+      "field": "semantic_objects",
+      "status": "PASS_WITH_BOUNDED_METADATA_MAPPING",
+      "authority": "GAMESTATE_NATIVE_PLUS_PROVIDER_IDENTITY_MAPPING"
+    },
+    {
+      "field": "temporal_state",
+      "status": "PARTIAL",
+      "authority": "GAMESTATE_NATIVE_OR_NATIVE_CONFIG_BINDING"
+    },
+    {
+      "field": "knowledge_state",
+      "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
+      "authority": "NATIVE_CONFIG_BINDING"
+    },
+    {
+      "field": "rules_randomness",
+      "status": "PARTIAL",
+      "authority": "NATIVE_CONFIG_BINDING_PLUS_FORGE_SEED_CHECK"
+    },
+    {
+      "field": "combat_state",
+      "status": "FAIL_CLOSED_WHEN_NATIVE_LEGAL_SURFACE_UNAVAILABLE",
+      "authority": "DIRECT_NATIVE_EXTENSION_WITHOUT_REQUEST_ECHO"
+    },
+    {
+      "field": "stack_state",
+      "status": "FAIL_CLOSED_STACK_HISTORY_UNAVAILABLE",
+      "authority": "DIRECT_NATIVE_EXTENSION_WITHOUT_REQUEST_ECHO",
+      "unavailable_native_history": [
+        "cast_complete",
+        "costs_paid",
+        "selected_modes_or_equivalent_cast_history"
+      ]
+    },
+    {
+      "field": "continuous_rules_effects",
+      "status": "NOT_APPLICABLE_CURRENT_107",
+      "authority": "NONE"
+    },
+    {
+      "field": "extra_turn_creation",
+      "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
+      "authority": "NATIVE_CONFIG_BINDING"
+    },
+    {
+      "field": "elimination_trigger",
+      "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
+      "authority": "NATIVE_CONFIG_BINDING"
+    },
+    {
+      "field": "zone_move_event",
+      "status": "PASS_CONFIG_ONLY_FOR_CONSTRUCTION",
+      "authority": "NATIVE_CONFIG_BINDING"
+    },
+    {
+      "field": "setup_validation",
+      "status": "PASS_CONTROL_PLANE_BINDING",
+      "authority": "NATIVE_CONFIG_BINDING"
+    }
+  ],
+  "provider_proof_blocker": {
+    "classification": "FORGE_PROVIDER_DEFECT",
+    "description": "The qualification state-loader can materialize stack state but cannot independently prove historical cast/payment/mode facts for an already-materialized stack object without request echo. The hardened proof path therefore fails closed.",
+    "remediation_if_reopened": "Construct and observe the relevant stack history through Forge-native execution/event history or another source-proven native API; never infer it from the requested state."
+  },
+  "independent_downstream_contract_blocker": {
+    "classification": "CONTRACT_DEFECT",
+    "record": "PILOT_CHOICE",
+    "evidence": "candidate-qualification/ws40-forge/WS40_CONTRACT_DEFECT_PILOT_CHOICE.json",
+    "description": "Immutable v1.0.2 requests a completed targetless Utopia Sprawl Aura spell on the stack, which is not a legal Magic state. This remains blocking even if the provider proof limitation is later repaired."
+  },
+  "gate_result": {
+    "source_request_echo_removed": true,
+    "complete_no_request_echo_gate": "NOT_GRANTED",
+    "construction_equality_107": "NOT_ACHIEVED",
+    "fresh_runtime_107": "NOT_RUN_BLOCKED_BY_CONSTRUCTION_GATE",
+    "forge_successor_provider_qualified": false
+  }
+}

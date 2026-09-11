@@ -1,0 +1,20 @@
+{
+  "workstream": "WS-33",
+  "ledger_status": "BLOCKED_BY_MISSING_WS32_CONTRACT",
+  "canonical_successor_credit": false,
+  "successor_contract_version": null,
+  "successor_contract_commit": null,
+  "successor_contract_tree": null,
+  "successor_bundle_digest": null,
+  "successor_executable_manifest_digest": null,
+  "denominator_count": null,
+  "records": [],
+  "summary": {
+    "PASS": 0,
+    "FAIL": 0,
+    "UNKNOWN": 0,
+    "NOT_RUN": 0,
+    "executed": 0
+  },
+  "note": "The WS-32 frozen successor contract and exact executable denominator were not present. No historical v1.0.1 record is inserted or credited as successor evidence."
+}

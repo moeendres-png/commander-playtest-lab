@@ -1,0 +1,336 @@
+name: Finalist convergence Forge
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - program/finalist-convergence-forge
+    paths-ignore:
+      - "qualification/evidence/finalist-convergence-forge/**"
+      - "handoffs/finalist-convergence-forge/**"
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  CONTRACT_COMMIT: 9a8b8f5f5961466514eae6103be2d227324a27a8
+  CONTRACT_BUNDLE: ad1ec6e4baa83be48c0bc07e0bde66c2f8c003af29e411bad0953558154dcfee
+  FORGE_BASE: 09cfad8a24be12a87761e6645c48577387f0521b
+  FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+  XMAGE_CONVERGENCE_HEAD: e1d19ff65ee08ce9fb1dcec846a38277b49fb5c8
+  XMAGE_RUN_ID: "33395818923"
+  XMAGE_ARTIFACT_ID: "9759407784"
+  XMAGE_ARTIFACT_DIGEST: sha256:5e3fd1e06a24f55ab4c0fdad27ed4efdfe1a991d6d35789f235cede615944d4b
+  XMAGE_RESULTS_SHA256: feb7f8018bffc10e09717a717b468c2306c7ace12a5ac821ed644ad012f43d8c
+
+jobs:
+  canonical-starter18:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout Forge convergence branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify direct WS-25 ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$FORGE_BASE")" = "$FORGE_BASE"
+          git merge-base --is-ancestor "$FORGE_BASE" HEAD
+          mkdir -p qualification/evidence/finalist-convergence-forge
+          printf '%s\n' "$(git rev-parse HEAD)" > qualification/evidence/finalist-convergence-forge/CONVERGENCE_HEAD.txt
+
+      - name: Verify historical Forge bootstrap provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code "$FORGE_BASE" -- qualification/providers/forge/gpl/Ws23ForgeBootstrap.java
+
+      - name: Mount exact neutral v1.0.1 contract
+        uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.CONTRACT_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/finalist_convergence
+
+      - name: Verify neutral contract identity and Starter-18
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = "$CONTRACT_COMMIT"
+          python - <<'PY'
+          import json, os
+          p=json.load(open('contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json'))
+          assert p['schema_version'] == 'commander-lab.semantic-fixture-materialization/1.0.1'
+          assert p['canonical_bundle_digest'] == os.environ['CONTRACT_BUNDLE']
+          expected=[
+              'PLAYER_COUNT_2P','PLAYER_COUNT_3P','PLAYER_COUNT_4P','PLAYER_COUNT_5P',
+              'PILOT_MULLIGAN','PILOT_PRIORITY','PILOT_TARGET','HIDDEN_01','HIDDEN_02',
+              'MICRO_STACK','MICRO_REPLACEMENT','WS05-MP-COMBAT-4','RNG_RULES_TAPE',
+              'REPLAY_DECISION_TAPE','REPLAY_EVENT_TAPE','REPLAY_CLEAN_PROCESS',
+              'REPLAY_STATE_HASHES','CARD_02',
+          ]
+          by_id={r['fixture_id']:r for r in p['records']}
+          assert all(fid in by_id for fid in expected)
+          starter=json.load(open('contract-lock/qualification/finalist_convergence/DIFFERENTIAL_STARTER_18_v1_0_1.json'))
+          rows=starter.get('records') or starter.get('fixtures')
+          assert rows is not None and [r['fixture_id'] for r in rows] == expected
+          assert all(by_id[r['fixture_id']]['materialization_digest'] == r['materialization_digest'] for r in rows)
+          PY
+
+      - name: Checkout exact Forge source into GPL workspace
+        uses: actions/checkout@v4
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/engine-source/forge
+          fetch-depth: 1
+
+      - name: Verify exact Forge source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd vendor/engine-source/forge
+          test "$(git rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          grep -q "GNU GENERAL PUBLIC LICENSE" LICENSE
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check convergence Python sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/ws23_generate_forge_vertical_provider.py \
+            scripts/ws25_generate_forge_broad_provider.py \
+            scripts/finalist_generate_forge_provider.py \
+            scripts/finalist_generate_forge_bootstrap.py \
+            candidate-qualification/finalist-convergence-forge/run_canonical_starter18.py \
+            candidate-qualification/finalist-convergence-forge/compare_same_records.py
+
+      - name: Build pinned unmodified Forge game modules
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am -DskipTests install
+          git diff --exit-code
+
+      - name: Resolve isolated Forge classpath
+        working-directory: vendor/engine-source/forge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mvn -B -ntp -Drevision="$FORGE_VERSION" -pl forge-game -am dependency:build-classpath \
+            -DincludeScope=compile \
+            -Dmdep.outputFile="$GITHUB_WORKSPACE/qualification/evidence/finalist-convergence-forge/dependency-classpath.txt"
+
+      - name: Generate WS-25 sidecar with scoped finalist overlays
+        shell: bash
+        run: |
+          set -euo pipefail
+          out=qualification/evidence/finalist-convergence-forge/generated
+          mkdir -p "$out"
+          python scripts/finalist_generate_forge_provider.py \
+            --player-controller vendor/engine-source/forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir "$out" \
+            --forge-commit "$FORGE_COMMIT" \
+            --forge-tree "$FORGE_TREE" \
+            | tee qualification/evidence/finalist-convergence-forge/generator-summary.json
+          python scripts/finalist_generate_forge_bootstrap.py \
+            --source qualification/providers/forge/gpl/Ws23ForgeBootstrap.java \
+            --output "$out/java/forge/game/player/Ws23ForgeBootstrap.java"
+          python - <<'PY'
+          import json
+          p=json.load(open('qualification/evidence/finalist-convergence-forge/generated/finalist_forge_provider_mapping.json'))
+          assert p['abstract_method_count'] == 109
+          assert p['player_count_range'] == [2,3,4,5]
+          assert p['schema_version'] == 'finalist-forge-provider-overlay/1.0.0'
+          assert p['semantic_starting_player_labels'] is True
+          PY
+
+      - name: Assert prohibited Forge AI/GUI dependencies absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi' \
+            qualification/evidence/finalist-convergence-forge/generated/java
+          ! grep -Eq 'forge-(ai|gui)' qualification/evidence/finalist-convergence-forge/dependency-classpath.txt
+
+      - name: Compile separate GPL-side Forge provider JVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          cp="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes:$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes:$(cat "$ev/dependency-classpath.txt")"
+          mkdir -p "$ev/classes"
+          javac -cp "$cp" -d "$ev/classes" \
+            "$ev/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java" \
+            "$ev/generated/java/forge/game/player/Ws23ForgeBootstrap.java"
+          printf '%s:%s:%s:%s\n' \
+            "$GITHUB_WORKSPACE/$ev/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-game/target/classes" \
+            "$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-core/target/classes" \
+            "$(cat "$ev/dependency-classpath.txt")" > "$ev/provider.classpath"
+          ! grep -Eq 'forge-(ai|gui)' "$ev/provider.classpath"
+          git -C vendor/engine-source/forge diff --exit-code
+
+      - name: Prove protocol handshake over separate Forge process
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          python - <<'PY'
+          import json, os, shlex, subprocess
+          p=subprocess.Popen(shlex.split(os.environ['COMMANDER_LAB_FORGE_PROVIDER_CMD']),stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+          req={'protocol':'commander-lab.rules-service/1.1.0','message_type':'HANDSHAKE','request_id':'finalist-forge-handshake','payload':{}}
+          out,err=p.communicate(json.dumps(req,separators=(',',':'))+'\n',timeout=60)
+          assert p.returncode == 0, err
+          rows=[json.loads(line) for line in out.splitlines() if line.strip()]
+          assert len(rows) == 1, (rows, err)
+          msg=rows[0]
+          assert msg['message_type'] == 'HANDSHAKE_RESULT'
+          assert msg['payload']['verdict'] == 'PASS'
+          assert msg['payload']['provider'] == 'forge'
+          assert msg['payload']['forge_commit'] == os.environ['FORGE_COMMIT']
+          open('qualification/evidence/finalist-convergence-forge/HANDSHAKE_PROOF.json','w').write(json.dumps(msg,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Execute exact v1.0.1 Starter-18 in separate Forge JVMs
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          export COMMANDER_LAB_FORGE_LANG_DIR="$GITHUB_WORKSPACE/vendor/engine-source/forge/forge-gui/res/languages"
+          export COMMANDER_LAB_FORGE_PROVIDER_CMD="java -cp $(cat "$ev/provider.classpath") forge.game.player.Ws23ForgeBootstrap"
+          python candidate-qualification/finalist-convergence-forge/run_canonical_starter18.py \
+            --contract contract-lock/qualification/finalist_convergence/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_1.json \
+            --output "$ev/STARTER_18_RESULTS.json"
+          python - <<'PY'
+          import json
+          p=json.load(open('qualification/evidence/finalist-convergence-forge/STARTER_18_RESULTS.json'))
+          assert len(p['rows']) == 18
+          assert p['counts'].get('FAIL', 0) == 0
+          assert p['counts'].get('PASS', 0) + p['counts'].get('CANONICAL_SETUP_UNSUPPORTED', 0) == 18
+          PY
+
+      - name: Download exact successful XMage convergence artifact
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ env.XMAGE_ARTIFACT_ID }}
+          path: qualification/evidence/finalist-convergence-forge/xmage-reference
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: moeendres-png/commander-playtest-lab
+          run-id: ${{ env.XMAGE_RUN_ID }}
+
+      - name: Verify exact XMage reference and materialize lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          test -f "$ev/xmage-reference/STARTER_18_RESULTS.json"
+          echo "$XMAGE_RESULTS_SHA256  $ev/xmage-reference/STARTER_18_RESULTS.json" | sha256sum -c -
+          python - <<'PY'
+          import json, os
+          p=json.load(open('qualification/evidence/finalist-convergence-forge/xmage-reference/STARTER_18_RESULTS.json'))
+          assert p['contract_commit'] == os.environ['CONTRACT_COMMIT']
+          assert p['contract_bundle_digest'] == os.environ['CONTRACT_BUNDLE']
+          assert p['counts'] == {'CANONICAL_SETUP_UNSUPPORTED': 13, 'PASS': 5}
+          lock={
+              'schema_version':'commander-lab.xmage-convergence-reference-lock/1.0.0',
+              'convergence_head':os.environ['XMAGE_CONVERGENCE_HEAD'],
+              'workflow_run_id':int(os.environ['XMAGE_RUN_ID']),
+              'artifact_id':int(os.environ['XMAGE_ARTIFACT_ID']),
+              'artifact_digest':os.environ['XMAGE_ARTIFACT_DIGEST'],
+              'starter18_results_sha256':os.environ['XMAGE_RESULTS_SHA256'],
+              'behavioral_candidate_commit_in_payload':p.get('candidate_commit'),
+              'xmage_engine_commit':p.get('xmage_commit'),
+              'xmage_engine_tree':p.get('xmage_tree'),
+          }
+          open('qualification/evidence/finalist-convergence-forge/XMAGE_REFERENCE_LOCK.json','w').write(json.dumps(lock,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Execute neutral same-record comparator
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          python candidate-qualification/finalist-convergence-forge/compare_same_records.py \
+            --forge "$ev/STARTER_18_RESULTS.json" \
+            --xmage "$ev/xmage-reference/STARTER_18_RESULTS.json" \
+            --output "$ev/SAME_RECORD_COMPARISON.json" \
+            --xmage-convergence-head "$XMAGE_CONVERGENCE_HEAD" \
+            --xmage-workflow-run "$XMAGE_RUN_ID" \
+            --xmage-artifact-id "$XMAGE_ARTIFACT_ID" \
+            --xmage-artifact-digest "$XMAGE_ARTIFACT_DIGEST"
+
+      - name: Materialize final source lock and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          ev=qualification/evidence/finalist-convergence-forge
+          python - <<'PY'
+          import json, os, subprocess
+          head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          base=os.environ['FORGE_BASE']
+          source={
+              'schema_version':'commander-lab.forge-finalist-convergence-source-lock/1.0.0',
+              'repository':'moeendres-png/commander-playtest-lab',
+              'branch':'program/finalist-convergence-forge',
+              'direct_base':base,
+              'convergence_head':head,
+              'contract_commit':os.environ['CONTRACT_COMMIT'],
+              'contract_bundle_digest':os.environ['CONTRACT_BUNDLE'],
+              'forge_engine':{'commit':os.environ['FORGE_COMMIT'],'tree':os.environ['FORGE_TREE'],'version':os.environ['FORGE_VERSION']},
+              'forge_process_boundary':'SEPARATE_GPL_JVM',
+              'forge_source_modified':False,
+              'historical_bootstrap_modified':False,
+              'finalist_bootstrap_overlay_generated':True,
+              'forge_ai_gui_in_provider':False,
+              'xmage_reference':{
+                  'convergence_head':os.environ['XMAGE_CONVERGENCE_HEAD'],
+                  'workflow_run_id':int(os.environ['XMAGE_RUN_ID']),
+                  'artifact_id':int(os.environ['XMAGE_ARTIFACT_ID']),
+                  'artifact_digest':os.environ['XMAGE_ARTIFACT_DIGEST'],
+                  'starter18_results_sha256':os.environ['XMAGE_RESULTS_SHA256'],
+              },
+          }
+          open('qualification/evidence/finalist-convergence-forge/SOURCE_LOCK.json','w').write(json.dumps(source,indent=2,sort_keys=True)+'\n')
+          PY
+          (
+            cd "$ev"
+            sha256sum \
+              HANDSHAKE_PROOF.json \
+              STARTER_18_RESULTS.json \
+              SAME_RECORD_COMPARISON.json \
+              SOURCE_LOCK.json \
+              XMAGE_REFERENCE_LOCK.json \
+              generator-summary.json \
+              generated/finalist_forge_provider_mapping.json \
+              xmage-reference/STARTER_18_RESULTS.json \
+              > SHA256SUMS
+          )
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finalist-convergence-forge-${{ github.sha }}
+          path: qualification/evidence/finalist-convergence-forge

@@ -1,0 +1,182 @@
+name: WS-33 Forge Terminal AF04 Qualification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ws33/forge-successor-provider-qualification-final]
+    paths-ignore:
+      - "qualification/evidence/ws33/**"
+      - "handoffs/ws33/**"
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  WS32_COMMIT: 038d0f38635eecee4e331c99af41f148de267a26
+  WS32_TREE: 0d160128119f2bad30b220a17c43419b50b7edbe
+  WS32_BUNDLE: 61002a78c7fdd2ab4bec30e64742a7954e9a6448e8f39e05503dbe26492aa20b
+  BASELINE_HEAD: 170d169e252703685aca9d5d8b3e0dbc4154f8b6
+  FORGE_COMMIT: 1e604105f9e279331063824943b9222b6589f5d8
+  FORGE_TREE: 994976e06aaf99b807646b60b1aa2ac9f7703df4
+  FORGE_VERSION: 2.0.15-SNAPSHOT
+  FRESH_MASTER: c817743ecbda4a4983a4246a13375d1a6adf8a4e
+  FRESH_MASTER_TREE: d0ff27956e44ffb76baa11be1645675e1b013a3a
+
+jobs:
+  terminal-af04:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout WS-33 terminal branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify WS-33 ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$BASELINE_HEAD" HEAD
+          mkdir -p artifacts/ws33-terminal
+          printf '%s\n' "$GITHUB_SHA" > artifacts/ws33-terminal/WS33_RUN_HEAD.txt
+
+      - name: Checkout exact frozen WS-32 contract
+        uses: actions/checkout@v4
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS32_COMMIT }}
+          path: contract-lock
+          sparse-checkout: qualification/ws32
+
+      - name: Verify WS-32 lock and 107-record ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C contract-lock rev-parse HEAD)" = "$WS32_COMMIT"
+          test "$(git -C contract-lock rev-parse HEAD^{tree})" = "$WS32_TREE"
+          cd contract-lock/qualification/ws32
+          sha256sum -c SHA256SUMS_v1_0_2
+          python - <<'PY'
+          import json, os
+          m=json.load(open('WS32_BUNDLE_MANIFEST_v1_0_2.json'))
+          assert m['contract_version']=='commander-lab.semantic-fixture-materialization/1.0.2'
+          assert m['bundle_digest']==os.environ['WS32_BUNDLE']
+          p=json.load(open('SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json'))
+          assert len(p['records'])==135
+          assert all(r['semantic_executability']=='SEMANTIC_EXECUTABLE' for r in p['records'])
+          ids={r['fixture_id'] for r in p['records']}
+          owned={x for x in ids if not x.startswith('CARD_')} | {'CARD_02'}
+          assert len(owned)==107
+          PY
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile terminal audit
+        run: python -m py_compile candidate-qualification/ws33-forge/ws33_terminal_af04_audit.py
+
+      - name: Checkout exact retained Forge pin
+        uses: actions/checkout@v4
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FORGE_COMMIT }}
+          path: vendor/pinned-forge
+          fetch-depth: 1
+
+      - name: Checkout freshly observed Forge master
+        uses: actions/checkout@v4
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ env.FRESH_MASTER }}
+          path: vendor/fresh-forge
+          fetch-depth: 1
+
+      - name: Verify Forge source locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C vendor/pinned-forge rev-parse HEAD)" = "$FORGE_COMMIT"
+          test "$(git -C vendor/pinned-forge rev-parse HEAD^{tree})" = "$FORGE_TREE"
+          test "$(git -C vendor/fresh-forge rev-parse HEAD)" = "$FRESH_MASTER"
+          test "$(git -C vendor/fresh-forge rev-parse HEAD^{tree})" = "$FRESH_MASTER_TREE"
+          grep -q "GNU GENERAL PUBLIC LICENSE" vendor/pinned-forge/LICENSE
+
+      - name: Generate exact isolated Finalist Forge provider surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          out=artifacts/ws33-terminal/generated
+          mkdir -p "$out"
+          python scripts/finalist_generate_forge_provider.py \
+            --player-controller vendor/pinned-forge/forge-game/src/main/java/forge/game/player/PlayerController.java \
+            --output-dir "$out" \
+            --forge-commit "$FORGE_COMMIT" \
+            --forge-tree "$FORGE_TREE"
+          ! grep -REn 'import forge\.(ai|gui)|RemoteClientGuiGame|PlayerControllerAi|ComputerUtilMana' "$out/java"
+
+      - name: Execute terminal AF04 reachability and ownership audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws33-forge/ws33_terminal_af04_audit.py \
+            --materialization contract-lock/qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json \
+            --mapping artifacts/ws33-terminal/generated/finalist_forge_provider_mapping.json \
+            --generated-provider artifacts/ws33-terminal/generated/java/forge/game/player/Ws23ForgeVerticalProvider.java \
+            --pinned-combat vendor/pinned-forge/forge-game/src/main/java/forge/game/combat/Combat.java \
+            --pinned-human-controller vendor/pinned-forge/forge-gui/src/main/java/forge/player/PlayerControllerHuman.java \
+            --pinned-damage-ui vendor/pinned-forge/forge-gui-desktop/src/main/java/forge/screens/match/VAssignCombatDamage.java \
+            --fresh-combat vendor/fresh-forge/forge-game/src/main/java/forge/game/combat/Combat.java \
+            --fresh-human-controller vendor/fresh-forge/forge-gui/src/main/java/forge/player/PlayerControllerHuman.java \
+            --output-dir artifacts/ws33-terminal \
+            | tee artifacts/ws33-terminal/summary.json
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/ws33-terminal/WS33_TERMINAL_AF04_AUDIT.json'))
+          assert x['terminal_status']=='STOPPED_FAIL_CLOSED'
+          assert x['gate_results']['AF04']=='FAIL_TERMINAL_FORGE_PROVIDER_DEFECT'
+          assert x['provider_callback_counts']['FAIL_CLOSED_UNSUPPORTED']==82
+          assert x['successor_corpus']['denominator']==107
+          assert x['successor_corpus']['PASS']==0
+          assert x['successor_corpus']['successor_runtime_credit']==0
+          l=json.load(open('artifacts/ws33-terminal/WS33_SUCCESSOR_RESULT_LEDGER.json'))
+          assert len(l['rows'])==107
+          assert sum(r['status']=='BASELINE_RUNTIME_NO_SUCCESSOR_CREDIT' for r in l['rows'])==1
+          assert sum(r['status']=='NOT_RUN_AFTER_AF04_STOP_CONDITION' for r in l['rows'])==106
+          PY
+
+      - name: Record exact terminal source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          x={
+            'schema_version':'commander-lab.ws33-terminal-source-lock/1.0.0',
+            'ws33_run_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            'ws33_branch':'ws33/forge-successor-provider-qualification-final',
+            'baseline_head':os.environ['BASELINE_HEAD'],
+            'ws32':{'commit':os.environ['WS32_COMMIT'],'tree':os.environ['WS32_TREE'],'bundle_digest':os.environ['WS32_BUNDLE']},
+            'forge_selected':{'commit':os.environ['FORGE_COMMIT'],'tree':os.environ['FORGE_TREE'],'version':os.environ['FORGE_VERSION'],'decision':'RETAIN_QUALIFIED_PIN'},
+            'forge_fresh_master':{'commit':os.environ['FRESH_MASTER'],'tree':os.environ['FRESH_MASTER_TREE'],'same_terminal_af04_boundary':True},
+            'topology':{'process_boundary':'SEPARATE_GPL_JVM','forge_ai_or_gui_as_pilot':False},
+          }
+          pathlib.Path('artifacts/ws33-terminal/WS33_TERMINAL_SOURCE_LOCK.json').write_text(json.dumps(x,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Hash terminal evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          find artifacts/ws33-terminal -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws33-terminal/SHA256SUMS
+
+      - name: Upload terminal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws33-forge-terminal-af04-${{ github.sha }}
+          path: artifacts/ws33-terminal/
+          if-no-files-found: error
+          retention-days: 90

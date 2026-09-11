@@ -1,0 +1,81 @@
+{
+  "schema_version": "commander-lab.ws40-v1.0.3-construction-attempt/1.0.0",
+  "attempt": 24,
+  "status": "FAIL_REQUESTED_NATIVE_STATE_MISMATCH",
+  "qualification_credit": 0,
+  "provider_semantics_reached": true,
+  "source_lock": {
+    "commander_lab_head": "d68013c6d70fb0f2399d762448ae371e3857b82d",
+    "commander_lab_tree": "287db528ba5086fe6b18e5c2ea29f6578bf40dc8",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_schema": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "ws41_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "forge_commit": "f83b77aa75e4f90852bef9243f3c5b32c37dc7e0",
+    "forge_tree": "e2f124f30d55e43f838615a969af4e09e7009471"
+  },
+  "verified_steps": {
+    "immutable_contract_lock": "PASS",
+    "requested_state_digests": "107/107 PASS",
+    "forge_source_lock": "PASS",
+    "forge_build": "PASS",
+    "provider_compile": "PASS",
+    "lineage_resolver_patch": "PASS",
+    "construction_records_completed_before_failure": 15,
+    "construction_records_passed_before_failure": 15,
+    "construction_failure_record_index": 16,
+    "construction_failure_fixture_id": "PILOT_REPLACEMENT_EFFECT"
+  },
+  "passed_fixture_ids": [
+    "PLAYER_COUNT_2P",
+    "PLAYER_COUNT_3P",
+    "PLAYER_COUNT_4P",
+    "PLAYER_COUNT_5P",
+    "PILOT_PRIORITY",
+    "PILOT_TARGET",
+    "PILOT_CHOOSE_OBJECT",
+    "PILOT_TARGET_AMOUNT",
+    "PILOT_MULLIGAN",
+    "PILOT_CHOOSE_USE",
+    "PILOT_CHOICE",
+    "PILOT_PILE",
+    "PILOT_MANA_PAYMENT",
+    "PILOT_ANNOUNCE_X",
+    "PILOT_MULTI_AMOUNT"
+  ],
+  "workflow": {
+    "run_id": 33921705893,
+    "job_id": 101181262662,
+    "conclusion": "failure",
+    "failed_step": "Execute exact immutable v1.0.3 107 native construction gate from record 1"
+  },
+  "artifact": {
+    "artifact_id": 9955311320,
+    "name": "ws40-v1.0.3-native-construction-107-d68013c6d70fb0f2399d762448ae371e3857b82d",
+    "zip_sha256": "a9c534c50ff969f5a40bc659e027440f6c9723a7f2737644faba170417f34058",
+    "size_bytes": 84165
+  },
+  "failure": {
+    "message_prefix": "REQUESTED_NATIVE_STATE_MISMATCH:PILOT_REPLACEMENT_EFFECT",
+    "requested_stack_target": "obj:P1-commander",
+    "normalized_native_stack_target": "obj:p1-commander-bf",
+    "native_bound_card_semantic_id": "obj:p1-commander-bf",
+    "native_bound_card_lineage_id": "line:obj:P1-commander",
+    "native_bound_card_commander_id": "cmd:P1-A",
+    "classification": "NORMALIZED_IDENTITY_PROJECTION_MISMATCH_AFTER_CORRECT_NATIVE_LINEAGE_BIND",
+    "lineage_bind_reached": true,
+    "forge_target_binding_implicated": false,
+    "normalization_identity_policy_implicated": true,
+    "ws41_contract_defect_not_yet_granted": true
+  },
+  "hardening": {
+    "historical_successor_credit_imported": 0,
+    "case_fold_aliasing_forbidden": true,
+    "card_name_aliasing_forbidden": true,
+    "owner_controller_guessing_forbidden": true,
+    "request_echo_normalization_forbidden": true,
+    "next_change_requires_corpuswide_identity_normalization_audit": true
+  },
+  "next_action": "Audit all WS41 v1.0.3 semantic_objects for semantic_id versus card_lineage_id relationships and all stack target references. Determine whether a provider-neutral canonical identity projection can be derived from frozen lineage metadata without request echo. Persist the audit before modifying observer normalization."
+}

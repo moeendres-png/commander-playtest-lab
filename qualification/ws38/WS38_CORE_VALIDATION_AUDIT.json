@@ -1,0 +1,44 @@
+{
+  "conclusion": "The defect is not merely missing enumeration. Forge lacks an authoritative independent core-side validation/transaction boundary for the returned combat-damage allocation.",
+  "existing_core_rule_primitives": [
+    "Card.getLethalDamage",
+    "Card.getNetCombatDamage",
+    "Combat defender/blocker topology",
+    "Card/keyword deathtouch and trample state",
+    "GameRules.hasOrderCombatants",
+    "assignedDamageMap for already assigned same-step damage",
+    "first/double-strike orchestration"
+  ],
+  "existing_core_validation_precedents": [
+    {
+      "decision": "declare attackers",
+      "status": "CORE_VALIDATOR_EXISTS",
+      "validator": "CombatUtil.validateAttackers"
+    },
+    {
+      "decision": "declare blockers",
+      "status": "CORE_VALIDATOR_EXISTS",
+      "validator": "CombatUtil.validateBlocks"
+    }
+  ],
+  "forge_commit": "ef4c834dbbca21a099ae751fb52b2326abdf1e02",
+  "negative_cases_currently_not_independently_rejected_at_submission_boundary": [
+    "sum less than source combat damage",
+    "sum greater than source combat damage",
+    "recipient outside legal blocker/defender set",
+    "trample spill to defender before blocker lethal",
+    "deathtouch lethal threshold misuse",
+    "illegal defender/player spill without a modifying rule",
+    "legacy-order violation when legacy order mode is enabled",
+    "same-step shared-blocker accounting errors"
+  ],
+  "question_a_core_sufficient_validation": {
+    "proof": [
+      "Combat.assignAttackersDamage and assignBlockersDamage call PlayerController.assignCombatDamage and then ingest each map entry directly into addAssignedDamage/damageMap.",
+      "No comprehensive validation step rejects an under-assigned, over-assigned, illegal-recipient, illegal-trample-spill or otherwise malformed returned allocation before state mutation.",
+      "Combat.dealAssignedDamage later deals the already accepted map; damage replacement/prevention is not an assignment-legality validator."
+    ],
+    "verdict": "NO"
+  },
+  "schema": "commander-lab.ws38.core-validation-audit/1.0.0"
+}

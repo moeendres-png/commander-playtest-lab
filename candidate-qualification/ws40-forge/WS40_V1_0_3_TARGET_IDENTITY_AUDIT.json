@@ -1,0 +1,639 @@
+{
+  "ambiguous_count": 0,
+  "audit_rows": [
+    {
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[6]",
+      "resolved_semantic_ids": [],
+      "status": "PLAYER_ID",
+      "surface": "requested_stack_target",
+      "target": "P1"
+    },
+    {
+      "fixture_id": "PILOT_CHOICE",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:forest"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:forest"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[10]",
+      "resolved_semantic_ids": [
+        "obj:forest"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:forest"
+    },
+    {
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[12]",
+      "resolved_semantic_ids": [],
+      "status": "PLAYER_ID",
+      "surface": "requested_stack_target",
+      "target": "P1"
+    },
+    {
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:p1-commander-bf"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[15]",
+      "resolved_semantic_ids": [
+        "obj:p1-commander-bf"
+      ],
+      "status": "UNIQUE_IDENTITY_ALIAS",
+      "surface": "requested_stack_target",
+      "target": "obj:P1-commander"
+    },
+    {
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:p1-commander-bf"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[0]",
+      "record_path": "$.records[15]",
+      "resolved_semantic_ids": [
+        "obj:p1-commander-bf"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:p1-commander-bf"
+    },
+    {
+      "fixture_id": "MICRO_COSTS",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:P1-commander"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:P1-commander"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[0]",
+      "record_path": "$.records[53]",
+      "resolved_semantic_ids": [
+        "obj:P1-commander"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:P1-commander"
+    },
+    {
+      "fixture_id": "MICRO_COSTS",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:micro-cmd-b"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:micro-cmd-b"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[1]",
+      "record_path": "$.records[53]",
+      "resolved_semantic_ids": [
+        "obj:micro-cmd-b"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:micro-cmd-b"
+    },
+    {
+      "fixture_id": "MICRO_COSTS",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:cost-a"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cost-a"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[2]",
+      "record_path": "$.records[53]",
+      "resolved_semantic_ids": [
+        "obj:cost-a"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:cost-a"
+    },
+    {
+      "fixture_id": "MICRO_COSTS",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:cost-b"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cost-b"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[3]",
+      "record_path": "$.records[53]",
+      "resolved_semantic_ids": [
+        "obj:cost-b"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:cost-b"
+    },
+    {
+      "fixture_id": "MICRO_COSTS",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:cost-c"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cost-c"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[4]",
+      "record_path": "$.records[53]",
+      "resolved_semantic_ids": [
+        "obj:cost-c"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:cost-c"
+    },
+    {
+      "fixture_id": "MICRO_COSTS",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:cost-d"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cost-d"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[5]",
+      "record_path": "$.records[53]",
+      "resolved_semantic_ids": [
+        "obj:cost-d"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:cost-d"
+    },
+    {
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[54]",
+      "resolved_semantic_ids": [],
+      "status": "PLAYER_ID",
+      "surface": "requested_stack_target",
+      "target": "P2"
+    },
+    {
+      "fixture_id": "MICRO_PRIORITY",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[55]",
+      "resolved_semantic_ids": [],
+      "status": "UNRESOLVED",
+      "surface": "requested_stack_target",
+      "target": "obj:P2-bears"
+    },
+    {
+      "fixture_id": "MICRO_PRIORITY",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:micro-target"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:micro-target"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[0]",
+      "record_path": "$.records[55]",
+      "resolved_semantic_ids": [
+        "obj:micro-target"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:micro-target"
+    },
+    {
+      "fixture_id": "MICRO_STACK",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[56]",
+      "resolved_semantic_ids": [],
+      "status": "UNRESOLVED",
+      "surface": "requested_stack_target",
+      "target": "obj:P2-bears"
+    },
+    {
+      "fixture_id": "MICRO_STACK",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:micro-target"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:micro-target"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[0]",
+      "record_path": "$.records[56]",
+      "resolved_semantic_ids": [
+        "obj:micro-target"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "native_procedure_target",
+      "target": "obj:micro-target"
+    },
+    {
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[65]",
+      "resolved_semantic_ids": [],
+      "status": "PLAYER_ID",
+      "surface": "requested_stack_target",
+      "target": "P2"
+    },
+    {
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.native_procedure[0].details.targets[0]",
+      "record_path": "$.records[65]",
+      "resolved_semantic_ids": [],
+      "status": "PLAYER_ID",
+      "surface": "native_procedure_target",
+      "target": "P2"
+    },
+    {
+      "fixture_id": "MICRO_COPY",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:micro-bolt"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:micro-bolt"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[66]",
+      "resolved_semantic_ids": [
+        "obj:micro-bolt"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:micro-bolt"
+    },
+    {
+      "fixture_id": "MICRO_COPY",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[1].targets[0]",
+      "record_path": "$.records[66]",
+      "resolved_semantic_ids": [],
+      "status": "PLAYER_ID",
+      "surface": "requested_stack_target",
+      "target": "P2"
+    },
+    {
+      "fixture_id": "WS05-MP-PRIO-3",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:P3-bears"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:P3-bears"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[99]",
+      "resolved_semantic_ids": [
+        "obj:P3-bears"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:P3-bears"
+    },
+    {
+      "fixture_id": "WS05-MP-PRIO-5",
+      "identity_evidence": {
+        "card_lineage_base": [
+          "obj:P5-bears"
+        ],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:P5-bears"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[100]",
+      "resolved_semantic_ids": [
+        "obj:P5-bears"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:P5-bears"
+    },
+    {
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[110]",
+      "resolved_semantic_ids": [],
+      "status": "PLAYER_ID",
+      "surface": "requested_stack_target",
+      "target": "P1"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[116]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[117]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[118]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[119]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[120]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[121]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[122]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    },
+    {
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "identity_evidence": {
+        "card_lineage_base": [],
+        "card_lineage_id": [],
+        "commander_id": [],
+        "semantic_id": [
+          "obj:cmd-zone-test"
+        ],
+        "source_object_id": []
+      },
+      "path": "$.stack_state[0].targets[0]",
+      "record_path": "$.records[123]",
+      "resolved_semantic_ids": [
+        "obj:cmd-zone-test"
+      ],
+      "status": "EXACT_SEMANTIC_ID",
+      "surface": "requested_stack_target",
+      "target": "obj:cmd-zone-test"
+    }
+  ],
+  "non_exact_fixture_count": 3,
+  "non_exact_fixtures": [
+    "MICRO_PRIORITY",
+    "MICRO_STACK",
+    "PILOT_REPLACEMENT_EFFECT"
+  ],
+  "record_count": 107,
+  "safe_for_unique_identity_alias_resolution": false,
+  "schema_version": "commander-lab.ws40-v1.0.3-target-identity-audit/1.0.1",
+  "source_lock": {
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47"
+  },
+  "status_counts": {
+    "EXACT_SEMANTIC_ID": 21,
+    "PLAYER_ID": 7,
+    "UNIQUE_IDENTITY_ALIAS": 1,
+    "UNRESOLVED": 2
+  },
+  "surface_counts": {
+    "native_procedure_target": 10,
+    "requested_stack_target": 21
+  },
+  "target_reference_count": 31,
+  "unresolved_count": 2
+}
