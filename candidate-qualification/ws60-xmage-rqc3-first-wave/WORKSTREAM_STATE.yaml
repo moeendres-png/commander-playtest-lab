@@ -1,0 +1,102 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws60-xmage-rqc3-first-wave
+branch: ws60/xmage-rqc3-first-wave-20260911
+audit_base_sha: da4fa567312b6b0e4ef5cbfc7347748ca3c2dcd9
+audit_base_tree: 8f194ab8bc884025368a3667c217b86cb23a6ba8
+state_written_against_head: da4fa567312b6b0e4ef5cbfc7347748ca3c2dcd9
+validated_head: null
+objective: 'WS60 XMage RQ-C3 First-Wave execution: execute the corrected 15 actual-card
+  scenarios through the WS56-qualified XMage successor using authoritative engine
+  decisions, principal-scoped observations, deterministic Rules RNG, and fail-closed
+  evidence semantics.'
+in_scope:
+- corrected RQ-C3 First-Wave 15 scenarios
+- CPL scenario fixtures and qualification harness
+- XMage successor runtime execution through authoritative CPL adapter
+- per-scenario actual-card behavior evidence
+- hidden-information and determinism checks relevant to scenarios
+out_of_scope:
+- XMage engine edits
+- provider Rules shortcuts
+- Forge remediation
+- Full107
+- Architecture Freeze
+- Production Provider selection
+dependencies:
+- WS56 XMAGE_SUCCESSOR_REQUALIFICATION_PASS
+- RQ-C3 RULES_AUTHORITY_CLOSURE_PASS
+- Coordinator AG-1/AG-2/AG-3 adjudication
+hard_gates:
+- exact corrected 15-scenario denominator
+- actual-card-driven runtime behavior
+- authoritative legal Decision Options only
+- principal-scoped hidden information
+- no second Rules engine in harness/provider
+- Rules RNG explicit and reproducible when relevant
+- UNKNOWN is never PASS
+- each behavior credit requires runtime evidence
+forbidden_shortcuts:
+- fabricated legal actions
+- heuristic legality
+- first option
+- random option
+- default yes/no
+- internal engine AI fallback
+- GUI default
+- silent skip
+- manual outcome injection
+- reference parity as rules proof
+ownership: WS60-XMAGE-RQC3-FIRST-WAVE
+status: ACTIVE
+exact_next_action: Execute G04/H01/I01/J02/D06/B01 then revisit C01/E02; currently
+  7/15 PASS (A03 A04 C03 E01 F01 G02 G03).
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+open_questions: []
+milestones:
+- id: WS60-READ
+  status: completed
+  evidence: 15 RQ-C3 artifacts extracted; all cards implemented; baseline 111/111
+    green
+- id: WS60-DESIGN
+  status: completed
+  evidence: singleton-deck native construction; partner-commander assembly; event
+    tape; twin determinism
+- id: WS60-BUILD
+  status: completed
+  evidence: Ws60Driver/Pilot/Views/Suite + 15 specs compile; 111/111 retained
+- id: WS60-EXEC-1
+  status: completed
+  evidence: PASS A03 A04 C03 E01 F01 G02 G03 (each primary+replica, hidden-info, determinism)
+- id: WS60-EXEC-2
+  status: in_progress
+  evidence: null
+- id: WS60-AUDIT
+  status: pending
+  evidence: null
+- id: WS60-SEAL
+  status: pending
+  evidence: null
+decisions:
+- id: WS60-D11
+  decision: Adapter observation additions only (granted-library binding, entitled
+    look window, P/T/counters/abilities/commander-status projections); no Rules-semantics
+    changes; 111/111 retained
+  authority: WS60 allowed narrow adapter-observation instrumentation
+  status: accepted
+- id: WS60-D12
+  decision: E02 bound raised to 5000 (deplete-to-find Tyrant); C01 remains UNKNOWN
+    pending revisit
+  authority: assembly lottery evidence; bounded autonomous execution
+  status: accepted
+blockers: []
+risks:
+- id: WS60-R1
+  risk: B01 distributed 1-of assembly + native entry-trigger history vs nominal-40
+    fixture remains likely-UNKNOWN
+  mitigation: bounded honest attempt with structural + empirical evidence
+- id: WS60-R3
+  risk: C01 pitch route needs 3-way joint (FoW+Frog+Elves-timing); normal-route answers
+    proven, pitch pending
+  mitigation: tap-safe filtering + hold/reserves/caps; revisit after other scenarios

@@ -3,12 +3,14 @@ package org.commanderlab.xmage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import mage.abilities.Ability;
 import mage.cards.Card;
 import mage.cards.Cards;
 import mage.cards.decks.Deck;
 import mage.constants.CommanderCardType;
 import mage.constants.ManaType;
 import mage.constants.Zone;
+import mage.counters.Counter;
 import mage.counters.CounterType;
 import mage.game.Game;
 import mage.game.LookedAt;
@@ -16,6 +18,8 @@ import mage.game.Revealed;
 import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
 import mage.players.Player;
+import mage.watchers.common.CommanderInfoWatcher;
+import mage.watchers.common.CommanderPlaysCountWatcher;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -276,6 +280,11 @@ final class XmageKnowledgeLedger {
 
             p.add("known_library", knownLibraryView(viewer, player, game));
             p.add("remembered_library_composition", rememberedLibraryView(viewer, player));
+            // WS60: grant-scoped library identities. Populated ONLY while the
+            // viewer holds a Rules-entitled full look at this library (search,
+            // scry and similar decision windows); empty otherwise, so no
+            // hidden identity crosses the boundary outside the window.
+            p.add("granted_library", grantedLibraryView(viewer, player, game));
             playerViews.add(p);
         }
         view.add("players", playerViews);
@@ -297,7 +306,67 @@ final class XmageKnowledgeLedger {
             stack.add(item);
         }
         view.add("stack", stack);
+        // WS60: public commander facts (command zone contents are public;
+        // commander combat-damage totals are announced by the Rules Core;
+        // command-zone cast counts determine the observable commander tax).
+        // Read-only adapter projection; creates no Rules semantics.
+        view.add("commander_status", commanderStatusView(game));
         return view;
+    }
+
+    private JsonArray commanderStatusView(Game game) {
+        JsonArray result = new JsonArray();
+        CommanderPlaysCountWatcher playsWatcher =
+                game.getState().getWatcher(CommanderPlaysCountWatcher.class);
+        for (int seatIndex = 0; seatIndex < registeredPlayerCount(); seatIndex++) {
+            UUID playerId = playersBySeat.get(seatIndex);
+            Player player = game.getPlayer(playerId);
+            if (player == null) {
+                continue;
+            }
+            Set<UUID> commanderIds;
+            try {
+                commanderIds = game.getCommandersIds(
+                        player, CommanderCardType.COMMANDER_OR_OATHBREAKER, false);
+            } catch (RuntimeException exc) {
+                continue;
+            }
+            List<UUID> ordered = new ArrayList<>(commanderIds);
+            ordered.sort(java.util.Comparator.comparing(UUID::toString));
+            for (UUID commanderId : ordered) {
+                JsonObject entry = new JsonObject();
+                entry.addProperty("owner_id", playerRef(playerId));
+                Card commanderCard = game.getCard(commanderId);
+                entry.addProperty("name",
+                        commanderCard == null ? "unknown commander" : commanderCard.getName());
+                CommanderInfoWatcher damageWatcher = game.getState()
+                        .getWatcher(CommanderInfoWatcher.class, commanderId);
+                JsonArray damage = new JsonArray();
+                if (damageWatcher != null) {
+                    List<UUID> damaged = new ArrayList<>(damageWatcher.getDamageToPlayer().keySet());
+                    damaged.sort(java.util.Comparator.comparing(UUID::toString));
+                    for (UUID damagedId : damaged) {
+                        if (seat(damagedId) < 0) {
+                            continue;
+                        }
+                        JsonObject row = new JsonObject();
+                        row.addProperty("player_id", playerRef(damagedId));
+                        row.addProperty("total",
+                                damageWatcher.getDamageToPlayer().getOrDefault(damagedId, 0));
+                        damage.add(row);
+                    }
+                }
+                entry.add("commander_damage_to_player", damage);
+                if (playsWatcher == null) {
+                    entry.add("casts_from_command", JsonNull.INSTANCE);
+                } else {
+                    entry.addProperty("casts_from_command",
+                            playsWatcher.getPlaysCount(commanderId));
+                }
+                result.add(entry);
+            }
+        }
+        return result;
     }
 
     JsonArray livePlayerOrder(Game game) {
@@ -359,6 +428,37 @@ final class XmageKnowledgeLedger {
         item.addProperty("tapped", permanent.isTapped());
         item.addProperty("damage", permanent.getDamage());
         item.addProperty("face_down", permanent.isFaceDown(game));
+        // WS60: public physical characteristics of face-up permanents.
+        // Read-only adapter projection of engine-native state; creates no
+        // Rules semantics. Gated behind the same identity visibility flag.
+        if (visible) {
+            item.addProperty("power", permanent.getPower().getValue());
+            item.addProperty("toughness", permanent.getToughness().getValue());
+            JsonArray counters = new JsonArray();
+            List<String> counterNames = new ArrayList<>(permanent.getCounters(game).keySet());
+            counterNames.sort(String::compareTo);
+            for (String counterName : counterNames) {
+                Counter counter = permanent.getCounters(game).get(counterName);
+                if (counter == null) {
+                    continue;
+                }
+                JsonObject entry = new JsonObject();
+                entry.addProperty("type", counter.getName());
+                entry.addProperty("count", counter.getCount());
+                counters.add(entry);
+            }
+            item.add("counters", counters);
+            List<String> abilityRules = new ArrayList<>();
+            for (Ability ability : permanent.getAbilities(game)) {
+                String rule = ability.getRule();
+                abilityRules.add(rule == null ? "" : rule);
+            }
+            abilityRules.sort(String::compareTo);
+            JsonArray abilities = new JsonArray();
+            abilityRules.forEach(abilities::add);
+            item.add("abilities", abilities);
+            item.addProperty("ability_count", abilityRules.size());
+        }
         return item;
     }
 
@@ -401,6 +501,21 @@ final class XmageKnowledgeLedger {
             result.add(item);
         }
         stale.forEach(known::remove);
+        return result;
+    }
+
+    private JsonArray grantedLibraryView(Player viewer, Player owner, Game game) {
+        JsonArray result = new JsonArray();
+        if (viewer == null || owner == null || game == null) {
+            return result;
+        }
+        Set<UUID> granted = zoneFullLookOwners.get(viewer.getId());
+        if (granted == null || !granted.contains(owner.getId())) {
+            return result;
+        }
+        for (Card card : owner.getLibrary().getCards(game)) {
+            result.add(cardView(card, game, true));
+        }
         return result;
     }
 

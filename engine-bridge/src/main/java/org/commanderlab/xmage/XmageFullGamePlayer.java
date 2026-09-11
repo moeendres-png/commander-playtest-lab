@@ -964,25 +964,75 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("target_name", target.getTargetName());
         context.addProperty("required", target.isRequired());
 
-        XmageFullGameDecisionController.DecisionResponse response = request(
-                game,
-                targeted ? "target" : "choose_object",
-                target.getMessage(game),
-                min,
-                max,
-                objectOptions(sorted, game, targeted ? "target" : "choice"),
-                context,
-                source
-        );
-        for (String selected : response.selectedOptionIds()) {
-            UUID id = UUID.fromString(selected);
-            if (targeted) {
-                target.addTarget(id, source, game);
-            } else {
-                target.add(id, game);
+        // WS60: Rules-entitled hidden-zone look window (library search, scry,
+        // surveil and similar chooses from library). The engine alone selected
+        // the eligible set; the adapter only projects identities the deciding
+        // principal is entitled to see while choosing (paper search/scry is a
+        // look), then closes the window. Creates no Rules semantics: no
+        // legality, target, cost, or outcome is computed or altered here.
+        Player lookOwner = lookOwnerFor(restrictedCards, game);
+        boolean lookGranted = false;
+        if (lookOwner != null) {
+            XmageFullGameStateRedactor.knowledgeLedger(game).beginZoneFullLook(this, lookOwner, game);
+            lookGranted = true;
+        }
+        try {
+            XmageFullGameDecisionController.DecisionResponse response = request(
+                    game,
+                    targeted ? "target" : "choose_object",
+                    target.getMessage(game),
+                    min,
+                    max,
+                    objectOptions(sorted, game, targeted ? "target" : "choice"),
+                    context,
+                    source
+            );
+            for (String selected : response.selectedOptionIds()) {
+                UUID id = UUID.fromString(selected);
+                if (targeted) {
+                    target.addTarget(id, source, game);
+                } else {
+                    target.add(id, game);
+                }
+            }
+            return !response.selectedOptionIds().isEmpty();
+        } finally {
+            if (lookGranted) {
+                XmageFullGameStateRedactor.knowledgeLedger(game).endZoneFullLook(this, lookOwner);
             }
         }
-        return !response.selectedOptionIds().isEmpty();
+    }
+
+    /**
+     * Owner of the first library-zone card in a restricted decision set, or
+     * null when the set involves no hidden library identities (hand,
+     * battlefield, graveyard, stack and exile projections need no grant).
+     */
+    private Player lookOwnerFor(Cards restrictedCards, Game game) {
+        if (restrictedCards == null || game == null) {
+            return null;
+        }
+        try {
+            for (Card card : restrictedCards.getCards(game)) {
+                if (card == null) {
+                    continue;
+                }
+                Card main = card.getMainCard();
+                Zone zone = game.getState().getZone(main.getId());
+                if (zone == null) {
+                    zone = game.getState().getZone(card.getId());
+                }
+                if (zone == Zone.LIBRARY && card.getOwnerId() != null) {
+                    Player owner = game.getPlayer(card.getOwnerId());
+                    if (owner != null) {
+                        return owner;
+                    }
+                }
+            }
+        } catch (RuntimeException ignored) {
+            return null;
+        }
+        return null;
     }
 
     private static JsonObject outcomeContext(Outcome outcome) {

@@ -154,8 +154,7 @@ final class XmageDecisionOptionIdentity {
             putUnique(result, player.getId(), semanticPlayer);
 
             bindCards(result, player.getHand().getCards(game), optionalArray(playerView, "hand"), game);
-            bindCards(result, player.getGraveyard().getCards(game), requiredArray(playerView, "graveyard"), game);
-            bindCards(
+            bindCards(result, player.getGraveyard().getCards(game), requiredArray(playerView, "graveyard"), game);            bindCards(
                     result,
                     game.getCommanderCardsFromCommandZone(
                             player,
@@ -170,6 +169,14 @@ final class XmageDecisionOptionIdentity {
                     requiredArray(playerView, "exile"),
                     game
             );
+            // WS60: grant-scoped library identities. The ledger populates
+            // granted_library only inside a Rules-entitled full-look window
+            // (library search / scry / surveil decision for this viewer); the
+            // array is empty otherwise, preserving hidden information.
+            JsonArray grantedLibrary = optionalArray(playerView, "granted_library");
+            if (grantedLibrary != null && !grantedLibrary.isEmpty()) {
+                bindCards(result, player.getLibrary().getCards(game), grantedLibrary, game);
+            }
 
             List<Permanent> permanents = game.getBattlefield().getAllPermanents().stream()
                     .filter(permanent -> player.getId().equals(permanent.getControllerId()))
