@@ -1,8 +1,9 @@
 audit_base_sha: e207286200854bf9bff557e67bf3b37b5e428392
 audit_base_tree: 6e89a980bf0a7e40273ba11b108fe3febed39d47
 branch: ws58/foundry-state-persistence-hardening-20260911
-exact_next_action: Commit tests/docs/matrices (milestone E/F), then write WS58_FINAL_REPORT.md,
-  final research-state checkpoint, and terminal handoff.
+exact_next_action: 'Coordinator review: WS58 terminal PASS (FOUNDRY_STATE_PERSISTENCE_HARDENING_PASS).
+  No push/merge requested. Suggested next: adopt canonical writer in future workstream
+  contracts; optionally schedule test_impact.py argv fix as minor tooling work.'
 in_scope:
 - canonical writer in tools/foundry/state.py (write_state/update_state/atomic_write_text/dump_state)
 - bootstrap --init-state integration on the shared primitive
@@ -22,8 +23,8 @@ out_of_scope:
 ownership: WS58 session (branch ws58/foundry-state-persistence-hardening-20260911)
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: e207286200854bf9bff557e67bf3b37b5e428392
-status: ACTIVE
+state_written_against_head: f056133c7eaf8cda13e8514a967f6b418494f189
+status: COMPLETE
 validated_head: null
 worktree: /home/moeen/code/ws58-foundry-state-persistence-hardening
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
@@ -47,3 +48,6 @@ tests_run:
   GIT_CONFIG_* push-guard scrubbed for local fixtures)'
 - ruff check + format clean on tools/foundry/state.py, tools/foundry/bootstrap.py,
   tests/foundry/test_state_writer.py
+- 'terminal re-run: test_state_v2 11 passed, test_foundry_tools 45 passed, test_state_writer
+  36 passed'
+remaining_scope: []
