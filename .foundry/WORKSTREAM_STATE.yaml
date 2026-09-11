@@ -1,129 +1,92 @@
-schema_version: '2.0'
-repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/ws-a1d-docker-pin-requalification
-branch: architecture/ws-a1d-docker-pin-authority-requalification-20260910
-audit_base_sha: dd3be6026515e40f4b18a6121058877f5cab5725
-audit_base_tree: 3e73de272899c39963160c1884e5280cfe86276a
-state_written_against_head: dfbe18e922f7e7fa874523c046a60552f121bde6
-validated_head: dfbe18e922f7e7fa874523c046a60552f121bde6
-objective: >
-  WS-A1D Docker Pin Authority and Runtime Requalification under canonical
-  Coordinator contract (XHIGH). Eliminate the executable Docker pin-authority
-  divergence so the supported Docker/Compose engine path resolves CURRENT engine
-  identity from config/rules_engines.json sole authority (xmage 77d7646d from
-  moeendres-png/mage fork; forge a37a865a forge-2.0.14), cannot silently
-  materialize a stale engine or wrong repository, fails closed on missing or
-  inconsistent authority, and exposes verifiable provenance. Phases A-K:
-  consumer audit, historical evidence impact, systemic pin-authority design (no
-  second manually maintained pin file), XMage repository adjudication, protocol
-  drift adjudication (manifest 2.0.0 vs Compose 1.0.0), implementation,
-  regression tests, real Docker materialization where permitted, targeted
-  requalification, documentation. Provider truth preserved (NO_PROVIDER_READY,
-  provider_selected=false, production_provider=null). ARCHITECTURE_FREEZE NOT
-  CLAIMED. RULES_BEHAVIOR_CREDIT_CHANGE = 0 by default.
-in_scope:
-- 'Phase A consumer audit of all pin/protocol/Docker/Compose consumers with
-  CURRENT_AUTHORITY / LIVE_CONSUMER / HISTORICAL_PROVENANCE / GENERATED_OUTPUT /
-  TEST_FIXTURE / STALE_LIVE_POINTER / UNKNOWN classification'
-- 'Phase B historical evidence impact per family (UNAFFECTED /
-  AFFECTED_REQUALIFICATION_REQUIRED / HISTORICAL_ONLY / UNKNOWN)'
-- 'Phase C systemic pin-authority design (manifest-aware resolution; no second
-  manually maintained volatile pin file)'
-- 'Phase D XMage repository adjudication (fork moeendres-png/mage vs upstream
-  magefree/mage; canonical commit existence and fork-content dependence)'
-- 'Phase E protocol drift adjudication (manifest 2.0.0 vs Compose 1.0.0; exactly
-  one truthful disposition: SAME-SCOPE CORRECTION or SEPARATE CONTRACT BLOCKER)'
-- 'Phase F minimum systemic implementation (Dockerfiles, Compose, helper,
-  scripts, docs/engine_setup.md Docker section, bounded evidence artifact)'
-- 'Phase G fail-closed regression tests (canonical resolution, no silent stale
-  win, invalid provider/cross-wire/missing authority fail closed, provenance)'
-- 'Phase H real Docker materialization probe and canonical builds where permitted'
-- 'Phase I targeted requalification (pin/technical-truth, bootstrap, compat,
-  external-engine integration, B3/B4 chain as supported; Forge only on surfaces
-  that exist)'
-- 'Phase J documentation update matching the implemented canonical flow'
-- 'Phase K state/checkpoint maintenance (schema 2.0, no fabricated credit)'
-out_of_scope:
-- provider selection (PRODUCTION_PROVIDER stays NOT SELECTED; provider_decision
-  stays NO_PROVIDER_READY until a Freeze workstream decides)
-- Architecture Freeze claims or Production Repository creation
-- inventing new engine pins or bumping beyond manifest authority (manifest wins)
-- license selection or LICENSE creation (LICENSE_DECISION = AUTHORITY_GATE)
-- branch-protection/ruleset mutation (BRANCH_PROTECTION = AUTHORITY_GATE)
-- history rewrite, rebase, force push, merge, push (no remote writes by this workstream)
-- branch/worktree deletion or evidence deletion/migration
-- fork repository edits (engine upstreams are read-only inputs)
-- carrying WS-A1R validation credit, completion state or ownership into WS-A1D
-ownership: WS-A1D session (branch architecture/ws-a1d-docker-pin-authority-requalification-20260910)
-dependencies:
-- origin/main at dd3be6026515e40f4b18a6121058877f5cab5725 (WS-A1R merge; no drift at bootstrap)
-- config/rules_engines.json as sole machine-readable pin authority (WS-A1R additive authority_note)
-- engine upstreams reachable for re-pin verification (moeendres-png/mage @ 77d7646d; Card-Forge/forge @ a37a865a)
-- docs/RETENTION_AND_LIFECYCLE_POLICY.md Appendix G (PIN_DIVERGENCE_DOCKERFILES gate record)
-hard_gates:
-- H1 single pin authority (config/rules_engines.json remains current authority)
-- H2 no silent stale fallback (unresolved authority stops the build path)
-- H3 correct repository is part of engine identity (not merely the commit hash)
-- H4 materialization evidence (CODE_DERIVED is not runtime/image verification)
-- H5 historical impact adjudicated per materially relevant evidence family
-- H6 protocol drift adjudicated (no silent 1.0.0 vs 2.0.0 inconsistency)
-- H7 provider truth preserved (NO_PROVIDER_READY, selected=false, provider=null)
-- H8 no Architecture Freeze claim
-- H9 no Rules-credit theater (build/import/readback is not card behavior)
-- H10 fail closed (UNKNOWN/NOT_RUN/PARTIAL never PASS)
-- H11 no second Rules Engine in tooling, tests or orchestration
-forbidden_shortcuts:
-- second hidden Rules Engine in any pilot, adapter, harness or test helper
-- first-option / random-option / default yes-no / silent-skip legality substitutes
-- fabricated legal actions, manual outcome injection, direct sa.resolve() substitutes
-- weakening assertions or denominators to obtain green results
-- copying SHAs into docs as new pin authority (docs must cite the manifest)
-technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
-current_reasoning_tier: xhigh
+audit_base_sha: 55fd87f99462f9b30225f9ac8587e8a6abf75e88
+audit_base_tree: 4e1d594fefb7365d1c9117061a86f63ffb595033
+branch: ws61/foundry-safe-push-lineage-integration-20260911
 current_failure: NONE
-failure_class: NONE
-current_hypothesis: NONE
-first_failing_boundary: NONE
-root_cause_class: NONE
-validated_gates:
-- H1 single pin authority (resolver reads manifest at runtime; no second pin file)
-- H2 no silent stale fallback (no Dockerfile defaults; compose :? ; required args; UNCONDITIONAL entrypoint provenance gate, every unprovable case exits 3)
-- H3 correct repository is part of identity (fork clone; manifest provider-field validation authoritative; repo guards defense-in-depth; cross-wire guards in resolver, Dockerfiles, compose mapping)
-- H5 historical impact adjudicated (Phase 8.5 HISTORICAL_ONLY; B3/B4/external/release UNAFFECTED; no blanket invalidation)
-- H6 protocol drift adjudicated SAME-SCOPE CORRECTION (Compose/devcontainer 1.0.0 -> 2.0.0; handshake semantics verified)
-- H7 provider truth preserved (NO_PROVIDER_READY, selected=false, provider=null; manifest untouched)
-- H8 no Architecture Freeze claim
-- H9 no Rules-credit theater (RULES_BEHAVIOR_CREDIT_CHANGE = 0; build/provenance is not card behavior)
-- H10 fail closed (missing/malformed/unknown/cross-wire/missing-tooling all non-zero; UNKNOWN/NOT_RUN never PASS; no grandfathered-image exception)
-- H11 no second Rules Engine (tooling routes identity only; no legality semantics invented)
-tests_run:
-- PR #177 CI/quality on 9fb40d2c (GitHub CI evidence, NOT local): Ruff lint FAILURE (I001 test file:14, F401 pathlib.Path test file:331) + Ruff format FAILURE (verify_container_provenance.py, test file); Mypy strict PASS; pytest 955 passed/3 skipped; compileall PASS; secret scan PASS; wheel PASS; CI/security PASS; Windows Hygiene PASS; Prod infra PASS; exact-main-admission expected SKIP
-- Ruff remediation (formatting/import-only, 2 files): ruff check . -> All checks passed; ruff format --check . -> 759 formatted; pytest WS-A1D file -> 37 passed (baseline met, no lost tests); compileall on both files OK
-- tests/unit/test_ws_a1d_docker_pin_authority.py covers: resolver incl. provider-field identity, Dockerfile/Compose/protocol/provenance-gate, entrypoint subprocess matrix incl. start-command-never-ran proof, fake-docker wrapper matrix for both providers
-- REMEDIATION-01 NEGATIVE CONTROL: 8 new fail-closed assertions failed against published pre-fix code (missing record/manifest, unknown provider, swapped/malformed provider fields, entrypoint proceed-cases, single-provider wrapper env), 0 failed post-fix
-- tests/unit/test_technical_truth.py + tests/contract/test_phase85_protocol.py + tests/contract/test_phase1213_provider_surface.py + tests/unit/test_external_engine_foundation.py + tests/unit/test_xmage_compatibility_provider.py + tests/integration/test_phase85_validation.py + tests/contract/test_phase86_phase85_claims.py + tests/unit/test_ws_a1r_pin_authority.py + tests/unit/test_phase85_bootstrap_files.py (59 total green post-remediation)
-- entrypoint gate verified end-to-end via subprocess (canonical proceeds; stale/missing-record/missing-manifest/missing-gate/missing-python all non-zero with start command never executed)
-- wrapper verified via fake-docker shim (both XMAGE_* and FORGE_* populated from manifest for each requested provider; correct --profile; docker never invoked on authority failure)
-- resolver CLI matrix re-executed (xmage/forge outputs include provider-consistent identity; unknown-provider exit 3)
-- Dockerfile guard matrices executed under bash; RUN bodies pass bash -n; Compose YAML parses; devcontainer/manifest JSON parse
-- prior broad sweeps retained (remediation touches no src/deps: unit 514 passed with 5 failed + 40 errors all from missing third-party modules; contract 11 passed + 1 missing-typer error; all environmental, pre-existing, unrelated)
+current_reasoning_tier: high
+dependencies:
+- WS57 remote terminal 9af19e627fa1b02fcf3ed94a2dfccbb51798ae9c (qualified FOUNDRY_REMOTE_LINEAGE_SAFE_PUSH_PASS;
+  code commit 70c625c8 ported, evidence/state commit not imported)
+- main 55fd87f99462f9b30225f9ac8587e8a6abf75e88 (post-WS58R; state writer hardened)
 evidence:
-- Phase A consumer audit: docs/WS_A1D_PIN_CONSUMER_AUDIT.md (all four SHAs, ENGINE_COMMIT, ENGINE_PROTOCOL_VERSION, Compose/Dockerfile references classified; no UNKNOWN)
-- Phase D: canonical xmage commit observed in moeendres-png/mage fork (Ashling the Limitless, parent b1ef0dc); forge release commit observed in Card-Forge/forge (prepare release forge-2.0.14)
-- Phase E: SAME-SCOPE CORRECTION (bridge.py handshake hard-fails mismatches; all real bridges speak 2.0.0; nothing speaks 1.0.0)
-- H4 boundary: NO docker client on execution host (shutil.which docker -> None); no image constructed; Dockerfile/Compose evidence is CODE_DERIVED plus executed shell-guard evidence, not image verification
-- B3/B4/external-engine suites NOT_RUN locally (no vendor source or bridge build); adjudicated UNAFFECTED, owned by CI direct-source path
-artifacts:
-- docs/WS_A1D_PIN_CONSUMER_AUDIT.md (Phase A/B record + C-E adjudication appendix)
-- scripts/docker_resolve_engine_pin.py + scripts/docker_build_engine.sh + scripts/verify_container_provenance.py
-remaining_scope:
-- Ruff-remediation handoff (no push/PR/merge; Coordinator push adjudication pending; PR #177 needs new CI on pushed head)
-- Phase H real image materialization + container runtime/bridge-health/engine-behavior evidence on a host with Docker (NOT_RUN here; H4 open)
-- Phase I B3/B4/external-engine suites on a capable host or CI (NOT_RUN locally; adjudicated UNAFFECTED)
+- 'tests/foundry/test_safe_push.py: 30 passed on clean HEAD fc4c4517 (15 pre-existing
+  + 15 lineage)'
+- 'full tests/foundry/: 184 passed, 1 skipped (pre-existing live-snapshot conditional
+  skip)'
+- 'ruff check + ruff format --check on both changed files: clean'
+- 'state.py/bootstrap.py/test_state_writer.py: empty diff vs main (WS58R hardening
+  preserved)'
+- staged port diff stat identical to WS57 code commit 70c625c8
+exact_next_action: Commit the canonical WS61 state file, then safe_push --dry-run
+  from this branch (creation anchored to remote main), then terminal handoff.
+failure_class: NONE
+forbidden_shortcuts:
+- ordinary push
+- force push
+- --no-verify
+- manual FOUNDRY_SAFE_PUSH
+- foreign .foundry state replacement
+- weakening tests or assertions for green results
+hard_gates:
+- no wholesale stale-state cherry-pick
+- existing-target fast-forward semantics unchanged
+- new non-main branch creation requires exact named remote source branch
+- source ref strict validation
+- no fetch inside safe_push
+- WS58R state-writer invariants remain green
+- full Foundry regression green
+in_scope:
+- tools/foundry/safe_push.py lineage-anchor semantics
+- tests/foundry/test_safe_push.py
+- required Foundry docs
+- WS61 integration evidence
+- compatibility with current WS58R state writer
+objective: WS61 integrate previously qualified WS57 safe-push source-lineage support
+  onto current post-WS58R main without importing stale workstream state or regressing
+  the hardened canonical state writer.
+out_of_scope:
+- .foundry/WORKSTREAM_STATE.yaml replacement from WS57
+- engine/provider changes
+- candidate qualification
+- behavior credit
+ownership: WS61-FOUNDRY-SAFE-PUSH-LINEAGE-INTEGRATION
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+state_written_against_head: fc4c451787fc2ff3d8d3315373099a4a21a7f9f7
 status: ACTIVE
-next_action: Return the Ruff-remediation handoff for Coordinator review / fast-forward safe-push adjudication. Do NOT push, open a PR, merge, or delete anything.
-exact_next_action: >
-  Hand off the Ruff-only remediation as locally COMPLETE and validated
-  (ruff check + format green repo-wide, 37-test WS-A1D battery green,
-  validated_head dfbe18e9): formatting/import-only, no semantic change.
-  H4 remains NOT_RUN (no Docker host). Coordinator decides push.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+validated_head: fc4c451787fc2ff3d8d3315373099a4a21a7f9f7
+worktree: /home/moeen/code/ws61-foundry-safe-push-lineage-integration
+artifacts:
+- research/foundry/ws61-safe-push-lineage-integration/WS61_INTEGRATION_REPORT.md
+- research/foundry/ws61-safe-push-lineage-integration/ws57-provenance/ (6 verbatim
+  WS57 evidence files)
+files_modified:
+- tools/foundry/safe_push.py
+- tests/foundry/test_safe_push.py
+remaining_scope:
+- commit canonical state
+- safe_push dry-run
+- terminal handoff
+technical_decisions:
+- 'port method: cherry-pick -n of WS57 code commit 70c625c8 only; evidence/state commit
+  9af19e62 not imported'
+- WS57 provenance docs copied verbatim into research ws57-provenance/ as provenance,
+  not authority
+- 'no reconcile needed: both ported files byte-identical between WS57 base dd3be602
+  and current main'
+tests_run:
+- python3 -m pytest tests/foundry/test_safe_push.py -q -> 30 passed
+- python3 -m pytest tests/foundry/ -q -> 184 passed, 1 skipped
+- ruff check + ruff format --check on changed files -> clean
+validated_gates:
+- strict source branch-name validation
+- literal exact remote lookup
+- source branch must already exist
+- audit_base equal-or-ancestor of remote tip
+- target creation fail closed
+- existing target fast-forward-only
+- safe_push never fetches
+- protected/unsafe target rules unchanged
+- writer-lock ancestor proof unchanged
+- validation-credit gates unchanged
+- WS58R state-writer invariants green
