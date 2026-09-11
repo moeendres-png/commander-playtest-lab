@@ -97,6 +97,33 @@ def ws65_answer(drv, kind: str, actor: str, opts: list[dict],
                 labels: list[dict[str, str]], record, phase=None, turn=None) -> str:
     if kind == "concession":
         return answer_concession(drv, actor, opts, labels, phase, turn)
+    if kind == "target":
+        # WS65 HARNESS BUGFIX (harness-only; no provider/engine change): the
+        # inherited ws62 ws55_answer target_done path calls
+        # answer_target_done(drv, actor, opts, phase, turn), dropping the
+        # labels argument (TypeError, PROBE_FAIL on any multi-target DONE
+        # frame, e.g. Fireball's second-target close). Handle the no-pick-
+        # due + DONE-offered case here with identical matching semantics
+        # (single WS48:TARGET:DONE option; fail closed otherwise) before
+        # delegating, so inherited WS62/WS55/WS53 files stay untouched.
+        due_pick = [e for e in drv.script if e.get("decision_family") == "target"
+                    and e.get("actor") == actor
+                    and (e.get("phases") is None or phase in (e.get("phases") or []))
+                    and (e.get("turns") is None or turn in (e.get("turns") or []))]
+        if not due_pick:
+            due_done = [e for e in drv.script if e.get("decision_family") == "target_done"
+                        and e.get("actor") == actor
+                        and (e.get("phases") is None or phase in (e.get("phases") or []))
+                        and (e.get("turns") is None or turn in (e.get("turns") or []))]
+            if due_done and any(o.get("kind", "") == "WS48:TARGET:DONE" for o in opts):
+                d = due_done[0]
+                drv.script.remove(d)
+                for o in opts:
+                    if o.get("kind", "") == "WS48:TARGET:DONE":
+                        drv.consumed.append(d)
+                        return str(o["option_id"])
+                drv.script.insert(0, d)
+                raise base.Blocked("target", "DONE not offered")
     return _ORIG_WS65_ANSWER(drv, kind, actor, opts, labels, record, phase, turn)
 
 
