@@ -1,0 +1,131 @@
+name: WS46 XMage v1.0.4 Contract Reconciliation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws46/xmage-v1.0.4-successor-qualification
+    paths:
+      - 'candidate-qualification/ws46-xmage-v1.0.4/**'
+      - '.github/workflows/ws46-xmage-v104-reconciliation.yml'
+
+permissions:
+  contents: read
+
+env:
+  WS44_FREEZE_COMMIT: 12940248497a8795991cbbd2eedef72945528cfe
+  WS44_FREEZE_TREE: cd83c973b269711106d08ab5be2d7672f05bcb7c
+  WS44_NAMESPACE_TREE: 6579e119605b90248426a3121a47c487b2bb13cd
+  WS44_MATERIALIZATION_SHA256: 9b370244e4e5df3132e6e9a3d2b70ad641a5a6023fc7c86832931340d24bfa35
+  WS41_FREEZE_COMMIT: 24152acf36b5a560c23ccacfed3f31d3039537eb
+  WS41_FREEZE_TREE: 428bbe58b2ea7b869200521092a8768108029b47
+
+jobs:
+  immutable-v104-reconciliation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact WS46 head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Checkout immutable WS44 freeze
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS44_FREEZE_COMMIT }}
+          path: _ws44
+          fetch-depth: 1
+
+      - name: Checkout immutable v1.0.3 predecessor
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/commander-playtest-lab
+          ref: ${{ env.WS41_FREEZE_COMMIT }}
+          path: _ws41
+          fetch-depth: 1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+
+      - name: Verify immutable source locks
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws46-v104-reconciliation
+          test "$(git -C _ws44 rev-parse HEAD)" = "$WS44_FREEZE_COMMIT"
+          test "$(git -C _ws44 rev-parse HEAD^{tree})" = "$WS44_FREEZE_TREE"
+          test "$(git -C _ws44 rev-parse HEAD:qualification/ws44)" = "$WS44_NAMESPACE_TREE"
+          test "$(git -C _ws41 rev-parse HEAD)" = "$WS41_FREEZE_COMMIT"
+          test "$(git -C _ws41 rev-parse HEAD^{tree})" = "$WS41_FREEZE_TREE"
+          MATERIALIZATION=_ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json
+          test "$(sha256sum "$MATERIALIZATION" | cut -d' ' -f1)" = "$WS44_MATERIALIZATION_SHA256"
+          git rev-parse HEAD > artifacts/ws46-v104-reconciliation/COMMANDER_LAB_COMMIT.txt
+          git rev-parse HEAD^{tree} > artifacts/ws46-v104-reconciliation/COMMANDER_LAB_TREE.txt
+          printf '%s\n' "$WS44_FREEZE_COMMIT" > artifacts/ws46-v104-reconciliation/WS44_COMMIT.txt
+          printf '%s\n' "$WS44_FREEZE_TREE" > artifacts/ws46-v104-reconciliation/WS44_TREE.txt
+          printf '%s\n' "$WS44_NAMESPACE_TREE" > artifacts/ws46-v104-reconciliation/WS44_NAMESPACE_TREE.txt
+
+      - name: Compile WS46 reconciliation programs
+        run: |
+          python -m py_compile \
+            candidate-qualification/ws46-xmage-v1.0.4/successor_contract_v104.py \
+            candidate-qualification/ws46-xmage-v1.0.4/build_denominator_v104.py \
+            candidate-qualification/ws46-xmage-v1.0.4/reconcile_v104_impact.py
+
+      - name: Independently reconstruct exact 107-record denominator
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws46-xmage-v1.0.4/build_denominator_v104.py \
+            --contract _ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json \
+            --published-denominator _ws44/qualification/ws44/WS44_PROVIDER_DENOMINATOR_107.json \
+            --output artifacts/ws46-v104-reconciliation/WS46_DENOMINATOR_MANIFEST_107.json \
+            | tee artifacts/ws46-v104-reconciliation/denominator.log
+
+      - name: Reconcile v1.0.3 to v1.0.4 and bind repair matrix
+        run: |
+          set -euo pipefail
+          python candidate-qualification/ws46-xmage-v1.0.4/reconcile_v104_impact.py \
+            --v103 _ws41/qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json \
+            --v104 _ws44/qualification/ws44/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_4.json \
+            --repair-matrix _ws44/qualification/ws44/WS44_REPAIR_MATRIX.json \
+            --target-adjudication _ws44/qualification/ws44/WS44_MICRO_TARGET_IDENTITY_ADJUDICATION.json \
+            --output artifacts/ws46-v104-reconciliation/WS46_V104_IMPACT_RECONCILIATION.json \
+            | tee artifacts/ws46-v104-reconciliation/impact.log
+
+      - name: Assert zero imported runtime credit and complete reconciliation gate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('artifacts/ws46-v104-reconciliation/WS46_DENOMINATOR_MANIFEST_107.json').read_text())
+          i = json.loads(Path('artifacts/ws46-v104-reconciliation/WS46_V104_IMPACT_RECONCILIATION.json').read_text())
+          assert d['provider_denominator'] == 107 and d['unique_fixture_ids'] == 107
+          assert d['all_requested_state_digests_recomputed_equal'] is True
+          assert d['published_ws44_provider_denominator_used_for_derivation'] is False
+          assert d['published_ws44_provider_denominator_posthoc_match'] is True
+          assert d['historical_successor_pass_imported'] is False
+          assert d['fresh_runtime_credit_granted'] is False
+          assert i['historical_successor_runtime_credit_imported'] == 0
+          assert i['provider_denominator'] == 107
+          assert i['all_v104_requested_state_digests_independently_recomputed_equal'] is True
+          assert i['repair_matrix']['obligation_changed'] is False
+          assert i['repair_matrix']['provider_semantics_used'] is False
+          assert i['micro_target_identity']['provider_heuristic_required'] is False
+          assert i['gate'] == 'PASS'
+          PY
+
+      - name: Seal evidence
+        if: always()
+        run: |
+          find artifacts/ws46-v104-reconciliation -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws46-v104-reconciliation/SHA256SUMS || true
+
+      - name: Upload reconciliation evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws46-v104-reconciliation-${{ github.sha }}
+          path: artifacts/ws46-v104-reconciliation/
+          if-no-files-found: error

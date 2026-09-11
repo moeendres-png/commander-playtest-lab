@@ -220,9 +220,9 @@ class FutureXmageScenario(StrictModel):
     schema_version: str = FUTURE_XMAGE_SCENARIO_CONTRACT_VERSION
     candidate_id: str = Field(min_length=1)
     deck_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
-    opponent_deck_ids: tuple[str, str, str]
-    player_count: Literal[4] = 4
-    seat: int = Field(ge=1, le=4)
+    opponent_deck_ids: tuple[str, ...]
+    player_count: int = Field(default=4, ge=2, le=5)
+    seat: int = Field(ge=1, le=5)
     scenario_id: str = Field(min_length=1)
     seed: int = Field(ge=0)
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
@@ -230,6 +230,14 @@ class FutureXmageScenario(StrictModel):
     pilot_identity: str = Field(min_length=1)
     pilot_version: str = Field(min_length=1)
     decision_policy_version: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def cardinality_matches(self) -> FutureXmageScenario:
+        if len(self.opponent_deck_ids) != self.player_count - 1:
+            raise ValueError("opponent_deck_ids must contain exactly player_count - 1 opponents")
+        if self.seat > self.player_count:
+            raise ValueError("scenario seat cannot exceed player_count")
+        return self
 
 
 __all__ = [
