@@ -1,0 +1,78 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws74-xmage-full107-construction-normalization
+branch: ws74/xmage-full107-construction-normalization-20260912
+audit_base_sha: 96db95dbc3a63d2a10d86e04c65443da617d4437
+audit_base_tree: 07906c475a48bd6ed2bdd8c4422d488853d01c81
+state_written_against_head: 96db95dbc3a63d2a10d86e04c65443da617d4437
+validated_head: null
+objective: Qualify XMage at the accepted successor pin against the exact Full107 provider-fixture
+  contract through fresh 107/107 construction and an independently implemented 107/107
+  readback/normalization stage, without executing Full107 behavior or granting behavior
+  credit.
+in_scope:
+- exact WS47 Full107 denominator binding
+- fresh XMage exact-pin build and provider binding
+- 107/107 fixture construction
+- independent 107/107 readback/normalization
+- G49-08-class negative normalization controls
+- principal-scoped representation checks at construction/readback level
+- deterministic staging artifacts
+out_of_scope:
+- Full107 behavior execution
+- XMage engine semantic edits
+- production provider selection
+- behavior credit
+- Architecture Freeze
+- RQ-C3 behavior execution
+dependencies:
+- WS73 terminal 96db95dbc3a63d2a10d86e04c65443da617d4437
+- WS47 contract 192e2b77c0625ad26905bd0ee8dcc3f44a5796c8
+- XMage successor 7135d5e85ddb4c8aa4b49b4192ca51947c822704
+- WS56/WS60 XMage bridge lineage
+hard_gates:
+- exact denominator is 107 provider fixtures, not RQ-C3 scenarios
+- construction is not behavior
+- readback is not behavior
+- normalizer must be independent of construction implementation
+- no engine semantic edits
+- UNKNOWN is not PASS
+- no cross-contract credit
+ownership: WS74-XMAGE-FULL107-CONSTRUCTION-NORMALIZATION
+status: TOOLS_COMMITTED
+technical_decisions:
+- D1_STEP_VOCAB: native PhaseStep names translate into the contract step vocabulary
+  (precombat_main to main; lossy postcombat_main to main flagged); phase, turn,
+  active, and priority compare exactly native.
+- D2_FILLER_UUID_EXCLUSION: Wastes filler cards are tracked setup artifacts excluded
+  by native UUID only (ignored_provider_local), never by semantic identity.
+- D3_METADATA_CARRY: non-observable contract fields are carried from the record and
+  labeled (permission context, static texts, annotations, creation parameters,
+  zero-valued counters confirmed absent); never presented as observed.
+- D4_SINGLE_JVM_SEQUENTIAL: one JVM constructs all 107 in fresh games each
+  (WS54-proven cross-game isolation) plus isolated single-fixture JVM spot checks.
+- D5_LOAD_BOUNDARY: external-control lane paused at the first precombat-main
+  priority (turn 1, active P1, priority P1).
+- D6_STARTUP_PASSES: resolving pre-boundary upkeep/draw priorities through qualified
+  provider pass machinery is game-startup completion, not Full107 behavior; the
+  pending boundary decision is never resolved by staging.
+- D7_MODE_LABEL: requested stack mode labels derive from native engine mode texts
+  by a fixed token-subset rule on both sides.
+- D8_ACQUIRED_KNOWLEDGE: known lists derive from native knowledge traces
+  (lookedAt per viewer, grant-backed revealed membership); ambient public
+  visibility stays implicit per the contract's empty rows.
+- D10_LOOK_TRACES: acquisition looks recorded via the public lookedAt container
+  API (the UI-update event path clears traces immediately); no game action
+  intervenes before readback. Permission-exercise looks leave no trace.
+- D9_ZERO_COUNTERS: zero-valued requested counters with natively absent counters
+  are carried as confirmed-absent; every nonzero counter compares exactly.
+preliminary_dev_findings: Preliminary uncommitted-tool runs reached 105/107 constructed
+  (2 Nexus-of-Fate graveyard placements natively refused by the engine replacement
+  effect) and 42/107 normalization PASS with a fully-evidenced native-cause fail
+  taxonomy. These numbers are NOT validated; final validation from the committed
+  tools HEAD will re-prove or revise them.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+exact_next_action: Commit staging tools (code plus source lock plus this state); then
+  run final construction, normalization, negatives, preflight, and determinism from
+  the clean committed HEAD; then validate gates and persist evidence.
