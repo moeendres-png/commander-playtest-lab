@@ -5,15 +5,15 @@ name: H4 Docker Materialization
 # Produces real runtime evidence for the supported Docker/Compose engine path:
 # manifest-authoritative image builds (xmage + forge), in-image source HEAD +
 # provenance identity, fail-closed startup provenance gate (positive + negative
-# controls on the real images), and — xmage only — a real container handshake
-# against the verified conforming Lab bridge over the supported
+# controls on the real images), and a real container handshake against the
+# verified conforming Lab bridge over the supported
 # wrapper -> compose -> entrypoint path.
 #
 # Evidence semantics: image construction alone is NOT H4; no synthetic bridge,
-# health endpoint, or injected handshake may substitute. Forge has no
-# conforming bridge in canonical source (see integrations/forge/README.md and
-# the J-P3D production_bridge=not_built record), so the forge job proves
-# image + gate evidence only and records bridge runtime as NOT_RUN. H4
+# health endpoint, or injected handshake may substitute. The Forge H4F
+# Protocol-2 bridge is qualified in the owned candidate Forge source, so the
+# forge job additionally runs the real 4-message handshake and asserts the
+# conservative H4F capability truth. H4
 # PASS/FAIL/PARTIAL/UNKNOWN stays a Coordinator adjudication over the
 # uploaded verdicts; this lane fails closed (non-zero) on any mismatch.
 #
@@ -82,6 +82,7 @@ jobs:
             config/rules_engines.json \
             docker/xmage/Dockerfile \
             docker/forge/Dockerfile \
+            docker/forge/forge-bridge.sh \
             docker-compose.engine.yml \
             scripts/docker_build_engine.sh \
             scripts/docker_resolve_engine_pin.py \
@@ -330,14 +331,14 @@ jobs:
           path: h4-evidence-xmage/
           if-no-files-found: error
 
-  h4-forge-image:
+  h4-forge:
     needs: [preflight]
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
       # Build-time Compose model resolution only (NOT bridge evidence):
-      # see the h4-xmage job env comment. Forge has no conforming bridge,
-      # so the benign value is never overridden by a real bridge command.
+      # see the h4-xmage job env comment. The real bridge command explicitly
+      # overrides it in the handshake step; negatives override it with a sentinel.
       ENGINE_START_COMMAND: "true"
       # Unique explicit project so the built service image reference is
       # deterministic (COMPOSE_PROJECT_NAME-forge) and evidence binds to it.
@@ -357,21 +358,16 @@ jobs:
           set -euo pipefail
           mkdir -p h4-evidence-forge
           python3 scripts/docker_resolve_engine_pin.py --provider forge --format json | tee h4-evidence-forge/forge-pin.json
-      - name: Record Forge bridge absence (no conforming bridge may be invented)
+      - name: GPL boundary guard (no Forge Java implementation in Lab tree)
         shell: bash
         run: |
           set -euo pipefail
-          {
-            echo "provider=forge"
-            echo "bridge_search_result=absent"
-            echo "reason=no conforming protocol-2.0.0 Forge bridge in canonical source;"
-            echo "  integrations/forge/README.md disclaims a runtime;"
-            echo "  J-P3D production_bridge=not_built (Forge P3C was feasibility only)."
-            echo "tracked forge-bridge-like files:"
-            git ls-files | grep -Ei 'forge.*bridge|bridge.*forge' || echo "  (none)"
-          } | tee h4-evidence-forge/forge-bridge-absence.txt
-          test -z "$(git ls-files | grep -Ei 'forge.*bridge|bridge.*forge' || true)" \
-            || { echo "unexpected Forge bridge file appeared; lane needs re-adjudication" >&2; exit 1; }
+          # Forge bridge code stays in the GPL Forge repository; Lab only hosts
+          # the launcher glue and protocol consumer. Any vendored Forge Java
+          # implementation fails the lane for re-adjudication.
+          test -z "$(git ls-files '*.java' | grep -Ei 'forge' || true)" \
+            || { echo "Forge Java implementation vendored into Lab tree" >&2; exit 1; }
+          echo "GPL boundary holds: no Forge Java in Lab tree"
       - name: Runner + Docker identity
         shell: bash
         run: |
@@ -402,16 +398,36 @@ jobs:
           docker image inspect "$IMAGE_REF" > h4-evidence-forge/docker-inspect.json
           docker run --rm --entrypoint cat "$IMAGE_ID" /opt/engine-provenance.json | tee h4-evidence-forge/engine-provenance.json
           docker run --rm --entrypoint git "$IMAGE_ID" -C /opt/engine-source rev-parse HEAD | tee h4-evidence-forge/engine-source-head.txt
-      - name: Positive provenance gate on the real image (supported path, no bridge invented)
+      - name: Capture Rules-Core linkage evidence (ancestor + surface scope)
         shell: bash
         run: |
           set -euo pipefail
-          # Gate-only probe: ENGINE_START_COMMAND=true proves gate passage on
-          # the real image without starting (or faking) any engine.
-          export ENGINE_START_COMMAND=true
-          ./scripts/docker_build_engine.sh forge run --rm -T forge
-          echo "0" > h4-evidence-forge/gate-exit.txt
-          echo "gate-only probe exited 0 on the real forge image"
+          IMAGE_ID="$(cat h4-evidence-forge/image-id.txt)"
+          RULES_COMMIT="$(python3 -c 'import json;print(json.load(open("h4-evidence-forge/forge-pin.json"))["commit"])')"
+          set +e
+          docker run --rm --entrypoint git "$IMAGE_ID" -C /opt/engine-source merge-base --is-ancestor "$RULES_COMMIT" HEAD
+          echo "$?" > h4-evidence-forge/linkage-merge-base-exit.txt
+          set -e
+          docker run --rm --entrypoint git "$IMAGE_ID" -C /opt/engine-source diff --name-only "$RULES_COMMIT" HEAD > h4-evidence-forge/linkage-diff-names.txt
+          cat h4-evidence-forge/linkage-merge-base-exit.txt h4-evidence-forge/linkage-diff-names.txt
+      - name: Real Forge bridge handshake in container (separate-process Protocol-2.0.0)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/h4_verify_materialization_evidence.py emit-handshake \
+            --provider forge --manifest config/rules_engines.json \
+            --out-requests h4-evidence-forge/handshake-requests.jsonl
+          # The entrypoint enforces the provenance gate before exec; the real
+          # H4F bridge reads the 4 handshake requests on stdin and answers on
+          # stdout, then exits after shutdown_engine. Exactly 4 response lines
+          # is itself a protocol-purity gate.
+          export ENGINE_START_COMMAND='/usr/local/bin/forge-bridge'
+          timeout 300 ./scripts/docker_build_engine.sh forge run --rm -T forge \
+            < h4-evidence-forge/handshake-requests.jsonl \
+            > h4-evidence-forge/handshake-transcript.jsonl \
+            2> h4-evidence-forge/handshake-stderr.log
+          test "$(wc -l < h4-evidence-forge/handshake-transcript.jsonl)" = "4"
+          echo "real Forge handshake transcript captured (4/4 lines)"
       - name: Negative provenance controls (bounded; start must never execute)
         shell: bash
         run: |
@@ -423,6 +439,9 @@ jobs:
           manifest = json.load(open("config/rules_engines.json"))
           manifest["secondary_engine"]["commit"] = "0" * 40
           json.dump(manifest, open(f"{sys.argv[1]}/tampered-manifest.json", "w"), sort_keys=True)
+          bridged = json.load(open("config/rules_engines.json"))
+          bridged["secondary_engine"]["bridge_source"]["commit"] = "f" * 40
+          json.dump(bridged, open(f"{sys.argv[1]}/tampered-bridge-manifest.json", "w"), sort_keys=True)
           EOF
           run_negative() {
             local manifest_path="$1" label="$2" expect="$3"
@@ -440,8 +459,9 @@ jobs:
           }
           run_negative /h4neg/tampered-manifest.json tampered 3
           run_negative /h4neg/absent-manifest.json missing 3
+          run_negative /h4neg/tampered-bridge-manifest.json tampered-bridge 3
           echo "negative controls green: gate refused, start command never executed"
-      - name: Adjudicate Forge evidence (bridge runtime NOT_RUN by authority, never PASS here)
+      - name: Adjudicate Forge evidence (real handshake required, never PASS here)
         shell: bash
         run: |
           set -euo pipefail
@@ -452,12 +472,15 @@ jobs:
             --image-id "$(cat h4-evidence-forge/image-id.txt)" \
             --image-tag "$(cat h4-evidence-forge/image-ref.txt)" \
             --build-exit-code "$(cat h4-evidence-forge/docker-build-exit.txt)" \
-            --gate-exit-code "$(cat h4-evidence-forge/gate-exit.txt)" \
+            --handshake-requests h4-evidence-forge/handshake-requests.jsonl \
+            --handshake-transcript h4-evidence-forge/handshake-transcript.jsonl \
+            --linkage-merge-base-exit "$(cat h4-evidence-forge/linkage-merge-base-exit.txt)" \
+            --linkage-diff-names h4-evidence-forge/linkage-diff-names.txt \
             --docker-version "$(cat h4-evidence-forge/docker-version.txt | head -n 1)" \
             --runner "ubuntu-latest run ${GITHUB_RUN_ID}" \
             --lab-head "${GITHUB_SHA}" \
             --out h4-evidence-forge/h4-forge-verdict.json
-          python3 -c "import json; v=json.load(open('h4-evidence-forge/h4-forge-verdict.json')); assert v['overall']=='EVIDENCE_PARTIAL', v['overall']; assert v['boundaries']['bridge_handshake']['status']=='NOT_RUN'"
+          python3 -c "import json; v=json.load(open('h4-evidence-forge/h4-forge-verdict.json')); assert v['overall']=='EVIDENCE_COMPLETE', v['overall']; assert v['boundaries']['bridge_handshake']['status']=='PASS'; assert v['boundaries']['rules_linkage']['status']=='PASS'; assert v['boundaries']['materialization_match']['status']=='PASS'; caps=v['boundaries']['bridge_handshake']['observed']['capabilities']; assert caps['legal_actions_supported'] is False and caps['action_submission_supported'] is False and caps['event_log_supported'] is False, caps; assert caps['runtime_kind']=='external_rules_engine'; assert v['boundaries']['bridge_handshake']['observed']['engine_commit']==json.load(open('h4-evidence-forge/forge-pin.json'))['commit']"
       - name: Checksums
         if: always()
         shell: bash
