@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws80-xmage-callback-reachability
 branch: ws80/xmage-callback-reachability-20260912
 audit_base_sha: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
 audit_base_tree: ed83951226f52f528953e7cdb0dec0b12e6eabcc
-state_written_against_head: d4f18d6c06d4226090f86f31b4706191385a72c5
-validated_head: null
+state_written_against_head: 850d7a0e10796a318a6b540eb3a5db51b8ce6cec
+validated_head: 850d7a0e10796a318a6b540eb3a5db51b8ce6cec
 objective: Establish an exact XMage callback/entrypoint reachability model and eliminate
   any production-reachable discretionary default/stub behavior without widening capability
   claims or creating adapter-side Rules semantics.
