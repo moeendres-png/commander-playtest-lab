@@ -46,6 +46,10 @@ gate_verdict: WS71_REMAINING92_AUDIT=FAIL
 denominator: FULL107_COUNT=0 FIRST_WAVE_COUNT=15 REMAINING_COUNT=0
 blocker: B1-no-authoritative-Full107-ID-set-in-exact-RQ-C3-authority
 phases_b_to_g: NOT_EXECUTED
+remote_persistence: PUSH_REJECT-validated_head-null-by-design (dry-run and
+  actual via canonical safe_push.py agree; no remote mutation; local
+  checkpoint commits persist the work; validated_head stays null because a
+  FAIL STOP claims no audit validation credit)
 exact_next_action: Coordinator resolves B1 (publish source-locked Full107 ID
   manifest or re-scope denominator), then re-authorizes; rerun
   ws71_denominator_audit.py unchanged against the new pin.
