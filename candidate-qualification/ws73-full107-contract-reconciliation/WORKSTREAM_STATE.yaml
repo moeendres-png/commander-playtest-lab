@@ -4,8 +4,10 @@ worktree: /home/moeen/code/ws73-full107-contract-reconciliation
 branch: ws73/full107-contract-reconciliation-20260912
 audit_base_sha: 7a92ab471a92c3c57522044d5326276d578f69d0
 audit_base_tree: b245382998e0e72b2fa46c01d5902139ed2921f7
-state_written_against_head: 7a92ab471a92c3c57522044d5326276d578f69d0
-validated_head: null
+state_written_against_head: a01254ad3748690f0909a5aee1dfba9faaa72c9d
+validated_head: a01254ad3748690f0909a5aee1dfba9faaa72c9d
+validated_scope: THIS_AUDIT_ONLY (contract reconciliation; zero behavior credit; evidence/state
+  descendants do not promote)
 objective: Reconcile the separate RQ-C3 40-scenario architecture-reverser corpus with
   the historical Full107 107-fixture provider contract, establish the current canonical
   credit/accounting model, and derive current-candidate Full107 requalification readiness
