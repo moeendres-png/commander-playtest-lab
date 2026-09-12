@@ -44,6 +44,31 @@ from foundry import reference_roots as reference_mod  # noqa: E402
 CPL_SLUG = "moeendres-png/commander-playtest-lab"
 
 
+@pytest.fixture(autouse=True)
+def _hermetic_opencode_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """WS75R: route ambient binary resolution at a hermetic stub.
+
+    Every launcher init in this module resolves its OpenCode binary through
+    this stub unless a test passes explicit ``opencode_bin=`` (which still
+    wins), so no test depends on ambient PATH containing a real ``opencode``
+    executable. The stub reports exactly the canonical qualified version.
+    Function-scoped (own tmp dir per test).
+    """
+    stub = tmp_path / "qualified-opencode-stub"
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "if sys.argv[1:] == ['--version']:\n"
+        f"    print({version_mod.QUALIFIED_OPENCODE_VERSION!r})\n"
+        "    sys.exit(0)\n"
+        "print('STUB: unexpected exec', sys.argv[1:])\n"
+        "sys.exit(7)\n",
+        encoding="utf-8",
+    )
+    stub.chmod(0o755)
+    monkeypatch.setenv("FOUNDRY_OPENCODE_BIN", str(stub))
+
+
 def _git(args: list[str], cwd: Path, env: dict | None = None) -> str:
     proc = subprocess.run(
         ["git", *args], cwd=cwd, capture_output=True, text=True, check=False, env=env
@@ -171,9 +196,8 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         "allow_suppressed_routing": False,
         "install_pre_push_hook": False,
         "run_dir": str(target["rundir"]),
-        # WS75: pin the PATH binary explicitly so a stale FOUNDRY_OPENCODE_BIN
-        # wrapper in the ambient environment cannot leak into hermetic tests.
-        "opencode_bin": "opencode",
+        # WS75R: no ambient binary default; the autouse hermetic stub serves
+        # FOUNDRY_OPENCODE_BIN (explicit opencode_bin= overrides still win).
     }
     kwargs.update(over)
     return launcher_mod.init(**kwargs)
@@ -584,7 +608,23 @@ def test_qualified_version_is_1_18_30() -> None:
 
 
 def test_installed_cli_reports_qualified_version() -> None:
-    assert version_mod.installed_version("opencode") == "1.18.30"
+    """Real-CLI assertion with an explicit capability gate (WS75R).
+
+    Generic CI intentionally ships no ``opencode`` executable, so absence
+    is SKIP/NOT_RUN here — never a fabricated PASS. Real version coverage
+    is preserved independently by ``.github/workflows/opencode.yml``,
+    which installs the immutable pinned assets, SHA256-verifies them, and
+    asserts exact ``opencode --version == 1.18.30``.
+    """
+    import shutil
+
+    binary = shutil.which("opencode")
+    if binary is None:
+        pytest.skip(
+            "no executable `opencode` on PATH (generic CI; "
+            "real-CLI coverage lives in .github/workflows/opencode.yml)"
+        )
+    assert version_mod.installed_version(binary) == version_mod.QUALIFIED_OPENCODE_VERSION
 
 
 def test_version_mismatch_fails_closed(target: dict, canon: Path, tmp_path: Path) -> None:
@@ -610,6 +650,54 @@ def test_version_audit_mode_is_bounded_and_recorded(
     assert plan["version_audit_mode"] is True
     assert plan["opencode_version"]["installed"] == "9.9.9"
     assert any("audit mode" in n for n in plan["notes"])
+
+
+# --- WS75R: hermeticity + missing-binary regression ------------------------------
+
+
+def test_missing_binary_fails_closed(target: dict, canon: Path, tmp_path: Path) -> None:
+    """A nonexistent binary path fails closed (verdict, never exception)."""
+    plan = _plan(target, canon, opencode_bin=str(tmp_path / "definitely-no-such-binary"))
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "opencode version" in str(plan.get("error", ""))
+
+
+def test_installed_version_missing_binary_raises(tmp_path: Path) -> None:
+    """Unit-level missing-binary proof for the version probe itself."""
+    with pytest.raises(version_mod.VersionCheckError, match="cannot execute"):
+        version_mod.installed_version(str(tmp_path / "definitely-no-such-binary"))
+
+
+def test_explicit_bin_wins_over_ambient_env(
+    target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Explicit opencode_bin= beats a stale FOUNDRY_OPENCODE_BIN (WS75 precedence)."""
+    monkeypatch.setenv("FOUNDRY_OPENCODE_BIN", str(tmp_path / "stale-wrapper"))
+    stub = _version_stub(tmp_path)
+    plan = _plan(target, canon, opencode_bin=str(stub))
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["opencode_binary"] == str(stub)
+
+
+def test_stale_env_binary_fails_closed(
+    target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The exact generic-CI condition (nothing executable) refuses launch."""
+    monkeypatch.setenv("FOUNDRY_OPENCODE_BIN", str(tmp_path / "stale-wrapper"))
+    plan = _plan(target, canon)
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "opencode version" in str(plan.get("error", ""))
+
+
+def test_env_bin_used_when_no_explicit(
+    target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Env-chain resolution still works when no explicit binary is passed."""
+    stub = _version_stub(tmp_path)
+    monkeypatch.setenv("FOUNDRY_OPENCODE_BIN", str(stub))
+    plan = _plan(target, canon)
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["opencode_binary"] == str(stub)
 
 
 if __name__ == "__main__":

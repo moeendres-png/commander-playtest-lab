@@ -24,8 +24,34 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from foundry import bootstrap as bootstrap_mod  # noqa: E402
 from foundry import launcher as launcher_mod  # noqa: E402
+from foundry import opencode_cli_version as version_mod  # noqa: E402
 
 CPL_SLUG = "moeendres-png/commander-playtest-lab"
+
+
+@pytest.fixture(autouse=True)
+def _hermetic_opencode_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """WS75R: route ambient binary resolution at a hermetic stub.
+
+    Every launcher init in this module resolves its OpenCode binary through
+    this stub unless a test passes explicit ``opencode_bin=`` (which still
+    wins), so no test depends on ambient PATH containing a real ``opencode``
+    executable. The stub reports exactly the canonical qualified version.
+    Function-scoped (own tmp dir per test).
+    """
+    stub = tmp_path / "qualified-opencode-stub"
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "if sys.argv[1:] == ['--version']:\n"
+        f"    print({version_mod.QUALIFIED_OPENCODE_VERSION!r})\n"
+        "    sys.exit(0)\n"
+        "print('STUB: unexpected exec', sys.argv[1:])\n"
+        "sys.exit(7)\n",
+        encoding="utf-8",
+    )
+    stub.chmod(0o755)
+    monkeypatch.setenv("FOUNDRY_OPENCODE_BIN", str(stub))
 
 
 def _git(args: list[str], cwd: Path, env: dict | None = None) -> str:
@@ -279,9 +305,8 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         "allow_suppressed_routing": False,
         "install_pre_push_hook": False,
         "run_dir": str(target["wt"].parent / "rundir"),
-        # WS75: pin the PATH binary explicitly so a stale FOUNDRY_OPENCODE_BIN
-        # wrapper in the ambient environment cannot leak into hermetic tests.
-        "opencode_bin": "opencode",
+        # WS75R: no ambient binary default; the autouse hermetic stub serves
+        # FOUNDRY_OPENCODE_BIN (explicit opencode_bin= overrides still win).
     }
     kwargs.update(over)
     return launcher_mod.init(**kwargs)
@@ -553,7 +578,7 @@ def test_init_ready_for_all_three_profiles(
         allow_suppressed_routing=False,
         install_pre_push_hook=False,
         run_dir=str(tmp_path / "rundir"),
-        opencode_bin="opencode",
+        # WS75R: autouse hermetic stub serves the binary (no ambient opencode).
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
