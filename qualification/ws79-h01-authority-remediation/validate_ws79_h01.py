@@ -67,7 +67,11 @@ def fail(reasons: list[str], detail: dict) -> int:
 def main() -> int:
     reasons: list[str] = []
     detail: dict = {"validator": "validate_ws79_h01.py", "schema": "ws79.validation.v1"}
-    root = Path(sys.argv[sys.argv.index("--root") + 1]) if "--root" in sys.argv else Path(__file__).resolve().parent
+    root = (
+        Path(sys.argv[sys.argv.index("--root") + 1])
+        if "--root" in sys.argv
+        else Path(__file__).resolve().parent
+    )
     detail["package_root"] = str(root)
 
     for name in REQUIRED_FILES:
@@ -99,16 +103,22 @@ def main() -> int:
         hum = by_id.get("HUMILITY_FIRST", {})
         dec = hum.get("decision_occurrence", {})
         if dec.get("copy_choice_offered") is not False or dec.get("copy_choice_taken") is not False:
-            reasons.append("HUMILITY_FIRST claims a copy choice (must be offered=false, taken=false)")
+            reasons.append(
+                "HUMILITY_FIRST claims a copy choice (must be offered=false, taken=false)"
+            )
         if hum.get("copied_identity") is not None:
             reasons.append("HUMILITY_FIRST claims a copied identity (must be null)")
         # CLONE_FIRST must preserve copied identity.
         clf = by_id.get("CLONE_FIRST", {})
         cdec = clf.get("decision_occurrence", {})
         if cdec.get("copy_choice_offered") is not True or cdec.get("copy_choice_taken") is not True:
-            reasons.append("CLONE_FIRST fails to record the copy decision (must be offered=true, taken=true)")
+            reasons.append(
+                "CLONE_FIRST fails to record the copy decision (must be offered=true, taken=true)"
+            )
         if not clf.get("copied_identity"):
-            reasons.append("CLONE_FIRST fails to preserve copied identity (must name the Bear copy)")
+            reasons.append(
+                "CLONE_FIRST fails to preserve copied identity (must name the Bear copy)"
+            )
         post = str(clf.get("post_humility_discriminating_state", "")).lower()
         if "2/2" not in post and "bear" not in post:
             reasons.append("CLONE_FIRST lacks the 2/2-Bear post-Humility discriminator")
@@ -116,7 +126,9 @@ def main() -> int:
         noh = by_id.get("NO_HUMILITY", {})
         ndec = noh.get("decision_occurrence", {})
         if ndec.get("copy_choice_offered") is not True or ndec.get("copy_choice_taken") is not True:
-            reasons.append("NO_HUMILITY suppresses the copy decision (must be offered=true, taken=true)")
+            reasons.append(
+                "NO_HUMILITY suppresses the copy decision (must be offered=true, taken=true)"
+            )
         # Each case needs discriminating + falsifying content.
         for cid in EXPECTED_CASES:
             c = by_id.get(cid, {})
@@ -141,11 +153,17 @@ def main() -> int:
         for key in PROVENANCE_REQUIRED_TOP:
             if key not in prov:
                 reasons.append(f"mandatory authority provenance field absent: {key}")
-        hist = prov.get("historical_provenance", {}) if isinstance(prov.get("historical_provenance"), dict) else {}
+        hist = (
+            prov.get("historical_provenance", {})
+            if isinstance(prov.get("historical_provenance"), dict)
+            else {}
+        )
         for key in HIST_PROV_REQUIRED:
             if key not in hist:
                 reasons.append(f"mandatory historical provenance field absent: {key}")
-        credit = prov.get("behavior_credit", {}) if isinstance(prov.get("behavior_credit"), dict) else {}
+        credit = (
+            prov.get("behavior_credit", {}) if isinstance(prov.get("behavior_credit"), dict) else {}
+        )
         if credit.get("behavior_credit_change") != 0:
             reasons.append("package claims behavior credit (behavior_credit_change must be 0)")
         if credit.get("full107_behavior") != "NOT_RUN":
@@ -154,7 +172,11 @@ def main() -> int:
             reasons.append("package misstates Full107 behavior credit (must be 0/107)")
         if prov.get("supersession_record", {}).get("old_oracle_status") != "SUPERSEDED":
             reasons.append("old oracle status is not SUPERSEDED")
-        standings = prov.get("current_standings", {}) if isinstance(prov.get("current_standings"), dict) else {}
+        standings = (
+            prov.get("current_standings", {})
+            if isinstance(prov.get("current_standings"), dict)
+            else {}
+        )
         if standings.get("first_wave_current_ranking") == "VALID":
             reasons.append("historical aggregates rewritten as current VALID ranking")
         if standings.get("first_wave_current_ranking") != "INVALID_PENDING_REQUALIFICATION":
@@ -179,24 +201,36 @@ def main() -> int:
             for i, entry in enumerate(entries):
                 disp = entry.get("disposition")
                 if not disp:
-                    reasons.append(f"impacted evidence entry lacks a disposition: {entry.get('id', f'index {i}')}")
+                    reasons.append(
+                        f"impacted evidence entry lacks a disposition: {entry.get('id', f'index {i}')}"
+                    )
                 elif disp not in DISPOSITIONS:
-                    reasons.append(f"unknown disposition '{disp}' on entry {entry.get('id', f'index {i}')}")
+                    reasons.append(
+                        f"unknown disposition '{disp}' on entry {entry.get('id', f'index {i}')}"
+                    )
                 if not str(entry.get("requalification_requirement", "")).strip():
-                    reasons.append(f"entry lacks a requalification requirement: {entry.get('id', f'index {i}')}")
+                    reasons.append(
+                        f"entry lacks a requalification requirement: {entry.get('id', f'index {i}')}"
+                    )
             pol = str(ledger.get("policy", ""))
             if "14/15" not in pol or "9/15" not in pol:
-                reasons.append("ledger policy must name the preserved historical aggregates (14/15, 9/15)")
+                reasons.append(
+                    "ledger policy must name the preserved historical aggregates (14/15, 9/15)"
+                )
 
     # Cross-file: no file in the package may claim a behavior PASS for a candidate.
-    for name in ["H01_CORRECTED_CASES.json", "H01_IMPACT_LEDGER.json", "H01_AUTHORITY_PROVENANCE.json"]:
+    for name in [
+        "H01_CORRECTED_CASES.json",
+        "H01_IMPACT_LEDGER.json",
+        "H01_AUTHORITY_PROVENANCE.json",
+    ]:
         p = root / name
         if p.is_file():
             text = p.read_text()
             low = text.lower()
-            if "behavior_credit_change\": 1" in text.replace(" ", ""):
+            if 'behavior_credit_change": 1' in text.replace(" ", ""):
                 reasons.append(f"{name} claims behavior credit")
-            if "candidate_behavior_status" in low and "\"pass\"" in low:
+            if "candidate_behavior_status" in low and '"pass"' in low:
                 reasons.append(f"{name} claims candidate behavior PASS")
 
     # Old-oracle rejection must be explicit in the adjudication record.
@@ -212,7 +246,9 @@ def main() -> int:
         return fail(reasons, detail)
     detail["verdict"] = "VALIDATION_PASS"
     detail["reasons"] = []
-    detail["checks"] = "required files; exactly three cases; decision-occurrence semantics per case; discriminators+falsifiers; zero behavior credit; provenance fields; ledger dispositions; no current ranking; oracle supersession explicit"
+    detail["checks"] = (
+        "required files; exactly three cases; decision-occurrence semantics per case; discriminators+falsifiers; zero behavior credit; provenance fields; ledger dispositions; no current ranking; oracle supersession explicit"
+    )
     print(json.dumps(detail, indent=2, sort_keys=True))
     return 0
 
