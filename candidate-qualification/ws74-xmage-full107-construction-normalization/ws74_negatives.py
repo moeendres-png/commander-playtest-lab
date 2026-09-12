@@ -34,11 +34,9 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
-RUNDIR = HERE / ".scratch" / "run-main7"
 
-
-def load(fid):
-    return json.loads((RUNDIR / (fid + ".json")).read_text())
+def load(rundir, fid):
+    return json.loads((rundir / (fid + ".json")).read_text())
 
 
 def native_uuids(rb):
@@ -176,10 +174,16 @@ def _(rb):
 
 
 def main() -> int:
+    import argparse
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--rundir", required=True)
+    args = ap.parse_args()
+    RUNDIR = Path(args.rundir)
     base = {
-        "PILOT_TARGET": load("PILOT_TARGET"),
-        "HIDDEN_01": load("HIDDEN_01"),
-        "NEGATIVE_FIRST_OPTION": load("NEGATIVE_FIRST_OPTION"),
+        "PILOT_TARGET": load(RUNDIR, "PILOT_TARGET"),
+        "HIDDEN_01": load(RUNDIR, "HIDDEN_01"),
+        "NEGATIVE_FIRST_OPTION": load(RUNDIR, "NEGATIVE_FIRST_OPTION"),
     }
     rows = []
     detected = 0
