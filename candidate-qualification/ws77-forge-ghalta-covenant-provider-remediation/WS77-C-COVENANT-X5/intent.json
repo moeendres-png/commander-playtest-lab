@@ -1,0 +1,263 @@
+{
+ "intent": [
+  {
+   "actor": "P1",
+   "decision_family": "priority",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-77"
+    }
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    1
+   ]
+  },
+  {
+   "actor": "P1",
+   "decision_family": "priority",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-95"
+    }
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    5
+   ]
+  },
+  {
+   "actor": "P1",
+   "decision_family": "priority",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-8"
+    }
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    5
+   ]
+  },
+  {
+   "actor": "P1",
+   "decision_family": "priority",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "semantic_action",
+    "semantic_value": {
+     "action": "cast",
+     "object": "MINTED-27"
+    }
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    9
+   ]
+  },
+  {
+   "actor": "P1",
+   "decision_family": "choose_ability",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "semantic_ability",
+    "semantic_value": "fire covenant"
+   },
+   "phases": [
+    "MAIN1",
+    "MAIN2"
+   ],
+   "turns": [
+    9
+   ]
+  },
+  {
+   "actor": "P1",
+   "decision_family": "announce_x",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "announce_x",
+    "semantic_value": 5
+   }
+  },
+  {
+   "actor": "P1",
+   "decision_family": "target",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "semantic_object",
+    "semantic_value": "MINTED-8"
+   }
+  },
+  {
+   "actor": "P1",
+   "decision_family": "target_done",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "target_done",
+    "semantic_value": {
+     "done": true
+    }
+   }
+  },
+  {
+   "actor": "P1",
+   "decision_family": "confirm",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "semantic_confirm",
+    "semantic_value": {
+     "confirm": true
+    }
+   }
+  },
+  {
+   "actor": "P1",
+   "decision_family": "mana_payment",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "explicit_sources",
+    "semantic_value": {
+     "sources": [
+      "MINTED-77",
+      "MINTED-95",
+      "MINTED-77",
+      "MINTED-27",
+      "MINTED-95"
+     ]
+    }
+   }
+  },
+  {
+   "actor": "P2",
+   "decision_family": "discard",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-149"
+     ]
+    }
+   }
+  },
+  {
+   "actor": "P3",
+   "decision_family": "discard",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-278"
+     ]
+    }
+   }
+  },
+  {
+   "actor": "P4",
+   "decision_family": "discard",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-314"
+     ]
+    }
+   }
+  },
+  {
+   "actor": "P2",
+   "decision_family": "discard",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-114"
+     ]
+    }
+   }
+  },
+  {
+   "actor": "P3",
+   "decision_family": "discard",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-229"
+     ]
+    }
+   }
+  },
+  {
+   "actor": "P4",
+   "decision_family": "discard",
+   "selection": {
+    "matches_only_provider_offered_legal_options": true,
+    "on_multiple_match": "FAIL_CLOSED",
+    "on_zero_match": "FAIL_CLOSED",
+    "selector_kind": "explicit_discard",
+    "semantic_value": {
+     "cards": [
+      "MINTED-327"
+     ]
+    }
+   }
+  }
+ ]
+}

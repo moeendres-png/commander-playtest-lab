@@ -1,0 +1,23 @@
+{
+ "class": "PROVIDER_TRANSPORT_VERIFIED",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "failure_class": null,
+ "frames": {
+  "announce_x": 5,
+  "cast": 319,
+  "confirm_pay_life": 325,
+  "divided_single_tape": 176,
+  "mana_taps": [
+   322,
+   323,
+   324
+  ],
+  "spell_cast_tape": 188,
+  "spell_resolved_tape": 189
+ },
+ "scenario": "WS77-C-COVENANT-X5",
+ "summary": "Fire Covenant X=5: announce 5 via NUMRANGE; single target Bear-8 + DONE; DIVIDED_SINGLE milestone (WS77 allocation transport assigned all 5); mana bill exactly {1}{B}{R} paid in 3 taps (Mountain/R, Swamp/B, Forest/1); confirm Pay-5-life answered PAY; spell_cast + spell_resolved fizzled=false dealing 5 divided to Bear-8; Bear-8 and Covenant-18 in graveyard post. Non-mana X never entered the mana bill. Terminal P2-discard harness gap.",
+ "terminal": "BLOCKED_AT:discardToMaximumHandSize (HARNESS intent exhaustion)",
+ "verdict": "PASS"
+}

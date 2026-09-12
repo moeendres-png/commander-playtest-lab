@@ -1,0 +1,18 @@
+{
+ "class": "PROVIDER_TRANSPORT_VERIFIED",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "failure_class": null,
+ "frames": {
+  "attack_tape": 521,
+  "cast": 783,
+  "damage_tape": 526,
+  "mana_taps": 6,
+  "spell_cast_tape": 440,
+  "spell_resolved_tape": 441
+ },
+ "scenario": "WS77-A-GHALTA-REDUCED",
+ "summary": "Ghalta, Primal Hunger ({10}{G}{G}, ReduceCost power) from command zone: engine billed the reduced {4}{G}{G}; 6 scripted taps paid it exactly (no RESULT_FALSE/NO_SOURCES); spell_cast + spell_resolved fizzled=false as 12/12; turn-25 attack; player_damaged 12 combat=true. Reduced-cost commander transport works provider-side. Terminal P2-discard harness gap (intent exhausted).",
+ "terminal": "BLOCKED_AT:discardToMaximumHandSize (HARNESS intent exhaustion)",
+ "verdict": "PASS"
+}

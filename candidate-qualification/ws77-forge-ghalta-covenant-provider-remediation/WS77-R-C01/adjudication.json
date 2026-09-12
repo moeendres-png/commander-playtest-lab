@@ -1,0 +1,14 @@
+{
+ "class": "REGRESSION_IDENTICAL",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "failure_class": null,
+ "frames": {
+  "consumed": 34,
+  "frame_count": 975
+ },
+ "scenario": "WS77-R-C01",
+ "summary": "WS68 C01 impact control on WS77 build: frame-identical to WS68 C01 journal (975/34, BLOCKED_AT:discardToMaximumHandSize P2, hidden_info PASS). One UNDIVIDED milestone (Force of Will targeting): helper executed, early-returned, behavior preserved. No regression.",
+ "terminal": "BLOCKED_AT:discardToMaximumHandSize (HARNESS intent exhaustion)",
+ "verdict": "PASS"
+}

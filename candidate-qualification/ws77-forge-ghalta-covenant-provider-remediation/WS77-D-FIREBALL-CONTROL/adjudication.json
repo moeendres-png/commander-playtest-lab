@@ -1,0 +1,24 @@
+{
+ "class": "PROVIDER_TRANSPORT_VERIFIED",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "failure_class": null,
+ "frames": {
+  "announce_x": 3,
+  "cast": 460,
+  "damage_tape": 256,
+  "mana_taps": [
+   464,
+   465,
+   466,
+   467
+  ],
+  "spell_cast_tape": 255,
+  "spell_resolved_tape": 257,
+  "undivided_tape": 243
+ },
+ "scenario": "WS77-D-FIREBALL-CONTROL",
+ "summary": "Fireball X=3 (genuine mana-X control): announce 3; target P2 + DONE; UNDIVIDED milestone (DivideEvenly path untouched by division transport); mana bill {3}{R} paid in 4 taps (X genuinely in bill); no life confirm; spell_cast + player_damaged 3 combat=false + spell_resolved fizzled=false. Contrast with Covenant (X=5 -> 3 mana taps): provider transports engine-authoritative X-routing, never solves costs. Terminal P2-discard harness gap.",
+ "terminal": "BLOCKED_AT:discardToMaximumHandSize (HARNESS intent exhaustion)",
+ "verdict": "PASS"
+}

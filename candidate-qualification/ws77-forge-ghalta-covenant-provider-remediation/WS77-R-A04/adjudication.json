@@ -1,0 +1,14 @@
+{
+ "class": "REGRESSION_IDENTICAL",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "failure_class": null,
+ "frames": {
+  "consumed": 47,
+  "frame_count": 1379
+ },
+ "scenario": "WS77-R-A04",
+ "summary": "WS68 A04 impact control on WS77 build: frame-identical to WS68 A04 journal (1379/47, BLOCKED_AT:declare_attacker unscripted P1, hidden_info PASS). No regression from divided-allocation transport (no divided spells on this line).",
+ "terminal": "BLOCKED_AT:declare_attacker (HARNESS intent gap, identical to WS68)",
+ "verdict": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+ "deck_commander": "Ghalta, Primal Hunger",
+ "deck_main": "Forest*33,Swamp*33,Murder*11,Runeclaw Bear*11,Lightning Bolt*11",
+ "forge": {
+  "checkout": "/home/moeen/ws77-forge-src-a9a95db (verified HEAD/tree/clean = accepted pin)",
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+ },
+ "materialization": "/tmp/ws62-material.json (WS47)",
+ "provider": "/home/moeen/ws77-ev (WS77 build 565f0384)",
+ "seed": 424242,
+ "seed_binding": "ws55-forge-mandatory-decision-breadth",
+ "structural_cap": 2048
+}

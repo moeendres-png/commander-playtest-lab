@@ -1,0 +1,15 @@
+{
+ "class": "REGRESSION_IDENTICAL",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "failure_class": null,
+ "frames": {
+  "consumed": 29,
+  "frame_count": 628,
+  "pay_combat_cost": 528
+ },
+ "scenario": "WS77-R-E01-PAY",
+ "summary": "WS68 E01-PAY regression on WS77 build: frame-identical to WS68 journal_pay (628/29, same verdict, hidden_info PASS). WS68:PAYCOMBATCOST:PAY selected for MINTED-107 Bear ({2} Propaganda tax); 2-attacker combat recorded. PAYCOMBATCOST_TRANSPORT=PASS preserved; E01 re-entry prerequisite stays READY.",
+ "terminal": "BLOCKED_AT:discardToMaximumHandSize (HARNESS intent exhaustion)",
+ "verdict": "PASS"
+}

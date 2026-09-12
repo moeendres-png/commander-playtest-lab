@@ -1,0 +1,20 @@
+{
+ "class": "PROVIDER_TRANSPORT_VERIFIED",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "failure_class": null,
+ "frames": {
+  "attack_tape": 685,
+  "cast": 1085,
+  "damage_tape": 690,
+  "etb_cast_tape": 602,
+  "etb_resolved_tape": 605,
+  "mana_taps": 8,
+  "spell_cast_tape": 598,
+  "spell_resolved_tape": 599
+ },
+ "scenario": "WS77-B-GHALTA-FULLPAY",
+ "summary": "Ghalta, Stampede Tyrant (printed {5}{G}{G}{G}, no reduction) from command zone: engine billed exactly {5}{G}{G}{G}; 8 scripted taps paid it exactly (no RESULT_FALSE/NO_SOURCES); spell_cast + spell_resolved fizzled=false as 12/12; ETB trigger cast+resolved; turn-33 attack; player_damaged 12 combat=true. Proves the WS65 'silent drop' was 6-of-8 underpayment with correct engine rollback, never a transport defect. Terminal P2-discard harness gap.",
+ "terminal": "BLOCKED_AT:discardToMaximumHandSize (HARNESS intent exhaustion)",
+ "verdict": "PASS"
+}
