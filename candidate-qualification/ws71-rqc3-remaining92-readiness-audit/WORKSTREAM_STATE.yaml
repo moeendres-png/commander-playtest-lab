@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws71-rqc3-remaining92-readiness-audit
 branch: ws71/rqc3-remaining92-readiness-audit-20260912
 audit_base_sha: 7796619e69b0434cd232de8335ff5cab3c5d08e5
 audit_base_tree: 48ec3eafcca668f3fa165e3977af5836b3add059
-state_written_against_head: b541940f0419ee7c67acd12457b5f02cc58c5d7a
-validated_head: 60fce9b245de5546f46d380e3e71409d90cee6d6
+state_written_against_head: 58c2d3acc24e11d4ab32b12d394305fad56d03e4
+validated_head: 58c2d3acc24e11d4ab32b12d394305fad56d03e4
 objective: Derive the exact remaining 92/107 RQ-C3 behavior denominator and build
   an evidence-backed candidate-neutral readiness, dependency and execution-wave plan
   that maximizes qualification information gain without executing behavior.
@@ -43,16 +43,15 @@ hard_gates:
 ownership: WS71-RQC3-REMAINING92-READINESS-AUDIT
 status: BLOCKED
 gate_verdict: WS71_REMAINING92_AUDIT=FAIL
-denominator: FULL107_COUNT=0 FIRST_WAVE_COUNT=15 REMAINING_COUNT=0
-blocker: B1-no-authoritative-Full107-ID-set-in-exact-RQ-C3-authority
+denominator: FULL107_COUNT_AS_RQC3_SCENARIOS=INVALID FIRST_WAVE_COUNT=15
+blocker: B1-SUPERSEDED-BY-CONTRACT-CATEGORY-MISMATCH-CORRECTION
 phases_b_to_g: NOT_EXECUTED
-remote_persistence: PENDING-canonical-safe_push-after-validation-binding
+remote_persistence: PENDING-canonical-safe_push-of-correction-terminal
 exact_next_action: Publish via canonical safe_push; then Coordinator launches a separate
-  Full107 Corpus Authority Definition workstream (Phases B-G remain NOT_EXECUTED;
-  no Full107 manifest invented; denominator unchanged; no behavior executed).
+  Full107 Corpus Authority Definition workstream.
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
-validation_class: AUTHORITY_AUDIT_FAIL
+validation_class: AUTHORITY_CORRECTION_VALIDATED
 behavior_validation: NONE
 behavior_credit: 0/107
 full107: NOT_RUN
@@ -60,6 +59,22 @@ audit_conclusion_validated: true
 candidate_behavior_validated: false
 readiness_assessed: false
 denominator_available: false
-validated_artifact_commit: 60fce9b245de5546f46d380e3e71409d90cee6d6
-validator_binding: ws71_denominator_audit.py re-run exit 2 (FAIL FULL107_COUNT=0 FIRST_WAVE_COUNT=15
-  REMAINING_COUNT=0, B1 confirmed; output byte-identical sha256 e79f2848b857345a85041317b1b14e863242e70f7a51122bd4758337f5f73c6f)
+validated_artifact_commit: 58c2d3acc24e11d4ab32b12d394305fad56d03e4
+validator_binding: ws71_correction_audit.py 22/22 PASS on artifact head (exit 0, byte-identical);
+  ws71_denominator_audit.py FAIL-gate stable (exit 2, 0/15/0)
+failure_class: UPSTREAM_DEFECT
+failure_class_detail: CONTRACT_CATEGORY_MISMATCH (commissioning denominator premise
+  equated Full107 provider fixtures with RQ-C3 scenarios; see WS71_CORRECTION_REPORT.md)
+root_cause: CONTRACT_CATEGORY_MISMATCH
+rqc3_defined_scenarios: 40
+rqc3_first_wave: 15
+rqc3_non_first_wave: 25
+full107_provider_denominator: 107
+full107_materialization_records: 135
+remaining92: NOT_APPLICABLE
+xmage_rqc3_first_wave: 14/15
+forge_rqc3_first_wave: 9/15
+xmage_full107_credit: 0/107
+forge_full107_credit: 0/107
+historical_107_fields: SUPERSEDED_CROSS_CONTRACT_ACCOUNTING
+valid_rqc3_planning_work_preserved: true
