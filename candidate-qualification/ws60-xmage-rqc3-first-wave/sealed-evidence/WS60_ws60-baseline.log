@@ -1,0 +1,172 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m----------------< [0;36morg.commanderlab:xmage-engine-bridge[0;1m >----------------[m
+[[1;34mINFO[m] [1mBuilding Commander Playtest Lab XMage Engine Bridge 0.1.0-SNAPSHOT[m
+[[1;34mINFO[m]   from pom.xml
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:resources[m [1m(default-resources)[m @ [36mxmage-engine-bridge[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/moeen/code/ws60-xmage-rqc3-first-wave/engine-bridge/src/main/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:compile[m [1m(default-compile)[m @ [36mxmage-engine-bridge[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mresources:3.3.1:testResources[m [1m(default-testResources)[m @ [36mxmage-engine-bridge[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/moeen/code/ws60-xmage-rqc3-first-wave/engine-bridge/src/test/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mcompiler:3.15.0:testCompile[m [1m(default-testCompile)[m @ [36mxmage-engine-bridge[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32msurefire:3.1.2:test[m [1m(default-test)[m @ [36mxmage-engine-bridge[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[[1;34mINFO[m] 
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m]  T E S T S
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs56DecisionExtractionTest[m
+log4j:WARN No appenders could be found for logger (mage.util.ClassScanner).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.565 s -- in org.commanderlab.xmage.[1mWs56DecisionExtractionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs56M5RngReexecutionTest[m
+WS56-M5-DIGEST seed=5201|explicit=true|calls=194|flow=choose_object|seat0,mulligan|seat0,mulligan|seat1,priority|0|1|1,priority|1|1|1,priority|0|1|1,priority|1|1|1,priority|0|1|1,priority|1|1|1,priority|0|1|1,priority|1|1|1,priority|0|1|1,priority|1|1|1|hand0=Blacksmith's Skill~Boros Charm~Cascade Bluffs~Irrigated Farmland~Island~Kediss, Emberclaw Familiar~Skycloud Expanse~Thunderclap Drake|hand1=An Offer You Can't Refuse~Harmonic Prodigy~Mountain~Mystic Monastery~Plains~Plains~Preordain|turn=1|decisions=14
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m5[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.713 s -- in org.commanderlab.xmage.[1mWs56M5RngReexecutionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageFullGamePlayerBoundaryTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in org.commanderlab.xmage.[1mXmageFullGamePlayerBoundaryTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageAuditSurfaceRedactorTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in org.commanderlab.xmage.[1mXmageAuditSurfaceRedactorTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs52M3RejectionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.179 s -- in org.commanderlab.xmage.[1mWs52M3RejectionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageFullGameInventoryTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in org.commanderlab.xmage.[1mXmageFullGameInventoryTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageActorIdentityProjectionAdversarialTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in org.commanderlab.xmage.[1mXmageActorIdentityProjectionAdversarialTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageFullGameBridgeContractTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in org.commanderlab.xmage.[1mXmageFullGameBridgeContractTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageDecisionOptionIdentityTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in org.commanderlab.xmage.[1mXmageDecisionOptionIdentityTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mJsonlBridgeTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m8[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.084 s -- in org.commanderlab.xmage.[1mJsonlBridgeTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mPhase6DifferentialAdapterValidationTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m9[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in org.commanderlab.xmage.[1mPhase6DifferentialAdapterValidationTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageStateObservationTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.088 s -- in org.commanderlab.xmage.[1mXmageStateObservationTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs56HiddenInfoTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s -- in org.commanderlab.xmage.[1mWs56HiddenInfoTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs52M2SelectionExecutionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.170 s -- in org.commanderlab.xmage.[1mWs52M2SelectionExecutionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs56StateFreshnessTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m7[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.097 s -- in org.commanderlab.xmage.[1mWs56StateFreshnessTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageFullGameObservationGatewayTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m3[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in org.commanderlab.xmage.[1mXmageFullGameObservationGatewayTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageExternalDecisionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in org.commanderlab.xmage.[1mXmageExternalDecisionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs52M1NativeDecisionExtractionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m4[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.233 s -- in org.commanderlab.xmage.[1mWs52M1NativeDecisionExtractionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs56ModeIdentityTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.347 s -- in org.commanderlab.xmage.[1mWs56ModeIdentityTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs52M4HiddenInfoTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 s -- in org.commanderlab.xmage.[1mWs52M4HiddenInfoTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs60Rqc3FirstWaveTest[m
+WS60 RQ-C3-A03 verdict=PASS attempts=3 primary_seed=8103 decisions=1637 replica_stopped=complete replica_decisions=1637 determinism=true
+WS60 RQ-C3-A03 PASS: Drudge Skeletons is on battlefield tapped with zero damage marked [battlefield] observed=tapped,damage=0
+WS60 RQ-C3-A03 PASS: one P0 Swamp tapped for the {B} activation [battlefield] observed=tapped-swamps=1
+WS60 RQ-C3-A03 PASS: Lightning Bolt is in P1 graveyard [graveyards.P1] observed=grave1=[Lightning Bolt]
+WS60 RQ-C3-A03 PASS: all life totals unchanged [life] observed=all=40
+WS60 RQ-C3-A03 PASS: pre-activation [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-A04 verdict=PASS attempts=1 primary_seed=6104 decisions=2512 replica_stopped=complete replica_decisions=2512 determinism=true
+WS60 RQ-C3-A04 PASS: Stonecoil Serpent is 8/8 (0/0 base + eight +1/+1 counters) [battlefield] observed=8/8
+WS60 RQ-C3-A04 PASS: exactly 8 +1/+1 counters on the Serpent [battlefield] observed=counters={+1/+1=8}
+WS60 RQ-C3-A04 PASS: both enchantments remain on battlefield [battlefield] observed=P0-controls-Hardened Scales+P0-controls-Doubling Season
+WS60 RQ-C3-A04 PASS: ordering offer [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-B01 determinism components: projections=true views=true tape=true replicaPass=false
+WS60 RQ-C3-B01 verdict=UNKNOWN attempts=2 rationale=scenario did not complete within bounds: bound | STRUCTURAL: Commander-singleton assembly of 6 distributed Soul Warden 1-ofs + Cackling Counterpart + Llanowar Elves did not complete within bounds; additionally every native Warden entry fires entry triggers, so the fixture's nominal-40 lives are unreachable natively (predicted entry history P0+1/P1+4/P2+3/P3+2 for cast order P1,P2,P3,P0A,P0B-token). HARNESS_LIMITATION + FIXTURE_LIMITATION.
+WS60 RQ-C3-C01 verdict=PASS attempts=1 primary_seed=6121 decisions=2947 replica_stopped=complete replica_decisions=2947 determinism=true
+WS60 RQ-C3-C01 PASS: P0 life is 39 [life] observed=P0=39
+WS60 RQ-C3-C01 PASS: Turn to Frog (blue nonland) from P0 hand is in exile; Force of Will in P0 graveyard [exile] observed=grave0=[Gemstone Mine, Force of Will];exile0=[Turn to Frog]
+WS60 RQ-C3-C01 PASS: Llanowar Elves spell countered to P1 graveyard (never entered) [graveyards.P1] observed=grave1=[Llanowar Elves];never-entered
+WS60 RQ-C3-C01 PASS: pitch selection (hidden-zone decision) [P0] 'Turn to Frog'-absent-for-others
+WS60 RQ-C3-C01 PASS: pitch selection owner visibility [P0] 'Turn to Frog'-present-for-owner
+WS60 RQ-C3-C01 PASS: stack knowledge [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-C03 verdict=PASS attempts=4 primary_seed=9123 decisions=977 replica_stopped=complete replica_decisions=977 determinism=true
+WS60 RQ-C3-C03 PASS: P1 and P2 life are 38 each (remainder discarded, not assigned) [life] observed=P1=38+P2=38
+WS60 RQ-C3-C03 PASS: Fireball in P0 graveyard [graveyards.P0] observed=grave0=[Fireball]
+WS60 RQ-C3-C03 PASS: division [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-D06 verdict=PASS attempts=1 primary_seed=6136 decisions=3148 replica_stopped=complete replica_decisions=3148 determinism=true
+WS60 RQ-C3-D06 PASS: Ornithopter, Runeclaw Bear in graveyards; one P1 Forest in graveyard [graveyards] observed=grave1=[Swamp, Swamp, Swamp, Ornithopter, Runeclaw Bear, Forest]+grave1=[Swamp, Swamp, Swamp, Ornithopter, Runeclaw Bear, Forest]+forests=1
+WS60 RQ-C3-D06 PASS: Casualties of War in P0 graveyard [graveyards.P0] observed=grave0=[Plains, Swamp, Swamp, Swamp, Plains, Swamp, Swamp, Swamp, Swamp, Swamp, Casualties of War]
+WS60 RQ-C3-D06 PASS: mode legality [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-E01 verdict=PASS attempts=3 primary_seed=8141 decisions=1357 replica_stopped=complete replica_decisions=1357 determinism=true
+WS60 RQ-C3-E01 PASS: P0 and P2 life are 38 each [life] observed=P0=38+P2=38
+WS60 RQ-C3-E01 PASS: {2} paid for the P0-bound attacker; nothing paid for the P2-bound attacker [mana paid] observed=tapped-islands=3
+WS60 RQ-C3-E01 PASS: both Bears tapped and attacking-survived [battlefield] observed=tapped-bears=2
+WS60 RQ-C3-E01 PASS: attack legality [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-E02 verdict=PASS attempts=1 primary_seed=6142 decisions=3644 replica_stopped=complete replica_decisions=3644 determinism=true
+WS60 RQ-C3-E02 PASS: P0 life is 36 (4 trample rollover) [life] observed=P0=36
+WS60 RQ-C3-E02 PASS: Bear and Elves in P0 graveyard; Tyrant alive with no damage marked (survived; blockers dealt 2+1=3 < 6) [graveyards.P0] observed=grave0=[Llanowar Elves, Runeclaw Bear]+grave0=[Llanowar Elves, Runeclaw Bear]+tyrant-damage=3
+WS60 RQ-C3-E02 PASS: Carnage Tyrant on battlefield under P1 [battlefield] observed=P1-controls-Carnage Tyrant
+WS60 RQ-C3-E02 PASS: damage assignment [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-F01 verdict=PASS attempts=1 primary_seed=6151 decisions=1613 replica_stopped=complete replica_decisions=1613 determinism=true
+WS60 RQ-C3-F01 PASS: one basic Forest on battlefield tapped under P0 [battlefield] observed=tapped-forests=2
+WS60 RQ-C3-F01 PASS: P0 library count decreased by 1; order randomized (journal records shuffle, not order) [libraries.P0] observed=lib0=70,hand0=6
+WS60 RQ-C3-F01 PASS: Rampant Growth in P0 graveyard [graveyards.P0] observed=grave0=[Plains, Plains, Swamp, Plains, Forest, Swamp, Plains, Forest, Rampant Growth]
+WS60 RQ-C3-F01 PASS: during search [P0] entitled-look-owner-only
+WS60 RQ-C3-F01 PASS: found card [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-F01 PASS: post-shuffle [ALL] known-library-empty
+WS60 RQ-C3-F01 PASS: composition memory [P0] composition-memory-owner-only
+WS60 RQ-C3-G02 verdict=PASS attempts=1 primary_seed=6162 decisions=1996 replica_stopped=complete replica_decisions=1996 determinism=true
+WS60 RQ-C3-G02 PASS: Ghalta on battlefield under P0 after taxed recast [battlefield] observed=P0-controls-Ghalta, Stampede Tyrant
+WS60 RQ-C3-G02 PASS: commander cast-count from command zone is 1 (tax accounted) [players.P0] observed=casts-from-command=2;tapped-forests=10
+WS60 RQ-C3-G02 PASS: Murder in P1 graveyard [graveyards.P1] observed=grave1=[Swamp, Swamp, Swamp, Swamp, Island, Swamp, Swamp, Murder, Swamp, Swamp, Swamp]
+WS60 RQ-C3-G02 PASS: movement choice [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-G03 verdict=PASS attempts=1 primary_seed=6163 decisions=1254 replica_stopped=complete replica_decisions=1254 determinism=true
+WS60 RQ-C3-G03 PASS: P1 has lost the game (commander damage total 24 from Ghalta) [players.P1] observed=ledger=24;hits=[12 combat, 12 combat]
+WS60 RQ-C3-G03 PASS: P0, P2, P3 remain in game [players] observed=P0-lost=false+P2-lost=false+P3-lost=false
+WS60 RQ-C3-G03 PASS: Ghalta on battlefield under P0 [battlefield] observed=P0-controls-Ghalta, Stampede Tyrant
+WS60 RQ-C3-G03 PASS: damage ledger [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-G04 verdict=PASS attempts=1 primary_seed=6164 decisions=2266 replica_stopped=complete replica_decisions=2266 determinism=true
+WS60 RQ-C3-G04 PASS: P0 has left the game; P1, P2, P3 remain [players] observed=P0-left=true+P1-left=false+P2-left=false+P3-left=false
+WS60 RQ-C3-G04 PASS: Control Magic has left the game with P0 (owner) [exile-or-absent] observed=absent-everywhere
+WS60 RQ-C3-G04 PASS: Runeclaw Bear on battlefield under P1 (owner) control [battlefield] observed=controller-seat=1
+WS60 RQ-C3-G04 PASS: zero triggered abilities created for any principal [trigger count] observed=triggers=0
+WS60 RQ-C3-G04 PASS: post-cleanup ownership [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-H01 verdict=PASS attempts=1 primary_seed=6171 decisions=3632 replica_stopped=complete replica_decisions=3632 determinism=true
+WS60 RQ-C3-H01 PASS: Clone is 1/1 with no abilities on battlefield [battlefield] observed=1/1,abilities=0
+WS60 RQ-C3-H01 PASS: original Bear is 1/1 with no abilities (Humility) [battlefield] observed=1/1,abilities=0
+WS60 RQ-C3-H01 PASS: copy choice [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-I01 verdict=PASS attempts=3 primary_seed=8181 decisions=3862 replica_stopped=complete replica_decisions=3862 determinism=true
+WS60 RQ-C3-I01 PASS: Runeclaw Bear on battlefield as a plain 2/2 with zero counters and no Auras [battlefield] observed=2/2,counters=0
+WS60 RQ-C3-I01 PASS: Pacifism in P1 graveyard (not reattached) [graveyards.P1] observed=grave1=[Plains, Plains, Plains, Plains, Pacifism]
+WS60 RQ-C3-I01 PASS: Momentary Blink in P0 graveyard [graveyards.P0] observed=grave0=[Plains, Plains, Plains, Plains, Forest, Plains, Plains, Sol Ring, Momentary Blink]
+WS60 RQ-C3-I01 PASS: identity [ALL] hand-discipline-ok;granted-empty
+WS60 RQ-C3-J02 verdict=PASS attempts=3 primary_seed=8192 decisions=2430 replica_stopped=complete replica_decisions=2430 determinism=true
+WS60 RQ-C3-J02 PASS: exactly one token was created and then exiled at end of combat (no token remains) [token existence] observed=token-created-and-exiled
+WS60 RQ-C3-J02 PASS: Delina and Bear survive on battlefield [battlefield] observed=P0-controls-Delina, Wild Mage+P0-controls-Runeclaw Bear
+WS60 RQ-C3-J02 PASS: RNG journal contains the d20 entry (domain 1-20, sampled 15-20 band, plus the decline of may-roll-again) [rng journal] observed=d20=[18];declined
+WS60 RQ-C3-J02 PASS: roll [ALL] hand-discipline-ok;granted-empty
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m15[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 645.4 s -- in org.commanderlab.xmage.[1mWs60Rqc3FirstWaveTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageDeckImporterTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.134 s -- in org.commanderlab.xmage.[1mXmageDeckImporterTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mWs52M5RngReexecutionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m6[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.157 s -- in org.commanderlab.xmage.[1mWs52M5RngReexecutionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageActionSubmissionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.093 s -- in org.commanderlab.xmage.[1mXmageActionSubmissionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageEventLogLifecycleTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.061 s -- in org.commanderlab.xmage.[1mXmageEventLogLifecycleTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageWs36IdentityRegressionTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m2[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in org.commanderlab.xmage.[1mXmageWs36IdentityRegressionTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageGameManagerTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m10[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.199 s -- in org.commanderlab.xmage.[1mXmageGameManagerTest[m
+[[1;34mINFO[m] Running org.commanderlab.xmage.[1mXmageFullGameCastChoiceTest[m
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in org.commanderlab.xmage.[1mXmageFullGameCastChoiceTest[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] Results:
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1;32mTests run: 126, Failures: 0, Errors: 0, Skipped: 0[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;32mBUILD SUCCESS[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  10:55 min
+[[1;34mINFO[m] Finished at: 2026-09-12T00:27:55+02:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
