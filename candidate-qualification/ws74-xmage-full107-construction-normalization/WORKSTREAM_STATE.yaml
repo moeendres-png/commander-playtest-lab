@@ -95,3 +95,10 @@ production_provider: NOT_SELECTED
 exact_next_action: Coordinator review of terminal PARTIAL; authorized safe_push actual
   only if accepted (dry-run first with --expected-audit-base-ref
   ws73/full107-contract-reconciliation-20260912).
+remote_persistence:
+  status: BLOCKED_POLICY_INFRA
+  detail: Mandated safe_push path is environment-policy denied in-session; the available
+    /tmp copy is unrunnable (missing state module); ordinary git push is forbidden.
+    No remote write attempted. Local branch fully checkpointed at the evidence head
+    below; Coordinator launcher to persist.
+evidence_head: 1d6d17727f771276f0898b6c076d95f700818478
