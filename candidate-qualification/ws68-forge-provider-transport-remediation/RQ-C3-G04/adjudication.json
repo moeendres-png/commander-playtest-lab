@@ -1,0 +1,15 @@
+{
+ "scenario": "RQ-C3-G04",
+ "verdict": "TRANSPORT_PASS",
+ "class": "TRANSPORT_REMEDIATED (was UNSUPPORTED_DECISION_KIND in WS65)",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED (fresh-process run on accepted pin, final build c4fb2245)",
+ "frames": {
+  "concession_offers": 200,
+  "pilot_declines": 199,
+  "accept": [
+   1879
+  ]
+ },
+ "summary": "200 canConcede-gated offers (all cleanups, all players; zero priority-coincident). ACCEPT P1 t50 CLEANUP (no priority held) with authority identity; deferred execution at next P1 priority (EXECUTING_AT_PRIORITY + EXECUTED player=P1); P1 leaves (0 post-loss frames); owned objects cease incl. Control Magic; stolen Bear-107 stays on battlefield; game continues 3-player; 199 explicit DECLINEs. Submission exclusively via concede() seam; 800.4 cleanup engine-owned."
+}

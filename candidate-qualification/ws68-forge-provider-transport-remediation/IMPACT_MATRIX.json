@@ -1,0 +1,102 @@
+{
+ "schema": "ws68.impact-matrix.v1",
+ "code_head": "903b3f4a6ff9f5228a3d8210429d5a0689383ec9",
+ "provider_digest": "c4fb2245662544a221a1e21813b08ba06226a842803932f7dca70ac3af5fff05",
+ "forge": {
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+ },
+ "surfaces": {
+  "payCombatCost (NEW transport)": {
+   "touched": true,
+   "runs": [
+    "RQ-C3-E01-PAY:TRANSPORT_PASS",
+    "RQ-C3-E01-DECLINE:TRANSPORT_PASS"
+   ],
+   "shared_surface_changed": false
+  },
+  "autoPassCancel (offer hook; automatic record preserved)": {
+   "touched": true,
+   "runs": [
+    "all sessions: 60/60,60/60,200/200,144/144,100/100 offers declined-or-accepted without engine error"
+   ],
+   "shared_surface_changed": false
+  },
+  "chooseSpellAbilityToPlay (pending drain only; priority path byte-identical otherwise)": {
+   "touched": true,
+   "runs": [
+    "RQ-C3-G04: 1 drain EXECUTED; all other sessions: 0 pendings, priority flow unchanged (A04/E02-shape intact)"
+   ],
+   "shared_surface_changed": false
+  },
+  "payManaCost/applyManaToCost/getCostDecisionMaker/confirmPayment/chooseCardsForCost": {
+   "touched": false,
+   "runs": [
+    "RQ-C3-E01 tax taps via existing frames",
+    "RQ-C3-A04 3G payment",
+    "RQ-C3-C01 pitch route"
+   ],
+   "evidence": "state digest b6b0870f matches WS64/WS65 (byte-invariant)"
+  },
+  "declareAttackers/declareBlockers/targets/modes/numbers": {
+   "touched": false,
+   "runs": [
+    "RQ-C3-E01 declarations",
+    "RQ-C3-A04 announce_x",
+    "RQ-C3-C01 target+cost_exile"
+   ]
+  },
+  "Broker.choose frame protocol": {
+   "touched": false,
+   "runs": [
+    "all sessions; 2 new kinds (pay_combat_cost, concession-at-cleanup) flow through unchanged funnel"
+   ]
+  }
+ },
+ "runs": {
+  "RQ-C3-E01-PAY": {
+   "verdict": "TRANSPORT_PASS",
+   "frames": 628,
+   "hidden": "PASS",
+   "class": "HARNESS (post-terminal exhaustion)"
+  },
+  "RQ-C3-E01-DECLINE": {
+   "verdict": "TRANSPORT_PASS",
+   "frames": 626,
+   "hidden": "PASS",
+   "class": "HARNESS (post-terminal exhaustion)"
+  },
+  "RQ-C3-G04": {
+   "verdict": "TRANSPORT_PASS",
+   "frames": 1907,
+   "hidden": "PASS",
+   "class": "HARNESS (post-terminal exhaustion)"
+  },
+  "RQ-C3-A04": {
+   "verdict": "IMPACT_PASS",
+   "frames": 1379,
+   "hidden": "PASS",
+   "note": "P1P1=8; baseline terminal family preserved"
+  },
+  "RQ-C3-C01": {
+   "verdict": "IMPACT_PASS",
+   "frames": 975,
+   "hidden": "PASS",
+   "note": "life 39 + pitch route; baseline terminal family preserved"
+  },
+  "Ws59A04ReplacementOrderingTest": {
+   "verdict": "3/3 PASS",
+   "via": "mvn -o -pl forge-gui-desktop -am test (accepted pin)"
+  },
+  "Ws59C01CostPitchTest": {
+   "verdict": "2/2 PASS",
+   "via": "mvn -o -pl forge-gui-desktop -am test (accepted pin)"
+  },
+  "Ws59G04ConcessionTest": {
+   "verdict": "4/4 PASS",
+   "via": "mvn -o -pl forge-gui-desktop -am test (accepted pin)"
+  }
+ },
+ "grants_behavior_credit": false,
+ "behavior_credit": "0/107"
+}

@@ -1,0 +1,8 @@
+{
+ "scenario": "RQ-C3-A04",
+ "verdict": "IMPACT_PASS (behavior intact under WS68 provider)",
+ "class": "HARNESS (post-terminal intent exhaustion only)",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "summary": "Serpent P1P1=8 (ws64Battlefield:COUNTERS cardId=32); HS-first ordering among 2 offered; 144 concession offers pilot-declined with zero interference; same BLOCKED_AT:declare_attacker terminal family as WS65 baseline (1235+144=1379 frames)."
+}

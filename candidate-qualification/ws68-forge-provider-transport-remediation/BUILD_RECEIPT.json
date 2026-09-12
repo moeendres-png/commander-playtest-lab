@@ -1,0 +1,45 @@
+{
+ "schema": "ws68.build-receipt.v1",
+ "code_head": "903b3f4a6ff9f5228a3d8210429d5a0689383ec9",
+ "build_chain": [
+  "scripts/ws40_generate_forge_provider.py",
+  "scripts/finalist_generate_forge_bootstrap.py",
+  "ws40 successor/state overlays (13 patches)",
+  "ws45 observation overlays",
+  "ws48_behavior_provider_overlay.py (repaired)",
+  "ws53_provider_overlay.py",
+  "ws55_provider_overlay.py",
+  "ws62_provider_overlay.py (v2)",
+  "ws64_provider_overlay.py",
+  "ws68_provider_overlay.py (v1: payCombatCost + two-phase concession)",
+  "Ws62ConcessionTransport.java (reused, unmodified)",
+  "javac against accepted-pin fresh classes"
+ ],
+ "forge": {
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849",
+  "checkout": "/tmp/ws65-forge-src-a9a95db (verified HEAD/tree/clean; read-only)"
+ },
+ "ev_dir": "/tmp/ws68-ev",
+ "provider_digests": {
+  "Ws23ForgeVerticalProvider.java": "c4fb2245662544a221a1e21813b08ba06226a842803932f7dca70ac3af5fff05",
+  "Ws40SuccessorState.java": "b6b0870fd642c3f491c65276cb4027e32a39dc2a98cd4b5fb36649f37dad9a22",
+  "Ws62ConcessionTransport.java": "761e451ae5a020c6d2be6e473e6b216b1f6344102781e1153e62ff08cbe0b6a9"
+ },
+ "ws64_digest_match": {
+  "Ws40SuccessorState.java": true,
+  "Ws62ConcessionTransport.java": true,
+  "note": "only the provider file differs (WS68 overlay); shared surfaces byte-invariant"
+ },
+ "runtime_handshake": "HANDSHAKE_RESULT PASS provider=forge forge_commit=a9a95db real_session_capable=true (x3, incl. final build)",
+ "static_gates": [
+  "overlay post-conditions (seam count 2, labels 4+2, PhaseType invariant, no card names, no direct concede)",
+  "build grep: no ai/gui imports, no RemoteClientGuiGame/PlayerControllerAi/ComputerUtilMana/candidates.get(0)/findById",
+  "build grep: no Propaganda/getAction().concede/player.concede/Player.concede",
+  "old pin absent from classpath and constants"
+ ],
+ "javac": "/usr/lib/jvm/java-21-openjdk-amd64 javac 21.0.12; deprecation note only (pre-existing)",
+ "no_old_pin_on_classpath": true,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "grants_behavior_credit": false
+}

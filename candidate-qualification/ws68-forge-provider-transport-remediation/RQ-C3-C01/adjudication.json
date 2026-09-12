@@ -1,0 +1,8 @@
+{
+ "scenario": "RQ-C3-C01",
+ "verdict": "IMPACT_PASS (behavior intact under WS68 provider)",
+ "class": "HARNESS (post-terminal intent exhaustion only)",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED",
+ "summary": "FoW pitch route (cost_exile + confirm); Elves-spell countered fizzled=false; seat-1 life 39; 100 concession offers pilot-declined with zero interference; hidden PASS; same terminal family as WS65 baseline (875+100=975)."
+}

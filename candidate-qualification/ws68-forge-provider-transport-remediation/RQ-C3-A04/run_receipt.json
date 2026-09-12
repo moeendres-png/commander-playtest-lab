@@ -1,0 +1,30 @@
+{
+ "scenario": "RQ-C3-A04",
+ "forge": {
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+ },
+ "provider": {
+  "ev": "/tmp/ws68-ev",
+  "provider_digest": "c4fb2245662544a221a1e21813b08ba06226a842803932f7dca70ac3af5fff05",
+  "state_digest": "b6b0870fd642c3f491c65276cb4027e32a39dc2a98cd4b5fb36649f37dad9a22",
+  "transport_digest": "761e451ae5a020c6d2be6e473e6b216b1f6344102781e1153e62ff08cbe0b6a9"
+ },
+ "seed": 424242,
+ "deck_main": "Forest*50,Hardened Scales*15,Doubling Season*15,Stonecoil Serpent*19",
+ "deck_commander": "Ghalta, Stampede Tyrant",
+ "intent_entries": 48,
+ "frame_count": 1379,
+ "consumed_intent": 47,
+ "hidden_info_verdict": "PASS",
+ "journal_verdict": "BLOCKED_AT:declare_attacker",
+ "stop_reason": null,
+ "ws68_runner": true,
+ "ws68_pilot_declines": 144,
+ "grants_behavior_credit": false,
+ "credit": 0,
+ "failure_class": {
+  "class": "HARNESS",
+  "note": "post-terminal intent exhaustion (declare_attacker); A04 behavior intact (P1P1=8)"
+ }
+}

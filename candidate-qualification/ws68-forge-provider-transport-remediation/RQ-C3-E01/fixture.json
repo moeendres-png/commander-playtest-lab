@@ -1,0 +1,13 @@
+{
+ "forge": {
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+ },
+ "deck_main": "Forest*30,Island*30,Runeclaw Bear*15,Propaganda*12,Lightning Bolt*12",
+ "deck_commander": "Ghalta, Stampede Tyrant",
+ "seed": 424242,
+ "seed_binding": "ws55-forge-mandatory-decision-breadth",
+ "structural_cap": 2048,
+ "materialization": "/tmp/ws62-material.json (WS47)",
+ "provider": "/tmp/ws68-ev (WS68 build c4fb2245)"
+}

@@ -1,0 +1,30 @@
+{
+ "scenario": "RQ-C3-C01",
+ "forge": {
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+ },
+ "provider": {
+  "ev": "/tmp/ws68-ev",
+  "provider_digest": "c4fb2245662544a221a1e21813b08ba06226a842803932f7dca70ac3af5fff05",
+  "state_digest": "b6b0870fd642c3f491c65276cb4027e32a39dc2a98cd4b5fb36649f37dad9a22",
+  "transport_digest": "761e451ae5a020c6d2be6e473e6b216b1f6344102781e1153e62ff08cbe0b6a9"
+ },
+ "seed": 424242,
+ "deck_main": "Island*60,Forest*20,Force of Will*6,Turn to Frog*6,Llanowar Elves*7",
+ "deck_commander": "Edric, Spymaster of Trest",
+ "intent_entries": 34,
+ "frame_count": 975,
+ "consumed_intent": 34,
+ "hidden_info_verdict": "PASS",
+ "journal_verdict": "BLOCKED_AT:discardToMaximumHandSize",
+ "stop_reason": null,
+ "ws68_runner": true,
+ "ws68_pilot_declines": 100,
+ "grants_behavior_credit": false,
+ "credit": 0,
+ "failure_class": {
+  "class": "HARNESS",
+  "note": "post-terminal intent exhaustion (discard); C01 behavior intact (life 39, pitch route)"
+ }
+}

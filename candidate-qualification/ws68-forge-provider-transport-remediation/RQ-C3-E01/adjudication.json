@@ -1,0 +1,26 @@
+{
+ "scenario": "RQ-C3-E01",
+ "verbs": {
+  "pay": "TRANSPORT_PASS",
+  "decline": "TRANSPORT_PASS"
+ },
+ "class": "TRANSPORT_REMEDIATED (was UNSUPPORTED_DECISION_KIND in WS65)",
+ "credit": 0,
+ "evidence_class": "DIRECTLY_VERIFIED (fresh-process runs on accepted pin, final build c4fb2245)",
+ "frames": {
+  "pay_combat_cost_PAY": [
+   528
+  ],
+  "pay_combat_cost_DECLINE": [
+   528
+  ],
+  "mana_payment_tax": [
+   529,
+   530
+  ],
+  "attackers_declared_2": "tape idx 300",
+  "player_damaged_pay": 2,
+  "player_damaged_decline": 1
+ },
+ "summary": "PAY Leon: pay frame o0 for Bear-107 cost {2} + 2 native Island taps (167,183); both Bears attack (107->P1 taxed, 114->P3 untaxed); no blockers; 2+2 combat damage; life seat-1/seat-3 38/38 at t15 CLEANUP. DECLINE Leon: DECLINE selected; 107 removed by engine (seat-1 stays 40); 114 still deals 2 (seat-3 38); zero tax mana frames. Rules Core owned amount/legality/result throughout; provider transported choice + native payment only."
+}
