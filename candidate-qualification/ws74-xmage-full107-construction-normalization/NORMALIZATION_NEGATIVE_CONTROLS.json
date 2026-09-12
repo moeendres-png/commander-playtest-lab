@@ -1,0 +1,90 @@
+{
+  "controls": [
+    {
+      "code": "NORMALIZATION_FAIL:temporal.active_player",
+      "control": "N1",
+      "description": "wrong player/seat (active_seat P1->P2)",
+      "detected_fail_closed": true,
+      "expected_code_contains": "temporal.active_player",
+      "fixture": "NEGATIVE_FIRST_OPTION",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "NORMALIZATION_FAIL:objects.obj:pilot-bolt.card_identity",
+      "control": "N2",
+      "description": "object identity mismatch (Bolt name swapped)",
+      "detected_fail_closed": true,
+      "expected_code_contains": "card_identity",
+      "fixture": "PILOT_TARGET",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "NORMALIZATION_FAIL:objects.obj:pilot-bolt.zone",
+      "control": "N3",
+      "description": "wrong zone (hand object rewritten to graveyard section)",
+      "detected_fail_closed": true,
+      "expected_code_contains": "zone",
+      "fixture": "PILOT_TARGET",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "NORMALIZATION_FAIL:objects.obj:p1-bears.controller",
+      "control": "N4",
+      "description": "wrong controller (battlefield controller swapped seat)",
+      "detected_fail_closed": true,
+      "expected_code_contains": "controller",
+      "fixture": "PILOT_TARGET",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "HIDDEN_EXPOSURE:OPPONENT_HAND_EXPOSED",
+      "control": "N5",
+      "description": "hidden-card identity exposure (honey name into unentitled view)",
+      "detected_fail_closed": true,
+      "expected_code_contains": "HIDDEN_EXPOSURE",
+      "fixture": "HIDDEN_01",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "ECHO_SUBSTITUTION:LEDGER_UNRESOLVED:obj:pilot-bolt",
+      "control": "N6",
+      "description": "stale semantic handle (ledger rewired to dangling UUID)",
+      "detected_fail_closed": true,
+      "expected_code_contains": "LEDGER_UNRESOLVED",
+      "fixture": "PILOT_TARGET",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "DENOMINATOR_DRIFT:CONTRACT_DIGEST_MISMATCH",
+      "control": "N7",
+      "description": "denominator tamper (requested digest replaced)",
+      "detected_fail_closed": true,
+      "expected_code_contains": "DENOMINATOR_DRIFT",
+      "fixture": "NEGATIVE_FIRST_OPTION",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "ECHO_NO_NATIVE_SECTIONS",
+      "control": "N8a",
+      "description": "echo: record-shaped input as readback",
+      "detected_fail_closed": true,
+      "expected_code_contains": "ECHO_NO_NATIVE_SECTIONS",
+      "fixture": "PILOT_TARGET",
+      "result": "NORMALIZATION_FAIL"
+    },
+    {
+      "code": "ECHO_SUBSTITUTION:LEDGER_UNRESOLVED:obj:pilot-bolt",
+      "control": "N8b",
+      "description": "echo: zones forged with broken ledger consistency",
+      "detected_fail_closed": true,
+      "expected_code_contains": "ECHO_SUBSTITUTION",
+      "fixture": "PILOT_TARGET",
+      "result": "NORMALIZATION_FAIL"
+    }
+  ],
+  "evidence_class": "CODE_DERIVED",
+  "families_detected": 8,
+  "families_required": 8,
+  "schema": "ws74.normalization-negative-controls.v1",
+  "verdict": "PASS"
+}

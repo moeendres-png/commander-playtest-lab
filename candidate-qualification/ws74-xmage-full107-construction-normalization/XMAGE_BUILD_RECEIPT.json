@@ -1,0 +1,76 @@
+{
+  "behavior_credit": "0/107",
+  "binding": {
+    "bridge_lineage": {
+      "bridge_file_digests": {
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java": "2d4f44b1052d21d0c6b6526dc548c865ecf850ee",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java": "24574fe1110fe5bbfab0b28c92366ce1a7cfdbaf",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java": "f2876f1a8596b59bb61e6578fea5f718fbc573c0",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "9a275ce540da7e2399be76de835b51c0602d8c7d",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java": "ce1621c0e2ed5fdfcaada115610ebfd9a43594ac",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageGameManager.java": "663777eee0eabb6b6491691c381fb953799b5d51",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java": "0f1b1f501f12ceaf4551fae9cd2c61014646313c"
+      },
+      "ws56_successor_requalification": "1dc43619eff5b71cf20405c5c8da83493ff52732db",
+      "ws60_rqc3_first_wave_terminal": "731891ec5ed8e7611fc9a636bab5fc3c400108eb"
+    },
+    "cpl_commit": "083fa615294e6f6f127ee26ae506936b20651501",
+    "cpl_tree": "c50fd822ea19d180053d83f59573571d769df2b1",
+    "engine_commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+    "engine_remote_url": "https://github.com/moeendres-png/mage.git",
+    "engine_repository": "moeendres-png/mage",
+    "engine_tree": "ea193e0d04493d53d962ed13ebd3b5d2f68838c7",
+    "engine_working_tree_tracked_clean": true,
+    "jars_byte_identical_fresh_build": [
+      {
+        "artifact": "org/mage/mage/1.4.61/mage-1.4.61.jar",
+        "byte_identical": true,
+        "fresh_sha256": "2c9178c8930e1252f001769e1d02e7a6758e47e0cd6a0cced7dfb85b6cea556b",
+        "fresh_target": "Mage/target/mage-1.4.61.jar",
+        "local_versions": [
+          "1.4.61"
+        ],
+        "runtime_sha256": "2c9178c8930e1252f001769e1d02e7a6758e47e0cd6a0cced7dfb85b6cea556b"
+      },
+      {
+        "artifact": "org/mage/mage-sets/1.4.61/mage-sets-1.4.61.jar",
+        "byte_identical": true,
+        "fresh_sha256": "2b1123524c62095677d9a460fedf30ae58a5852c9546587a33072aaab1263087",
+        "fresh_target": "Mage.Sets/target/mage-sets-1.4.61.jar",
+        "local_versions": [
+          "1.4.61"
+        ],
+        "runtime_sha256": "2b1123524c62095677d9a460fedf30ae58a5852c9546587a33072aaab1263087"
+      },
+      {
+        "artifact": "org/mage/mage-deck-constructed/1.4.61/mage-deck-constructed-1.4.61.jar",
+        "byte_identical": true,
+        "fresh_sha256": "d6a255ee31176fecfd9a9e41738a941d9afc1feed96eaf1e6dc11318ae44e833",
+        "fresh_target": "Mage.Server.Plugins/Mage.Deck.Constructed/target/mage-deck-constructed-1.4.61.jar",
+        "local_versions": [
+          "1.4.61"
+        ],
+        "runtime_sha256": "d6a255ee31176fecfd9a9e41738a941d9afc1feed96eaf1e6dc11318ae44e833"
+      },
+      {
+        "artifact": "org/mage/mage-game-commanderfreeforall/1.4.61/mage-game-commanderfreeforall-1.4.61.jar",
+        "byte_identical": true,
+        "fresh_sha256": "a6d92a063d5c9838ebe6b35455dd97e3ab2eacfe0fab301e55e5ed054e2d50cd",
+        "fresh_target": "Mage.Server.Plugins/Mage.Game.CommanderFreeForAll/target/mage-game-commanderfreeforall-1.4.61.jar",
+        "local_versions": [
+          "1.4.61"
+        ],
+        "runtime_sha256": "a6d92a063d5c9838ebe6b35455dd97e3ab2eacfe0fab301e55e5ed054e2d50cd"
+      }
+    ],
+    "old_pin": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+    "predecessor_pin_absent_from_classpath": true,
+    "successor_descends_from_old_pin": true
+  },
+  "build_command": "mvn -o -B -DskipTests -f /tmp/ws56-mage-successor-src/pom.xml -pl Mage.Server.Plugins/Mage.Deck.Constructed,Mage.Server.Plugins/Mage.Game.CommanderFreeForAll -am install",
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "handshake": "runtime classpath jar digests byte-identical to fresh exact-pin build targets; only 1.4.61 present locally; successor descends from old pin; old pin absent from classpath",
+  "harness_source": "java/org/commanderlab/xmage/Ws74StagingHarness.java",
+  "harness_source_sha256": "0ad055d1370f76bd97a885526f1135fac631704c9eda063c0b963d8b7b4cce3d",
+  "schema": "ws74.xmage-build-receipt.v1"
+}

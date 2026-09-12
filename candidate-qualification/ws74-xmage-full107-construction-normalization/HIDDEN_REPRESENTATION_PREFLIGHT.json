@@ -1,0 +1,552 @@
+{
+  "denominator": 107,
+  "evidence_class": "CODE_DERIVED",
+  "failed": 0,
+  "full107_hidden_behavior": "NOT_RUN",
+  "passed": 105,
+  "rows": [
+    {
+      "findings": [],
+      "fixture_id": "PLAYER_COUNT_2P",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PLAYER_COUNT_3P",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PLAYER_COUNT_4P",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PLAYER_COUNT_5P",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_PRIORITY",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_TARGET",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_TARGET_AMOUNT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_MULLIGAN",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_CHOOSE_USE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_CHOICE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_PILE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_ANNOUNCE_X",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_MULTI_AMOUNT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_TRIGGER_ORDER",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_CHOOSE_MODE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_CHOOSE_ABILITY",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_DECLARE_ATTACKER",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "PILOT_DECLARE_BLOCKER",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "NEGATIVE_FIRST_OPTION",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "NEGATIVE_RANDOM_OPTION",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "NEGATIVE_INTERNAL_AI",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "NEGATIVE_GUI_DEFAULT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "NEGATIVE_SILENT_SKIP",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_01",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_02",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_03",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_04",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_05",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_06",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_07",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_08",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_09",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_10",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_11",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_12",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_13",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_14",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_15",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_16",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_17",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_18",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_19",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "RNG_RULES_TAPE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_COSTS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_PRIORITY",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_STACK",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_TARGETS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_MODES",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_TRIGGERS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_REPLACEMENT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_PREVENTION",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_LAYERS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_COPY",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_CONTROL",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_COMBAT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "CARD_02",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-PRIO-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-PRIO-5",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-TRIG-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-TRIG-5",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [
+        "NO_CONSTRUCTED_READBACK"
+      ],
+      "fixture_id": "WS05-MP-TURN-3",
+      "verdict": "PREFLIGHT_UNKNOWN"
+    },
+    {
+      "findings": [
+        "NO_CONSTRUCTED_READBACK"
+      ],
+      "fixture_id": "WS05-MP-TURN-5",
+      "verdict": "PREFLIGHT_UNKNOWN"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-MP-ELIM-5",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-TAX-2",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-TAX-4",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-DMG-SAME-21",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-PARTNER-TAX",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-PARTNER-DMG",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-MULL-2",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-MULL-4",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-START-2",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-START-3",
+      "verdict": "PREFLIGHT_PASS"
+    },
+    {
+      "findings": [],
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "verdict": "PREFLIGHT_PASS"
+    }
+  ],
+  "schema": "ws74.hidden-representation-preflight.v1",
+  "scope": "construction/readback representation only; no hidden-behavior PASS",
+  "unknown": 2,
+  "verdict": "PARTIAL"
+}

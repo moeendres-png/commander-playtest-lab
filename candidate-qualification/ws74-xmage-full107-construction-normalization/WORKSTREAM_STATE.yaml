@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws74-xmage-full107-construction-normalization
 branch: ws74/xmage-full107-construction-normalization-20260912
 audit_base_sha: 96db95dbc3a63d2a10d86e04c65443da617d4437
 audit_base_tree: 07906c475a48bd6ed2bdd8c4422d488853d01c81
-state_written_against_head: 96db95dbc3a63d2a10d86e04c65443da617d4437
-validated_head: null
+state_written_against_head: 083fa615294e6f6f127ee26ae506936b20651501
+validated_head: 083fa615294e6f6f127ee26ae506936b20651501
 objective: Qualify XMage at the accepted successor pin against the exact Full107 provider-fixture
   contract through fresh 107/107 construction and an independently implemented 107/107
   readback/normalization stage, without executing Full107 behavior or granting behavior
@@ -39,7 +39,27 @@ hard_gates:
 - UNKNOWN is not PASS
 - no cross-contract credit
 ownership: WS74-XMAGE-FULL107-CONSTRUCTION-NORMALIZATION
-status: TOOLS_COMMITTED
+status: COMPLETE_PARTIAL
+results:
+  denominator_binding: PASS
+  exact_pin_build: PASS
+  construction: 105/107
+  normalization: 42/107
+  negatives: PASS
+  hidden_preflight: PARTIAL
+  determinism: PASS
+  overall: PARTIAL
+terminal_causes:
+- Nexus-of-Fate graveyard refusal (2 construction FAIL, engine replacement)
+- controlled_since_turn_began model history (~20 normalization FAIL)
+- unreachable temporal phases/active/priority (~15 normalization FAIL)
+- pending commander choices (8 zone_move_event FAIL)
+- declarations/attachments (~6 combat FAIL)
+- SBA/loss evaluation (6 FAIL)
+- cast histories (3 FAIL)
+- untraceable knowledge (4 FAIL)
+- ETB-choice side effect (1 FAIL)
+- pile zone without native zone (1 FAIL)
 technical_decisions:
 - D1_STEP_VOCAB: native PhaseStep names translate into the contract step vocabulary
   (precombat_main to main; lossy postcombat_main to main flagged); phase, turn,
@@ -66,13 +86,12 @@ technical_decisions:
   intervenes before readback. Permission-exercise looks leave no trace.
 - D9_ZERO_COUNTERS: zero-valued requested counters with natively absent counters
   are carried as confirmed-absent; every nonzero counter compares exactly.
-preliminary_dev_findings: Preliminary uncommitted-tool runs reached 105/107 constructed
-  (2 Nexus-of-Fate graveyard placements natively refused by the engine replacement
-  effect) and 42/107 normalization PASS with a fully-evidenced native-cause fail
-  taxonomy. These numbers are NOT validated; final validation from the committed
-  tools HEAD will re-prove or revise them.
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
-exact_next_action: Commit staging tools (code plus source lock plus this state); then
-  run final construction, normalization, negatives, preflight, and determinism from
-  the clean committed HEAD; then validate gates and persist evidence.
+behavior_credit: 0/107
+full107_behavior: NOT_RUN
+architecture_freeze: NOT_CLAIMED
+production_provider: NOT_SELECTED
+exact_next_action: Coordinator review of terminal PARTIAL; authorized safe_push actual
+  only if accepted (dry-run first with --expected-audit-base-ref
+  ws73/full107-contract-reconciliation-20260912).

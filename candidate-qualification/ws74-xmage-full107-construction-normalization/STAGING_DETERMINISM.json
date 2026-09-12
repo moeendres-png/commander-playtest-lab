@@ -1,0 +1,12 @@
+{
+  "checked_artifacts": 212,
+  "evidence_class": "CODE_DERIVED",
+  "mismatch_count": 0,
+  "mismatches": [],
+  "runs": {
+    "a_rundir": "candidate-qualification/ws74-xmage-full107-construction-normalization/.scratch/run-final",
+    "b_rundir": "/home/moeen/code/ws74-xmage-full107-construction-normalization/candidate-qualification/ws74-xmage-full107-construction-normalization/.scratch/run-rerun"
+  },
+  "schema": "ws74.staging-determinism.v1",
+  "verdict": "PASS"
+}
