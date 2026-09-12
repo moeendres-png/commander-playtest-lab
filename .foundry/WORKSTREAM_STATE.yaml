@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws78-foundry-token-economy
 branch: ws78/foundry-token-economy-20260913
 audit_base_sha: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
 audit_base_tree: ed83951226f52f528953e7cdb0dec0b12e6eabcc
-state_written_against_head: e893ee4589459611ddf61da0d5095fcbed96c902
-validated_head: null
+state_written_against_head: 8697c59f8300285fc6337781b62f1bd019bee989
+validated_head: 8697c59f8300285fc6337781b62f1bd019bee989
 objective: 'WS78 Foundry token-economy hardening - make future OpenCode Go + Muse
   Spark 1.3 Contributor HIGH/XHIGH workstreams materially more token/credit efficient
   without reducing Rules Correctness, evidence rigor, privacy, resumability, autonomy,
@@ -175,11 +175,10 @@ files_modified:
 - .opencode/agents/foundry-implementer.md (one additive truncation-recovery line)
 - .foundry/WORKSTREAM_STATE.yaml (WS78 rebind plus progress)
 remaining_scope:
-- final diff review, implementation commit, post-commit revalidation, validated_head
-  promotion, state-only checkpoint commit, canonical safe_push publication
-next_action: Commit the WS78 implementation, revalidate on the new HEAD, promote validated_head,
-  and publish via tools/foundry/safe_push.py.
-exact_next_action: git add the 8 WS78 paths and commit; rerun pytest tests/unit/test_ws78_token_economy.py
-  plus tests/foundry plus ruff; set validated_head to the implementation commit with
-  --workdir ancestry proof; state-only checkpoint commit; safe_push --dry-run then
-  real push.
+- canonical safe_push publication (dry-run rehearsal, then real push)
+- terminal handoff with measured-vs-structural separation
+next_action: Publish via tools/foundry/safe_push.py and return the terminal handoff.
+exact_next_action: safe_push --dry-run to rehearse gates, then real safe_push of branch
+  ws78/foundry-token-economy-20260913; on PUSHED, return the terminal handoff (Coordinator
+  verifies remote head, reviews PR/CI, merges only if quality-non-regression and token-economy
+  gates pass).
