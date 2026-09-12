@@ -1,0 +1,53 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws71-rqc3-remaining92-readiness-audit
+branch: ws71/rqc3-remaining92-readiness-audit-20260912
+audit_base_sha: 7796619e69b0434cd232de8335ff5cab3c5d08e5
+audit_base_tree: 48ec3eafcca668f3fa165e3977af5836b3add059
+state_written_against_head: 7796619e69b0434cd232de8335ff5cab3c5d08e5
+validated_head: null
+objective: Derive the exact remaining 92/107 RQ-C3 behavior denominator and build
+  an evidence-backed candidate-neutral readiness, dependency and execution-wave plan
+  that maximizes qualification information gain without executing behavior.
+in_scope:
+- exact Full107 minus First-Wave denominator derivation
+- 92-scenario authority extraction
+- actual-card inventory
+- decision-kind and mechanic clustering
+- known blocker dependency mapping
+- Forge/XMage readiness classification from existing evidence only
+- execution-wave optimization
+- process-isolation and replay requirements planning
+- candidate-neutral qualification scheduling
+out_of_scope:
+- behavior execution
+- Forge edits
+- XMage edits
+- provider edits
+- harness semantic edits
+- behavior credit
+- Architecture Freeze
+- Production Provider selection
+dependencies:
+- RQ-C3 authority 897d72f0b57bb8febe045870acaa3d2dba4bde56
+- Forge WS65 terminal 7796619e69b0434cd232de8335ff5cab3c5d08e5
+- XMage WS60 terminal 731891ec5ed8e7611fc9a636bab5fc3c400108eb
+- WS66/67/68 are ACTIVE dependencies whose outcomes must NOT be invented
+hard_gates:
+- exact denominator must mechanically reconcile 107 = 15 + 92
+- UNKNOWN is not READY
+- card/source presence is not behavior evidence
+- historical PASS survives only under explicit impact analysis
+- active remediation outcomes must remain pending until actually sealed
+- no behavior credit
+ownership: WS71-RQC3-REMAINING92-READINESS-AUDIT
+status: BLOCKED
+gate_verdict: WS71_REMAINING92_AUDIT=FAIL
+denominator: FULL107_COUNT=0 FIRST_WAVE_COUNT=15 REMAINING_COUNT=0
+blocker: B1-no-authoritative-Full107-ID-set-in-exact-RQ-C3-authority
+phases_b_to_g: NOT_EXECUTED
+exact_next_action: Coordinator resolves B1 (publish source-locked Full107 ID
+  manifest or re-scope denominator), then re-authorizes; rerun
+  ws71_denominator_audit.py unchanged against the new pin.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
