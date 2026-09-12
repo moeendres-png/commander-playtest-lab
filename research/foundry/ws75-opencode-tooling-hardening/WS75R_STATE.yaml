@@ -4,14 +4,14 @@ worktree: /home/moeen/code/ws75-foundry-opencode-tooling-hardening
 branch: ws75/foundry-opencode-tooling-hardening-20260912
 audit_base_sha: c1a760af21469fc1358dbdb9b821f79dcdfaf2db
 audit_base_tree: 061135e2a90fb1b1a6289e6ea508db4da132bd9c
-state_written_against_head: db655ea1ee17658c10f3c9e1cbfd896f0e176220
-validated_head: null
-objective: WS75R CI-hermeticity remediation (no production-semantic change). Repair
+state_written_against_head: 70302f6d19c12170e20f989de1d0982780f7772b
+validated_head: 70302f6d19c12170e20f989de1d0982780f7772b
+objective: 'WS75R CI-hermeticity remediation (no production-semantic change). Repair
   only the WS75 PR-head generic-CI failure (run 34700221661: 9 failed, 1073 passed,
   3 skipped — every failure is a missing ambient `opencode` executable): make
   launcher/unit tests hermetic via explicit qualified-version stubs, gate the one
   real-CLI assertion to SKIP when OpenCode is absent, and lock missing-binary
-  fail-closed behavior with explicit regression tests.
+  fail-closed behavior with explicit regression tests.'
 in_scope:
 - tests/foundry/test_launcher.py (autouse hermetic qualified-CLI stub)
 - tests/foundry/test_ws75_tooling_hardening.py (autouse stub, real-CLI SKIP gate,
@@ -37,8 +37,8 @@ hard_gates:
 - safe_push remains the sole remote-write path
 ownership: WS75R-CI-HERMETICITY
 status: ACTIVE
-exact_next_action: Commit remediation, validate from clean HEAD (targeted, foundry,
-  full pytest, ruff), record validated_head, safe_push via canonical tool only.
+exact_next_action: safe_push dry-run then actual with --expected-audit-base-ref main;
+  then terminal WS75R handoff (do NOT merge PR #181).
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 technical_decisions:
@@ -68,8 +68,15 @@ technical_decisions:
     (typer/hypothesis/openpyxl/fastapi) were installed into a disposable
     venv (validation-only, repo untouched) to mirror CI deps.'
   evidence: failure texts (clean-worktree assertions); CI 9-failed-only record.
-tests_run: []
-evidence: []
+tests_run:
+- 'targeted: pytest tests/foundry/test_launcher.py tests/foundry/test_ws75_tooling_hardening.py -q -> 53 passed (opencode present); 52 passed + 1 SKIP with PATH stripped of opencode (CI simulation)'
+- 'pytest tests/foundry/ -q -> 220 passed, 1 skipped (live export snapshot absent)'
+- 'full pytest -q (venv mirroring CI deps) from clean HEAD 70302f6d -> 1088 passed, 2 skipped, 0 failed'
+- 'ruff check . -> All checks passed; ruff format --check . -> 777 files formatted'
+evidence:
+- 'CI run 34700221661 log: 9 failed (all missing-executable opencode), 1073 passed, 3 skipped'
+- clean-HEAD full run 1088 passed / 0 failed closes exactly those 9 plus 5 new regression tests
+- 'version pin unchanged: QUALIFIED_OPENCODE_VERSION == 1.18.30; workflow asserts untouched'
 artifacts: []
 files_modified:
 - tests/foundry/test_launcher.py
