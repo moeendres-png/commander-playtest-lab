@@ -2,7 +2,7 @@
 
 ## Status of this repository
 
-Current provider truth is `NO_PROVIDER_READY`. Later J-P3 real executions retained PARTIAL evidence for both XMage and Forge, but no production bridge/provider passed the required legal-action/action-submission/replay gate. Phase 8.5 prepared an earlier runtime path and remains historical provenance only.
+Current provider truth is `NO_PROVIDER_READY`. Later J-P3 real executions retained PARTIAL evidence for both XMage and Forge, but no production bridge/provider passed the required legal-action/action-submission/replay gate. The qualified bounded Forge Protocol-2 bridge (separate H4F workstream; H4B remains PARTIAL, unsupported classes fail closed) is materialized through the container path below. Phase 8.5 prepared an earlier runtime path and remains historical provenance only.
 
 ## Pinned providers
 
@@ -91,6 +91,38 @@ export ENGINE_START_COMMAND='java -jar /workspace/vendor/engine-binaries/xmage/b
 ./scripts/docker_build_engine.sh xmage up
 # Forge: ./scripts/docker_build_engine.sh forge build
 ```
+
+## Forge bridge materialization and runtime
+
+Forge carries dual identity from `config/rules_engines.json` (sole authority):
+`secondary_engine.commit` is the Rules-Core pin the bridge reports, and
+`secondary_engine.bridge_source` is the exact candidate source actually cloned
+and built (repository, commit, Rules-Core base). Never conflate them.
+
+```bash
+./scripts/docker_build_engine.sh forge build
+```
+
+The Forge image clones the candidate bridge source at its exact commit, proves
+it descends from the Rules-Core pin with no unapproved Rules-Core drift, builds
+the `forge-protocol2-bridge` module, stages a deterministic runtime classpath,
+and records both identities in `/opt/engine-provenance.json`. At container
+start the entrypoint verifies that record against the mounted manifest
+(Rules-Core fields plus bridge/materialization fields) and refuses to start on
+any mismatch.
+
+The real bridge process starts headless inside the image:
+
+```bash
+export ENGINE_START_COMMAND='/usr/local/bin/forge-bridge'
+```
+
+The launcher derives the Rules-Core engine identity from image provenance,
+binds Forge assets from the materialized source, and execs
+`forge.bridge.BridgeMain` (Protocol 2.0.0 JSONL on stdin/stdout, diagnostics
+on stderr). A successful capability handshake still classifies Forge as
+DEGRADED while global legal/action/event capabilities stay false; that is the
+truthful bounded state, not a failure to fix by flag inflation.
 
 A plain `docker compose -f docker-compose.engine.yml --profile xmage build`
 without the wrapper fails closed (the required build variables are unset)
