@@ -1,0 +1,41 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws68-forge-provider-transport-remediation
+branch: ws68/forge-provider-transport-remediation-20260912
+audit_base_sha: 7796619e69b0434cd232de8335ff5cab3c5d08e5
+audit_base_tree: 48ec3eafcca668f3fa165e3977af5836b3add059
+state_written_against_head: 7796619e69b0434cd232de8335ff5cab3c5d08e5
+validated_head: null
+objective: 'Implement and qualify the two WS65 unsupported Forge provider transport
+  surfaces: payCombatCost and native concession Decision emission, without adding
+  Rules logic.'
+in_scope:
+- payCombatCost authoritative transport
+- concession canConcede/concede external Decision transport
+- provider impact regressions
+- accepted Forge pin a9a95db only
+out_of_scope:
+- Forge engine edits
+- Ghalta root cause
+- Covenant engine repair
+- Clone/Humility repair
+- First-Wave behavior credit
+- Full107
+- Architecture Freeze
+- Production Provider selection
+dependencies:
+- WS65 terminal 7796619e69b0434cd232de8335ff5cab3c5d08e5
+- accepted Forge pin a9a95db6662c2d28814390a9c0c2f986e39aa8b4
+hard_gates:
+- Rules Core owns combat-cost amount and legality
+- concession availability comes only from native canConcede
+- no priority gating for concession
+- no direct Player.concede orchestration injection
+- no first/random/default fallback
+- unsupported ambiguity fails closed
+ownership: WS68-FORGE-PROVIDER-TRANSPORT-REMEDIATION
+status: ACTIVE
+exact_next_action: Code checkpoint commit (overlay+build+runner+intents); then final-build
+  qualification runs E01-pay/decline, G04, A04, C01 + Ws59 engine suites
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
