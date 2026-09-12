@@ -76,6 +76,9 @@ The launcher injects exact run context as `FOUNDRY_*` environment plus
 - `doom_loop` is `deny` by canonical policy: under `--auto`, an `ask`
   would auto-approve repetition, so identical repetition fails closed.
   When a call repeats, stop and change approach instead of looping.
+- When a tool result is truncated (the preview names the saved full output
+  file), prefer reading that saved full output with offset/limit (or searching
+  it) over rerunning an expensive command merely to see more output.
 
 13. Escalate to `xhigh` effort only for genuinely difficult nonlocal reasoning, unclear
 engine-vs-provider-vs-harness-vs-fixture causality, or complex multi-subsystem

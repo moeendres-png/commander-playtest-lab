@@ -161,6 +161,28 @@ def sibling_denies(worktree: str) -> list[str]:
     return sorted(denies)
 
 
+def _validated_tool_output(value: object) -> dict:
+    """Fail closed on malformed tool_output (pinned 1.18.30: positive ints).
+
+    Only the DIRECTLY_VERIFIED keys ``max_lines`` / ``max_bytes`` pass
+    through; unknown keys are refused so no canonical bound is silently
+    dropped by the injection bundle.
+    """
+    if not isinstance(value, dict):
+        raise ValueError(f"tool_output must be an object, got {type(value).__name__}")
+    out: dict = {}
+    for key in ("max_lines", "max_bytes"):
+        if key in value:
+            item = value[key]
+            if not isinstance(item, int) or isinstance(item, bool) or item <= 0:
+                raise ValueError(f"tool_output.{key} must be a positive int, got {item!r}")
+            out[key] = item
+    unknown = sorted(set(value) - {"max_lines", "max_bytes"})
+    if unknown:
+        raise ValueError(f"tool_output has unknown keys: {unknown}")
+    return out
+
+
 def build_content_bundle(canonical_root: str, extra_denies: list[str]) -> dict:
     """Canonical model/permission lock for OPENCODE_CONFIG_CONTENT."""
     config_path = Path(canonical_root) / "opencode.json"
@@ -195,6 +217,8 @@ def build_content_bundle(canonical_root: str, extra_denies: list[str]) -> dict:
         ext[deny] = "deny"
     if "instructions" in config:
         bundle["instructions"] = config["instructions"]
+    if "tool_output" in config:
+        bundle["tool_output"] = _validated_tool_output(config["tool_output"])
     return bundle
 
 
