@@ -168,10 +168,12 @@ def _check_handshake(
 
     Step shape policy: XMage keeps its exact historical payload contract. Forge
     accepts its documented qualified shapes (``status`` strings instead of
-    boolean flags) with identical rigor everywhere else — request/response
-    identity, protocol version, success, provider identity, manifest commit
-    attestation and runtime_kind. The observed shape is recorded; no shape is
-    silently normalized into another.
+    boolean flags, ``provider`` instead of ``engine`` for provider identity on
+    get_provider_version, and a status-only shutdown payload) with identical
+    rigor everywhere else — request/response identity, protocol version,
+    success, provider identity, manifest commit attestation and runtime_kind.
+    The observed shape is recorded; no shape is silently normalized into
+    another.
     """
     observed: dict = {}
     if len(requests) != len(HANDSHAKE_METHODS):
@@ -229,7 +231,39 @@ def _check_handshake(
                     ), observed
                 observed["handshake_shape"] = "started-flag" if started is True else "status-string"
         elif index == 1:
-            if payload.get("engine") != provider:
+            if provider == "forge":
+                # Qualified Forge shape (BridgeEngine.getProviderVersion):
+                # identity key is "provider", not "engine" (live H4F proof and
+                # BridgeProtocolProcessTest assert payload.provider == "forge").
+                # Accept the qualified "provider" shape and the historical
+                # "engine" test shape, but any present identity key must equal
+                # the provider and at least one must identify it.
+                engine_id = payload.get("engine")
+                provider_id = payload.get("provider")
+                if engine_id is not None and engine_id != provider:
+                    return _boundary(
+                        "FAIL",
+                        f"{where}: providerVersion engine is {engine_id!r}, expected {provider!r}",
+                    ), observed
+                if provider_id is not None and provider_id != provider:
+                    return _boundary(
+                        "FAIL",
+                        f"{where}: providerVersion provider is {provider_id!r}, "
+                        f"expected {provider!r}",
+                    ), observed
+                if engine_id != provider and provider_id != provider:
+                    return _boundary(
+                        "FAIL",
+                        f"{where}: providerVersion engine is {engine_id!r}, expected {provider!r}",
+                    ), observed
+                observed["provider_identity_shape"] = (
+                    "provider-key"
+                    if provider_id == provider and engine_id != provider
+                    else "engine-key"
+                    if engine_id == provider and provider_id != provider
+                    else "dual-key"
+                )
+            elif payload.get("engine") != provider:
                 return _boundary(
                     "FAIL",
                     f"{where}: providerVersion engine is {payload.get('engine')!r}, "
@@ -270,7 +304,29 @@ def _check_handshake(
                 )
             }
         elif index == 3:
-            if provider == "xmage":
+            if provider == "forge":
+                # Qualified Forge shutdown (BridgeEngine.shutdownEngine) is a
+                # status-only payload {"status": "engine_shut_down"} with no
+                # engine/provider identity keys; identity is already bound at
+                # steps 0-2. Accept that shape, accept the historical
+                # engine-bearing test shape, but any present identity key must
+                # equal the provider.
+                engine_id = payload.get("engine")
+                provider_id = payload.get("provider")
+                if engine_id is not None and engine_id != provider:
+                    return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
+                if provider_id is not None and provider_id != provider:
+                    return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
+                if not (
+                    payload.get("shutdown") is True or payload.get("status") == "engine_shut_down"
+                ):
+                    return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
+                observed["shutdown_shape"] = (
+                    "status-only"
+                    if engine_id is None and provider_id is None
+                    else "identity-bearing"
+                )
+            elif provider == "xmage":
                 if payload.get("engine") != provider or payload.get("shutdown") is not True:
                     return _boundary("FAIL", f"{where}: shutdown payload is malformed"), observed
             elif payload.get("engine") != provider or not (

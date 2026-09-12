@@ -383,6 +383,127 @@ def test_verify_forge_complete_with_handshake_and_linkage(
     assert verdict["boundaries"]["source_head_match"]["status"] == "PASS"
 
 
+def _qualified_forge_responses(protocol: str, commit: str, release: str, requests: list) -> list:
+    """Real qualified Forge bridge shapes (H4FR run 34709267463).
+
+    get_provider_version identifies with ``provider`` (not ``engine``) and
+    shutdown_engine is status-only (no identity keys). Proven by
+    BridgeEngine.getProviderVersion/shutdownEngine, BridgeProtocolProcessTest
+    (payload.provider == "forge"), and the live H4F bridge test. The verifier
+    must accept these shapes with identical rigor elsewhere.
+    """
+    payloads = [
+        {"engine": "forge", "protocol_version": protocol, "status": "started"},
+        {
+            "provider": "forge",
+            "release": release,
+            "engine_commit": commit,
+            "engine_commit_source": "env:FORGE_ENGINE_SHA",
+            "protocol_version": protocol,
+            "bridge_name": "forge-protocol2-bridge",
+            "bridge_version": "test",
+            "java_version": "17",
+        },
+        {
+            "capabilities": {
+                "commander_supported": True,
+                "multiplayer_supported": True,
+                "deck_import_supported": True,
+                "legal_actions_supported": False,
+                "action_submission_supported": False,
+                "event_log_supported": False,
+                "runtime_kind": "external_rules_engine",
+            }
+        },
+        {"status": "engine_shut_down"},
+    ]
+    return [
+        {
+            "protocol_version": protocol,
+            "request_id": request["request_id"],
+            "success": True,
+            "status": "ok",
+            "payload": payload,
+            "engine_event_offset": 0,
+        }
+        for request, payload in zip(requests, payloads, strict=True)
+    ]
+
+
+def test_verify_forge_qualified_bridge_shapes_complete(verifier, resolver, manifest_path, tmp_path):
+    """H4FR: qualified Forge provider/shutdown shapes must verify COMPLETE.
+
+    Fails before the correction with
+    ``handshake step 1 (get_provider_version): providerVersion engine is None``;
+    passes after. Does not weaken identity: engine_commit must still attest the
+    Rules-Core pin and capabilities must stay conservative.
+    """
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    assert bridge["rules_core_base_commit"] == pin.commit
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    requests = _emit(verifier, manifest_path, "forge", tmp_path, "forge-qualified")
+    responses = _qualified_forge_responses(pin.protocol_version, pin.commit, pin.release, requests)
+    transcript = _write(
+        tmp_path,
+        "forge-qualified-transcript.jsonl",
+        "\n".join(json.dumps(r, sort_keys=True) for r in responses) + "\n",
+    )
+    args.extend(
+        [
+            "--handshake-requests",
+            str(tmp_path / "forge-qualified-requests.jsonl"),
+            "--handshake-transcript",
+            str(transcript),
+        ]
+    )
+    rc = verifier.main(args)
+    assert rc == 0
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["overall"] == "EVIDENCE_COMPLETE"
+    handshake = verdict["boundaries"]["bridge_handshake"]
+    assert handshake["status"] == "PASS"
+    assert handshake["observed"]["engine_commit"] == pin.commit
+    assert handshake["observed"]["provider_identity_shape"] == "provider-key"
+    assert handshake["observed"]["shutdown_shape"] == "status-only"
+    caps = handshake["observed"]["capabilities"]
+    assert caps["legal_actions_supported"] is False
+    assert caps["action_submission_supported"] is False
+    assert caps["event_log_supported"] is False
+    assert caps["runtime_kind"] == "external_rules_engine"
+
+
+def test_verify_forge_qualified_shapes_wrong_identity_fails_closed(
+    verifier, resolver, manifest_path, tmp_path
+):
+    """H4FR: qualified-shape acceptance must not weaken provider identity."""
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    requests = _emit(verifier, manifest_path, "forge", tmp_path, "forge-wrongid")
+    responses = _qualified_forge_responses(pin.protocol_version, pin.commit, pin.release, requests)
+    responses[1]["payload"]["provider"] = "xmage"
+    transcript = _write(
+        tmp_path,
+        "forge-wrongid-transcript.jsonl",
+        "\n".join(json.dumps(r, sort_keys=True) for r in responses) + "\n",
+    )
+    args.extend(
+        [
+            "--handshake-requests",
+            str(tmp_path / "forge-wrongid-requests.jsonl"),
+            "--handshake-transcript",
+            str(transcript),
+        ]
+    )
+    rc = verifier.main(args)
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["boundaries"]["bridge_handshake"]["status"] == "FAIL"
+
+
 def test_verify_forge_partial_without_handshake(verifier, resolver, manifest_path, tmp_path):
     pin = _expected(resolver, manifest_path, "forge")
     bridge = _bridge_dict(resolver, manifest_path)
