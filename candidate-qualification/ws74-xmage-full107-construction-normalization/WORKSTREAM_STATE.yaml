@@ -39,7 +39,7 @@ hard_gates:
 - UNKNOWN is not PASS
 - no cross-contract credit
 ownership: WS74-XMAGE-FULL107-CONSTRUCTION-NORMALIZATION
-status: COMPLETE_PARTIAL
+status: COMPLETE
 results:
   denominator_binding: PASS
   exact_pin_build: PASS
@@ -62,30 +62,30 @@ terminal_causes:
 - pile zone without native zone (1 FAIL)
 technical_decisions:
 - D1_STEP_VOCAB: native PhaseStep names translate into the contract step vocabulary
-  (precombat_main to main; lossy postcombat_main to main flagged); phase, turn,
-  active, and priority compare exactly native.
+    (precombat_main to main; lossy postcombat_main to main flagged); phase, turn,
+    active, and priority compare exactly native.
 - D2_FILLER_UUID_EXCLUSION: Wastes filler cards are tracked setup artifacts excluded
-  by native UUID only (ignored_provider_local), never by semantic identity.
+    by native UUID only (ignored_provider_local), never by semantic identity.
 - D3_METADATA_CARRY: non-observable contract fields are carried from the record and
-  labeled (permission context, static texts, annotations, creation parameters,
-  zero-valued counters confirmed absent); never presented as observed.
+    labeled (permission context, static texts, annotations, creation parameters,
+    zero-valued counters confirmed absent); never presented as observed.
 - D4_SINGLE_JVM_SEQUENTIAL: one JVM constructs all 107 in fresh games each
-  (WS54-proven cross-game isolation) plus isolated single-fixture JVM spot checks.
+    (WS54-proven cross-game isolation) plus isolated single-fixture JVM spot checks.
 - D5_LOAD_BOUNDARY: external-control lane paused at the first precombat-main
-  priority (turn 1, active P1, priority P1).
+    priority (turn 1, active P1, priority P1).
 - D6_STARTUP_PASSES: resolving pre-boundary upkeep/draw priorities through qualified
-  provider pass machinery is game-startup completion, not Full107 behavior; the
-  pending boundary decision is never resolved by staging.
+    provider pass machinery is game-startup completion, not Full107 behavior; the
+    pending boundary decision is never resolved by staging.
 - D7_MODE_LABEL: requested stack mode labels derive from native engine mode texts
-  by a fixed token-subset rule on both sides.
+    by a fixed token-subset rule on both sides.
 - D8_ACQUIRED_KNOWLEDGE: known lists derive from native knowledge traces
-  (lookedAt per viewer, grant-backed revealed membership); ambient public
-  visibility stays implicit per the contract's empty rows.
+    (lookedAt per viewer, grant-backed revealed membership); ambient public
+    visibility stays implicit per the contract's empty rows.
 - D10_LOOK_TRACES: acquisition looks recorded via the public lookedAt container
-  API (the UI-update event path clears traces immediately); no game action
-  intervenes before readback. Permission-exercise looks leave no trace.
+    API (the UI-update event path clears traces immediately); no game action
+    intervenes before readback. Permission-exercise looks leave no trace.
 - D9_ZERO_COUNTERS: zero-valued requested counters with natively absent counters
-  are carried as confirmed-absent; every nonzero counter compares exactly.
+    are carried as confirmed-absent; every nonzero counter compares exactly.
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 behavior_credit: 0/107
