@@ -4,7 +4,7 @@ worktree: /home/moeen/code/ws80-xmage-callback-reachability
 branch: ws80/xmage-callback-reachability-20260912
 audit_base_sha: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
 audit_base_tree: ed83951226f52f528953e7cdb0dec0b12e6eabcc
-state_written_against_head: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+state_written_against_head: d4f18d6c06d4226090f86f31b4706191385a72c5
 validated_head: null
 objective: Establish an exact XMage callback/entrypoint reachability model and eliminate
   any production-reachable discretionary default/stub behavior without widening capability
@@ -26,8 +26,8 @@ out_of_scope:
 - Production Provider selection
 ownership: WS80-XMAGE-CALLBACK-REACHABILITY
 status: ACTIVE
-exact_next_action: Run an XHIGH read-first reachability adjudication before any production
-  edit, then implement only the minimal evidence-supported boundary remediation.
+exact_next_action: Commit validated WS80 fix plus artifacts and test plus state checkpoint;
+  then push only via canonical safe_push dry-run (no direct push, no PR, no merge).
 dependencies:
 - CPL main 90f95c117b190d6b21704ca7639198e3ac0a2dc2
 - current config/rules_engines.json capability truth
@@ -52,3 +52,130 @@ forbidden_shortcuts:
 - speculative broad rewrite
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: xhigh
+technical_decisions:
+- 'XHIGH adjudication (foundry-adjudicator ses_f68b3ae7bffelk6GWv0IZiCVJ2) completed
+  read-first on HEAD d4f18d6c06d4226090f86f31b4706191385a72c5: three Main routes verified
+  (compat default Main.java:37-40, phase6 Main.java:23-31, full-game Main.java:32-35);
+  compat instantiates XmageBridgePlayer via JsonlBridge plus XmageGameManager, phase6
+  instantiates XmageBridgePlayer null-controller, full-game instantiates XmageFullGamePlayer
+  via XmageFullGameSession plus blocking controller.'
+- 'First failing boundary: XmageBridgePlayer on B4 external_control=true path (XmageGameManager.java:262-273
+  plus 358-387 resume to real priority pause, then 64-decision GET_LEGAL_ACTIONS loops)
+  silently defaults on every non-priority discretionary stub (20 overridden plus 5
+  inherited first-face/parent/RNG-choice defaults) instead of failing closed; submission_ready
+  gate (ExternalDecisionController.java:158-161) covers only targets/modal, not Choice/Use/pile/mana/X/amount/replacement/trigger;
+  executor gate (XmageActionExecutor.java:110-125) covers only target_ids/selected_modes/choices.'
+- 'Minimal repair selected: single failIfExternallyControlled guard in XmageBridgePlayer
+  throwing fail-closed when externalDecisionController != null at top of each discretionary
+  stub plus explicit overrides for inherited chooseAbilityForCast and chooseLandOrSpellAbility;
+  preserve null-controller B3 plus Phase6 behavior byte-identical (priority, chooseMulligan
+  keep-hand, shuffleLibrary no-op, copy/abort/skip/sideboard/construct/pickCard unchanged);
+  no Main routing, capability, pin, full-game lane, or pilot-policy change; no ARCHITECTURE
+  AUTHORITY_GATE for this guard.'
+- 'Capability truth verified: compat and full-game both advertise legal_actions_supported=false
+  and action_submission_supported=false (XmageProvider.java:66-67, XmageFullGameJsonlBridge.java:311-312,
+  config/rules_engines.json:40-42); COMPATIBILITY_CAPABILITY_INFLATION=0; PILOT_RULES_LOGIC=0;
+  ENGINE_PIN_CHANGE=0 (primary_engine.commit 77d7646da6958fdf8125ee7c8f4aabd130d21d4c,
+  protocol 2.0.0).'
+- 'Rules randomness: full-game lane engine-owned (XmageFullGameSession.java:90 RandomUtil.setSeed
+  plus XmageFullGamePlayer.java:883-885 super.shuffle); compat lane explicitly not
+  owned by design (XmageBridgePlayer.java:189-197 no-op plus seed_supported=false
+  plus seed null plus seed rejection) and documented as not gameplay evidence.'
+- 'Implementer refinement (evidence-driven, not adjudicator scope): unconditional
+  guard broke validated B4 start at GameImpl.init:1409 Select a starting player (TargetPlayer,
+  source null, phase null); narrowed to isStartingPlayerInitChoice honoring requested
+  starting_player_seat by self-select; all other externally controlled discretionary
+  callbacks still fail closed. Proven by XmageExternalDecisionTest plus XmageActionSubmissionTest
+  plus XmageEventLogLifecycleTest passing post-fix and new fail-closed boundary tests.'
+- 'Validation post-fix: engine-bridge mvn verify 54 run 0 failures with isolated java.io.tmpdir
+  (Phase6 IO failures on first post-fix run were INFRASTRUCTURE_DEFECT from /tmp full
+  by unrelated workstreams, not code); Python 11 plus 58 passed; verify.py WS80_VERIFY=PASS.'
+hypotheses_rejected:
+- Three families is filename folklore; only one real entrypoint exists. Rejected: Main.java
+    shows three disjoint dispatches with distinct bridges/players, Python spawners,
+    and CI jobs.
+- Full-game is just a flag preserving compat behavior. Rejected: separate XmageFullGameJsonlBridge
+    class with disjoint message set, seed required, one-game-per-process, human=true
+    blocking controller.
+- Bridge stubs unreachable on claimed B4 bounded path. Rejected: incomplete submission_ready
+    plus 64-pass loops plus no invocation log; passing B3/B4 assertions are CODE_DERIVED
+    for non-invocation.
+- Full-game lane has hidden defaults via chooseRingBearer/getMultiAmount/flip/roll. Rejected: delegations
+    audited safe via externalized chooseUse plus engine RandomUtil plus reflection
+    boundary test.
+- Python pilot reconstructs legality. Rejected: Java publishes engine queries only;
+    Python ranks among offered option_ids; Java re-validates allow-list plus bounds
+    plus actor plus staleness.
+- Capability inflation exists. Rejected: exhaustive grep shows false everywhere for
+    compat production claims; tactical/phase85/fake hits are non-compat scopes.
+- Shuffle no-op is engine-owned randomness. Rejected: compat no-op plus seed_supported=false
+    plus seed null is explicitly not engine-owned; full-game super.shuffle plus setSeed
+    is engine-owned.
+- Unconditional fail-closed guard preserves validated B4 start. Rejected by implementer evidence: GameImpl.init
+    starting-player selection is a validated bounded init choice that must self-select
+    the requested seat; narrowed exception preserves it while keeping all other external
+    discretionary callbacks fail-closed.
+first_failing_boundary: XmageBridgePlayer discretionary defaults reachable on B4 external_control=true
+  compatibility path (XmageGameManager.java:262-273 construction, 358-387 resume,
+  64-decision loops); none of XmageBridgePlayer.java:102-397 checked externalDecisionController
+  pre-fix; single systemic guard at externalDecisionController!=null boundary plus
+  2 inherited cast-choice overrides plus narrow starting-player init exception covers
+  all 20 overridden plus inherited first-face defaults post-fix.
+root_cause_class: PROVIDER_ADAPTER_DEFECT
+failure_class: PROVIDER_ADAPTER_DEFECT
+evidence:
+- Adjudicator task ses_f68b3ae7bffelk6GWv0IZiCVJ2 read-first verdict FAIL with file:line
+  entrypoint table, per-Player callback inventory, and minimal guard recommendation
+  preserving NO_PROVIDER_READY.
+- 'Source Lock verified: branch ws80/xmage-callback-reachability-20260912, audit base
+  90f95c117b190d6b21704ca7639198e3ac0a2dc2, config/rules_engines.json pin 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+  protocol 2.0.0.'
+- 'Post-fix runtime evidence: 54 Java plus 69 Python tests pass; starting-player init
+  exception proven by B4 start integration tests; negative fail-closed tests prove
+  observable old defaults now throw.'
+artifacts:
+- qualification/ws80-xmage-callback-reachability/SOURCE_LOCK.md
+- qualification/ws80-xmage-callback-reachability/ENTRYPOINT_REACHABILITY.json
+- qualification/ws80-xmage-callback-reachability/CALLBACK_INVENTORY.json
+- qualification/ws80-xmage-callback-reachability/CAPABILITY_MAPPING.json
+- qualification/ws80-xmage-callback-reachability/RISK_MATRIX.json
+- qualification/ws80-xmage-callback-reachability/ADJUDICATION.md
+- qualification/ws80-xmage-callback-reachability/VALIDATION.json
+- qualification/ws80-xmage-callback-reachability/FINAL_REPORT.md
+- qualification/ws80-xmage-callback-reachability/verify.py
+- qualification/ws80-xmage-callback-reachability/WORKSTREAM_STATE.yaml
+validated_gates:
+- ENTRYPOINT_INVENTORY_COMPLETE=PASS
+- CALLBACK_INVENTORY_COMPLETE=PASS
+- CAPABILITY_REACHABILITY_CONSISTENT=PASS
+- PRODUCTION_REACHABLE_DEFAULT_DECISIONS=0
+- FULL_GAME_EXTERNAL_DECISION_BOUNDARY=PASS
+- RULES_RANDOMNESS_ENGINE_OWNED=PASS
+- UNSUPPORTED_PATHS_FAIL_CLOSED=PASS
+- COMPATIBILITY_CAPABILITY_INFLATION=0
+- PILOT_RULES_LOGIC=0
+- ENGINE_PIN_CHANGE=0
+files_modified:
+- engine-bridge/src/main/java/org/commanderlab/xmage/XmageBridgePlayer.java
+- engine-bridge/src/test/java/org/commanderlab/xmage/XmageBridgePlayerFailClosedTest.java
+- qualification/ws80-xmage-callback-reachability/SOURCE_LOCK.md
+- qualification/ws80-xmage-callback-reachability/ENTRYPOINT_REACHABILITY.json
+- qualification/ws80-xmage-callback-reachability/CALLBACK_INVENTORY.json
+- qualification/ws80-xmage-callback-reachability/CAPABILITY_MAPPING.json
+- qualification/ws80-xmage-callback-reachability/RISK_MATRIX.json
+- qualification/ws80-xmage-callback-reachability/ADJUDICATION.md
+- qualification/ws80-xmage-callback-reachability/VALIDATION.json
+- qualification/ws80-xmage-callback-reachability/FINAL_REPORT.md
+- qualification/ws80-xmage-callback-reachability/verify.py
+tests_run:
+- 'mvn -B -ntp verify (engine-bridge, isolated java.io.tmpdir): 54 run, 0 failures
+  (XmageBridgePlayerFailClosedTest 5, XmageFullGamePlayerBoundaryTest 4, XmageFullGameBridgeContractTest
+  2, XmageFullGameInventoryTest 1, XmageFullGameCastChoiceTest 1, XmageExternalDecisionTest
+  1, XmageActionSubmissionTest 1, XmageEventLogLifecycleTest 1, XmageGameManagerTest
+  10, JsonlBridgeTest 8, XmageStateObservationTest 1, XmageDeckImporterTest 10, Phase6DifferentialAdapterValidationTest
+  9)'
+- 'pytest -q tests/unit/test_xmage_full_game.py tests/unit/test_xmage_compatibility_provider.py:
+  11 passed'
+- 'pytest -q tests/unit/test_xmage_full_game_decision_matrix.py tests/unit/test_h4_workflow_structure.py
+  tests/unit/test_h4_verify_materialization_evidence.py: 58 passed'
+- 'python3 qualification/ws80-xmage-callback-reachability/verify.py: WS80_VERIFY=PASS'
