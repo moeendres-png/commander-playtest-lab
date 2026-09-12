@@ -1,0 +1,54 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws80-xmage-callback-reachability
+branch: ws80/xmage-callback-reachability-20260912
+audit_base_sha: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+audit_base_tree: ed83951226f52f528953e7cdb0dec0b12e6eabcc
+state_written_against_head: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+validated_head: null
+objective: Establish an exact XMage callback/entrypoint reachability model and eliminate
+  any production-reachable discretionary default/stub behavior without widening capability
+  claims or creating adapter-side Rules semantics.
+in_scope:
+- XMage compatibility and full-game entrypoint mapping
+- Player callback inventory
+- runtime reachability and capability-claim mapping
+- fail-closed boundary tests
+- minimal remediation if a claimed production-reachable path can hit discretionary
+  defaults
+- bounded evidence and regression validation
+out_of_scope:
+- new Rules semantics in CPL
+- engine repin
+- broad provider redesign without evidence
+- Full107
+- Architecture Freeze
+- Production Provider selection
+ownership: WS80-XMAGE-CALLBACK-REACHABILITY
+status: ACTIVE
+exact_next_action: Run an XHIGH read-first reachability adjudication before any production
+  edit, then implement only the minimal evidence-supported boundary remediation.
+dependencies:
+- CPL main 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+- current config/rules_engines.json capability truth
+- dedicated XmageFullGamePlayer lane
+hard_gates:
+- all supported XMage entrypoints mapped
+- all discretionary Player callback surfaces classified
+- no production-reachable path silently uses first/min/default/no-op discretionary
+  decisions
+- full-game fail-closed semantics preserved
+- compatibility capability claims not widened
+- Rules randomness stays XMage-owned
+- no pilot-side legality reconstruction
+forbidden_shortcuts:
+- first option
+- minimum as silent choice
+- default yes/no
+- no-op Rules randomness
+- internal XMage AI fallback
+- fabricated legal actions
+- capability inflation
+- speculative broad rewrite
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: xhigh
