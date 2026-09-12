@@ -38,7 +38,7 @@ hard_gates:
 - engine repositories are read-only
 - UNKNOWN is not implemented
 ownership: WS72-CROSS-CANDIDATE-CARD-AVAILABILITY-PREFLIGHT
-status: PREFLIGHT_PARTIAL
+status: COMPLETE
 exact_next_action: >-
   Coordinator decision on the Full107 population gap (67 slots
   AUTHORITY_ABSENT in RQ-C3 authority) - name the artifact enumerating the
