@@ -1,0 +1,23 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "attack": 881,
+    "blockers": [
+      886,
+      887
+    ],
+    "damage": [
+      892,
+      893,
+      894
+    ],
+    "order_zone": [
+      895,
+      896
+    ]
+  },
+  "summary": "Tyrant-124 cast t22 (6 native mana, resolved). Attack t26 ->P1. Double block (Elves-95+Bear-8). Compliant 2/1/4 division via sequential combatDamage frames (892: 2 Bear; 893: 1 Elves; 894: 4 player seat-1); zero ordering frames anywhere (AG-3). GY order_zone scripted (harness-scope). Life 36; blockers GY; Tyrant alive; hidden PASS; replay 0 divs.",
+  "verdict": "PASS"
+}

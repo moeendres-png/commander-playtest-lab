@@ -1,0 +1,29 @@
+{
+  "blocking_scenarios": [
+    "RQ-C3-G04 (self-loss via Fire Covenant; concession Decision separately unreachable)"
+  ],
+  "classification": "ENGINE_RULES_DEFECT as leading hypothesis (X-life billed as mana-X; differential control Fireball mana-X correct). HARNESS_DEFECT ruled out (all offered options answered exactly). Concession-Decision unreachability recorded separately (no provider emitter for ws62RequestConcession; loss-path was the authority-allowed alternative).",
+  "established_state_supplemental": "Bear-107 control change (P2-owned -> P1-controlled) via Control Magic-22 (UU+2 paid natively, attached, fizzled=false) fully evidenced in /tmp/ws65-run/G04_v59.json + /tmp/ws65-run/G04_v60.json; retained as leave-game-cleanup control context.",
+  "evidence_class": "DIRECTLY_VERIFIED (fresh-process runs on accepted pin)",
+  "mechanism_hypothesis": "announce_x 39 submission (correct per NUMRANGE protocol) is recorded as XManaCostPaid=39, adding a {39} generic-mana shard to the bill (total {1}{R}+{39}=41, unpayable with 14 lands). The life-X leaks into the mana cost. ENGINE-side X-cost accounting defect for additional-cost (non-mana) X. Provider answered every offered mana frame exactly; harness blameless.",
+  "packet_id": "WS65-RP-COVENANT-XMAUL-01",
+  "production_edit_in_ws65": false,
+  "remediation_scope_hint": "Engine-direct test: Fire Covenant (and other additional-cost-X, e.g. Toxic Deluge X-life) with scripted X: assert mana bill excludes life-X and life paid correctly; repair OUTSIDE WS65 with impact requalification. Separately: concession emitter transport (provider overlay + requalification) for the credited G04 Decision path.",
+  "reproducer": {
+    "deck_commander": "Edric, Spymaster of Trest",
+    "deck_main": "Mountain*25,Island*25,Forest*20,Runeclaw Bear*10,Control Magic*7,Fire Covenant*6,Lightning Bolt*6",
+    "evidence_pointers": {
+      "aftermath": "1905+ priority PASS, combat, MAIN2; no Covenant spell_cast; lands untapped at 1924+ (refund proves rollback)",
+      "announce": "frame 1891 NUMRANGE X value=39",
+      "bolt_main2": "frames 1922-1926 (Bolt target self o0 offered; mana UU for {R} then block: payment also derailed post-rollback)",
+      "done": "frame 1892 TARGET DONE o1",
+      "mana_taps": "frames 1893-1904 (12 taps: 51,95,32,77,85,49,54,96,88,63,98,92)"
+    },
+    "intent": "/tmp/ws65-run/G04_intent_v71.json",
+    "journal": "/tmp/ws65-run/G04_v71.json"
+  },
+  "scenario_verdict": "UNKNOWN (leave-game cleanup not reached; no incorrect Rules behavior demonstrated; fail-closed/rollback responses are conformant)",
+  "schema": "ws65.remediation-packet.v1",
+  "status": "OPEN (not remediated inside WS65; no production semantic edit made)",
+  "symptom": "Fire Covenant with announced X=39 (life) and DONE zero-targets never completes mana payment: engine requests unbounded mana (12 taps across all P1 lands for a {1}{R} spell), then rolls back (lands refunded/untapped, spell uncast, game continues). Control: Fireball X=5 (mana-X) on the same build pays exactly {5}{R}+{1} and resolves. Differential: mana-X billed correctly; life-X misbilled."
+}

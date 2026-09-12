@@ -1,0 +1,13 @@
+{
+  "class": "UNSUPPORTED_DECISION_KIND",
+  "credit": 0,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "declare_attacker": [
+      474,
+      475
+    ]
+  },
+  "summary": "Declarations Bear-107->P1 + Bear-114->P3 engine-accepted (attackers + defender-per-attacker demonstrated). Propaganda {2} tax invokes payCombatCost; qualified provider fail-closes by design (stop reason). Tax/damage/life unreached. Fail-closed is conformant, not incorrect behavior. Packet WS65-RP-PAYCOMBATCOST-01.",
+  "verdict": "UNKNOWN"
+}

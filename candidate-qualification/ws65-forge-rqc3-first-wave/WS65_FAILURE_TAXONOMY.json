@@ -1,0 +1,41 @@
+{
+  "schema": "ws65.failure-taxonomy.v1",
+  "rows": [
+    {
+      "scenario": "RQ-C3-E01",
+      "verdict": "UNKNOWN",
+      "failure_class": "UNSUPPORTED_DECISION_KIND",
+      "note": "Declarations Bear-107->P1 + Bear-114->P3 engine-accepted (attackers + defender-per-attacker demonstrated). Propaganda {2} tax invokes payCombatCost; qualified provider fail-closes by design (stop reason). Tax/damage/life"
+    },
+    {
+      "scenario": "RQ-C3-G02",
+      "verdict": "UNKNOWN",
+      "failure_class": "UNKNOWN",
+      "note": "Cost-reduced (3-Bear) Ghalta cast from CZ: engine requests exactly 6, all 6 submissions ACCEPTED, then NO spell_cast/stack/resolution; Ghalta remains in CZ; game continues. Reproduced twice (t21 seq 703, t25 seq 844). En"
+    },
+    {
+      "scenario": "RQ-C3-G03",
+      "verdict": "UNKNOWN",
+      "failure_class": "UNKNOWN",
+      "note": "Bounded attempt reusing the G02 line (same deck/IDs/determinism). Identical silent drop at Ghalta cast seq 703 (payment accepted, no stack/resolve). Commander-damage window unreachable (no Ghalta). Same root blocker as G"
+    },
+    {
+      "scenario": "RQ-C3-G04",
+      "verdict": "UNKNOWN",
+      "failure_class": "UNSUPPORTED_DECISION_KIND",
+      "note": "Control Magic state ESTABLISHED natively (cast t49, UU+2 paid, attached Bear-107, fizzled=false) and retained as supplemental leave-game context. Credited concession path: ZERO concession frames in 61,914 censused frames"
+    },
+    {
+      "scenario": "RQ-C3-H01",
+      "verdict": "UNKNOWN",
+      "failure_class": "ENGINE_RULES_DEFECT",
+      "note": "Humility established natively P4 t48 (controller deviation from neutral-state P2: behaviorally immaterial, documented; terminal assertions controller-agnostic). Bear-107 out. Clone casts (t53 singleton candidate; t57 two"
+    },
+    {
+      "scenario": "RQ-C3-J02",
+      "verdict": "UNKNOWN",
+      "failure_class": "FIXTURE_AUTHORITY_GAP",
+      "note": "Delina CZ-cast t13 non-reduced WORKS (control distinguishing Ghalta defect). Attack t17 ->P2; trigger targets Bear-8; token-defender choice P2. d20 native but UNJOURNALED (frames carry seed only). 1-14 band by eliminatio"
+    }
+  ]
+}

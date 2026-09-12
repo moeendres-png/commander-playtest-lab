@@ -1,0 +1,11 @@
+{
+  "schema": "ws65.behavior-credit.v1",
+  "first_wave_pass_count": "9/15",
+  "first_wave_fail_count": "0/15",
+  "first_wave_unknown_count": "6/15",
+  "behavior_credit": "9/107",
+  "prior_forge_rqc3_behavior_credit": "0/107",
+  "cumulative_forge_behavior_credit": "9/107",
+  "full107": "NOT_RUN",
+  "note": "Each PASS scenario grants at most 1 credit. Replay grants none. Entry-prerequisite tests grant none."
+}

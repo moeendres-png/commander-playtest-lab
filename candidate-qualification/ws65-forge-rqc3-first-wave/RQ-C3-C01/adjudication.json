@@ -1,0 +1,14 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "cast_elves": 708,
+    "cast_fow": 713,
+    "confirm": 715,
+    "cost_exile": 716,
+    "target": 714
+  },
+  "summary": "Verbatim WS64 postfix rerun. Elves-196 cast; FoW-3 cast with normal (o2/o4) and alternate (o3/o5) routes both engine-offered + 5 untapped Islands; alternate picked; Elves-spell targeted (stack SA); PAY 1 life confirmed; cost_exile offered exactly the 2 blue cards, Frog-8 picked (no provider filter); counter resolves fizzled=false; life 39; Frog exiled; FoW+Elves GY; hidden P0-scoped with negative checks; replay 0 divs.",
+  "verdict": "PASS"
+}

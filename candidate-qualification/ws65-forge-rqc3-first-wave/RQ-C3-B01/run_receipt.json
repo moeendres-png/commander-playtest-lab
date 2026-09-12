@@ -1,0 +1,21 @@
+{
+  "consumed_intent": 27,
+  "credit": 1,
+  "failure_class": {
+    "class": "ADAPTER_BINDING",
+    "note": "binding gap at declare_attacker: no intent covers this frame's subject; refusing cross-subject SKIP binding"
+  },
+  "forge": {
+    "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+    "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+  },
+  "frame_count": 385,
+  "hidden_info_verdict": "PASS",
+  "journal_verdict": "BLOCKED_AT:declare_attacker",
+  "replay": "PASS",
+  "replay_divergences": 0,
+  "scenario": "RQ-C3-B01",
+  "seed": 424242,
+  "verdict": "PASS",
+  "ws65_runner": true
+}

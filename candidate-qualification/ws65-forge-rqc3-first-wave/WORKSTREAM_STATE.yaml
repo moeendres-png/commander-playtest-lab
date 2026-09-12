@@ -1,0 +1,74 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws65-forge-rqc3-first-wave
+branch: ws65/forge-rqc3-first-wave-20260911
+audit_base_sha: b303e6f18bbb937e977503e62273d4a72e26c2af
+audit_base_tree: 7c27dd7b621f5720acbfbf846d10e6263cda2faa
+state_written_against_head: aec7aaaf23c12e5f94ace9f72e5ae050c83d4e52
+validated_head: null
+objective: 'WS65 Forge corrected RQ-C3 First-Wave behavior execution: execute all
+  15 authoritative actual-card scenarios through the WS64-qualified CPL vertical path
+  on accepted Forge pin a9a95db, award behavior credit only for scenario-complete
+  DIRECTLY_VERIFIED passes, and produce deterministic principal-scoped replayable
+  evidence without changing Rules/provider semantics.'
+in_scope:
+- exact corrected RQ-C3 First-Wave denominator of 15 scenarios
+- exact corrected union of 20 decision kinds
+- actual-card runtime fixture materialization
+- authoritative legal-option transport only
+- principal-scoped hidden-information validation
+- process-isolated scenario execution
+- deterministic Rules-RNG control where relevant
+- semantic replay per credited scenario
+- per-scenario PASS/FAIL/UNKNOWN adjudication
+- behavior credit up to 15/107
+- bounded remediation packets for any discovered blocker
+out_of_scope:
+- Forge engine edits
+- CPL provider/adapter semantic edits
+- repairing a discovered behavior defect inside WS65
+- Full107 execution
+- Architecture Freeze
+- Production Provider selection
+- deck optimization
+dependencies:
+- WS64 terminal b303e6f18bbb937e977503e62273d4a72e26c2af
+- WS64 validated head 8cac11e9e5ec111a9d9901923f5a1c2d80165936
+- accepted Forge pin a9a95db6662c2d28814390a9c0c2f986e39aa8b4
+- RQ-C3 authority 897d72f0b57bb8febe045870acaa3d2dba4bde56
+hard_gates:
+- provider executable semantics inherited from WS64 remain unchanged
+- runtime provenance proves exact accepted Forge pin
+- all 15 scenario IDs are attempted
+- no scenario is silently skipped
+- behavior credit requires actual-card runtime behavior
+- behavior credit requires authoritative engine decision options
+- behavior credit requires principal-scoped hidden information
+- behavior credit requires deterministic semantic replay
+- manual outcome injection is forbidden
+- UNKNOWN is not PASS
+- scenario PASS grants at most one of the 107 behavior credits
+forbidden_shortcuts:
+- provider legality reconstruction
+- provider cost solver
+- provider target solver
+- first-option fallback
+- random-option fallback
+- default yes/no
+- internal engine AI dependency
+- GUI default
+- silent skip
+- manual payment injection
+- manual target injection
+- manual replacement outcome injection
+- manual terminal-state injection
+- credit from construction/readback only
+ownership: WS65-FORGE-RQC3-FIRST-WAVE
+status: ACTIVE
+exact_next_action: 'WS65_SCENARIO_AUTHORITY.json materialized + validated (15/15,
+  union 20/20, interpretations recorded). G04 loss control in-flight at P1 t57 (Covenant
+  window staging). Next: finish G04 loss control, checkpoint ACTIVE, run credited
+  G04 concession attempt, G03 attempt done (silent drop reproduced), then package
+  evidence + terminal validation.'
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high

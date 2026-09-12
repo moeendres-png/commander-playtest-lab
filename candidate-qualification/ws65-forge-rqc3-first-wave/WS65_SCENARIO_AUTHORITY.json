@@ -1,0 +1,2347 @@
+{
+  "rq_c3_authority_head": "897d72f0b57bb8febe045870acaa3d2dba4bde56",
+  "rq_c3_source_dir": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3",
+  "scenarios": [
+    {
+      "actual_cards": {
+        "active_player": "P1",
+        "battlefield": [
+          {
+            "card": "Drudge Skeletons",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Swamp",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Mountain",
+            "controller": "P1",
+            "owner": "P1"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": "HIDDEN:3",
+          "P1": [
+            "Lightning Bolt"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 4
+      },
+      "assertion_authority": [
+        {
+          "assertion": "Skeletons tapped zero damage",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "701.19a"
+          ]
+        },
+        {
+          "assertion": "Swamp tapped for {B}",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "activation"
+          ]
+        },
+        {
+          "assertion": "Bolt in P1 graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "resolution"
+          ]
+        },
+        {
+          "assertion": "life unchanged",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "replacement"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "targets",
+        "mana payment",
+        "activate",
+        "mana source",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Lightning Bolt targeting Drudge Skeletons",
+        "ACTIVATE regeneration {B} in response (shield created; discretionary activation + payment)",
+        "RESOLUTION: 3 damage would destroy the 1/1",
+        "REPLACEMENT_APPLIED automatically (no external Decision; 701.19a): instead tap it, remove all damage",
+        "NO_ZONE_CHANGE (stays on battlefield)",
+        "NO_TRIGGER_CREATED"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "Drudge Skeletons is on battlefield tapped with zero damage marked",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "one P0 Swamp tapped for the {B} activation (mana paid)",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "Lightning Bolt is in P1 graveyard",
+          "target": "graveyards.P1"
+        },
+        {
+          "assertion": "all life totals unchanged",
+          "target": "life"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P1",
+          "chosen_option": "Lightning Bolt -> Drudge Skeletons",
+          "decision_kind": "cast",
+          "legal_set_expectation": "Bolt castable; Skeletons a legal target",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "activate regenerate, pay {B}",
+          "decision_kind": "activate",
+          "legal_set_expectation": "activation offered in response; {B} payable",
+          "seq": 2
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "pre-activation",
+          "expectation": "no private information beyond hands",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-A03",
+      "rules_provenance": "701.19 (replaces 702.13) + 701.19a + 616.1 + 614.4; RQ-C2 Q-A03 + Sol High RQ-C3 A03.",
+      "semantic_objective": "Prove optional replacement with cost: activating Drudge Skeletons regeneration in response to lethal damage taps and heals it instead of destroying it.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-A03.json",
+      "source_sha256": "7023c7e87705f14b19a320a76847c4c79d3f7033b923265a55f95a1f8fe5c543",
+      "title": "Regeneration shield as automatic replacement (corrected: no may at destruction)",
+      "ws65_execution_interpretation": "Dense deck Swamp*40/Mountain*39/Skeletons*12/Bolt*8 (Ghoulcaller Gisa). Harness P1=RQ-P0, P2=RQ-P1. Skeletons t5, Bolt t10, regen activated in response ({B}). Singleton replacement automatic, zero external frames (701.19a/616.1). Survival vs lethal proves shield; tap flag EXTERNALLY_RULE_VALIDATED (transport lacks tapped-visibility)."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Doubling Season",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Hardened Scales",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [
+          "DOUBLING_SEASON",
+          "HARDENED_SCALES"
+        ],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Stonecoil Serpent"
+          ],
+          "P1": "HIDDEN:4",
+          "P2": "HIDDEN:4",
+          "P3": "HIDDEN:4"
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 8
+      },
+      "assertion_authority": [
+        {
+          "assertion": "Stonecoil Serpent is 8/8 (0/0 base + eight +1/+1 counters)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "exactly 8 +1/+1 counters on the Serpent",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "both enchantments remain on battlefield",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "X",
+        "mana source",
+        "mana payment",
+        "replacement ordering",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Stonecoil Serpent with X=3 (3 generic mana paid)",
+        "ENTRY_EVENT: 3 +1/+1 counters would be put",
+        "REPLACEMENT_ORDERING_OFFERED with exactly 2 legal orders",
+        "CHOSEN: Hardened Scales first (3+1=4), then Doubling Season (4*2=8)",
+        "COUNTERS_PLACED: 8 +1/+1 counters",
+        "ALTERNATIVE_ORDER_RECORDED (Season-then-Scales would give 7; not chosen)"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "Stonecoil Serpent is 8/8 (0/0 base + eight +1/+1 counters)",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "exactly 8 +1/+1 counters on the Serpent",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "both enchantments remain on battlefield",
+          "target": "battlefield"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "Stonecoil Serpent, X=3",
+          "decision_kind": "X",
+          "legal_set_expectation": "X in 0..available-mana; scripted X=3",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "3 generic mana from untapped lands",
+          "decision_kind": "mana payment",
+          "legal_set_expectation": "at least one legal payment route",
+          "seq": 2
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "Hardened Scales first, then Doubling Season",
+          "decision_kind": "replacement ordering",
+          "legal_set_expectation": "exactly 2 legal orders, arithmetically divergent (8 vs 7)",
+          "seq": 3
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "ordering offer",
+          "expectation": "both orders visible to all; no private information",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-A04",
+      "rules_provenance": "Oracle replacement sentences + affected-controller ordering rule; arithmetic divergence (8 vs 7) is mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "semantic_objective": "Prove multiple-replacement ordering with divergent results: with Doubling Season and Hardened Scales out, Stonecoil Serpent (X=3) must offer both application orders and place 8 counters on the scripted Scales-first order.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-A04.json",
+      "source_sha256": "1e9539d1ce4fbd00fb13162d126c8da0fd30f5a8b5ff508a68c46cbd120166b6",
+      "title": "Two counter replacements with divergent orders",
+      "ws65_execution_interpretation": "Verbatim WS64 postfix rerun (deck Forest*50/HS*15/DS*15/Serpent*19, Ghalta; intent WS64_A04_POSTFIX_INTENT.json). X=3 engine-announced; HS-first chosen among exactly 2 Forge-offered orders; P1P1=8."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Soul Warden",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Soul Warden",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Soul Warden",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Soul Warden",
+            "controller": "P2",
+            "owner": "P2"
+          },
+          {
+            "card": "Soul Warden",
+            "controller": "P3",
+            "owner": "P3"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Llanowar Elves"
+          ],
+          "P1": "HIDDEN:4",
+          "P2": "HIDDEN:4",
+          "P3": "HIDDEN:4"
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 3
+      },
+      "assertion_authority": [
+        {
+          "assertion": "P0 life 42, P1/P2/P3 life 41",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Llanowar Elves on battlefield under P0",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "stack empty, 5 triggers resolved in APNAP order",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "mana payment",
+        "trigger ordering",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Llanowar Elves by P0 (active player)",
+        "ETB: 5 Soul Warden triggers created simultaneously",
+        "APNAP_STACKING: P0 triggers first (bottom), then P1, P2, P3 (top)",
+        "CONTROLLER_ORDERING: P0 orders its 2 triggers (asserted order Warden-A then Warden-B)",
+        "RESOLUTION_TOP_DOWN: P3, P2, P1, P0b, P0a",
+        "LIFE: P0 +2, P1 +1, P2 +1, P3 +1"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "P0 life 42, P1/P2/P3 life 41",
+          "target": "life"
+        },
+        {
+          "assertion": "Llanowar Elves on battlefield under P0",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "stack empty, 5 triggers resolved in APNAP order",
+          "target": "stack"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "Llanowar Elves",
+          "decision_kind": "cast",
+          "legal_set_expectation": "Elves castable with one Forest",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "Warden-A before Warden-B",
+          "decision_kind": "trigger ordering",
+          "legal_set_expectation": "P0 orders exactly its 2 triggers; other players have 1 each (no choice)",
+          "seq": 2
+        },
+        {
+          "actor": "ALL",
+          "chosen_option": "pass in APNAP order until stack empty",
+          "decision_kind": "pass",
+          "legal_set_expectation": "priority passes resolve top-down P3,P2,P1,P0",
+          "seq": 3
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "trigger creation",
+          "expectation": "all 5 triggers and APNAP stack order public to all",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-B01",
+      "rules_provenance": "Oracle trigger text + APNAP stacking + same-controller ordering. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "semantic_objective": "Prove simultaneous-trigger APNAP across 4 players plus intra-controller ordering: one ETB with five Wardens out must create five triggers stacked active-player-first with P0 ordering its own two.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-B01.json",
+      "source_sha256": "fe2b383d79155ca47f8fe96c8ad0447ce620a54c8eae1819be812332576ec934",
+      "title": "Five Wardens trigger across four players",
+      "ws65_execution_interpretation": "Dense deck Plains*32/Forest*32/Warden*20/Elves*15 (Thalia). Five Wardens cast natively (10 unavoidable setup triggers fully journaled: pre-Elves 44/43/42/41). P1 externally orders its two triggers (frame 356: exactly 2 engine-offered perms, pick [3,8]). APNAP resolution evidenced via sequential life snapshots (P4,P3,P2,P1,P1). Delta +2/+1/+1/+1 exact; absolute offset documented with unavoidability proof (min 10 setup triggers in any natural construction). See Coordinator B01 correction: decision evidence primary, delta supporting."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P1",
+        "battlefield": [
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0",
+            "tapped": false
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0",
+            "tapped": false
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0",
+            "tapped": false
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0",
+            "tapped": false
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0",
+            "tapped": false
+          },
+          {
+            "card": "Forest",
+            "controller": "P1",
+            "owner": "P1"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Force of Will",
+            "Turn to Frog (blue nonland pitch card)"
+          ],
+          "P1": [
+            "Llanowar Elves"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 2
+      },
+      "assertion_authority": [
+        {
+          "assertion": "P0 life is 39",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "118.9"
+          ]
+        },
+        {
+          "assertion": "Turn to Frog exiled; Force in graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "118.9",
+            "105.2"
+          ]
+        },
+        {
+          "assertion": "Elves countered to P1 graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "counter Oracle"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "targets",
+        "alternate cost",
+        "hidden-zone selection",
+        "mana source",
+        "mana payment",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Llanowar Elves by P1 (on stack)",
+        "CAST Force of Will by P0 targeting Elves-spell",
+        "NORMAL_COST_AVAILABLE: 3UU payable via five untapped Islands (mana-source route genuinely legal)",
+        "ALTERNATE_COST_AVAILABLE: pay 1 life + exile a blue nonland card from hand (118.9)",
+        "ALTERNATE_COST_CHOSEN: P0 chooses pitch route",
+        "COST_PAID: life 40->39, Turn to Frog (blue nonland) exiled from hand",
+        "RESOLUTION: Elves-spell countered -> P1 graveyard"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "P0 life is 39",
+          "target": "life"
+        },
+        {
+          "assertion": "Turn to Frog (blue nonland) from P0 hand is in exile; Force of Will in P0 graveyard",
+          "target": "exile"
+        },
+        {
+          "assertion": "Llanowar Elves spell countered to P1 graveyard (never entered)",
+          "target": "graveyards.P1"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P1",
+          "chosen_option": "Llanowar Elves",
+          "decision_kind": "cast",
+          "legal_set_expectation": "Elves castable",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "Force of Will -> Elves-spell",
+          "decision_kind": "cast",
+          "legal_set_expectation": "Force castable; Elves-spell a legal target",
+          "seq": 2
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "ALTERNATE_COST_AVAILABLE chosen over NORMAL_COST_AVAILABLE (both genuinely legal)",
+          "decision_kind": "alternate cost",
+          "legal_set_expectation": "NORMAL_COST_AVAILABLE: 3UU payable via five untapped Islands; ALTERNATE_COST_AVAILABLE: 1 life + exile blue nonland card; scripted choice is alternate route",
+          "seq": 3
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "Turn to Frog (blue nonland) from hand",
+          "decision_kind": "hidden-zone selection",
+          "legal_set_expectation": "a blue nonland card in hand must be selectable for exile (hidden-zone selection; Island is colorless and NOT offered)",
+          "seq": 4
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "pitch selection (hidden-zone decision)",
+          "expectation": "Turn to Frog identity known only to P0 until exile; exile is public after",
+          "principal": "P0"
+        },
+        {
+          "checkpoint": "stack knowledge",
+          "expectation": "both spells and Force target public to all",
+          "principal": "ALL"
+        },
+        {
+          "checkpoint": "mana-source availability",
+          "expectation": "five untapped Islands and both cost routes public to all (no hidden legality)",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-C01",
+      "rules_provenance": "118.9 + 601.2b (replaces stale 602); 105.2 + 305.6 (Island colorless; Turn to Frog blue); counter-target-spell resolution. RQ-C2 Q-C01 + Sol High RQ-C3 C01.",
+      "semantic_objective": "Prove alternate-vs-mana payment fork with both routes genuinely legal: Force of Will must offer NORMAL_COST_AVAILABLE (3UU via five Islands) and ALTERNATE_COST_AVAILABLE (1 life + exile blue nonland Turn to Frog), pay the scripted pitch route via hidden-zone selection, and counter the target spell.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-C01.json",
+      "source_sha256": "2f0907e911c89924869c1b7e18217503688cfaa2a540a1d51fc1efd2f7b7943d",
+      "title": "Force of Will pitch versus hard-cast (corrected: blue nonland pitch + 5-Island mana)",
+      "ws65_execution_interpretation": "Verbatim WS64 postfix rerun (deck Island*60/Forest*20/FoW*6/Frog*6/Elves*7, Edric). Normal (3UU, 5 Islands) and alternate routes both engine-offered; pitch route scripted. PAY 1 life confirmed; cost_exile offered exactly the 2 blue cards (no provider filter); Frog exiled; Elves-spell countered (stack-SA target, fizzled=false); life 39; hidden principal-scoped (P0-only pre-exile) with negative checks."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Mountain",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Mountain",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Mountain",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Mountain",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Mountain",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Mountain",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Mountain",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Fireball"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 8
+      },
+      "assertion_authority": [
+        {
+          "assertion": "P1 and P2 life are 38 each (remainder discarded, not assigned)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Fireball in P0 graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "X",
+        "targets",
+        "mana payment",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Fireball with X=5 and 2 targets (P1, P2)",
+        "COST_COMPUTED: X(5) + R + 1 (second target) = 7 mana",
+        "RESOLUTION: 5 damage divided evenly rounded down: 2 to P1, 2 to P2 (1 remainder lost)",
+        "LIFE: P1 38, P2 38"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "P1 and P2 life are 38 each (remainder discarded, not assigned)",
+          "target": "life"
+        },
+        {
+          "assertion": "Fireball in P0 graveyard",
+          "target": "graveyards.P0"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "Fireball, X=5, targets P1 and P2",
+          "decision_kind": "cast",
+          "legal_set_expectation": "X in range; any-number targets includes 2 players",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "7 mana via untapped lands",
+          "decision_kind": "mana payment",
+          "legal_set_expectation": "X-plus-increase total payable through at least one route",
+          "seq": 2
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "division",
+          "expectation": "even split is rules-determined (no chooser decision offered); public to all",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-C03",
+      "rules_provenance": "Oracle cost and division sentences; arithmetic mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "semantic_objective": "Prove X plus per-target cost increase with rules-determined division: Fireball X=5 at two targets costs 7 and deals 2/2 with the remainder lost.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-C03.json",
+      "source_sha256": "d15cd786dba081a2d8c986e786ab80090beeff4dc94e7f9d700c16056169bb2e",
+      "title": "Fireball X with per-target increase",
+      "ws65_execution_interpretation": "Deck Mountain*60/Fireball*39 (Rograkh). 7 Mountains by t33; X=5 by value; targets harness-P2+P3; 7 native mana frames; even 2/2 split remainder lost; life 38/38. Harness target_done override exercised (inherited ws62 arity bug bypassed in ws65_runner without touching inherited files)."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Ornithopter (0/2 artifact creature)",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Runeclaw Bear",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Forest",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Swamp",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Swamp",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Casualties of War"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 8
+      },
+      "assertion_authority": [
+        {
+          "assertion": "Ornithopter, Runeclaw Bear in graveyards; one P1 Forest in graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Casualties of War in P0 graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "modes",
+        "targets",
+        "mana payment",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Casualties of War",
+        "MODES_CHOSEN: 3 modes (artifact + creature + land); 31 nonempty combinations asserted offerable",
+        "TARGETS: one legal target per chosen mode (Mana Crypt? use neutral: Darksteel-free vanilla artifact 'Ornithopter' (0/2 artifact creature? conflict). See board: artifact = 'Ornithopter' is artifact creature (both types; acceptable as artifact target? then creature mode targets Bear; land mode targets a Forest)",
+        "RESOLUTION in mode order: artifact destroyed; Bear destroyed; Forest destroyed"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "Ornithopter, Runeclaw Bear in graveyards; one P1 Forest in graveyard",
+          "target": "graveyards"
+        },
+        {
+          "assertion": "Casualties of War in P0 graveyard",
+          "target": "graveyards.P0"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "modes [artifact; creature; land]",
+          "decision_kind": "modes",
+          "legal_set_expectation": "all 31 nonempty mode subsets offered (5 modes); scripted 3-mode subset",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "Ornithopter + Runeclaw Bear + P1 Forest",
+          "decision_kind": "targets",
+          "legal_set_expectation": "one legal target per chosen mode, matching required types",
+          "seq": 2
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "mode legality",
+          "expectation": "mode subset and per-mode targets public to all",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-D06",
+      "rules_provenance": "Oracle choose-one-or-more sentence with five modes; subset cardinality and per-mode targeting proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [SUPPLIED: 700.2 modal family per RQ-C2 L13; Ornithopter ORACLE_TEXT_VERIFIED per RQ-C2 L15.]",
+      "semantic_objective": "Prove choose-one-or-more modal integrity: Casualties of War must offer all 31 mode subsets with one typed target per chosen mode and destroy the scripted three.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-D06.json",
+      "source_sha256": "192b026dcb85c87cbd9112ba5e9a3ff11ac564dbb203612a688794a2c3c8e905",
+      "title": "Casualties of War choose one or more",
+      "ws65_execution_interpretation": "Deck Swamp*33/Forest*33/Casualties*11/Ornithopter*11/Bear*11 (Jarad). Sequential mode picks among LEGAL modes only (3 offered first; enchantment/planeswalker correctly absent: AG-2 native behavior). Scripted artifact+creature+land; targets Ornithopter-149/Bear-107/Forest-167; 6 mana BBGG+2 colored-first; all three destroyed; life unchanged."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P1",
+        "battlefield": [
+          {
+            "card": "Propaganda",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Runeclaw Bear",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Runeclaw Bear",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Island",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Island",
+            "controller": "P1",
+            "owner": "P1"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [
+          "PROPAGANDA_P0"
+        ],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": "HIDDEN:4",
+          "P1": "HIDDEN:3",
+          "P2": "HIDDEN:4",
+          "P3": "HIDDEN:4"
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "DECLARE_ATTACKERS",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 5
+      },
+      "assertion_authority": [
+        {
+          "assertion": "P0 and P2 life are 38 each",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "{2} paid for the P0-bound attacker; nothing paid for the P2-bound attacker",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "both Bears tapped and attacking-survived",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "attackers",
+        "defender per attacker",
+        "mana payment",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "DECLARE_ATTACKERS: P1 attacks P0 (Propaganda) with Bear-A and P2 (no Propaganda) with Bear-B",
+        "COST: {2} paid for Bear-A (per-creature Propaganda tax); zero for Bear-B",
+        "DEFENDER_MAPPING: Bear-A -> P0, Bear-B -> P2 recorded per attacker",
+        "NO_BLOCKERS declared; DAMAGE: P0 takes 2, P2 takes 2"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "P0 and P2 life are 38 each",
+          "target": "life"
+        },
+        {
+          "assertion": "{2} paid for the P0-bound attacker; nothing paid for the P2-bound attacker",
+          "target": "mana paid"
+        },
+        {
+          "assertion": "both Bears tapped and attacking-survived",
+          "target": "battlefield"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P1",
+          "chosen_option": "Bear-A -> P0, Bear-B -> P2",
+          "decision_kind": "attackers",
+          "legal_set_expectation": "both Bears eligible; P0 and P2 legal defenders",
+          "seq": 1
+        },
+        {
+          "actor": "P1",
+          "chosen_option": "pay {2} for Bear-A attacking P0",
+          "decision_kind": "mana payment",
+          "legal_set_expectation": "Propaganda tax offered per P0-bound creature; unpaid P0-bound attackers illegal",
+          "seq": 2
+        },
+        {
+          "actor": "ALL",
+          "chosen_option": "no blockers; pass to damage",
+          "decision_kind": "pass",
+          "legal_set_expectation": "blocker pass offered to each defender",
+          "seq": 3
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "attack legality",
+          "expectation": "defender mapping and per-creature tax public to all",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "rqc3_scenario_id": "RQ-C3-E01",
+      "rules_provenance": "Oracle attack-restriction sentence; per-creature payment and defender mapping proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "semantic_objective": "Prove multi-defender attack legality: two Bears attacking two different opponents with Propaganda on one must pay {2} for the taxed attacker only.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-E01.json",
+      "source_sha256": "29ee9feb2bb3889202958ccff9add42ae08bc152198a00342e57ffadd900d15d",
+      "title": "Propaganda multi-defender attack tax",
+      "ws65_execution_interpretation": "Deck Forest*30/Island*30/Bear*15/Propaganda*12/Bolt*12. Attacker declarations 107->P1 + 114->P3 engine-accepted (attackers + defender-per-attacker demonstrated). Propaganda {2} tax invokes payCombatCost -> provider fail-closes by design (packet WS65-RP-PAYCOMBATCOST-01). Tax/damage/life unreached. UNKNOWN (UNSUPPORTED_DECISION_KIND)."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P1",
+        "battlefield": [
+          {
+            "card": "Carnage Tyrant",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Runeclaw Bear",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Llanowar Elves",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": "HIDDEN:4",
+          "P1": "HIDDEN:3",
+          "P2": "HIDDEN:4",
+          "P3": "HIDDEN:4"
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "DECLARE_ATTACKERS",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 7
+      },
+      "assertion_authority": [
+        {
+          "assertion": "P0 at 36 (4 rollover)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "702.19b"
+          ]
+        },
+        {
+          "assertion": "blockers dead; Tyrant alive",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "704.5g"
+          ]
+        },
+        {
+          "assertion": "Tyrant under P1",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "control"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "attackers",
+        "defender per attacker",
+        "blockers",
+        "combat damage assignment",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "ATTACK: Carnage Tyrant -> P0",
+        "DOUBLE_BLOCK: Bear + Elves assigned to Tyrant by P0",
+        "DAMAGE_ASSIGNMENT (702.19b-compliant chooser division): 2 to Bear (lethal), 1 to Elves (lethal), trample remainder 4 to P0 (scripted 2/1/4; no ordering step exists)",
+        "SBA: Bear + Elves destroyed; P0 takes 4"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "P0 life is 36 (4 trample rollover)",
+          "target": "life"
+        },
+        {
+          "assertion": "Bear and Elves in P0 graveyard; Tyrant alive with no damage marked (survived; blockers dealt 2+1=3 < 6)",
+          "target": "graveyards.P0"
+        },
+        {
+          "assertion": "Carnage Tyrant on battlefield under P1",
+          "target": "battlefield"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P1",
+          "chosen_option": "Carnage Tyrant -> P0",
+          "decision_kind": "attackers",
+          "legal_set_expectation": "Tyrant eligible; P0 legal defender",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "Bear + Elves block Tyrant",
+          "decision_kind": "blockers",
+          "legal_set_expectation": "both eligible blockers offered",
+          "seq": 2
+        },
+        {
+          "actor": "P1",
+          "chosen_option": "2 to Bear, 1 to Elves, 4 trample to P0",
+          "decision_kind": "combat damage assignment",
+          "legal_set_expectation": "702.19b-compliant division chosen (scripted 2/1/4); wider compliant set offerable",
+          "seq": 3
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "damage assignment",
+          "expectation": "damage split public to all (no ordering state)",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "rqc3_scenario_id": "RQ-C3-E02",
+      "rules_provenance": "510.1c/510.1e + 702.19b + 704.5g; RQ-C2 Q-E02 + Sol High RQ-C3 E02.",
+      "semantic_objective": "Prove multi-blocker damage composition without ordering: a double-blocked 7/6 trampler with scripted 2/1/4 compliant division must destroy both blockers and roll 4 to the defender.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-E02.json",
+      "source_sha256": "1b4e27ceedf1d03aa558c65fa34ab0fc15f9910c02b54962e50dfc8c360bf854",
+      "title": "Double-blocked trampler compliant division and rollover (corrected: no ordering)",
+      "ws65_execution_interpretation": "Deck Forest*60/Tyrant*10/Bear*15/Elves*14 (Ghalta, uncast). Tyrant cast t22 (6 native mana, resolved). Attack t26 ->P1; double block (Elves-95+Bear-8). Division 2/1/4 via sequential combatDamage frames (no ordering step anywhere: AG-3 compliant). Graveyard order_zone scripted (harness-scope). Life 36; blockers GY; Tyrant alive."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Forest",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Rampant Growth"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 3
+      },
+      "assertion_authority": [
+        {
+          "assertion": "one basic Forest on battlefield tapped under P0",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "P0 library count decreased by 1; order randomized (journal records shuffle, not order)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Rampant Growth in P0 graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "mana payment",
+        "search",
+        "hidden-zone selection",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Rampant Growth",
+        "LIBRARY_SEARCH by P0 (private zone)",
+        "HIDDEN_SELECTION: basic Forest found (fail-to-find available but not chosen)",
+        "ZONE_TRANSITION library -> battlefield tapped",
+        "SHUFFLE library (RNG event, journal entry)",
+        "RESOLUTION complete"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "one basic Forest on battlefield tapped under P0",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "P0 library count decreased by 1; order randomized (journal records shuffle, not order)",
+          "target": "libraries.P0"
+        },
+        {
+          "assertion": "Rampant Growth in P0 graveyard",
+          "target": "graveyards.P0"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "Rampant Growth",
+          "decision_kind": "cast",
+          "legal_set_expectation": "castable with 1G",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "basic Forest (found, not fail-to-find)",
+          "decision_kind": "search",
+          "legal_set_expectation": "found-path plus fail-to-find both offerable; scripted found",
+          "seq": 2
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "during search",
+          "expectation": "library contents visible ONLY to P0; others observe 'P0 is searching' plus count hints only",
+          "principal": "P0"
+        },
+        {
+          "checkpoint": "found card",
+          "expectation": "found Forest revealed to all on moving to battlefield (public zone)",
+          "principal": "ALL"
+        },
+        {
+          "checkpoint": "post-shuffle",
+          "expectation": "library order unknown to all principals including P0",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-F01",
+      "rules_provenance": "Oracle search-then-shuffle sentence; fail-to-find and shuffle-journal semantics proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [CORRECTED: 701.19b retired (static regenerate) in favor of 701.23b (hidden-zone fail-to-find) per RQ-C2 L07.]",
+      "semantic_objective": "Prove principal-scoped search with journaled shuffle: Rampant Growth must let only P0 see the library, offer fail-to-find, and shuffle with an RNG journal entry.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-F01.json",
+      "source_sha256": "7d72e13bf77fad1951eb8bae629fab9aecbd6208312924bc29d2fb53f43c7393",
+      "title": "Rampant Growth search plus shuffle",
+      "ws65_execution_interpretation": "Verbatim WS55_WSEARCH_EVID rerun (deck Forest*85/Rampant Growth*8/Bear*6, Ghalta). choose_object MINTED-11 among 78 Forests + NONE (fail-to-find offered). Shuffle journaled. Hidden principal-scoped: positive (P1 sees library) + negative (zero P1-library identities in non-P1 frames/views; counts-only)."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P1",
+        "battlefield": [
+          {
+            "card": "Ghalta, Stampede Tyrant (P0 commander)",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Swamp",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Swamp",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Swamp",
+            "controller": "P1",
+            "owner": "P1"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [],
+          "P1": [
+            "Murder"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 9
+      },
+      "assertion_authority": [
+        {
+          "assertion": "Ghalta on battlefield under P0 after taxed recast",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "commander cast-count from command zone is 1 (tax accounted)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Murder in P1 graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "targets",
+        "mana payment",
+        "Commander movement",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "CAST Murder by P1 targeting Ghalta (commander)",
+        "GHALTA DESTROYED -> would go to graveyard",
+        "COMMANDER_MOVEMENT_CHOICE offered to owner P0: graveyard vs command zone",
+        "CHOSEN: command zone (casts-from-command becomes 1; tax +2)",
+        "RECAST later turn: Ghalta cast from command zone for 8+2=10",
+        "GHALTA ETB: zero creatures put (hand empty; 'any number' incl. zero)"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "Ghalta on battlefield under P0 after taxed recast",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "commander cast-count from command zone is 1 (tax accounted)",
+          "target": "players.P0"
+        },
+        {
+          "assertion": "Murder in P1 graveyard",
+          "target": "graveyards.P1"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P1",
+          "chosen_option": "Murder -> Ghalta",
+          "decision_kind": "cast",
+          "legal_set_expectation": "Ghalta a legal destroy target",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "command zone (not graveyard)",
+          "decision_kind": "Commander movement",
+          "legal_set_expectation": "BOTH destinations offered to owner on commander zone change",
+          "seq": 2
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "recast Ghalta paying 10 total (8 + 2 tax)",
+          "decision_kind": "cast",
+          "legal_set_expectation": "taxed cost 10 computed and payable",
+          "seq": 3
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "movement choice",
+          "expectation": "movement choice and tax accounting public to all",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-G02",
+      "rules_provenance": "Oracle text + commander movement/tax rules proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis. [Murder ORACLE_TEXT_VERIFIED per RQ-C2 L15; 10-mana funding obligation carried as harness obligation.]",
+      "semantic_objective": "Prove commander movement plus tax: destroying P0's commander must offer the command-zone choice and the recast must cost 2 more.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-G02.json",
+      "source_sha256": "6b3a8f75ba2ea9ea70710e42cd9816106653506c7c249b4cc026104c231a5095",
+      "title": "Commander movement choice and tax",
+      "ws65_execution_interpretation": "Deck Forest*33/Swamp*33/Murder*11/Bear*11/Bolt*11 (Ghalta). Cost-reduced (3-Bear) commander cast from CZ: engine requests exactly 6, all 6 submissions ACCEPTED, then NO spell_cast/stack/resolution; Ghalta remains in CZ. Reproduced twice (t21+t25). UNKNOWN. Packet WS65-RP-GHALTA-ENTRY-01. Delina non-reduced CZ cast (J02) works: defect is reduction-specific."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Ghalta, Stampede Tyrant (P0 commander)",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": "HIDDEN:4",
+          "P1": "HIDDEN:4",
+          "P2": "HIDDEN:4",
+          "P3": "HIDDEN:4"
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "DECLARE_ATTACKERS",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 10
+      },
+      "assertion_authority": [
+        {
+          "assertion": "P1 lost (24 commander damage)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "903.10a"
+          ]
+        },
+        {
+          "assertion": "others remain",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "903.10a"
+          ]
+        },
+        {
+          "assertion": "Ghalta under P0",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "battlefield"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "attackers",
+        "defender per attacker",
+        "blockers",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "PRIOR_STATE (PRE_DECISION_CONSTRUCTION, BEHAVIOR_CREDIT=0): P1 has 12 commander damage from Ghalta recorded as pre-game seeded history (not simulated; not injected during combat)",
+        "ATTACK (native): Ghalta -> P1, unblocked",
+        "COMBAT_DAMAGE (native): 12 commander damage to P1 (ledger 12->24; 24 >= 21)",
+        "STATE_BASED_LOSS (903.10a): P1 loses the game by commander damage",
+        "LEAVE_GAME_CLEANUP begins for P1 (existence asserted; full 800.4 sequencing is G04)"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "P1 has lost the game (commander damage total 24 from Ghalta)",
+          "target": "players.P1"
+        },
+        {
+          "assertion": "P0, P2, P3 remain in game",
+          "target": "players"
+        },
+        {
+          "assertion": "Ghalta on battlefield under P0",
+          "target": "battlefield"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "Ghalta -> P1",
+          "decision_kind": "attackers",
+          "legal_set_expectation": "Ghalta eligible; P1 legal defender",
+          "seq": 1
+        },
+        {
+          "actor": "P1",
+          "chosen_option": "no blockers",
+          "decision_kind": "blockers",
+          "legal_set_expectation": "blocker pass offered",
+          "seq": 2
+        },
+        {
+          "actor": "ALL",
+          "chosen_option": "pass to damage; loss checked after",
+          "decision_kind": "pass",
+          "legal_set_expectation": "damage then SBA loss",
+          "seq": 3
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "damage ledger",
+          "expectation": "per-commander damage totals public to all",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "PRE_DECISION_CONSTRUCTION",
+      "rqc3_scenario_id": "RQ-C3-G03",
+      "rules_provenance": "903.10a (replaces 704.5c) + 704.3; RQ-C2 Q-G03 + setup review + Sol High RQ-C3 G03.",
+      "semantic_objective": "Prove commander-damage loss: with 12 pre-ledgered, one native unblocked 12-power commander hit must take P1 to 24 and eliminate P1.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-G03.json",
+      "source_sha256": "1ee5ad30d66866c64078811f3d39c1a52cc436dde32133591bd186e5b447d246",
+      "title": "Commander damage loss at 21 (corrected: seeded 12 zero-credit + native 12)",
+      "ws65_execution_interpretation": "Bounded attempt reusing the G02 line (same deck/IDs/determinism). Ghalta entry silent drop reproduces at cast seq 703 (no stack/resolve). Commander-damage window unreachable (no Ghalta). UNKNOWN (same root blocker as G02)."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P2",
+        "battlefield": [
+          {
+            "card": "Runeclaw Bear",
+            "controller": "P0",
+            "owner": "P1"
+          },
+          {
+            "card": "Control Magic (P0) enchanting Bear",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [
+          "CONTROL_MAGIC_CONTROL_CHANGE"
+        ],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": "HIDDEN:4",
+          "P1": "HIDDEN:4",
+          "P2": "HIDDEN:4",
+          "P3": "HIDDEN:4"
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 8
+      },
+      "assertion_authority": [
+        {
+          "assertion": "P0 left; P1/P2/P3 remain",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "104.3a",
+            "800.4a"
+          ]
+        },
+        {
+          "assertion": "Control Magic left with P0",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "800.4a"
+          ]
+        },
+        {
+          "assertion": "Bear under P1",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "800.4a example"
+          ]
+        },
+        {
+          "assertion": "zero triggers",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "800.4a"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "concession",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "PRIOR_STATE: Control Magic (P0) enchanting Runeclaw Bear (owned P1, controlled P0)",
+        "CONCESSION/LOSS: P0 leaves the game (scripted loss)",
+        "LEAVE_CLEANUP: all objects owned by P0 leave with P0 (incl. Control Magic Aura)",
+        "CONTROL_REVERTS: Bear (owned P1) remains under P1 control (Aura gone)",
+        "NO_ORPHANED_CONTROL: no object controlled by departed P0 remains",
+        "NO_TRIGGER_CREATED (Bear never changes zones; Aura leaving with owner is not battlefield-to-graveyard for any witness)"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "P0 has left the game; P1, P2, P3 remain",
+          "target": "players"
+        },
+        {
+          "assertion": "Control Magic has left the game with P0 (owner)",
+          "target": "exile-or-absent"
+        },
+        {
+          "assertion": "Runeclaw Bear on battlefield under P1 (owner) control",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "zero triggered abilities created for any principal",
+          "target": "trigger count"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "leave the game (scripted loss/concession)",
+          "decision_kind": "concession",
+          "legal_set_expectation": "leaving the game is always available (no derived legality needed)",
+          "seq": 1
+        },
+        {
+          "actor": "ALL",
+          "chosen_option": "pass through cleanup verification",
+          "decision_kind": "pass",
+          "legal_set_expectation": "cleanup applied before continuing",
+          "seq": 2
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "post-cleanup ownership",
+          "expectation": "remaining control/ownership mapping public to all",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-G04",
+      "rules_provenance": "800.4a (+ verbatim example) + 104.3a + 110.2/108.3; RQ-C2 Q_G04 packet + Sol High RQ-C3 G04.",
+      "semantic_objective": "Prove leave-game cleanup with control revert: when the Control Magic controller leaves, the Aura leaves with them and the Bear stays under its owner.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-G04.json",
+      "source_sha256": "13a25079410ec5a57614814bce50714907e5ac8cc7d6e4127069d6977fec4d55",
+      "title": "Control Magic controller leaves game",
+      "ws65_execution_interpretation": "Deck Mountain*25/Island*25/Forest*20/Bear*10/Control Magic*7/Covenant*6/Bolt*6 (Edric). Control Magic state ESTABLISHED natively (cast t49, UU+2 paid, attached to Bear-107, fizzled=false) and retained as supplemental leave-game-cleanup control. Credited concession path: NO concession frame ever surfaces (no provider emitter for ws62RequestConcession; frame census over all journals: zero); provider semantics frozen so no emitter may be added. Loss alternative blocked by Covenant X-life misbilled as mana-X (12 taps then rollback; packet WS65-RP-COVENANT-XMAUL-01; Fireball mana-X control correct). UNKNOWN. Loss run retained as supplemental cleanup control per Coordinator correction; NOT promoted to concession proof."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Humility",
+            "controller": "P2",
+            "owner": "P2"
+          },
+          {
+            "card": "Runeclaw Bear",
+            "controller": "P1",
+            "owner": "P1"
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Island",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [
+          "HUMILITY"
+        ],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Clone"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 7
+      },
+      "assertion_authority": [
+        {
+          "assertion": "Clone is 1/1 with no abilities on battlefield",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "original Bear is 1/1 with no abilities (Humility)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "copy choices",
+        "mana payment",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "HUMILITY already on battlefield (established natively)",
+        "CAST Clone; COPY_CHOICE: enter as Runeclaw Bear",
+        "COPY_APPLIED in layer 1 (copies printed 2/2; timestamp-independent)",
+        "HUMILITY_APPLIED in layers 6/7b: loses all abilities, base 1/1",
+        "FINAL: Clone is a 1/1 creature with no abilities (an ability-less Bear copy)"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "Clone is 1/1 with no abilities on battlefield",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "original Bear is 1/1 with no abilities (Humility)",
+          "target": "battlefield"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "enter as copy of Runeclaw Bear",
+          "decision_kind": "copy choices",
+          "legal_set_expectation": "all battlefield creatures offered",
+          "seq": 1
+        },
+        {
+          "actor": "ALL",
+          "chosen_option": "pass to resolution",
+          "decision_kind": "pass",
+          "legal_set_expectation": "no further decisions",
+          "seq": 2
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "copy choice",
+          "expectation": "chosen original public on entry",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-H01",
+      "rules_provenance": "Oracle copy + Humility sentences; layer ordering with timestamp-independence proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "semantic_objective": "Prove copy-before-Humility layering: Clone entering as a Bear under Humility must end as an ability-less 1/1.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-H01.json",
+      "source_sha256": "18caf9751a2e425183f6cd3e48196f27d6ec5daed2098b4f8990e0b1cb1082cb",
+      "title": "Clone under Humility",
+      "ws65_execution_interpretation": "Deck Island*30/Plains*25/Forest*20/Clone*9/Humility*8/Bear*7 (Talrand). Humility established natively P4 t48 (controller deviation from neutral-state P2: behaviorally immaterial, documented; terminal assertions controller-agnostic). Bear-107 out. Clone casts (t53 singleton candidate; t57 two candidates) NEVER engage copy: zero confirm/choice/milestone frames. WCOPY-successor verbatim control (Image, same mechanic, no Humility) shows confirm+choice+milestone: transport+pin sound. Leading ENGINE_RULES_DEFECT (optional ETB-copy suppressed under Humility). UNKNOWN (copy unwitnessed; terminal 1/1 ambiguous). Packet WS65-RP-CLONE-HUMILITY-01."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Runeclaw Bear (+1/+1 counter)",
+            "controller": "P0",
+            "counters": {
+              "P1P1": 1
+            },
+            "owner": "P0"
+          },
+          {
+            "card": "Pacifism (P1) enchanting Bear",
+            "controller": "P0",
+            "owner": "P1"
+          },
+          {
+            "card": "Plains",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Plains",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [
+          "PACIFISM_ATTACK_BLOCK_BAN"
+        ],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": [
+            "Momentary Blink"
+          ]
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "PRECOMBAT_MAIN",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 6
+      },
+      "assertion_authority": [
+        {
+          "assertion": "Runeclaw Bear on battlefield as a plain 2/2 with zero counters and no Auras",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Pacifism in P1 graveyard (not reattached)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Momentary Blink in P0 graveyard",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "cast",
+        "targets",
+        "mana payment",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "BEAR_STATE: one +1/+1 counter + Pacifism attached (established natively)",
+        "CAST Momentary Blink targeting Bear",
+        "EXILE: Bear leaves (counters cease; Pacifism unattached -> graveyard by SBA)",
+        "RETURN: Bear re-enters as a NEW object: no counters, no Aura, no memory",
+        "PACIFISM in P1 graveyard (owner)"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "Runeclaw Bear on battlefield as a plain 2/2 with zero counters and no Auras",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "Pacifism in P1 graveyard (not reattached)",
+          "target": "graveyards.P1"
+        },
+        {
+          "assertion": "Momentary Blink in P0 graveyard",
+          "target": "graveyards.P0"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "Momentary Blink -> Runeclaw Bear (own)",
+          "decision_kind": "cast",
+          "legal_set_expectation": "own creature is a legal target",
+          "seq": 1
+        },
+        {
+          "actor": "ALL",
+          "chosen_option": "pass to resolution",
+          "decision_kind": "pass",
+          "legal_set_expectation": "no responses",
+          "seq": 2
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "identity",
+          "expectation": "exile-then-return as new object is public; no carried state",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "NATURAL_GAME_START",
+      "rqc3_scenario_id": "RQ-C3-I01",
+      "rules_provenance": "Oracle exile-then-return sentence + attachment/counter consequences proposed in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "semantic_objective": "Prove blink identity reset: Momentary Blink on a counter-bearing Pacified Bear must return a clean 2/2 and send Pacifism to its owner's graveyard.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-I01.json",
+      "source_sha256": "8c51632cb8c258a4e34719965cabf32da91b33c88cac7069eaa37552c388c95f",
+      "title": "Blink drops counters and Aura",
+      "ws65_execution_interpretation": "Deck Forest*30/Plains*30/Bear*12/Travel Prep*9/Pacifism*9/Blink*9 (Trostani). Bear t5; +1/+1 counter via P2 Travel Prep (native ws64Battlefield P1P1=1); Pacifism t14 (P2->Bear, attached); Blink t49 (P1->own Bear). Native exile+return; Pacifism to owner GY by SBA; clean 2/2 returns; counter ceased via zone change (entailed); hidden PASS."
+    },
+    {
+      "actual_cards": {
+        "active_player": "P0",
+        "battlefield": [
+          {
+            "card": "Delina, Wild Mage",
+            "controller": "P0",
+            "owner": "P0"
+          },
+          {
+            "card": "Runeclaw Bear",
+            "controller": "P0",
+            "owner": "P0"
+          }
+        ],
+        "command_zone": [],
+        "continuous_effects_present": [],
+        "exile": {},
+        "graveyards": {
+          "P0": [],
+          "P1": [],
+          "P2": [],
+          "P3": []
+        },
+        "hands": {
+          "P0": "HIDDEN:4",
+          "P1": "HIDDEN:4",
+          "P2": "HIDDEN:4",
+          "P3": "HIDDEN:4"
+        },
+        "libraries": {
+          "P0": {
+            "count": 90
+          },
+          "P1": {
+            "count": 90
+          },
+          "P2": {
+            "count": 90
+          },
+          "P3": {
+            "count": 90
+          }
+        },
+        "life": {
+          "P0": 40,
+          "P1": 40,
+          "P2": 40,
+          "P3": 40
+        },
+        "phase": "DECLARE_ATTACKERS",
+        "player_count": 4,
+        "stack": [],
+        "turn_number": 6
+      },
+      "assertion_authority": [
+        {
+          "assertion": "exactly one token was created and then exiled at end of combat (no token remains)",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "Delina and Bear survive on battlefield",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        },
+        {
+          "assertion": "RNG journal contains the d20 entry (domain 1-20, sampled 17, band 15-20) plus the decline of may-roll-again",
+          "classification": "EXTERNALLY_RULE_VALIDATED",
+          "via": [
+            "item-10 packet"
+          ]
+        }
+      ],
+      "corrected_decision_kinds": [
+        "attackers",
+        "defender per attacker",
+        "targets",
+        "pass"
+      ],
+      "expected_rules_events": [
+        "ATTACK: Delina -> P0 (scripted attacker P1? Delina controlled by P0 attacking P1)",
+        "TRIGGER: choose target creature P0 controls (Bear)",
+        "D20_ROLL (Rules RNG, journaled): scripted 17 (15-20 band)",
+        "TOKEN_CREATED: tapped and attacking Bear-copy (nonlegendary, end-of-combat exile)",
+        "MAY_ROLL_AGAIN offered; scripted DECLINE",
+        "END_OF_COMBAT: token exiled"
+      ],
+      "expected_terminal_assertions": [
+        {
+          "assertion": "exactly one token was created and then exiled at end of combat (no token remains)",
+          "target": "token existence"
+        },
+        {
+          "assertion": "Delina and Bear survive on battlefield",
+          "target": "battlefield"
+        },
+        {
+          "assertion": "RNG journal contains the d20 entry (domain 1-20, sampled 17, band 15-20) plus the decline of may-roll-again",
+          "target": "rng journal"
+        }
+      ],
+      "external_decision_script": [
+        {
+          "actor": "P0",
+          "chosen_option": "Delina -> P1",
+          "decision_kind": "attackers",
+          "legal_set_expectation": "Delina eligible; P1 legal defender",
+          "seq": 1
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "Runeclaw Bear (own)",
+          "decision_kind": "targets",
+          "legal_set_expectation": "a creature P0 controls offered",
+          "seq": 2
+        },
+        {
+          "actor": "P0",
+          "chosen_option": "decline roll-again (after scripted 17)",
+          "decision_kind": "pass",
+          "legal_set_expectation": "may-roll-again offered as explicit yes/no; scripted no",
+          "seq": 3
+        }
+      ],
+      "hidden_information_checkpoints": [
+        {
+          "checkpoint": "roll",
+          "expectation": "d20 result public to all immediately",
+          "principal": "ALL"
+        }
+      ],
+      "native_setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+      "rqc3_scenario_id": "RQ-C3-J02",
+      "rules_provenance": "Oracle attack-trigger sentences; band mapping mechanical. CR section mapping in Rules Authority packet; MECHANICALLY_DERIVED hypothesis.",
+      "semantic_objective": "Prove journaled d20 with recursion offer: Delina attacking must roll in Rules RNG, create the tapped-attacking token on 17, offer roll-again, and exile the token at end of combat.",
+      "source_file": "/tmp/ws65-rqc3-authority-20260911/research/candidate-qualification/common/rq-c3/scenarios/RQ-C3-J02.json",
+      "source_sha256": "a9cf7f1d7cc91ae2bd21f07ff8cc7bf509aeae2cc64d41717f2f4e7b191e1f55",
+      "title": "Delina d20 with roll-again",
+      "ws65_execution_interpretation": "Deck Mountain*40/Forest*35/Bear*15/Bolt*9 + Delina commander (comma cards cannot appear in deck-main; commander slot used). Delina CZ-cast t13 non-reduced WORKS (control distinguishing Ghalta defect as reduction-specific). Attack t17 ->P2; trigger targets Bear-8; token-defender choice P2. d20 native but UNJOURNALED (frames carry seed only); 1-14 band by elimination (complete resolution with token + EOC exile, zero roll-again offer frames; a 15-20 MUST offer). Token 2/2 damage (P2 35); EOC exile resolved (token ceases per 111.8); Delina+Bear survive; hidden PASS; replay deterministic. Scripted 17/decline unmet (no conformant steering: seed fixed; only shuffle-adding would shift). UNKNOWN."
+    }
+  ],
+  "schema": "ws65.scenario-authority.v1"
+}

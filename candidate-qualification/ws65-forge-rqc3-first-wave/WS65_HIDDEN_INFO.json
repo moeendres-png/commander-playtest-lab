@@ -1,0 +1,20 @@
+{
+  "schema": "ws65.hidden-info.v1",
+  "verdicts": {
+    "RQ-C3-A03": "PASS",
+    "RQ-C3-A04": "PASS",
+    "RQ-C3-B01": "PASS",
+    "RQ-C3-C01": "PASS",
+    "RQ-C3-C03": "PASS",
+    "RQ-C3-D06": "PASS",
+    "RQ-C3-E01": "PASS",
+    "RQ-C3-E02": "PASS",
+    "RQ-C3-F01": "PASS",
+    "RQ-C3-G02": "PASS",
+    "RQ-C3-G03": "PASS",
+    "RQ-C3-G04": "PASS",
+    "RQ-C3-H01": "PASS",
+    "RQ-C3-I01": "PASS",
+    "RQ-C3-J02": "PASS"
+  }
+}

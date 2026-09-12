@@ -1,0 +1,80 @@
+{
+  "schema": "ws65.rng-replay.v1",
+  "rows": {
+    "RQ-C3-A03": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-A04": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-B01": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-C01": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-C03": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-D06": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-E01": {
+      "seed": 424242,
+      "replay": null,
+      "divs": null
+    },
+    "RQ-C3-E02": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-F01": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-G02": {
+      "seed": 424242,
+      "replay": null,
+      "divs": null
+    },
+    "RQ-C3-G03": {
+      "seed": 424242,
+      "replay": null,
+      "divs": null
+    },
+    "RQ-C3-G04": {
+      "seed": 424242,
+      "replay": null,
+      "divs": null
+    },
+    "RQ-C3-H01": {
+      "seed": 424242,
+      "replay": null,
+      "divs": null
+    },
+    "RQ-C3-I01": {
+      "seed": 424242,
+      "replay": "PASS",
+      "divs": 0
+    },
+    "RQ-C3-J02": {
+      "seed": 424242,
+      "replay": null,
+      "divs": null
+    }
+  }
+}

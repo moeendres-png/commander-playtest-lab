@@ -1,0 +1,11 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "cast": 350,
+    "trigger_order": 356
+  },
+  "summary": "Elves-95 cast; exactly 5 Warden triggers created+resolved; P0 externally orders its two triggers (frame 356: exactly 2 engine-offered perms, single-match pick [3,8]); APNAP resolution evidenced via sequential life snapshots (P4,P3,P2,P1,P1: frames 361-377); delta +2/+1/+1/+1 exact; stack empty (combat proceeds); hidden PASS; replay 0 divs. Setup ledger (10 native setup triggers; pre-Elves 44/43/42/41) documented with unavoidability proof; absolute offset explained, not passed off as match. Decision evidence primary per Coordinator correction.",
+  "verdict": "PASS"
+}

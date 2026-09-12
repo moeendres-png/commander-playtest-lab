@@ -1,0 +1,14 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "choose_object": 155,
+    "mana": [
+      149,
+      150
+    ]
+  },
+  "summary": "Verbatim WSEARCH rerun. Rampant Growth-95 cast; 2 G paid; choose_object Forest-11 among 78 Forests + NONE (fail-to-find offered); shuffle seat-1 journaled; Forest-11 battlefield; RG GY; hidden principal-scoped (positive + negative: zero P1-library identities in non-P1 frames/views); replay 0 divs.",
+  "verdict": "PASS"
+}

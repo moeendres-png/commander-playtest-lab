@@ -1,0 +1,115 @@
+{
+  "schema": "ws65.scenario-matrix.v1",
+  "rows": [
+    {
+      "scenario": "RQ-C3-A03",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 391,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-A04",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 1235,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-B01",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 385,
+      "failure_class": "ADAPTER_BINDING"
+    },
+    {
+      "scenario": "RQ-C3-C01",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 875,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-C03",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 1144,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-D06",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 766,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-E01",
+      "verdict": "UNKNOWN",
+      "credit": 0,
+      "frames": 475,
+      "failure_class": "UNSUPPORTED_DECISION_KIND"
+    },
+    {
+      "scenario": "RQ-C3-E02",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 945,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-F01",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 343,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-G02",
+      "verdict": "UNKNOWN",
+      "credit": 0,
+      "frames": 769,
+      "failure_class": "UNKNOWN"
+    },
+    {
+      "scenario": "RQ-C3-G03",
+      "verdict": "UNKNOWN",
+      "credit": 0,
+      "frames": 769,
+      "failure_class": "UNKNOWN"
+    },
+    {
+      "scenario": "RQ-C3-G04",
+      "verdict": "UNKNOWN",
+      "credit": 0,
+      "frames": 1715,
+      "failure_class": "UNSUPPORTED_DECISION_KIND"
+    },
+    {
+      "scenario": "RQ-C3-H01",
+      "verdict": "UNKNOWN",
+      "credit": 0,
+      "frames": 1953,
+      "failure_class": "ENGINE_RULES_DEFECT"
+    },
+    {
+      "scenario": "RQ-C3-I01",
+      "verdict": "PASS",
+      "credit": 1,
+      "frames": 1685,
+      "failure_class": "HARNESS"
+    },
+    {
+      "scenario": "RQ-C3-J02",
+      "verdict": "UNKNOWN",
+      "credit": 0,
+      "frames": 637,
+      "failure_class": "FIXTURE_AUTHORITY_GAP"
+    }
+  ],
+  "counts": {
+    "PASS": 9,
+    "FAIL": 0,
+    "UNKNOWN": 6
+  }
+}

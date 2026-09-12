@@ -1,0 +1,12 @@
+{
+  "class": "FIXTURE_AUTHORITY_GAP",
+  "credit": 0,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "attack": 570,
+    "choose_object": 576,
+    "target": 571
+  },
+  "summary": "Delina CZ-cast t13 non-reduced WORKS (control distinguishing Ghalta defect). Attack t17 ->P2; trigger targets Bear-8; token-defender choice P2. d20 native but UNJOURNALED (frames carry seed only). 1-14 band by elimination (complete resolution: token created 2/2 damage (P2 35) + EOC exile resolved with token ceasing + zero roll-again offer frames; a 15-20 MUST offer). Delina+Bear survive; hidden PASS; replay deterministic 0 divs. Scripted 17 + decline unmet (no conformant steering: seed fixed; only shuffle-adding would shift RNG). 1-14 path fully evidenced as partial behavior.",
+  "verdict": "UNKNOWN"
+}

@@ -1,0 +1,38 @@
+{
+  "blocking_scenarios": [
+    "RQ-C3-H01 (Clone under Humility)"
+  ],
+  "candidate_classes": [
+    "ENGINE_RULES_DEFECT (optional ETB-copy replacement not engaged under Humility; confirm never requested although provider always frames confirms)"
+  ],
+  "classification": "ENGINE_RULES_DEFECT as leading hypothesis (differential control rules out pin/transport; provider confirm path always frames so its absence implicates engine non-engagement). Harness/fixture gaps ruled out: fixture cards/state exact (modulo documented Humility-controller deviation); every offered option answered exactly.",
+  "differential_control": {
+    "conclusion": "pin-level copy transport regression RULED OUT; Humility presence is the differentiator",
+    "experiment": "WS55_WCOPY_EVID intent (Phantasmal Image, same ETBReplacement:Copy:DBCopy:Optional + Choices Creature.Other mechanic) run VERBATIM on the WS65 successor build",
+    "journal": "/tmp/ws65-run/WCOPY_successor.json",
+    "result": "replacement_effect confirm (apply=true) + choose_object (Merfolk-85) + chooseSingleReplacementEffect CALLED n=1 ALL present; copy transport sound on accepted pin"
+  },
+  "evidence_class": "DIRECTLY_VERIFIED (fresh-process runs on accepted pin + verbatim control rerun)",
+  "packet_id": "WS65-RP-CLONE-HUMILITY-01",
+  "production_edit_in_ws65": false,
+  "remediation_scope_hint": "Engine-direct test: Clone vs Phantasmal Image entering under Humility on accepted pin; trace ReplacementHandler engagement for optional ETB-copy; repair OUTSIDE WS65 with impact requalification.",
+  "reproducer": {
+    "clone_casts": [
+      "P1 turn-53 Clone MINTED-95 (singleton candidate Bear-107; no frame)",
+      "P1 turn-57 Clone MINTED-98 (two candidates Bear-107 + Bear-102; STILL no confirm/choice frame)"
+    ],
+    "deck_commander": "Talrand, Sky Summoner",
+    "deck_main": "Island*30,Plains*25,Forest*20,Clone*9,Humility*8,Runeclaw Bear*7",
+    "evidence_pointers": {
+      "bear": "id 107 Runeclaw Bear on battlefield",
+      "clone_resolved": "spell_cast + spell_resolved fizzled=false x2, zero replacement/confirm/choice milestones in 938-event tape",
+      "humility_battlefield": "id 336 Humility on battlefield"
+    },
+    "humility": "P4 turn-48 Humility MINTED-336 cast+resolved (controller deviation RQ-P3: behaviorally immaterial, documented)",
+    "journal": "/tmp/ws65-run/H01_v64.json (1861+ frames)"
+  },
+  "scenario_verdict": "UNKNOWN (copy choice unwitnessed; terminal 1/1 ambiguous between Bear-copy and blank-0/0 under Humility)",
+  "schema": "ws65.remediation-packet.v1",
+  "status": "OPEN (not remediated inside WS65; no production semantic edit made)",
+  "symptom": "Clone resolving while Humility is on the battlefield never engages its optional ETB-copy replacement: no confirmReplacementEffect frame, no choose_object frame, no chooseSingleReplacementEffect milestone. Clone enters (resolves fizzled=false) and sits on the battlefield; under Humility it is 1/1 ability-less either way, so copy-vs-blank-0/0 is terminally indistinguishable and the credited copy choice is unwitnessed."
+}

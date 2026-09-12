@@ -1,0 +1,11 @@
+{
+  "class": "UNSUPPORTED_DECISION_KIND",
+  "credit": 0,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "concession_census": "0/61914",
+    "control_magic_cast": "t49 (frames 1616-1621)"
+  },
+  "summary": "Control Magic state ESTABLISHED natively (cast t49, UU+2 paid, attached Bear-107, fizzled=false) and retained as supplemental leave-game context. Credited concession path: ZERO concession frames in 61,914 censused frames (1715 in dedicated attempt with due entry unmet); no provider emitter exists and none may be added (frozen semantics). Loss alternative blocked by Covenant X-life misbilled as mana-X (12 taps then rollback; Fireball mana-X control correct). Engine 4/4 prerequisite retained with zero credit. Packets WS65-RP-CONCESSION-EMITTER-01 + WS65-RP-COVENANT-XMAUL-01. Loss run NOT promoted to concession proof per Coordinator correction.",
+  "verdict": "UNKNOWN"
+}

@@ -1,0 +1,183 @@
+{
+  "schema": "ws65.decision-kind-coverage.v1",
+  "union_total": 20,
+  "runtime_covered": 17,
+  "missing": [
+    "Commander movement",
+    "concession",
+    "copy choices"
+  ],
+  "by_kind": {
+    "Commander movement": {
+      "scenarios": [
+        "RQ-C3-G02"
+      ],
+      "runtime_evidenced": false
+    },
+    "X": {
+      "scenarios": [
+        "RQ-C3-A04",
+        "RQ-C3-C03"
+      ],
+      "runtime_evidenced": true
+    },
+    "activate": {
+      "scenarios": [
+        "RQ-C3-A03"
+      ],
+      "runtime_evidenced": true
+    },
+    "alternate cost": {
+      "scenarios": [
+        "RQ-C3-C01"
+      ],
+      "runtime_evidenced": true
+    },
+    "attackers": {
+      "scenarios": [
+        "RQ-C3-E01",
+        "RQ-C3-E02",
+        "RQ-C3-G03",
+        "RQ-C3-J02"
+      ],
+      "runtime_evidenced": true
+    },
+    "blockers": {
+      "scenarios": [
+        "RQ-C3-E02",
+        "RQ-C3-G03"
+      ],
+      "runtime_evidenced": true
+    },
+    "cast": {
+      "scenarios": [
+        "RQ-C3-A03",
+        "RQ-C3-A04",
+        "RQ-C3-B01",
+        "RQ-C3-C01",
+        "RQ-C3-C03",
+        "RQ-C3-D06",
+        "RQ-C3-F01",
+        "RQ-C3-G02",
+        "RQ-C3-H01",
+        "RQ-C3-I01"
+      ],
+      "runtime_evidenced": true
+    },
+    "combat damage assignment": {
+      "scenarios": [
+        "RQ-C3-E02"
+      ],
+      "runtime_evidenced": true
+    },
+    "concession": {
+      "scenarios": [
+        "RQ-C3-G04"
+      ],
+      "runtime_evidenced": false
+    },
+    "copy choices": {
+      "scenarios": [
+        "RQ-C3-H01"
+      ],
+      "runtime_evidenced": false
+    },
+    "defender per attacker": {
+      "scenarios": [
+        "RQ-C3-E01",
+        "RQ-C3-E02",
+        "RQ-C3-G03",
+        "RQ-C3-J02"
+      ],
+      "runtime_evidenced": true
+    },
+    "hidden-zone selection": {
+      "scenarios": [
+        "RQ-C3-C01",
+        "RQ-C3-F01"
+      ],
+      "runtime_evidenced": true
+    },
+    "mana payment": {
+      "scenarios": [
+        "RQ-C3-A03",
+        "RQ-C3-A04",
+        "RQ-C3-B01",
+        "RQ-C3-C01",
+        "RQ-C3-C03",
+        "RQ-C3-D06",
+        "RQ-C3-E01",
+        "RQ-C3-F01",
+        "RQ-C3-G02",
+        "RQ-C3-H01",
+        "RQ-C3-I01"
+      ],
+      "runtime_evidenced": true
+    },
+    "mana source": {
+      "scenarios": [
+        "RQ-C3-A03",
+        "RQ-C3-A04",
+        "RQ-C3-C01"
+      ],
+      "runtime_evidenced": true
+    },
+    "modes": {
+      "scenarios": [
+        "RQ-C3-D06"
+      ],
+      "runtime_evidenced": true
+    },
+    "pass": {
+      "scenarios": [
+        "RQ-C3-A03",
+        "RQ-C3-A04",
+        "RQ-C3-B01",
+        "RQ-C3-C01",
+        "RQ-C3-C03",
+        "RQ-C3-D06",
+        "RQ-C3-E01",
+        "RQ-C3-E02",
+        "RQ-C3-F01",
+        "RQ-C3-G02",
+        "RQ-C3-G03",
+        "RQ-C3-G04",
+        "RQ-C3-H01",
+        "RQ-C3-I01",
+        "RQ-C3-J02"
+      ],
+      "runtime_evidenced": true
+    },
+    "replacement ordering": {
+      "scenarios": [
+        "RQ-C3-A04"
+      ],
+      "runtime_evidenced": true
+    },
+    "search": {
+      "scenarios": [
+        "RQ-C3-F01"
+      ],
+      "runtime_evidenced": true
+    },
+    "targets": {
+      "scenarios": [
+        "RQ-C3-A03",
+        "RQ-C3-C01",
+        "RQ-C3-C03",
+        "RQ-C3-D06",
+        "RQ-C3-G02",
+        "RQ-C3-I01",
+        "RQ-C3-J02"
+      ],
+      "runtime_evidenced": true
+    },
+    "trigger ordering": {
+      "scenarios": [
+        "RQ-C3-B01"
+      ],
+      "runtime_evidenced": true
+    }
+  },
+  "note": "Coverage counts only First-Wave denominator runs. WCOPY-successor control (choose_object, old-pin fixture verbatim on successor) retained as supplemental transport evidence, not counted."
+}

@@ -1,0 +1,22 @@
+{
+  "blocking_scenarios": [
+    "RQ-C3-G04 credited concession Decision path"
+  ],
+  "classification": "UNSUPPORTED_DECISION_KIND (concession-as-external-Decision has no emitter in the qualified transport). NOT incorrect behavior (nothing malformed offered). Engine 4/4 prerequisite (Ws59G04ConcessionTest on accepted pin) retained with zero behavior credit. Scenario verdict UNKNOWN (leave-game cleanup not reached via credited path).",
+  "evidence_class": "DIRECTLY_VERIFIED (fresh-process runs on accepted pin + exhaustive frame census)",
+  "packet_id": "WS65-RP-CONCESSION-EMITTER-01",
+  "production_edit_in_ws65": false,
+  "remediation_scope_hint": "Future provider overlay: emit a conditional concession frame (only when native canConcede() true; authority+DECLINE options; submission via concede() seam only; never priority-gated; never player.concede direct), with impact requalification OUTSIDE WS65. Do NOT gate on priority (104.3a) and do NOT orchestrate outcomes.",
+  "reproducer": {
+    "evidence_pointers": {
+      "control_magic_state": "cast t49 UU+2 paid natively, attached Bear-107, fizzled=false (supplemental leave-game context)",
+      "frame_kinds": "chooseStartingPlayer:1, mulligan:5, priority:1676, discard:16, mana:6, attacker:10, target:1, concession:0",
+      "hidden": "PASS"
+    },
+    "intent": "/tmp/ws65-run/G04_concede_intent.json (Control-Magic-establishing prefix + due P1 concession entry turns 50-53)",
+    "journal": "/tmp/ws65-run/G04_concede.json (1715 frames: 1676 priority + others; 0 concession kind; entry in script_remaining)"
+  },
+  "schema": "ws65.remediation-packet.v1",
+  "status": "OPEN (not remediated inside WS65; provider semantics frozen by workstream contract)",
+  "symptom": "No concession-kind DECISION_FRAME is ever emitted through the qualified WS64 provider transport in natural play: ws62RequestConcession() (conditional canConcede -> external choice -> concede() seam) exists in the generated provider but has zero call sites; Ws62ConcessionTransport.requestConcession() is a static helper unreachable via the JSON protocol. Frame census: 0 concession frames in 61,914 frames across all WS65 journals. A due harness concession entry (ws65_runner concession family, offered-options-only matching) remains forever unmet."
+}

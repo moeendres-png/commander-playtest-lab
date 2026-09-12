@@ -1,0 +1,14 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "mana": [
+      1623,
+      1624
+    ],
+    "target": 1622
+  },
+  "summary": "Bear-8 t5; +1/+1 counter via P2 Travel Prep (native ws64Battlefield P1P1=1); Pacifism t14 (P2->Bear, attached); Blink t49 (P1->own Bear, 1622-1624). Native exile+return; Pacifism to owner GY by SBA; clean 2/2 returns; counter ceased via zone change (entailed); Blink GY; hidden PASS; replay 0 divs.",
+  "verdict": "PASS"
+}

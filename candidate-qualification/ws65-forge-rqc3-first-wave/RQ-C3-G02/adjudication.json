@@ -1,0 +1,18 @@
+{
+  "class": "UNKNOWN",
+  "credit": 0,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "cast": 703,
+    "mana": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709
+    ]
+  },
+  "summary": "Cost-reduced (3-Bear) Ghalta cast from CZ: engine requests exactly 6, all 6 submissions ACCEPTED, then NO spell_cast/stack/resolution; Ghalta remains in CZ; game continues. Reproduced twice (t21 seq 703, t25 seq 844). Engine-vs-provider causality unisolated (HARNESS ruled out). Murder/movement/recast unreached. Packet WS65-RP-GHALTA-ENTRY-01. Delina non-reduced CZ cast (J02) works: defect is reduction-specific.",
+  "verdict": "UNKNOWN"
+}

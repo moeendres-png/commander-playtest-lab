@@ -1,0 +1,13 @@
+{
+  "deck_commander": "Edric, Spymaster of Trest",
+  "deck_main": "Island*60,Forest*20,Force of Will*6,Turn to Frog*6,Llanowar Elves*7",
+  "forge": {
+    "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+    "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+  },
+  "materialization": "/tmp/ws62-material.json (WS47 SHA 0e47b792...)",
+  "provider": "/tmp/ws65-ev (WS65 build, digests match WS64)",
+  "seed": 424242,
+  "seed_binding": "ws55-forge-mandatory-decision-breadth",
+  "structural_cap": 2048
+}

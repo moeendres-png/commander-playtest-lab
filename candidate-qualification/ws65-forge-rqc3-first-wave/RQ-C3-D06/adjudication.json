@@ -1,0 +1,27 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "mana": [
+      700,
+      701,
+      702,
+      703,
+      704,
+      705
+    ],
+    "modes": [
+      694,
+      695,
+      696
+    ],
+    "targets": [
+      697,
+      698,
+      699
+    ]
+  },
+  "summary": "Casualties-95 cast; sequential mode picks artifact+creature+land among LEGAL modes only (694: 3 offered; 695: DONE+2; 696: DONE+1; enchantment/planeswalker correctly absent: AG-2 native); targets Ornithopter-149/Bear-107/Forest-167; 6 mana BBGG+2 colored-first; all three destroyed; Casualties GY; life 40s; hidden PASS; replay 0 divs.",
+  "verdict": "PASS"
+}

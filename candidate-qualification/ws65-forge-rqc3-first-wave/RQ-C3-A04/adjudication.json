@@ -1,0 +1,11 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "announce_x": 954,
+    "replacement_effect": 962
+  },
+  "summary": "Verbatim WS64 postfix rerun. X=3 engine-announced by value; 3 G paid natively; HS-first chosen among exactly 2 Forge-offered orders; Moved n=1/2/1; P1P1=8 on cardId 32; hidden PASS; replay 0 divs.",
+  "verdict": "PASS"
+}

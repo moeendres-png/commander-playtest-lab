@@ -1,0 +1,38 @@
+{
+  "blocking_scenarios": [
+    "RQ-C3-G02",
+    "RQ-C3-G03"
+  ],
+  "candidate_classes": [
+    "PROVIDER_TRANSPORT_DEFECT (mana registration gap specific to reduced costs; unproven)",
+    "ENGINE_RULES_DEFECT (silent-drop / isFullyPaid accounting with reductions; unproven)"
+  ],
+  "classification": "UNKNOWN (engine-vs-provider causality not isolated with available evidence; HARNESS_DEFECT ruled out: every offered option answered exactly; FIXTURE_AUTHORITY_GAP ruled out: fixture cards/state exact)",
+  "engine_forensics_readonly": [
+    "PlaySpellAbility.playAbility returns true without game.getStack().addAndUnfreeze when !isFree && !payment.isFullyPaid (silent success-lie path)",
+    "rollbackAbility path (payAsDecided false) also returns card to fromZone silently from harness view",
+    "cost computation honored reduction (exactly 6 mana requested); failure is post-payment registration/stack-placement"
+  ],
+  "evidence_class": "DIRECTLY_VERIFIED (two independent fresh-process runs, identical shape)",
+  "packet_id": "WS65-RP-GHALTA-ENTRY-01",
+  "production_edit_in_ws65": false,
+  "remediation_scope_hint": "Reproduce at engine-direct level (mvn, cost-reduced commander from CZ with scripted mana, assert stack placement + isFullyPaid); add provider milestone for post-payment stack placement (observation only); then decide engine vs provider repair OUTSIDE WS65 with impact requalification.",
+  "reproducer": {
+    "deck_commander": "Ghalta, Stampede Tyrant",
+    "deck_main": "Forest*33,Swamp*33,Murder*11,Runeclaw Bear*11,Lightning Bolt*11",
+    "evidence_pointers": {
+      "anomaly": "7 payManaCost milestones (346,349,351,353,355,357,359) for 6 harness mana frames; single applyManaToCost (347)",
+      "cast_selection": "frame 703 priority P1 o9 WS48:ACT host=MINTED-100",
+      "mana_frames": "704-709 MANA 95,77,85,27,25,98 all ACCEPTED_CONTINUED",
+      "missing": "no spell_cast/stack/spell_resolved for Ghalta in native_event_tape_full; command zone still holds id 100; stack empty at 710"
+    },
+    "intent": "/tmp/ws65-run/G02_intent_v23.json (P1 turn-21: Forest MINTED-98 then Ghalta MINTED-100, mana 95,77,85,27,25,98; retry turn-25 seq 844)",
+    "journals": [
+      "/tmp/ws65-run/G02_v20.json (first silent drop, cast seq 703, mana 704-709)",
+      "/tmp/ws65-run/G02_v23.json (retry silent drop, cast seq 844)"
+    ]
+  },
+  "schema": "ws65.remediation-packet.v1",
+  "status": "OPEN (not remediated inside WS65; no production semantic edit made)",
+  "symptom": "Cost-reduced commander cast from command zone through the qualified WS64 provider transport: engine requests exactly the reduced cost (6 for Ghalta with 3x Runeclaw Bear power 6), all 6 mana submissions ACCEPTED_CONTINUED, then no spell_cast/stack/resolution; Ghalta remains in command zone; game continues normally. Reproduced twice (turns 21 and 25, identical shape)."
+}

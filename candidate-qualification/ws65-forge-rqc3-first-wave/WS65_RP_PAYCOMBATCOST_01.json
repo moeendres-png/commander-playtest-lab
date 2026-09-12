@@ -1,0 +1,24 @@
+{
+  "blocking_scenarios": [
+    "RQ-C3-E01 (Propaganda attack tax)"
+  ],
+  "classification": "UNSUPPORTED_DECISION_KIND (payCombatCost attack-tax transport). NOT incorrect behavior: fail-closed is the designed conformant response on uncovered surfaces (Milestone D discipline); harness answered every offered option exactly. Scenario verdict UNKNOWN (tax/damage/life steps not reached).",
+  "evidence_class": "DIRECTLY_VERIFIED (fresh-process run on accepted pin)",
+  "packet_id": "WS65-RP-PAYCOMBATCOST-01",
+  "production_edit_in_ws65": false,
+  "remediation_scope_hint": "Implement payCombatCost transport in a future provider overlay (offer exactly the engine-computed combat-cost payment options among legal sources; fail-closed on multi/ambiguous; never synthesize amounts), with impact requalification OUTSIDE WS65.",
+  "reproducer": {
+    "deck_commander": "Ghalta, Stampede Tyrant",
+    "deck_main": "Forest*30,Island*30,Runeclaw Bear*15,Propaganda*12,Lightning Bolt*12",
+    "evidence_pointers": {
+      "declarations": "frames 474 (107->P1 o0) and 475 (114->P3 o1) ACCEPTED",
+      "tape": "milestone:declareAttackers:ENTERED then provider throw",
+      "tax_demand": "stop_reason WS23_FAIL_CLOSED_UNSUPPORTED:payCombatCost"
+    },
+    "intent": "/tmp/ws65-run/E01_intent_v12.json",
+    "journal": "/tmp/ws65-run/E01_v12.json"
+  },
+  "schema": "ws65.remediation-packet.v1",
+  "status": "OPEN (not remediated inside WS65; no production semantic edit made)",
+  "symptom": "Declaring Bear MINTED-107 -> P1 (seat-1, Propaganda controller) makes the engine invoke payCombatCost for the {2} attack tax; the qualified provider throws WS23_FAIL_CLOSED_UNSUPPORTED:payCombatCost unconditionally (generated fail-closed stub, never overlaid by WS48/WS53/WS55/WS62/WS64); session terminates with that stop reason. Both attacker declarations (107->P1, 114->P3) were engine-accepted before the tax step."
+}

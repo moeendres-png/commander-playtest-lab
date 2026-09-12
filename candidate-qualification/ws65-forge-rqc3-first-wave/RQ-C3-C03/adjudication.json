@@ -1,0 +1,24 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "announce_x": 1073,
+    "mana": [
+      1077,
+      1078,
+      1079,
+      1080,
+      1081,
+      1082,
+      1083
+    ],
+    "target_done": 1076,
+    "targets": [
+      1074,
+      1075
+    ]
+  },
+  "summary": "Fireball-27 cast; X=5 by value; targets P2+P3 + DONE (ws65 target_done override for inherited ws62 arity bug); 7 native mana frames (one per Mountain); resolution deals 5 even-split (2/2, remainder lost); life 38/38; Fireball GY; hidden PASS; replay 0 divs.",
+  "verdict": "PASS"
+}

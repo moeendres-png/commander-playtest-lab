@@ -1,0 +1,15 @@
+{
+  "class": null,
+  "credit": 1,
+  "evidence_class": "DIRECTLY_VERIFIED + EXTERNALLY_RULE_VALIDATED (tap flag)",
+  "frames": {
+    "activate": 325,
+    "bolt_resolve": "spell_resolved fizzled=false, 3 damage to Skeletons-51",
+    "cast": 319,
+    "regen_resolve": "spell_resolved",
+    "replacement_milestone": "chooseSingleReplacementEffect CALLED n=1 (engine-internal; no harness frame)",
+    "target": 320
+  },
+  "summary": "Bolt 154 cast targeting Skeletons 51; regen {B} activated in response (Swamp 27); both resolve; singleton shield applies automatically with zero external replacement frames (701.19a/616.1); Skeletons survives on battlefield; Bolt in P1 GY; life 40s; hidden PASS; replay 0 divs. Tap flag EXTERNALLY_RULE_VALIDATED (transport lacks tapped-visibility).",
+  "verdict": "PASS"
+}

@@ -1,0 +1,21 @@
+{
+  "consumed_intent": 53,
+  "credit": 1,
+  "failure_class": {
+    "class": "HARNESS",
+    "note": "intent gap at transported surface discardToMaximumHandSize; provider frame well-formed"
+  },
+  "forge": {
+    "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+    "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+  },
+  "frame_count": 945,
+  "hidden_info_verdict": "PASS",
+  "journal_verdict": "BLOCKED_AT:discardToMaximumHandSize",
+  "replay": "PASS",
+  "replay_divergences": 0,
+  "scenario": "RQ-C3-E02",
+  "seed": 424242,
+  "verdict": "PASS",
+  "ws65_runner": true
+}

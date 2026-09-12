@@ -1,0 +1,14 @@
+{
+  "class": "ENGINE_RULES_DEFECT",
+  "credit": 0,
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "frames": {
+    "clone_casts": [
+      1756,
+      1904
+    ],
+    "humility_resolve": "t48"
+  },
+  "summary": "Humility established natively P4 t48 (controller deviation from neutral-state P2: behaviorally immaterial, documented; terminal assertions controller-agnostic). Bear-107 out. Clone casts (t53 singleton candidate; t57 two candidates) NEVER engage copy: zero confirm/choice/milestone frames. WCOPY-successor verbatim control (Image, same mechanic, no Humility) shows confirm+choice+milestone: transport+pin sound, Humility differentiates. Terminal 1/1 ambiguous (copy vs blank-0/0 under Humility). Leading ENGINE defect (optional ETB-copy suppressed under Humility). Packet WS65-RP-CLONE-HUMILITY-01.",
+  "verdict": "UNKNOWN"
+}
