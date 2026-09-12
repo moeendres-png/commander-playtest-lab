@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws77-forge-ghalta-covenant-provider-remediation
 branch: ws77/forge-ghalta-covenant-provider-remediation-20260912
 audit_base_sha: 5cc646a08397c6a3d40fbe9da92e7b1e426eb8ec
 audit_base_tree: 3a7d549757dfc913d8eaaaae94efc1dedae3e2c8
-state_written_against_head: 5cc646a08397c6a3d40fbe9da92e7b1e426eb8ec
-validated_head: null
+state_written_against_head: c74914c876d4f2cc83e0a36a306caf68761fb3db
+validated_head: c74914c876d4f2cc83e0a36a306caf68761fb3db
 objective: Repair the Forge provider transport defects for reduced-cost Ghalta commander
   casting and non-mana-X Fire Covenant while preserving WS68 payCombatCost and all
   fail-closed provider boundaries.
@@ -35,10 +35,11 @@ hard_gates:
 - WS68 payCombatCost must not regress
 - G04 overall remains NOT_READY while concession remains unresolved
 ownership: WS77-FORGE-GHALTA-COVENANT-PROVIDER-REMEDIATION
-status: ACTIVE
-exact_next_action: Commit overlay v2 (+ state); rebuild from clean head and verify
-  digests; witness-rerun WS77-C; then write evidence files (receipt, scenario
-  dirs, matrices, report, source lock), final commit, evidence seal, safe_push.
+status: COMPLETE
+exact_next_action: 'Coordinator: accept WS77_PROVIDER_REMEDIATION=PASS (0/107 credit);
+  schedule G02/G03/G04-route credit re-entry + multi-target-division follow-up.
+  validated_head=c74914c8 (code checkpoint; evidence/state descendants do not
+  promote). G04 overall remains NOT_READY (concession out of scope).'
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 diagnosis:
