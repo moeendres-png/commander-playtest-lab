@@ -3,10 +3,10 @@
 Checks the machine-readable WS80 outputs plus the production diff for the
 hard gates. No randomness, no network, no secrets. Exit 0 on PASS.
 """
+
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -107,7 +107,9 @@ def main() -> int:
             print(f"- {item}")
         return 1
     print("WS80_VERIFY=PASS")
-    print("gates: PRODUCTION_REACHABLE_DEFAULT_DECISIONS=0 UNSUPPORTED_PATHS_FAIL_CLOSED=PASS CAPABILITY_TRUTH=PASS ENGINE_PIN_CHANGE=0")
+    print(
+        "gates: PRODUCTION_REACHABLE_DEFAULT_DECISIONS=0 UNSUPPORTED_PATHS_FAIL_CLOSED=PASS CAPABILITY_TRUTH=PASS ENGINE_PIN_CHANGE=0"
+    )
     return 0
 
 
