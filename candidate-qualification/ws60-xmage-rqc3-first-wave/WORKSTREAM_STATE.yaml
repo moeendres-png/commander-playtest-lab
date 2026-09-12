@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws60-xmage-rqc3-first-wave
 branch: ws60/xmage-rqc3-first-wave-20260911
 audit_base_sha: da4fa567312b6b0e4ef5cbfc7347748ca3c2dcd9
 audit_base_tree: 8f194ab8bc884025368a3667c217b86cb23a6ba8
-state_written_against_head: da4fa567312b6b0e4ef5cbfc7347748ca3c2dcd9
-validated_head: null
+state_written_against_head: 62ea6aff17fe4e408683910f0ef534e50ae6b9ce
+validated_head: 2c30040f82e4c97b308535a592f4facd1e5ec42e
 objective: 'WS60 XMage RQ-C3 First-Wave execution: execute the corrected 15 actual-card
   scenarios through the WS56-qualified XMage successor using authoritative engine
   decisions, principal-scoped observations, deterministic Rules RNG, and fail-closed
@@ -48,40 +48,56 @@ forbidden_shortcuts:
 - manual outcome injection
 - reference parity as rules proof
 ownership: WS60-XMAGE-RQC3-FIRST-WAVE
-status: ACTIVE
-exact_next_action: WS60-AUDIT + WS60-SEAL (final report/matrix, validated_head); execution 14/15 PASS + B01 structural UNKNOWN.
+status: COMPLETE
+exact_next_action: Coordinator review of WS60 terminal evidence, then authorized safe_push
+  actual only if accepted.
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 open_questions: []
 milestones:
-- id: WS60-READ
+- evidence: 15 RQ-C3 artifacts; all cards implemented; baseline 111/111
+  id: WS60-READ
   status: completed
-  evidence: 15 RQ-C3 artifacts; all cards implemented; baseline 111/111
-- id: WS60-DESIGN
+- evidence: singleton construction; partner assembly; tape; twins
+  id: WS60-DESIGN
   status: completed
-  evidence: singleton construction; partner assembly; tape; twins
-- id: WS60-BUILD
+- evidence: driver+pilot+15 specs; 111/111 retained
+  id: WS60-BUILD
   status: completed
-  evidence: driver+pilot+15 specs; 111/111 retained
-- id: WS60-EXEC-1
+- evidence: PASS A03 A04 C01 C03 D06 E01 E02 F01 G02 G03 G04 H01 I01 J02 (14/15);
+    B01 structural UNKNOWN as designed
+  id: WS60-EXEC-1
   status: completed
-  evidence: PASS A03 A04 C01 C03 D06 E01 E02 F01 G02 G03 G04 H01 I01 J02 (14/15); B01 structural UNKNOWN as designed
-- id: WS60-EXEC-2
+- evidence: J02 PASS (940f1980); C01 PASS (4857b4f4); B01 UNKNOWN as designed; E02
+    twin realigned via content-sort (4e0d068d); full sweep 15/15 green + baseline
+    126/126
+  id: WS60-EXEC-2
   status: completed
-  evidence: J02 PASS (940f1980); C01 PASS (4857b4f4); B01 UNKNOWN as designed; E02 twin realigned via content-sort (4e0d068d); full sweep 15/15 green + baseline 126/126
-- id: WS60-AUDIT
-  status: pending
-  evidence: null
-- id: WS60-SEAL
-  status: pending
-  evidence: null
+- evidence: 14 PASS audited (8-point each); B01 disposition UNKNOWN; high-risk changes
+    cleared; 73548 frames 0 out-of-option
+  id: WS60-AUDIT
+  status: completed
+- evidence: 30 JSONs sealed byte-for-byte + manifest 20a03e89; matrix/credit/taxonomy/coverage/replay/hidden
+    audits; final report; seal commit 62ea6aff
+  id: WS60-SEAL
+  status: completed
 decisions:
-- WS60-D1: J02 token-defender TargetDefender frame mapped to Delina's defender (no blockers/life assertions affected).
-- WS60-D2: J02/C01 hard-seek 1-of assembly pieces (mulligan policy; London bottoms protect pieces).
-- WS60-D3: dieResults strips tape amount= prefix (harness parse fix; engine untouched).
-- WS60-D4: bridge projects key-mode Choice frames with engine message text (alternative-cost menu reached pilot mapping).
-- WS60-D5: per-game object-id/short-id redaction in choice projections (twin-stable digests).
-- WS60-D6: attacker/blocker frame sequences sorted by Rules-visible content, not native UUIDs (adapter determinism repair, no Rules impact).
-- WS60-D7: E02 twin divergence classified HARNESS (UUID-iteration frame order, identical terminal/tape/assertions both twins); repaired via WS60-D6, PASS x4 consecutive including full sweep.
+- 'WS60-D1: J02 token-defender TargetDefender frame mapped to Delina''s defender (no
+  blockers/life assertions affected).'
+- 'WS60-D2: J02/C01 hard-seek 1-of assembly pieces (mulligan policy; London bottoms
+  protect pieces).'
+- 'WS60-D3: dieResults strips tape amount= prefix (harness parse fix; engine untouched).'
+- 'WS60-D4: bridge projects key-mode Choice frames with engine message text (alternative-cost
+  menu reached pilot mapping).'
+- 'WS60-D5: per-game object-id/short-id redaction in choice projections (twin-stable
+  digests).'
+- 'WS60-D6: attacker/blocker frame sequences sorted by Rules-visible content, not
+  native UUIDs (adapter determinism repair, no Rules impact).'
+- 'WS60-D7: E02 twin divergence classified HARNESS (UUID-iteration frame order, identical
+  terminal/tape/assertions both twins); repaired via WS60-D6, PASS x4 consecutive
+  including full sweep.'
+- 'WS60-D8 (SEAL): audit verdict PARTIAL 14/15 + B01 UNKNOWN; evidence sealed byte-for-byte
+  with manifest; validated_head is frozen exec HEAD 2c30040f82e4c97b308535a592f4facd1e5ec42e;
+  seal commit 62ea6aff descends from it without promotion.'
 blockers: []
 risks: []
