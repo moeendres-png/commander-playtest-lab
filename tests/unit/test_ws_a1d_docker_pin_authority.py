@@ -288,6 +288,7 @@ def test_stale_pins_survive_only_as_historical_provenance(repo_root: Path) -> No
     live_surfaces = [
         "docker/xmage/Dockerfile",
         "docker/forge/Dockerfile",
+        "docker/forge/forge-bridge.sh",
         "docker-compose.engine.yml",
         ".devcontainer/devcontainer.json",
         "scripts/docker_resolve_engine_pin.py",
@@ -317,6 +318,99 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
     assert "set -euo pipefail" in text
 
 
+def test_forge_dockerfile_declares_bridge_args_and_linkage(repo_root: Path) -> None:
+    text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
+    assert _HEX40.search(text) is None
+    for arg in ("ARG BRIDGE_REPOSITORY", "ARG BRIDGE_COMMIT"):
+        matches = [line for line in text.splitlines() if line.startswith(arg)]
+        assert len(matches) == 1, (arg, matches)
+        assert "=" not in matches[0], arg
+    assert "merge-base --is-ancestor" in text
+    assert "forge-protocol2-bridge/" in text
+    assert "/opt/forge-bridge/cp.txt" in text
+    assert "bridge_repository" in text
+    assert "bridge_commit" in text
+    assert "rules_core_base_commit" in text
+
+
+def test_forge_launcher_is_bounded_and_literal_free(repo_root: Path) -> None:
+    path = repo_root / "docker/forge/forge-bridge.sh"
+    assert path.is_file(), "image bridge launcher must be a checked-in file"
+    assert path.stat().st_mode & 0o111, "launcher must be executable"
+    text = path.read_text(encoding="utf-8")
+    assert "forge.bridge.BridgeMain" in text
+    assert "-Djava.awt.headless=true" in text
+    assert "FORGE_ENGINE_SHA" in text
+    assert "FORGE_ASSETS_DIR" in text
+    assert "/opt/engine-provenance.json" in text
+    assert _HEX40.search(text) is None, "launcher must not hardcode a commit SHA"
+    assert "mage.git" not in text
+    assert "magefree" not in text.lower()
+
+
+def test_compose_forge_resolves_bridge_identity_from_wrapper(repo_root: Path) -> None:
+    text = (repo_root / "docker-compose.engine.yml").read_text(encoding="utf-8")
+    assert _HEX40.search(text) is None
+    for var in ("FORGE_BRIDGE_REPOSITORY", "FORGE_BRIDGE_COMMIT"):
+        assert "${" + var + ":?" in text, var
+    assert "XMAGE_BRIDGE_REPOSITORY" not in text
+    assert "XMAGE_BRIDGE_COMMIT" not in text
+
+
+def _forge_gate_fixture(tmp_path: Path, repo_root: Path):
+    manifest = _manifest(repo_root)
+    manifest_path = tmp_path / "rules_engines.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    bridge = manifest["secondary_engine"]["bridge_source"]
+    provenance = {
+        "provider": "forge",
+        "repository": manifest["secondary_engine"]["repository"],
+        "commit": manifest["secondary_engine"]["commit"],
+        "protocol_version": manifest["protocol_version"],
+        "bridge_repository": bridge["repository"],
+        "bridge_commit": bridge["commit"],
+        "rules_core_base_commit": bridge["rules_core_base_commit"],
+    }
+    provenance_path = tmp_path / "forge-provenance.json"
+    provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
+    return provenance_path, manifest_path
+
+
+def test_provenance_gate_accepts_canonical_forge_dual_identity(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    module = _gate_module(repo_root)
+    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
+    assert module.check("forge", provenance_path, manifest_path) == 0
+
+
+def test_provenance_gate_rejects_tampered_bridge_commit(tmp_path: Path, repo_root: Path) -> None:
+    module = _gate_module(repo_root)
+    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    provenance["bridge_commit"] = "f" * 40
+    provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
+    assert module.check("forge", provenance_path, manifest_path) == 3
+
+
+def test_provenance_gate_rejects_missing_bridge_source(tmp_path: Path, repo_root: Path) -> None:
+    module = _gate_module(repo_root)
+    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    del manifest["secondary_engine"]["bridge_source"]
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    assert module.check("forge", provenance_path, manifest_path) == 3
+
+
+def test_provenance_gate_rejects_cross_wired_bridge_base(tmp_path: Path, repo_root: Path) -> None:
+    module = _gate_module(repo_root)
+    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["secondary_engine"]["bridge_source"]["rules_core_base_commit"] = "f" * 40
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    assert module.check("forge", provenance_path, manifest_path) == 3
+
+
 def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> None:
     config = _manifest(repo_root)
     assert config["primary_engine"]["commit"] == CANONICAL_XMAGE_PIN
@@ -325,6 +419,96 @@ def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> Non
     assert config["provider_decision"] == "NO_PROVIDER_READY"
     assert config["current_runtime"]["provider_selected"] is False
     assert config["current_runtime"]["production_provider"] is None
+
+
+CANONICAL_FORGE_BRIDGE_REPO = "https://github.com/moeendres-png/forge.git"
+CANONICAL_FORGE_BRIDGE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+
+
+def test_forge_bridge_source_resolves_dual_identity(repo_root: Path) -> None:
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    pin = module.resolve("forge", manifest)
+    # Rules-Core authority is unchanged and distinct from materialization.
+    assert pin.commit == CANONICAL_FORGE_PIN
+    assert pin.repository == manifest["secondary_engine"]["repository"]
+    assert pin.bridge_repository == CANONICAL_FORGE_BRIDGE_REPO
+    assert pin.bridge_commit == CANONICAL_FORGE_BRIDGE_COMMIT
+    assert pin.bridge_base_commit == pin.commit
+    assert pin.bridge_commit != pin.commit
+    assert "forge" in pin.bridge_repository.lower()
+    assert "mage" not in pin.bridge_repository.lower()
+
+
+def test_xmage_has_no_bridge_identity(repo_root: Path) -> None:
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    pin = module.resolve("xmage", manifest)
+    assert pin.bridge_repository is None
+    assert pin.bridge_commit is None
+    assert pin.bridge_base_commit is None
+
+
+def test_forge_missing_bridge_source_fails_closed(repo_root: Path) -> None:
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    mutated = copy.deepcopy(manifest)
+    del mutated["secondary_engine"]["bridge_source"]
+    try:
+        module.resolve("forge", mutated)
+    except module.PinResolutionError:
+        return
+    raise AssertionError("missing bridge_source did not fail closed")
+
+
+def test_forge_stale_bridge_commit_fails_closed(repo_root: Path) -> None:
+    # Shape-invalid bridge commits and a bridge source identical to the Rules pin
+    # fail closed at resolve time. A shape-valid but foreign SHA is not stale by
+    # shape; it fails downstream at the provenance gate and handshake commit
+    # attestation (proven by the tampered-manifest negatives and handshake tests).
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    for bad in (CANONICAL_FORGE_PIN, "short", "F" * 40, ""):
+        mutated = copy.deepcopy(manifest)
+        mutated["secondary_engine"]["bridge_source"]["commit"] = bad
+        try:
+            module.resolve("forge", mutated)
+        except module.PinResolutionError:
+            continue
+        raise AssertionError(f"bridge commit {bad!r} did not fail closed")
+
+
+def test_forge_bridge_rules_base_must_equal_rules_pin(repo_root: Path) -> None:
+    # Rules pin and materialization source cannot be cross-wired at the base
+    # level: the base must equal the Rules-Core pin. (A globally shape-consistent
+    # lie, e.g. swapping both commits, is indistinguishable by shape alone; it
+    # fails closed later at materialization time because the bridge module is
+    # absent there and the handshake cannot attest the Rules pin.)
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    mutated = copy.deepcopy(manifest)
+    mutated["secondary_engine"]["bridge_source"]["rules_core_base_commit"] = "f" * 40
+    try:
+        module.resolve("forge", mutated)
+    except module.PinResolutionError:
+        return
+    raise AssertionError("divergent bridge base did not fail closed")
+
+
+def test_forge_bridge_repository_rejects_foreign_token(repo_root: Path) -> None:
+    module = _resolver(repo_root)
+    manifest = _manifest(repo_root)
+    for bad in (
+        "https://github.com/moeendres-png/mage.git",
+        "https://github.com/Card-Forge/forge-mage.git",
+    ):
+        mutated = copy.deepcopy(manifest)
+        mutated["secondary_engine"]["bridge_source"]["repository"] = bad
+        try:
+            module.resolve("forge", mutated)
+        except module.PinResolutionError:
+            continue
+        raise AssertionError(f"bridge repository {bad!r} did not fail closed")
 
 
 def _gate_module(repo_root: Path):
@@ -608,6 +792,12 @@ def _assert_complete_wrapper_environment(repo_root: Path, env: dict) -> None:
     assert env["FORGE_ENGINE_REPOSITORY"] == manifest["secondary_engine"]["repository"]
     assert env["FORGE_ENGINE_COMMIT"] == manifest["secondary_engine"]["commit"]
     assert env["FORGE_ENGINE_PROTOCOL_VERSION"] == manifest["protocol_version"]
+    bridge = manifest["secondary_engine"]["bridge_source"]
+    assert env["FORGE_BRIDGE_REPOSITORY"] == bridge["repository"]
+    assert env["FORGE_BRIDGE_COMMIT"] == bridge["commit"]
+    assert env["FORGE_BRIDGE_BASE_COMMIT"] == bridge["rules_core_base_commit"]
+    assert "XMAGE_BRIDGE_REPOSITORY" not in env
+    assert "XMAGE_BRIDGE_COMMIT" not in env
 
 
 def test_wrapper_exports_both_identities_for_xmage(

@@ -51,7 +51,12 @@
     "role": "candidate provider; PARTIAL real evidence, not production-selected",
     "status": "PARTIAL",
     "real_execution": true,
-    "production_ready": false
+    "production_ready": false,
+    "bridge_source": {
+      "repository": "https://github.com/moeendres-png/forge.git",
+      "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
+      "rules_core_base_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    }
   },
   "maven": {
     "version": "3.9.16",
@@ -100,6 +105,7 @@
   },
   "authority_note": {
     "pin_authority": "This file (config/rules_engines.json) is the sole machine-readable authority for current engine pins: primary_engine.commit and secondary_engine.commit.",
+    "dual_identity": "Forge carries two distinct identities that must never be conflated. secondary_engine.commit is the Rules-Core authority (the engine identity the bridge reports and Rules qualification binds to). secondary_engine.bridge_source is the materialization source actually cloned and built (repository, exact commit, and the Rules-Core base commit it must descend from). The bridge source contains the Rules Core plus additive bridge surfaces; it is not a new Rules-Core version.",
     "documentation_rule": "Human-readable pin statements elsewhere (integrations/*/README.md, docs/engine_setup.md) must cite this file and must not restate commits. On any disagreement, this file wins.",
     "role_terminology": {
       "primary_engine": "Engine under active integration (validated B4-D bridge surface). NOT a selected architecture leader and NOT a Production Provider.",

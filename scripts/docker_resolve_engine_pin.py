@@ -49,6 +49,9 @@ class EnginePin:
     commit: str
     release: str
     protocol_version: str
+    bridge_repository: str | None = None
+    bridge_commit: str | None = None
+    bridge_base_commit: str | None = None
 
 
 def repo_root() -> Path:
@@ -114,12 +117,67 @@ def resolve(provider: str, manifest: dict) -> EnginePin:
     if not isinstance(protocol, str) or not protocol:
         raise PinResolutionError("manifest protocol_version is missing")
 
+    bridge_repository: str | None = None
+    bridge_commit: str | None = None
+    bridge_base: str | None = None
+    if provider == "forge":
+        # Dual identity: the Forge materialization source is resolved
+        # independently from the Rules-Core pin, then cross-checked so the two
+        # levels can never be silently cross-wired.
+        bridge = section.get("bridge_source")
+        if not isinstance(bridge, dict):
+            raise PinResolutionError(
+                "manifest secondary_engine.bridge_source is missing or malformed"
+            )
+        bridge_repository = bridge.get("repository")
+        if not isinstance(bridge_repository, str) or _REPO.fullmatch(bridge_repository) is None:
+            raise PinResolutionError(
+                "manifest secondary_engine.bridge_source.repository "
+                "is not a valid https engine repository"
+            )
+        lowered_bridge = bridge_repository.lower()
+        if "forge" not in lowered_bridge or "mage" in lowered_bridge:
+            raise PinResolutionError(
+                f"manifest secondary_engine.bridge_source.repository "
+                f"{bridge_repository!r} does not identify provider 'forge'"
+            )
+        bridge_commit = bridge.get("commit")
+        if not isinstance(bridge_commit, str) or _HEX40.fullmatch(bridge_commit) is None:
+            raise PinResolutionError(
+                "manifest secondary_engine.bridge_source.commit is not a full 40-hex commit SHA"
+            )
+        bridge_base = bridge.get("rules_core_base_commit")
+        if not isinstance(bridge_base, str) or _HEX40.fullmatch(bridge_base) is None:
+            raise PinResolutionError(
+                "manifest secondary_engine.bridge_source.rules_core_base_commit "
+                "is not a full 40-hex commit SHA"
+            )
+        if bridge_base != commit:
+            raise PinResolutionError(
+                "manifest secondary_engine.bridge_source.rules_core_base_commit "
+                "does not equal the Rules-Core pin secondary_engine.commit; "
+                "materialization source and Rules pin cannot be cross-wired"
+            )
+        if bridge_commit == commit:
+            # A bridge source identical to the Rules pin carries no additive
+            # surface by definition (same commit means same tree, so no bridge
+            # code can exist there); that collapses dual identity and is rejected
+            # so a stale single-level resolution can never pose as a qualified
+            # bridge source.
+            raise PinResolutionError(
+                "manifest secondary_engine.bridge_source.commit equals the "
+                "Rules-Core pin; a distinct bridge materialization commit is required"
+            )
+
     return EnginePin(
         provider=provider,
         repository=repository,
         commit=commit,
         release=release,
         protocol_version=protocol,
+        bridge_repository=bridge_repository,
+        bridge_commit=bridge_commit,
+        bridge_base_commit=bridge_base,
     )
 
 
@@ -131,24 +189,35 @@ def format_shell(pin: EnginePin) -> str:
         f"{prefix}_ENGINE_PROTOCOL_VERSION={pin.protocol_version}",
         f"{prefix}_ENGINE_RELEASE={pin.release}",
     ]
+    # Bridge/materialization identity is Forge-only; XMage output is unchanged.
+    if pin.bridge_repository is not None:
+        lines.extend(
+            [
+                f"{prefix}_BRIDGE_REPOSITORY={pin.bridge_repository}",
+                f"{prefix}_BRIDGE_COMMIT={pin.bridge_commit}",
+                f"{prefix}_BRIDGE_BASE_COMMIT={pin.bridge_base_commit}",
+            ]
+        )
     return "\n".join(lines) + "\n"
 
 
 def format_json(pin: EnginePin) -> str:
-    return (
-        json.dumps(
+    payload = {
+        "provider": pin.provider,
+        "repository": pin.repository,
+        "commit": pin.commit,
+        "release": pin.release,
+        "protocol_version": pin.protocol_version,
+    }
+    if pin.bridge_repository is not None:
+        payload.update(
             {
-                "provider": pin.provider,
-                "repository": pin.repository,
-                "commit": pin.commit,
-                "release": pin.release,
-                "protocol_version": pin.protocol_version,
-            },
-            indent=2,
-            sort_keys=True,
+                "bridge_repository": pin.bridge_repository,
+                "bridge_commit": pin.bridge_commit,
+                "bridge_base_commit": pin.bridge_base_commit,
+            }
         )
-        + "\n"
-    )
+    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

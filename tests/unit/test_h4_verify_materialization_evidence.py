@@ -236,16 +236,429 @@ def test_verify_complete_xmage_evidence(verifier, resolver, manifest_path, tmp_p
     assert verdict["boundaries"]["bridge_handshake"]["observed"]["engine_commit"] == pin.commit
 
 
+def _forge_responses(protocol: str, commit: str, requests: list) -> list:
+    """Forge H4F qualified handshake shape: status strings, same rigor otherwise."""
+    payloads = [
+        {"engine": "forge", "protocol_version": protocol, "status": "started"},
+        {
+            "engine": "forge",
+            "engine_version": "test-version",
+            "engine_commit": commit,
+            "protocol_version": protocol,
+        },
+        {
+            "capabilities": {
+                "commander_supported": True,
+                "multiplayer_supported": True,
+                "deck_import_supported": True,
+                "legal_actions_supported": False,
+                "action_submission_supported": False,
+                "event_log_supported": False,
+                "runtime_kind": "external_rules_engine",
+            }
+        },
+        {"engine": "forge", "protocol_version": protocol, "status": "engine_shut_down"},
+    ]
+    return [
+        {
+            "protocol_version": protocol,
+            "request_id": request["request_id"],
+            "success": True,
+            "status": "ok",
+            "payload": payload,
+            "engine_event_offset": 0,
+        }
+        for request, payload in zip(requests, payloads, strict=True)
+    ]
+
+
+def _forge_provenance(pin, bridge: dict) -> dict:
+    return {
+        "provider": "forge",
+        "repository": pin.repository,
+        "commit": pin.commit,
+        "protocol_version": pin.protocol_version,
+        "bridge_repository": bridge["repository"],
+        "bridge_commit": bridge["commit"],
+        "rules_core_base_commit": bridge["rules_core_base_commit"],
+    }
+
+
+def _linkage_files(tmp_path: Path, diff_lines: list | None = None):
+    merge_exit = tmp_path / "linkage-merge-base-exit.txt"
+    merge_exit.write_text("0\n", encoding="utf-8")
+    diff_names = tmp_path / "linkage-diff-names.txt"
+    if diff_lines is None:
+        diff_lines = [
+            "forge-protocol2-bridge/src/main/java/forge/bridge/BridgeMain.java",
+            "pom.xml",
+        ]
+    diff_names.write_text("\n".join(diff_lines) + "\n", encoding="utf-8")
+    return merge_exit, diff_names
+
+
+def _forge_verify_args(
+    manifest_path,
+    tmp_path: Path,
+    pin,
+    bridge: dict,
+    merge_exit: Path,
+    diff_names: Path,
+    **overrides,
+) -> list:
+    provenance = _write(tmp_path, "provenance.json", _forge_provenance(pin, bridge))
+    head = _write(tmp_path, "head.txt", bridge["commit"] + "\n")
+    args = [
+        "verify",
+        "--provider",
+        "forge",
+        "--manifest",
+        str(manifest_path),
+        "--provenance",
+        str(provenance),
+        "--source-head",
+        str(head),
+        "--image-id",
+        "sha256:" + "0" * 64,
+        "--image-tag",
+        "h4-test-forge:test",
+        "--build-exit-code",
+        "0",
+        "--linkage-merge-base-exit",
+        merge_exit.read_text(encoding="utf-8").strip(),
+        "--linkage-diff-names",
+        str(diff_names),
+        "--out",
+        str(tmp_path / "verdict.json"),
+    ]
+    for key, value in overrides.items():
+        args.extend([f"--{key.replace('_', '-')}", str(value)])
+    return args
+
+
+def _bridge_dict(resolver, manifest_path) -> dict:
+    manifest = resolver.load_manifest(str(manifest_path))
+    return dict(manifest["secondary_engine"]["bridge_source"])
+
+
+def test_verify_forge_complete_with_handshake_and_linkage(
+    verifier, resolver, manifest_path, tmp_path
+):
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    assert bridge["rules_core_base_commit"] == pin.commit
+    assert bridge["commit"] != pin.commit
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    requests = _emit(verifier, manifest_path, "forge", tmp_path, "forge-full")
+    responses = _forge_responses(pin.protocol_version, pin.commit, requests)
+    transcript = _write(
+        tmp_path,
+        "forge-transcript.jsonl",
+        "\n".join(json.dumps(r, sort_keys=True) for r in responses) + "\n",
+    )
+    args.extend(
+        [
+            "--handshake-requests",
+            str(tmp_path / "forge-full-requests.jsonl"),
+            "--handshake-transcript",
+            str(transcript),
+        ]
+    )
+    rc = verifier.main(args)
+    assert rc == 0
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["overall"] == "EVIDENCE_COMPLETE"
+    decisive = {k: v for k, v in verdict["boundaries"].items() if k != "engine_verify"}
+    assert all(v["status"] == "PASS" for v in decisive.values()), decisive
+    handshake = verdict["boundaries"]["bridge_handshake"]
+    assert handshake["observed"]["engine_commit"] == pin.commit
+    caps = handshake["observed"]["capabilities"]
+    assert caps["legal_actions_supported"] is False
+    assert caps["action_submission_supported"] is False
+    assert caps["event_log_supported"] is False
+    assert caps["runtime_kind"] == "external_rules_engine"
+    assert verdict["boundaries"]["materialization_match"]["status"] == "PASS"
+    assert verdict["boundaries"]["rules_linkage"]["status"] == "PASS"
+    assert verdict["boundaries"]["source_head_match"]["status"] == "PASS"
+
+
+def _qualified_forge_responses(protocol: str, commit: str, release: str, requests: list) -> list:
+    """Real qualified Forge bridge shapes (H4FR run 34709267463).
+
+    get_provider_version identifies with ``provider`` (not ``engine``) and
+    shutdown_engine is status-only (no identity keys). Proven by
+    BridgeEngine.getProviderVersion/shutdownEngine, BridgeProtocolProcessTest
+    (payload.provider == "forge"), and the live H4F bridge test. The verifier
+    must accept these shapes with identical rigor elsewhere.
+    """
+    payloads = [
+        {"engine": "forge", "protocol_version": protocol, "status": "started"},
+        {
+            "provider": "forge",
+            "release": release,
+            "engine_commit": commit,
+            "engine_commit_source": "env:FORGE_ENGINE_SHA",
+            "protocol_version": protocol,
+            "bridge_name": "forge-protocol2-bridge",
+            "bridge_version": "test",
+            "java_version": "17",
+        },
+        {
+            "capabilities": {
+                "commander_supported": True,
+                "multiplayer_supported": True,
+                "deck_import_supported": True,
+                "legal_actions_supported": False,
+                "action_submission_supported": False,
+                "event_log_supported": False,
+                "runtime_kind": "external_rules_engine",
+            }
+        },
+        {"status": "engine_shut_down"},
+    ]
+    return [
+        {
+            "protocol_version": protocol,
+            "request_id": request["request_id"],
+            "success": True,
+            "status": "ok",
+            "payload": payload,
+            "engine_event_offset": 0,
+        }
+        for request, payload in zip(requests, payloads, strict=True)
+    ]
+
+
+def test_verify_forge_qualified_bridge_shapes_complete(verifier, resolver, manifest_path, tmp_path):
+    """H4FR: qualified Forge provider/shutdown shapes must verify COMPLETE.
+
+    Fails before the correction with
+    ``handshake step 1 (get_provider_version): providerVersion engine is None``;
+    passes after. Does not weaken identity: engine_commit must still attest the
+    Rules-Core pin and capabilities must stay conservative.
+    """
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    assert bridge["rules_core_base_commit"] == pin.commit
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    requests = _emit(verifier, manifest_path, "forge", tmp_path, "forge-qualified")
+    responses = _qualified_forge_responses(pin.protocol_version, pin.commit, pin.release, requests)
+    transcript = _write(
+        tmp_path,
+        "forge-qualified-transcript.jsonl",
+        "\n".join(json.dumps(r, sort_keys=True) for r in responses) + "\n",
+    )
+    args.extend(
+        [
+            "--handshake-requests",
+            str(tmp_path / "forge-qualified-requests.jsonl"),
+            "--handshake-transcript",
+            str(transcript),
+        ]
+    )
+    rc = verifier.main(args)
+    assert rc == 0
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["overall"] == "EVIDENCE_COMPLETE"
+    handshake = verdict["boundaries"]["bridge_handshake"]
+    assert handshake["status"] == "PASS"
+    assert handshake["observed"]["engine_commit"] == pin.commit
+    assert handshake["observed"]["provider_identity_shape"] == "provider-key"
+    assert handshake["observed"]["shutdown_shape"] == "status-only"
+    caps = handshake["observed"]["capabilities"]
+    assert caps["legal_actions_supported"] is False
+    assert caps["action_submission_supported"] is False
+    assert caps["event_log_supported"] is False
+    assert caps["runtime_kind"] == "external_rules_engine"
+
+
+def test_verify_forge_qualified_shapes_wrong_identity_fails_closed(
+    verifier, resolver, manifest_path, tmp_path
+):
+    """H4FR: qualified-shape acceptance must not weaken provider identity."""
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    requests = _emit(verifier, manifest_path, "forge", tmp_path, "forge-wrongid")
+    responses = _qualified_forge_responses(pin.protocol_version, pin.commit, pin.release, requests)
+    responses[1]["payload"]["provider"] = "xmage"
+    transcript = _write(
+        tmp_path,
+        "forge-wrongid-transcript.jsonl",
+        "\n".join(json.dumps(r, sort_keys=True) for r in responses) + "\n",
+    )
+    args.extend(
+        [
+            "--handshake-requests",
+            str(tmp_path / "forge-wrongid-requests.jsonl"),
+            "--handshake-transcript",
+            str(transcript),
+        ]
+    )
+    rc = verifier.main(args)
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["boundaries"]["bridge_handshake"]["status"] == "FAIL"
+
+
 def test_verify_forge_partial_without_handshake(verifier, resolver, manifest_path, tmp_path):
     pin = _expected(resolver, manifest_path, "forge")
-    args = _verify_args(manifest_path, "forge", tmp_path, pin, gate_exit_code=0)
+    bridge = _bridge_dict(resolver, manifest_path)
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
     rc = verifier.main(args)
     assert rc == 0
     verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
     assert verdict["overall"] == "EVIDENCE_PARTIAL"
     assert verdict["boundaries"]["bridge_handshake"]["status"] == "NOT_RUN"
-    assert verdict["boundaries"]["startup_provenance_gate"]["status"] == "PASS"
     assert "H4 PASS" in verdict["h4_note"]
+
+
+def test_verify_forge_missing_linkage_fails_closed(verifier, resolver, manifest_path, tmp_path):
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    provenance = _write(tmp_path, "provenance.json", _forge_provenance(pin, bridge))
+    head = _write(tmp_path, "head.txt", bridge["commit"] + "\n")
+    rc = verifier.main(
+        [
+            "verify",
+            "--provider",
+            "forge",
+            "--manifest",
+            str(manifest_path),
+            "--provenance",
+            str(provenance),
+            "--source-head",
+            str(head),
+            "--image-id",
+            "sha256:" + "4" * 64,
+            "--image-tag",
+            "h4-test-forge:test",
+            "--build-exit-code",
+            "0",
+            "--out",
+            str(tmp_path / "verdict.json"),
+        ]
+    )
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["overall"] == "EVIDENCE_MISMATCH"
+    assert verdict["boundaries"]["rules_linkage"]["status"] == "FAIL"
+
+
+def test_verify_forge_wrong_bridge_commit_fails_closed(verifier, resolver, manifest_path, tmp_path):
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    bad = _forge_provenance(pin, bridge)
+    bad["bridge_commit"] = "f" * 40
+    provenance = _write(tmp_path, "provenance.json", bad)
+    head = _write(tmp_path, "head.txt", bridge["commit"] + "\n")
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    rc = verifier.main(
+        [
+            "verify",
+            "--provider",
+            "forge",
+            "--manifest",
+            str(manifest_path),
+            "--provenance",
+            str(provenance),
+            "--source-head",
+            str(head),
+            "--image-id",
+            "sha256:" + "5" * 64,
+            "--image-tag",
+            "h4-test-forge:test",
+            "--build-exit-code",
+            "0",
+            "--linkage-merge-base-exit",
+            merge_exit.read_text(encoding="utf-8").strip(),
+            "--linkage-diff-names",
+            str(diff_names),
+            "--out",
+            str(tmp_path / "verdict.json"),
+        ]
+    )
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["boundaries"]["materialization_match"]["status"] == "FAIL"
+
+
+def test_verify_forge_source_head_must_be_bridge_commit(
+    verifier, resolver, manifest_path, tmp_path
+):
+    # The image source HEAD is the materialization commit, never the Rules pin:
+    # presenting the Rules commit as the source HEAD fails closed.
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    head_path = tmp_path / "head.txt"
+    head_path.write_text(pin.commit + "\n", encoding="utf-8")
+    rc = verifier.main(args)
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["boundaries"]["source_head_match"]["status"] == "FAIL"
+
+
+def test_verify_forge_linkage_drift_fails_closed(verifier, resolver, manifest_path, tmp_path):
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    merge_exit, diff_names = _linkage_files(
+        tmp_path, ["forge-protocol2-bridge/BridgeMain.java", "forge-game/Game.java", "pom.xml"]
+    )
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    rc = verifier.main(args)
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["boundaries"]["rules_linkage"]["status"] == "FAIL"
+
+
+def test_verify_forge_linkage_ancestor_failure_fails_closed(
+    verifier, resolver, manifest_path, tmp_path
+):
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    merge_exit.write_text("1\n", encoding="utf-8")
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    rc = verifier.main(args)
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["boundaries"]["rules_linkage"]["status"] == "FAIL"
+
+
+def test_verify_forge_handshake_must_attest_rules_commit(
+    verifier, resolver, manifest_path, tmp_path
+):
+    # The bridge handshake engine_commit must be the Rules-Core pin (a37), never
+    # the bridge materialization SHA: presenting the bridge SHA fails closed.
+    pin = _expected(resolver, manifest_path, "forge")
+    bridge = _bridge_dict(resolver, manifest_path)
+    merge_exit, diff_names = _linkage_files(tmp_path)
+    args = _forge_verify_args(manifest_path, tmp_path, pin, bridge, merge_exit, diff_names)
+    requests = _emit(verifier, manifest_path, "forge", tmp_path, "forge-badcommit")
+    responses = _forge_responses(pin.protocol_version, bridge["commit"], requests)
+    transcript = _write(
+        tmp_path,
+        "forge-badcommit-transcript.jsonl",
+        "\n".join(json.dumps(r, sort_keys=True) for r in responses) + "\n",
+    )
+    args.extend(
+        [
+            "--handshake-requests",
+            str(tmp_path / "forge-badcommit-requests.jsonl"),
+            "--handshake-transcript",
+            str(transcript),
+        ]
+    )
+    rc = verifier.main(args)
+    assert rc == 3
+    verdict = json.loads((tmp_path / "verdict.json").read_text(encoding="utf-8"))
+    assert verdict["boundaries"]["bridge_handshake"]["status"] == "FAIL"
 
 
 def test_verify_provenance_mismatch_fails_closed(verifier, resolver, manifest_path, tmp_path):

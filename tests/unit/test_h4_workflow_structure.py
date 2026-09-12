@@ -11,8 +11,9 @@ silently regress:
   reference and its immutable image ID (no provider-label discovery, no
   invented verdict tags);
 * the XMage handshake step must override the benign value with the real
-  bridge command; Forge must attempt no bridge and stay
-  ``EVIDENCE_PARTIAL`` / ``bridge_handshake=NOT_RUN``;
+  bridge command; the Forge job must run the REAL H4F bridge handshake and
+  assert EVIDENCE_COMPLETE with conservative capabilities (never a fabricated
+  transcript, never an absence record);
 * negative controls must forward ``PIN_MANIFEST_PATH`` via
   ``compose run -e``;
 * the ``workflow_dispatch`` comment must state truthful GitHub semantics.
@@ -37,8 +38,8 @@ def _job_block(text: str, job: str) -> str:
         pattern = r"(?m)^  preflight:\s*$"
     elif job == "h4-xmage":
         pattern = r"(?m)^  h4-xmage:\s*$"
-    elif job == "h4-forge-image":
-        pattern = r"(?m)^  h4-forge-image:\s*$"
+    elif job == "h4-forge":
+        pattern = r"(?m)^  h4-forge:\s*$"
     else:
         raise AssertionError(f"unknown job {job!r}")
     match = re.search(pattern, text)
@@ -50,7 +51,7 @@ def _job_block(text: str, job: str) -> str:
 
 def test_both_docker_jobs_define_benign_build_time_start_command(repo_root):
     text = _text(repo_root)
-    for job in ("h4-xmage", "h4-forge-image"):
+    for job in ("h4-xmage", "h4-forge"):
         block = _job_block(text, job)
         assert 'ENGINE_START_COMMAND: "true"' in block, (
             f"{job} must provide a benign build-time ENGINE_START_COMMAND "
@@ -61,7 +62,7 @@ def test_both_docker_jobs_define_benign_build_time_start_command(repo_root):
 def test_both_jobs_use_unique_explicit_compose_project_name(repo_root):
     text = _text(repo_root)
     xmage = _job_block(text, "h4-xmage")
-    forge = _job_block(text, "h4-forge-image")
+    forge = _job_block(text, "h4-forge")
     assert "COMPOSE_PROJECT_NAME: h4-xmage-${{ github.run_id }}" in xmage
     assert "COMPOSE_PROJECT_NAME: h4-forge-${{ github.run_id }}" in forge
     assert "h4-xmage-${{ github.run_id }}" != "h4-forge-${{ github.run_id }}"
@@ -78,7 +79,7 @@ def test_image_binding_uses_exact_compose_project_service_ref(repo_root):
     text = _text(repo_root)
     cases = (
         ("h4-xmage", "xmage", "h4-evidence-xmage"),
-        ("h4-forge-image", "forge", "h4-evidence-forge"),
+        ("h4-forge", "forge", "h4-evidence-forge"),
     )
     for job, service, evidence in cases:
         block = _job_block(text, job)
@@ -93,7 +94,7 @@ def test_image_binding_uses_exact_compose_project_service_ref(repo_root):
 
 def test_verdict_receives_recorded_truthful_ref_and_id(repo_root):
     text = _text(repo_root)
-    cases = (("h4-xmage", "h4-evidence-xmage"), ("h4-forge-image", "h4-evidence-forge"))
+    cases = (("h4-xmage", "h4-evidence-xmage"), ("h4-forge", "h4-evidence-forge"))
     for job, evidence in cases:
         block = _job_block(text, job)
         assert f'--image-id "$(cat {evidence}/image-id.txt)"' in block
@@ -109,19 +110,44 @@ def test_xmage_handshake_overrides_benign_start_command(repo_root):
     )
 
 
-def test_forge_has_no_bridge_and_stays_partial(repo_root):
+def test_forge_runs_real_handshake_and_stays_evidence_only(repo_root):
     text = _text(repo_root)
-    block = _job_block(text, "h4-forge-image")
-    assert "emit-handshake" not in block, "Forge must not attempt a bridge handshake"
-    assert "handshake-transcript" not in block, "Forge must not fabricate a transcript"
-    assert "forge-bridge-absence.txt" in block
-    assert "EVIDENCE_PARTIAL" in block
-    assert "bridge_handshake']['status']=='NOT_RUN'" in block
+    block = _job_block(text, "h4-forge")
+    assert "emit-handshake" in block, "Forge must emit real handshake requests"
+    assert "handshake-transcript" in block, "Forge must capture a real transcript"
+    assert "forge-bridge-absence.txt" not in block, "absence record is retired"
+    assert "/usr/local/bin/forge-bridge" in block
+    assert "'bridge_handshake']['status']=='PASS'" in block
+    assert "'overall']=='EVIDENCE_COMPLETE'" in block
+    assert "'rules_linkage']['status']=='PASS'" in block
+    assert "'materialization_match']['status']=='PASS'" in block
+    assert "legal_actions_supported'] is False" in block
+    assert "action_submission_supported'] is False" in block
+    assert "event_log_supported'] is False" in block
+    assert "NOT_RUN" not in block, "Forge handshake must be attempted, never NOT_RUN"
+    assert "forge-bridge-absence" not in block
+
+
+def test_forge_handshake_purity_and_linkage_captures(repo_root):
+    text = _text(repo_root)
+    block = _job_block(text, "h4-forge")
+    assert 'test "$(wc -l < h4-evidence-forge/handshake-transcript.jsonl)" = "4"' in block
+    assert "linkage-merge-base-exit.txt" in block
+    assert "linkage-diff-names.txt" in block
+    assert "merge-base --is-ancestor" in block
+    assert "tampered-bridge-manifest.json" in block
+    assert "tampered-bridge 3" in block
+
+
+def test_forge_gpl_boundary_guard_present(repo_root):
+    text = _text(repo_root)
+    block = _job_block(text, "h4-forge")
+    assert "git ls-files '*.java' | grep -Ei 'forge'" in block
 
 
 def test_negatives_forward_pin_manifest_path_via_compose_run_e(repo_root):
     text = _text(repo_root)
-    for job in ("h4-xmage", "h4-forge-image"):
+    for job in ("h4-xmage", "h4-forge"):
         block = _job_block(text, job)
         assert "-e PIN_MANIFEST_PATH=" in block, (
             f"{job} negatives must forward the manifest override into the "
@@ -168,7 +194,7 @@ def test_docker_heavy_jobs_use_no_setup_python_pip_cache(repo_root):
     # the setup-python post-job pip-cache save traversed Docker-overlay state
     # and failed the job. Docker-heavy jobs must not use the pip cache.
     text = _text(repo_root)
-    for job in ("h4-xmage", "h4-forge-image"):
+    for job in ("h4-xmage", "h4-forge"):
         steps = _setup_python_blocks(_job_block(text, job))
         assert len(steps) == 1, f"{job} must keep exactly one setup-python step"
         assert 'python-version: "3.12"' in steps[0], f"{job} setup-python step was gutted"
