@@ -92,13 +92,12 @@ behavior_credit: 0/107
 full107_behavior: NOT_RUN
 architecture_freeze: NOT_CLAIMED
 production_provider: NOT_SELECTED
-exact_next_action: Coordinator review of terminal PARTIAL; authorized safe_push actual
-  only if accepted (dry-run first with --expected-audit-base-ref
-  ws73/full107-contract-reconciliation-20260912).
+exact_next_action: Coordinator remote verification / authority follow-up for terminal
+  PARTIAL (remote persisted; behavior credit 0/107; Full107 behavior NOT_RUN).
 remote_persistence:
-  status: BLOCKED_POLICY_INFRA
-  detail: Mandated safe_push path is environment-policy denied in-session; the available
-    /tmp copy is unrunnable (missing state module); ordinary git push is forbidden.
-    No remote write attempted. Local branch fully checkpointed at the evidence head
-    below; Coordinator launcher to persist.
+  status: PERSISTED
+  detail: Recovery commit 0c495064aa6391ab1b363bea450695fba1f45f46 pushed via canonical
+    safe_push to origin ws74/xmage-full107-construction-normalization-20260912 (dry-run
+    DRY_RUN_OK then PUSHED; slug moeendres-png/commander-playtest-lab; audit-base ref
+    ws73/full107-contract-reconciliation-20260912). No longer BLOCKED.
 evidence_head: 1d6d17727f771276f0898b6c076d95f700818478
