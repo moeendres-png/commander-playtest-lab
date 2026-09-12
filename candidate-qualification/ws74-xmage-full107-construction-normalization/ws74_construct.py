@@ -193,7 +193,7 @@ def phase1_binding() -> dict:
 
 
 def harness_classpath() -> str:
-    parts = ["engine-bridge/target/classes"]
+    parts = [str(REPO / "engine-bridge" / "target" / "classes")]
     for rel in RUNTIME_JARS + EXTRA_JARS:
         parts.append(str(M2 / rel))
     return ":".join(parts)
@@ -344,7 +344,7 @@ def main() -> int:
     ap.add_argument("--skip-build", action="store_true")
     args = ap.parse_args()
 
-    scratch = HERE / ".scratch"
+    scratch = (HERE / ".scratch").resolve()
     scratch.mkdir(exist_ok=True)
 
     print("== WS74 Phase 0: denominator binding")
@@ -378,7 +378,7 @@ def main() -> int:
     mat = json.loads(mat_path.read_text())
     by_id = {r["fixture_id"]: r for r in mat["records"]}
 
-    rundir = Path(args.rundir) if args.rundir else (scratch / "run-main")
+    rundir = Path(args.rundir).resolve() if args.rundir else (scratch / "run-main")
     if args.run_all or args.only:
         print("== WS74 Phase 3: construction")
         run_harness(
