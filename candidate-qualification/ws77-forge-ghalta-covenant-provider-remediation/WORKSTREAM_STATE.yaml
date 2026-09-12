@@ -1,0 +1,91 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws77-forge-ghalta-covenant-provider-remediation
+branch: ws77/forge-ghalta-covenant-provider-remediation-20260912
+audit_base_sha: 5cc646a08397c6a3d40fbe9da92e7b1e426eb8ec
+audit_base_tree: 3a7d549757dfc913d8eaaaae94efc1dedae3e2c8
+state_written_against_head: 5cc646a08397c6a3d40fbe9da92e7b1e426eb8ec
+validated_head: null
+objective: Repair the Forge provider transport defects for reduced-cost Ghalta commander
+  casting and non-mana-X Fire Covenant while preserving WS68 payCombatCost and all
+  fail-closed provider boundaries.
+in_scope:
+- WS77-owned Forge provider overlay
+- Ghalta reduced-cost cast transport
+- non-mana-X versus mana-X transport
+- actual-card targeted qualification
+- WS68 regression
+out_of_scope:
+- Forge source edits
+- concession remediation
+- shared provider production edits
+- behavior credit
+- Full107
+- Architecture Freeze
+dependencies:
+- WS68 terminal 5cc646a08397c6a3d40fbe9da92e7b1e426eb8ec
+- WS67 terminal 1812baf3e36b8e4b79c4997ecff9e1b7cb6de94a
+- accepted Forge pin a9a95db6662c2d28814390a9c0c2f986e39aa8b4
+hard_gates:
+- Forge Rules Core owns costs and legality
+- provider never recomputes commander reduction
+- provider never converts non-mana X into mana X
+- no card-name hacks
+- unsupported ambiguity fails closed
+- WS68 payCombatCost must not regress
+- G04 overall remains NOT_READY while concession remains unresolved
+ownership: WS77-FORGE-GHALTA-COVENANT-PROVIDER-REMEDIATION
+status: ACTIVE
+exact_next_action: Commit overlay/build/runner (code checkpoint); then author corrected
+  actual-card intents (Primal Hunger reduced, Stampede full-pay, Covenant+X/black,
+  Fireball control) and run WS77 qualification + WS68 regression from the clean
+  committed head.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+diagnosis:
+  ghalta_ws65_premise_refuted:
+  - scenario card is Ghalta, Stampede Tyrant: printed {5}{G}{G}{G}, NO ReduceCost
+  - engine billed exactly {5}{G}{G}{G} (authoritative, correct, full cost)
+  - WS65 intent supplied 6 of 8 mana; provider tapped exactly the 6 scripted
+    sources, applied each natively, exhausted sources, returned false
+  - engine natively rolled back (lands refunded, Ghalta stays in CZ, game continues)
+  - every step conformant; failure class is HARNESS intent shortfall (authored for
+    Primal Hunger bill of 6), never provider/engine defect
+  - evidence: diag provider file-log on WS68-overlay bytecode + rebuilt pin-identical
+    engine (G02_intent_v23): toPay={5}{G}{G}{G} -> {2} after 6 taps -> RESULT_FALSE
+  covenant_ws65_hypothesis_refuted:
+  - engine billed exactly the printed {1}{B}{R}; announced life-X never entered the
+    mana bill (no mana-X leak on the provider path either)
+  - {R}+{1} paid natively; {B} unpayable because the fixture deck ships zero black
+    sources; provider tapped all 12 lands, applied nothing further, returned false
+  - engine natively rolled back; conformant fail-closed, not an X-billing defect
+  - evidence: diag file-log (G04_intent_v71): toPay={1}{B}{R} -> {B} persists
+    across 10 further taps -> RESULT_FALSE
+  consequence: no provider semantic repair is warranted on either path; WS77 overlay
+    is observation-only (additive milestones on the three silent early-false exits
+    of applyManaToCost plus the payManaCost unpaid return) so future forensics can
+    distinguish underpayment-rollback from silent drop without changing one branch
+    predicate or return value.
+transport_notes:
+- synthetic zero-mana CostPartMana per land activation (Cost.getCostPartsWithZeroMana)
+  explains N+1 payManaCost milestones per N-mana cast; normal on all paths.
+- orderCosts is engine-native headless (ChooseCostOrder FullControl off); no
+  order_costs frame is emitted in these scenarios.
+- provider restrictionsMet abort (vs Human re-pick) retained: conformant fail-closed
+  via native rollback; unreachable with sane explicit_sources intents.
+build:
+  forge_checkout: /home/moeen/ws77-forge-src-a9a95db (HEAD/tree/clean == accepted pin;
+    /tmp checkout lost ignored target/ output while /tmp was 100%%; no foreign /tmp
+    data touched)
+  ev_dir: /home/moeen/ws77-ev
+  chain_fidelity: Ws40SuccessorState + Ws62ConcessionTransport digests byte-match WS68
+    (b6b0870f/761e451a); only the provider file differs (WS77 observation overlay).
+  overlay: ws77_provider_overlay.py (idempotent, post-conditions: no card names, no
+    cost solving, no stack/resolution injection, seam count 2, labels 2)
+decisions:
+- no provider semantic change (evidence: both paths transport-correct; Rules Core
+  owns bills; changing nothing is the minimal conformant repair).
+- qualify with corrected actual-card scenarios: Primal Hunger (true ReduceCost) full
+  payment; Stampede Tyrant full 8 payment; Covenant X=5 with black source + Fireball
+  mana-X control.
+- G04_OVERALL_REENTRY stays NOT_READY (concession out of scope) regardless of route.
