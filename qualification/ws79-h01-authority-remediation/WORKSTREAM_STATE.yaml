@@ -1,0 +1,50 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws79-rqc3-h01-authority-remediation
+branch: ws79/rq-c3-h01-authority-remediation-20260912
+audit_base_sha: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+audit_base_tree: ed83951226f52f528953e7cdb0dec0b12e6eabcc
+state_written_against_head: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+validated_head: null
+objective: Persist the Coordinator-corrected RQ-C3-H01 rules authority as a new current-main
+  authority package, preserve historical evidence immutably, and produce an exact
+  impact/requalification ledger without behavior-credit fabrication.
+in_scope:
+- historical H01 authority reconstruction
+- three-case corrected H01 authority family
+- rules-source provenance
+- machine-readable impact ledger
+- affected evidence and aggregate-claim classification
+- deterministic validation of the new package
+out_of_scope:
+- editing historical RQ-C3 branch
+- engine implementation
+- provider implementation
+- behavior requalification
+- numerical rewriting of historical First-Wave results
+- Architecture Freeze
+- Production Provider selection
+ownership: WS79-RQC3-H01-AUTHORITY-REMEDIATION
+status: ACTIVE
+exact_next_action: Reconstruct historical H01 and its authority chain read-only, then
+  materialize a new superseding authority and impact package on this branch.
+dependencies:
+- CPL main 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+- historical RQ-C3 branch 897d72f0b57bb8febe045870acaa3d2dba4bde56
+- binding Coordinator H01 adjudication
+hard_gates:
+- historical files remain byte-untouched
+- corrected H01 has exactly three contrast cases
+- non-discriminating old terminal assertion is explicitly rejected
+- impact ledger distinguishes invalidated, requalification-required, historical-only
+  and unaffected evidence
+- no behavior PASS is manufactured
+- new authority package validates deterministically
+forbidden_shortcuts:
+- rewrite historical branch
+- silently mutate old PASS counts
+- engine-parity as rules authority
+- green CI as behavior proof
+- UNKNOWN to PASS promotion
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
