@@ -1,0 +1,1897 @@
+{
+  "active_remediation_gate": "WS67 (Forge engine) and WS68 (Forge provider transport, branch ws68/forge-provider-transport-remediation-20260912 head 903b3f4a) are ACTIVE; never assume their result; Forge plan conditioned on their outcomes; XMage independent of WS67/WS68.",
+  "allowed_labels_only": [
+    "READY_FOR_EXECUTION",
+    "BLOCKED_BY_KNOWN_GAP",
+    "DEPENDENT_ON_ACTIVE_REMEDIATION",
+    "UNKNOWN"
+  ],
+  "current_pins": {
+    "forge": {
+      "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "corroboration": "WS62 WS62_FORGE_PIN.json + WS65 source lock + WS72 source lock",
+      "repository": "moeendres-png/forge",
+      "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+    },
+    "xmage": {
+      "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "corroboration": "WS56 requalification PASS 1dc43619 + WS60 report + WS72 source lock",
+      "repository": "moeendres-png/mage",
+      "tree": "ea193e0d04493d53d962ed13ebd3b5d2f68838c7"
+    }
+  },
+  "evidence_class": "CODE_DERIVED",
+  "family_impact": {
+    "forge_engine_remediation_affected": {
+      "families": [
+        "multiplayer_commander CMD subset (21 WS05-CMD-*)",
+        "micro_rules copy/layers/costs subset (MICRO_COPY, MICRO_LAYERS, MICRO_CONTINUOUS_EFFECTS, MICRO_COSTS, MICRO_MANA_PAYMENT)",
+        "actual_card sentinel (CARD_02)"
+      ],
+      "fixture_count": 27,
+      "fixtures": [
+        "CARD_02",
+        "MICRO_CONTINUOUS_EFFECTS",
+        "MICRO_COPY",
+        "MICRO_COSTS",
+        "MICRO_LAYERS",
+        "MICRO_MANA_PAYMENT",
+        "WS05-CMD-DMG-CONTROL",
+        "WS05-CMD-DMG-SAME-21",
+        "WS05-CMD-DMG-SPLIT",
+        "WS05-CMD-ELIM-4",
+        "WS05-CMD-MULL-2",
+        "WS05-CMD-MULL-4",
+        "WS05-CMD-PARTNER-DMG",
+        "WS05-CMD-PARTNER-TAX",
+        "WS05-CMD-PARTNER-ZONE",
+        "WS05-CMD-START-2",
+        "WS05-CMD-START-3",
+        "WS05-CMD-TAX-2",
+        "WS05-CMD-TAX-4",
+        "WS05-CMD-ZONE-EXILE-NO",
+        "WS05-CMD-ZONE-EXILE-YES",
+        "WS05-CMD-ZONE-GY-NO",
+        "WS05-CMD-ZONE-GY-YES",
+        "WS05-CMD-ZONE-HAND-NO",
+        "WS05-CMD-ZONE-HAND-YES",
+        "WS05-CMD-ZONE-LIB-NO",
+        "WS05-CMD-ZONE-LIB-YES"
+      ],
+      "readiness_effect": "BLOCKED_BY_KNOWN_GAP until WS67 engine disposition + fresh Full107 evidence.",
+      "sources": [
+        "WS65 F1 Ghalta-entry silent-drop (cost-reduced commander casts, reproduced x2; Delina non-reduced works)",
+        "WS65 F4 Covenant X-mauling (life-X misbilled as mana-X)",
+        "WS65 F3 Clone-under-Humility non-engagement (0 frames; WCOPY control works)",
+        "WS62 A04 full-cast reachability gap (engine direct 7|8 proven, natural-cast 0 offers)"
+      ]
+    },
+    "forge_provider_remediation_affected": {
+      "families": [
+        "pilot_boundary declare subset (PILOT_DECLARE_ATTACKER, PILOT_DECLARE_BLOCKER)",
+        "micro_rules combat (MICRO_COMBAT)",
+        "multiplayer_commander MP combat/block/turn/elim subset (15 WS05-MP-*)"
+      ],
+      "fixture_count": 16,
+      "fixtures": [
+        "MICRO_COMBAT",
+        "PILOT_DECLARE_ATTACKER",
+        "PILOT_DECLARE_BLOCKER",
+        "WS05-MP-BLOCK-4",
+        "WS05-MP-COMBAT-4",
+        "WS05-MP-COMBAT-5",
+        "WS05-MP-ELIM-5",
+        "WS05-MP-ELIM-CONTROL-3",
+        "WS05-MP-ELIM-OWNED-3",
+        "WS05-MP-ELIM-PRIO-3",
+        "WS05-MP-ELIM-STACK-3",
+        "WS05-MP-ELIM-TURN-3",
+        "WS05-MP-PRIO-3",
+        "WS05-MP-PRIO-5",
+        "WS05-MP-TURN-3",
+        "WS05-MP-TURN-5"
+      ],
+      "readiness_effect": "DEPENDENT_ON_ACTIVE_REMEDIATION until WS68 qualification (E01-pay/decline, G04, A04, C01 + engine suites) passes.",
+      "sources": [
+        "WS65 F2 payCombatCost no transport (fail-closed by design)",
+        "WS65 F5 concession never emitted (0/61914) + Covenant loss-path block",
+        "WS62 conditional concession + stack-SA transports (v2 overlay)",
+        "WS68 ACTIVE payCombatCost + two-phase concession overlay (E01-pay/decline, G04 intents) + Ws59 suites"
+      ]
+    },
+    "hidden_info_rng_replay_affected": {
+      "families": [
+        "hidden_information (20: HIDDEN_01..19 + HIDDEN_HONEYCARD_SENTINEL)",
+        "replay_rng (5: RNG_RULES_TAPE + 4 REPLAY_*)"
+      ],
+      "fixture_count": 25,
+      "fixtures": [
+        "HIDDEN_01",
+        "HIDDEN_02",
+        "HIDDEN_03",
+        "HIDDEN_04",
+        "HIDDEN_05",
+        "HIDDEN_06",
+        "HIDDEN_07",
+        "HIDDEN_08",
+        "HIDDEN_09",
+        "HIDDEN_10",
+        "HIDDEN_11",
+        "HIDDEN_12",
+        "HIDDEN_13",
+        "HIDDEN_14",
+        "HIDDEN_15",
+        "HIDDEN_16",
+        "HIDDEN_17",
+        "HIDDEN_18",
+        "HIDDEN_19",
+        "HIDDEN_HONEYCARD_SENTINEL",
+        "REPLAY_CLEAN_PROCESS",
+        "REPLAY_DECISION_TAPE",
+        "REPLAY_EVENT_TAPE",
+        "REPLAY_STATE_HASHES",
+        "RNG_RULES_TAPE"
+      ],
+      "forge_note": "Forge hidden PASS (WS65 9/9 replays 0-div, hidden PASS everywhere, 61914-frame census) is RQ-C3-scoped, not Full107; Full107 hidden/replay fixtures require fresh principal-scoped + tape-valid evidence at current pin; WS68 does not close hidden/RNG.",
+      "sources": [
+        "WS65 hidden/RNG/replay (9/9 replay PASS, hidden PASS)",
+        "WS60 hidden/replay audits (14 twins 0-div, strict scoping)",
+        "WS62 hidden/RNG impact",
+        "WS56 M4/M5",
+        "WS49-remediation R-h/R-k + Phase 5 RandomUtil funnel audit"
+      ],
+      "xmage_note": "XMage hidden PASS + replay PASS (WS60 14 twins byte-identical, strict principal scoping) is RQ-C3-scoped; Full107 hidden/replay fixtures require fresh binding at 7135d5e; WS49-remediation R-h/R-k + WS56 M4/M5 changed these surfaces."
+    },
+    "xmage_successor_changes_affected": {
+      "families": [
+        "pilot_boundary (17) + pilot_boundary_negative (7): WS56 M1 decision extraction, M2 selection execution, mode identity",
+        "micro_rules (17): STACK/PRIORITY/MODES/TRIGGERS paths",
+        "player_count (4) + multiplayer_commander (36) + actual_card (1): 4-player harness + deck/seed binding"
+      ],
+      "fixture_count": 107,
+      "note": "All 107 XMage fixtures affected in principle by successor change 0c1f455e -> 7135d5e, but WS56 requalified (111/111 green, M1-M5 bounded, mode+freshness closed) and WS60 proved RQ-C3 harness on the same pin; no XMage engine blocker known for Full107 families. Readiness remains UNKNOWN (not READY) because no Full107-specific per-fixture evidence exists at 7135d5e.",
+      "sources": [
+        "WS56 successor requalification PASS (M1-M5, 111/111)",
+        "WS49-remediation Phases 0-5 (selector/mana/hidden/SBA/RNG binding)",
+        "WS60 driver/projection + 14/15 PASS + hidden/replay PASS audits"
+      ]
+    }
+  },
+  "forge_matrix": [
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_2P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_3P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_4P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_5P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PRIORITY",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET_AMOUNT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULLIGAN",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_USE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOICE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PILE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_ANNOUNCE_X",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULTI_AMOUNT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TRIGGER_ORDER",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_MODE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_ABILITY",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_ATTACKER",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "WS65 F2 payCombatCost no-overlay-transport (fail-closed by design) + WS62 A04 full-cast reachability gap; WS68 payCombatCost overlay ACTIVE (E01-pay/decline intents); outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_BLOCKER",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "WS65 F2 payCombatCost no-overlay-transport (fail-closed by design) + WS62 A04 full-cast reachability gap; WS68 payCombatCost overlay ACTIVE (E01-pay/decline intents); outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_FIRST_OPTION",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_RANDOM_OPTION",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_INTERNAL_AI",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_GUI_DEFAULT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_SILENT_SKIP",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_01",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_02",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_03",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_04",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_05",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_06",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_07",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_08",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_09",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_10",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_11",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_12",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_13",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_14",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_15",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_16",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_17",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_18",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_19",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "RNG_RULES_TAPE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COSTS",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F4 additional-cost life-X misbilled as mana-X (Covenant X=39) engine defect; MICRO billing path blocked; WS67 ACTIVE conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F4 additional-cost life-X misbilled as mana-X (Covenant X=39) engine defect; MICRO billing path blocked; WS67 ACTIVE conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PRIORITY",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STACK",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TARGETS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MODES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TRIGGERS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_REPLACEMENT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PREVENTION",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F3 Clone-under-Humility non-engagement (0 frames; WCOPY control works) engine-defect lead; no proven fix at current pin; WS67 ACTIVE conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_LAYERS",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F3 Clone-under-Humility non-engagement (0 frames; WCOPY control works) engine-defect lead; no proven fix at current pin; WS67 ACTIVE conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COPY",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F3 Clone-under-Humility non-engagement (0 frames; WCOPY control works) engine-defect lead; no proven fix at current pin; WS67 ACTIVE conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTROL",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COMBAT",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "WS65 F2 payCombatCost no-overlay-transport (fail-closed by design) + WS62 A04 full-cast reachability gap; WS68 payCombatCost overlay ACTIVE (E01-pay/decline intents); outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "actual_card",
+      "fixture_id": "CARD_02",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "Actual-card sentinel on commander-cast path; shares Ghalta/Covenant engine-defect scope; BLOCKED pending WS67."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-3",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-5",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-5",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin Full107 construction/transport/hidden/RNG/replay evidence at a9a95db; no known engine gap proven for this fixture, but readiness cannot be claimed without fresh qualification; WS67/WS68 outcomes conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "WS65 F2 payCombatCost no-overlay-transport (fail-closed by design) + WS62 A04 full-cast reachability gap; WS68 payCombatCost overlay ACTIVE (E01-pay/decline intents); outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "WS65 F2 payCombatCost no-overlay-transport (fail-closed by design) + WS62 A04 full-cast reachability gap; WS68 payCombatCost overlay ACTIVE (E01-pay/decline intents); outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "WS65 F2 payCombatCost no-overlay-transport (fail-closed by design) + WS62 A04 full-cast reachability gap; WS68 payCombatCost overlay ACTIVE (E01-pay/decline intents); outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-3",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-5",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-5",
+      "readiness": "DEPENDENT_ON_ACTIVE_REMEDIATION",
+      "reason": "Elimination/concession/turn/priority attack path requires WS68 two-phase concession transport (canConcede-gated, ACTIVE, G04 intent); WS65 F5 concession never emitted (0/61914) + Covenant loss-path block; outcome conditional."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-2",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-4",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SAME-21",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-TAX",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-DMG",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-2",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-4",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-2",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-3",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    },
+    {
+      "current_pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "evidence_class": "DIRECTLY_VERIFIED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "readiness": "BLOCKED_BY_KNOWN_GAP",
+      "reason": "WS65 F1 cost-reduced commander silent-drop (Ghalta-entry reproduced x2) + F4 Covenant X-mauling engine-defect scope; no proven engine fix at a9a95db; WS67 ACTIVE outcome conditional; fail-closed BLOCKED."
+    }
+  ],
+  "readiness_rule": "READY_FOR_EXECUTION requires fresh Full107 per-fixture evidence at the exact current pin (construction + independent normalization + behavior with isolation/hidden/RNG/replay/fail-closed). No such evidence exists for any fixture at either current pin; therefore READY counts are 0/107 for both. BLOCKED vs DEPENDENT vs UNKNOWN distinguishes known engine defect vs active-remediation pending vs insufficient-evidence.",
+  "schema": "ws73.full107-current-readiness.v1",
+  "summary": {
+    "forge": {
+      "BLOCKED_BY_KNOWN_GAP": 27,
+      "DEPENDENT_ON_ACTIVE_REMEDIATION": 16,
+      "READY_FOR_EXECUTION": 0,
+      "UNKNOWN": 64,
+      "denominator": 107,
+      "ready_fraction": "0/107"
+    },
+    "xmage": {
+      "BLOCKED_BY_KNOWN_GAP": 0,
+      "DEPENDENT_ON_ACTIVE_REMEDIATION": 0,
+      "READY_FOR_EXECUTION": 0,
+      "UNKNOWN": 107,
+      "denominator": 107,
+      "ready_fraction": "0/107"
+    }
+  },
+  "workstream": "WS73-FULL107-CONTRACT-RECONCILIATION",
+  "xmage_matrix": [
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_2P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_3P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_4P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "player_count",
+      "fixture_id": "PLAYER_COUNT_5P",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PRIORITY",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_OBJECT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TARGET_AMOUNT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULLIGAN",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_USE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOICE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_PILE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MANA_PAYMENT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_ANNOUNCE_X",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_MULTI_AMOUNT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_TRIGGER_ORDER",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_MODE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_CHOOSE_ABILITY",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_ATTACKER",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary",
+      "fixture_id": "PILOT_DECLARE_BLOCKER",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_FIRST_OPTION",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_RANDOM_OPTION",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_INTERNAL_AI",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_GUI_DEFAULT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_SILENT_SKIP",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "pilot_boundary_negative",
+      "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_01",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_02",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_03",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_04",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_05",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_06",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_07",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_08",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_09",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_10",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_11",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_12",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_13",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_14",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_15",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_16",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_17",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_18",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_19",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "hidden_information",
+      "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "RNG_RULES_TAPE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_DECISION_TAPE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_EVENT_TAPE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_CLEAN_PROCESS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "replay_rng",
+      "fixture_id": "REPLAY_STATE_HASHES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COSTS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PRIORITY",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STACK",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TARGETS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_MODES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_TRIGGERS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_REPLACEMENT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PREVENTION",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_LAYERS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_ZONE_CHANGES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COPY",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_CONTROL",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_COMBAT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_RULES_RANDOMNESS",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "actual_card",
+      "fixture_id": "CARD_02",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-PRIO-5",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TRIG-5",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-4",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-COMBAT-5",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-TURN-5",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-OWNED-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-STACK-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-PRIO-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-TURN-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-MP-ELIM-5",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-2",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-TAX-4",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-YES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-GY-NO",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SAME-21",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-SPLIT",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-DMG-CONTROL",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-TAX",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-DMG",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-PARTNER-ZONE",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-2",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-MULL-4",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-2",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-START-3",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    },
+    {
+      "current_pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "evidence_class": "CODE_DERIVED",
+      "fixture_family": "multiplayer_commander",
+      "fixture_id": "WS05-CMD-ELIM-4",
+      "readiness": "UNKNOWN",
+      "reason": "No current-pin (7135d5e) Full107 construction/behavior evidence; WS56 successor qualified (111/111) and WS60 RQ-C3 harness proven on same pin, but Full107-specific per-fixture evidence absent; no known XMage engine gap for this family (WS60 14/15 PASS, B01 UNKNOWN is RQ-C3 fixture-authority gap, not Full107 blocker); hidden/RNG/replay successor changes (WS56 M4/M5, WS49-remediation R-h/R-k) require fresh Full107 binding; never assume WS67/WS68 (Forge-only) for XMage."
+    }
+  ]
+}
