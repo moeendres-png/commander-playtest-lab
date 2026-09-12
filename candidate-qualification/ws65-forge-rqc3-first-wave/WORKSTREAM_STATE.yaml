@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws65-forge-rqc3-first-wave
 branch: ws65/forge-rqc3-first-wave-20260911
 audit_base_sha: b303e6f18bbb937e977503e62273d4a72e26c2af
 audit_base_tree: 7c27dd7b621f5720acbfbf846d10e6263cda2faa
-state_written_against_head: aec7aaaf23c12e5f94ace9f72e5ae050c83d4e52
-validated_head: null
+state_written_against_head: 22e645c9fe3159b981b8d7bad411377a5ebdd8f6
+validated_head: 22e645c9fe3159b981b8d7bad411377a5ebdd8f6
 objective: 'WS65 Forge corrected RQ-C3 First-Wave behavior execution: execute all
   15 authoritative actual-card scenarios through the WS64-qualified CPL vertical path
   on accepted Forge pin a9a95db, award behavior credit only for scenario-complete
@@ -64,11 +64,10 @@ forbidden_shortcuts:
 - manual terminal-state injection
 - credit from construction/readback only
 ownership: WS65-FORGE-RQC3-FIRST-WAVE
-status: ACTIVE
-exact_next_action: 'WS65_SCENARIO_AUTHORITY.json materialized + validated (15/15,
-  union 20/20, interpretations recorded). G04 loss control in-flight at P1 t57 (Covenant
-  window staging). Next: finish G04 loss control, checkpoint ACTIVE, run credited
-  G04 concession attempt, G03 attempt done (silent drop reproduced), then package
-  evidence + terminal validation.'
+status: COMPLETE
+exact_next_action: 'WS65 COMPLETE: 15/15 attempted and adjudicated (9 PASS/0 FAIL/6
+  UNKNOWN); 9/107 behavior credit; 17/20 kinds; 5 remediation packets OPEN; evidence
+  committed at validated_head. Next: Coordinator accepts PARTIAL and schedules out-of-WS65
+  remediation + targeted re-execution; remote persistence via safe_push.'
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
