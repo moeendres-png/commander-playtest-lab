@@ -1,0 +1,1193 @@
+{
+  "behavior_credit_note": "SOURCE FOUND != BEHAVIOR PASS. Presence grants zero behavior credit.",
+  "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+  "engine": "Forge",
+  "evidence_class": "CODE_DERIVED",
+  "remote": "https://github.com/moeendres-png/forge.git",
+  "results": [
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/a/altars_reap.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/a/altars_reap.txt"
+        ],
+        "snake_probe_exists": false,
+        "snake_probe_path": "forge-gui/res/cardsfolder/a/altar_s_reap.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Altar's Reap",
+      "oracle_ids": [
+        "6a125750-2b8c-4f9d-8173-ac8d14c91ddb"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/b/blood_artist.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/b/blood_artist.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/b/blood_artist.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Blood Artist",
+      "oracle_ids": [
+        "310f141c-7f37-4729-aed6-dd9c09db448d"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/b/braids_arisen_nightmare.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/b/braids_arisen_nightmare.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/b/braids_arisen_nightmare.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Braids, Arisen Nightmare",
+      "oracle_ids": [
+        "e0445c80-fa53-4c3e-881e-940e9fce7f57"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/c/carnage_tyrant.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/c/carnage_tyrant.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/c/carnage_tyrant.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Carnage Tyrant",
+      "oracle_ids": [
+        "8c411f4e-a091-447c-9450-d895b10b4985"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/c/casualties_of_war.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/c/casualties_of_war.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/c/casualties_of_war.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Casualties of War",
+      "oracle_ids": [
+        "5c6c8fe7-3520-423b-a224-1c0af516871a"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/c/clone.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/c/clone.txt",
+          "forge-gui/res/cardsfolder/c/clone_crafter.txt",
+          "forge-gui/res/cardsfolder/c/clone_legion.txt",
+          "forge-gui/res/cardsfolder/c/clone_shell.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/c/clone.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Clone",
+      "oracle_ids": [
+        "42226b87-0746-4ebf-9fd0-108d508462af"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/c/control_magic.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/c/control_magic.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/c/control_magic.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Control Magic",
+      "oracle_ids": [
+        "cd0d7141-46d2-4aa3-bc77-6b3b4513803e"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/c/councils_judgment.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/c/councils_judgment.txt"
+        ],
+        "snake_probe_exists": false,
+        "snake_probe_path": "forge-gui/res/cardsfolder/c/council_s_judgment.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Council's Judgment",
+      "oracle_ids": [
+        "acf4d685-a718-42f7-9a7a-dee069ae8db2"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/c/cryptic_command.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/c/cryptic_command.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/c/cryptic_command.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Cryptic Command",
+      "oracle_ids": [
+        "a3e51a35-09df-4189-b131-08a21e6a557d"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/c/cultivate.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/c/cultivate.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/c/cultivate.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Cultivate",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/d/deadly_recluse.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/d/deadly_recluse.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/d/deadly_recluse.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Deadly Recluse",
+      "oracle_ids": [
+        "6b941291-1802-4ced-9869-39fa43825550"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/d/delina_wild_mage.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/d/delina_wild_mage.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/d/delina_wild_mage.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Delina, Wild Mage",
+      "oracle_ids": [
+        "8d57dadb-c689-4691-b331-aba15daf46ff"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/d/doom_blade.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/d/doom_blade.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/d/doom_blade.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Doom Blade",
+      "oracle_ids": [
+        "59e7f2ae-4535-4191-98be-3e65b6b2befa"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/d/doomed_traveler.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/d/doomed_traveler.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/d/doomed_traveler.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Doomed Traveler",
+      "oracle_ids": [
+        "a30907c0-fbde-4fd3-a8c7-f304305fcea7"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/d/doubling_season.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/d/doubling_season.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/d/doubling_season.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Doubling Season",
+      "oracle_ids": [
+        "01546b7d-a233-4176-8843-d732074dc5b6"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/d/drudge_skeletons.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/d/drudge_skeletons.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/d/drudge_skeletons.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Drudge Skeletons",
+      "oracle_ids": [
+        "c180ed02-07f4-4538-9bea-8c249234a8e2"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/d/duress.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/d/duress.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/d/duress.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Duress",
+      "oracle_ids": [
+        "33d405ea-7a9a-4970-b70f-9c05d90dd6f0"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/f/felidar_sovereign.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/f/felidar_sovereign.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/f/felidar_sovereign.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Felidar Sovereign",
+      "oracle_ids": [
+        "5ae3cbb9-9f0c-4077-ae7c-fba660d7fb4b"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/f/fierce_guardianship.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/f/fierce_guardianship.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/f/fierce_guardianship.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Fierce Guardianship",
+      "oracle_ids": [
+        "d09c9cba-fdd2-479b-ad5d-d05181c3e3f9"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/f/fireball.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/f/fireball.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/f/fireball.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Fireball",
+      "oracle_ids": [
+        "aa7714b0-2bfb-458a-8ebf-37ec2c53383e"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/f/flickerwisp.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/f/flickerwisp.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/f/flickerwisp.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Flickerwisp",
+      "oracle_ids": [
+        "b23a3d30-6b8e-4aad-890f-db0c3af43ace"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/f/fog.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/f/fog.txt",
+          "forge-gui/res/cardsfolder/f/fog_bank.txt",
+          "forge-gui/res/cardsfolder/f/fog_elemental.txt",
+          "forge-gui/res/cardsfolder/f/fog_of_gnats.txt",
+          "forge-gui/res/cardsfolder/f/fog_of_war.txt",
+          "forge-gui/res/cardsfolder/f/fog_on_the_barrow_downs.txt",
+          "forge-gui/res/cardsfolder/f/fog_patch.txt",
+          "forge-gui/res/cardsfolder/f/foggy_bottom_swamp.txt",
+          "forge-gui/res/cardsfolder/f/foggy_nelson_on_retainer.txt",
+          "forge-gui/res/cardsfolder/f/foggy_swamp_hunters.txt",
+          "forge-gui/res/cardsfolder/f/foggy_swamp_spirit_keeper.txt",
+          "forge-gui/res/cardsfolder/f/foggy_swamp_vinebender.txt",
+          "forge-gui/res/cardsfolder/f/foggy_swamp_visions.txt",
+          "forge-gui/res/cardsfolder/f/fogwalker.txt",
+          "forge-gui/res/cardsfolder/f/fogwells_gym.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/f/fog.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Fog",
+      "oracle_ids": [
+        "27e9db49-7af7-4bef-ad4c-bf5dfb92030d"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/f/force_of_will.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/f/force_of_will.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/f/force_of_will.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Force of Will",
+      "oracle_ids": [
+        "956381ba-6d37-4a8a-846c-bad79222dbee"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/f/forest.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/f/forest.txt",
+          "forge-gui/res/cardsfolder/f/forest_bear.txt",
+          "forge-gui/res/cardsfolder/f/forestfolk.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/f/forest.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Forest",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/g/ghalta_stampede_tyrant.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/g/ghalta_stampede_tyrant.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/g/ghalta_stampede_tyrant.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Ghalta, Stampede Tyrant",
+      "oracle_ids": [
+        "b8f16311-be5a-4648-b024-849a61dff0bc"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/g/giant_growth.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/g/giant_growth.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/g/giant_growth.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Giant Growth",
+      "oracle_ids": [
+        "5748ebf1-24e3-499d-ab7c-c2cebd462a24"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/h/hardened_scales.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/h/hardened_scales.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/h/hardened_scales.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Hardened Scales",
+      "oracle_ids": [
+        "a1f3da21-af6d-450e-bf0b-985d158418e6"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/h/humility.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/h/humility.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/h/humility.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Humility",
+      "oracle_ids": [
+        "ed7bdb3e-5c51-4547-9266-76a791e0b2b0"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/h/hymn_to_tourach.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/h/hymn_to_tourach.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/h/hymn_to_tourach.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Hymn to Tourach",
+      "oracle_ids": [
+        "992d9a72-d34d-47d7-96fb-37f0efb515ef"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/i/island.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/i/island.txt",
+          "forge-gui/res/cardsfolder/i/island_fish_jasconius.txt",
+          "forge-gui/res/cardsfolder/i/island_of_wak_wak.txt",
+          "forge-gui/res/cardsfolder/i/island_sanctuary.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/i/island.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Island",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/k/kokusho_the_evening_star.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/k/kokusho_the_evening_star.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/k/kokusho_the_evening_star.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Kokusho, the Evening Star",
+      "oracle_ids": [
+        "cf631c93-b7fb-4e4f-b405-3778c15b1117"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/l/lightning_bolt.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/l/lightning_bolt.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/l/lightning_bolt.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Lightning Bolt",
+      "oracle_ids": [
+        "4457ed35-7c10-48c8-9776-456485fdf070"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/l/llanowar_elves.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/l/llanowar_elves.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/l/llanowar_elves.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Llanowar Elves",
+      "oracle_ids": [
+        "68954295-54e3-4303-a6bc-fc4547a4e3a3"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/m/mana_crypt.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/m/mana_crypt.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/m/mana_crypt.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Mana Crypt",
+      "oracle_ids": [
+        "2c63e4e1-89d2-4bc6-a232-94e75c4b1c8a"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/m/momentary_blink.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/m/momentary_blink.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/m/momentary_blink.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Momentary Blink",
+      "oracle_ids": [
+        "a3ec6b5d-08ec-4ae0-b1db-c4b87a1849c7"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/m/mountain.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/m/mountain.txt",
+          "forge-gui/res/cardsfolder/m/mountain_bandit.txt",
+          "forge-gui/res/cardsfolder/m/mountain_goat.txt",
+          "forge-gui/res/cardsfolder/m/mountain_mover.txt",
+          "forge-gui/res/cardsfolder/m/mountain_stronghold.txt",
+          "forge-gui/res/cardsfolder/m/mountain_titan.txt",
+          "forge-gui/res/cardsfolder/m/mountain_valley.txt",
+          "forge-gui/res/cardsfolder/m/mountain_yeti.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/m/mountain.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Mountain",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/m/murder.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/m/murder.txt",
+          "forge-gui/res/cardsfolder/m/murder_investigation.txt",
+          "forge-gui/res/cardsfolder/m/murder_of_crows.txt",
+          "forge-gui/res/cardsfolder/m/murderers_axe.txt",
+          "forge-gui/res/cardsfolder/m/murderous_betrayal.txt",
+          "forge-gui/res/cardsfolder/m/murderous_compulsion.txt",
+          "forge-gui/res/cardsfolder/m/murderous_cut.txt",
+          "forge-gui/res/cardsfolder/m/murderous_redcap.txt",
+          "forge-gui/res/cardsfolder/m/murderous_redcap_avatar.txt",
+          "forge-gui/res/cardsfolder/m/murderous_rider_swift_end.txt",
+          "forge-gui/res/cardsfolder/m/murderous_spoils.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/m/murder.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Murder",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/o/ornithopter.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/o/ornithopter.txt",
+          "forge-gui/res/cardsfolder/o/ornithopter_of_paradise.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/o/ornithopter.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Ornithopter",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/p/pacifism.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/p/pacifism.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/p/pacifism.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Pacifism",
+      "oracle_ids": [
+        "5f5e0b10-c8cf-450c-bfd3-bcb0528ec330"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/p/phantasmal_image.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/p/phantasmal_image.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/p/phantasmal_image.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Phantasmal Image",
+      "oracle_ids": [
+        "bde94af8-faea-41ff-8eed-ba642eac9968"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/p/plains.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/p/plains.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/p/plains.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Plains",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/p/preordain.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/p/preordain.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/p/preordain.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Preordain",
+      "oracle_ids": [
+        "ac641490-ca14-48d7-8cc4-b69ce984befa"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/p/propaganda.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/p/propaganda.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/p/propaganda.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Propaganda",
+      "oracle_ids": [
+        "ea9709b6-4c37-4d5a-b04d-cd4c42e4f9dd"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/r/rampant_growth.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/r/rampant_growth.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/r/rampant_growth.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Rampant Growth",
+      "oracle_ids": [
+        "8539f295-5d58-4436-a73a-b9277c4c7795"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/r/reanimate.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/r/reanimate.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/r/reanimate.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Reanimate",
+      "oracle_ids": [
+        "a044474a-cd72-4e9d-bd8d-a08f2de9cdc0"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/r/rest_in_peace.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/r/rest_in_peace.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/r/rest_in_peace.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Rest in Peace",
+      "oracle_ids": [
+        "087f9ad7-e74f-40e2-8102-1ed2925d0418"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/r/rolling_thunder.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/r/rolling_thunder.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/r/rolling_thunder.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Rolling Thunder",
+      "oracle_ids": [
+        "9c47888b-28a5-4c43-9ee4-a9059e3c367d"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/r/runeclaw_bear.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/r/runeclaw_bear.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/r/runeclaw_bear.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Runeclaw Bear",
+      "oracle_ids": [
+        "ec49dfcf-d16d-4621-af4b-4a6f09043221"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/s/soul_warden.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/s/soul_warden.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/s/soul_warden.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Soul Warden",
+      "oracle_ids": [
+        "f3fad295-1af2-4ecc-8546-b121ad6be27b"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/s/stonecoil_serpent.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/s/stonecoil_serpent.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/s/stonecoil_serpent.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Stonecoil Serpent",
+      "oracle_ids": [
+        "78124cd1-2658-43f3-a339-0755d84154d2"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/s/swamp.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/s/swamp.txt",
+          "forge-gui/res/cardsfolder/s/swamp_mosquito.txt",
+          "forge-gui/res/cardsfolder/s/swampbenders.txt",
+          "forge-gui/res/cardsfolder/s/swampsnare_trap.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/s/swamp.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Swamp",
+      "oracle_ids": [],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/t/turn_to_frog.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/t/turn_to_frog.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/t/turn_to_frog.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Turn to Frog",
+      "oracle_ids": [
+        "74c4c1e2-c50d-4c8f-889a-0d5674dc6d67"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/t/twincast.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/t/twincast.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/t/twincast.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Twincast",
+      "oracle_ids": [
+        "8f878efc-850f-43d2-a6fe-5ea8d1dd5afb"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/w/willbender.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/w/willbender.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/w/willbender.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Willbender",
+      "oracle_ids": [
+        "0aae277e-e58e-4115-b5fd-0459451e17ec"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    },
+    {
+      "evidence": {
+        "candidate_registration": "forge-core/src/main/java/forge/CardStorageReader.java loads the cardsfolder surface at runtime (registration surface = cardsfolder presence)",
+        "commit": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+        "exact_name_files": [
+          "forge-gui/res/cardsfolder/w/wrath_of_god.txt"
+        ],
+        "lookup_mechanism": "git grep -F 'Name:<exact>' at pin under forge-gui/res/cardsfolder/ + Name-field verification via git show",
+        "name_grep_files": [
+          "forge-gui/res/cardsfolder/w/wrath_of_god.txt"
+        ],
+        "snake_probe_exists": true,
+        "snake_probe_path": "forge-gui/res/cardsfolder/w/wrath_of_god.txt"
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Wrath of God",
+      "oracle_ids": [
+        "34515b16-c9a4-4f98-8c77-416a7a523407"
+      ],
+      "status": "SOURCE_IMPLEMENTATION_FOUND"
+    }
+  ],
+  "schema": "ws72.engine-card-preflight.v1",
+  "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+}

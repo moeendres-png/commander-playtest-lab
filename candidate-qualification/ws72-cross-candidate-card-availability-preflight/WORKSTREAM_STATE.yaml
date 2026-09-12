@@ -1,0 +1,62 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws72-cross-candidate-card-availability-preflight
+branch: ws72/cross-candidate-card-availability-preflight-20260912
+audit_base_sha: 7796619e69b0434cd232de8335ff5cab3c5d08e5
+audit_base_tree: 48ec3eafcca668f3fa165e3977af5836b3add059
+state_written_against_head: 7796619e69b0434cd232de8335ff5cab3c5d08e5
+validated_head: null
+objective: Preflight every actual card required by the RQ-C3 remaining qualification
+  population against the exact accepted Forge and XMage candidate pins, without claiming
+  card behavior or modifying either engine.
+in_scope:
+- actual-card corpus extraction
+- exact-pin source/registration lookup
+- candidate card-name resolution
+- parser/construction smoke only where safely available
+- scenario-to-card availability mapping
+- missing/ambiguous implementation inventory
+out_of_scope:
+- behavior qualification
+- engine edits
+- provider edits
+- new engine worktrees
+- runtime Rules correctness claims
+- behavior credit
+- Full107 execution
+- Architecture Freeze
+- Production Provider selection
+dependencies:
+- RQ-C3 authority 897d72f0b57bb8febe045870acaa3d2dba4bde56
+- Forge pin a9a95db6662c2d28814390a9c0c2f986e39aa8b4
+- XMage pin 7135d5e85ddb4c8aa4b49b4192ca51947c822704
+hard_gates:
+- source presence is not behavior
+- construction is not behavior
+- no engine checkout creation due current storage pressure
+- engine repositories are read-only
+- UNKNOWN is not implemented
+ownership: WS72-CROSS-CANDIDATE-CARD-AVAILABILITY-PREFLIGHT
+status: PREFLIGHT_PARTIAL
+exact_next_action: Coordinator decision on the Full107 population gap (67 slots
+  AUTHORITY_ABSENT in RQ-C3 authority): name the artifact enumerating the remaining
+  92, or accept PARTIAL scoped to the authority-defined 40; then commit + safe_push.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+results:
+  defined_scenarios: 40
+  first_wave: 15
+  defined_non_first_wave: 25
+  unique_actual_cards: 55
+  forge: FOUND_55_NOTFOUND_0_AMBIGUOUS_0_UNKNOWN_0
+  xmage: FOUND_55_NOTFOUND_0_AMBIGUOUS_0_UNKNOWN_0
+  first_wave_all_cards_found: FORGE_15/15_XMAGE_15/15
+  defined_non_first_wave_all_cards_found: FORGE_25/25_XMAGE_25/25
+  remaining92: UNKNOWN/92_both_engines
+  missing_card_clusters: none
+  ws72_card_preflight: PARTIAL
+  behavior_credit: 0/107
+  full107: NOT_RUN
+population_gap_source_blocker: RQ-C3 authority enumerates 40 unique scenarios;
+  no authority artifact enumerates 107 scenarios or the remaining 92 (67 Full107
+  slots AUTHORITY_ABSENT/UNKNOWN; nothing invented).

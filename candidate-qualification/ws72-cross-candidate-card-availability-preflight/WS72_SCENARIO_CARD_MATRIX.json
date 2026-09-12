@@ -1,0 +1,632 @@
+{
+  "authority_absent_slots": {
+    "count": 67,
+    "reason": "no authority artifact enumerates the remaining Full107-minus-40 scenarios; not invented",
+    "status": "UNKNOWN"
+  },
+  "defined_scenario_count": 40,
+  "evidence_class": "CODE_DERIVED",
+  "scenarios": [
+    {
+      "cards": [
+        "Doom Blade",
+        "Rest in Peace",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-A01",
+      "scenario_id": "RQ-C1-A01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Fog",
+        "Forest",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-A02",
+      "scenario_id": "RQ-C1-A02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Flickerwisp",
+        "Plains",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-B02",
+      "scenario_id": "RQ-C1-B02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Felidar Sovereign",
+        "Lightning Bolt",
+        "Mountain"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-B03",
+      "scenario_id": "RQ-C1-B03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Blood Artist",
+        "Doom Blade",
+        "Kokusho, the Evening Star",
+        "Murder",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-B04",
+      "scenario_id": "RQ-C1-B04",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Altar's Reap",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-C02",
+      "scenario_id": "RQ-C1-C02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Cultivate",
+        "Fierce Guardianship",
+        "Forest",
+        "Ghalta, Stampede Tyrant"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-C04",
+      "scenario_id": "RQ-C1-C04",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Cryptic Command",
+        "Forest",
+        "Island",
+        "Llanowar Elves",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-D01",
+      "scenario_id": "RQ-C1-D01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Island",
+        "Lightning Bolt",
+        "Mountain",
+        "Twincast"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-D02",
+      "scenario_id": "RQ-C1-D02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Giant Growth",
+        "Lightning Bolt",
+        "Mountain",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-D03",
+      "scenario_id": "RQ-C1-D03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Doom Blade",
+        "Island",
+        "Phantasmal Image",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-D04",
+      "scenario_id": "RQ-C1-D04",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Mountain",
+        "Rolling Thunder",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-D05",
+      "scenario_id": "RQ-C1-D05",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Deadly Recluse",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-E03",
+      "scenario_id": "RQ-C1-E03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Island",
+        "Lightning Bolt",
+        "Llanowar Elves",
+        "Mountain",
+        "Runeclaw Bear",
+        "Willbender"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-F03",
+      "scenario_id": "RQ-C1-F03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Island",
+        "Preordain"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-F04",
+      "scenario_id": "RQ-C1-F04",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Council's Judgment",
+        "Llanowar Elves",
+        "Plains",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-G01",
+      "scenario_id": "RQ-C1-G01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Braids, Arisen Nightmare",
+        "Forest",
+        "Plains",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-G05",
+      "scenario_id": "RQ-C1-G05",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Reanimate",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-I02",
+      "scenario_id": "RQ-C1-I02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Altar's Reap",
+        "Blood Artist",
+        "Doomed Traveler",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-I03",
+      "scenario_id": "RQ-C1-I03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Mana Crypt"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-J01",
+      "scenario_id": "RQ-C1-J01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Hymn to Tourach",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-J03",
+      "scenario_id": "RQ-C1-J03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Blood Artist",
+        "Plains",
+        "Runeclaw Bear",
+        "Soul Warden",
+        "Wrath of God"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-K01",
+      "scenario_id": "RQ-C1-K01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Drudge Skeletons",
+        "Lightning Bolt",
+        "Mountain",
+        "Swamp"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-A03",
+      "scenario_id": "RQ-C3-A03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Doubling Season",
+        "Forest",
+        "Hardened Scales",
+        "Stonecoil Serpent"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-A04",
+      "scenario_id": "RQ-C3-A04",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Llanowar Elves",
+        "Soul Warden"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-B01",
+      "scenario_id": "RQ-C3-B01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Force of Will",
+        "Forest",
+        "Island",
+        "Llanowar Elves",
+        "Turn to Frog"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-C01",
+      "scenario_id": "RQ-C3-C01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Fireball",
+        "Mountain"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-C03",
+      "scenario_id": "RQ-C3-C03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Casualties of War",
+        "Forest",
+        "Ornithopter",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-D06",
+      "scenario_id": "RQ-C3-D06",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Island",
+        "Propaganda",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-E01",
+      "scenario_id": "RQ-C3-E01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Carnage Tyrant",
+        "Llanowar Elves",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-E02",
+      "scenario_id": "RQ-C3-E02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Rampant Growth"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-F01",
+      "scenario_id": "RQ-C3-F01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Duress",
+        "Forest",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-F02",
+      "scenario_id": "RQ-C3-F02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Ghalta, Stampede Tyrant",
+        "Murder",
+        "Swamp"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-G02",
+      "scenario_id": "RQ-C3-G02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Ghalta, Stampede Tyrant"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-G03",
+      "scenario_id": "RQ-C3-G03",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Control Magic",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-G04",
+      "scenario_id": "RQ-C3-G04",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Clone",
+        "Humility",
+        "Island",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-H01",
+      "scenario_id": "RQ-C3-H01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Giant Growth",
+        "Island",
+        "Runeclaw Bear",
+        "Turn to Frog"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-H02",
+      "scenario_id": "RQ-C3-H02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Momentary Blink",
+        "Pacifism",
+        "Plains",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-I01",
+      "scenario_id": "RQ-C3-I01",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Delina, Wild Mage",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-J02",
+      "scenario_id": "RQ-C3-J02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    },
+    {
+      "cards": [
+        "Blood Artist",
+        "Clone",
+        "Ghalta, Stampede Tyrant",
+        "Island"
+      ],
+      "first_wave": false,
+      "forge_blocking_cards": [],
+      "forge_card_preflight": "ALL_FOUND",
+      "note": "card presence only; NOT behavior READY",
+      "parent_scenario_id": "RQ-C1-K02",
+      "scenario_id": "RQ-C3-K02",
+      "xmage_blocking_cards": [],
+      "xmage_card_preflight": "ALL_FOUND"
+    }
+  ],
+  "schema": "ws72.scenario-card-matrix.v1"
+}

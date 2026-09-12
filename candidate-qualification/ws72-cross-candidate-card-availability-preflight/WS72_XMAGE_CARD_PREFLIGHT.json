@@ -1,0 +1,3149 @@
+{
+  "behavior_credit_note": "SOURCE FOUND != BEHAVIOR PASS. Presence grants zero behavior credit.",
+  "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+  "engine": "XMage",
+  "evidence_class": "CODE_DERIVED",
+  "remote": "https://github.com/moeendres-png/mage.git",
+  "results": [
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "AltarsReap",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/a/AltarsReap.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "a.AltarsReap"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/Conspiracy.java",
+          "Mage.Sets/src/mage/sets/ConspiracyTakeTheCrown.java",
+          "Mage.Sets/src/mage/sets/DuelDecksNissaVsObNixilis.java",
+          "Mage.Sets/src/mage/sets/Innistrad.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Altar's Reap",
+      "oracle_ids": [
+        "6a125750-2b8c-4f9d-8173-ac8d14c91ddb"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "BloodArtist",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/b/BloodArtist.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "b.BloodArtist"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AvacynRestored.java",
+          "Mage.Sets/src/mage/sets/Commander2017.java",
+          "Mage.Sets/src/mage/sets/CrimsonVowCommander.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorrorCommander.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/InnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenCommander.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalanCommander.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Blood Artist",
+      "oracle_ids": [
+        "310f141c-7f37-4729-aed6-dd9c09db448d"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "BraidsArisenNightmare",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/b/BraidsArisenNightmare.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "b.BraidsArisenNightmare"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/DominariaUnited.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorrorCommander.java",
+          "Mage.Sets/src/mage/sets/EdgeOfEternitiesCommander.java",
+          "Mage.Sets/src/mage/sets/GameDayPromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Braids, Arisen Nightmare",
+      "oracle_ids": [
+        "e0445c80-fa53-4c3e-881e-940e9fce7f57"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "CarnageTyrant",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/c/CarnageTyrant.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "c.CarnageTyrant"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Ixalan.java",
+          "Mage.Sets/src/mage/sets/IxalanPromos.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SpecialGuests.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Carnage Tyrant",
+      "oracle_ids": [
+        "8c411f4e-a091-447c-9450-d895b10b4985"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [
+          "class-name normalization: printed 'Casualties of War' -> impl class CasualtiesOfWar"
+        ],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "CasualtiesofWar",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/c/CasualtiesOfWar.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "c.CasualtiesOfWar"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/BloomburrowCommander.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/KaldheimCommander.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenCommander.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstormCommander.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSpark.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSparkPromos.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Casualties of War",
+      "oracle_ids": [
+        "5c6c8fe7-3520-423b-a224-1c0af516871a"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Clone",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/c/Clone.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "c.Clone"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbenderEternal.java",
+          "Mage.Sets/src/mage/sets/DuelDecksVenserVsKoth.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Onslaught.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Clone",
+      "oracle_ids": [
+        "42226b87-0746-4ebf-9fd0-108d508462af"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "ControlMagic",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/c/ControlMagic.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "c.ControlMagic"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsVraska.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIV.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/VintageMasters.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Control Magic",
+      "oracle_ids": [
+        "cd0d7141-46d2-4aa3-bc77-6b3b4513803e"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "CouncilsJudgment",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/c/CouncilsJudgment.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "c.CouncilsJudgment"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Conspiracy.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunctionCommander.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/VintageMasters.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Council's Judgment",
+      "oracle_ids": [
+        "acf4d685-a718-42f7-9a7a-dee069ae8db2"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "CrypticCommand",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/c/CrypticCommand.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "c.CrypticCommand"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AmonkhetInvocations.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyThroughTheAges.java",
+          "Mage.Sets/src/mage/sets/IconicMasters.java",
+          "Mage.Sets/src/mage/sets/Lorwyn.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicPlayerRewards2009.java",
+          "Mage.Sets/src/mage/sets/ModernMasters.java",
+          "Mage.Sets/src/mage/sets/ModernMasters2015.java",
+          "Mage.Sets/src/mage/sets/ProTourPromos.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Cryptic Command",
+      "oracle_ids": [
+        "a3e51a35-09df-4189-b131-08a21e6a557d"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Cultivate",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/c/Cultivate.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "c.Cultivate"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/BloomburrowCommander.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2017.java",
+          "Mage.Sets/src/mage/sets/Commander2018.java",
+          "Mage.Sets/src/mage/sets/Commander2019.java",
+          "Mage.Sets/src/mage/sets/Commander2020.java",
+          "Mage.Sets/src/mage/sets/Commander2021.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthologyVolumeII.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/CoreSet2021.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/DominariaUnitedCommander.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorrorCommander.java",
+          "Mage.Sets/src/mage/sets/EdgeOfEternitiesCommander.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/ForgottenRealmsCommander.java",
+          "Mage.Sets/src/mage/sets/FridayNightMagic2011.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/LegendaryCubePrizePack.java",
+          "Mage.Sets/src/mage/sets/LorwynEclipsedCommander.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MarchOfTheMachineCommander.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+          "Mage.Sets/src/mage/sets/Masters25.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/NewCapennaCommander.java",
+          "Mage.Sets/src/mage/sets/PhyrexiaAllWillBeOneCommander.java",
+          "Mage.Sets/src/mage/sets/Planechase2012.java",
+          "Mage.Sets/src/mage/sets/PlanechaseAnthology.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenCommander.java",
+          "Mage.Sets/src/mage/sets/StarterCommanderDecks.java",
+          "Mage.Sets/src/mage/sets/StrixhavenMysticalArchive.java",
+          "Mage.Sets/src/mage/sets/TalesOfMiddleEarthCommander.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstormCommander.java",
+          "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtlesEternal.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalanCommander.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WizardsPlayNetwork2023.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Cultivate",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "DeadlyRecluse",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/d/DeadlyRecluse.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "d.DeadlyRecluse"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/DuelDecksHeroesVsMonsters.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Deadly Recluse",
+      "oracle_ids": [
+        "6b941291-1802-4ced-9869-39fa43825550"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "DelinaWildMage",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/d/DelinaWildMage.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "d.DelinaWildMage"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AdventuresInTheForgottenRealms.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Delina, Wild Mage",
+      "oracle_ids": [
+        "8d57dadb-c689-4691-b331-aba15daf46ff"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "DoomBlade",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/d/DoomBlade.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "d.DoomBlade"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/DuelDecksNissaVsObNixilis.java",
+          "Mage.Sets/src/mage/sets/ExplorersOfIxalan.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/IconicMasters.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicPlayerRewards2011.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/StrixhavenMysticalArchive.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Doom Blade",
+      "oracle_ids": [
+        "59e7f2ae-4535-4191-98be-3e65b6b2befa"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "DoomedTraveler",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/d/DoomedTraveler.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "d.DoomedTraveler"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/Conspiracy.java",
+          "Mage.Sets/src/mage/sets/ConspiracyTakeTheCrown.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/DuelDecksBlessedVsCursed.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSorinVsTibalt.java",
+          "Mage.Sets/src/mage/sets/IconicMasters.java",
+          "Mage.Sets/src/mage/sets/Innistrad.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/JumpstartHistoricHorizons.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/ShadowsOfThePast.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Doomed Traveler",
+      "oracle_ids": [
+        "a30907c0-fbde-4fd3-a8c7-f304305fcea7"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "DoublingSeason",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/d/DoublingSeason.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "d.DoublingSeason"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2011.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/ModernMasters.java",
+          "Mage.Sets/src/mage/sets/RavnicaCityOfGuilds.java",
+          "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtlesSourceMaterial.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraineEnchantingTales.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Doubling Season",
+      "oracle_ids": [
+        "01546b7d-a233-4176-8843-d732074dc5b6"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "DrudgeSkeletons",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/d/DrudgeSkeletons.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "d.DrudgeSkeletons"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelDecksGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Drudge Skeletons",
+      "oracle_ids": [
+        "c180ed02-07f4-4538-9bea-8c249234a8e2"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Duress",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/d/Duress.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "d.Duress"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ArenaLeague2000.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/CoreSet2021.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DragonsOfTarkir.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/DuelDecksDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FridayNightMagic2005.java",
+          "Mage.Sets/src/mage/sets/IDWComicsInserts.java",
+          "Mage.Sets/src/mage/sets/IconicMasters.java",
+          "Mage.Sets/src/mage/sets/InnistradDoubleFeature.java",
+          "Mage.Sets/src/mage/sets/InnistradMidnightHunt.java",
+          "Mage.Sets/src/mage/sets/Ixalan.java",
+          "Mage.Sets/src/mage/sets/JumpstartHistoricHorizons.java",
+          "Mage.Sets/src/mage/sets/MTGArenaPromos.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MediaAndCollaborationPromos.java",
+          "Mage.Sets/src/mage/sets/ModernEventDeck2014.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/PhyrexiaAllWillBeOne.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesGraveborn.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/StrixhavenMysticalArchive.java",
+          "Mage.Sets/src/mage/sets/UrzasSaga.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1999.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2001.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2002.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Duress",
+      "oracle_ids": [
+        "33d405ea-7a9a-4970-b70f-9c05d90dd6f0"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "FelidarSovereign",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/f/FelidarSovereign.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "f.FelidarSovereign"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/BattleForZendikarPromos.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/Zendikar.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Felidar Sovereign",
+      "oracle_ids": [
+        "5ae3cbb9-9f0c-4077-ae7c-fba660d7fb4b"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "FierceGuardianship",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/f/FierceGuardianship.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "f.FierceGuardianship"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbenderEternal.java",
+          "Mage.Sets/src/mage/sets/Commander2020.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Fierce Guardianship",
+      "oracle_ids": [
+        "d09c9cba-fdd2-479b-ad5d-d05181c3e3f9"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Fireball",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/f/Fireball.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "f.Fireball"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1996.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/Darksteel.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/IconicMasters.java",
+          "Mage.Sets/src/mage/sets/IntroductoryTwoPlayerSet.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicPlayerRewards2005.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIV.java",
+          "Mage.Sets/src/mage/sets/MediaAndCollaborationPromos.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesFireAndLightning.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/RivalsQuickStartSet.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Fireball",
+      "oracle_ids": [
+        "aa7714b0-2bfb-458a-8ebf-37ec2c53383e"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Flickerwisp",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/f/Flickerwisp.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "f.Flickerwisp"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/Eventide.java",
+          "Mage.Sets/src/mage/sets/KaldheimCommander.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/ModernMasters.java",
+          "Mage.Sets/src/mage/sets/ModernMasters2017.java",
+          "Mage.Sets/src/mage/sets/TimeSpiralRemastered.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Flickerwisp",
+      "oracle_ids": [
+        "b23a3d30-6b8e-4aad-890f-db0c3af43ace"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Fog",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/f/Fog.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "f.Fog"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/JumpstartHistoricHorizons.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIV.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/PioneerMasters.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Fog",
+      "oracle_ids": [
+        "27e9db49-7af7-4bef-ad4c-bf5dfb92030d"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [
+          "class-name normalization: printed 'Force of Will' -> impl class ForceOfWill"
+        ],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "ForceofWill",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/f/ForceOfWill.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "f.ForceOfWill"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Alliances.java",
+          "Mage.Sets/src/mage/sets/AmonkhetInvocations.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2014.java",
+          "Mage.Sets/src/mage/sets/LegacyChampionship.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenMysticalArchive.java",
+          "Mage.Sets/src/mage/sets/VintageMasters.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1997.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Force of Will",
+      "oracle_ids": [
+        "956381ba-6d37-4a8a-846c-bad79222dbee"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Forest",
+        "impl_class_files": [
+          "Mage/src/main/java/mage/cards/basiclands/Forest.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "basiclands.Forest"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AdventuresInTheForgottenRealms.java",
+          "Mage.Sets/src/mage/sets/Aetherdrift.java",
+          "Mage.Sets/src/mage/sets/Amonkhet.java",
+          "Mage.Sets/src/mage/sets/AmonkhetRemastered.java",
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/ArenaBeginnerSet.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1996.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1999.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2000.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2001.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2003.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2004.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2005.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2006.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperience.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperienceExtras.java",
+          "Mage.Sets/src/mage/sets/AsiaPacificLandProgram.java",
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/AvacynRestored.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbender.java",
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/Bloomburrow.java",
+          "Mage.Sets/src/mage/sets/ChampionsOfKamigawa.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/ColdsnapThemeDecks.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2017.java",
+          "Mage.Sets/src/mage/sets/Commander2018.java",
+          "Mage.Sets/src/mage/sets/Commander2019.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthologyVolumeII.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/CoreSet2021.java",
+          "Mage.Sets/src/mage/sets/Deckmasters.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/Dominaria.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DominariaUnited.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/DragonsOfTarkir.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAjaniVsNicolBolas.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElspethVsKiora.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElvesVsInventors.java",
+          "Mage.Sets/src/mage/sets/DuelDecksGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelDecksHeroesVsMonsters.java",
+          "Mage.Sets/src/mage/sets/DuelDecksIzzetVsGolgari.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsVraska.java",
+          "Mage.Sets/src/mage/sets/DuelDecksKnightsVsDragons.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMindVsMight.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMirrodinPureVsNewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/DuelDecksNissaVsObNixilis.java",
+          "Mage.Sets/src/mage/sets/DuelDecksPhyrexiaVsTheCoalition.java",
+          "Mage.Sets/src/mage/sets/DuelDecksZendikarVsEldrazi.java",
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorror.java",
+          "Mage.Sets/src/mage/sets/EdgeOfEternities.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/EuropeanLandProgram.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FateReforged.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FinalFantasy.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/GRNGuildKit.java",
+          "Mage.Sets/src/mage/sets/GRNRavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/GameNight.java",
+          "Mage.Sets/src/mage/sets/GameNight2019.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/GlobalSeriesJiangYangguAndMuYanling.java",
+          "Mage.Sets/src/mage/sets/GrandPrixPromos.java",
+          "Mage.Sets/src/mage/sets/GuildsOfRavnica.java",
+          "Mage.Sets/src/mage/sets/Guru.java",
+          "Mage.Sets/src/mage/sets/HourOfDevastation.java",
+          "Mage.Sets/src/mage/sets/IceAge.java",
+          "Mage.Sets/src/mage/sets/IkoriaLairOfBehemoths.java",
+          "Mage.Sets/src/mage/sets/Innistrad.java",
+          "Mage.Sets/src/mage/sets/InnistradCrimsonVow.java",
+          "Mage.Sets/src/mage/sets/InnistradMidnightHunt.java",
+          "Mage.Sets/src/mage/sets/InnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/IntroductoryTwoPlayerSet.java",
+          "Mage.Sets/src/mage/sets/Invasion.java",
+          "Mage.Sets/src/mage/sets/Ixalan.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2014.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2023.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/JurassicWorldCollection.java",
+          "Mage.Sets/src/mage/sets/Kaladesh.java",
+          "Mage.Sets/src/mage/sets/KaladeshRemastered.java",
+          "Mage.Sets/src/mage/sets/Kaldheim.java",
+          "Mage.Sets/src/mage/sets/KamigawaNeonDynasty.java",
+          "Mage.Sets/src/mage/sets/KhansOfTarkir.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Lorwyn.java",
+          "Mage.Sets/src/mage/sets/LorwynEclipsed.java",
+          "Mage.Sets/src/mage/sets/M19StandardShowdown.java",
+          "Mage.Sets/src/mage/sets/M20PromoPacks.java",
+          "Mage.Sets/src/mage/sets/MKMStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/MTGArenaPromos.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/MagicFest2019.java",
+          "Mage.Sets/src/mage/sets/MagicFest2020.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/MagicOrigins.java",
+          "Mage.Sets/src/mage/sets/MarchOfTheMachine.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroes.java",
+          "Mage.Sets/src/mage/sets/MarvelsSpiderMan.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIII.java",
+          "Mage.Sets/src/mage/sets/MercadianMasques.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/Mirrodin.java",
+          "Mage.Sets/src/mage/sets/MirrodinBesieged.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons2.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons3.java",
+          "Mage.Sets/src/mage/sets/MurdersAtKarlovManor.java",
+          "Mage.Sets/src/mage/sets/NewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Odyssey.java",
+          "Mage.Sets/src/mage/sets/Onslaught.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunction.java",
+          "Mage.Sets/src/mage/sets/PhyrexiaAllWillBeOne.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/Planechase2012.java",
+          "Mage.Sets/src/mage/sets/PlanechaseAnthology.java",
+          "Mage.Sets/src/mage/sets/Portal.java",
+          "Mage.Sets/src/mage/sets/PortalSecondAge.java",
+          "Mage.Sets/src/mage/sets/PortalThreeKingdoms.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesSlivers.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RNAGuildKit.java",
+          "Mage.Sets/src/mage/sets/RNARavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/RavnicaAllegiance.java",
+          "Mage.Sets/src/mage/sets/RavnicaCityOfGuilds.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/ReturnToRavnica.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/RiseOfTheEldrazi.java",
+          "Mage.Sets/src/mage/sets/RivalsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/RivalsQuickStartSet.java",
+          "Mage.Sets/src/mage/sets/ScarsOfMirrodin.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretLairPromo.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/Shadowmoor.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistrad.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/ShardsOfAlara.java",
+          "Mage.Sets/src/mage/sets/StarTrek.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/Starter1999.java",
+          "Mage.Sets/src/mage/sets/StarterCommanderDecks.java",
+          "Mage.Sets/src/mage/sets/StreetsOfNewCapenna.java",
+          "Mage.Sets/src/mage/sets/StrixhavenSchoolOfMages.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstorm.java",
+          "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtles.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The2017GiftPack.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWar.java",
+          "Mage.Sets/src/mage/sets/TheHobbit.java",
+          "Mage.Sets/src/mage/sets/TheLordOfTheRingsTalesOfMiddleEarth.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/Theros.java",
+          "Mage.Sets/src/mage/sets/TherosBeyondDeath.java",
+          "Mage.Sets/src/mage/sets/ThroneOfEldraine.java",
+          "Mage.Sets/src/mage/sets/TimeSpiral.java",
+          "Mage.Sets/src/mage/sets/TreasureChest.java",
+          "Mage.Sets/src/mage/sets/Unfinity.java",
+          "Mage.Sets/src/mage/sets/Unglued.java",
+          "Mage.Sets/src/mage/sets/Unhinged.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/Unsanctioned.java",
+          "Mage.Sets/src/mage/sets/Unstable.java",
+          "Mage.Sets/src/mage/sets/UrzasSaga.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSpark.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraine.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1997.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1998.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1999.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2000.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2001.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2002.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2003.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java",
+          "Mage.Sets/src/mage/sets/XLNStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/YearOfTheSnake2025.java",
+          "Mage.Sets/src/mage/sets/Zendikar.java",
+          "Mage.Sets/src/mage/sets/ZendikarRising.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Forest",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "GhaltaStampedeTyrant",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/g/GhaltaStampedeTyrant.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "g.GhaltaStampedeTyrant"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalan.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Ghalta, Stampede Tyrant",
+      "oracle_ids": [
+        "b8f16311-be5a-4648-b024-849a61dff0bc"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "GiantGrowth",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/g/GiantGrowth.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "g.GiantGrowth"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/Bloomburrow.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/Deckmasters.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/ExplorersOfIxalan.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/FridayNightMagic2000.java",
+          "Mage.Sets/src/mage/sets/IceAge.java",
+          "Mage.Sets/src/mage/sets/JumpstartHistoricHorizons.java",
+          "Mage.Sets/src/mage/sets/JuniorSuperSeries.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicPlayerRewards2006.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroes.java",
+          "Mage.Sets/src/mage/sets/Masters25.java",
+          "Mage.Sets/src/mage/sets/MastersEditionII.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIII.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIV.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/ReturnToRavnica.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenMysticalArchive.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWar.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSpark.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1997.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1999.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Giant Growth",
+      "oracle_ids": [
+        "5748ebf1-24e3-499d-ab7c-c2cebd462a24"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "HardenedScales",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/h/HardenedScales.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "h.HardenedScales"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthologyVolumeII.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/JumpstartHistoricHorizons.java",
+          "Mage.Sets/src/mage/sets/KhansOfTarkir.java",
+          "Mage.Sets/src/mage/sets/KhansOfTarkirPromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenCommander.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalanCommander.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraineEnchantingTales.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Hardened Scales",
+      "oracle_ids": [
+        "a1f3da21-af6d-450e-bf0b-985d158418e6"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Humility",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/h/Humility.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "h.Humility"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Humility",
+      "oracle_ids": [
+        "ed7bdb3e-5c51-4547-9266-76a791e0b2b0"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [
+          "class-name normalization: printed 'Hymn to Tourach' -> impl class HymnToTourach"
+        ],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "HymntoTourach",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/h/HymnToTourach.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "h.HymnToTourach"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/FallenEmpires.java",
+          "Mage.Sets/src/mage/sets/FromTheVaultTwenty.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/SecretLairCountdown.java",
+          "Mage.Sets/src/mage/sets/VintageMasters.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Hymn to Tourach",
+      "oracle_ids": [
+        "992d9a72-d34d-47d7-96fb-37f0efb515ef"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Island",
+        "impl_class_files": [
+          "Mage/src/main/java/mage/cards/basiclands/Island.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "basiclands.Island"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AdventuresInTheForgottenRealms.java",
+          "Mage.Sets/src/mage/sets/Aetherdrift.java",
+          "Mage.Sets/src/mage/sets/Amonkhet.java",
+          "Mage.Sets/src/mage/sets/AmonkhetRemastered.java",
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/ArenaBeginnerSet.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1996.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1999.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2000.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2001.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2002.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2003.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2004.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2005.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2006.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperience.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperienceExtras.java",
+          "Mage.Sets/src/mage/sets/AsiaPacificLandProgram.java",
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/AvacynRestored.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbender.java",
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/Bloomburrow.java",
+          "Mage.Sets/src/mage/sets/ChampionsOfKamigawa.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/ColdsnapThemeDecks.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2017.java",
+          "Mage.Sets/src/mage/sets/Commander2018.java",
+          "Mage.Sets/src/mage/sets/Commander2019.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthologyVolumeII.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/CoreSet2021.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/Dominaria.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DominariaUnited.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/DragonsOfTarkir.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAjaniVsNicolBolas.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/DuelDecksBlessedVsCursed.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElspethVsKiora.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElspethVsTezzeret.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElvesVsInventors.java",
+          "Mage.Sets/src/mage/sets/DuelDecksIzzetVsGolgari.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsVraska.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMerfolkVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMindVsMight.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMirrodinPureVsNewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/DuelDecksPhyrexiaVsTheCoalition.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSpeedVsCunning.java",
+          "Mage.Sets/src/mage/sets/DuelDecksVenserVsKoth.java",
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorror.java",
+          "Mage.Sets/src/mage/sets/EdgeOfEternities.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/EuropeanLandProgram.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FateReforged.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FinalFantasy.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/GRNGuildKit.java",
+          "Mage.Sets/src/mage/sets/GRNRavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/GameNight.java",
+          "Mage.Sets/src/mage/sets/GameNight2019.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/GlobalSeriesJiangYangguAndMuYanling.java",
+          "Mage.Sets/src/mage/sets/GrandPrixPromos.java",
+          "Mage.Sets/src/mage/sets/GuildsOfRavnica.java",
+          "Mage.Sets/src/mage/sets/Guru.java",
+          "Mage.Sets/src/mage/sets/HourOfDevastation.java",
+          "Mage.Sets/src/mage/sets/IceAge.java",
+          "Mage.Sets/src/mage/sets/IkoriaLairOfBehemoths.java",
+          "Mage.Sets/src/mage/sets/Innistrad.java",
+          "Mage.Sets/src/mage/sets/InnistradCrimsonVow.java",
+          "Mage.Sets/src/mage/sets/InnistradMidnightHunt.java",
+          "Mage.Sets/src/mage/sets/InnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/IntroductoryTwoPlayerSet.java",
+          "Mage.Sets/src/mage/sets/Invasion.java",
+          "Mage.Sets/src/mage/sets/Ixalan.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2014.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2023.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/JurassicWorldCollection.java",
+          "Mage.Sets/src/mage/sets/Kaladesh.java",
+          "Mage.Sets/src/mage/sets/KaladeshRemastered.java",
+          "Mage.Sets/src/mage/sets/Kaldheim.java",
+          "Mage.Sets/src/mage/sets/KamigawaNeonDynasty.java",
+          "Mage.Sets/src/mage/sets/KhansOfTarkir.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Lorwyn.java",
+          "Mage.Sets/src/mage/sets/LorwynEclipsed.java",
+          "Mage.Sets/src/mage/sets/M19StandardShowdown.java",
+          "Mage.Sets/src/mage/sets/M20PromoPacks.java",
+          "Mage.Sets/src/mage/sets/MKMStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/MTGArenaPromos.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/MagicFest2019.java",
+          "Mage.Sets/src/mage/sets/MagicFest2020.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/MagicOrigins.java",
+          "Mage.Sets/src/mage/sets/MarchOfTheMachine.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroes.java",
+          "Mage.Sets/src/mage/sets/MarvelsSpiderMan.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIII.java",
+          "Mage.Sets/src/mage/sets/MercadianMasques.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/Mirrodin.java",
+          "Mage.Sets/src/mage/sets/MirrodinBesieged.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons2.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons3.java",
+          "Mage.Sets/src/mage/sets/MurdersAtKarlovManor.java",
+          "Mage.Sets/src/mage/sets/NewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Odyssey.java",
+          "Mage.Sets/src/mage/sets/Onslaught.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunction.java",
+          "Mage.Sets/src/mage/sets/PhyrexiaAllWillBeOne.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/Planechase2012.java",
+          "Mage.Sets/src/mage/sets/PlanechaseAnthology.java",
+          "Mage.Sets/src/mage/sets/Portal.java",
+          "Mage.Sets/src/mage/sets/PortalSecondAge.java",
+          "Mage.Sets/src/mage/sets/PortalThreeKingdoms.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesSlivers.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RNAGuildKit.java",
+          "Mage.Sets/src/mage/sets/RNARavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/RavnicaAllegiance.java",
+          "Mage.Sets/src/mage/sets/RavnicaCityOfGuilds.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/ReturnToRavnica.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/RiseOfTheEldrazi.java",
+          "Mage.Sets/src/mage/sets/RivalsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/RivalsQuickStartSet.java",
+          "Mage.Sets/src/mage/sets/ScarsOfMirrodin.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretLairPromo.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/Shadowmoor.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistrad.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/ShardsOfAlara.java",
+          "Mage.Sets/src/mage/sets/StarTrek.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/Starter1999.java",
+          "Mage.Sets/src/mage/sets/StarterCommanderDecks.java",
+          "Mage.Sets/src/mage/sets/StreetsOfNewCapenna.java",
+          "Mage.Sets/src/mage/sets/StrixhavenSchoolOfMages.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstorm.java",
+          "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtles.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The2017GiftPack.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWar.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWarCommander.java",
+          "Mage.Sets/src/mage/sets/TheHobbit.java",
+          "Mage.Sets/src/mage/sets/TheLordOfTheRingsTalesOfMiddleEarth.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/Theros.java",
+          "Mage.Sets/src/mage/sets/TherosBeyondDeath.java",
+          "Mage.Sets/src/mage/sets/ThroneOfEldraine.java",
+          "Mage.Sets/src/mage/sets/TimeSpiral.java",
+          "Mage.Sets/src/mage/sets/TreasureChest.java",
+          "Mage.Sets/src/mage/sets/Unfinity.java",
+          "Mage.Sets/src/mage/sets/Unglued.java",
+          "Mage.Sets/src/mage/sets/Unhinged.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/Unsanctioned.java",
+          "Mage.Sets/src/mage/sets/Unstable.java",
+          "Mage.Sets/src/mage/sets/UrzasSaga.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSpark.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraine.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1997.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1998.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2000.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2001.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2002.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2003.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java",
+          "Mage.Sets/src/mage/sets/XLNStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/Zendikar.java",
+          "Mage.Sets/src/mage/sets/ZendikarRising.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Island",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [
+          "class-name normalization: printed 'Kokusho, the Evening Star' -> impl class KokushoTheEveningStar"
+        ],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "KokushotheEveningStar",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/k/KokushoTheEveningStar.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "k.KokushoTheEveningStar"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ChampionsOfKamigawa.java",
+          "Mage.Sets/src/mage/sets/FromTheVaultDragons.java",
+          "Mage.Sets/src/mage/sets/IconicMasters.java",
+          "Mage.Sets/src/mage/sets/ModernMasters.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Kokusho, the Evening Star",
+      "oracle_ids": [
+        "cf631c93-b7fb-4e4f-b405-3778c15b1117"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "LightningBolt",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/l/LightningBolt.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "l.LightningBolt"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbenderEternal.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyThroughTheAges.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards1998.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/JumpstartHistoricHorizons.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/MagicFest2019.java",
+          "Mage.Sets/src/mage/sets/MagicFest2025.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/MagicPlayerRewards2010.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+          "Mage.Sets/src/mage/sets/Masters25.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/ModernMasters2015.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesFireAndLightning.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretLairPromo.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/StrixhavenMysticalArchive.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/WizardsPlayNetwork2026.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Lightning Bolt",
+      "oracle_ids": [
+        "4457ed35-7c10-48c8-9776-456485fdf070"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "LlanowarElves",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/l/LlanowarElves.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "l.LlanowarElves"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/DCIPromos.java",
+          "Mage.Sets/src/mage/sets/Dominaria.java",
+          "Mage.Sets/src/mage/sets/DominariaPromos.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/FridayNightMagic2000.java",
+          "Mage.Sets/src/mage/sets/GameNight.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/MTGArenaPromos.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/MagicFest2026.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairCountdown.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryHistoryPromos.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1999.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2000.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2001.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2002.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Llanowar Elves",
+      "oracle_ids": [
+        "68954295-54e3-4303-a6bc-fc4547a4e3a3"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "ManaCrypt",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/m/ManaCrypt.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "m.ManaCrypt"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/HarperPrismBookPromos.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2011.java",
+          "Mage.Sets/src/mage/sets/KaladeshInventions.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MastersEditionII.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/SpecialGuests.java",
+          "Mage.Sets/src/mage/sets/VintageMasters.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Mana Crypt",
+      "oracle_ids": [
+        "2c63e4e1-89d2-4bc6-a232-94e75c4b1c8a"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "MomentaryBlink",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/m/MomentaryBlink.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "m.MomentaryBlink"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/DuelDecksBlessedVsCursed.java",
+          "Mage.Sets/src/mage/sets/HistoricAnthology3.java",
+          "Mage.Sets/src/mage/sets/KaldheimCommander.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/ModernMasters2017.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/TimeSpiral.java",
+          "Mage.Sets/src/mage/sets/TimeSpiralRemastered.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Momentary Blink",
+      "oracle_ids": [
+        "a3ec6b5d-08ec-4ae0-b1db-c4b87a1849c7"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Mountain",
+        "impl_class_files": [
+          "Mage/src/main/java/mage/cards/basiclands/Mountain.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "basiclands.Mountain"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AdventuresInTheForgottenRealms.java",
+          "Mage.Sets/src/mage/sets/Aetherdrift.java",
+          "Mage.Sets/src/mage/sets/Amonkhet.java",
+          "Mage.Sets/src/mage/sets/AmonkhetRemastered.java",
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/ArabianNights.java",
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/ArenaBeginnerSet.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1996.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1999.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2000.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2001.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2003.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2004.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2005.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2006.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperience.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperienceExtras.java",
+          "Mage.Sets/src/mage/sets/AsiaPacificLandProgram.java",
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/AvacynRestored.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbender.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbenderEternal.java",
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/Bloomburrow.java",
+          "Mage.Sets/src/mage/sets/ChampionsOfKamigawa.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/ColdsnapThemeDecks.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2017.java",
+          "Mage.Sets/src/mage/sets/Commander2018.java",
+          "Mage.Sets/src/mage/sets/Commander2019.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthologyVolumeII.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/CoreSet2021.java",
+          "Mage.Sets/src/mage/sets/Deckmasters.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/Dominaria.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DominariaUnited.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/DragonsOfTarkir.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAjaniVsNicolBolas.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElvesVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElvesVsInventors.java",
+          "Mage.Sets/src/mage/sets/DuelDecksHeroesVsMonsters.java",
+          "Mage.Sets/src/mage/sets/DuelDecksIzzetVsGolgari.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/DuelDecksKnightsVsDragons.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMerfolkVsGoblins.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMindVsMight.java",
+          "Mage.Sets/src/mage/sets/DuelDecksPhyrexiaVsTheCoalition.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSorinVsTibalt.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSpeedVsCunning.java",
+          "Mage.Sets/src/mage/sets/DuelDecksVenserVsKoth.java",
+          "Mage.Sets/src/mage/sets/DuelDecksZendikarVsEldrazi.java",
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorror.java",
+          "Mage.Sets/src/mage/sets/EdgeOfEternities.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/EuropeanLandProgram.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FateReforged.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FinalFantasy.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/GRNGuildKit.java",
+          "Mage.Sets/src/mage/sets/GRNRavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/GameNight.java",
+          "Mage.Sets/src/mage/sets/GameNight2019.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/GlobalSeriesJiangYangguAndMuYanling.java",
+          "Mage.Sets/src/mage/sets/GrandPrixPromos.java",
+          "Mage.Sets/src/mage/sets/GuildsOfRavnica.java",
+          "Mage.Sets/src/mage/sets/Guru.java",
+          "Mage.Sets/src/mage/sets/HourOfDevastation.java",
+          "Mage.Sets/src/mage/sets/IceAge.java",
+          "Mage.Sets/src/mage/sets/IkoriaLairOfBehemoths.java",
+          "Mage.Sets/src/mage/sets/Innistrad.java",
+          "Mage.Sets/src/mage/sets/InnistradCrimsonVow.java",
+          "Mage.Sets/src/mage/sets/InnistradMidnightHunt.java",
+          "Mage.Sets/src/mage/sets/InnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/IntroductoryTwoPlayerSet.java",
+          "Mage.Sets/src/mage/sets/Invasion.java",
+          "Mage.Sets/src/mage/sets/Ixalan.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2014.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2023.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/JurassicWorldCollection.java",
+          "Mage.Sets/src/mage/sets/Kaladesh.java",
+          "Mage.Sets/src/mage/sets/KaladeshRemastered.java",
+          "Mage.Sets/src/mage/sets/Kaldheim.java",
+          "Mage.Sets/src/mage/sets/KamigawaNeonDynasty.java",
+          "Mage.Sets/src/mage/sets/KhansOfTarkir.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Lorwyn.java",
+          "Mage.Sets/src/mage/sets/LorwynEclipsed.java",
+          "Mage.Sets/src/mage/sets/M19StandardShowdown.java",
+          "Mage.Sets/src/mage/sets/M20PromoPacks.java",
+          "Mage.Sets/src/mage/sets/MKMStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/MTGArenaPromos.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/MagicFest2019.java",
+          "Mage.Sets/src/mage/sets/MagicFest2020.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/MagicOrigins.java",
+          "Mage.Sets/src/mage/sets/MarchOfTheMachine.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroes.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+          "Mage.Sets/src/mage/sets/MarvelsSpiderMan.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIII.java",
+          "Mage.Sets/src/mage/sets/MercadianMasques.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/Mirrodin.java",
+          "Mage.Sets/src/mage/sets/MirrodinBesieged.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons2.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons3.java",
+          "Mage.Sets/src/mage/sets/MurdersAtKarlovManor.java",
+          "Mage.Sets/src/mage/sets/NewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Odyssey.java",
+          "Mage.Sets/src/mage/sets/Onslaught.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunction.java",
+          "Mage.Sets/src/mage/sets/PhyrexiaAllWillBeOne.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/Planechase2012.java",
+          "Mage.Sets/src/mage/sets/PlanechaseAnthology.java",
+          "Mage.Sets/src/mage/sets/Portal.java",
+          "Mage.Sets/src/mage/sets/PortalSecondAge.java",
+          "Mage.Sets/src/mage/sets/PortalThreeKingdoms.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesFireAndLightning.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesSlivers.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RNAGuildKit.java",
+          "Mage.Sets/src/mage/sets/RNARavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/RavnicaAllegiance.java",
+          "Mage.Sets/src/mage/sets/RavnicaCityOfGuilds.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/ReturnToRavnica.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/RiseOfTheEldrazi.java",
+          "Mage.Sets/src/mage/sets/RivalsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/RivalsQuickStartSet.java",
+          "Mage.Sets/src/mage/sets/ScarsOfMirrodin.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretLairPromo.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/Shadowmoor.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistrad.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/ShardsOfAlara.java",
+          "Mage.Sets/src/mage/sets/StarTrek.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/Starter1999.java",
+          "Mage.Sets/src/mage/sets/StarterCommanderDecks.java",
+          "Mage.Sets/src/mage/sets/StreetsOfNewCapenna.java",
+          "Mage.Sets/src/mage/sets/StrixhavenSchoolOfMages.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstorm.java",
+          "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtles.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The2017GiftPack.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWar.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWarCommander.java",
+          "Mage.Sets/src/mage/sets/TheHobbit.java",
+          "Mage.Sets/src/mage/sets/TheLordOfTheRingsTalesOfMiddleEarth.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/Theros.java",
+          "Mage.Sets/src/mage/sets/TherosBeyondDeath.java",
+          "Mage.Sets/src/mage/sets/ThroneOfEldraine.java",
+          "Mage.Sets/src/mage/sets/TimeSpiral.java",
+          "Mage.Sets/src/mage/sets/TreasureChest.java",
+          "Mage.Sets/src/mage/sets/Unfinity.java",
+          "Mage.Sets/src/mage/sets/Unglued.java",
+          "Mage.Sets/src/mage/sets/Unhinged.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/Unsanctioned.java",
+          "Mage.Sets/src/mage/sets/Unstable.java",
+          "Mage.Sets/src/mage/sets/UrzasSaga.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSpark.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraine.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1997.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1998.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1999.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2000.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2001.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2002.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2003.java",
+          "Mage.Sets/src/mage/sets/XLNStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/YearOfTheDragon2024.java",
+          "Mage.Sets/src/mage/sets/Zendikar.java",
+          "Mage.Sets/src/mage/sets/ZendikarRising.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Mountain",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Murder",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/m/Murder.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "m.Murder"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ArenaBeginnerSet.java",
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/BreakingNews.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/ConspiracyTakeTheCrown.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019Promos.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorror.java",
+          "Mage.Sets/src/mage/sets/EldritchMoon.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/Masters25.java",
+          "Mage.Sets/src/mage/sets/MurdersAtKarlovManor.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/StarterCommanderDecks.java",
+          "Mage.Sets/src/mage/sets/StreetsOfNewCapenna.java",
+          "Mage.Sets/src/mage/sets/ZendikarRisingCommander.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Murder",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Ornithopter",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/o/Ornithopter.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "o.Ornithopter"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AetherRevolt.java",
+          "Mage.Sets/src/mage/sets/Antiquities.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/HistoricAnthology1.java",
+          "Mage.Sets/src/mage/sets/KaladeshInventions.java",
+          "Mage.Sets/src/mage/sets/KaladeshRemastered.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/Mirrodin.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWarRetroArtifacts.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Ornithopter",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Pacifism",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/p/Pacifism.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "p.Pacifism"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/ArenaBeginnerSet.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DragonsOfTarkir.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/DuelDecksDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/IkoriaLairOfBehemoths.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+          "Mage.Sets/src/mage/sets/Masters25.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Onslaught.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/UrzasSaga.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Pacifism",
+      "oracle_ids": [
+        "5f5e0b10-c8cf-450c-bfd3-bcb0528ec330"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "PhantasmalImage",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/p/PhantasmalImage.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "p.PhantasmalImage"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/ForgottenRealmsCommander.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/ModernMasters2017.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SpecialGuests.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Phantasmal Image",
+      "oracle_ids": [
+        "bde94af8-faea-41ff-8eed-ba642eac9968"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Plains",
+        "impl_class_files": [
+          "Mage/src/main/java/mage/cards/basiclands/Plains.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "basiclands.Plains"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AdventuresInTheForgottenRealms.java",
+          "Mage.Sets/src/mage/sets/Aetherdrift.java",
+          "Mage.Sets/src/mage/sets/Amonkhet.java",
+          "Mage.Sets/src/mage/sets/AmonkhetRemastered.java",
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/ArenaBeginnerSet.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1996.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1999.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2000.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2001.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2003.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2004.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2005.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2006.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperience.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperienceExtras.java",
+          "Mage.Sets/src/mage/sets/AsiaPacificLandProgram.java",
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/AvacynRestored.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbender.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbenderEternal.java",
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/Bloomburrow.java",
+          "Mage.Sets/src/mage/sets/ChampionsOfKamigawa.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/ColdsnapThemeDecks.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2017.java",
+          "Mage.Sets/src/mage/sets/Commander2018.java",
+          "Mage.Sets/src/mage/sets/Commander2019.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthologyVolumeII.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/CoreSet2021.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/Dominaria.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DominariaUnited.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/DragonsMazePromos.java",
+          "Mage.Sets/src/mage/sets/DragonsOfTarkir.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAjaniVsNicolBolas.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/DuelDecksBlessedVsCursed.java",
+          "Mage.Sets/src/mage/sets/DuelDecksDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElspethVsKiora.java",
+          "Mage.Sets/src/mage/sets/DuelDecksElspethVsTezzeret.java",
+          "Mage.Sets/src/mage/sets/DuelDecksHeroesVsMonsters.java",
+          "Mage.Sets/src/mage/sets/DuelDecksKnightsVsDragons.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMirrodinPureVsNewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/DuelDecksPhyrexiaVsTheCoalition.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSorinVsTibalt.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSpeedVsCunning.java",
+          "Mage.Sets/src/mage/sets/DuelDecksVenserVsKoth.java",
+          "Mage.Sets/src/mage/sets/DuelDecksZendikarVsEldrazi.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorror.java",
+          "Mage.Sets/src/mage/sets/EdgeOfEternities.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/EuropeanLandProgram.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FateReforged.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FinalFantasy.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/GRNGuildKit.java",
+          "Mage.Sets/src/mage/sets/GRNRavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/GameNight.java",
+          "Mage.Sets/src/mage/sets/GameNight2019.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/GlobalSeriesJiangYangguAndMuYanling.java",
+          "Mage.Sets/src/mage/sets/GrandPrixPromos.java",
+          "Mage.Sets/src/mage/sets/GuildsOfRavnica.java",
+          "Mage.Sets/src/mage/sets/Guru.java",
+          "Mage.Sets/src/mage/sets/HourOfDevastation.java",
+          "Mage.Sets/src/mage/sets/IceAge.java",
+          "Mage.Sets/src/mage/sets/IkoriaLairOfBehemoths.java",
+          "Mage.Sets/src/mage/sets/Innistrad.java",
+          "Mage.Sets/src/mage/sets/InnistradCrimsonVow.java",
+          "Mage.Sets/src/mage/sets/InnistradMidnightHunt.java",
+          "Mage.Sets/src/mage/sets/InnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/IntroductoryTwoPlayerSet.java",
+          "Mage.Sets/src/mage/sets/Invasion.java",
+          "Mage.Sets/src/mage/sets/Ixalan.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2014.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2023.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/JurassicWorldCollection.java",
+          "Mage.Sets/src/mage/sets/Kaladesh.java",
+          "Mage.Sets/src/mage/sets/KaladeshRemastered.java",
+          "Mage.Sets/src/mage/sets/Kaldheim.java",
+          "Mage.Sets/src/mage/sets/KamigawaNeonDynasty.java",
+          "Mage.Sets/src/mage/sets/KhansOfTarkir.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Lorwyn.java",
+          "Mage.Sets/src/mage/sets/LorwynEclipsed.java",
+          "Mage.Sets/src/mage/sets/M19StandardShowdown.java",
+          "Mage.Sets/src/mage/sets/M20PromoPacks.java",
+          "Mage.Sets/src/mage/sets/MKMStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/MTGArenaPromos.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/MagicFest2019.java",
+          "Mage.Sets/src/mage/sets/MagicFest2020.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/MagicOrigins.java",
+          "Mage.Sets/src/mage/sets/MarchOfTheMachine.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroes.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+          "Mage.Sets/src/mage/sets/MarvelsSpiderMan.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIII.java",
+          "Mage.Sets/src/mage/sets/MercadianMasques.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/Mirrodin.java",
+          "Mage.Sets/src/mage/sets/MirrodinBesieged.java",
+          "Mage.Sets/src/mage/sets/ModernEventDeck2014.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons2.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons3.java",
+          "Mage.Sets/src/mage/sets/MurdersAtKarlovManor.java",
+          "Mage.Sets/src/mage/sets/NewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Odyssey.java",
+          "Mage.Sets/src/mage/sets/Onslaught.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunction.java",
+          "Mage.Sets/src/mage/sets/PhyrexiaAllWillBeOne.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/Planechase2012.java",
+          "Mage.Sets/src/mage/sets/PlanechaseAnthology.java",
+          "Mage.Sets/src/mage/sets/Portal.java",
+          "Mage.Sets/src/mage/sets/PortalSecondAge.java",
+          "Mage.Sets/src/mage/sets/PortalThreeKingdoms.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesSlivers.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RNAGuildKit.java",
+          "Mage.Sets/src/mage/sets/RNARavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/RavnicaAllegiance.java",
+          "Mage.Sets/src/mage/sets/RavnicaCityOfGuilds.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/ReturnToRavnica.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/RiseOfTheEldrazi.java",
+          "Mage.Sets/src/mage/sets/RivalsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/RivalsQuickStartSet.java",
+          "Mage.Sets/src/mage/sets/ScarsOfMirrodin.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretLairPromo.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/Shadowmoor.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistrad.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/ShardsOfAlara.java",
+          "Mage.Sets/src/mage/sets/StarTrek.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/Starter1999.java",
+          "Mage.Sets/src/mage/sets/StarterCommanderDecks.java",
+          "Mage.Sets/src/mage/sets/StreetsOfNewCapenna.java",
+          "Mage.Sets/src/mage/sets/StrixhavenSchoolOfMages.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstorm.java",
+          "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtles.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The2017GiftPack.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWar.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWarCommander.java",
+          "Mage.Sets/src/mage/sets/TheHobbit.java",
+          "Mage.Sets/src/mage/sets/TheLordOfTheRingsTalesOfMiddleEarth.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/Theros.java",
+          "Mage.Sets/src/mage/sets/TherosBeyondDeath.java",
+          "Mage.Sets/src/mage/sets/ThroneOfEldraine.java",
+          "Mage.Sets/src/mage/sets/TimeSpiral.java",
+          "Mage.Sets/src/mage/sets/TreasureChest.java",
+          "Mage.Sets/src/mage/sets/Unfinity.java",
+          "Mage.Sets/src/mage/sets/Unglued.java",
+          "Mage.Sets/src/mage/sets/Unhinged.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/Unsanctioned.java",
+          "Mage.Sets/src/mage/sets/Unstable.java",
+          "Mage.Sets/src/mage/sets/UrzasSaga.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSpark.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraine.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1997.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1998.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2000.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2002.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2003.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java",
+          "Mage.Sets/src/mage/sets/XLNStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/YearOfTheHorse2026.java",
+          "Mage.Sets/src/mage/sets/Zendikar.java",
+          "Mage.Sets/src/mage/sets/ZendikarRising.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Plains",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Preordain",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/p/Preordain.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "p.Preordain"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/DuelDecksVenserVsKoth.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/MagicFest2026.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster2.java",
+          "Mage.Sets/src/mage/sets/NewCapennaCommander.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunctionCommander.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenMysticalArchive.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/StoreChampionships.java",
+          "Mage.Sets/src/mage/sets/TalesOfMiddleEarthCommander.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstormCommander.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWarCommander.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Preordain",
+      "oracle_ids": [
+        "ac641490-ca14-48d7-8cc4-b69ce984befa"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Propaganda",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/p/Propaganda.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "p.Propaganda"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2020.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/ForgottenRealmsCommander.java",
+          "Mage.Sets/src/mage/sets/LegendaryCubePrizePack.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons3Commander.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunctionCommander.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/Tempest.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Propaganda",
+      "oracle_ids": [
+        "ea9709b6-4c37-4d5a-b04d-cd4c42e4f9dd"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "RampantGrowth",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/r/RampantGrowth.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "r.RampantGrowth"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/BloomburrowCommander.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2021.java",
+          "Mage.Sets/src/mage/sets/CommanderLegends.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters2022.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMindVsMight.java",
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorrorCommander.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/ForgottenRealmsCommander.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/MagicPlayerRewards2009.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons3Commander.java",
+          "Mage.Sets/src/mage/sets/ModernMasters2015.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/NeonDynastyCommander.java",
+          "Mage.Sets/src/mage/sets/NewCapennaCommander.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunctionCommander.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/TalesOfMiddleEarthCommander.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstormCommander.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalanCommander.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WizardsPlayNetwork2023.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Rampant Growth",
+      "oracle_ids": [
+        "8539f295-5d58-4436-a73a-b9277c4c7795"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Reanimate",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/r/Reanimate.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "r.Reanimate"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/BreakingNews.java",
+          "Mage.Sets/src/mage/sets/CommanderCollectionBlack.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorrorCommander.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/FridayNightMagic2004.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MarvelUniverse.java",
+          "Mage.Sets/src/mage/sets/MurdersAtKarlovManorCommander.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesGraveborn.java",
+          "Mage.Sets/src/mage/sets/TalesOfMiddleEarthCommander.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/UltimateBoxTopper.java",
+          "Mage.Sets/src/mage/sets/UltimateMasters.java",
+          "Mage.Sets/src/mage/sets/VintageMasters.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Reanimate",
+      "oracle_ids": [
+        "a044474a-cd72-4e9d-bd8d-a08f2de9cdc0"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [
+          "class-name normalization: printed 'Rest in Peace' -> impl class RestInPeace"
+        ],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "RestinPeace",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/r/RestInPeace.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "r.RestInPeace"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AmonkhetRemastered.java",
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MarvelUniverse.java",
+          "Mage.Sets/src/mage/sets/Masters25.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster2.java",
+          "Mage.Sets/src/mage/sets/RavnicaRemastered.java",
+          "Mage.Sets/src/mage/sets/ReturnToRavnica.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SignatureSpellbookGideon.java",
+          "Mage.Sets/src/mage/sets/TheBigScore.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraineEnchantingTales.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Rest in Peace",
+      "oracle_ids": [
+        "087f9ad7-e74f-40e2-8102-1ed2925d0418"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "RollingThunder",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/r/RollingThunder.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "r.RollingThunder"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/GameNight.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Rolling Thunder",
+      "oracle_ids": [
+        "9c47888b-28a5-4c43-9ee4-a9059e3c367d"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "RuneclawBear",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/r/RuneclawBear.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "r.RuneclawBear"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/JumpstartHistoricHorizons.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Runeclaw Bear",
+      "oracle_ids": [
+        "ec49dfcf-d16d-4621-af4b-4a6f09043221"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "SoulWarden",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/s/SoulWarden.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "s.SoulWarden"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Exodus.java",
+          "Mage.Sets/src/mage/sets/HistoricAnthology1.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/ModernEventDeck2014.java",
+          "Mage.Sets/src/mage/sets/ModernMasters2017.java",
+          "Mage.Sets/src/mage/sets/MysteryBooster.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SpecialGuests.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1998.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Soul Warden",
+      "oracle_ids": [
+        "f3fad295-1af2-4ecc-8546-b121ad6be27b"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "StonecoilSerpent",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/s/StonecoilSerpent.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "s.StonecoilSerpent"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhavenCommander.java",
+          "Mage.Sets/src/mage/sets/ThroneOfEldraine.java",
+          "Mage.Sets/src/mage/sets/ThroneOfEldrainePromos.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Stonecoil Serpent",
+      "oracle_ids": [
+        "78124cd1-2658-43f3-a339-0755d84154d2"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Swamp",
+        "impl_class_files": [
+          "Mage/src/main/java/mage/cards/basiclands/Swamp.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "basiclands.Swamp"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AdventuresInTheForgottenRealms.java",
+          "Mage.Sets/src/mage/sets/Aetherdrift.java",
+          "Mage.Sets/src/mage/sets/Amonkhet.java",
+          "Mage.Sets/src/mage/sets/AmonkhetRemastered.java",
+          "Mage.Sets/src/mage/sets/Anthologies.java",
+          "Mage.Sets/src/mage/sets/Archenemy.java",
+          "Mage.Sets/src/mage/sets/ArchenemyNicolBolas.java",
+          "Mage.Sets/src/mage/sets/ArenaBeginnerSet.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1996.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague1999.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2000.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2001.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2003.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2004.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2005.java",
+          "Mage.Sets/src/mage/sets/ArenaLeague2006.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperience.java",
+          "Mage.Sets/src/mage/sets/ArenaNewPlayerExperienceExtras.java",
+          "Mage.Sets/src/mage/sets/AsiaPacificLandProgram.java",
+          "Mage.Sets/src/mage/sets/AssassinsCreed.java",
+          "Mage.Sets/src/mage/sets/AvacynRestored.java",
+          "Mage.Sets/src/mage/sets/AvatarTheLastAirbender.java",
+          "Mage.Sets/src/mage/sets/BattleForZendikar.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/Battlebond.java",
+          "Mage.Sets/src/mage/sets/BeatdownBoxSet.java",
+          "Mage.Sets/src/mage/sets/Bloomburrow.java",
+          "Mage.Sets/src/mage/sets/ChampionsOfKamigawa.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/ColdsnapThemeDecks.java",
+          "Mage.Sets/src/mage/sets/Commander2011.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/Commander2015.java",
+          "Mage.Sets/src/mage/sets/Commander2016.java",
+          "Mage.Sets/src/mage/sets/Commander2017.java",
+          "Mage.Sets/src/mage/sets/Commander2018.java",
+          "Mage.Sets/src/mage/sets/Commander2019.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthology.java",
+          "Mage.Sets/src/mage/sets/CommanderAnthologyVolumeII.java",
+          "Mage.Sets/src/mage/sets/CommanderLegendsBattleForBaldursGate.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/CoreSet2019.java",
+          "Mage.Sets/src/mage/sets/CoreSet2020.java",
+          "Mage.Sets/src/mage/sets/CoreSet2021.java",
+          "Mage.Sets/src/mage/sets/Deckmasters.java",
+          "Mage.Sets/src/mage/sets/DoctorWho.java",
+          "Mage.Sets/src/mage/sets/Dominaria.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DominariaUnited.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/DragonsOfTarkir.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAjaniVsNicolBolas.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelDecksBlessedVsCursed.java",
+          "Mage.Sets/src/mage/sets/DuelDecksDivineVsDemonic.java",
+          "Mage.Sets/src/mage/sets/DuelDecksGarrukVsLiliana.java",
+          "Mage.Sets/src/mage/sets/DuelDecksIzzetVsGolgari.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsVraska.java",
+          "Mage.Sets/src/mage/sets/DuelDecksMirrodinPureVsNewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/DuelDecksNissaVsObNixilis.java",
+          "Mage.Sets/src/mage/sets/DuelDecksPhyrexiaVsTheCoalition.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSorinVsTibalt.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSpeedVsCunning.java",
+          "Mage.Sets/src/mage/sets/DuelDecksZendikarVsEldrazi.java",
+          "Mage.Sets/src/mage/sets/DuelsOfThePlaneswalkers.java",
+          "Mage.Sets/src/mage/sets/DuskmournHouseOfHorror.java",
+          "Mage.Sets/src/mage/sets/EdgeOfEternities.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/EuropeanLandProgram.java",
+          "Mage.Sets/src/mage/sets/Fallout.java",
+          "Mage.Sets/src/mage/sets/FateReforged.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FinalFantasy.java",
+          "Mage.Sets/src/mage/sets/FinalFantasyCommander.java",
+          "Mage.Sets/src/mage/sets/Foundations.java",
+          "Mage.Sets/src/mage/sets/FoundationsJumpstart.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/GRNGuildKit.java",
+          "Mage.Sets/src/mage/sets/GRNRavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/GameNight.java",
+          "Mage.Sets/src/mage/sets/GameNight2019.java",
+          "Mage.Sets/src/mage/sets/GameNightFreeForAll.java",
+          "Mage.Sets/src/mage/sets/GrandPrixPromos.java",
+          "Mage.Sets/src/mage/sets/GuildsOfRavnica.java",
+          "Mage.Sets/src/mage/sets/Guru.java",
+          "Mage.Sets/src/mage/sets/HachetteUK.java",
+          "Mage.Sets/src/mage/sets/HourOfDevastation.java",
+          "Mage.Sets/src/mage/sets/IceAge.java",
+          "Mage.Sets/src/mage/sets/IkoriaLairOfBehemoths.java",
+          "Mage.Sets/src/mage/sets/Innistrad.java",
+          "Mage.Sets/src/mage/sets/InnistradCrimsonVow.java",
+          "Mage.Sets/src/mage/sets/InnistradMidnightHunt.java",
+          "Mage.Sets/src/mage/sets/InnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/IntroductoryTwoPlayerSet.java",
+          "Mage.Sets/src/mage/sets/Invasion.java",
+          "Mage.Sets/src/mage/sets/Ixalan.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2014.java",
+          "Mage.Sets/src/mage/sets/JudgeGiftCards2023.java",
+          "Mage.Sets/src/mage/sets/Jumpstart.java",
+          "Mage.Sets/src/mage/sets/Jumpstart2022.java",
+          "Mage.Sets/src/mage/sets/JurassicWorldCollection.java",
+          "Mage.Sets/src/mage/sets/Kaladesh.java",
+          "Mage.Sets/src/mage/sets/KaladeshRemastered.java",
+          "Mage.Sets/src/mage/sets/Kaldheim.java",
+          "Mage.Sets/src/mage/sets/KamigawaNeonDynasty.java",
+          "Mage.Sets/src/mage/sets/KhansOfTarkir.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/Lorwyn.java",
+          "Mage.Sets/src/mage/sets/LorwynEclipsed.java",
+          "Mage.Sets/src/mage/sets/M19StandardShowdown.java",
+          "Mage.Sets/src/mage/sets/M20PromoPacks.java",
+          "Mage.Sets/src/mage/sets/MKMStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/MTGArenaPromos.java",
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/Magic2011.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2013.java",
+          "Mage.Sets/src/mage/sets/Magic2014.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/MagicFest2019.java",
+          "Mage.Sets/src/mage/sets/MagicFest2020.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/MagicOrigins.java",
+          "Mage.Sets/src/mage/sets/MarchOfTheMachine.java",
+          "Mage.Sets/src/mage/sets/MarvelSuperHeroes.java",
+          "Mage.Sets/src/mage/sets/MarvelsSpiderMan.java",
+          "Mage.Sets/src/mage/sets/MastersEdition.java",
+          "Mage.Sets/src/mage/sets/MastersEditionIII.java",
+          "Mage.Sets/src/mage/sets/MercadianMasques.java",
+          "Mage.Sets/src/mage/sets/Mirage.java",
+          "Mage.Sets/src/mage/sets/Mirrodin.java",
+          "Mage.Sets/src/mage/sets/MirrodinBesieged.java",
+          "Mage.Sets/src/mage/sets/ModernEventDeck2014.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons2.java",
+          "Mage.Sets/src/mage/sets/ModernHorizons3.java",
+          "Mage.Sets/src/mage/sets/MurdersAtKarlovManor.java",
+          "Mage.Sets/src/mage/sets/NewPhyrexia.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Odyssey.java",
+          "Mage.Sets/src/mage/sets/Onslaught.java",
+          "Mage.Sets/src/mage/sets/OutlawsOfThunderJunction.java",
+          "Mage.Sets/src/mage/sets/PhyrexiaAllWillBeOne.java",
+          "Mage.Sets/src/mage/sets/Planechase.java",
+          "Mage.Sets/src/mage/sets/Planechase2012.java",
+          "Mage.Sets/src/mage/sets/PlanechaseAnthology.java",
+          "Mage.Sets/src/mage/sets/Portal.java",
+          "Mage.Sets/src/mage/sets/PortalSecondAge.java",
+          "Mage.Sets/src/mage/sets/PortalThreeKingdoms.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesGraveborn.java",
+          "Mage.Sets/src/mage/sets/PremiumDeckSeriesSlivers.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RNAGuildKit.java",
+          "Mage.Sets/src/mage/sets/RNARavnicaWeekend.java",
+          "Mage.Sets/src/mage/sets/RavnicaAllegiance.java",
+          "Mage.Sets/src/mage/sets/RavnicaCityOfGuilds.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java",
+          "Mage.Sets/src/mage/sets/ReturnToRavnica.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/RiseOfTheEldrazi.java",
+          "Mage.Sets/src/mage/sets/RivalsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/RivalsQuickStartSet.java",
+          "Mage.Sets/src/mage/sets/ScarsOfMirrodin.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SecretLairPromo.java",
+          "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/Shadowmoor.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistrad.java",
+          "Mage.Sets/src/mage/sets/ShadowsOverInnistradRemastered.java",
+          "Mage.Sets/src/mage/sets/ShardsOfAlara.java",
+          "Mage.Sets/src/mage/sets/StarTrek.java",
+          "Mage.Sets/src/mage/sets/StarWars.java",
+          "Mage.Sets/src/mage/sets/Starter1999.java",
+          "Mage.Sets/src/mage/sets/StarterCommanderDecks.java",
+          "Mage.Sets/src/mage/sets/StreetsOfNewCapenna.java",
+          "Mage.Sets/src/mage/sets/StrixhavenSchoolOfMages.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TarkirDragonstorm.java",
+          "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtles.java",
+          "Mage.Sets/src/mage/sets/Tempest.java",
+          "Mage.Sets/src/mage/sets/TempestRemastered.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The2017GiftPack.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWar.java",
+          "Mage.Sets/src/mage/sets/TheBrothersWarCommander.java",
+          "Mage.Sets/src/mage/sets/TheHobbit.java",
+          "Mage.Sets/src/mage/sets/TheLordOfTheRingsTalesOfMiddleEarth.java",
+          "Mage.Sets/src/mage/sets/TheLostCavernsOfIxalan.java",
+          "Mage.Sets/src/mage/sets/Theros.java",
+          "Mage.Sets/src/mage/sets/TherosBeyondDeath.java",
+          "Mage.Sets/src/mage/sets/ThroneOfEldraine.java",
+          "Mage.Sets/src/mage/sets/TimeSpiral.java",
+          "Mage.Sets/src/mage/sets/Unfinity.java",
+          "Mage.Sets/src/mage/sets/Unglued.java",
+          "Mage.Sets/src/mage/sets/Unhinged.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/Unsanctioned.java",
+          "Mage.Sets/src/mage/sets/Unstable.java",
+          "Mage.Sets/src/mage/sets/UrzasSaga.java",
+          "Mage.Sets/src/mage/sets/WarOfTheSpark.java",
+          "Mage.Sets/src/mage/sets/Warhammer40000Commander.java",
+          "Mage.Sets/src/mage/sets/WildsOfEldraine.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1997.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1998.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks1999.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2001.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2002.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2003.java",
+          "Mage.Sets/src/mage/sets/XLNStandardShowdown.java",
+          "Mage.Sets/src/mage/sets/Zendikar.java",
+          "Mage.Sets/src/mage/sets/ZendikarRising.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Swamp",
+      "oracle_ids": [],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [
+          "class-name normalization: printed 'Turn to Frog' -> impl class TurnToFrog"
+        ],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "TurntoFrog",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/t/TurnToFrog.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "t.TurnToFrog"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/Magic2012.java",
+          "Mage.Sets/src/mage/sets/Magic2015.java",
+          "Mage.Sets/src/mage/sets/MagicOrigins.java",
+          "Mage.Sets/src/mage/sets/RavnicaClueEdition.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Turn to Frog",
+      "oracle_ids": [
+        "74c4c1e2-c50d-4c8f-889a-0d5674dc6d67"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Twincast",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/t/Twincast.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "t.Twincast"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Magic2010.java",
+          "Mage.Sets/src/mage/sets/SaviorsOfKamigawa.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Twincast",
+      "oracle_ids": [
+        "8f878efc-850f-43d2-a6fe-5ea8d1dd5afb"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "Willbender",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/w/Willbender.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "w.Willbender"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/Commander2014.java",
+          "Mage.Sets/src/mage/sets/Commander2019.java",
+          "Mage.Sets/src/mage/sets/DuelDecksAnthologyJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/DuelDecksJaceVsChandra.java",
+          "Mage.Sets/src/mage/sets/DuelDecksSpeedVsCunning.java",
+          "Mage.Sets/src/mage/sets/FridayNightMagic2004.java",
+          "Mage.Sets/src/mage/sets/Legions.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicOnlineThemeDecks.java",
+          "Mage.Sets/src/mage/sets/Masters25.java",
+          "Mage.Sets/src/mage/sets/TimeSpiralTimeshifted.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Willbender",
+      "oracle_ids": [
+        "0aae277e-e58e-4115-b5fd-0459451e17ec"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    },
+    {
+      "evidence": {
+        "aliases_or_normalization": [
+          "class-name normalization: printed 'Wrath of God' -> impl class WrathOfGod"
+        ],
+        "candidate_registration": "Mage/src/main/java/mage/cards/repository/CardScanner.java + CardRepository.java scan the mage.sets SetCardInfo surface at runtime",
+        "commit": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+        "derived_class_guess": "WrathofGod",
+        "impl_class_files": [
+          "Mage.Sets/src/mage/cards/w/WrathOfGod.java"
+        ],
+        "lookup_mechanism": "set-registration-first: quoted-name grep at pin under Mage.Sets/src/mage/sets/ -> mage.cards.*.class refs on name-bearing lines -> impl existence probe via git ls-tree; class-name guess only secondary",
+        "referenced_impl_classes": [
+          "w.WrathOfGod"
+        ],
+        "set_nameref_files": [
+          "Mage.Sets/src/mage/sets/AmonkhetInvocations.java",
+          "Mage.Sets/src/mage/sets/AmonkhetRemastered.java",
+          "Mage.Sets/src/mage/sets/BattleRoyaleBoxSet.java",
+          "Mage.Sets/src/mage/sets/ClassicSixthEdition.java",
+          "Mage.Sets/src/mage/sets/Commander2013.java",
+          "Mage.Sets/src/mage/sets/CommanderMasters.java",
+          "Mage.Sets/src/mage/sets/DominariaRemastered.java",
+          "Mage.Sets/src/mage/sets/DoubleMasters.java",
+          "Mage.Sets/src/mage/sets/EighthEdition.java",
+          "Mage.Sets/src/mage/sets/EternalMasters.java",
+          "Mage.Sets/src/mage/sets/FifthEdition.java",
+          "Mage.Sets/src/mage/sets/FourthEdition.java",
+          "Mage.Sets/src/mage/sets/FromTheVaultAnnihilation.java",
+          "Mage.Sets/src/mage/sets/LegendaryCubePrizePack.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionAlpha.java",
+          "Mage.Sets/src/mage/sets/LimitedEditionBeta.java",
+          "Mage.Sets/src/mage/sets/MagicOnlinePromos.java",
+          "Mage.Sets/src/mage/sets/MagicPlayerRewards2007.java",
+          "Mage.Sets/src/mage/sets/MediaAndCollaborationPromos.java",
+          "Mage.Sets/src/mage/sets/NinthEdition.java",
+          "Mage.Sets/src/mage/sets/Portal.java",
+          "Mage.Sets/src/mage/sets/ProTourCollectorSet.java",
+          "Mage.Sets/src/mage/sets/RevisedEdition.java",
+          "Mage.Sets/src/mage/sets/SecretLairDrop.java",
+          "Mage.Sets/src/mage/sets/SeventhEdition.java",
+          "Mage.Sets/src/mage/sets/SummerMagicEdgar.java",
+          "Mage.Sets/src/mage/sets/TenthEdition.java",
+          "Mage.Sets/src/mage/sets/The30thAnniversaryEdition.java",
+          "Mage.Sets/src/mage/sets/UnlimitedEdition.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2000.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2003.java",
+          "Mage.Sets/src/mage/sets/WorldChampionshipDecks2004.java"
+        ]
+      },
+      "evidence_class": "CODE_DERIVED",
+      "name": "Wrath of God",
+      "oracle_ids": [
+        "34515b16-c9a4-4f98-8c77-416a7a523407"
+      ],
+      "status": "REGISTERED_OR_RESOLVABLE"
+    }
+  ],
+  "schema": "ws72.engine-card-preflight.v1",
+  "tree": "ea193e0d04493d53d962ed13ebd3b5d2f68838c7"
+}

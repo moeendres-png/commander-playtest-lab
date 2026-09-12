@@ -1,0 +1,2055 @@
+{
+  "authority_pin": "897d72f0b57bb8febe045870acaa3d2dba4bde56",
+  "cards": [
+    {
+      "aliases": [],
+      "name": "Altar's Reap",
+      "oracle_ids": [
+        "6a125750-2b8c-4f9d-8173-ac8d14c91ddb"
+      ],
+      "roles": {
+        "RQ-C1-C02": [
+          "additional-cost sacrifice under test"
+        ],
+        "RQ-C1-I03": [
+          "token sacrifice outlet"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-C02",
+        "RQ-C1-I03"
+      ],
+      "state_zones": {
+        "RQ-C1-C02": [
+          "hands"
+        ],
+        "RQ-C1-I03": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Blood Artist",
+      "oracle_ids": [
+        "310f141c-7f37-4729-aed6-dd9c09db448d"
+      ],
+      "roles": {
+        "RQ-C1-B04": [
+          "dies trigger with target"
+        ],
+        "RQ-C1-I03": [
+          "dies-trigger witness"
+        ],
+        "RQ-C1-K01": [
+          "dies witness P0"
+        ],
+        "RQ-C3-K02": [
+          "dies-fire witness"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-B04",
+        "RQ-C1-I03",
+        "RQ-C1-K01",
+        "RQ-C3-K02"
+      ],
+      "state_zones": {
+        "RQ-C1-B04": [
+          "battlefield"
+        ],
+        "RQ-C1-I03": [
+          "battlefield"
+        ],
+        "RQ-C1-K01": [
+          "battlefield"
+        ],
+        "RQ-C3-K02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Braids, Arisen Nightmare",
+      "oracle_ids": [
+        "e0445c80-fa53-4c3e-881e-940e9fce7f57"
+      ],
+      "roles": {
+        "RQ-C1-G05": [
+          "each-opponent handling under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-G05"
+      ],
+      "state_zones": {
+        "RQ-C1-G05": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Carnage Tyrant",
+      "oracle_ids": [
+        "8c411f4e-a091-447c-9450-d895b10b4985"
+      ],
+      "roles": {
+        "RQ-C3-E02": [
+          "trample attacker"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-E02"
+      ],
+      "state_zones": {
+        "RQ-C3-E02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Casualties of War",
+      "oracle_ids": [
+        "5c6c8fe7-3520-423b-a224-1c0af516871a"
+      ],
+      "roles": {
+        "RQ-C3-D06": [
+          "choose-one-or-more modal under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-D06"
+      ],
+      "state_zones": {
+        "RQ-C3-D06": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Clone",
+      "oracle_ids": [
+        "42226b87-0746-4ebf-9fd0-108d508462af"
+      ],
+      "roles": {
+        "RQ-C3-H01": [
+          "copy under test"
+        ],
+        "RQ-C3-K02": [
+          "legend-rule copy under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-H01",
+        "RQ-C3-K02"
+      ],
+      "state_zones": {
+        "RQ-C3-H01": [
+          "hands"
+        ],
+        "RQ-C3-K02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Control Magic (P0) enchanting Bear"
+      ],
+      "name": "Control Magic",
+      "oracle_ids": [
+        "cd0d7141-46d2-4aa3-bc77-6b3b4513803e"
+      ],
+      "roles": {
+        "RQ-C3-G04": [
+          "control-change under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-G04"
+      ],
+      "state_zones": {
+        "RQ-C3-G04": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Council's Judgment",
+      "oracle_ids": [
+        "acf4d685-a718-42f7-9a7a-dee069ae8db2"
+      ],
+      "roles": {
+        "RQ-C1-G01": [
+          "vote under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-G01"
+      ],
+      "state_zones": {
+        "RQ-C1-G01": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Cryptic Command",
+      "oracle_ids": [
+        "a3e51a35-09df-4189-b131-08a21e6a557d"
+      ],
+      "roles": {
+        "RQ-C1-D01": [
+          "choose-two modal under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-D01"
+      ],
+      "state_zones": {
+        "RQ-C1-D01": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Cultivate",
+      "oracle_ids": [],
+      "roles": {
+        "RQ-C1-C04": [
+          "counter target"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-C04"
+      ],
+      "state_zones": {
+        "RQ-C1-C04": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Deadly Recluse",
+      "oracle_ids": [
+        "6b941291-1802-4ced-9869-39fa43825550"
+      ],
+      "roles": {
+        "RQ-C1-E03": [
+          "deathtouch blocker"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-E03"
+      ],
+      "state_zones": {
+        "RQ-C1-E03": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Delina, Wild Mage",
+      "oracle_ids": [
+        "8d57dadb-c689-4691-b331-aba15daf46ff"
+      ],
+      "roles": {
+        "RQ-C3-J02": [
+          "d20 + recursion under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-J02"
+      ],
+      "state_zones": {
+        "RQ-C3-J02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Doom Blade",
+      "oracle_ids": [
+        "59e7f2ae-4535-4191-98be-3e65b6b2befa"
+      ],
+      "roles": {
+        "RQ-C1-A01": [
+          "destroy event source"
+        ],
+        "RQ-C1-B04": [
+          "REJECTED destroyer (see notes)"
+        ],
+        "RQ-C1-D04": [
+          "targeting spell"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-A01",
+        "RQ-C1-B04",
+        "RQ-C1-D04"
+      ],
+      "state_zones": {
+        "RQ-C1-A01": [
+          "hands"
+        ],
+        "RQ-C1-D04": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Doomed Traveler",
+      "oracle_ids": [
+        "a30907c0-fbde-4fd3-a8c7-f304305fcea7"
+      ],
+      "roles": {
+        "RQ-C1-I03": [
+          "token producer"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-I03"
+      ],
+      "state_zones": {
+        "RQ-C1-I03": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Doubling Season",
+      "oracle_ids": [
+        "01546b7d-a233-4176-8843-d732074dc5b6"
+      ],
+      "roles": {
+        "RQ-C3-A04": [
+          "replacement effect 1"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-A04"
+      ],
+      "state_zones": {
+        "RQ-C3-A04": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Drudge Skeletons",
+      "oracle_ids": [
+        "c180ed02-07f4-4538-9bea-8c249234a8e2"
+      ],
+      "roles": {
+        "RQ-C3-A03": [
+          "regeneration shield under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-A03"
+      ],
+      "state_zones": {
+        "RQ-C3-A03": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Duress",
+      "oracle_ids": [
+        "33d405ea-7a9a-4970-b70f-9c05d90dd6f0"
+      ],
+      "roles": {
+        "RQ-C3-F02": [
+          "look + hidden-choice discard"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-F02"
+      ],
+      "state_zones": {
+        "RQ-C3-F02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Felidar Sovereign",
+      "oracle_ids": [
+        "5ae3cbb9-9f0c-4077-ae7c-fba660d7fb4b"
+      ],
+      "roles": {
+        "RQ-C1-B03": [
+          "intervening-if trigger under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-B03"
+      ],
+      "state_zones": {
+        "RQ-C1-B03": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Fierce Guardianship",
+      "oracle_ids": [
+        "d09c9cba-fdd2-479b-ad5d-d05181c3e3f9"
+      ],
+      "roles": {
+        "RQ-C1-C04": [
+          "commander-conditioned alternate cost"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-C04"
+      ],
+      "state_zones": {
+        "RQ-C1-C04": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Fireball",
+      "oracle_ids": [
+        "aa7714b0-2bfb-458a-8ebf-37ec2c53383e"
+      ],
+      "roles": {
+        "RQ-C3-C03": [
+          "X + cost-increase + multi-target under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-C03"
+      ],
+      "state_zones": {
+        "RQ-C3-C03": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Flickerwisp",
+      "oracle_ids": [
+        "b23a3d30-6b8e-4aad-890f-db0c3af43ace"
+      ],
+      "roles": {
+        "RQ-C1-B02": [
+          "blink + delayed trigger source"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-B02"
+      ],
+      "state_zones": {
+        "RQ-C1-B02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Fog",
+      "oracle_ids": [
+        "27e9db49-7af7-4bef-ad4c-bf5dfb92030d"
+      ],
+      "roles": {
+        "RQ-C1-A02": [
+          "prevention effect under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-A02"
+      ],
+      "state_zones": {
+        "RQ-C1-A02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Force of Will",
+      "oracle_ids": [
+        "956381ba-6d37-4a8a-846c-bad79222dbee"
+      ],
+      "roles": {
+        "RQ-C3-C01": [
+          "alternate-cost fork under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-C01"
+      ],
+      "state_zones": {
+        "RQ-C3-C01": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Forest (land)"
+      ],
+      "name": "Forest",
+      "oracle_ids": [],
+      "roles": {},
+      "scenario_ids": [
+        "RQ-C1-A02",
+        "RQ-C1-C04",
+        "RQ-C1-D01",
+        "RQ-C1-D03",
+        "RQ-C1-G05",
+        "RQ-C3-A04",
+        "RQ-C3-B01",
+        "RQ-C3-C01",
+        "RQ-C3-D06",
+        "RQ-C3-F01",
+        "RQ-C3-F02",
+        "RQ-C3-H02"
+      ],
+      "state_zones": {
+        "RQ-C1-A02": [
+          "battlefield"
+        ],
+        "RQ-C1-C04": [
+          "battlefield"
+        ],
+        "RQ-C1-D01": [
+          "battlefield"
+        ],
+        "RQ-C1-D03": [
+          "battlefield"
+        ],
+        "RQ-C1-G05": [
+          "battlefield"
+        ],
+        "RQ-C3-A04": [
+          "battlefield"
+        ],
+        "RQ-C3-B01": [
+          "battlefield"
+        ],
+        "RQ-C3-C01": [
+          "battlefield"
+        ],
+        "RQ-C3-D06": [
+          "battlefield"
+        ],
+        "RQ-C3-F01": [
+          "battlefield"
+        ],
+        "RQ-C3-F02": [
+          "hands"
+        ],
+        "RQ-C3-H02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Ghalta, Stampede Tyrant (P0 commander)",
+        "Ghalta, Stampede Tyrant (as P0 commander)"
+      ],
+      "name": "Ghalta, Stampede Tyrant",
+      "oracle_ids": [
+        "b8f16311-be5a-4648-b024-849a61dff0bc"
+      ],
+      "roles": {
+        "RQ-C3-G02": [
+          "commander under test"
+        ],
+        "RQ-C3-G03": [
+          "commander damage dealer"
+        ],
+        "RQ-C3-K02": [
+          "legendary original"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-C04",
+        "RQ-C3-G02",
+        "RQ-C3-G03",
+        "RQ-C3-K02"
+      ],
+      "state_zones": {
+        "RQ-C1-C04": [
+          "battlefield"
+        ],
+        "RQ-C3-G02": [
+          "battlefield"
+        ],
+        "RQ-C3-G03": [
+          "battlefield"
+        ],
+        "RQ-C3-K02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Giant Growth",
+      "oracle_ids": [
+        "5748ebf1-24e3-499d-ab7c-c2cebd462a24"
+      ],
+      "roles": {
+        "RQ-C1-D03": [
+          "toughness response"
+        ],
+        "RQ-C3-H02": [
+          "P/T modification"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-D03",
+        "RQ-C3-H02"
+      ],
+      "state_zones": {
+        "RQ-C1-D03": [
+          "hands"
+        ],
+        "RQ-C3-H02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Hardened Scales",
+      "oracle_ids": [
+        "a1f3da21-af6d-450e-bf0b-985d158418e6"
+      ],
+      "roles": {
+        "RQ-C3-A04": [
+          "replacement effect 2"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-A04"
+      ],
+      "state_zones": {
+        "RQ-C3-A04": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Humility",
+      "oracle_ids": [
+        "ed7bdb3e-5c51-4547-9266-76a791e0b2b0"
+      ],
+      "roles": {
+        "RQ-C3-H01": [
+          "layers effect under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-H01"
+      ],
+      "state_zones": {
+        "RQ-C3-H01": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Hymn to Tourach",
+      "oracle_ids": [
+        "992d9a72-d34d-47d7-96fb-37f0efb515ef"
+      ],
+      "roles": {
+        "RQ-C1-J03": [
+          "random discard under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-J03"
+      ],
+      "state_zones": {
+        "RQ-C1-J03": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Island",
+      "oracle_ids": [],
+      "roles": {},
+      "scenario_ids": [
+        "RQ-C1-D01",
+        "RQ-C1-D02",
+        "RQ-C1-D04",
+        "RQ-C1-F03",
+        "RQ-C1-F04",
+        "RQ-C3-C01",
+        "RQ-C3-E01",
+        "RQ-C3-H01",
+        "RQ-C3-H02",
+        "RQ-C3-K02"
+      ],
+      "state_zones": {
+        "RQ-C1-D01": [
+          "battlefield"
+        ],
+        "RQ-C1-D02": [
+          "battlefield"
+        ],
+        "RQ-C1-D04": [
+          "battlefield"
+        ],
+        "RQ-C1-F03": [
+          "battlefield"
+        ],
+        "RQ-C1-F04": [
+          "battlefield"
+        ],
+        "RQ-C3-C01": [
+          "battlefield"
+        ],
+        "RQ-C3-E01": [
+          "battlefield"
+        ],
+        "RQ-C3-H01": [
+          "battlefield"
+        ],
+        "RQ-C3-H02": [
+          "battlefield"
+        ],
+        "RQ-C3-K02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Kokusho, the Evening Star",
+      "oracle_ids": [
+        "cf631c93-b7fb-4e4f-b405-3778c15b1117"
+      ],
+      "roles": {
+        "RQ-C1-B04": [
+          "fan-out dies trigger"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-B04"
+      ],
+      "state_zones": {
+        "RQ-C1-B04": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Lightning Bolt",
+      "oracle_ids": [
+        "4457ed35-7c10-48c8-9776-456485fdf070"
+      ],
+      "roles": {
+        "RQ-C1-B03": [
+          "condition-flipping response"
+        ],
+        "RQ-C1-D02": [
+          "copy target spell"
+        ],
+        "RQ-C1-D03": [
+          "damage spell"
+        ],
+        "RQ-C1-F03": [
+          "redirect target spell"
+        ],
+        "RQ-C3-A03": [
+          "lethal damage source"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-B03",
+        "RQ-C1-D02",
+        "RQ-C1-D03",
+        "RQ-C1-F03",
+        "RQ-C3-A03"
+      ],
+      "state_zones": {
+        "RQ-C1-B03": [
+          "hands"
+        ],
+        "RQ-C1-D02": [
+          "hands"
+        ],
+        "RQ-C1-D03": [
+          "hands"
+        ],
+        "RQ-C1-F03": [
+          "hands"
+        ],
+        "RQ-C3-A03": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Llanowar Elves",
+      "oracle_ids": [
+        "68954295-54e3-4303-a6bc-fc4547a4e3a3"
+      ],
+      "roles": {
+        "RQ-C1-D01": [
+          "counter-mode target spell"
+        ],
+        "RQ-C1-F03": [
+          "redirect destination"
+        ],
+        "RQ-C1-G01": [
+          "vote option B"
+        ],
+        "RQ-C3-B01": [
+          "triggering ETB creature"
+        ],
+        "RQ-C3-C01": [
+          "counter target"
+        ],
+        "RQ-C3-E02": [
+          "blocker B"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-D01",
+        "RQ-C1-F03",
+        "RQ-C1-G01",
+        "RQ-C3-B01",
+        "RQ-C3-C01",
+        "RQ-C3-E02"
+      ],
+      "state_zones": {
+        "RQ-C1-D01": [
+          "hands"
+        ],
+        "RQ-C1-F03": [
+          "battlefield"
+        ],
+        "RQ-C1-G01": [
+          "battlefield"
+        ],
+        "RQ-C3-B01": [
+          "hands"
+        ],
+        "RQ-C3-C01": [
+          "hands"
+        ],
+        "RQ-C3-E02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Mana Crypt",
+      "oracle_ids": [
+        "2c63e4e1-89d2-4bc6-a232-94e75c4b1c8a"
+      ],
+      "roles": {
+        "RQ-C1-J01": [
+          "coin flip under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-J01"
+      ],
+      "state_zones": {
+        "RQ-C1-J01": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Momentary Blink",
+      "oracle_ids": [
+        "a3ec6b5d-08ec-4ae0-b1db-c4b87a1849c7"
+      ],
+      "roles": {
+        "RQ-C3-I01": [
+          "blink under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-I01"
+      ],
+      "state_zones": {
+        "RQ-C3-I01": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Mountain",
+      "oracle_ids": [],
+      "roles": {},
+      "scenario_ids": [
+        "RQ-C1-B03",
+        "RQ-C1-D02",
+        "RQ-C1-D03",
+        "RQ-C1-D05",
+        "RQ-C1-F03",
+        "RQ-C3-A03",
+        "RQ-C3-C03"
+      ],
+      "state_zones": {
+        "RQ-C1-B03": [
+          "battlefield"
+        ],
+        "RQ-C1-D02": [
+          "battlefield"
+        ],
+        "RQ-C1-D03": [
+          "battlefield"
+        ],
+        "RQ-C1-D05": [
+          "battlefield"
+        ],
+        "RQ-C1-F03": [
+          "battlefield"
+        ],
+        "RQ-C3-A03": [
+          "battlefield"
+        ],
+        "RQ-C3-C03": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Murder (1BB: Destroy target creature)"
+      ],
+      "name": "Murder",
+      "oracle_ids": [],
+      "roles": {
+        "RQ-C3-G02": [
+          "commander destroyer"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-B04",
+        "RQ-C3-G02"
+      ],
+      "state_zones": {
+        "RQ-C1-B04": [
+          "hands"
+        ],
+        "RQ-C3-G02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Ornithopter (0/2 artifact creature)"
+      ],
+      "name": "Ornithopter",
+      "oracle_ids": [],
+      "roles": {},
+      "scenario_ids": [
+        "RQ-C3-D06"
+      ],
+      "state_zones": {
+        "RQ-C3-D06": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Pacifism (P1) enchanting Bear"
+      ],
+      "name": "Pacifism",
+      "oracle_ids": [
+        "5f5e0b10-c8cf-450c-bfd3-bcb0528ec330"
+      ],
+      "roles": {
+        "RQ-C3-I01": [
+          "attached Aura"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-I01"
+      ],
+      "state_zones": {
+        "RQ-C3-I01": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Phantasmal Image",
+      "oracle_ids": [
+        "bde94af8-faea-41ff-8eed-ba642eac9968"
+      ],
+      "roles": {
+        "RQ-C1-D04": [
+          "copy-choice + targeted-trigger"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-D04"
+      ],
+      "state_zones": {
+        "RQ-C1-D04": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Plains",
+      "oracle_ids": [],
+      "roles": {},
+      "scenario_ids": [
+        "RQ-C1-B02",
+        "RQ-C1-G01",
+        "RQ-C1-G05",
+        "RQ-C1-K01",
+        "RQ-C3-I01"
+      ],
+      "state_zones": {
+        "RQ-C1-B02": [
+          "battlefield"
+        ],
+        "RQ-C1-G01": [
+          "battlefield"
+        ],
+        "RQ-C1-G05": [
+          "battlefield"
+        ],
+        "RQ-C1-K01": [
+          "battlefield"
+        ],
+        "RQ-C3-I01": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Preordain",
+      "oracle_ids": [
+        "ac641490-ca14-48d7-8cc4-b69ce984befa"
+      ],
+      "roles": {
+        "RQ-C1-F04": [
+          "scry ordering under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-F04"
+      ],
+      "state_zones": {
+        "RQ-C1-F04": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Propaganda",
+      "oracle_ids": [
+        "ea9709b6-4c37-4d5a-b04d-cd4c42e4f9dd"
+      ],
+      "roles": {
+        "RQ-C3-E01": [
+          "attack-cost restriction"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-E01"
+      ],
+      "state_zones": {
+        "RQ-C3-E01": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Rampant Growth",
+      "oracle_ids": [
+        "8539f295-5d58-4436-a73a-b9277c4c7795"
+      ],
+      "roles": {
+        "RQ-C3-F01": [
+          "search + shuffle under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-F01"
+      ],
+      "state_zones": {
+        "RQ-C3-F01": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Reanimate",
+      "oracle_ids": [
+        "a044474a-cd72-4e9d-bd8d-a08f2de9cdc0"
+      ],
+      "roles": {
+        "RQ-C1-I02": [
+          "reanimation under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-I02"
+      ],
+      "state_zones": {
+        "RQ-C1-I02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Rest in Peace",
+      "oracle_ids": [
+        "087f9ad7-e74f-40e2-8102-1ed2925d0418"
+      ],
+      "roles": {
+        "RQ-C1-A01": [
+          "replacement effect under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-A01"
+      ],
+      "state_zones": {
+        "RQ-C1-A01": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Rolling Thunder",
+      "oracle_ids": [
+        "9c47888b-28a5-4c43-9ee4-a9059e3c367d"
+      ],
+      "roles": {
+        "RQ-C1-D05": [
+          "chooser-division under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-D05"
+      ],
+      "state_zones": {
+        "RQ-C1-D05": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Runeclaw Bear (+1/+1 counter)",
+        "Runeclaw Bear (creature)"
+      ],
+      "name": "Runeclaw Bear",
+      "oracle_ids": [
+        "ec49dfcf-d16d-4621-af4b-4a6f09043221"
+      ],
+      "roles": {
+        "RQ-C1-A01": [
+          "destroy target"
+        ],
+        "RQ-C1-A02": [
+          "attacker"
+        ],
+        "RQ-C1-B02": [
+          "blink target"
+        ],
+        "RQ-C1-C02": [
+          "sacrificed creature"
+        ],
+        "RQ-C1-D01": [
+          "bounce-mode target"
+        ],
+        "RQ-C1-D03": [
+          "damage target"
+        ],
+        "RQ-C1-D04": [
+          "copy original"
+        ],
+        "RQ-C1-E03": [
+          "attacker"
+        ],
+        "RQ-C1-F03": [
+          "original target"
+        ],
+        "RQ-C1-G01": [
+          "vote option A"
+        ],
+        "RQ-C1-I02": [
+          "reanimation target"
+        ],
+        "RQ-C1-K01": [
+          "second dies body"
+        ],
+        "RQ-C3-E01": [
+          "attackers (2 copies)"
+        ],
+        "RQ-C3-E02": [
+          "blocker A"
+        ],
+        "RQ-C3-G04": [
+          "controlled creature"
+        ],
+        "RQ-C3-H01": [
+          "copy original"
+        ],
+        "RQ-C3-H02": [
+          "P/T subject"
+        ],
+        "RQ-C3-I01": [
+          "blink subject"
+        ],
+        "RQ-C3-J02": [
+          "copy original"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-A01",
+        "RQ-C1-A02",
+        "RQ-C1-B02",
+        "RQ-C1-C02",
+        "RQ-C1-D01",
+        "RQ-C1-D03",
+        "RQ-C1-D04",
+        "RQ-C1-D05",
+        "RQ-C1-E03",
+        "RQ-C1-F03",
+        "RQ-C1-G01",
+        "RQ-C1-I02",
+        "RQ-C1-K01",
+        "RQ-C3-D06",
+        "RQ-C3-E01",
+        "RQ-C3-E02",
+        "RQ-C3-F02",
+        "RQ-C3-G04",
+        "RQ-C3-H01",
+        "RQ-C3-H02",
+        "RQ-C3-I01",
+        "RQ-C3-J02"
+      ],
+      "state_zones": {
+        "RQ-C1-A01": [
+          "battlefield"
+        ],
+        "RQ-C1-A02": [
+          "battlefield"
+        ],
+        "RQ-C1-B02": [
+          "battlefield"
+        ],
+        "RQ-C1-C02": [
+          "battlefield"
+        ],
+        "RQ-C1-D01": [
+          "battlefield"
+        ],
+        "RQ-C1-D03": [
+          "battlefield"
+        ],
+        "RQ-C1-D04": [
+          "battlefield"
+        ],
+        "RQ-C1-D05": [
+          "battlefield"
+        ],
+        "RQ-C1-E03": [
+          "battlefield"
+        ],
+        "RQ-C1-F03": [
+          "battlefield"
+        ],
+        "RQ-C1-G01": [
+          "battlefield"
+        ],
+        "RQ-C1-I02": [
+          "graveyards"
+        ],
+        "RQ-C1-K01": [
+          "battlefield"
+        ],
+        "RQ-C3-D06": [
+          "battlefield"
+        ],
+        "RQ-C3-E01": [
+          "battlefield"
+        ],
+        "RQ-C3-E02": [
+          "battlefield"
+        ],
+        "RQ-C3-F02": [
+          "hands"
+        ],
+        "RQ-C3-G04": [
+          "battlefield"
+        ],
+        "RQ-C3-H01": [
+          "battlefield"
+        ],
+        "RQ-C3-H02": [
+          "battlefield"
+        ],
+        "RQ-C3-I01": [
+          "battlefield"
+        ],
+        "RQ-C3-J02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Soul Warden",
+      "oracle_ids": [
+        "f3fad295-1af2-4ecc-8546-b121ad6be27b"
+      ],
+      "roles": {
+        "RQ-C1-K01": [
+          "non-firing witness (negative assertion)"
+        ],
+        "RQ-C3-B01": [
+          "simultaneous trigger source (5 copies)"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-K01",
+        "RQ-C3-B01"
+      ],
+      "state_zones": {
+        "RQ-C1-K01": [
+          "battlefield"
+        ],
+        "RQ-C3-B01": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Stonecoil Serpent",
+      "oracle_ids": [
+        "78124cd1-2658-43f3-a339-0755d84154d2"
+      ],
+      "roles": {
+        "RQ-C3-A04": [
+          "counter-entry vehicle, X=3"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-A04"
+      ],
+      "state_zones": {
+        "RQ-C3-A04": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Swamp",
+      "oracle_ids": [],
+      "roles": {},
+      "scenario_ids": [
+        "RQ-C1-A01",
+        "RQ-C1-B04",
+        "RQ-C1-C02",
+        "RQ-C1-D04",
+        "RQ-C1-G05",
+        "RQ-C1-I02",
+        "RQ-C1-I03",
+        "RQ-C1-J03",
+        "RQ-C3-A03",
+        "RQ-C3-D06",
+        "RQ-C3-F02",
+        "RQ-C3-G02"
+      ],
+      "state_zones": {
+        "RQ-C1-A01": [
+          "battlefield"
+        ],
+        "RQ-C1-B04": [
+          "battlefield"
+        ],
+        "RQ-C1-C02": [
+          "battlefield"
+        ],
+        "RQ-C1-D04": [
+          "battlefield"
+        ],
+        "RQ-C1-G05": [
+          "battlefield"
+        ],
+        "RQ-C1-I02": [
+          "battlefield"
+        ],
+        "RQ-C1-I03": [
+          "battlefield"
+        ],
+        "RQ-C1-J03": [
+          "battlefield"
+        ],
+        "RQ-C3-A03": [
+          "battlefield"
+        ],
+        "RQ-C3-D06": [
+          "battlefield"
+        ],
+        "RQ-C3-F02": [
+          "battlefield"
+        ],
+        "RQ-C3-G02": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Turn to Frog (blue nonland pitch card)"
+      ],
+      "name": "Turn to Frog",
+      "oracle_ids": [
+        "74c4c1e2-c50d-4c8f-889a-0d5674dc6d67"
+      ],
+      "roles": {
+        "RQ-C3-C01": [
+          "blue nonland pitch fuel (exiled as alternate cost; card text not invoked)"
+        ],
+        "RQ-C3-H02": [
+          "P/T setter"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C3-C01",
+        "RQ-C3-H02"
+      ],
+      "state_zones": {
+        "RQ-C3-C01": [
+          "hands"
+        ],
+        "RQ-C3-H02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Twincast",
+      "oracle_ids": [
+        "8f878efc-850f-43d2-a6fe-5ea8d1dd5afb"
+      ],
+      "roles": {
+        "RQ-C1-D02": [
+          "spell-copy under test (ADDED, replaces rejected Boros Charm slot)"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-D02"
+      ],
+      "state_zones": {
+        "RQ-C1-D02": [
+          "hands"
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Willbender (face-down 2/2)"
+      ],
+      "name": "Willbender",
+      "oracle_ids": [
+        "0aae277e-e58e-4115-b5fd-0459451e17ec"
+      ],
+      "roles": {
+        "RQ-C1-F03": [
+          "face-down redirect under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-F03"
+      ],
+      "state_zones": {
+        "RQ-C1-F03": [
+          "battlefield"
+        ]
+      }
+    },
+    {
+      "aliases": [],
+      "name": "Wrath of God",
+      "oracle_ids": [
+        "34515b16-c9a4-4f98-8c77-416a7a523407"
+      ],
+      "roles": {
+        "RQ-C1-K01": [
+          "mass destroy under test"
+        ]
+      },
+      "scenario_ids": [
+        "RQ-C1-K01"
+      ],
+      "state_zones": {
+        "RQ-C1-K01": [
+          "hands"
+        ]
+      }
+    }
+  ],
+  "defined_scenario_count": 40,
+  "derivation": "40 RQ-C1 scenario families; RQ-C3 corrected overlay preferred where present (18); state-zone names normalized by stripping parenthetical annotations; non-card placeholders excluded with reasons",
+  "evidence_class": "CODE_DERIVED",
+  "excluded_non_cards": [
+    {
+      "raw": "Noncreature Spell (noncreature nonland)",
+      "reason": "non-card placeholder, not a printed card",
+      "scenario_id": "RQ-C3-F02",
+      "zone": "hands"
+    }
+  ],
+  "full107_note": "RQ-C3 authority enumerates 40 unique scenarios; no authority artifact enumerates 107 scenarios or the 'remaining 92'. Slots beyond these 40 are AUTHORITY_ABSENT (UNKNOWN), not invented.",
+  "scenarios": [
+    {
+      "cards": [
+        "Doom Blade",
+        "Rest in Peace",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-A01",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-A01",
+      "title": "Rest in Peace replaces destroy with exile"
+    },
+    {
+      "cards": [
+        "Fog",
+        "Forest",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-A02",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-A02",
+      "title": "Fog prevents all combat damage"
+    },
+    {
+      "cards": [
+        "Flickerwisp",
+        "Plains",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-B02",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-B02",
+      "title": "Flickerwisp blink with delayed return"
+    },
+    {
+      "cards": [
+        "Felidar Sovereign",
+        "Lightning Bolt",
+        "Mountain"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-B03",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-B03",
+      "title": "Felidar Sovereign intervening-if flipped in response"
+    },
+    {
+      "cards": [
+        "Blood Artist",
+        "Doom Blade",
+        "Kokusho, the Evening Star",
+        "Murder",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-B04",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-B04",
+      "title": "Kokusho dies with Blood Artist watching"
+    },
+    {
+      "cards": [
+        "Altar's Reap",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-C02",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-C02",
+      "title": "Altar's Reap additional-cost sacrifice"
+    },
+    {
+      "cards": [
+        "Cultivate",
+        "Fierce Guardianship",
+        "Forest",
+        "Ghalta, Stampede Tyrant"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-C04",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-C04",
+      "title": "Fierce Guardianship free with commander"
+    },
+    {
+      "cards": [
+        "Cryptic Command",
+        "Forest",
+        "Island",
+        "Llanowar Elves",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-D01",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-D01",
+      "title": "Cryptic Command choose-two plus targets"
+    },
+    {
+      "cards": [
+        "Island",
+        "Lightning Bolt",
+        "Mountain",
+        "Twincast"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-D02",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-D02",
+      "title": "Twincast copies Lightning Bolt with new target"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Giant Growth",
+        "Lightning Bolt",
+        "Mountain",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-D03",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-D03",
+      "title": "Bolt answered by Giant Growth"
+    },
+    {
+      "cards": [
+        "Doom Blade",
+        "Island",
+        "Phantasmal Image",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-D04",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-D04",
+      "title": "Phantasmal Image copy then sacrificed"
+    },
+    {
+      "cards": [
+        "Mountain",
+        "Rolling Thunder",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-D05",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-D05",
+      "title": "Rolling Thunder chooser division"
+    },
+    {
+      "cards": [
+        "Deadly Recluse",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-E03",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-E03",
+      "title": "Deathtouch blocker mutual destruction"
+    },
+    {
+      "cards": [
+        "Island",
+        "Lightning Bolt",
+        "Llanowar Elves",
+        "Mountain",
+        "Runeclaw Bear",
+        "Willbender"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-F03",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-F03",
+      "title": "Willbender morph redirect"
+    },
+    {
+      "cards": [
+        "Island",
+        "Preordain"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-F04",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-F04",
+      "title": "Preordain scry ordering"
+    },
+    {
+      "cards": [
+        "Council's Judgment",
+        "Llanowar Elves",
+        "Plains",
+        "Runeclaw Bear"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-G01",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-G01",
+      "title": "Council's Judgment tied vote"
+    },
+    {
+      "cards": [
+        "Braids, Arisen Nightmare",
+        "Forest",
+        "Plains",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-G05",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-G05",
+      "title": "Braids each-opponent sacrifice"
+    },
+    {
+      "cards": [
+        "Reanimate",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-I02",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-I02",
+      "title": "Reanimate steals from graveyard"
+    },
+    {
+      "cards": [
+        "Altar's Reap",
+        "Blood Artist",
+        "Doomed Traveler",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-I03",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-I03",
+      "title": "Token sacrificed, triggers, ceases"
+    },
+    {
+      "cards": [
+        "Mana Crypt"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-J01",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-J01",
+      "title": "Mana Crypt journaled coin flip"
+    },
+    {
+      "cards": [
+        "Hymn to Tourach",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-J03",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-J03",
+      "title": "Hymn random discard"
+    },
+    {
+      "cards": [
+        "Blood Artist",
+        "Plains",
+        "Runeclaw Bear",
+        "Soul Warden",
+        "Wrath of God"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-K01",
+      "rqc3_corrected": false,
+      "scenario_id": "RQ-C1-K01",
+      "title": "Wrath trigger accounting"
+    },
+    {
+      "cards": [
+        "Drudge Skeletons",
+        "Lightning Bolt",
+        "Mountain",
+        "Swamp"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-A03",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-A03",
+      "title": "Regeneration shield as automatic replacement (corrected: no may at destruction)"
+    },
+    {
+      "cards": [
+        "Doubling Season",
+        "Forest",
+        "Hardened Scales",
+        "Stonecoil Serpent"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-A04",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-A04",
+      "title": "Two counter replacements with divergent orders"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Llanowar Elves",
+        "Soul Warden"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-B01",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-B01",
+      "title": "Five Wardens trigger across four players"
+    },
+    {
+      "cards": [
+        "Force of Will",
+        "Forest",
+        "Island",
+        "Llanowar Elves",
+        "Turn to Frog"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-C01",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-C01",
+      "title": "Force of Will pitch versus hard-cast (corrected: blue nonland pitch + 5-Island mana)"
+    },
+    {
+      "cards": [
+        "Fireball",
+        "Mountain"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-C03",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-C03",
+      "title": "Fireball X with per-target increase"
+    },
+    {
+      "cards": [
+        "Casualties of War",
+        "Forest",
+        "Ornithopter",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-D06",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-D06",
+      "title": "Casualties of War choose one or more"
+    },
+    {
+      "cards": [
+        "Island",
+        "Propaganda",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-E01",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-E01",
+      "title": "Propaganda multi-defender attack tax"
+    },
+    {
+      "cards": [
+        "Carnage Tyrant",
+        "Llanowar Elves",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-E02",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-E02",
+      "title": "Double-blocked trampler compliant division and rollover (corrected: no ordering)"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Rampant Growth"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-F01",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-F01",
+      "title": "Rampant Growth search plus shuffle"
+    },
+    {
+      "cards": [
+        "Duress",
+        "Forest",
+        "Runeclaw Bear",
+        "Swamp"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-F02",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-F02",
+      "title": "Duress public reveal and retained knowledge (corrected: reveal to ALL)"
+    },
+    {
+      "cards": [
+        "Ghalta, Stampede Tyrant",
+        "Murder",
+        "Swamp"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-G02",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-G02",
+      "title": "Commander movement choice and tax"
+    },
+    {
+      "cards": [
+        "Ghalta, Stampede Tyrant"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-G03",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-G03",
+      "title": "Commander damage loss at 21 (corrected: seeded 12 zero-credit + native 12)"
+    },
+    {
+      "cards": [
+        "Control Magic",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-G04",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-G04",
+      "title": "Control Magic controller leaves game"
+    },
+    {
+      "cards": [
+        "Clone",
+        "Humility",
+        "Island",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-H01",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-H01",
+      "title": "Clone under Humility"
+    },
+    {
+      "cards": [
+        "Forest",
+        "Giant Growth",
+        "Island",
+        "Runeclaw Bear",
+        "Turn to Frog"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-H02",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-H02",
+      "title": "Growth versus Frog sublayer precedence (corrected: both 4/4)"
+    },
+    {
+      "cards": [
+        "Momentary Blink",
+        "Pacifism",
+        "Plains",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-I01",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-I01",
+      "title": "Blink drops counters and Aura"
+    },
+    {
+      "cards": [
+        "Delina, Wild Mage",
+        "Runeclaw Bear"
+      ],
+      "first_wave": true,
+      "parent_scenario_id": "RQ-C1-J02",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-J02",
+      "title": "Delina d20 with roll-again"
+    },
+    {
+      "cards": [
+        "Blood Artist",
+        "Clone",
+        "Ghalta, Stampede Tyrant",
+        "Island"
+      ],
+      "first_wave": false,
+      "parent_scenario_id": "RQ-C1-K02",
+      "rqc3_corrected": true,
+      "scenario_id": "RQ-C3-K02",
+      "title": "Clone across controllers: no legend transit"
+    }
+  ],
+  "schema": "ws72.actual-card-corpus.v1",
+  "unique_actual_card_count": 55
+}

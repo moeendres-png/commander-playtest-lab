@@ -1,0 +1,42 @@
+{
+  "behavior_credit": "0/107",
+  "defined_non_first_wave25_forge_all_cards_found": "25/25",
+  "defined_non_first_wave25_xmage_all_cards_found": "25/25",
+  "evidence_class": "CODE_DERIVED",
+  "first_wave15_forge_all_cards_found": "15/15",
+  "first_wave15_xmage_all_cards_found": "15/15",
+  "forge": {
+    "ambiguous": 0,
+    "found": 55,
+    "not_found": 0,
+    "unknown": 0
+  },
+  "forge_remaining92_all_cards_found": "UNKNOWN/92",
+  "full107": "NOT_RUN",
+  "full107_denominator_note": "40 scenarios / defined corpus cards are authority-derived; 67 Full107 slots are AUTHORITY_ABSENT (UNKNOWN)",
+  "full107_unique_actual_cards_defined_corpus": 55,
+  "remaining92_note": "remaining-92 population is not enumerated by RQ-C3 authority; no runtime attempts can be cleared by this preflight",
+  "schema": "ws72.card-availability-summary.v1",
+  "source_identity": {
+    "forge": {
+      "discovery_tried": [],
+      "pin": "a9a95db6662c2d28814390a9c0c2f986e39aa8b4",
+      "remote": "https://github.com/moeendres-png/forge.git",
+      "tree": "2c18327f79e330f2ed167067166ffd42d61b0849"
+    },
+    "rq_c3_authority_pin": "897d72f0b57bb8febe045870acaa3d2dba4bde56",
+    "xmage": {
+      "discovery_tried": [],
+      "pin": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+      "remote": "https://github.com/moeendres-png/mage.git",
+      "tree": "ea193e0d04493d53d962ed13ebd3b5d2f68838c7"
+    }
+  },
+  "xmage": {
+    "ambiguous": 0,
+    "found": 55,
+    "not_found": 0,
+    "unknown": 0
+  },
+  "xmage_remaining92_all_cards_found": "UNKNOWN/92"
+}
