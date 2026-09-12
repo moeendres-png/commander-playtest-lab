@@ -39,9 +39,11 @@ hard_gates:
 - UNKNOWN is not implemented
 ownership: WS72-CROSS-CANDIDATE-CARD-AVAILABILITY-PREFLIGHT
 status: PREFLIGHT_PARTIAL
-exact_next_action: Coordinator decision on the Full107 population gap (67 slots
-  AUTHORITY_ABSENT in RQ-C3 authority): name the artifact enumerating the remaining
-  92, or accept PARTIAL scoped to the authority-defined 40; then commit + safe_push.
+exact_next_action: >-
+  Coordinator decision on the Full107 population gap (67 slots
+  AUTHORITY_ABSENT in RQ-C3 authority) - name the artifact enumerating the
+  remaining 92, or accept PARTIAL scoped to the authority-defined 40;
+  then commit + safe_push.
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 results:
@@ -58,6 +60,7 @@ results:
   ws72_card_preflight: PARTIAL
   behavior_credit: 0/107
   full107: NOT_RUN
-population_gap_source_blocker: RQ-C3 authority enumerates 40 unique scenarios;
-  no authority artifact enumerates 107 scenarios or the remaining 92 (67 Full107
-  slots AUTHORITY_ABSENT/UNKNOWN; nothing invented).
+population_gap_source_blocker: >-
+  RQ-C3 authority enumerates 40 unique scenarios; no authority artifact
+  enumerates 107 scenarios or the remaining 92 (67 Full107 slots
+  AUTHORITY_ABSENT/UNKNOWN; nothing invented).
