@@ -55,15 +55,15 @@ diagnosis:
     Stampede needs 8 mana = turn-29 line
   covenant_ws65_xbilling_hypothesis_refuted:
   - engine billed exactly the printed {1}{B}{R}; announced life-X never entered the
-    mana bill on the provider path either (diag file-log: {1}{B}{R} -> {B}
+    mana bill on the provider path either (diag file-log = {1}{B}{R} -> {B}
     persists across 10 further taps -> RESULT_FALSE)
-  - {R}+{1} paid natively; {B} unpayable (fixture deck ships zero black sources);
+  - mana {R}+{1} paid natively; {B} unpayable (fixture deck ships zero black sources);
     conformant fail-closed rollback, not an X-billing defect
   covenant_division_defect_found_and_repaired:
-  - corrected fixture (black mana present, X=5, 1 target): payment completes in
+  - corrected fixture (black mana present, X=5, 1 target) - payment completes in
     full, spell reaches stack, then engine NPEs at resolution
     (DamageDealEffect unboxes null getDividedValue)
-  - root cause PROVIDER_TRANSPORT_DEFECT: inherited chooseTargetsFor never mirrors
+  - root cause PROVIDER_TRANSPORT_DEFECT - inherited chooseTargetsFor never mirrors
     PlayerControllerHuman's controller-side divided-as-you-choose allocation, so
     no divided allocation is ever recorded (Human assigns; AI assigns in brains)
   - repaired in WS77 overlay Part 1 (Human parity, generic, determined shapes
@@ -93,11 +93,11 @@ build:
   ev_dir: /home/moeen/ws77-ev
   chain_fidelity: Ws40SuccessorState + Ws62ConcessionTransport digests byte-match WS68
     (b6b0870f/761e451a); only the provider file differs (WS77 overlay v2).
-  overlay: ws77_provider_overlay.py v2 (idempotent; post-conditions: no card names,
+  overlay: ws77_provider_overlay.py v2 (idempotent; post-conditions - no card names,
     no cost solving, no stack/resolution injection, seam count 2, labels 2,
     divided exits exactly 2)
 decisions:
-- divided-allocation transport added (Human parity): the WS77-C NPE proved the gap;
+- divided-allocation transport added (Human parity) - the WS77-C NPE proved the gap;
   determined shapes assigned natively, discretionary fails closed; no Decision
   protocol added (single-target prerequisite needs none); multi-target
   discretionary division recorded as known-unsupported (future workstream).
@@ -107,7 +107,7 @@ decisions:
 - G04 covenant-route READY (X=5 route proven); G04 OVERALL stays NOT_READY
   (concession out of scope) regardless of route.
 - component-change-review performed manually (tools/foundry/test_impact.py absent in
-  this worktree): changed surface = overlay v1->v2; mapped tests = full A/B/C/D +
+  this worktree) - changed surface = overlay v1->v2; mapped tests = full A/B/C/D +
   full E01/A04/C01 set, ALL RUN on final build; no weakened assertions (exact
   offered-options matching, fail-closed zero/multi); no new legality/fallback/
   default (determined mirrors + ControlledStop gates); classifications honest
