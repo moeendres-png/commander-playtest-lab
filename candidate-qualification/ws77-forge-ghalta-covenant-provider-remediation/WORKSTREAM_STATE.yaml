@@ -36,10 +36,9 @@ hard_gates:
 - G04 overall remains NOT_READY while concession remains unresolved
 ownership: WS77-FORGE-GHALTA-COVENANT-PROVIDER-REMEDIATION
 status: ACTIVE
-exact_next_action: Commit overlay/build/runner (code checkpoint); then author corrected
-  actual-card intents (Primal Hunger reduced, Stampede full-pay, Covenant+X/black,
-  Fireball control) and run WS77 qualification + WS68 regression from the clean
-  committed head.
+exact_next_action: Commit overlay v2 (+ state); rebuild from clean head and verify
+  digests; witness-rerun WS77-C; then write evidence files (receipt, scenario
+  dirs, matrices, report, source lock), final commit, evidence seal, safe_push.
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 diagnosis:
@@ -47,45 +46,68 @@ diagnosis:
   - scenario card is Ghalta, Stampede Tyrant: printed {5}{G}{G}{G}, NO ReduceCost
   - engine billed exactly {5}{G}{G}{G} (authoritative, correct, full cost)
   - WS65 intent supplied 6 of 8 mana; provider tapped exactly the 6 scripted
-    sources, applied each natively, exhausted sources, returned false
-  - engine natively rolled back (lands refunded, Ghalta stays in CZ, game continues)
+    sources, applied each natively, exhausted sources (NO_SOURCES), returned
+    false (RESULT_FALSE), engine natively rolled back
   - every step conformant; failure class is HARNESS intent shortfall (authored for
     Primal Hunger bill of 6), never provider/engine defect
-  - evidence: diag provider file-log on WS68-overlay bytecode + rebuilt pin-identical
-    engine (G02_intent_v23): toPay={5}{G}{G}{G} -> {2} after 6 taps -> RESULT_FALSE
-  covenant_ws65_hypothesis_refuted:
+  - P1 controls exactly 6 lands on turn 21 (MINTED-149/154 are P2's Swamps);
+    Stampede needs 8 mana = turn-29 line
+  covenant_ws65_xbilling_hypothesis_refuted:
   - engine billed exactly the printed {1}{B}{R}; announced life-X never entered the
-    mana bill (no mana-X leak on the provider path either)
-  - {R}+{1} paid natively; {B} unpayable because the fixture deck ships zero black
-    sources; provider tapped all 12 lands, applied nothing further, returned false
-  - engine natively rolled back; conformant fail-closed, not an X-billing defect
-  - evidence: diag file-log (G04_intent_v71): toPay={1}{B}{R} -> {B} persists
-    across 10 further taps -> RESULT_FALSE
-  consequence: no provider semantic repair is warranted on either path; WS77 overlay
-    is observation-only (additive milestones on the three silent early-false exits
-    of applyManaToCost plus the payManaCost unpaid return) so future forensics can
-    distinguish underpayment-rollback from silent drop without changing one branch
-    predicate or return value.
-transport_notes:
-- synthetic zero-mana CostPartMana per land activation (Cost.getCostPartsWithZeroMana)
-  explains N+1 payManaCost milestones per N-mana cast; normal on all paths.
-- orderCosts is engine-native headless (ChooseCostOrder FullControl off); no
-  order_costs frame is emitted in these scenarios.
-- provider restrictionsMet abort (vs Human re-pick) retained: conformant fail-closed
-  via native rollback; unreachable with sane explicit_sources intents.
+    mana bill on the provider path either (diag file-log: {1}{B}{R} -> {B}
+    persists across 10 further taps -> RESULT_FALSE)
+  - {R}+{1} paid natively; {B} unpayable (fixture deck ships zero black sources);
+    conformant fail-closed rollback, not an X-billing defect
+  covenant_division_defect_found_and_repaired:
+  - corrected fixture (black mana present, X=5, 1 target): payment completes in
+    full, spell reaches stack, then engine NPEs at resolution
+    (DamageDealEffect unboxes null getDividedValue)
+  - root cause PROVIDER_TRANSPORT_DEFECT: inherited chooseTargetsFor never mirrors
+    PlayerControllerHuman's controller-side divided-as-you-choose allocation, so
+    no divided allocation is ever recorded (Human assigns; AI assigns in brains)
+  - repaired in WS77 overlay Part 1 (Human parity, generic, determined shapes
+    native, discretionary/DividedUpTo fail closed, impossible division returns
+    false as Human aborts)
+qualification:
+  WS77-A-GHALTA-REDUCED: Ghalta, Primal Hunger, bill {4}{G}{G} paid with exactly
+    6 taps, cast/stack/resolve 12/12, turn-25 attack, 12 combat damage; zero
+    failure milestones; terminal P2-discard harness gap
+  WS77-B-GHALTA-FULLPAY: Ghalta, Stampede Tyrant, bill {5}{G}{G}{G} paid with
+    exactly 8 taps, cast/stack/resolve 12/12 + ETB trigger resolve, turn-33
+    attack, 12 combat damage; zero failure milestones; terminal P2-discard gap
+  WS77-C-COVENANT-X5: Fire Covenant X=5, DIVIDED_SINGLE, mana {1}{B}{R} in 3 taps,
+    life-5 confirm PAY, resolve dealing 5 divided to Bear-8 (dies), Bear+Covenant
+    in graveyard; zero failure milestones; terminal P2-discard gap
+  WS77-D-FIREBALL-CONTROL: Fireball X=3, UNDIVIDED, mana {3}{R} in 4 taps, no
+    confirm, resolve dealing 3 to P2; zero failure milestones; terminal P2-discard
+  regression_E01_pay: 628/29 frame-identical to WS68, PAY at seq 528
+  regression_E01_decline: 626/28 frame-identical to WS68, DECLINE at seq 528
+  regression_A04: 1379/47 frame-identical to WS68, same block
+  regression_C01: 975/34 frame-identical to WS68, same block, 1 UNDIVIDED marker
+    (helper ran, behavior preserved)
 build:
   forge_checkout: /home/moeen/ws77-forge-src-a9a95db (HEAD/tree/clean == accepted pin;
     /tmp checkout lost ignored target/ output while /tmp was 100%%; no foreign /tmp
     data touched)
   ev_dir: /home/moeen/ws77-ev
   chain_fidelity: Ws40SuccessorState + Ws62ConcessionTransport digests byte-match WS68
-    (b6b0870f/761e451a); only the provider file differs (WS77 observation overlay).
-  overlay: ws77_provider_overlay.py (idempotent, post-conditions: no card names, no
-    cost solving, no stack/resolution injection, seam count 2, labels 2)
+    (b6b0870f/761e451a); only the provider file differs (WS77 overlay v2).
+  overlay: ws77_provider_overlay.py v2 (idempotent; post-conditions: no card names,
+    no cost solving, no stack/resolution injection, seam count 2, labels 2,
+    divided exits exactly 2)
 decisions:
-- no provider semantic change (evidence: both paths transport-correct; Rules Core
-  owns bills; changing nothing is the minimal conformant repair).
-- qualify with corrected actual-card scenarios: Primal Hunger (true ReduceCost) full
-  payment; Stampede Tyrant full 8 payment; Covenant X=5 with black source + Fireball
-  mana-X control.
-- G04_OVERALL_REENTRY stays NOT_READY (concession out of scope) regardless of route.
+- divided-allocation transport added (Human parity): the WS77-C NPE proved the gap;
+  determined shapes assigned natively, discretionary fails closed; no Decision
+  protocol added (single-target prerequisite needs none); multi-target
+  discretionary division recorded as known-unsupported (future workstream).
+- no other provider semantic change (both X-billing hypotheses refuted; Rules Core
+  owns bills; Ghalta path needed no change).
+- G02/G03 re-entry READY (transport proven on both Ghalta cards + damage windows).
+- G04 covenant-route READY (X=5 route proven); G04 OVERALL stays NOT_READY
+  (concession out of scope) regardless of route.
+- component-change-review performed manually (tools/foundry/test_impact.py absent in
+  this worktree): changed surface = overlay v1->v2; mapped tests = full A/B/C/D +
+  full E01/A04/C01 set, ALL RUN on final build; no weakened assertions (exact
+  offered-options matching, fail-closed zero/multi); no new legality/fallback/
+  default (determined mirrors + ControlledStop gates); classifications honest
+  (G04 overall NOT_READY, concession PARTIAL, 0/107 credit).
