@@ -1,0 +1,128 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws75-foundry-opencode-tooling-hardening
+branch: ws75/foundry-opencode-tooling-hardening-20260912
+audit_base_sha: c1a760af21469fc1358dbdb9b821f79dcdfaf2db
+audit_base_tree: 061135e2a90fb1b1a6289e6ea508db4da132bd9c
+state_written_against_head: c1a760af21469fc1358dbdb9b821f79dcdfaf2db
+validated_head: null
+objective: Harden the canonical Foundry/OpenCode execution plane for OpenCode 1.18.30
+  + OpenCode Go Muse Spark 1.3 Contributor HIGH/XHIGH, fixing headless launch, state
+  discovery, telemetry, safe external-reference tool use, permission ergonomics, and
+  GitHub workflow/version drift.
+in_scope:
+- tools/foundry launcher and bootstrap
+- Foundry tests and permission battery
+- opencode.json permissions
+- .opencode/agents/foundry-implementer.md
+- foundry execution documentation
+- .github/workflows/opencode.yml
+- OpenCode 1.18.30 exact compatibility
+- GitHub remote-gate documentation/checks
+out_of_scope:
+- Rules engine changes
+- provider behavior changes
+- candidate qualification behavior
+- Architecture Freeze
+- Production Provider selection
+- direct GitHub branch protection mutation
+dependencies:
+- CPL main c1a760af21469fc1358dbdb9b821f79dcdfaf2db
+- OpenCode 1.18.30
+- opencode-go/muse-spark-1.3-contributor
+hard_gates:
+- safe_push remains sole authorized source remote-write path
+- git -C direct bypass remains denied
+- sibling worktree isolation remains enforced
+- no weakening of secret/destructive-operation denies
+- HIGH/XHIGH only
+- all launcher/permission changes require adversarial regression tests
+ownership: WS75-FOUNDRY-OPENCODE-TOOLING-HARDENING
+status: ACTIVE
+exact_next_action: Commit implementation/tests/evidence, then run final complete
+  Foundry validation from the clean committed HEAD and record it as validated_head.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+technical_decisions:
+- id: TD-WS75-01-headless-argv
+  decision: Headless form is `opencode run --auto <extra...>` (run first, --auto
+    second, extras verbatim); TUI form stays `opencode --auto <extra...>` via
+    --ui-mode. No /tmp wrapper.
+  evidence: opencode.ai CLI + permissions docs fetched 2026-09-12 (last updated
+    2026-09-10); exact-order unit + stub-exec tests.
+- id: TD-WS75-02-telemetry-run-dir
+  decision: Launcher telemetry moves to <run_dir>/metrics.jsonl; metrics.record
+    creates missing parents; launch-context.json carries non-secret context.
+  evidence: clean-tree launch test (porcelain empty, no .foundry/metrics.jsonl).
+- id: TD-WS75-03-state-context
+  decision: FOUNDRY_STATE_PATH/WORKTREE/RUN_DIR/MODE (+existing keys) expose the
+    exact launcher paths; implementer instructions forbid guessing the state path.
+  evidence: context tests asserting exact values and no secret-shaped content.
+- id: TD-WS75-04-reference-roots
+  decision: Declared JSON reference contract (label/root/slug/commit/tree/
+    cleanliness/read-only) verified read-only at bootstrap with CWD-based git
+    (never git -C); exposed as FOUNDRY_REFERENCE_ROOTS; no broad code-tree allow.
+  evidence: exact-match/mismatch/mutation/ignored-residue tests + bootstrap wiring.
+- id: TD-WS75-05-doom-loop-deny
+  decision: doom_loop ask->deny (auto would auto-approve repetition); ergonomics
+    guidance added to foundry-implementer.md.
+  evidence: live `opencode debug agent` resolution on 1.18.30 shows deny last
+    (wins); battery D01 DENIED, 74 probes, zero UNKNOWN.
+- id: TD-WS75-06-version-pin
+  decision: tools/foundry/opencode_cli_version.py is the single pin authority
+    (1.18.30); launcher verifies installed CLI fail-closed except bounded
+    --version-audit-mode; workflow installs immutable assets with SHA256.
+  evidence: downloaded linux x64/arm64 assets hashed locally; extracted x64
+    binary reports 1.18.30; mismatch/unparseable/audit-mode tests.
+- id: TD-WS75-07-stale-wrapper-env
+  decision: A stale FOUNDRY_OPENCODE_BIN pointing at the WS67/WS74 /tmp wrapper
+    now fails closed at init (wrapper answers no --version). Operator follow-up:
+    unset the var and remove the wrapper; hermetic tests pin opencode_bin explicitly.
+  evidence: observed refusal `FOUNDRY_OPENCODE_WRAPPER_FAIL: unexpected argv arg=<--version>`.
+- id: TD-WS75-08-test-impact-latent-defects
+  decision: 'Repaired two real defects found by using test_impact.py: main() called
+    `_run(["rev-parse", ...])` without git; changed_files() stripped porcelain via
+    `_run`, corrupting the first line XY columns into a phantom `github/...` path.
+    Minimal same-scope repair; conservative uncertain behavior kept.'
+  evidence: impact mapper output before/after; full tests/foundry green.
+- id: TD-WS75-09-full-tests-scope
+  decision: 'Full `pytest tests/` is NOT_RUN here: collection needs third-party
+    `typer` (absent, pre-existing); only tests/foundry imports the changed modules,
+    so tests/foundry (215 passed) + live 1.18.30 battery is the complete affected
+    surface. No out-of-surface reassurance runs; no mapper semantics weakened to
+    dodge the uncertain research-dir entry.'
+  evidence: import-graph grep; collection error text.
+tests_run:
+- 'pytest tests/foundry/test_launcher.py tests/foundry/test_foundry_tools.py
+  tests/foundry/test_ws75_tooling_hardening.py -q -> 93 passed'
+- 'pytest tests/foundry/ -q -> 215 passed, 1 skipped (live export snapshot absent)'
+- 'ruff check . -> All checks passed; ruff format --check -> clean'
+- 'live permission battery vs 1.18.30 resolved rules (3 agents) -> 74 probes, 0 UNKNOWN'
+evidence:
+- research/foundry/ws75-opencode-tooling-hardening/OPENCODE_DOCS_2026-09-12.md
+- research/foundry/ws75-opencode-tooling-hardening/permission-battery-1.18.30.json
+- research/foundry/ws75-opencode-tooling-hardening/test-impact-ws75.json
+- release v1.18.30 published 2026-09-09; linux asset SHA256 verified by download
+- branch-protection reads 2026-09-12: main/master unprotected on all three repos; rulesets []
+artifacts: []
+files_modified:
+- tools/foundry/launcher.py
+- tools/foundry/bootstrap.py
+- tools/foundry/metrics.py
+- tools/foundry/reference_roots.py (new)
+- tools/foundry/opencode_cli_version.py (new)
+- tools/foundry/permission_battery.py
+- tools/foundry/test_impact.py
+- tests/foundry/test_ws75_tooling_hardening.py (new)
+- tests/foundry/test_launcher.py
+- opencode.json
+- .opencode/agents/foundry-implementer.md
+- docs/foundry-execution/GITHUB_REMOTE_GATES.md (new)
+- docs/foundry-execution/METRICS.md
+- .github/workflows/opencode.yml
+remaining_scope:
+- final clean-HEAD validation + validated_head record
+- safe_push dry-run then actual (Coordinator-authorized remote path only)
+- human branch-protection changes per GITHUB_REMOTE_GATES.md
+authority_gates: []
+next_action: Commit, validate from clean HEAD, record validated_head, push via safe_push only.

@@ -279,6 +279,9 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         "allow_suppressed_routing": False,
         "install_pre_push_hook": False,
         "run_dir": str(target["wt"].parent / "rundir"),
+        # WS75: pin the PATH binary explicitly so a stale FOUNDRY_OPENCODE_BIN
+        # wrapper in the ambient environment cannot leak into hermetic tests.
+        "opencode_bin": "opencode",
     }
     kwargs.update(over)
     return launcher_mod.init(**kwargs)
@@ -425,6 +428,10 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
     stub.write_text(
         "#!/usr/bin/env python3\n"
         "import json, os, sys\n"
+        # WS75: answer the launcher version gate like the qualified CLI.
+        "if sys.argv[1:] == ['--version']:\n"
+        "    print('1.18.30')\n"
+        "    sys.exit(0)\n"
         "sys.path.insert(0, os.environ['FOUNDARY_TOOLS'])\n"
         "from foundry import writer_lock\n"
         "bundle = json.loads(os.environ['OPENCODE_CONFIG_CONTENT'])\n"
@@ -443,10 +450,9 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         encoding="utf-8",
     )
     stub.chmod(0o755)
-    plan = _plan(target, canon, effort="xhigh")
+    plan = _plan(target, canon, effort="xhigh", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
-    env["FOUNDRY_OPENCODE_BIN"] = str(stub)
     env["FOUNDARY_TOOLS"] = str(ROOT / "tools")
     env["FOUNDARY_WT"] = str(target["wt"])
     env["FOUNDRY_LOCK_DIR"] = str(target["locks"])
@@ -456,8 +462,10 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
     finally:
         del os.environ["FOUNDRY_LOCK_DIR"]
     assert rc == 7
-    metrics_file = target["wt"] / ".foundry" / "metrics.jsonl"
+    # WS75: runtime telemetry lives under run_dir, outside the Git worktree.
+    metrics_file = Path(plan["run_dir"]) / "metrics.jsonl"
     assert metrics_file.is_file()
+    assert not (target["wt"] / ".foundry" / "metrics.jsonl").exists()
     records = [json.loads(line) for line in metrics_file.read_text(encoding="utf-8").splitlines()]
     assert len(records) == 2
     assert records[0]["task_id"] == "TEST-WS"
@@ -545,6 +553,7 @@ def test_init_ready_for_all_three_profiles(
         allow_suppressed_routing=False,
         install_pre_push_hook=False,
         run_dir=str(tmp_path / "rundir"),
+        opencode_bin="opencode",
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])

@@ -23,6 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import drift_check as drift_mod
+import reference_roots as reference_mod
 import source_lock as source_lock_mod
 import state as state_mod
 import worktree_inventory as inventory_mod
@@ -83,6 +84,7 @@ def bootstrap(
     canonical_root: str = "",
     allow_same_cwd_pids: bool = False,
     allow_suppressed_routing: bool = False,
+    references: list[dict] | None = None,
 ) -> dict:
     """Run every gate. Returns a result dict; verdict is BOOTSTRAP_PASS/FAIL."""
     notes: list[str] = []
@@ -190,6 +192,20 @@ def bootstrap(
     elif drift["verdict"] == "DRIFT_FAIL":
         notes.append("policy drift explicitly suppressed (canonical text may not reach model)")
 
+    # 6. declared reference roots (read-only verification, fail closed).
+    verified_refs: list[dict] = []
+    for ref in references or []:
+        reasons = reference_mod.verify(ref)
+        if reasons:
+            failures.append(f"reference {ref.get('label', '?')!r}: {reasons[0]}")
+        else:
+            verified_refs.append(ref)
+    if verified_refs:
+        notes.append(
+            "verified reference roots: "
+            + ", ".join(f"{r['label']}={r['root']}" for r in verified_refs)
+        )
+
     verdict = "BOOTSTRAP_FAIL" if failures else "BOOTSTRAP_PASS"
     return {
         "verdict": verdict,
@@ -201,7 +217,18 @@ def bootstrap(
         "failures": failures,
         "notes": notes,
         "drift": drift,
+        "references": verified_refs,
     }
+
+
+def _parse_cli_references(raws: list[str]) -> list[dict]:
+    parsed: list[dict] = []
+    for raw in raws:
+        try:
+            parsed.append(reference_mod.parse_spec(raw))
+        except reference_mod.ReferenceError as exc:
+            raise SystemExit(f"BOOTSTRAP_FAIL: reference: {exc}") from exc
+    return parsed
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -218,6 +245,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allow-suppressed-routing", action="store_true")
     parser.add_argument("--json-output", default=None)
     parser.add_argument("--audit-base-tree", default="0" * 40)
+    parser.add_argument(
+        "--reference",
+        action="append",
+        default=[],
+        help="Declared read-only reference root as JSON (repeatable).",
+    )
     parser.add_argument(
         "--init-state",
         action="store_true",
@@ -262,6 +295,7 @@ def main(argv: list[str] | None = None) -> int:
         args.canonical_root,
         args.allow_same_cwd_pids,
         args.allow_suppressed_routing,
+        _parse_cli_references(args.reference),
     )
     text = json.dumps(result, indent=2, sort_keys=True)
     if args.json_output:

@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 
 FIELDS = [
     "task_id",
@@ -87,6 +88,12 @@ def record(path: str, _provenance: dict | None = None, **kwargs: object) -> dict
             raise ValueError(f"provenance for unknown field: {field!r}")
     if provenance:
         entry["provenance"] = provenance
+    # WS75: the caller-owned parent (e.g. the launcher run_dir outside the
+    # Git worktree) is created automatically; a missing parent is a
+    # diagnostic warning at the call site, never a dirty-tree workaround.
+    parent = Path(path).parent
+    if str(parent) and not parent.exists():
+        parent.mkdir(parents=True, exist_ok=True)
     with open(path, "a", encoding="utf-8") as handle:
         handle.write(json.dumps(entry, sort_keys=True) + "\n")
     return entry
