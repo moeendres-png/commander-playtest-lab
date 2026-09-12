@@ -45,8 +45,11 @@ Raw `opencode export` files are LOCAL_ONLY (they contain session content):
 
 ## Usage
 
+Manual records may target any caller-owned path (parents are created
+automatically):
+
 ```bash
-python3 tools/foundry/metrics.py --metrics .foundry/metrics.jsonl \
+python3 tools/foundry/metrics.py --metrics /tmp/my-run/metrics.jsonl \
   --set task_id='"WS50-slice-03"' \
   --set task_class='"bounded single-file bug"' \
   --set reasoning_effort='"high"' \
@@ -55,9 +58,10 @@ python3 tools/foundry/metrics.py --metrics .foundry/metrics.jsonl \
   --provenance reasoning_effort=CALLER_SUPPLIED
 ```
 
-Launcher sessions record start/end automatically (`.foundry/metrics.jsonl`,
-git-ignored; sealed into evidence, never committed raw). Enrich a finished
-session with export counts:
+Launcher sessions record start/end automatically under the run directory
+(`<run_dir>/metrics.jsonl`, outside the Git worktree so execution leaves
+the tree clean; sealed into evidence, never committed raw). Enrich a
+finished session with export counts:
 
 ```bash
 opencode export <sessionID> > /tmp/proven-session.json  # LOCAL_ONLY

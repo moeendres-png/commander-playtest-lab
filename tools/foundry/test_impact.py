@@ -122,6 +122,20 @@ RULES: list[tuple[str, list[str], list[str], list[str], str]] = [
         "metrics schema maps to tool tests",
     ),
     (
+        "tools/foundry/opencode_cli_version.py",
+        ["pytest tests/foundry/test_ws75_tooling_hardening.py -q"],
+        [FULL_FOUNDRY_SUITE],
+        ["launcher init dry-run for cpl/mage/forge profiles"],
+        "CLI version pin maps to WS75 hardening tests",
+    ),
+    (
+        "tools/foundry/reference_roots.py",
+        ["pytest tests/foundry/test_ws75_tooling_hardening.py -q"],
+        [FULL_FOUNDRY_SUITE],
+        [],
+        "reference-root contract maps to WS75 hardening tests",
+    ),
+    (
         "tools/foundry/session_stats.py",
         ["pytest tests/foundry/test_telemetry.py -q"],
         [FULL_FOUNDRY_SUITE],
@@ -168,10 +182,16 @@ def changed_files(workdir: str, base: str) -> list[str]:
         diff = _run(["git", "diff", "--name-only", base], workdir)
     except RuntimeError as exc:
         raise ValueError(f"cannot diff against base {base!r}: {exc}") from exc
-    try:
-        porcelain = _run(["git", "status", "--porcelain"], workdir)
-    except RuntimeError:
-        porcelain = ""
+    # Porcelain XY columns are positional: never strip leading whitespace
+    # (a stripped first line loses a blank X and corrupts the path slice).
+    proc = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=workdir,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    porcelain = proc.stdout.strip("\n") if proc.returncode == 0 else ""
     files: set[str] = set(diff.split())
     for line in porcelain.splitlines():
         entry = line[3:].strip().strip('"')
@@ -248,7 +268,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"TEST_IMPACT_ERROR: {exc}", file=sys.stderr)
         return 1
     try:
-        head = _run(["rev-parse", "HEAD"], args.workdir)
+        head = _run(["git", "rev-parse", "HEAD"], args.workdir)
     except RuntimeError:
         head = "UNKNOWN"
     result = {"base": args.base, "head": head, **plan(changed)}

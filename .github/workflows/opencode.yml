@@ -33,16 +33,34 @@ jobs:
       # version/hash verification; its cache-hit path skips install entirely, so VERSION env
       # alone cannot guarantee the executed binary. This lane installs without cache and
       # asserts the exact qualified CLI before execution (fail-closed, no fallback to latest).
-      # Qualified CLI from smoke run 34298347976: v1.18.29.
-      - name: Install pinned OpenCode CLI v1.18.29
+      # Qualified CLI (WS75): v1.18.30, tag v1.18.30 published 2026-09-09.
+      # Immutable per-tag assets, SHA256 verified 2026-09-12 by direct
+      # download + sha256sum (see tools/foundry/opencode_cli_version.py,
+      # the single machine-readable pin authority):
+      #   opencode-linux-x64.tar.gz   55007246858165496ff85ba1c2b648f7421e8e2013bf4189a680c9ff8e699d17
+      #   opencode-linux-arm64.tar.gz 4111a55c2a02c0fac314bd51e9a2330280e6d29d2b85b9554fff6d62612566ed
+      - name: Install pinned OpenCode CLI v1.18.30
         env:
-          VERSION: 1.18.29
+          VERSION: 1.18.30
+          OPENCODE_X64_SHA256: 55007246858165496ff85ba1c2b648f7421e8e2013bf4189a680c9ff8e699d17
+          OPENCODE_ARM64_SHA256: 4111a55c2a02c0fac314bd51e9a2330280e6d29d2b85b9554fff6d62612566ed
         run: |
           set -euo pipefail
-          curl -fsSL https://opencode.ai/install | bash
+          ARCH="$(uname -m)"
+          case "${ARCH}" in
+            x86_64) ASSET="opencode-linux-x64.tar.gz"; SHA="${OPENCODE_X64_SHA256}" ;;
+            aarch64|arm64) ASSET="opencode-linux-arm64.tar.gz"; SHA="${OPENCODE_ARM64_SHA256}" ;;
+            *) echo "unsupported arch ${ARCH} (fail closed)"; exit 1 ;;
+          esac
+          URL="https://github.com/sst/opencode/releases/download/v${VERSION}/${ASSET}"
+          curl -fsSL -o "/tmp/${ASSET}" "${URL}"
+          echo "${SHA}  /tmp/${ASSET}" | sha256sum -c -
+          mkdir -p "$HOME/.opencode/bin"
+          tar -xzf "/tmp/${ASSET}" -C "$HOME/.opencode/bin"
+          rm -f "/tmp/${ASSET}"
           echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
 
-      - name: Assert OpenCode CLI is exactly v1.18.29
+      - name: Assert OpenCode CLI is exactly v1.18.30
         run: |
           set -euo pipefail
           BIN="$HOME/.opencode/bin/opencode"
@@ -52,10 +70,10 @@ jobs:
           test "${RESOLVED}" = "${BIN}"
           INSTALLED="$("${BIN}" --version)"
           echo "opencode --version (path): ${INSTALLED}"
-          test "${INSTALLED}" = "1.18.29"
+          test "${INSTALLED}" = "1.18.30"
           INSTALLED_PATH="$(opencode --version)"
           echo "opencode --version (PATH): ${INSTALLED_PATH}"
-          test "${INSTALLED_PATH}" = "1.18.29"
+          test "${INSTALLED_PATH}" = "1.18.30"
 
       - name: Run opencode
         run: opencode github run

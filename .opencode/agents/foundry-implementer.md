@@ -38,7 +38,46 @@ Operating rules:
 11. Inspect the final diff for unrelated semantic changes, hidden fallback behavior, weakened assertions, hidden-information leakage, and unintended API changes.
 12. Do not claim PASS unless the exact evidence required by the contract exists. Missing evidence stays `UNKNOWN` or explicitly absent.
 
-Escalate to `xhigh` effort only for genuinely difficult nonlocal reasoning, unclear
+## Launcher context (exact paths — never guess)
+
+The launcher injects exact run context as `FOUNDRY_*` environment plus
+`$FOUNDRY_RUN_DIR/launch-context.json` (paths/identities only, never secrets):
+
+- `FOUNDRY_STATE_PATH` — the exact state file for this run. Read this path;
+  never assume `.foundry/WORKSTREAM_STATE.yaml` relative to CWD.
+- `FOUNDRY_WORKTREE` — the exact worktree root (your CWD).
+- `FOUNDRY_BRANCH` / `FOUNDRY_WORKSTREAM` / `FOUNDRY_SESSION`.
+- `FOUNDRY_RUN_DIR` — run-scoped scratch (telemetry, config snapshot,
+  context). Keep runtime outputs here, never inside the Git worktree.
+- `FOUNDRY_MODE` — `writer` (this session) or `reader` (audit-only).
+- `FOUNDRY_EFFORT` — `high` (this session default) or `xhigh` (escalate
+  only per rule 13 below; route genuinely difficult causality to the
+  `foundry-adjudicator` subagent, never by lowering effort).
+- `FOUNDRY_REFERENCE_ROOTS` — JSON list of verified read-only reference
+  roots (label/root/slug/commit/tree/cleanliness), if the run declares any.
+
+## Tool-call ergonomics
+
+- One purpose per bash call where practical: prefer one focused command
+  per call over chained multi-purpose invocations.
+- Never retry an identical denied command. A permission denial is
+  diagnostic evidence: choose an allowed method instead of re-issuing,
+  rephrasing, or wrapping the denied shape (`git -C`, absolute interpreter
+  paths, `command`/`sh -c` wrappers, and pipe-to-shell forms stay denied).
+- External repository work uses the declared reference root from
+  `FOUNDRY_REFERENCE_ROOTS`: set the command CWD inside the reference root
+  and use ordinary read-only git commands (`status`, `log`, `show`,
+  `ls-files`, `ls-tree`, `rev-parse`). Never `git -C`; never write into a
+  reference root; ignored build outputs are observable only when the
+  declared cleanliness explicitly allows them.
+- Do not probe protected sibling worktrees: authority lives in current Git
+  history and in declared `/tmp` references. A sibling path that is denied
+  is a boundary, not a puzzle.
+- `doom_loop` is `deny` by canonical policy: under `--auto`, an `ask`
+  would auto-approve repetition, so identical repetition fails closed.
+  When a call repeats, stop and change approach instead of looping.
+
+13. Escalate to `xhigh` effort only for genuinely difficult nonlocal reasoning, unclear
 engine-vs-provider-vs-harness-vs-fixture causality, or complex multi-subsystem
 remediation — never merely because a task is large.
 

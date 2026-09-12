@@ -24,8 +24,34 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from foundry import bootstrap as bootstrap_mod  # noqa: E402
 from foundry import launcher as launcher_mod  # noqa: E402
+from foundry import opencode_cli_version as version_mod  # noqa: E402
 
 CPL_SLUG = "moeendres-png/commander-playtest-lab"
+
+
+@pytest.fixture(autouse=True)
+def _hermetic_opencode_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """WS75R: route ambient binary resolution at a hermetic stub.
+
+    Every launcher init in this module resolves its OpenCode binary through
+    this stub unless a test passes explicit ``opencode_bin=`` (which still
+    wins), so no test depends on ambient PATH containing a real ``opencode``
+    executable. The stub reports exactly the canonical qualified version.
+    Function-scoped (own tmp dir per test).
+    """
+    stub = tmp_path / "qualified-opencode-stub"
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "if sys.argv[1:] == ['--version']:\n"
+        f"    print({version_mod.QUALIFIED_OPENCODE_VERSION!r})\n"
+        "    sys.exit(0)\n"
+        "print('STUB: unexpected exec', sys.argv[1:])\n"
+        "sys.exit(7)\n",
+        encoding="utf-8",
+    )
+    stub.chmod(0o755)
+    monkeypatch.setenv("FOUNDRY_OPENCODE_BIN", str(stub))
 
 
 def _git(args: list[str], cwd: Path, env: dict | None = None) -> str:
@@ -279,6 +305,8 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         "allow_suppressed_routing": False,
         "install_pre_push_hook": False,
         "run_dir": str(target["wt"].parent / "rundir"),
+        # WS75R: no ambient binary default; the autouse hermetic stub serves
+        # FOUNDRY_OPENCODE_BIN (explicit opencode_bin= overrides still win).
     }
     kwargs.update(over)
     return launcher_mod.init(**kwargs)
@@ -425,6 +453,10 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
     stub.write_text(
         "#!/usr/bin/env python3\n"
         "import json, os, sys\n"
+        # WS75: answer the launcher version gate like the qualified CLI.
+        "if sys.argv[1:] == ['--version']:\n"
+        "    print('1.18.30')\n"
+        "    sys.exit(0)\n"
         "sys.path.insert(0, os.environ['FOUNDARY_TOOLS'])\n"
         "from foundry import writer_lock\n"
         "bundle = json.loads(os.environ['OPENCODE_CONFIG_CONTENT'])\n"
@@ -443,10 +475,9 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         encoding="utf-8",
     )
     stub.chmod(0o755)
-    plan = _plan(target, canon, effort="xhigh")
+    plan = _plan(target, canon, effort="xhigh", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
-    env["FOUNDRY_OPENCODE_BIN"] = str(stub)
     env["FOUNDARY_TOOLS"] = str(ROOT / "tools")
     env["FOUNDARY_WT"] = str(target["wt"])
     env["FOUNDRY_LOCK_DIR"] = str(target["locks"])
@@ -456,8 +487,10 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
     finally:
         del os.environ["FOUNDRY_LOCK_DIR"]
     assert rc == 7
-    metrics_file = target["wt"] / ".foundry" / "metrics.jsonl"
+    # WS75: runtime telemetry lives under run_dir, outside the Git worktree.
+    metrics_file = Path(plan["run_dir"]) / "metrics.jsonl"
     assert metrics_file.is_file()
+    assert not (target["wt"] / ".foundry" / "metrics.jsonl").exists()
     records = [json.loads(line) for line in metrics_file.read_text(encoding="utf-8").splitlines()]
     assert len(records) == 2
     assert records[0]["task_id"] == "TEST-WS"
@@ -545,6 +578,7 @@ def test_init_ready_for_all_three_profiles(
         allow_suppressed_routing=False,
         install_pre_push_hook=False,
         run_dir=str(tmp_path / "rundir"),
+        # WS75R: autouse hermetic stub serves the binary (no ambient opencode).
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])

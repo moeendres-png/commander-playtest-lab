@@ -44,7 +44,7 @@
     "todowrite": "allow",
     "question": "allow",
     "skill": "allow",
-    "doom_loop": "ask",
+    "doom_loop": "deny",
     "edit": {
       "*": "allow",
       "*.env": "deny",

@@ -26,6 +26,24 @@ Effort: --effort must be high|xhigh (below-HIGH rejected). TUI sessions run
 the HIGH implementer by config default; xhigh work routes to the
 foundry-adjudicator subagent (variant xhigh). The launcher records effort in
 telemetry and lock metadata; it invents no OpenCode flags.
+
+WS75 hardening:
+
+- ``--ui-mode headless`` (default) execs first-class headless argv
+  ``opencode run --auto <extra...>`` exactly in that order (opencode.ai
+  CLI docs: ``opencode run --auto "msg"``). ``--ui-mode tui`` preserves
+  the interactive form ``opencode --auto <extra...>``. No external
+  wrapper is needed for either form.
+- Runtime telemetry lives under ``run_dir`` (outside the Git worktree);
+  launcher execution leaves the worktree clean.
+- The exact ``--state`` path plus worktree/branch/workstream/run-dir/
+  mode/effort reach Muse as ``FOUNDRY_*`` env (no secrets) and as
+  ``run_dir/launch-context.json``.
+- Declared read-only reference roots (``--reference`` JSON, repeatable)
+  are verified at bootstrap and exposed as ``FOUNDRY_REFERENCE_ROOTS``.
+- The installed OpenCode CLI must equal the canonical qualified version
+  (``tools/foundry/opencode_cli_version.py``) unless explicit
+  ``--version-audit-mode`` bounds the drift for migration/audit runs.
 """
 
 from __future__ import annotations
@@ -44,6 +62,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bootstrap as bootstrap_mod
 import drift_check as drift_mod
 import metrics as metrics_mod
+import opencode_cli_version as version_mod
+import reference_roots as reference_mod
 import writer_lock as writer_lock_mod
 
 CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
@@ -51,6 +71,7 @@ CANONICAL_PROVIDER = "opencode-go"
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
+UI_MODES = ("headless", "tui")
 
 HOOK_MARKER = "# foundry-launcher-managed pre-push hook"
 
@@ -74,6 +95,29 @@ while read local_ref local_sha remote_ref remote_sha; do
 done
 exit 0
 """
+
+
+def build_argv(binary: str, ui_mode: str, argv_extra: list[str]) -> list[str]:
+    """Exact child argv for one UI mode (fail closed on unknown mode).
+
+    headless: ``<bin> run --auto <extra...>`` — the documented
+    non-interactive form (opencode.ai CLI + permissions docs).
+    tui: ``<bin> --auto <extra...>`` — the interactive form, which also
+    accepts ``--auto``. ``run`` stays first after the binary and
+    ``--auto`` immediately after ``run``; extras keep caller order.
+    """
+    if ui_mode == "headless":
+        return [binary, "run", "--auto", *argv_extra]
+    if ui_mode == "tui":
+        return [binary, "--auto", *argv_extra]
+    raise ValueError(f"unknown ui_mode {ui_mode!r} (want one of {UI_MODES})")
+
+
+def resolve_opencode_binary(explicit: str | None) -> str:
+    """Explicit flag wins, then FOUNDRY_OPENCODE_BIN, then PATH ``opencode``."""
+    if explicit:
+        return explicit
+    return os.environ.get(OPENCODE_BIN_ENV, "opencode")
 
 
 def _git(args: list[str], cwd: str) -> str:
@@ -188,6 +232,10 @@ def resolve_environment(
     session: str,
     drift_suppressed: bool,
     run_dir: str,
+    state_path: str | None,
+    mode: str,
+    references: list[dict],
+    opencode_binary: str,
 ) -> dict:
     """Build the child environment. Raises ValueError fail-closed."""
     if effort in BELOW_HIGH or effort not in ALLOWED_EFFORTS:
@@ -207,13 +255,24 @@ def resolve_environment(
     policy_hash = drift_mod.canonical_bundle_hash(
         canonical_root, drift_mod.load_cpl_canonical_files(drift_mod.DEFAULT_PROFILES_DIR)
     )
-    env[OPENCODE_BIN_ENV] = env.get(OPENCODE_BIN_ENV, "opencode")
+    env[OPENCODE_BIN_ENV] = opencode_binary
     env["OPENCODE_CONFIG_CONTENT"] = json.dumps(bundle)
     env["OPENCODE_CONFIG_DIR"] = config_dir
     env["FOUNDRY_WORKSTREAM"] = workstream
     env["FOUNDRY_BRANCH"] = branch
     env["FOUNDRY_SESSION"] = session
     env["FOUNDRY_EFFORT"] = effort
+    # WS75 state-path context: the exact launcher state path (or the
+    # resolved default) plus worktree/branch/workstream/run-dir/mode/
+    # effort, so Muse never guesses `.foundry/WORKSTREAM_STATE.yaml`.
+    # Values are paths/identities only — never secrets.
+    env["FOUNDRY_STATE_PATH"] = state_path or str(
+        Path(worktree) / ".foundry" / "WORKSTREAM_STATE.yaml"
+    )
+    env["FOUNDRY_WORKTREE"] = worktree
+    env["FOUNDRY_RUN_DIR"] = run_dir
+    env["FOUNDRY_MODE"] = mode
+    env["FOUNDRY_REFERENCE_ROOTS"] = json.dumps(references, sort_keys=True)
     env["FOUNDRY_CANONICAL_POLICY_HASH"] = policy_hash
     env["FOUNDRY_CONFIG_DIR_MANIFEST"] = manifest["sha256"]
     if drift_suppressed:
@@ -222,8 +281,17 @@ def resolve_environment(
     return env
 
 
-def _metrics_path(worktree: str) -> str:
-    return str(Path(worktree) / ".foundry" / "metrics.jsonl")
+def _metrics_path(run_dir: str) -> str:
+    """Runtime telemetry lives under run_dir, outside the Git worktree."""
+    return str(Path(run_dir) / "metrics.jsonl")
+
+
+def write_launch_context(run_dir: str, context: dict) -> str:
+    """Persist non-secret launch context for Muse/audit. Returns path."""
+    path = Path(run_dir) / "launch-context.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(context, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return str(path)
 
 
 def init(
@@ -242,9 +310,41 @@ def init(
     allow_suppressed_routing: bool,
     install_pre_push_hook: bool,
     run_dir: str,
+    ui_mode: str = "headless",
+    references: list[str] | None = None,
+    opencode_bin: str | None = None,
+    version_audit_mode: bool = False,
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
+    if ui_mode not in UI_MODES:
+        return {"verdict": "LAUNCH_REFUSED", "error": f"unknown ui_mode {ui_mode!r}"}
     canonical = os.path.realpath(os.path.abspath(worktree))
+    parsed_refs: list[dict] = []
+    for raw in references or []:
+        try:
+            parsed_refs.append(reference_mod.parse_spec(raw))
+        except reference_mod.ReferenceError as exc:
+            return {"verdict": "LAUNCH_REFUSED", "error": f"reference: {exc}"}
+    binary = resolve_opencode_binary(opencode_bin)
+    try:
+        version = version_mod.verify(binary)
+    except version_mod.VersionCheckError as exc:
+        return {"verdict": "LAUNCH_REFUSED", "error": f"opencode version: {exc}"}
+    version_note: str | None = None
+    if not version["ok"] and not version_audit_mode:
+        return {
+            "verdict": "LAUNCH_REFUSED",
+            "error": (
+                f"opencode version drift: installed {version['installed']!r} != "
+                f"qualified {version['expected']!r} "
+                "(pass --version-audit-mode only for bounded migration/audit runs)"
+            ),
+        }
+    if not version["ok"]:
+        version_note = (
+            f"version audit mode: installed {version['installed']!r} != "
+            f"qualified {version['expected']!r} (proceeding explicitly)"
+        )
     gate = bootstrap_mod.bootstrap(
         canonical,
         workstream,
@@ -256,10 +356,12 @@ def init(
         canonical_root,
         allow_same_cwd_pids,
         allow_suppressed_routing,
+        parsed_refs,
     )
     if gate["verdict"] != "BOOTSTRAP_PASS":
         return {"verdict": "LAUNCH_REFUSED", "gate": gate}
     drift_suppressed = gate["drift"]["verdict"] == "DRIFT_FAIL"
+    resolved_state = state_path or str(Path(canonical) / ".foundry" / "WORKSTREAM_STATE.yaml")
     try:
         env = resolve_environment(
             canonical_root=canonical_root,
@@ -270,6 +372,10 @@ def init(
             session=session,
             drift_suppressed=drift_suppressed,
             run_dir=run_dir,
+            state_path=resolved_state,
+            mode=mode,
+            references=parsed_refs,
+            opencode_binary=binary,
         )
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": str(exc)}
@@ -283,6 +389,31 @@ def init(
         live_head = _git(["rev-parse", "HEAD"], canonical)
     except RuntimeError:
         live_head = "UNKNOWN"
+    context = {
+        "workstream": workstream,
+        "branch": branch,
+        "worktree": canonical,
+        "state_path": resolved_state,
+        "run_dir": run_dir,
+        "mode": mode,
+        "ui_mode": ui_mode,
+        "effort": effort,
+        "session": session,
+        "opencode_binary": binary,
+        "opencode_version": version,
+        "version_audit_mode": version_audit_mode,
+        "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
+        "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
+        "references": parsed_refs,
+        "live_head": live_head,
+    }
+    try:
+        context_path = write_launch_context(run_dir, context)
+    except OSError as exc:
+        return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": f"context: {exc}"}
+    notes = []
+    if version_note:
+        notes.append(version_note)
     return {
         "verdict": "LAUNCH_READY",
         "gate": gate,
@@ -291,17 +422,33 @@ def init(
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
         "hook_path": hook_path,
         "mode": mode,
+        "ui_mode": ui_mode,
         "session": session,
         "live_head": live_head,
+        "run_dir": run_dir,
+        "state_path": resolved_state,
+        "opencode_binary": binary,
+        "opencode_version": version,
+        "version_audit_mode": version_audit_mode,
+        "context_path": context_path,
+        "notes": notes,
         "_env": env,
     }
 
 
-def launch(plan: dict, argv_extra: list[str], worktree: str, workstream: str, effort: str) -> int:
+def launch(
+    plan: dict,
+    argv_extra: list[str],
+    worktree: str,
+    workstream: str,
+    effort: str,
+    ui_mode: str | None = None,
+) -> int:
     """Hold the writer lock across the OpenCode child; telemetry; passthrough exit."""
     if plan.get("verdict") != "LAUNCH_READY":
         print(f"LAUNCH_REFUSED: {plan.get('error', plan.get('gate', {}))}", file=sys.stderr)
         return 1
+    mode = ui_mode or plan.get("ui_mode", "headless")
     env: dict = plan["_env"]
     lock = writer_lock_mod.WriterLock(
         worktree, workstream, env.get("FOUNDRY_BRANCH", ""), env.get("FOUNDRY_SESSION", "")
@@ -311,7 +458,8 @@ def launch(plan: dict, argv_extra: list[str], worktree: str, workstream: str, ef
     except writer_lock_mod.LockedError as exc:
         print(str(exc), file=sys.stderr)
         return writer_lock_mod.HELD_EXIT
-    metrics_path = _metrics_path(worktree)
+    run_dir = plan.get("run_dir") or env.get("FOUNDRY_RUN_DIR") or "/tmp/foundry-launch-unknown"
+    metrics_path = _metrics_path(run_dir)
     start_mono = time.monotonic()
     start_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     auto = {
@@ -337,8 +485,13 @@ def launch(plan: dict, argv_extra: list[str], worktree: str, workstream: str, ef
         )
     except OSError as exc:
         print(f"LAUNCH_WARN: telemetry start not recorded: {exc}", file=sys.stderr)
-    binary = env.get(OPENCODE_BIN_ENV, "opencode")
-    argv = [binary, "--auto", *argv_extra]
+    binary = plan.get("opencode_binary") or env.get(OPENCODE_BIN_ENV, "opencode")
+    try:
+        argv = build_argv(binary, mode, argv_extra)
+    except ValueError as exc:
+        print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
+        lock.release()
+        return 1
     print(f"LAUNCH: holding writer lock; exec {' '.join(argv)} (cwd={worktree})")
     try:
         proc = subprocess.run(argv, cwd=worktree, env=env, check=False)
@@ -395,6 +548,28 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allow-suppressed-routing", action="store_true")
     parser.add_argument("--install-hook", action="store_true")
     parser.add_argument("--run-dir", default=None)
+    parser.add_argument(
+        "--ui-mode",
+        default="headless",
+        choices=("headless", "tui"),
+        help="headless execs `opencode run --auto ...`; tui execs `opencode --auto ...`.",
+    )
+    parser.add_argument(
+        "--reference",
+        action="append",
+        default=[],
+        help="Declared read-only reference root as JSON (repeatable).",
+    )
+    parser.add_argument(
+        "--opencode-bin",
+        default=None,
+        help="Exact OpenCode binary (default: $FOUNDRY_OPENCODE_BIN or PATH `opencode`).",
+    )
+    parser.add_argument(
+        "--version-audit-mode",
+        action="store_true",
+        help="Bounded migration/audit mode: proceed despite CLI version drift (recorded).",
+    )
     args, extra = parser.parse_known_args(argv)
     if args.command == "launch" and args.mode == "reader":
         print("LAUNCH_REFUSED: reader mode is audit-only (use init)", file=sys.stderr)
@@ -416,6 +591,10 @@ def main(argv: list[str] | None = None) -> int:
         allow_suppressed_routing=args.allow_suppressed_routing,
         install_pre_push_hook=args.install_hook,
         run_dir=run_dir,
+        ui_mode=args.ui_mode,
+        references=args.reference,
+        opencode_bin=args.opencode_bin,
+        version_audit_mode=args.version_audit_mode,
     )
     printable = {k: v for k, v in plan.items() if k != "_env"}
     print(json.dumps(printable, indent=2, sort_keys=True, default=str))

@@ -6,7 +6,9 @@ model call, push, or remote mutation.
 
 Method honesty:
 - Rule ORDER comes from the pinned runtime's own resolver output
-  (RUNTIME_VERIFIED ordering via ``opencode debug agent`` on CLI 1.18.29).
+  (RUNTIME_VERIFIED ordering via ``opencode debug agent`` on CLI 1.18.29,
+  re-verified on the qualified CLI 1.18.30 in WS75:
+  ``research/foundry/ws75-opencode-tooling-hardening/permission-battery-1.18.30.json``).
 - Pattern MATCHING replicates the pinned CLI Wildcard exactly
   (CODE_DERIVED matching): ``*`` -> ``.*``, ``?`` -> ``.``, regex-escaped,
   anchored ``^...$``, backslash-normalized, trailing ``" .*\"`` optional-group
@@ -111,6 +113,10 @@ PROBES: list[tuple[str, str, str, str, str]] = [
     ("X03", "foundry-implementer", "external_directory", "/home/moeen/code/somewhere-else", "rule"),
     # R-series: residual bypass shapes no pattern rule can express (analysis).
     ("R33", "foundry-implementer", "bash", "VAR=x prefix bypass", "analysis"),
+    # D-series: WS75 repetition guard (doom_loop must resolve DENY: under
+    # --auto an ask would auto-approve identical repetition).
+    ("D01", "foundry-implementer", "doom_loop", "repeat identical tool call", "rule"),
+    ("D02", "foundry-implementer", "bash", "git -C /tmp/wt status", "rule"),
 ]
 
 ANALYSIS_VERDICTS = {
