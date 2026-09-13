@@ -1,0 +1,1053 @@
+{
+  "artifact_version": "commander-lab.ws44-predecessor-semantic-probe/1.0.0",
+  "dangling_object_reference_count": 8,
+  "dangling_object_references": [
+    {
+      "field": "targets[0]",
+      "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+      "path": "$.stack_state[0].targets[0]",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:P1-commander"
+    },
+    {
+      "field": "source_semantic_id",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "path": "$.action_cost_state[0].source_semantic_id",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:micro-counter"
+    },
+    {
+      "field": "object",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "path": "$.decision_script[0].selection.semantic_value.object",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:micro-counter"
+    },
+    {
+      "field": "source_object",
+      "fixture_id": "MICRO_MANA_PAYMENT",
+      "path": "$.native_procedure[0].source_object",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:micro-counter"
+    },
+    {
+      "field": "targets[0]",
+      "fixture_id": "MICRO_PRIORITY",
+      "path": "$.stack_state[0].targets[0]",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:P2-bears"
+    },
+    {
+      "field": "targets[0]",
+      "fixture_id": "MICRO_STACK",
+      "path": "$.stack_state[0].targets[0]",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:P2-bears"
+    },
+    {
+      "field": "source_object",
+      "fixture_id": "MICRO_TRIGGERS",
+      "path": "$.native_procedure[2].source_object",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:micro-surge"
+    },
+    {
+      "field": "eligible_blockers[0]",
+      "fixture_id": "WS05-MP-BLOCK-4",
+      "path": "$.combat_state.eligible_blockers[0]",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:mp-blocker"
+    }
+  ],
+  "duplicate_object_id_record_count": 0,
+  "duplicate_object_id_records": [],
+  "global_object_reference_count": 501,
+  "historical_bug_exact_match_count": 2,
+  "historical_bug_exact_matches": [
+    {
+      "field": "targets[0]",
+      "fixture_id": "MICRO_PRIORITY",
+      "path": "$.stack_state[0].targets[0]",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:P2-bears"
+    },
+    {
+      "field": "targets[0]",
+      "fixture_id": "MICRO_STACK",
+      "path": "$.stack_state[0].targets[0]",
+      "status": "DANGLING_REFERENCE",
+      "value": "obj:P2-bears"
+    }
+  ],
+  "micro_records": {
+    "MICRO_PRIORITY": {
+      "dangling_object_references": [
+        {
+          "field": "targets[0]",
+          "match_count": 0,
+          "namespace": "semantic_object",
+          "path": "$.stack_state[0].targets[0]",
+          "status": "DANGLING_REFERENCE",
+          "value": "obj:P2-bears"
+        }
+      ],
+      "decision_script": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "priority",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_action",
+            "semantic_value": {
+              "action": "cast",
+              "object": "obj:micro-growth"
+            }
+          }
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "target",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_object",
+            "semantic_value": "obj:micro-target"
+          }
+        }
+      ],
+      "declared_object_count": 11,
+      "duplicate_object_ids": [],
+      "expected_events": {
+        "forbidden_events": [],
+        "ordering_constraints": [
+          [
+            "spell_cast:Giant_Growth",
+            "resolve:Giant_Growth"
+          ],
+          [
+            "resolve:Giant_Growth",
+            "resolve:Lightning_Bolt"
+          ]
+        ],
+        "partial_order_constraints": [],
+        "required_events": [
+          "priority:P2",
+          "spell_cast:Giant_Growth",
+          "stack_push:Giant_Growth",
+          "resolve:Giant_Growth",
+          "resolve:Lightning_Bolt"
+        ]
+      },
+      "expected_postconditions": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_PRIORITY",
+      "materialization_digest": "8a5ca721a904b7307ee3c0b1d2f1fd98d5d283ea335a13eb0e98830e3cbf32b8",
+      "native_procedure": [
+        {
+          "details": {
+            "targets": [
+              "obj:micro-target"
+            ]
+          },
+          "operation": "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resume"
+        },
+        {
+          "actor": "P2",
+          "details": {
+            "cost": "{G}",
+            "from_zone": "hand",
+            "target_cardinality": 1
+          },
+          "operation": "NATIVE_CAST_SPELL",
+          "source_object": "obj:micro-growth",
+          "step_id": "cast-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-growth",
+          "step_id": "resolve-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resolve-bolt"
+        }
+      ],
+      "object_references": [
+        {
+          "field": "explicit_payment_sources[0]",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.action_cost_state[0].explicit_payment_sources[0]",
+          "status": "PASS",
+          "value": "obj:micro-forest"
+        },
+        {
+          "field": "source_semantic_id",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.action_cost_state[0].source_semantic_id",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.decision_script[0].selection.semantic_value.object",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "semantic_value",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.decision_script[1].selection.semantic_value",
+          "status": "PASS",
+          "value": "obj:micro-target"
+        },
+        {
+          "field": "targets[0]",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[0].details.targets[0]",
+          "status": "PASS",
+          "value": "obj:micro-target"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[0].source_object",
+          "status": "PASS",
+          "value": "obj:micro-bolt"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[1].source_object",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[2].source_object",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[3].source_object",
+          "status": "PASS",
+          "value": "obj:micro-bolt"
+        },
+        {
+          "field": "source_semantic_id",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.stack_state[0].source_semantic_id",
+          "status": "PASS",
+          "value": "obj:micro-bolt"
+        },
+        {
+          "field": "targets[0]",
+          "match_count": 0,
+          "namespace": "semantic_object",
+          "path": "$.stack_state[0].targets[0]",
+          "status": "DANGLING_REFERENCE",
+          "value": "obj:P2-bears"
+        }
+      ],
+      "obligation_digest": "19b389f44ac320ca20245559207185647eb63bab4af9de0e532a9c6874ca4bf5",
+      "requested_state_digest": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae",
+      "semantic_objects": [
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P1-A",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:P1-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P2-A",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:P2-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P3-A",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:P3-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P4-A",
+          "controller": "P4",
+          "counters": {},
+          "face_down": false,
+          "owner": "P4",
+          "semantic_id": "obj:P4-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:p1-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:p2-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:p3-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Lightning Bolt",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:micro-bolt",
+          "tapped": false,
+          "zone": "stack"
+        },
+        {
+          "card_identity": "Giant Growth",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-growth",
+          "tapped": false,
+          "zone": "hand"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-target",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Forest",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-forest",
+          "tapped": false,
+          "zone": "battlefield"
+        }
+      ],
+      "stack_state": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "obj:P2-bears"
+          ]
+        }
+      ]
+    },
+    "MICRO_STACK": {
+      "dangling_object_references": [
+        {
+          "field": "targets[0]",
+          "match_count": 0,
+          "namespace": "semantic_object",
+          "path": "$.stack_state[0].targets[0]",
+          "status": "DANGLING_REFERENCE",
+          "value": "obj:P2-bears"
+        }
+      ],
+      "decision_script": [
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "priority",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_action",
+            "semantic_value": {
+              "action": "cast",
+              "object": "obj:micro-growth"
+            }
+          }
+        },
+        {
+          "actor": "P2",
+          "causal_step_id": "cast-growth",
+          "decision_family": "target",
+          "forbidden_fallbacks": [
+            "first_option",
+            "random_option",
+            "default_yes_no",
+            "internal_ai",
+            "gui_default",
+            "silent_skip",
+            "parent_class_fallback"
+          ],
+          "notes": "",
+          "selection": {
+            "matches_only_provider_offered_legal_options": true,
+            "on_multiple_match": "FAIL_CLOSED",
+            "on_zero_match": "FAIL_CLOSED",
+            "selector_kind": "semantic_object",
+            "semantic_value": "obj:micro-target"
+          }
+        }
+      ],
+      "declared_object_count": 11,
+      "duplicate_object_ids": [],
+      "expected_events": {
+        "forbidden_events": [],
+        "ordering_constraints": [
+          [
+            "spell_cast:Giant_Growth",
+            "resolve:Giant_Growth"
+          ],
+          [
+            "resolve:Giant_Growth",
+            "resolve:Lightning_Bolt"
+          ]
+        ],
+        "partial_order_constraints": [],
+        "required_events": [
+          "priority:P2",
+          "spell_cast:Giant_Growth",
+          "stack_push:Giant_Growth",
+          "resolve:Giant_Growth",
+          "resolve:Lightning_Bolt"
+        ]
+      },
+      "expected_postconditions": [],
+      "fixture_family": "micro_rules",
+      "fixture_id": "MICRO_STACK",
+      "materialization_digest": "fc5af0dd05bc10f4e26c93533e3b48c86692dc92c79931db948f6c549c092b4d",
+      "native_procedure": [
+        {
+          "details": {
+            "targets": [
+              "obj:micro-target"
+            ]
+          },
+          "operation": "NATIVE_RESUME_WITH_FULLY_CAST_STACK_SPELL",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resume"
+        },
+        {
+          "actor": "P2",
+          "details": {
+            "cost": "{G}",
+            "from_zone": "hand",
+            "target_cardinality": 1
+          },
+          "operation": "NATIVE_CAST_SPELL",
+          "source_object": "obj:micro-growth",
+          "step_id": "cast-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-growth",
+          "step_id": "resolve-growth"
+        },
+        {
+          "details": {},
+          "operation": "NATIVE_RESOLVE_TOP_OF_STACK",
+          "source_object": "obj:micro-bolt",
+          "step_id": "resolve-bolt"
+        }
+      ],
+      "object_references": [
+        {
+          "field": "explicit_payment_sources[0]",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.action_cost_state[0].explicit_payment_sources[0]",
+          "status": "PASS",
+          "value": "obj:micro-forest"
+        },
+        {
+          "field": "source_semantic_id",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.action_cost_state[0].source_semantic_id",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.decision_script[0].selection.semantic_value.object",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "semantic_value",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.decision_script[1].selection.semantic_value",
+          "status": "PASS",
+          "value": "obj:micro-target"
+        },
+        {
+          "field": "targets[0]",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[0].details.targets[0]",
+          "status": "PASS",
+          "value": "obj:micro-target"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[0].source_object",
+          "status": "PASS",
+          "value": "obj:micro-bolt"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[1].source_object",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[2].source_object",
+          "status": "PASS",
+          "value": "obj:micro-growth"
+        },
+        {
+          "field": "source_object",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.native_procedure[3].source_object",
+          "status": "PASS",
+          "value": "obj:micro-bolt"
+        },
+        {
+          "field": "source_semantic_id",
+          "match_count": 1,
+          "namespace": "semantic_object",
+          "path": "$.stack_state[0].source_semantic_id",
+          "status": "PASS",
+          "value": "obj:micro-bolt"
+        },
+        {
+          "field": "targets[0]",
+          "match_count": 0,
+          "namespace": "semantic_object",
+          "path": "$.stack_state[0].targets[0]",
+          "status": "DANGLING_REFERENCE",
+          "value": "obj:P2-bears"
+        }
+      ],
+      "obligation_digest": "bd58a0a80630f44cc6933cdccc6250874ba5a578f264b71bb047979d262088d2",
+      "requested_state_digest": "a031bd468065626232a04fec05470e7aef28deb933933cec9c9b7a288b7b73ae",
+      "semantic_objects": [
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P1-A",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:P1-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P2-A",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:P2-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P3-A",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:P3-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Rograkh, Son of Rohgahh",
+          "commander_id": "cmd:P4-A",
+          "controller": "P4",
+          "counters": {},
+          "face_down": false,
+          "owner": "P4",
+          "semantic_id": "obj:P4-commander",
+          "tapped": false,
+          "zone": "command"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:p1-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:p2-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P3",
+          "counters": {},
+          "face_down": false,
+          "owner": "P3",
+          "semantic_id": "obj:p3-bears",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Lightning Bolt",
+          "controller": "P1",
+          "counters": {},
+          "face_down": false,
+          "owner": "P1",
+          "semantic_id": "obj:micro-bolt",
+          "tapped": false,
+          "zone": "stack"
+        },
+        {
+          "card_identity": "Giant Growth",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-growth",
+          "tapped": false,
+          "zone": "hand"
+        },
+        {
+          "card_identity": "Grizzly Bears",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-target",
+          "tapped": false,
+          "zone": "battlefield"
+        },
+        {
+          "card_identity": "Forest",
+          "controller": "P2",
+          "counters": {},
+          "face_down": false,
+          "owner": "P2",
+          "semantic_id": "obj:micro-forest",
+          "tapped": false,
+          "zone": "battlefield"
+        }
+      ],
+      "stack_state": [
+        {
+          "cast_complete": true,
+          "controller": "P1",
+          "costs_paid": true,
+          "modes": [],
+          "source_semantic_id": "obj:micro-bolt",
+          "targets": [
+            "obj:P2-bears"
+          ]
+        }
+      ]
+    }
+  },
+  "predecessor": {
+    "canonical_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "materialization_blob": "a05106d42ff3e51fe68acf45bb03aa356784142c",
+    "materialization_path": "qualification/ws41/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_3.json",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "namespace_tree": "af8a26e7e74a859d5f4a983b69e4ff108e7123f4",
+    "tree": "428bbe58b2ea7b869200521092a8768108029b47"
+  },
+  "probe_classification": "PASS_REPRODUCED_EXACT_V1_0_3_REFERENTIAL_DEFECT",
+  "record_count": 135,
+  "reference_field_inventory": [
+    {
+      "count": 2,
+      "field": "Tear"
+    },
+    {
+      "count": 2,
+      "field": "Wear"
+    },
+    {
+      "count": 4,
+      "field": "attached_to"
+    },
+    {
+      "count": 2,
+      "field": "damage_targets[0]"
+    },
+    {
+      "count": 2,
+      "field": "damage_targets[1]"
+    },
+    {
+      "count": 2,
+      "field": "delve_objects[0]"
+    },
+    {
+      "count": 2,
+      "field": "delve_objects[1]"
+    },
+    {
+      "count": 2,
+      "field": "delve_objects[2]"
+    },
+    {
+      "count": 2,
+      "field": "delve_objects[3]"
+    },
+    {
+      "count": 2,
+      "field": "delve_objects[4]"
+    },
+    {
+      "count": 2,
+      "field": "delve_objects[5]"
+    },
+    {
+      "count": 2,
+      "field": "eligible_attackers[0]"
+    },
+    {
+      "count": 1,
+      "field": "eligible_attackers[1]"
+    },
+    {
+      "count": 1,
+      "field": "eligible_blockers[0]"
+    },
+    {
+      "count": 1,
+      "field": "enchanted_semantic_id"
+    },
+    {
+      "count": 40,
+      "field": "explicit_payment_sources[0]"
+    },
+    {
+      "count": 2,
+      "field": "explicit_payment_sources[10]"
+    },
+    {
+      "count": 1,
+      "field": "explicit_payment_sources[11]"
+    },
+    {
+      "count": 29,
+      "field": "explicit_payment_sources[1]"
+    },
+    {
+      "count": 20,
+      "field": "explicit_payment_sources[2]"
+    },
+    {
+      "count": 19,
+      "field": "explicit_payment_sources[3]"
+    },
+    {
+      "count": 15,
+      "field": "explicit_payment_sources[4]"
+    },
+    {
+      "count": 5,
+      "field": "explicit_payment_sources[5]"
+    },
+    {
+      "count": 4,
+      "field": "explicit_payment_sources[6]"
+    },
+    {
+      "count": 4,
+      "field": "explicit_payment_sources[7]"
+    },
+    {
+      "count": 3,
+      "field": "explicit_payment_sources[8]"
+    },
+    {
+      "count": 2,
+      "field": "explicit_payment_sources[9]"
+    },
+    {
+      "count": 4,
+      "field": "known_object_identities[0]"
+    },
+    {
+      "count": 2,
+      "field": "mana_payment[0]"
+    },
+    {
+      "count": 2,
+      "field": "mana_payment[1]"
+    },
+    {
+      "count": 2,
+      "field": "obj:card25-blocker"
+    },
+    {
+      "count": 1,
+      "field": "obj:micro-blocker"
+    },
+    {
+      "count": 2,
+      "field": "obj:mp-p2-blocker"
+    },
+    {
+      "count": 2,
+      "field": "obj:p2-bears"
+    },
+    {
+      "count": 65,
+      "field": "object"
+    },
+    {
+      "count": 2,
+      "field": "pile_a[0]"
+    },
+    {
+      "count": 2,
+      "field": "pile_a[1]"
+    },
+    {
+      "count": 2,
+      "field": "pile_b[0]"
+    },
+    {
+      "count": 2,
+      "field": "pile_b[1]"
+    },
+    {
+      "count": 2,
+      "field": "pile_b[2]"
+    },
+    {
+      "count": 2,
+      "field": "required_mana_source"
+    },
+    {
+      "count": 2,
+      "field": "sacrifice"
+    },
+    {
+      "count": 2,
+      "field": "sacrifice_cost"
+    },
+    {
+      "count": 22,
+      "field": "semantic_value"
+    },
+    {
+      "count": 11,
+      "field": "semantic_value[0]"
+    },
+    {
+      "count": 11,
+      "field": "semantic_value[1]"
+    },
+    {
+      "count": 5,
+      "field": "semantic_value[2]"
+    },
+    {
+      "count": 5,
+      "field": "semantic_value[3]"
+    },
+    {
+      "count": 5,
+      "field": "semantic_value[4]"
+    },
+    {
+      "count": 1,
+      "field": "semantic_value[5]"
+    },
+    {
+      "count": 8,
+      "field": "source"
+    },
+    {
+      "count": 43,
+      "field": "source_object"
+    },
+    {
+      "count": 73,
+      "field": "source_semantic_id"
+    },
+    {
+      "count": 1,
+      "field": "sources[0]"
+    },
+    {
+      "count": 1,
+      "field": "sources[1]"
+    },
+    {
+      "count": 2,
+      "field": "tap_targets[0]"
+    },
+    {
+      "count": 2,
+      "field": "tap_targets[1]"
+    },
+    {
+      "count": 10,
+      "field": "target"
+    },
+    {
+      "count": 2,
+      "field": "target_spell"
+    },
+    {
+      "count": 19,
+      "field": "targets[0]"
+    },
+    {
+      "count": 1,
+      "field": "targets[1]"
+    },
+    {
+      "count": 1,
+      "field": "targets[2]"
+    },
+    {
+      "count": 1,
+      "field": "targets[3]"
+    },
+    {
+      "count": 1,
+      "field": "targets[4]"
+    },
+    {
+      "count": 1,
+      "field": "targets[5]"
+    },
+    {
+      "count": 4,
+      "field": "unblocked[0]"
+    },
+    {
+      "count": 2,
+      "field": "unblocked_attackers[0]"
+    }
+  ],
+  "source_mode": "DETACHED_EXACT_GIT_OBJECT_VIA_GIT_SHOW",
+  "workstream": "WS-44"
+}

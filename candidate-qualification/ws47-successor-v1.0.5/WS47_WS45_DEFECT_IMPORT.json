@@ -1,0 +1,35 @@
+{
+  "artifact_version": "commander-lab.ws47-ws45-defect-import/1.0.0",
+  "workstream": "WS-47",
+  "source_workstream": "WS-45",
+  "source_role": "DEFECT_DISCOVERY_PROVENANCE_ONLY",
+  "semantic_authority": false,
+  "runtime_credit_imported": 0,
+  "source_handoff": "candidate-qualification/ws45-forge-v1.0.4/WS45_FINAL_HANDOFF.md",
+  "source_branch": "ws45/forge-v1.0.4-successor-qualification",
+  "source_terminal_status": "WS45 = COMPLETE / FAIL_IMMUTABLE_WS44_CONTRACT_CONFLICT",
+  "source_provider_qualified": false,
+  "terminal_runtime": {
+    "execution_commit": "0038fa1974051a780243d01116706aafaeda57bd",
+    "terminal_authority_checkpoint": "6c3791fc0a30f09d00a03dbd8b1ed67621d62885",
+    "workflow_run_id": 34222473068,
+    "job_id": 102048601313,
+    "artifact_id": 10054440299,
+    "artifact_zip_sha256": "280f87b8aa01ae6400e32c1f19df2dbfe4af0aaddc871e3d5c191a645bed55e4"
+  },
+  "defect": {
+    "fixture_id": "WS05-MP-BLOCK-4",
+    "path": "combat_state.eligible_blockers",
+    "ws44_requested": ["obj:mp-p2-blocker"],
+    "ws45_observed_native_surface": ["obj:P2-bears", "obj:mp-p2-blocker"],
+    "classification": "IMMUTABLE_SUCCESSOR_CONTRACT_CONFLICT_REQUIRING_PROVIDER_NEUTRAL_AUTHORITY_ADJUDICATION"
+  },
+  "ws47_independent_resolution": {
+    "freeze_record_reextracted": true,
+    "freeze_record_digest_reverified": true,
+    "current_primary_rules_reverified": true,
+    "provider_behavior_used_as_rules_authority": false,
+    "conclusion": "The WS45 finding is accepted only as defect-discovery provenance. WS47 independently closes the semantic question from immutable WS44 state facts plus current official Comprehensive Rules."
+  },
+  "terminal_status": "PASS_PROVENANCE_IMPORT_ONLY"
+}
