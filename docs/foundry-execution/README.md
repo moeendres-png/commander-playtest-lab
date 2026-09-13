@@ -23,7 +23,8 @@ Single coherent entry point for the OpenCode/Muse execution system on
 | Compaction record | `docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md` | `COMPACTION_HOOK = DEFERRED` + reason |
 | Metrics | `docs/foundry-execution/METRICS.md` + `tools/foundry/metrics.py` | JSONL session records |
 | Benchmark design | `docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md` | Replay schema, no claimed results |
-| Next workstream | `handoffs/CROSS_CANDIDATE_DECISION_PLUMBING_ROOT_CAUSE_AUDIT.md` | Source-locked XHIGH task spec |
+| Research/current-source reconciliation | `docs/foundry-execution/ASTRA_RESEARCH_DELTA_2026-09-14.md` | Which OpenCode/Muse research actions are already implemented, superseded, or still NOT_RUN |
+| Next workstream | `handoffs/ws191/WS191_FORGE_SUCCESSOR_BRIDGE_INTEGRATION.md` | Source-locked XHIGH Forge successor/H4F integration; closes unresolved WS90 `WAITING_FOR_WS89` dependency |
 
 Historical research, dated reports, and superseded proposals stay where they are and
 keep their facts; only their execution-routing instructions are superseded, per
