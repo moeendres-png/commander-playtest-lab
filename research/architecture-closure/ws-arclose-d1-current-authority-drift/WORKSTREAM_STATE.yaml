@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-arclose-d1
 branch: ws-arclose/d1-current-authority-drift-20260913
 audit_base_sha: f89c824e93664b8285b0b44e4445118bd99b9f98
 audit_base_tree: b250c599f03df4750b06dab739a6e1d7940fe337
-state_written_against_head: f596da8945bfa70f62e0bace7eab561002100601
-validated_head: f596da8945bfa70f62e0bace7eab561002100601
+state_written_against_head: 2dac78cd9b57eb2a8db8616dc2279e3129fb2a61
+validated_head: null
 objective: Reconcile verified current Source Truth and documentation drift remaining
   from the architecture/repository improvement program. No Rules semantics, engine
   pins, protocol, provider selection, Architecture Freeze state, Docker behavior,
@@ -33,9 +33,10 @@ out_of_scope:
 - Architecture Freeze
 - Production Provider selection
 ownership: WS-ARCLOSE-D1
-status: COMPLETE
-exact_next_action: 'COMPLETE: Coordinator-review remediation validated at f596da89
-  and sealed. No push, no PR, no merge (not authorized). Await Coordinator direction.'
+status: ACTIVE
+exact_next_action: 'Authority-decision implementation complete in worktree. Next:
+  commit implementation locally (R1), revalidate at R1, then seal COMPLETE with honest
+  validated_head. No push, no PR, no merge.'
 dependencies:
 - CPL Source Lock f89c824e / tree b250c599
 - current Foundry authority
@@ -69,44 +70,63 @@ evidence:
   e2072862; only phase85.py template retains superseded pins as provenance'
 - 'Finding 2 DIRECTLY_VERIFIED: Appendix G NOT_RUN clause predates WS-A1D-H4 remote
   run 34573843323 (H4 PARTIAL); addendum appended, original text verbatim'
-- 'Finding 3 CORRECTED (Coordinator remediation): branch-root .foundry/WORKSTREAM_STATE.yaml
-  is WS-A1D-H4-owned operational state and is intentionally UNMODIFIED by D1 (byte-identical
-  to audit base f89c824e; empty diff DIRECTLY_VERIFIED). The D1 rebind is reverted;
-  TD-D1-03 rationale withdrawn. Residual main-level root-state semantics (what repo-root
-  state should present on main) is Coordinator authority, explicitly NOT claimed fixed
-  by D1 and NOT redesigned here.'
+- 'Finding 3 CLOSED by implemented authority decision ROOT_STATE_SEMANTICS (TD-D1-10/TD-D1-11):
+  root operational state removed; historical bytes archived; explicit --state mandatory;
+  current docs coherent. Original drift actually closed, not referred.'
 - 'Finding 4 CODE_DERIVED: mage.json notes date-scoped to 2026-09-10 observation;
   current fork-root state UNKNOWN (FOUNDRY_REFERENCE_ROOTS=[]); drift gate untouched'
 - 'Finding 5 DIRECTLY_VERIFIED: opencode.yml has no pull_request trigger (comment-only,
   contents:read); guidance split CPL-main vs sync-only mirrors'
 - 'Finding 6 CODE_DERIVED: F1/F2 SUPERSEDED by launcher policy injection + drift fail-closed
   gate + mirror no-project-commit rule; design text preserved'
-- 'test_impact.py mapping: mage profile->drift tests; manifest/research->conservative
-  full mapping adjudicated (note-only manifest change; full tests/ blocked by pre-existing
-  missing deps typer/openpyxl)'
-- 'Remediation validation: D1 battery 8 passed (incl. new merge-safety no-rebind lock);
-  focused suites 218 passed; launcher/hardening 53 passed; broad tests/foundry+tests/unit
-  804 passed / 5 failed + 40 errors, signature identical to pre-remediation baseline
-  (pre-existing env, none reference changed files); ruff clean; state.py valid on
-  both state files; changed JSON parses.'
-- 'Negative control DIRECTLY_VERIFIED: pre-remediation HEAD root-state content (ownership
-  WS-ARCLOSE-D1) trips the new no-rebind lock; post-remediation content passes.'
-- 'Coordinator review finding (DIRECTLY_VERIFIED, 2026-09-13): D1 change to repository-root
-  .foundry/WORKSTREAM_STATE.yaml is not merge-safe. D1 rebound it to branch ws-arclose/d1-current-authority-drift-20260913
-  / worktree /home/moeen/code/ws-arclose-d1 / ownership WS-ARCLOSE-D1; after merge
-  to main that repeats the underlying current-state drift rather than solving it.
-  TD-D1-03 rationale contradicted by WS61 remediation evidence (research/foundry/ws61-safe-push-lineage-integration/WS61_COORDINATOR_REVIEW_REMEDIATION.md;
-  WS61 WORKSTREAM_STATE.yaml; commit 2829b2bc which RESTORED WS-A1D ownership) and
-  WS58 state (branch-root file belongs to WS-A1D; WS58 checkpoints live in dedicated
-  research file). Prior COMPLETE disposition revoked; validated_head 27f0acb3 credit
-  invalidated for any new remediation commit.'
+- 'test_impact.py mapping unchanged and still valid: bootstrap/launcher map to tests/foundry/test_launcher.py;
+  schema maps to test_state_v2; no mapping edits required'
+- 'Historical archive provenance (DIRECTLY_VERIFIED): source path .foundry/WORKSTREAM_STATE.yaml
+  at audit base f89c824e (blob 6cf09d17); archived to research/architecture-closure/ws-arclose-d1-current-authority-drift/HISTORICAL-WS-A1D-H4-archived-root-state.yaml
+  via git rename; bytes identical (sha256 e0e572093eedeb051a0836c4a10d650bb8183b3bbf6276b06a44257d4dbd1da0,
+  20712 bytes, before and after); git diff shows pure rename (0 content lines); WS-A1D-H4
+  identity intact (branch architecture/ws-a1d-h4-docker-materialization-20260911,
+  validated_head 1aab0121, H4 PARTIAL); WS58/WS61 historical records untouched'
+- 'Implementation validation (worktree, pre-commit): D1 battery 9 passed (root-absence
+  + archive + doc-coherence locks); launcher/bootstrap/foundry-tools suites green;
+  broad tests/foundry+tests/unit 811 passed / 5 failed + 40 errors with signature
+  identical to pre-existing baseline (none reference changed files); ruff check +
+  format clean on all touched Python files; state.py valid on dedicated + archived
+  state files; root .foundry/ contains schema only'
+- 'COORDINATOR AUTHORITY DECISION ROOT_STATE_SEMANTICS (2026-09-13, applied): explicit
+  workstream-specific state always; no silent <worktree>/.foundry/WORKSTREAM_STATE.yaml
+  fallback; --state mandatory; --init-state only for the explicit path; root file
+  not valid global current state; never rebind root; historical WS-A1D-H4 content
+  preserved but moved to non-operational research path; root file removed, schema
+  kept; current docs state explicit-path authority; historical reports/records/examples
+  not rewritten; current dependents updated after caller inspection; item-13 regression
+  added; sources inspected first; bounded, no schema redesign; no Rules/provider/engine/SHA/protocol/capability/Docker/qualification/GitHub/Freeze/Provider
+  changes.'
 files_modified:
-- config/rules_engines.json
+- tools/foundry/launcher.py
+- tools/foundry/bootstrap.py
+- research/architecture-closure/ws-arclose-d1-current-authority-drift/HISTORICAL-WS-A1D-H4-archived-root-state.yaml
+  (renamed from .foundry/WORKSTREAM_STATE.yaml, bytes identical)
+- .foundry/WORKSTREAM_STATE.yaml (REMOVED from operational root surface; schema kept)
+- docs/foundry-execution/README.md
+- docs/foundry-execution/ROUTING_AND_EFFORT.md
+- docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md
+- AGENTS.md
 - docs/RETENTION_AND_LIFECYCLE_POLICY.md
-- .foundry/repo-profiles/mage.json
-- docs/foundry-execution/GITHUB_REMOTE_GATES.md
-- docs/FORK_AGENT_POINTER_SPEC.md
+- .opencode/agents/foundry-implementer.md
+- .opencode/agents/foundry-reviewer.md
+- .opencode/agents/foundry-adjudicator.md
+- .opencode/skills/continuation/SKILL.md
+- .opencode/skills/workstream-bootstrap/SKILL.md
+- .opencode/skills/failure-classification/SKILL.md
+- .opencode/skills/rules-authority-escalation/SKILL.md
+- tests/foundry/test_launcher.py
+- tests/foundry/test_ws75_tooling_hardening.py
+- tests/foundry/test_foundry_tools.py
 - tests/unit/test_ws_arclose_d1_authority_drift.py
+- config/rules_engines.json
+- docs/FORK_AGENT_POINTER_SPEC.md
+- docs/foundry-execution/GITHUB_REMOTE_GATES.md
 - research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_CONTRACT.md
 - research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_STATE.yaml
 technical_decisions:
@@ -118,29 +138,45 @@ technical_decisions:
   id: TD-D1-08-coordinator-reopen
 - decision: 'Chosen resolution (smallest correct in-scope): restore branch-root .foundry/WORKSTREAM_STATE.yaml
     byte-for-byte from audit base f89c824e via git restore --source (WS61 pattern,
-    commit 2829b2bc); empty diff vs audit base DIRECTLY_VERIFIED. No rebind, no edit,
-    no delete, no reclassification of the root file: D1 has no ownership authority
-    over WS-A1D-H4 state, and any D1-authored content merged onto main would repeat
-    the drift. TD-D1-03 rationale (''per branch-root ownership precedent'') withdrawn:
-    the cited 2829b2bc did the opposite (restored WS-A1D ownership), and WS58/WS61
-    evidence uniformly requires non-owning workstreams to leave the root file untouched
-    with canonical state in the dedicated research file. Merge-safe because the D1
-    merge changes nothing at repository-root state. The underlying main-level root-state
-    presentation question is Coordinator authority and is referred, not solved, not
-    redesigned.'
+    commit 2829b2bc); empty diff vs audit base DIRECTLY_VERIFIED. Superseded by ROOT_STATE_SEMANTICS
+    authority decision (TD-D1-10), which now requires archival + root removal instead
+    of preservation-in-place.'
   evidence: git diff f89c824e -- .foundry/WORKSTREAM_STATE.yaml EMPTY; WS61 remediation
-    doc + WS61/WS58 states; new no-rebind regression test + negative control.
+    doc + WS61/WS58 states; no-rebind regression test + negative control.
   id: TD-D1-09-root-state-resolution
+- decision: 'Apply Coordinator authority decision ROOT_STATE_SEMANTICS: mandatory
+    explicit --state in launcher/bootstrap (no silent root fallback); archive historical
+    WS-A1D-H4 root bytes to D1 architecture-closure evidence path; remove root operational
+    state file (keep schema); update current docs/callers/tests; add item-13 regression
+    coverage. Bounded: no schema redesign, no Rules/provider/engine/Docker/qualification
+    changes.'
+  evidence: Coordinator authority decision text recorded in evidence; source inspection
+    of launcher.py/bootstrap.py/state.py/README/AGENTS/tests/callers before edits.
+  id: TD-D1-10-authority-decision
+- decision: 'Implementation of ROOT_STATE_SEMANTICS (bounded): launcher.py resolve_environment/init
+    refuse without explicit state_path (ValueError / LAUNCH_REFUSED), CLI --state
+    required=True; bootstrap.py _default_state_path helper removed, bootstrap() fails
+    closed on empty state_path, CLI --state required=True, --init-state writes only
+    to args.state; root file git-moved to HISTORICAL-WS-A1D-H4-archived-root-state.yaml
+    (bytes identical, sha256 recorded); schema kept; current docs (README/ROUTING/COMPACTION/AGENTS/RETENTION/implementer/reviewer/adjudicator/3
+    skills) updated to explicit-state doctrine; historical WS58/WS61 reports, design
+    docs, and command examples untouched; worktree_inventory unchanged (reads conventional
+    path only when present, else UNKNOWN; not a launcher fallback); test_impact mapping
+    unchanged (still valid).'
+  evidence: git diff of tools/foundry/*.py; git status rename record; sha256 before/after;
+    test runs below.
+  id: TD-D1-11-implementation
 tests_run:
-- pytest -q tests/unit/test_ws_arclose_d1_authority_drift.py -> 8 passed (incl. new
-  merge-safety no-rebind lock)
-- pytest -q D1+pin/H4/drift/foundry-tools/state suites (9 files) -> 218 passed
-- pytest -q tests/foundry/test_launcher.py tests/foundry/test_ws75_tooling_hardening.py
-  -> 53 passed
-- pytest -q tests/foundry/ tests/unit/ --continue-on-collection-errors -> 804 passed,
-  1 skipped; 5 failed + 40 errors identical to pre-remediation baseline (pre-existing
-  env, none reference changed files)
-- ruff check + ruff format --check on test file -> clean
-- 'state.py validation on both state files + changed JSON parse -> valid (root file
-  STATE_OK with expected HEAD_MISMATCH note: restored WS-A1D-H4 checkpoint stamp 946ab5b9
-  vs live HEAD, live Git wins per WS61 pattern)'
+- pytest D1 battery (tests/unit/test_ws_arclose_d1_authority_drift.py) -> 9 passed
+  (root-absence + archive + doc-coherence locks)
+- pytest tests/foundry/test_launcher.py + test_ws75_tooling_hardening.py + test_foundry_tools.py
+  -> green (incl. 6 new explicit-state CLI/API tests + refusal tests)
+- pytest tests/foundry/test_state_writer.py + test_state_v2.py + test_drift.py + test_safe_push.py
+  + test_telemetry.py + test_writer_lock.py + pin/H4 suites -> 215 passed, 1 skipped
+  (pre-existing live-export skip)
+- pytest tests/foundry/ + tests/unit/ broad -> 811 passed, 1 skipped; 5 failed + 40
+  errors identical to pre-existing baseline (missing typer/openpyxl; none reference
+  changed files)
+- ruff check + format --check on all touched Python files -> clean
+- state.py validation on dedicated D1 state + archived historical state -> valid;
+  root .foundry/ holds schema only

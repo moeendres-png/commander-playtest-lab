@@ -70,47 +70,40 @@ def test_retention_appendix_g_preserves_history_and_records_h4_successor(
     assert "H4B-Forge" in text and "UNKNOWN/NOT_RUN" in text
 
 
-def test_root_state_not_rebound_to_this_workstream_merge_safe(
+def test_repository_root_state_absent_and_archive_preserved(
     repo_root: Path,
 ) -> None:
-    """Merge-safety lock (Coordinator review remediation, 2026-09-13).
+    """ROOT_STATE_SEMANTICS lock (Coordinator authority decision, 2026-09-13).
 
-    WS-ARCLOSE-D1 must NOT rebind repository-root
-    `.foundry/WORKSTREAM_STATE.yaml` to itself merely because D1 owns this
-    feature branch: after a merge to `main`, branch/worktree-specific D1
-    state at repository root would repeat the underlying current-state
-    drift rather than solve it.
+    Repository-root `.foundry/WORKSTREAM_STATE.yaml` is not a valid
+    repository-global current state (schema 2.0 carries concrete workstream
+    identity), so it no longer exists on the operational surface. The exact
+    historical WS-A1D-H4 bytes are preserved under a clearly historical
+    research/evidence path. Root absence subsumes the earlier no-rebind
+    lock: no merge can place D1 (or any workstream-specific) state at
+    repository root while this holds.
 
-    Coordinator-reviewed precedent (DIRECTLY_VERIFIED):
-    - WS61 rebound the branch-root file and was required to restore it
-      byte-for-byte from its audit base (`WS61_COORDINATOR_REVIEW_REMEDIATION.md`,
-      commit `2829b2bc`); the file belongs to WS-A1D.
-    - WS58 left the branch-root file untouched (it belongs to WS-A1D) and kept
-      WS58 checkpoints in its dedicated research state file.
-
-    The root file is therefore preserved as the audit-base-inherited
-    WS-A1D-H4 operational state. D1's canonical state lives in
+    D1's canonical state lives in
     `research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_STATE.yaml`.
-    Only a genuine authoritative semantics change, Coordinator-directed, may
-    alter these expectations -- never a D1 rebind.
     """
     import sys
 
     sys.path.insert(0, str(repo_root / "tools"))
     from foundry import state as state_mod
 
-    data = yaml.safe_load(
-        (repo_root / ".foundry/WORKSTREAM_STATE.yaml").read_text(encoding="utf-8")
+    assert not (repo_root / ".foundry" / "WORKSTREAM_STATE.yaml").exists()
+    assert (repo_root / ".foundry" / "WORKSTREAM_STATE.schema.json").is_file()
+    archived = (
+        repo_root
+        / "research/architecture-closure/ws-arclose-d1-current-authority-drift/HISTORICAL-WS-A1D-H4-archived-root-state.yaml"
     )
+    assert archived.is_file()
+    data = yaml.safe_load(archived.read_text(encoding="utf-8"))
     assert state_mod.validate(data) == []
-    # The exact incorrect D1 rebinding pattern must not recur.
-    assert data["ownership"] != "WS-ARCLOSE-D1"
-    assert data["branch"] != "ws-arclose/d1-current-authority-drift-20260913"
-    assert data["worktree"] != "/home/moeen/code/ws-arclose-d1"
-    assert "WS-ARCLOSE-D1" not in str(data["ownership"])
-    # Inherited WS-A1D-H4 identity preserved truthfully, not falsified.
+    # Historical WS-A1D-H4 identity preserved truthfully, not falsified.
     assert data["branch"] == "architecture/ws-a1d-h4-docker-materialization-20260911"
     assert "WS-A1D" in str(data["ownership"])
+    assert "WS-ARCLOSE-D1" not in str(data["ownership"])
     assert data["audit_base_sha"] == "e207286200854bf9bff557e67bf3b37b5e428392"
     assert data["validated_head"] == "1aab012196b391260b2287f94cbcaa04f625e509"
     decisions = " ".join(
@@ -128,6 +121,32 @@ def test_root_state_not_rebound_to_this_workstream_merge_safe(
     )
     assert d1_state["ownership"] == "WS-ARCLOSE-D1"
     assert d1_state["branch"] == "ws-arclose/d1-current-authority-drift-20260913"
+
+
+def test_no_current_doc_names_root_state_canonical(repo_root: Path) -> None:
+    """ROOT_STATE_SEMANTICS: current authority docs name no root state.
+
+    No current operational doctrine (repository policy, Foundry execution
+    index, routing, resumability) may identify
+    `.foundry/WORKSTREAM_STATE.yaml` as the active canonical workstream
+    state. Each substantive workstream uses an explicit dedicated state
+    path; historical snapshots are evidence, not continuation state.
+    """
+    for rel in (
+        "AGENTS.md",
+        "docs/foundry-execution/README.md",
+        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+        "docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md",
+    ):
+        text = (repo_root / rel).read_text(encoding="utf-8")
+        assert ".foundry/WORKSTREAM_STATE.yaml" not in text, rel
+    # The doctrine that replaces it must be stated.
+    readme = (repo_root / "docs/foundry-execution/README.md").read_text(encoding="utf-8")
+    assert "no implicit active repository-root state" in readme.lower() or (
+        "No implicit active repository-root state" in readme
+    )
+    agents = (repo_root / "AGENTS.md").read_text(encoding="utf-8")
+    assert "no implicit active repository-root state" in agents.lower()
 
 
 def test_mage_profile_keys_intact_and_notes_date_scoped(repo_root: Path) -> None:

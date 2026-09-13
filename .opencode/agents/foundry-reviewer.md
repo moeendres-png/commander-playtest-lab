@@ -34,7 +34,7 @@ Review in this order:
 9. whether tests prove runtime behavior rather than only parse, import, or construction;
 10. whether evidence actually supports every claimed PASS;
 11. weakened assertions, unrelated edits, or accidental API and architecture changes;
-12. whether `.foundry/WORKSTREAM_STATE.yaml` and checkpoint claims match current Git
+12. whether the explicit state file (`FOUNDRY_STATE_PATH`) and checkpoint claims match current Git
     evidence when that file exists.
 
 Return findings in severity order with file and line or commit references where

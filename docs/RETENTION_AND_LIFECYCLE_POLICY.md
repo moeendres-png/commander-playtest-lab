@@ -42,7 +42,7 @@ enforce this policy.
 | State | Meaning | Exit criteria |
 |---|---|---|
 | `ACTIVE` | Owned live workstream (exactly one owner, one worktree) | Workstream completes → `MERGED`, `TERMINAL_EVIDENCE`, or `SUPERSEDED` |
-| `MERGED` | Required commits verified reachable from retained canonical history (ancestry proven via merge-base/contains, never inferred from PR state, PR title, or branch name); no unique commits outside canonical history | Eligible for deletion adjudication no earlier than 7 days after verified merge unless claimed in `.foundry/WORKSTREAM_STATE.yaml`; §5 proofs + approval still mandatory. No automatic deletion timer |
+| `MERGED` | Required commits verified reachable from retained canonical history (ancestry proven via merge-base/contains, never inferred from PR state, PR title, or branch name); no unique commits outside canonical history | Eligible for deletion adjudication no earlier than 7 days after verified merge unless claimed in the owning workstream's explicit dedicated state file; §5 proofs + approval still mandatory. No automatic deletion timer |
 | `SUPERSEDED` | Replaced by a named successor branch | Keep until successor's evidence is indexed AND retention-anchored (§6); then `ARCHIVE_ELIGIBLE` |
 | `TERMINAL_EVIDENCE` | Completed/failed-closed workstream whose branch carries unique evidence (WS closeouts, finalist convergence, `runs/*`) | Keep until manifest-indexed AND retention-anchored (§6). Never fast-track. If no anchor mechanism exists yet, keeping the ref IS the anchor — retain |
 | `ARCHIVE_ELIGIBLE` | Indexed AND retention-anchored: recoverability provably no longer depends on the live ref. A manifest SHA alone never qualifies | Close PR (never merge) → delete ref → keep manifest AND anchor. Requires §5 approval |
@@ -90,7 +90,7 @@ junk-looking name never substitutes for the redundancy proof in §2.
 All must hold, evidenced in the deleting workstream's handoff:
 
 1. No active workstream/branch/worktree depends on the object
-   (check `.foundry/WORKSTREAM_STATE.yaml` lineage + worktree inventory).
+   (check the owning workstream's explicit dedicated state-file lineage + worktree inventory).
 2. No unique evidence depends on it, OR every unique object has a verified
    durable retention anchor (§6) with type, locator, and verification recorded
    in the index entry. A manifest SHA citing the object satisfies identity, not

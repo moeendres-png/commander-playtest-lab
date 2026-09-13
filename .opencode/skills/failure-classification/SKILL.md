@@ -27,7 +27,7 @@ Canonical classes: `ENGINE_DEFECT`, `PROVIDER_ADAPTER_DEFECT`, `HARNESS_DEFECT`,
    escalation. A classification is a technical decision when existing project
    policy determines the allowed semantics; only a Rules, evidence-policy,
    architecture, scope, provider, or freeze question becomes an `AUTHORITY_GATE`.
-   Persist the result in `.foundry/WORKSTREAM_STATE.yaml` (`root_cause_class`,
+   Persist the result in the explicit state file (`root_cause_class`,
    `first_failing_boundary`, `technical_decisions`) and continue.
 
 ## Rules

@@ -84,7 +84,7 @@ Operating rules:
    as `AUTHORITY_GATE` entries and return them to Sol High; decide everything
    else yourself.
 8. Record each technical decision with its evidence in
-   `.foundry/WORKSTREAM_STATE.yaml` (`technical_decisions`, `hypotheses_rejected`,
+   the explicit state file (`technical_decisions`, `hypotheses_rejected`,
    `first_failing_boundary`, `root_cause_class`) so another session resumes
    without this conversation.
 

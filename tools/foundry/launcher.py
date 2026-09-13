@@ -232,7 +232,7 @@ def resolve_environment(
     session: str,
     drift_suppressed: bool,
     run_dir: str,
-    state_path: str | None,
+    state_path: str,
     mode: str,
     references: list[dict],
     opencode_binary: str,
@@ -262,13 +262,14 @@ def resolve_environment(
     env["FOUNDRY_BRANCH"] = branch
     env["FOUNDRY_SESSION"] = session
     env["FOUNDRY_EFFORT"] = effort
-    # WS75 state-path context: the exact launcher state path (or the
-    # resolved default) plus worktree/branch/workstream/run-dir/mode/
-    # effort, so Muse never guesses `.foundry/WORKSTREAM_STATE.yaml`.
+    # WS75 state-path context, hardened by ROOT_STATE_SEMANTICS: the exact
+    # explicit launcher state path is mandatory. There is no implicit active
+    # repository-root state and no silent fallback, so Muse never guesses
+    # `.foundry/WORKSTREAM_STATE.yaml`.
     # Values are paths/identities only — never secrets.
-    env["FOUNDRY_STATE_PATH"] = state_path or str(
-        Path(worktree) / ".foundry" / "WORKSTREAM_STATE.yaml"
-    )
+    if not state_path:
+        raise ValueError("explicit --state is required (no implicit active state)")
+    env["FOUNDRY_STATE_PATH"] = state_path
     env["FOUNDRY_WORKTREE"] = worktree
     env["FOUNDRY_RUN_DIR"] = run_dir
     env["FOUNDRY_MODE"] = mode
@@ -304,7 +305,7 @@ def init(
     effort: str,
     mode: str,
     session: str,
-    state_path: str | None,
+    state_path: str,
     canonical_root: str,
     allow_same_cwd_pids: bool,
     allow_suppressed_routing: bool,
@@ -316,6 +317,11 @@ def init(
     version_audit_mode: bool = False,
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
+    if not state_path:
+        return {
+            "verdict": "LAUNCH_REFUSED",
+            "error": "explicit --state is required (no implicit active repository-root state)",
+        }
     if ui_mode not in UI_MODES:
         return {"verdict": "LAUNCH_REFUSED", "error": f"unknown ui_mode {ui_mode!r}"}
     canonical = os.path.realpath(os.path.abspath(worktree))
@@ -361,7 +367,7 @@ def init(
     if gate["verdict"] != "BOOTSTRAP_PASS":
         return {"verdict": "LAUNCH_REFUSED", "gate": gate}
     drift_suppressed = gate["drift"]["verdict"] == "DRIFT_FAIL"
-    resolved_state = state_path or str(Path(canonical) / ".foundry" / "WORKSTREAM_STATE.yaml")
+    resolved_state = state_path
     try:
         env = resolve_environment(
             canonical_root=canonical_root,
@@ -542,7 +548,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--effort", default="high")
     parser.add_argument("--mode", default="writer", choices=("writer", "reader"))
     parser.add_argument("--session", default="")
-    parser.add_argument("--state", default=None)
+    parser.add_argument(
+        "--state",
+        required=True,
+        help="Explicit workstream state file (mandatory; no implicit fallback).",
+    )
     parser.add_argument("--canonical-root", required=True)
     parser.add_argument("--allow-same-cwd-pids", action="store_true")
     parser.add_argument("--allow-suppressed-routing", action="store_true")

@@ -10,7 +10,7 @@ Use this after session loss, compaction, or handoff to resume the active workstr
 ## Procedure
 
 1. Verify branch, worktree identity, HEAD, tree, and `git status`. The checkout must
-   match `.foundry/WORKSTREAM_STATE.yaml` or the mismatch must be resolved first.
+   match the explicit state file or the mismatch must be resolved first.
 2. Read the state file: objective, Source Lock, validated gates, invalidated gates,
    do-not-rerun evidence, current failure, current hypothesis, files modified,
    remaining scope, Exact Next Action.

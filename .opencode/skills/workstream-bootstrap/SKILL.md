@@ -65,7 +65,7 @@ remote is canonical and fresh-fetched, but the requested ref is absent from
 5. Record objective, in-scope and out-of-scope surfaces, ownership, dependencies, hard
    gates, forbidden shortcuts, stop conditions, `TECHNICAL_DECISION_AUTHORITY`
    (default `AUTONOMOUS_WITHIN_CONTRACT`), explicit `AUTHORITY_GATES`, and the
-   Exact Next Action in `.foundry/WORKSTREAM_STATE.yaml`. See
+   Exact Next Action in the new explicit state file. See
    `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` for the full field list.
 6. End with a Source Lock summary. Missing facts stay `UNKNOWN`, never assumed.
 

@@ -257,10 +257,10 @@ def test_metrics_record_appends_jsonl_without_invention(tmp_path: Path) -> None:
     assert json.loads(lines[0])["task_id"] == "T1"
 
 
-def test_repo_state_file_validates() -> None:
-    state_path = REPO_ROOT / ".foundry" / "WORKSTREAM_STATE.yaml"
-    data = yaml.safe_load(state_path.read_text(encoding="utf-8"))
-    assert state_mod.validate(data) == []
+def test_repo_root_state_absent_schema_kept() -> None:
+    """ROOT_STATE_SEMANTICS: no implicit active repository-root state file."""
+    assert not (REPO_ROOT / ".foundry" / "WORKSTREAM_STATE.yaml").exists()
+    assert (REPO_ROOT / ".foundry" / "WORKSTREAM_STATE.schema.json").is_file()
 
 
 def test_opencode_config_schema_conformance() -> None:

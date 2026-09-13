@@ -16,7 +16,7 @@ Single coherent entry point for the OpenCode/Muse execution system on
 | Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (XHIGH) |
 | Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
 | Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation |
-| Workstream state | `.foundry/WORKSTREAM_STATE.yaml` + `.foundry/WORKSTREAM_STATE.schema.json` | Resumable index + validator |
+| Workstream state | Explicit dedicated state path per workstream (`--state`, exposed as `FOUNDRY_STATE_PATH`) + `.foundry/WORKSTREAM_STATE.schema.json` | Resumable index + validator |
 | Deterministic tools | `tools/foundry/` | source_lock, worktree_inventory, cluster_failures, evidence, state, metrics |
 | Tool tests | `tests/foundry/test_foundry_tools.py` | Deterministic behavior gates |
 | Compaction record | `docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md` | `COMPACTION_HOOK = DEFERRED` + reason |
@@ -30,7 +30,15 @@ keep their facts; only their execution-routing instructions are superseded, per
 
 ## Workstream state writes (canonical)
 
-- Never hand-concatenate `WORKSTREAM_STATE.yaml`. Free-form scalars (colons,
+Explicit-state authority (Coordinator decision ROOT_STATE_SEMANTICS,
+2026-09-13): every substantive workstream uses an explicit dedicated state
+path. `tools/foundry/launcher.py` and `tools/foundry/bootstrap.py` require
+`--state` and never silently fall back to an implicit repository-root state.
+There is no implicit active repository-root state. Historical state
+snapshots under research/evidence paths are evidence, not continuation
+state.
+
+- Never hand-concatenate a state file. Free-form scalars (colons,
   `#`, quotes, newlines, Unicode) break naive YAML and have blocked
   checkpoints before.
 - Use the canonical writer: `tools/foundry/state.py --patch-file PATCH
@@ -40,8 +48,9 @@ keep their facts; only their execution-routing instructions are superseded, per
   `write_state` / `update_state` from Python. Writes are validated before
   replace, identity-locked, and atomic; failures leave the prior file
   byte-identical.
-- Validate after every material checkpoint (`state.py --state FILE`, plus
-  `--workdir` / `--check-validated` ancestry where credit is claimed).
+- Validate after every material checkpoint (`state.py --state FILE` for the
+  explicit dedicated state path, plus `--workdir` / `--check-validated`
+  ancestry where credit is claimed).
 - `validated_head` means actual validation evidence for that commit, never
   merely current HEAD. `null` is the honest default.
 
