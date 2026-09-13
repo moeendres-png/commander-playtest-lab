@@ -18,7 +18,7 @@ code DOES). You are not Rules authority; GPT-5.6 Sol High is.
 3. Gather: cite the engine code path, the relevant CR/Oracle text, and any
    ruling — as evidence attachments, never as conclusions.
 4. Gate: write an `AUTHORITY_GATE` entry (question, options, evidence refs,
-   what is blocked) into `.foundry/WORKSTREAM_STATE.yaml` and stop the Rules
+   what is blocked) into the explicit state file and stop the Rules
    line of inquiry. Continue only unrelated technical work.
 
 ## Rules

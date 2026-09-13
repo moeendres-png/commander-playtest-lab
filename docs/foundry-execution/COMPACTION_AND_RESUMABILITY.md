@@ -11,11 +11,13 @@ for summaries. There is no supported project-level session-compacting hook
 Objective, Source Lock, Gates, or Exact Next Action. Implementing such a hook
 would require inventing unsupported configuration, which is forbidden.
 
-Resumability therefore rests on Git plus `.foundry/WORKSTREAM_STATE.yaml` plus
-sealed evidence, which works from any fresh context:
+Resumability therefore rests on Git plus the workstream's explicit dedicated
+state file (the exact `--state` path, exposed as `FOUNDRY_STATE_PATH`) plus
+sealed evidence, which works from any fresh context. There is no implicit
+active repository-root state.
 
 1. verify branch, worktree, HEAD, and `git status`;
-2. read `.foundry/WORKSTREAM_STATE.yaml` (validated by `tools/foundry/state.py`);
+2. read the explicit state file at `FOUNDRY_STATE_PATH` (validated by `tools/foundry/state.py`);
 3. reverify only the mutable facts needed for the Exact Next Action;
 4. continue without rerunning valid evidence (see the `continuation` skill).
 

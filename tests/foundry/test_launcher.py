@@ -193,6 +193,8 @@ def test_bootstrap_init_state_creates_minimal(target: dict) -> None:
             "project/test",
             "--audit-base-sha",
             target["base"],
+            "--state",
+            str(target["state"]),
             "--profile",
             "cpl",
             "--profiles-dir",
@@ -545,6 +547,7 @@ def test_init_ready_for_all_three_profiles(
     _git(["add", "."], wt, env)
     _git(["commit", "-m", "init"], wt, env)
     base = _git(["rev-parse", "HEAD"], wt, env)
+    explicit_state = str(wt / ".foundry" / "WORKSTREAM_STATE.yaml")
     rc = bootstrap_mod.main(
         [
             "--worktree",
@@ -555,6 +558,8 @@ def test_init_ready_for_all_three_profiles(
             "main",
             "--audit-base-sha",
             base,
+            "--state",
+            explicit_state,
             "--profile",
             profile,
             "--profiles-dir",
@@ -572,7 +577,7 @@ def test_init_ready_for_all_three_profiles(
         effort="high",
         mode="writer",
         session="",
-        state_path=None,
+        state_path=explicit_state,
         canonical_root=str(canon),
         allow_same_cwd_pids=False,
         allow_suppressed_routing=False,
@@ -584,6 +589,240 @@ def test_init_ready_for_all_three_profiles(
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
     assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
     assert bundle["permission"]["bash"]["git push*"] == "deny"
+
+
+# --- explicit-state authority (ROOT_STATE_SEMANTICS) -------------------------
+
+
+def _cli_base(target: dict) -> list[str]:
+    return [
+        "--worktree",
+        str(target["wt"]),
+        "--workstream",
+        "TEST-WS",
+        "--branch",
+        "project/test",
+        "--audit-base-sha",
+        target["base"],
+    ]
+
+
+def test_bootstrap_cli_refuses_without_state(target: dict) -> None:
+    with pytest.raises(SystemExit) as exc:
+        bootstrap_mod.main(
+            [
+                *_cli_base(target),
+                "--profile",
+                "cpl",
+                "--profiles-dir",
+                str(ROOT / ".foundry" / "repo-profiles"),
+            ]
+        )
+    assert exc.value.code == 2  # argparse: required --state missing
+
+
+def test_launcher_cli_refuses_without_state(target: dict, canon: Path) -> None:
+    with pytest.raises(SystemExit) as exc:
+        launcher_mod.main(
+            ["init", *_cli_base(target), "--profile", "cpl", "--canonical-root", str(canon)]
+        )
+    assert exc.value.code == 2  # argparse: required --state missing
+
+
+def test_bootstrap_api_refuses_none_state_path(target: dict, canon: Path) -> None:
+    result = bootstrap_mod.bootstrap(
+        str(target["wt"]),
+        "TEST-WS",
+        "project/test",
+        target["base"],
+        None,
+        "cpl",
+        str(ROOT / ".foundry" / "repo-profiles"),
+        str(canon),
+    )
+    assert result["verdict"] == "BOOTSTRAP_FAIL"
+    assert any("explicit --state" in f for f in result["failures"])
+
+
+def test_launcher_init_refuses_none_state_path(target: dict, canon: Path) -> None:
+    plan = _plan(target, canon, state_path=None)
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "explicit --state" in str(plan.get("error", ""))
+
+
+def test_explicit_state_path_reaches_env_and_context_exact(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    """FOUNDRY_STATE_PATH/context carry the exact explicit path (never guessed)."""
+    custom = tmp_path / "custom" / "STATE.yaml"
+    custom.parent.mkdir(parents=True)
+    custom.write_text(target["state"].read_text(encoding="utf-8"), encoding="utf-8")
+    plan = _plan(target, canon, state_path=str(custom))
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["_env"]["FOUNDRY_STATE_PATH"] == str(custom)
+    assert plan["state_path"] == str(custom)
+    context = json.loads(Path(plan["context_path"]).read_text(encoding="utf-8"))
+    assert context["state_path"] == str(custom)
+
+
+def test_init_state_writes_only_at_explicit_path(target: dict, tmp_path: Path) -> None:
+    target["state"].unlink()
+    custom = tmp_path / "dedicated" / "WS-TEST.yaml"
+    rc = bootstrap_mod.main(
+        [
+            *_cli_base(target),
+            "--state",
+            str(custom),
+            "--profile",
+            "cpl",
+            "--profiles-dir",
+            str(ROOT / ".foundry" / "repo-profiles"),
+            "--init-state",
+        ]
+    )
+    assert rc == 0
+    data = yaml.safe_load(custom.read_text(encoding="utf-8"))
+    assert data["schema_version"] == "2.0"
+    assert data["validated_head"] is None
+    assert data["ownership"] == "TEST-WS"
+    # No implicit worktree-root state file is created as a side effect.
+    assert not (target["wt"] / ".foundry" / "WORKSTREAM_STATE.yaml").exists()
+
+
+# --- explicit ownership authority (P2 follow-up) -------------------------------
+
+
+def _rewrite_state_ownership(target: dict, ownership: str) -> None:
+    data = yaml.safe_load(target["state"].read_text(encoding="utf-8"))
+    data["ownership"] = ownership
+    target["state"].write_text(yaml.safe_dump(data), encoding="utf-8")
+
+
+def test_bootstrap_rejects_conflicting_state_ownership(target: dict, canon: Path) -> None:
+    """An explicit state owned by another workstream fails closed."""
+    _rewrite_state_ownership(target, "OTHER-WS")
+    result = bootstrap_mod.bootstrap(
+        str(target["wt"]),
+        "TEST-WS",
+        "project/test",
+        target["base"],
+        str(target["state"]),
+        "cpl",
+        str(ROOT / ".foundry" / "repo-profiles"),
+        str(canon),
+    )
+    assert result["verdict"] == "BOOTSTRAP_FAIL"
+    assert any("ownership" in f for f in result["failures"])
+
+
+def test_bootstrap_accepts_matching_explicit_ownership(target: dict, canon: Path) -> None:
+    result = bootstrap_mod.bootstrap(
+        str(target["wt"]),
+        "TEST-WS",
+        "project/test",
+        target["base"],
+        str(target["state"]),
+        "cpl",
+        str(ROOT / ".foundry" / "repo-profiles"),
+        str(canon),
+    )
+    assert result["verdict"] == "BOOTSTRAP_PASS", result
+
+
+def test_launcher_declares_own_pair_in_gate_and_context(target: dict, canon: Path) -> None:
+    """The launcher auto-declares its own worktree/state pair (no discovery)."""
+    plan = _plan(target, canon)
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["state_path"] == str(target["state"])
+    assert plan["worktree_states"] == {os.path.realpath(str(target["wt"])): str(target["state"])}
+    context = json.loads(Path(plan["context_path"]).read_text(encoding="utf-8"))
+    assert context["worktree_states"] == {os.path.realpath(str(target["wt"])): str(target["state"])}
+    assert plan["gate"]["state_path"] == str(target["state"])
+
+
+def test_launcher_refuses_malformed_worktree_state(target: dict, canon: Path) -> None:
+    plan = _plan(target, canon, worktree_states=["no-equals-here"])
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "worktree-state" in str(plan.get("error", ""))
+
+
+def test_launcher_refuses_conflicting_own_pair(target: dict, canon: Path, tmp_path: Path) -> None:
+    other = tmp_path / "OTHER.yaml"
+    other.write_text(target["state"].read_text(encoding="utf-8"), encoding="utf-8")
+    plan = _plan(
+        target,
+        canon,
+        worktree_states=[f"{target['wt']}={other}"],
+    )
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "conflicts with --state" in str(plan.get("error", ""))
+
+
+def test_launcher_sibling_pair_flows_to_inventory(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    """An operator-declared sibling pair reaches the bootstrap gate entries."""
+    sib = tmp_path / "sibstate" / "SIB.yaml"
+    sib.parent.mkdir(parents=True)
+    data = yaml.safe_load(target["state"].read_text(encoding="utf-8"))
+    data["worktree"] = str(tmp_path / "sib-wt")
+    data["ownership"] = "SIB-WS"
+    sib.write_text(yaml.safe_dump(data), encoding="utf-8")
+    plan = _plan(
+        target,
+        canon,
+        worktree_states=[f"{tmp_path / 'sib-wt'}={sib}"],
+    )
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["worktree_states"][str(tmp_path / "sib-wt")] == str(sib)
+
+
+def test_bootstrap_cli_accepts_worktree_state_map(target: dict) -> None:
+    rc = bootstrap_mod.main(
+        [
+            "--worktree",
+            str(target["wt"]),
+            "--workstream",
+            "TEST-WS",
+            "--branch",
+            "project/test",
+            "--audit-base-sha",
+            target["base"],
+            "--state",
+            str(target["state"]),
+            "--profile",
+            "cpl",
+            "--profiles-dir",
+            str(ROOT / ".foundry" / "repo-profiles"),
+            "--worktree-state",
+            f"{target['wt']}={target['state']}",
+        ]
+    )
+    assert rc == 0
+
+
+def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
+    rc = bootstrap_mod.main(
+        [
+            "--worktree",
+            str(target["wt"]),
+            "--workstream",
+            "TEST-WS",
+            "--branch",
+            "project/test",
+            "--audit-base-sha",
+            target["base"],
+            "--state",
+            str(target["state"]),
+            "--profile",
+            "cpl",
+            "--profiles-dir",
+            str(ROOT / ".foundry" / "repo-profiles"),
+            "--worktree-state",
+            "malformed",
+        ]
+    )
+    assert rc == 1
 
 
 if __name__ == "__main__":

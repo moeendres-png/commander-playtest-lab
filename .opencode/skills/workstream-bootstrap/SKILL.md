@@ -31,17 +31,35 @@ canonical-remote state from an unrelated local clone.
    is `REQUESTED_REF_ABSENT_FROM_CANONICAL_REMOTE`, never
    `WRONG_LOCAL_REPOSITORY`.
 6. Worktree inventory: run `tools/foundry/worktree_inventory.py` and record
-   every worktree path, branch, HEAD, clean/dirty, and ownership.
-7. Existing branch owner: for the intended branch, read the owning worktree's
-   `.foundry/WORKSTREAM_STATE.yaml` `ownership` field when present, else
-   `UNKNOWN`. If another active workstream owns the mutation surface, stop.
+    every worktree path, branch, HEAD, clean/dirty, and ownership.
+    Ownership authority is explicit, never discovered: the launcher
+    auto-declares its own worktree/state pair and the operator declares any
+    sibling pair via repeatable `--worktree-state WORKTREE=STATE` (recorded
+    in `launch-context.json` as `worktree_states`). The realizable
+    standalone invocation carrying ownership evidence is:
+    `python3 tools/foundry/worktree_inventory.py --workdir <repo>
+    --worktree-state <WT>=<STATE> [--worktree-state ...]`
+    A worktree with no declared state location reports `UNKNOWN`. Never
+    guess a state file, never scan historical state files, never treat a
+    historical snapshot as live ownership.
+    There is no implicit active repository-root state. There is no conventional-path fallback.
+7. Existing branch owner: for the intended branch, determine the owning
+    worktree's `ownership` from the explicit state map when declared, else
+    `UNKNOWN`. Fail closed: if another workstream's explicit state owns the
+    mutation surface, stop; if the intended branch is checked out in another
+    worktree at all, stop (duplicate writer, regardless of ownership); if
+    ownership is `UNKNOWN` and the branch is free here, proceed with a fresh
+    explicit state path (downstream push gates still refuse without
+    validation credit).
 8. Dirty state: run `git status --porcelain` in the candidate worktree.
    Any output is a dirty-tree surprise: stop and resolve before creating
    state.
 9. No duplicate writer: reject if the same branch is already checked out in
-   another worktree with a different `ownership` or a clean/dirty live tree.
-   One workstream ↔ one branch ↔ one worktree. Never reuse another
-   workstream's branch. Never work on `main` directly.
+    another worktree, with any `ownership` (declared or `UNKNOWN`) or a
+    clean/dirty live tree. Live-writer exclusion stays with the writer lock;
+    ownership conflicts in explicit state fail closed at the bootstrap gate.
+    One workstream ↔ one branch ↔ one worktree. Never reuse another
+    workstream's branch. Never work on `main` directly.
 
 Distinguish `WRONG_LOCAL_REPOSITORY` (local remote identity is not the
 canonical slug) from `REQUESTED_REF_ABSENT_FROM_CANONICAL_REMOTE` (local
@@ -65,7 +83,7 @@ remote is canonical and fresh-fetched, but the requested ref is absent from
 5. Record objective, in-scope and out-of-scope surfaces, ownership, dependencies, hard
    gates, forbidden shortcuts, stop conditions, `TECHNICAL_DECISION_AUTHORITY`
    (default `AUTONOMOUS_WITHIN_CONTRACT`), explicit `AUTHORITY_GATES`, and the
-   Exact Next Action in `.foundry/WORKSTREAM_STATE.yaml`. See
+   Exact Next Action in the new explicit state file. See
    `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` for the full field list.
 6. End with a Source Lock summary. Missing facts stay `UNKNOWN`, never assumed.
 

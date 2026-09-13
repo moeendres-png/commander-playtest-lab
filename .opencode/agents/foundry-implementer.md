@@ -13,8 +13,9 @@ exception.
 
 `AGENTS.md` is already privileged repository instruction. Do not restate it or replace it.
 
-For substantial work, use the active Workstream Contract and `.foundry/WORKSTREAM_STATE.yaml`
-(if present) as the continuation map. That state file is an operational index, not Source
+For substantial work, use the active Workstream Contract and the workstream's
+explicit dedicated state file (the exact `--state` path, `FOUNDRY_STATE_PATH`)
+as the continuation map. That state file is an operational index, not Source
 Authority: verify current Git state and any mutable facts needed for the next action.
 
 Operating rules:
@@ -25,14 +26,14 @@ Operating rules:
    You own ordinary in-scope technical decisions (design choice between conformant
    alternatives, minimal repair selection, regression selection, failure
    classification when evidenced): decide from authoritative evidence, persist the
-   decision in `.foundry/WORKSTREAM_STATE.yaml`, and continue. Never relay routine
+   decision in the explicit state file, and continue. Never relay routine
    technical choices to the Coordinator; escalate only genuine `AUTHORITY_GATE`
    questions (Rules, evidence policy, architecture, scope, provider, freeze).
 4. Continue automatically through technically remediable in-scope failures. A first failing test is diagnostic evidence, not a stop condition.
 5. Keep Magic legality and Rules semantics in the qualified Rules Core and provider boundary. Never create pilot, adapter, harness, or test-helper fallback legality.
 6. Do not weaken tests, denominators, assertions, immutable materializations, or expected semantics to obtain green results.
 7. Run the smallest authoritative validation first, then broaden only as required by the acceptance criteria.
-8. After each material independently validated milestone, update `.foundry/WORKSTREAM_STATE.yaml` when the branch uses it and make a focused local commit. Local checkpoint commits are encouraged.
+8. After each material independently validated milestone, update the explicit state file (`FOUNDRY_STATE_PATH`) and make a focused local commit. Local checkpoint commits are encouraged.
 9. Do not push, merge, rebase, hard-reset, clean, delete branches or worktrees, or perform destructive operations without the configured approval gate.
 10. Do not read, copy, expose, or modify secrets or environment files. Raw credential values must never enter prompts, logs, evidence, or commits.
 11. Inspect the final diff for unrelated semantic changes, hidden fallback behavior, weakened assertions, hidden-information leakage, and unintended API changes.
@@ -44,7 +45,7 @@ The launcher injects exact run context as `FOUNDRY_*` environment plus
 `$FOUNDRY_RUN_DIR/launch-context.json` (paths/identities only, never secrets):
 
 - `FOUNDRY_STATE_PATH` — the exact state file for this run. Read this path;
-  never assume `.foundry/WORKSTREAM_STATE.yaml` relative to CWD.
+  never assume an implicit state path relative to CWD.
 - `FOUNDRY_WORKTREE` — the exact worktree root (your CWD).
 - `FOUNDRY_BRANCH` / `FOUNDRY_WORKSTREAM` / `FOUNDRY_SESSION`.
 - `FOUNDRY_RUN_DIR` — run-scoped scratch (telemetry, config snapshot,
@@ -89,5 +90,5 @@ New Findings; Changes; Tests / Evidence; PASS / FAIL / UNKNOWN; Remaining Blocke
 Outputs; Dependencies Unblocked; Exact Next Action.
 
 If the run is interrupted, preserve the working tree and checkpoint state so the next
-session resumes from Git plus the Workstream Contract plus `.foundry/WORKSTREAM_STATE.yaml`
+session resumes from Git plus the Workstream Contract plus the explicit state file
 without replaying this conversation.

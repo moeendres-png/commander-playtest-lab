@@ -320,11 +320,14 @@ def test_state_path_context_exposed_without_secrets(
     assert env["OPENCODE_CONFIG_CONTENT"] not in json.dumps(context)
 
 
-def test_state_path_defaults_to_worktree_state(target: dict, canon: Path, tmp_path: Path) -> None:
+def test_state_path_none_refused_no_silent_fallback(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    """ROOT_STATE_SEMANTICS: omitting the state path refuses (never defaults)."""
     stub = _version_stub(tmp_path)
     plan = _plan(target, canon, state_path=None, opencode_bin=str(stub))
-    assert plan["verdict"] == "LAUNCH_READY", plan
-    assert plan["_env"]["FOUNDRY_STATE_PATH"].endswith(".foundry/WORKSTREAM_STATE.yaml")
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "explicit --state" in str(plan.get("error", ""))
 
 
 def test_implementer_reads_exact_state_path() -> None:

@@ -50,3 +50,35 @@ pointer, not copy (prevents divergence).
 - **WS-A1R-F2 (forge pointer):** same for `moeendres-png/forge`.
 - Both require fork-write authorization (outside WS-A1R ownership) and must not
   ride along with engine remediation branches.
+
+## 5. Disposition (WS-ARCLOSE-D1, 2026-09-13 — appended; §§1–4 above preserved verbatim as the WS-A1R design record)
+
+**WS-A1R-F1 / WS-A1R-F2: `SUPERSEDED` (design-only, never executed).**
+
+Rationale, verified against current source truth at Source Lock
+`f89c824e93664b8285b0b44e4445118bd99b9f98`:
+
+1. Per-run policy injection replaces the pointer need. The launcher injects
+   canonical authority into every session (`OPENCODE_CONFIG_CONTENT`:
+   canonical model/permission lock; `OPENCODE_CONFIG_DIR`: canonical
+   agent/skill snapshot; `tools/foundry/launcher.py`), and `.foundry/repo-profiles/`
+   is the machine-readable control plane — no fork-resident file is required
+   for a worker to receive current authority.
+2. The drift gate forbids the mechanism. `tools/foundry/drift_check.py`
+   classifies ANY fork-root `AGENTS.md`/`CLAUDE.md` on a non-canonical
+   profile as `SUPERSEDED_BUT_REACHABLE` (stale markers) or `AMBIGUOUS`
+   (marker-free), and either verdict fails the check and blocks unattended
+   launch. A merged F1/F2 pointer file would therefore permanently trip the
+   gate it was meant to satisfy.
+3. Mirror discipline forbids the landing zone. Both fork `master` branches
+   are upstream mirrors (fast-forward-only sync; no project-only commits —
+   contract hard gate). Landing a project pointer on mirror `master` would
+   intentionally create project divergence from upstream.
+
+Successor mechanism (already in force, no new workstream required):
+launcher policy injection + repo profiles + fail-closed drift gate, with
+human re-adjudication against a declared reference root when the gate
+fires. Do not revive F1/F2 without a Coordinator authority decision
+re-opening mirror-master project writes.
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED`. `PRODUCTION_PROVIDER = NOT SELECTED`.

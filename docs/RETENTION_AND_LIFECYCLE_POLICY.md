@@ -42,7 +42,7 @@ enforce this policy.
 | State | Meaning | Exit criteria |
 |---|---|---|
 | `ACTIVE` | Owned live workstream (exactly one owner, one worktree) | Workstream completes → `MERGED`, `TERMINAL_EVIDENCE`, or `SUPERSEDED` |
-| `MERGED` | Required commits verified reachable from retained canonical history (ancestry proven via merge-base/contains, never inferred from PR state, PR title, or branch name); no unique commits outside canonical history | Eligible for deletion adjudication no earlier than 7 days after verified merge unless claimed in `.foundry/WORKSTREAM_STATE.yaml`; §5 proofs + approval still mandatory. No automatic deletion timer |
+| `MERGED` | Required commits verified reachable from retained canonical history (ancestry proven via merge-base/contains, never inferred from PR state, PR title, or branch name); no unique commits outside canonical history | Eligible for deletion adjudication no earlier than 7 days after verified merge unless claimed in the owning workstream's explicit dedicated state file; §5 proofs + approval still mandatory. No automatic deletion timer |
 | `SUPERSEDED` | Replaced by a named successor branch | Keep until successor's evidence is indexed AND retention-anchored (§6); then `ARCHIVE_ELIGIBLE` |
 | `TERMINAL_EVIDENCE` | Completed/failed-closed workstream whose branch carries unique evidence (WS closeouts, finalist convergence, `runs/*`) | Keep until manifest-indexed AND retention-anchored (§6). Never fast-track. If no anchor mechanism exists yet, keeping the ref IS the anchor — retain |
 | `ARCHIVE_ELIGIBLE` | Indexed AND retention-anchored: recoverability provably no longer depends on the live ref. A manifest SHA alone never qualifies | Close PR (never merge) → delete ref → keep manifest AND anchor. Requires §5 approval |
@@ -90,7 +90,7 @@ junk-looking name never substitutes for the redundancy proof in §2.
 All must hold, evidenced in the deleting workstream's handoff:
 
 1. No active workstream/branch/worktree depends on the object
-   (check `.foundry/WORKSTREAM_STATE.yaml` lineage + worktree inventory).
+   (check the owning workstream's explicit dedicated state-file lineage + worktree inventory).
 2. No unique evidence depends on it, OR every unique object has a verified
    durable retention anchor (§6) with type, locator, and verification recorded
    in the index entry. A manifest SHA citing the object satisfies identity, not
@@ -188,6 +188,24 @@ gates owned elsewhere.
    edit. `phase85.py` remains frozen historical provenance. Historical-fact
    sentences above are preserved; sealed historical evidence bound to `77d7646d`
    (WS80 package, WS17 locks, B4F closeout) is superseded, never rewritten.
+- WS-ARCLOSE-D1 addendum (2026-09-13, current-authority drift closure; original
+  WS-A1R/WS-A1D text above preserved verbatim as historical evidence): successor
+  workstream WS-A1D-H4 prepared the bounded H4 qualification lane
+  (`.github/workflows/h4-docker-materialization.yml`: preflight + h4-xmage +
+  h4-forge-image) and recorded first remote execution (run 34573843323 on the
+  PR 179 merge ref): H4A-XMage PASS, H4B-XMage PASS, H4A-Forge PASS, H4B-Forge
+  UNKNOWN/NOT_RUN as an authority blocker (no conforming Forge
+  protocol-2.0.0 bridge exists; do not fabricate one), overall H4 PARTIAL.
+  The `NOT_RUN on the WS-A1D execution host (no Docker client there)` clause
+  above therefore describes the WS-A1D local execution environment only, not
+  current H4 qualification state. Current H4 truth lives in the WS-A1D-H4
+  evidence (branch `architecture/ws-a1d-h4-docker-materialization-20260911`,
+  validated_head `1aab0121`, remote artifacts recorded there) and any
+  successor H4 adjudication — not in this appendix. H1–H3/H10 authority
+  (manifest sole pin authority, no silent stale fallback, repository as engine
+  identity, fail closed) is unchanged by this addendum. (Re-integrated onto
+  current main by WS91 alongside the WS88 resolution above; both dated notes
+  are preserved, neither rewrites history.)
 - `SCHEMA_RENAME_primary_secondary = DEFERRED` (Freeze-adjacent). `primary_engine`
   / `secondary_engine` are runtime-contract keys (consumers:
   `src/commander_lab/technical_truth.py`, `scripts/run_external_b4f_*.py`,
