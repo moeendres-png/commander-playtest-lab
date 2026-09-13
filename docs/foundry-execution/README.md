@@ -8,6 +8,7 @@ Single coherent entry point for the OpenCode/Muse execution system on
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
 | Machine config | `opencode.json` (root) | Model, HIGH default, permissions, sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
+| Explicit execution override | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Operator-selected Zen launch, interruption and unchanged Go default |
 | Technical authority | `docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md` | Coordinator autonomy/adjudication model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |

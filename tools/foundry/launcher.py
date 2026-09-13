@@ -68,10 +68,43 @@ import writer_lock as writer_lock_mod
 
 CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
 CANONICAL_PROVIDER = "opencode-go"
+ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
 UI_MODES = ("headless", "tui")
+
+
+def execution_identity(override: str | None, effort: str) -> dict:
+    """Operator selection, never inferred from quota, credentials or environment."""
+    if override not in (None, "zen"):
+        raise ValueError(f"unknown execution provider override {override!r}")
+    if effort not in ALLOWED_EFFORTS:
+        raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
+    return {
+        "override": override or "canonical",
+        "provider": "opencode" if override else CANONICAL_PROVIDER,
+        "model": ZEN_MODEL if override else CANONICAL_MODEL,
+        "requested_effort": effort,
+        "variant_resolution": "provider_default_unverified"
+        if override
+        else "canonical_agent_variant",
+    }
+
+
+def validate_child_options(extra: list[str]) -> None:
+    """Selection belongs to the launcher; explicit session IDs remain supported."""
+    for arg in extra:
+        if arg == "--":
+            break  # Remaining words are literal prompt text, not CLI options.
+        key = arg.split("=", 1)[0]
+        if (
+            key in ("--model", "--variant", "--continue")
+            or (arg.startswith("-m") and not arg.startswith("--"))
+            or arg == "-c"
+        ):
+            raise ValueError("model/variant/continue child flags are launcher-controlled")
+
 
 HOOK_MARKER = "# foundry-launcher-managed pre-push hook"
 
@@ -183,9 +216,12 @@ def _validated_tool_output(value: object) -> dict:
     return out
 
 
-def build_content_bundle(canonical_root: str, extra_denies: list[str]) -> dict:
+def build_content_bundle(
+    canonical_root: str, extra_denies: list[str], execution_provider: str | None = None
+) -> dict:
     """Canonical model/permission lock for OPENCODE_CONFIG_CONTENT."""
     config_path = Path(canonical_root) / "opencode.json"
+    execution = execution_identity(execution_provider, "high")
     try:
         config = json.loads(config_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
@@ -205,6 +241,8 @@ def build_content_bundle(canonical_root: str, extra_denies: list[str]) -> dict:
     for effort in BELOW_HIGH:
         if variants.get(effort) != {"disabled": True}:
             raise ValueError(f"canonical below-HIGH variant {effort!r} not disabled")
+    if config.get("share", "disabled") != "disabled":
+        raise ValueError("canonical share must remain disabled")
     bundle = {
         "model": config["model"],
         "share": config.get("share", "disabled"),
@@ -219,6 +257,42 @@ def build_content_bundle(canonical_root: str, extra_denies: list[str]) -> dict:
         bundle["instructions"] = config["instructions"]
     if "tool_output" in config:
         bundle["tool_output"] = _validated_tool_output(config["tool_output"])
+    # Copy all non-provider policies, replacing only the execution allowlist.
+    experimental = json.loads(json.dumps(config.get("experimental", {})))
+    policies = [p for p in experimental.get("policies", []) if p.get("action") != "provider.use"]
+    experimental["policies"] = [
+        *policies,
+        {"action": "provider.use", "effect": "deny", "resource": "*"},
+        {"action": "provider.use", "effect": "allow", "resource": execution["provider"]},
+    ]
+    bundle["experimental"] = experimental
+    if "default_agent" in config:
+        bundle["default_agent"] = config["default_agent"]
+    if execution_provider == "zen":
+        bundle["model"] = ZEN_MODEL
+        bundle["small_model"] = ZEN_MODEL
+        bundle["enabled_providers"] = ["opencode"]
+        bundle["disabled_providers"] = [CANONICAL_PROVIDER]
+        short = ZEN_MODEL.split("/", 1)[1]
+        bundle["provider"] = {
+            "opencode": {
+                "whitelist": [short],
+                "models": {
+                    short: {
+                        "variants": {
+                            name: {"disabled": True} for name in (*BELOW_HIGH, *ALLOWED_EFFORTS)
+                        }
+                    }
+                },
+            }
+        }
+        # Inline agent values override the unchanged canonical Markdown snapshot.
+        # Empty variant clears Go's inherited value (pinned agent.ts uses ??),
+        # without inventing a supported Zen HIGH/XHIGH variant or reasoning option.
+        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
+        names.update(config.get("agent", {}))
+        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
+        bundle["agent"] = {name: {"model": ZEN_MODEL, "variant": ""} for name in sorted(names)}
     return bundle
 
 
@@ -260,6 +334,7 @@ def resolve_environment(
     mode: str,
     references: list[dict],
     opencode_binary: str,
+    execution_provider: str | None = None,
 ) -> dict:
     """Build the child environment. Raises ValueError fail-closed."""
     if effort in BELOW_HIGH or effort not in ALLOWED_EFFORTS:
@@ -272,8 +347,11 @@ def resolve_environment(
         "permission"
     ]["external_directory"]
     denies += [k for k, v in static_denies.items() if v == "deny"]
-    bundle = build_content_bundle(canonical_root, sorted(set(denies)))
+    bundle = build_content_bundle(canonical_root, sorted(set(denies)), execution_provider)
     env = dict(os.environ)
+    # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
+    # widen canonical permissions. Do not read or log its value.
+    env.pop("OPENCODE_PERMISSION", None)
     config_dir = str(Path(run_dir) / "config-dir")
     manifest = build_config_dir(canonical_root, config_dir)
     policy_hash = drift_mod.canonical_bundle_hash(
@@ -340,8 +418,13 @@ def init(
     opencode_bin: str | None = None,
     version_audit_mode: bool = False,
     worktree_states: list[str] | None = None,
+    execution_provider: str | None = None,
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
+    try:
+        execution = execution_identity(execution_provider, effort)
+    except ValueError as exc:
+        return {"verdict": "LAUNCH_REFUSED", "error": str(exc)}
     if not state_path:
         return {
             "verdict": "LAUNCH_REFUSED",
@@ -430,6 +513,7 @@ def init(
             mode=mode,
             references=parsed_refs,
             opencode_binary=binary,
+            execution_provider=execution_provider,
         )
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": str(exc)}
@@ -444,6 +528,7 @@ def init(
     except RuntimeError:
         live_head = "UNKNOWN"
     context = {
+        "execution": execution,
         "workstream": workstream,
         "branch": branch,
         "worktree": canonical,
@@ -471,6 +556,7 @@ def init(
         notes.append(version_note)
     return {
         "verdict": "LAUNCH_READY",
+        "execution": execution,
         "gate": gate,
         "env_keys": sorted(k for k in env if k.startswith(("OPENCODE_", "FOUNDRY_"))),
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
@@ -504,6 +590,14 @@ def launch(
     if plan.get("verdict") != "LAUNCH_READY":
         print(f"LAUNCH_REFUSED: {plan.get('error', plan.get('gate', {}))}", file=sys.stderr)
         return 1
+    try:
+        validate_child_options(argv_extra)
+        execution = plan.get("execution") or execution_identity(None, effort)
+        if effort not in ALLOWED_EFFORTS or execution["requested_effort"] != effort:
+            raise ValueError("launch effort differs from validated plan")
+    except ValueError as exc:
+        print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
+        return 1
     mode = ui_mode or plan.get("ui_mode", "headless")
     env: dict = plan["_env"]
     lock = writer_lock_mod.WriterLock(
@@ -514,6 +608,23 @@ def launch(
     except writer_lock_mod.LockedError as exc:
         print(str(exc), file=sys.stderr)
         return writer_lock_mod.HELD_EXIT
+    try:
+        return _launch_locked(plan, argv_extra, worktree, workstream, effort, mode, execution)
+    finally:
+        lock.release()
+
+
+def _launch_locked(
+    plan: dict,
+    argv_extra: list[str],
+    worktree: str,
+    workstream: str,
+    effort: str,
+    mode: str,
+    execution: dict,
+) -> int:
+    """Child + telemetry; the caller releases ownership even if telemetry fails."""
+    env = plan["_env"]
     run_dir = plan.get("run_dir") or env.get("FOUNDRY_RUN_DIR") or "/tmp/foundry-launch-unknown"
     metrics_path = _metrics_path(run_dir)
     start_mono = time.monotonic()
@@ -526,6 +637,9 @@ def launch(
         "reasoning_effort": "AUTOCAPTURED",
         "source_sha": "AUTOCAPTURED",
         "started_utc": "AUTOCAPTURED",
+        "execution_provider": "AUTOCAPTURED",
+        "execution_override": "AUTOCAPTURED",
+        "variant_resolution": "AUTOCAPTURED",
     }
     try:
         metrics_mod.record(
@@ -534,7 +648,10 @@ def launch(
             task_id=workstream,
             task_class="workstream-session",
             repo_profile=plan.get("gate", {}).get("profile", "UNKNOWN"),
-            model=CANONICAL_MODEL,
+            model=execution["model"],
+            execution_provider=execution["provider"],
+            execution_override=execution["override"],
+            variant_resolution=execution["variant_resolution"],
             reasoning_effort=effort,
             source_sha=plan.get("live_head"),
             started_utc=start_utc,
@@ -543,20 +660,36 @@ def launch(
         print(f"LAUNCH_WARN: telemetry start not recorded: {exc}", file=sys.stderr)
     binary = plan.get("opencode_binary") or env.get(OPENCODE_BIN_ENV, "opencode")
     try:
-        argv = build_argv(binary, mode, argv_extra)
+        # CLI selection outranks persisted session/model history on an explicit
+        # Zen launch. Caller model flags were rejected before taking the lock.
+        selected = ["--model", execution["model"]] if execution["override"] == "zen" else []
+        argv = build_argv(binary, mode, [*selected, *argv_extra])
     except ValueError as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
-        lock.release()
         return 1
     print(f"LAUNCH: holding writer lock; exec {' '.join(argv)} (cwd={worktree})")
+    rc = 1
+    interrupted = False
+    failure_class = "CHILD_EXCEPTION"
     try:
         proc = subprocess.run(argv, cwd=worktree, env=env, check=False)
         rc = proc.returncode
+        interrupted = rc in (-2, 130)
+        if rc == -2:
+            rc = 130
+        failure_class = "INTERRUPTED" if interrupted else "NONE" if rc == 0 else "CHILD_EXIT"
+    except KeyboardInterrupt:
+        rc = 130
+        interrupted = True
+        failure_class = "INTERRUPTED"
+    except OSError:
+        rc = 127
+        failure_class = "CHILD_START_FAILED"
     finally:
         elapsed = time.monotonic() - start_mono
         try:
             end_head = _git(["rev-parse", "HEAD"], worktree)
-        except RuntimeError:
+        except (RuntimeError, KeyboardInterrupt):
             end_head = "UNKNOWN"
         try:
             metrics_mod.record(
@@ -568,22 +701,28 @@ def launch(
                     "elapsed_seconds": "AUTOCAPTURED",
                     "exit_status": "AUTOCAPTURED",
                     "completed": "AUTOCAPTURED",
+                    "interrupted": "AUTOCAPTURED",
+                    "failure_class": "AUTOCAPTURED",
                 },
                 task_id=workstream,
                 task_class="workstream-session",
                 repo_profile=plan.get("gate", {}).get("profile", "UNKNOWN"),
-                model=CANONICAL_MODEL,
+                model=execution["model"],
+                execution_provider=execution["provider"],
+                execution_override=execution["override"],
+                variant_resolution=execution["variant_resolution"],
                 reasoning_effort=effort,
                 final_sha=end_head,
                 ended_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 exit_status=rc,
                 completed=(rc == 0),
+                interrupted=interrupted,
+                failure_class=failure_class,
                 elapsed_seconds=round(elapsed, 1),
             )
         except OSError as exc:
             print(f"LAUNCH_WARN: telemetry end not recorded: {exc}", file=sys.stderr)
-        lock.release()
-    print(f"LAUNCH_END: exit={rc} elapsed={elapsed:.1f}s (lock released)")
+    print(f"LAUNCH_END: exit={rc} elapsed={elapsed:.1f}s")
     return rc
 
 
@@ -596,6 +735,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--branch", required=True)
     parser.add_argument("--audit-base-sha", required=True)
     parser.add_argument("--effort", default="high")
+    parser.add_argument(
+        "--execution-provider",
+        choices=("zen",),
+        default=None,
+        help="Explicit operator-authorized Zen execution only; omitted keeps OpenCode Go.",
+    )
     parser.add_argument("--mode", default="writer", choices=("writer", "reader"))
     parser.add_argument("--session", default="")
     parser.add_argument(
@@ -662,6 +807,7 @@ def main(argv: list[str] | None = None) -> int:
         opencode_bin=args.opencode_bin,
         version_audit_mode=args.version_audit_mode,
         worktree_states=args.worktree_state,
+        execution_provider=args.execution_provider,
     )
     printable = {k: v for k, v in plan.items() if k != "_env"}
     print(json.dumps(printable, indent=2, sort_keys=True, default=str))
