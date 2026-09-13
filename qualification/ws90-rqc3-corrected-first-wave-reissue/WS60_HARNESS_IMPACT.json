@@ -1,0 +1,215 @@
+{
+  "audit_head_current_main": "8fe9a3eacd3c3a54ba07f2de034a3bd740fbec73",
+  "behavior_credit_imported": 0,
+  "cherry_pick_prohibition": "DO NOT cherry-pick WS60; DO NOT transplant production changes verbatim; DO NOT treat WS60 green tests as evidence on cfc36f. Re-implement required functionality systemically with requalification.",
+  "current_xmage_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+  "hidden_info_replay_techniques": {
+    "hidden_info_usable_as_technique": [
+      "per-viewer hand-identity scoping (C01 pitch present-for-owner/absent-for-others, 4 principal views)",
+      "entitled-look grant window (granted_library open/close)",
+      "known-library-empty + composition-memory-owner-only post-shuffle checks",
+      "global offered-option confinement (73548 frames, 0 out-of-option)",
+      "cost-text identity-leak inspection",
+      "structuralPrivacy captures (copy-choice, post-cleanup)",
+      "planted-negative discipline (NOT_RUN; none fabricated - correctly not claimed)"
+    ],
+    "note": "All audit techniques reusable as harness patterns; zero rows transfer as behavior evidence to cfc36f or corrected H01 slot (bound to audit_head 2c30040f, engine 7135d5e, old H01 oracle; H01 row INVALIDATED_BY_ORACLE_CHANGE; aggregates REQUALIFICATION_REQUIRED).",
+    "replay_usable_as_technique": [
+      "twin primary/replica same-seed re-execution",
+      "normalized decision-log equality (excl log_seq/chain counters; H01 0 divergences 3632/3632)",
+      "event-tape multiset equality",
+      "terminal normalized-views equality + replica assertion re-evaluation (zero REPLICA-DIVERGENCE)",
+      "explicit seed authority (primary_seed==replica_seed, seed_explicit)",
+      "UUID policy (per-game UUIDs non-semantic; option membership/selection + multisets + terminals are stable bindings)",
+      "content-ordered frame sequencing (E02 note)"
+    ],
+    "transferable_behavior_evidence": 0
+  },
+  "historical_frozen_head": "2c30040f82e4c97b308535a592f4facd1e5ec42e",
+  "historical_terminal": "731891ec5ed8e7611fc9a636bab5fc3c400108eb",
+  "historical_xmage_engine": "7135d5e85ddb4c8aa4b49b4192ca51947c822704",
+  "pilot_audit": {
+    "items": [
+      {
+        "behavior": "first-option behavior",
+        "evidence": "No first-option selection; unmapped choice throws PilotGapException; selections via explicit scenario mappings (setupCasts, choicePicks, targetRules)",
+        "present": false
+      },
+      {
+        "behavior": "random-option behavior",
+        "evidence": "No Random usage in pilot decision path; deterministic mappings only; RNG owned by engine with explicit seeds",
+        "present": false
+      },
+      {
+        "behavior": "default yes/no",
+        "evidence": "Header: no silent yes/no defaults; booleans map requires explicit message-fragment->yes/no per scenario; unmapped -> PilotGapException",
+        "present": false
+      },
+      {
+        "behavior": "fabricated legal actions",
+        "evidence": "Pilot never synthesizes options; selects only offered option_ids; 0 out-of-option selections over 73548 frames",
+        "present": false
+      },
+      {
+        "behavior": "requested-option filtering that reconstructs legality",
+        "evidence": "No filtering that narrows offered set by pilot-computed legality; gates (castGates/stackGates/delayGates) gate WHEN to take offered action, never compute WHAT IS legal",
+        "present": false
+      },
+      {
+        "behavior": "legality reconstruction",
+        "evidence": "Never reads live engine objects; uses only frame + entitled pilot_state; production diffs state engine alone selected eligible set",
+        "present": false
+      },
+      {
+        "behavior": "card-name legality hacks",
+        "evidence": "Name matches (choicePicks, targetRules nameMatch) select among offered options only; no bypass of offered-set membership check",
+        "present": false
+      },
+      {
+        "behavior": "silent skip",
+        "evidence": "Unmapped choice-class fails closed (PilotGapException), not skipped; priority default pass is always-legal XMage action, not a skip",
+        "present": false
+      },
+      {
+        "behavior": "GUI defaults",
+        "evidence": "No GUI path; headless bridge with blocking fail-closed controller; no default answer exists in controller",
+        "present": false
+      },
+      {
+        "behavior": "internal engine AI fallback",
+        "evidence": "No XMage-AI substitution; controller doc: No default, random, tactical, structural or XMage-AI answer exists; Player callbacks hand to controller or fail closed",
+        "present": false
+      }
+    ],
+    "method": "Ws60Pilot.java header contract (lines 14-20) + PilotGapException fail-closed (line 1793) + 0 out-of-option over 73548 frames (WS60_HIDDEN_INFO_AUDIT) + production diff inspection (no sa.resolve/AbilitySub/first/random/default/GUI/AI)",
+    "verdict": "NO legality reconstruction; pilot SCRIPTS discretionary preference only (when to take offered legal action), never WHAT IS legal"
+  },
+  "production_deltas": [
+    {
+      "classification": "STILL_REQUIRED_FOR_EXECUTION",
+      "current_main_state": "ABSENT: file XmageDecisionOptionIdentity.java does not exist on current main; no equivalent in XmageFullGameStateRedactor (counts-only, no library identities); grep granted_library=0 hits",
+      "delta_id": "D1-granted_library-identity-binding",
+      "description": "Grant-scoped granted_library binding (populate only inside entitled full-look window)",
+      "files": [
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageDecisionOptionIdentity.java"
+      ],
+      "rationale": "F01 search / C01 pitch hidden-zone choice needs entitled full-look projection; otherwise search cannot be offered without leaking or failing closed. Not superseded, not present, not unsafe (read-only projection, no Rules semantics).",
+      "ws60_commit": "ef9e2005"
+    },
+    {
+      "classification": "STILL_REQUIRED_FOR_EXECUTION",
+      "current_main_state": "ABSENT: git diff 2c30040f..HEAD shows lookOwnerFor + try/finally block removed, reverted to direct request+addTarget",
+      "delta_id": "D2-look-window-choose-Target",
+      "description": "Look-window open/close in choose(Target) (beginZoneFullLook/endZoneFullLook around request with lookOwnerFor library detection)",
+      "files": [
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
+      ],
+      "rationale": "Companion to D1; engine selects eligible set, adapter only projects entitled identities. Read-only, no legality computed.",
+      "ws60_commit": "ef9e2005"
+    },
+    {
+      "classification": "STILL_REQUIRED_FOR_EXECUTION",
+      "current_main_state": "ABSENT: file XmageKnowledgeLedger.java does not exist on main; XmageFullGameStateRedactor exposes only counts + command cards + publicPermanent without P/T/counters/ability text or damage/tax ledger",
+      "delta_id": "D3a-ledger-views",
+      "description": "granted_library + commander_status + P/T/counters/abilities public projections",
+      "files": [
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageKnowledgeLedger.java"
+      ],
+      "rationale": "G03 damage 12->24 + tax, H01/I01 P/T/ability terminals, F01 post-shuffle checks need these public projections. Read-only adapter projection.",
+      "ws60_commit": "ef9e2005"
+    },
+    {
+      "classification": "STILL_REQUIRED_FOR_EXECUTION",
+      "current_main_state": "ABSENT: diff shows key-mode branch, CHOICE_SHORT_ID, choiceText, choicePrompt removed (reverted to Choose option + raw values); controller retains only stableId, no redactObjectIds",
+      "delta_id": "D4-key-mode-Choice-projection-redaction",
+      "description": "Key-mode Choice projection (keyChoices->options, setChoiceByKey) + choiceText/choicePrompt + redactObjectIds (UUID->#)",
+      "files": [
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameDecisionController.java",
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
+      ],
+      "rationale": "C01 pitch vs {3}{U}{U} + D06 modal menus arrive as keyChoices; without projection they are zero options -> silent cancel. Redaction required for twin-stable replay. Adapter-only, no Rules semantics.",
+      "ws60_commit": "4857b4f4"
+    },
+    {
+      "classification": "STILL_REQUIRED_FOR_EXECUTION",
+      "current_main_state": "ABSENT: diff shows stablePermanentOrder removed, reverted to Comparator.comparing(permanent->permanent.getId().toString()) (per-game UUID order)",
+      "delta_id": "D5-content-ordered-attacker-blocker-frames",
+      "description": "stablePermanentOrder (name, zone-change counter, characteristics, never native UUID) for selectAttackers/selectBlockers",
+      "files": [
+        "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
+      ],
+      "rationale": "Deterministic twin replay needs content order (E02 co-blocker order carries no Rules content; UUID order flips twins 50/50). Single-run PASS does not need it; REPLAY_AUDIT twin-equality does. No Rules content.",
+      "ws60_commit": "4e0d068d"
+    }
+  ],
+  "schema": "ws90.ws60-harness-impact.v1",
+  "test_harness_files": [
+    {
+      "classification": "REUSABLE_AS_TEST_INFRASTRUCTURE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Checks.java",
+      "rationale": "Pure assertion helpers; no bridge/oracle coupling; reusable technique after re-target."
+    },
+    {
+      "classification": "REQUIRES_REWRITE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Decks.java",
+      "rationale": "Deck assembly bound to old pin assembly route + B01 singleton/token route; needs re-target to cfc36f and WS66 B01 provenance; no second Rules logic."
+    },
+    {
+      "classification": "BOUND_TO_OLD_BRIDGE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Driver.java",
+      "rationale": "Driver depends on D1-D5 production APIs absent on current main (grant window, key-mode, redaction, stable order); requires bridge restoration + requalification before reuse."
+    },
+    {
+      "classification": "REUSABLE_AS_TEST_INFRASTRUCTURE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60EventTape.java",
+      "rationale": "Event-tape multiset equality technique reusable as harness pattern; bound evidence (old pin/oracle) not transferable."
+    },
+    {
+      "classification": "REQUIRES_REWRITE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Pilot.java",
+      "rationale": "Pilot discipline safe (selects only within offered set, PilotGapException fail-closed, no legality reconstruction - see pilot_audit); but H01 mapping encodes superseded copy-choice oracle and assembly seeks bound to old pin; requires H01-A/B/C remapping + cfc36f re-target. NOT UNSAFE_SECOND_RULES_LOGIC."
+    },
+    {
+      "classification": "BOUND_TO_OLD_ORACLE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Rqc3FirstWaveTest.java",
+      "rationale": "Asserts old H01 PASS (copy-choice basis gone under HUMILITY_FIRST); cannot pass under corrected family without rewrite; old green is provenance only."
+    },
+    {
+      "classification": "REQUIRES_REWRITE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Scenarios.java",
+      "rationale": "Non-H01 scenario bindings semantically preserved but bound to old bridge APIs/pin; needs re-target, no oracle change."
+    },
+    {
+      "classification": "REQUIRES_REWRITE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Scenarios2.java",
+      "rationale": "Same as Scenarios (non-H01 preserved semantics, old bridge/pin binding)."
+    },
+    {
+      "classification": "REQUIRES_REWRITE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Scenarios3.java",
+      "rationale": "Same as Scenarios (non-H01 preserved semantics, old bridge/pin binding)."
+    },
+    {
+      "classification": "BOUND_TO_OLD_ORACLE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Scenarios4.java",
+      "rationale": "Contains H01 setupCast/castGate/target mapping for superseded copy-choice oracle (Clone copy under Humility); must be remapped to A/B/C family; also bound to old bridge."
+    },
+    {
+      "classification": "REQUIRES_REWRITE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Scenarios5.java",
+      "rationale": "Same as Scenarios (non-H01 preserved semantics, old bridge/pin binding)."
+    },
+    {
+      "classification": "BOUND_TO_OLD_BRIDGE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Suite.java",
+      "rationale": "Suite determinism (normalized-log equality, redaction, stable order) depends on D4/D5 absent on main; technique reusable, instantiation bound."
+    },
+    {
+      "classification": "REUSABLE_AS_TEST_INFRASTRUCTURE",
+      "file": "engine-bridge/src/test/java/org/commanderlab/xmage/Ws60Views.java",
+      "rationale": "Normalized-view equality technique reusable as harness pattern; no oracle/bridge semantics."
+    }
+  ],
+  "workstream": "WS90-RQC3-CORRECTED-FIRST-WAVE-REISSUE",
+  "ws60_production_edits_imported": 0
+}
