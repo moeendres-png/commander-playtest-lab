@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-arclose-d1
 branch: ws-arclose/d1-current-authority-drift-20260913
 audit_base_sha: f89c824e93664b8285b0b44e4445118bd99b9f98
 audit_base_tree: b250c599f03df4750b06dab739a6e1d7940fe337
-state_written_against_head: 5600e6b27806fe24bcf8fe27e2de6083e99fadf7
-validated_head: null
+state_written_against_head: f596da8945bfa70f62e0bace7eab561002100601
+validated_head: f596da8945bfa70f62e0bace7eab561002100601
 objective: Reconcile verified current Source Truth and documentation drift remaining
   from the architecture/repository improvement program. No Rules semantics, engine
   pins, protocol, provider selection, Architecture Freeze state, Docker behavior,
@@ -33,10 +33,9 @@ out_of_scope:
 - Architecture Freeze
 - Production Provider selection
 ownership: WS-ARCLOSE-D1
-status: ACTIVE
-exact_next_action: 'Remediation content complete (restore + no-rebind lock + record
-  correction). Next: commit R1 locally, revalidate focused suites at R1, then seal
-  COMPLETE with validated_head=R1. No push, no PR, no merge.'
+status: COMPLETE
+exact_next_action: 'COMPLETE: Coordinator-review remediation validated at f596da89
+  and sealed. No push, no PR, no merge (not authorized). Await Coordinator direction.'
 dependencies:
 - CPL Source Lock f89c824e / tree b250c599
 - current Foundry authority
