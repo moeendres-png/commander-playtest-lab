@@ -1,0 +1,44 @@
+{
+  "artifact_version": "commander-lab.ws49-source-lock/1.0.0",
+  "workstream": "WS-49",
+  "provider": "XMage",
+  "historical_successor_runtime_credit_imported": 0,
+  "commander_lab": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "ws49/xmage-v1.0.5-successor-qualification",
+    "bootstrap_head": "ac141882e4f86f1d49251023c83baac824298ed9",
+    "draft_pr": 164
+  },
+  "ws47": {
+    "freeze_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+    "freeze_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+    "namespace": "qualification/ws47",
+    "namespace_tree_expected": "12af73695c801a42a0193ee895d5fc0843d16b0c",
+    "contract": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "materialization_sha256_expected": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "canonical_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+    "provider_denominator": 107,
+    "repository_commit_tree_verified": true,
+    "namespace_tree_runtime_attestation_pending": true,
+    "materialization_file_runtime_hash_pending": true
+  },
+  "xmage": {
+    "repository": "moeendres-png/mage",
+    "branch": "foundry/ws39-commander-history-state-restore",
+    "commit": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+    "tree": "fdb8bf56a8bd8199a4ef372e468d93d6550b0649",
+    "branch_commit_tree_verified": true,
+    "fresh_build_verified": false
+  },
+  "credit": {
+    "construction": "0/107",
+    "behavior": "0/107",
+    "af07_granted": false,
+    "architecture_freeze": false
+  },
+  "gate_status": {
+    "G49-01": "SOURCE_VERIFIED_RUNTIME_ATTESTATION_PENDING",
+    "G49-02": "SOURCE_VERIFIED_FRESH_BUILD_PENDING",
+    "G49-03": "PASS"
+  }
+}
