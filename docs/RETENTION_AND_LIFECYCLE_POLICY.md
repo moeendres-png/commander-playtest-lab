@@ -180,6 +180,22 @@ gates owned elsewhere.
   now unconditional fail-closed (any unprovable identity stops startup); the
   wrapper resolves/exports both provider identities; the resolver validates the
   manifest `provider` field.
+- WS-ARCLOSE-D1 addendum (2026-09-13, current-authority drift closure; original
+  WS-A1R/WS-A1D text above preserved verbatim as historical evidence): successor
+  workstream WS-A1D-H4 prepared the bounded H4 qualification lane
+  (`.github/workflows/h4-docker-materialization.yml`: preflight + h4-xmage +
+  h4-forge-image) and recorded first remote execution (run 34573843323 on the
+  PR 179 merge ref): H4A-XMage PASS, H4B-XMage PASS, H4A-Forge PASS, H4B-Forge
+  UNKNOWN/NOT_RUN as an authority blocker (no conforming Forge
+  protocol-2.0.0 bridge exists; do not fabricate one), overall H4 PARTIAL.
+  The `NOT_RUN on the WS-A1D execution host (no Docker client there)` clause
+  above therefore describes the WS-A1D local execution environment only, not
+  current H4 qualification state. Current H4 truth lives in the WS-A1D-H4
+  evidence (branch `architecture/ws-a1d-h4-docker-materialization-20260911`,
+  validated_head `1aab0121`, remote artifacts recorded there) and any
+  successor H4 adjudication — not in this appendix. H1–H3/H10 authority
+  (manifest sole pin authority, no silent stale fallback, repository as engine
+  identity, fail closed) is unchanged by this addendum.
 - `SCHEMA_RENAME_primary_secondary = DEFERRED` (Freeze-adjacent). `primary_engine`
   / `secondary_engine` are runtime-contract keys (consumers:
   `src/commander_lab/technical_truth.py`, `scripts/run_external_b4f_*.py`,
