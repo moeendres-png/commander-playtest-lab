@@ -45,7 +45,7 @@ import java.util.UUID;
 final class Phase6DifferentialAdapter {
 
     private static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
-    private static final String BACKEND_VERSION = "xmage-1.4.61@77d7646da6958fdf8125ee7c8f4aabd130d21d4c";
+    private static final String BACKEND_VERSION = "xmage-1.4.61@cfc36f445f917f101fa2ed588770e043f53bc44c";
 
     private Phase6DifferentialAdapter() {
     }
@@ -77,7 +77,7 @@ final class Phase6DifferentialAdapter {
         JsonObject response = new JsonObject();
         response.addProperty("backend_version", BACKEND_VERSION);
         response.addProperty("provider", "xmage");
-        response.addProperty("provider_commit", "77d7646da6958fdf8125ee7c8f4aabd130d21d4c");
+        response.addProperty("provider_commit", "cfc36f445f917f101fa2ed588770e043f53bc44c");
         response.addProperty("scenario_mode", "provider_state_injection_v1");
         response.add("normalized_output", normalized);
         response.add("normalized_output_provenance", normalizedOutputProvenance(caseId));

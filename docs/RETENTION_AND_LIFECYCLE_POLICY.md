@@ -177,9 +177,17 @@ gates owned elsewhere.
   path, no Docker consumption). Remaining: real image materialization on a host
   with Docker (NOT_RUN on the WS-A1D execution host: no Docker client there).
   Remediation 01 (post-publication review): provenance gate and entrypoint are
-  now unconditional fail-closed (any unprovable identity stops startup); the
-  wrapper resolves/exports both provider identities; the resolver validates the
-  manifest `provider` field.
+   now unconditional fail-closed (any unprovable identity stops startup); the
+   wrapper resolves/exports both provider identities; the resolver validates the
+   manifest `provider` field.
+   Resolution (WS88): the `PIN_DIVERGENCE_DOCKERFILES` gate required no Dockerfile
+   change — both Dockerfiles remain pin-free (required build args, no SHA defaults)
+   and follow `config/rules_engines.json` automatically, so the canonical xmage pin
+   migration `77d7646d` -> `cfc36f445f917f101fa2ed588770e043f53bc44c` flows through
+   wrapper->resolver->build-arg->provenance->entrypoint-gate without a container
+   edit. `phase85.py` remains frozen historical provenance. Historical-fact
+   sentences above are preserved; sealed historical evidence bound to `77d7646d`
+   (WS80 package, WS17 locks, B4F closeout) is superseded, never rewritten.
 - `SCHEMA_RENAME_primary_secondary = DEFERRED` (Freeze-adjacent). `primary_engine`
   / `secondary_engine` are runtime-contract keys (consumers:
   `src/commander_lab/technical_truth.py`, `scripts/run_external_b4f_*.py`,

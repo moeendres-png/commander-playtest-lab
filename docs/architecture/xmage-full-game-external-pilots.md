@@ -47,7 +47,7 @@ Structural Simulation and Tactical Oracle have **no decision authority** in this
 ## Runtime identity
 
 - XMage engine version: `1.4.61`.
-- Pinned XMage commit: `77d7646da6958fdf8125ee7c8f4aabd130d21d4c`.
+- Pinned XMage commit: `cfc36f445f917f101fa2ed588770e043f53bc44c`.
 - Engine protocol: `2.0.0` envelope.
 - Full-game decision protocol: `xmage-external-decision-protocol-1.0.0`.
 - Lane: `xmage_full_game_external_pilots`.

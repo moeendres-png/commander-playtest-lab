@@ -83,7 +83,7 @@ jobs:
               'future_xmage_scenario_contract': 'future-xmage-scenario-contract-1.0.0',
               'xmage_full_game_lane': 'xmage_full_game_external_pilots',
               'xmage_full_game_decision_protocol': 'xmage-external-decision-protocol-1.0.0',
-              'xmage_pinned_commit': '77d7646da6958fdf8125ee7c8f4aabd130d21d4c',
+              'xmage_pinned_commit': 'cfc36f445f917f101fa2ed588770e043f53bc44c',
               'operational_pod_size': 4,
               'xmage_rules_authority': True,
               'our_pilots_decision_authority': True,

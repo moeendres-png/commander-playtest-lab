@@ -9,7 +9,7 @@ MAVEN_VERSION="3.9.16"
 case "$PROVIDER" in
   xmage)
     REPO="${COMMANDER_LAB_XMAGE_REPOSITORY:-https://github.com/moeendres-png/mage.git}"
-    COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-77d7646da6958fdf8125ee7c8f4aabd130d21d4c}"
+    COMMIT="${COMMANDER_LAB_XMAGE_COMMIT:-cfc36f445f917f101fa2ed588770e043f53bc44c}"
     REQUIRED_JAVA_MIN=8
     ;;
   forge)
