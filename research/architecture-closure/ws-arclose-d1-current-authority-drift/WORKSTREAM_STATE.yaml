@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-arclose-d1
 branch: ws-arclose/d1-current-authority-drift-20260913
 audit_base_sha: f89c824e93664b8285b0b44e4445118bd99b9f98
 audit_base_tree: b250c599f03df4750b06dab739a6e1d7940fe337
-state_written_against_head: a5d9c1a017b388b0f9a1f017e4ff13e801e40b31
-validated_head: null
+state_written_against_head: e41a1e0ce468d0a31c0dbb1c7c7de30ffdecca89
+validated_head: e41a1e0ce468d0a31c0dbb1c7c7de30ffdecca89
 objective: Reconcile verified current Source Truth and documentation drift remaining
   from the architecture/repository improvement program. No Rules semantics, engine
   pins, protocol, provider selection, Architecture Freeze state, Docker behavior,
@@ -33,10 +33,11 @@ out_of_scope:
 - Architecture Freeze
 - Production Provider selection
 ownership: WS-ARCLOSE-D1
-status: ACTIVE
-exact_next_action: 'P2 implementation complete in worktree. Next: commit descendant
-  implementation commit, revalidate at that commit, then seal COMPLETE with honest
-  validated_head. No push, no PR action.'
+status: COMPLETE
+exact_next_action: 'COMPLETE: P2 ownership-authority remediation validated at e41a1e0c
+  and sealed. Broad signature 831 passed / 5 pre-existing failures / 32 errors (strict
+  subset of prior 40 baseline; 8 optimizer tests order-dependent, pass standalone,
+  unclaimed). No push, no PR action (Coordinator handles GitHub).'
 dependencies:
 - CPL Source Lock f89c824e / tree b250c599
 - current Foundry authority
