@@ -74,6 +74,18 @@ def init_state(
     }
 
 
+def parse_worktree_state(spec: str) -> tuple[str, str]:
+    """Parse one WORKTREE=STATE mapping (fail closed on malformed input).
+
+    The worktree key is normalized to its real path so inventory entries
+    match deterministically. No discovery, no guessing, no scanning.
+    """
+    worktree, sep, state = spec.partition("=")
+    if not sep or not worktree.strip() or not state.strip():
+        raise ValueError(f"malformed --worktree-state {spec!r} (want WORKTREE=STATE)")
+    return os.path.realpath(os.path.abspath(worktree.strip())), state.strip()
+
+
 def bootstrap(
     worktree: str,
     workstream: str,
@@ -86,6 +98,7 @@ def bootstrap(
     allow_same_cwd_pids: bool = False,
     allow_suppressed_routing: bool = False,
     references: list[dict] | None = None,
+    worktree_states: dict[str, str] | None = None,
 ) -> dict:
     """Run every gate. Returns a result dict; verdict is BOOTSTRAP_PASS/FAIL."""
     notes: list[str] = []
@@ -107,9 +120,12 @@ def bootstrap(
         except RuntimeError:
             pass
 
-    # 2. duplicate writer across worktrees of this repo.
+    # 2. duplicate writer across worktrees of this repo. Ownership for each
+    # worktree comes from the explicit state map when supplied (launcher
+    # auto-supplies its own worktree pair; siblings are operator-declared),
+    # else the legacy conventional path when present, else UNKNOWN.
     try:
-        entries = inventory_mod.inventory(canonical)
+        entries = inventory_mod.inventory(canonical, worktree_states)
         conflicts = inventory_mod.find_duplicate_writers(entries)
     except RuntimeError as exc:
         failures.append(f"worktree inventory: {exc}")
@@ -152,6 +168,12 @@ def bootstrap(
                 ownership = str(data.get("ownership", ""))
                 if not ownership or ownership == "UNKNOWN":
                     notes.append("state ownership unknown (proceeding; push will refuse)")
+                elif ownership != workstream:
+                    failures.append(
+                        f"state ownership {ownership!r} != workstream {workstream!r} "
+                        "(explicit state conflict: refusing to run under another "
+                        "workstream's state)"
+                    )
 
     # 4. writer lock must be FREE (we acquire later) + no same-CWD opencode.
     lock_path = writer_lock_mod.lock_path_for(canonical)
@@ -263,12 +285,32 @@ def main(argv: list[str] | None = None) -> int:
         help="Declared read-only reference root as JSON (repeatable).",
     )
     parser.add_argument(
+        "--worktree-state",
+        action="append",
+        default=[],
+        help="Explicit ownership authority as WORKTREE=STATE (repeatable).",
+    )
+    parser.add_argument(
         "--init-state",
         action="store_true",
         help="Write a minimal 2.0 state file when none exists, then continue.",
     )
     args = parser.parse_args(argv)
     resolved_state = args.state
+    try:
+        worktree_states: dict[str, str] = {}
+        for spec in args.worktree_state:
+            key, value = parse_worktree_state(spec)
+            if key in worktree_states and worktree_states[key] != value:
+                print(
+                    f"BOOTSTRAP_FAIL: conflicting --worktree-state for {key!r}",
+                    file=sys.stderr,
+                )
+                return 1
+            worktree_states[key] = value
+    except ValueError as exc:
+        print(f"BOOTSTRAP_FAIL: {exc}", file=sys.stderr)
+        return 1
     if args.init_state and not Path(resolved_state).exists():
         try:
             profile = drift_mod.load_profile(args.profile, args.profiles_dir)
@@ -305,6 +347,7 @@ def main(argv: list[str] | None = None) -> int:
         args.allow_same_cwd_pids,
         args.allow_suppressed_routing,
         _parse_cli_references(args.reference),
+        worktree_states,
     )
     text = json.dumps(result, indent=2, sort_keys=True)
     if args.json_output:

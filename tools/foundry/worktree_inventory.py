@@ -1,8 +1,12 @@
 """Machine-readable worktree/session inventory.
 
 Lists every worktree known to the current repository with branch, HEAD,
-clean/dirty state, and ownership (read from .foundry/WORKSTREAM_STATE.yaml
-when present, else UNKNOWN). Read-only: never kills processes, never deletes
+clean/dirty state, and ownership. Ownership authority is explicit: an
+optional state map (worktree path -> explicit dedicated state file, supplied
+by the launcher/operator) is read first; the legacy conventional path
+<worktree>/.foundry/WORKSTREAM_STATE.yaml is read only when present
+(transitional); otherwise ownership is UNKNOWN, never fabricated and never
+guessed by scanning. Read-only: never kills processes, never deletes
 worktrees.
 """
 
@@ -10,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -29,10 +34,8 @@ def _git_in(path: str, args: list[str]) -> str | None:
         return None
 
 
-def _ownership(path: str) -> str:
-    state = Path(path) / ".foundry" / "WORKSTREAM_STATE.yaml"
-    if not state.exists():
-        return "UNKNOWN"
+def _ownership_from_file(state: Path) -> str:
+    """Read the ownership field from one explicit state file (UNKNOWN on doubt)."""
     try:
         for line in state.read_text(encoding="utf-8").splitlines():
             if line.startswith("ownership:"):
@@ -40,6 +43,19 @@ def _ownership(path: str) -> str:
     except OSError:
         return "UNKNOWN"
     return "UNKNOWN"
+
+
+def _ownership(path: str, state_map: dict[str, str] | None = None) -> str:
+    """Ownership for one worktree: explicit map first, legacy path, else UNKNOWN."""
+    if state_map:
+        canonical = os.path.realpath(os.path.abspath(path))
+        mapped = state_map.get(canonical, state_map.get(path, state_map.get(os.path.abspath(path))))
+        if mapped:
+            return _ownership_from_file(Path(mapped))
+    state = Path(path) / ".foundry" / "WORKSTREAM_STATE.yaml"
+    if not state.exists():
+        return "UNKNOWN"
+    return _ownership_from_file(state)
 
 
 def find_duplicate_writers(
@@ -68,14 +84,16 @@ def find_duplicate_writers(
     return conflicts
 
 
-def inventory(workdir: str = ".") -> list[dict[str, str | bool | None]]:
+def inventory(
+    workdir: str = ".", state_map: dict[str, str] | None = None
+) -> list[dict[str, str | bool | None]]:
     raw = _run(["worktree", "list", "--porcelain"], workdir)
     entries: list[dict[str, str | bool | None]] = []
     current: dict[str, str] = {}
     for line in raw.splitlines():
         if line.startswith("worktree "):
             if current:
-                entries.append(_describe(current))
+                entries.append(_describe(current, state_map))
             current = {"path": line[len("worktree ") :]}
         elif line.startswith("HEAD "):
             current["head"] = line[len("HEAD ") :]
@@ -86,11 +104,13 @@ def inventory(workdir: str = ".") -> list[dict[str, str | bool | None]]:
         elif line == "detached":
             current["detached"] = "true"
     if current:
-        entries.append(_describe(current))
+        entries.append(_describe(current, state_map))
     return entries
 
 
-def _describe(block: dict[str, str]) -> dict[str, str | bool | None]:
+def _describe(
+    block: dict[str, str], state_map: dict[str, str] | None = None
+) -> dict[str, str | bool | None]:
     path = block["path"]
     branch = block.get("branch", "(detached)" if block.get("detached") else None)
     if branch is not None and branch.startswith("refs/heads/"):
@@ -102,7 +122,7 @@ def _describe(block: dict[str, str]) -> dict[str, str | bool | None]:
         "branch": branch,
         "head": head,
         "clean": (status == "") if status is not None else None,
-        "ownership": _ownership(path),
+        "ownership": _ownership(path, state_map),
         "bare": bool(block.get("bare")),
     }
 

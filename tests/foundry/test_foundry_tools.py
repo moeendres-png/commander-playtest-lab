@@ -629,6 +629,39 @@ def test_worktree_inventory_duplicate_writer_detected() -> None:
     assert worktree_inventory.find_duplicate_writers(entries[:1]) == []
 
 
+def _ownership_state(ownership: str) -> dict:
+    state = _valid_state()
+    state["ownership"] = ownership
+    return state
+
+
+def test_inventory_reports_mapped_explicit_state_ownership(repo: Path, tmp_path: Path) -> None:
+    """Explicit map authority: dedicated state location yields its ownership."""
+    custom = tmp_path / "dedicated" / "WS-MAPPED.yaml"
+    custom.parent.mkdir(parents=True)
+    custom.write_text(yaml.safe_dump(_ownership_state("WS-MAPPED")), encoding="utf-8")
+    entries = worktree_inventory.inventory(str(repo), {str(repo): str(custom)})
+    assert len(entries) == 1
+    assert entries[0]["ownership"] == "WS-MAPPED"
+
+
+def test_inventory_unknown_without_ownership_authority(repo: Path) -> None:
+    """No map and no legacy root file: ownership is UNKNOWN, never fabricated."""
+    assert not (repo / ".foundry" / "WORKSTREAM_STATE.yaml").exists()
+    entries = worktree_inventory.inventory(str(repo))
+    assert entries[0]["ownership"] == "UNKNOWN"
+    entries = worktree_inventory.inventory(str(repo), {})
+    assert entries[0]["ownership"] == "UNKNOWN"
+
+
+def test_inventory_missing_mapped_file_stays_unknown(repo: Path, tmp_path: Path) -> None:
+    """A mapped path that cannot be read degrades to UNKNOWN (never invented)."""
+    entries = worktree_inventory.inventory(
+        str(repo), {str(repo): str(tmp_path / "absent" / "STATE.yaml")}
+    )
+    assert entries[0]["ownership"] == "UNKNOWN"
+
+
 def test_state_head_mismatch_warns(repo: Path, tmp_path: Path) -> None:
     import yaml as _yaml
 

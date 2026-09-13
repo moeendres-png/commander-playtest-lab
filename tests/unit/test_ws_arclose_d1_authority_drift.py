@@ -204,3 +204,23 @@ def test_fork_pointer_spec_preserves_design_and_records_supersession(
     assert "SUPERSEDED" in text
     assert "never executed" in text
     assert "drift_check.py" in text
+
+
+def test_workstream_bootstrap_skill_matches_explicit_ownership(
+    repo_root: Path,
+) -> None:
+    """P2 follow-up: bootstrap skill is coherent with explicit-state authority.
+
+    The skill must route ownership through the explicit `--worktree-state`
+    map (launcher auto-pair + operator pairs), fail closed on conflicts and
+    duplicates, report UNKNOWN without authority, and never instruct reading
+    the removed repository-root state file.
+    """
+    text = (repo_root / ".opencode/skills/workstream-bootstrap/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    assert "--worktree-state" in text
+    assert "UNKNOWN" in text
+    assert "duplicate" in text.lower()
+    assert "no implicit active repository-root state" in text.lower()
+    assert ".foundry/WORKSTREAM_STATE.yaml" not in text
