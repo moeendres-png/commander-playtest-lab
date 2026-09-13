@@ -1,0 +1,75 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws88-xmage-integrated-successor-promotion
+branch: ws88/xmage-integrated-successor-promotion-20260913
+audit_base_sha: f0e314e5cd250f2a0d79ba50f33c87435807be89
+audit_base_tree: 80982bd46cb5e270569f7748cd6f9b20ebae8b10
+state_written_against_head: null
+validated_head: null
+objective: Promote the Coordinator-accepted XMage technical successor
+  cfc36f445f917f101fa2ed588770e043f53bc44c into the explicit integrated CPL
+  runtime candidate with fresh runtime evidence, without capability inflation,
+  historical evidence rewriting, Architecture Freeze or Production Provider
+  selection.
+in_scope:
+- XMage pin consumer inventory (XHIGH adjudication)
+- config/rules_engines.json primary_engine pin authority migration
+- production-reachable XMage bootstrap/materialization consumers
+- docker/xmage pin-divergence authority gate
+- current external XMage runtime integration on the successor
+- WS80 fail-closed callback boundary supersession on the successor
+- XMage full-game conformance on the successor
+- RNG/H01/CR61412 successor validation
+- qualification successor evidence plus manifest coverage reseal
+out_of_scope:
+- Forge integration
+- Full107 / Remaining25
+- RQ-C3 aggregate promotion (FIRST_WAVE_CURRENT_RANKING stays
+  INVALID_PENDING_RQC3_REQUALIFICATION)
+- historical evidence rewriting
+- new capability claims
+- Architecture Freeze
+- Production Provider selection
+ownership: WS88-XMAGE-INTEGRATED-SUCCESSOR-PROMOTION
+status: COMPLETE_PENDING_PUSH
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: xhigh
+old_xmage_runtime_pin: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+new_xmage_runtime_candidate: cfc36f445f917f101fa2ed588770e043f53bc44c
+new_xmage_runtime_tree: e51ba998d35decff087b5bebfdc001e62e8d33e4
+technical_decisions:
+- 'TD-WS88-01: docker/xmage/Dockerfile needs no repin change (pin-free since WS-A1D).'
+- 'TD-WS88-02: WS80 verify.py old-pin assertion is correct sealed-frame fail-closed; supersede, never patch.'
+- 'TD-WS88-03: phase85.py stale pins plus Appendix G facts stay byte-identical.'
+- 'TD-WS88-04: XMAGE_FULL_GAME_CLOSEOUT.md plus pilots doc are living pointers, must move.'
+- 'TD-WS88-05: tracked .foundry/WORKSTREAM_STATE.yaml (stale WS-A1D-H4 artifact) untouched.'
+- 'TD-WS88-06: WS17 candidate-evidence files stay sealed; only manifest coverage reseal for new WS88 files.'
+hypotheses_rejected:
+- 'H1 old pin lives only in authority plus tests (rejected)'
+- 'H2 Dockerfiles still pin a stale SHA (rejected)'
+- 'H3 WS80 verifier is pin-agnostic (rejected)'
+root_cause_class: UNKNOWN
+first_failing_boundary: NONE
+validated_gates:
+- SOURCE_LOCK=PASS
+- XMAGE_SUCCESSOR_LOCK=PASS
+- OLD_RUNTIME_IS_ANCESTOR=PASS
+- PIN_CONSUMER_INVENTORY=PASS
+- HISTORICAL_EVIDENCE_REWRITTEN=NO
+- PRODUCTION_PIN_CONSUMERS_COHERENT=PASS
+- DOCKER_PIN_AUTHORITY_GATE=PASS
+- ENGINE_MATERIALIZATION=PASS
+- XMAGE_RNG_SUCCESSOR_TESTS=PASS
+- XMAGE_H01_A=PASS
+- XMAGE_H01_B=PASS
+- XMAGE_H01_C=PASS
+- WS85_PURITY_REGRESSION=PASS
+- WS80_FAIL_CLOSED_ON_NEW_PIN=PASS
+- PRODUCTION_REACHABLE_DEFAULT_DECISIONS=0
+- EXTERNAL_XMAGE_INTEGRATION=PASS
+- XMAGE_FULL_GAME_CONFORMANCE=PASS
+- LIFECYCLE_REGRESSION=PASS
+- QUALIFICATION_SUITE=PASS
+- RUFF=PASS
+- CAPABILITY_INFLATION=0
+- BEHAVIOR_CREDIT_CHANGE=0
