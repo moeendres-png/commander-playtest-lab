@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-arclose-d1
 branch: ws-arclose/d1-current-authority-drift-20260913
 audit_base_sha: f89c824e93664b8285b0b44e4445118bd99b9f98
 audit_base_tree: b250c599f03df4750b06dab739a6e1d7940fe337
-state_written_against_head: 27f0acb399791f42b5f8037fb03f9e45dafea395
-validated_head: 27f0acb399791f42b5f8037fb03f9e45dafea395
+state_written_against_head: 5600e6b27806fe24bcf8fe27e2de6083e99fadf7
+validated_head: null
 objective: Reconcile verified current Source Truth and documentation drift remaining
   from the architecture/repository improvement program. No Rules semantics, engine
   pins, protocol, provider selection, Architecture Freeze state, Docker behavior,
@@ -33,9 +33,10 @@ out_of_scope:
 - Architecture Freeze
 - Production Provider selection
 ownership: WS-ARCLOSE-D1
-status: COMPLETE
-exact_next_action: 'COMPLETE: handoff produced. No push, no PR (not authorized). Await
-  Coordinator direction for any follow-up.'
+status: ACTIVE
+exact_next_action: 'Remediation content complete (restore + no-rebind lock + record
+  correction). Next: commit R1 locally, revalidate focused suites at R1, then seal
+  COMPLETE with validated_head=R1. No push, no PR, no merge.'
 dependencies:
 - CPL Source Lock f89c824e / tree b250c599
 - current Foundry authority
@@ -69,8 +70,12 @@ evidence:
   e2072862; only phase85.py template retains superseded pins as provenance'
 - 'Finding 2 DIRECTLY_VERIFIED: Appendix G NOT_RUN clause predates WS-A1D-H4 remote
   run 34573843323 (H4 PARTIAL); addendum appended, original text verbatim'
-- 'Finding 3 DIRECTLY_VERIFIED: root state at Source Lock named another branch ACTIVE
-  state; rebound to WS-ARCLOSE-D1 with H4 provenance preserved'
+- 'Finding 3 CORRECTED (Coordinator remediation): branch-root .foundry/WORKSTREAM_STATE.yaml
+  is WS-A1D-H4-owned operational state and is intentionally UNMODIFIED by D1 (byte-identical
+  to audit base f89c824e; empty diff DIRECTLY_VERIFIED). The D1 rebind is reverted;
+  TD-D1-03 rationale withdrawn. Residual main-level root-state semantics (what repo-root
+  state should present on main) is Coordinator authority, explicitly NOT claimed fixed
+  by D1 and NOT redesigned here.'
 - 'Finding 4 CODE_DERIVED: mage.json notes date-scoped to 2026-09-10 observation;
   current fork-root state UNKNOWN (FOUNDRY_REFERENCE_ROOTS=[]); drift gate untouched'
 - 'Finding 5 DIRECTLY_VERIFIED: opencode.yml has no pull_request trigger (comment-only,
@@ -80,33 +85,63 @@ evidence:
 - 'test_impact.py mapping: mage profile->drift tests; manifest/research->conservative
   full mapping adjudicated (note-only manifest change; full tests/ blocked by pre-existing
   missing deps typer/openpyxl)'
-- 5 unrelated failures + 40 collection errors verified pre-existing/environmental
-  (missing modules openpyxl/typer; none reference changed files)
+- 'Remediation validation: D1 battery 8 passed (incl. new merge-safety no-rebind lock);
+  focused suites 218 passed; launcher/hardening 53 passed; broad tests/foundry+tests/unit
+  804 passed / 5 failed + 40 errors, signature identical to pre-remediation baseline
+  (pre-existing env, none reference changed files); ruff clean; state.py valid on
+  both state files; changed JSON parses.'
+- 'Negative control DIRECTLY_VERIFIED: pre-remediation HEAD root-state content (ownership
+  WS-ARCLOSE-D1) trips the new no-rebind lock; post-remediation content passes.'
+- 'Coordinator review finding (DIRECTLY_VERIFIED, 2026-09-13): D1 change to repository-root
+  .foundry/WORKSTREAM_STATE.yaml is not merge-safe. D1 rebound it to branch ws-arclose/d1-current-authority-drift-20260913
+  / worktree /home/moeen/code/ws-arclose-d1 / ownership WS-ARCLOSE-D1; after merge
+  to main that repeats the underlying current-state drift rather than solving it.
+  TD-D1-03 rationale contradicted by WS61 remediation evidence (research/foundry/ws61-safe-push-lineage-integration/WS61_COORDINATOR_REVIEW_REMEDIATION.md;
+  WS61 WORKSTREAM_STATE.yaml; commit 2829b2bc which RESTORED WS-A1D ownership) and
+  WS58 state (branch-root file belongs to WS-A1D; WS58 checkpoints live in dedicated
+  research file). Prior COMPLETE disposition revoked; validated_head 27f0acb3 credit
+  invalidated for any new remediation commit.'
 files_modified:
 - config/rules_engines.json
 - docs/RETENTION_AND_LIFECYCLE_POLICY.md
-- .foundry/WORKSTREAM_STATE.yaml
 - .foundry/repo-profiles/mage.json
 - docs/foundry-execution/GITHUB_REMOTE_GATES.md
 - docs/FORK_AGENT_POINTER_SPEC.md
 - tests/unit/test_ws_arclose_d1_authority_drift.py
+- research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_CONTRACT.md
+- research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_STATE.yaml
 technical_decisions:
-- decision: 'Component-change review per skill: 6-file + 1-test surface maps to drift/launcher/retention/pin
-    suites; no weakened assertions (new tests assert preserved history + corrected
-    authority); no production-reachable legality/fallback added (docs + note strings
-    + state rebind only); no Rules/provider/engine/Docker semantic change; evidence
-    classifications kept honest (fork-root current state UNKNOWN, H4B-forge UNKNOWN/NOT_RUN
-    preserved).'
-  evidence: git diff (158 insertions scoped to 6 files); test_impact.py mapping; 8+155+53
-    pass; 804 pass broad; 5 fail + 40 errors pre-existing env.
-  id: TD-D1-07-change-review
+- decision: Reopen WS-ARCLOSE-D1 COMPLETE->ACTIVE via canonical writer (state.py --patch-file
+    --clear-validated-head --stamp-head). Prior validation credit (validated_head
+    27f0acb3) is cleared and must not be cited for any remediation commit. Historical
+    evidence preserved; Coordinator finding recorded verbatim in evidence.
+  evidence: Coordinator remediation instruction; state.py STATE_OK output; patch-reopen.json.
+  id: TD-D1-08-coordinator-reopen
+- decision: 'Chosen resolution (smallest correct in-scope): restore branch-root .foundry/WORKSTREAM_STATE.yaml
+    byte-for-byte from audit base f89c824e via git restore --source (WS61 pattern,
+    commit 2829b2bc); empty diff vs audit base DIRECTLY_VERIFIED. No rebind, no edit,
+    no delete, no reclassification of the root file: D1 has no ownership authority
+    over WS-A1D-H4 state, and any D1-authored content merged onto main would repeat
+    the drift. TD-D1-03 rationale (''per branch-root ownership precedent'') withdrawn:
+    the cited 2829b2bc did the opposite (restored WS-A1D ownership), and WS58/WS61
+    evidence uniformly requires non-owning workstreams to leave the root file untouched
+    with canonical state in the dedicated research file. Merge-safe because the D1
+    merge changes nothing at repository-root state. The underlying main-level root-state
+    presentation question is Coordinator authority and is referred, not solved, not
+    redesigned.'
+  evidence: git diff f89c824e -- .foundry/WORKSTREAM_STATE.yaml EMPTY; WS61 remediation
+    doc + WS61/WS58 states; new no-rebind regression test + negative control.
+  id: TD-D1-09-root-state-resolution
 tests_run:
-- pytest -q tests/unit/test_ws_arclose_d1_authority_drift.py -> 8 passed
-- pytest -q pin/retention/truth/H4/drift/foundry-tools suites -> 155 passed
+- pytest -q tests/unit/test_ws_arclose_d1_authority_drift.py -> 8 passed (incl. new
+  merge-safety no-rebind lock)
+- pytest -q D1+pin/H4/drift/foundry-tools/state suites (9 files) -> 218 passed
 - pytest -q tests/foundry/test_launcher.py tests/foundry/test_ws75_tooling_hardening.py
   -> 53 passed
 - pytest -q tests/foundry/ tests/unit/ --continue-on-collection-errors -> 804 passed,
-  1 skipped; 5 failed + 40 errors pre-existing env (missing typer/openpyxl), none
-  referencing changed files
-- ruff check + ruff format on new test file -> clean
-- state.py validation on both state files + all changed JSON -> valid
+  1 skipped; 5 failed + 40 errors identical to pre-remediation baseline (pre-existing
+  env, none reference changed files)
+- ruff check + ruff format --check on test file -> clean
+- 'state.py validation on both state files + changed JSON parse -> valid (root file
+  STATE_OK with expected HEAD_MISMATCH note: restored WS-A1D-H4 checkpoint stamp 946ab5b9
+  vs live HEAD, live Git wins per WS61 pattern)'

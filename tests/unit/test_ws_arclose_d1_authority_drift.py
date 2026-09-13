@@ -70,7 +70,30 @@ def test_retention_appendix_g_preserves_history_and_records_h4_successor(
     assert "H4B-Forge" in text and "UNKNOWN/NOT_RUN" in text
 
 
-def test_root_state_owned_by_this_workstream_and_valid(repo_root: Path) -> None:
+def test_root_state_not_rebound_to_this_workstream_merge_safe(
+    repo_root: Path,
+) -> None:
+    """Merge-safety lock (Coordinator review remediation, 2026-09-13).
+
+    WS-ARCLOSE-D1 must NOT rebind repository-root
+    `.foundry/WORKSTREAM_STATE.yaml` to itself merely because D1 owns this
+    feature branch: after a merge to `main`, branch/worktree-specific D1
+    state at repository root would repeat the underlying current-state
+    drift rather than solve it.
+
+    Coordinator-reviewed precedent (DIRECTLY_VERIFIED):
+    - WS61 rebound the branch-root file and was required to restore it
+      byte-for-byte from its audit base (`WS61_COORDINATOR_REVIEW_REMEDIATION.md`,
+      commit `2829b2bc`); the file belongs to WS-A1D.
+    - WS58 left the branch-root file untouched (it belongs to WS-A1D) and kept
+      WS58 checkpoints in its dedicated research state file.
+
+    The root file is therefore preserved as the audit-base-inherited
+    WS-A1D-H4 operational state. D1's canonical state lives in
+    `research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_STATE.yaml`.
+    Only a genuine authoritative semantics change, Coordinator-directed, may
+    alter these expectations -- never a D1 rebind.
+    """
     import sys
 
     sys.path.insert(0, str(repo_root / "tools"))
@@ -80,21 +103,31 @@ def test_root_state_owned_by_this_workstream_and_valid(repo_root: Path) -> None:
         (repo_root / ".foundry/WORKSTREAM_STATE.yaml").read_text(encoding="utf-8")
     )
     assert state_mod.validate(data) == []
-    assert data["branch"] == "ws-arclose/d1-current-authority-drift-20260913"
-    assert data["worktree"] == "/home/moeen/code/ws-arclose-d1"
-    assert data["ownership"] == "WS-ARCLOSE-D1"
-    assert data["status"] == "ACTIVE"
-    assert data["validated_head"] is None  # honest null: nothing validated on this branch yet
-    assert "ARCHITECTURE_FREEZE = NOT CLAIMED" in data["hard_gates"]
-    assert "PRODUCTION_PROVIDER = NOT SELECTED" in data["hard_gates"]
-    # WS-A1D-H4 provenance preserved, not falsified.
+    # The exact incorrect D1 rebinding pattern must not recur.
+    assert data["ownership"] != "WS-ARCLOSE-D1"
+    assert data["branch"] != "ws-arclose/d1-current-authority-drift-20260913"
+    assert data["worktree"] != "/home/moeen/code/ws-arclose-d1"
+    assert "WS-ARCLOSE-D1" not in str(data["ownership"])
+    # Inherited WS-A1D-H4 identity preserved truthfully, not falsified.
+    assert data["branch"] == "architecture/ws-a1d-h4-docker-materialization-20260911"
+    assert "WS-A1D" in str(data["ownership"])
+    assert data["audit_base_sha"] == "e207286200854bf9bff557e67bf3b37b5e428392"
+    assert data["validated_head"] == "1aab012196b391260b2287f94cbcaa04f625e509"
     decisions = " ".join(
         d.get("decision", "") + " " + d.get("evidence", "")
         for d in data.get("technical_decisions", [])
         if isinstance(d, dict)
     )
-    assert "1aab0121" in decisions
     assert "H4 PARTIAL" in decisions
+    # D1's canonical operational state lives in its dedicated research file.
+    d1_state = yaml.safe_load(
+        (
+            repo_root
+            / "research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_STATE.yaml"
+        ).read_text(encoding="utf-8")
+    )
+    assert d1_state["ownership"] == "WS-ARCLOSE-D1"
+    assert d1_state["branch"] == "ws-arclose/d1-current-authority-drift-20260913"
 
 
 def test_mage_profile_keys_intact_and_notes_date_scoped(repo_root: Path) -> None:
