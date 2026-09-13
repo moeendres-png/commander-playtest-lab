@@ -1,0 +1,61 @@
+{
+  "schema_version": "ws26-actual-card-authority-lock/1.0.0",
+  "locked_on": "2026-08-30",
+  "authority_policy": "Official Wizards card image/release-note sources are semantic authority. Runtime engine behavior is evidence only and never substitutes for Oracle/rulings authority.",
+  "cards": [
+    {
+      "fixture_id": "CARD_02",
+      "card_name": "Rograkh, Son of Rohgahh",
+      "corpus_role": "current RogShai commander",
+      "expected_runtime_discriminator": "Rograkh can be cast from the command zone at native printed cost and is 0/1 on the battlefield.",
+      "official_sources": [
+        {
+          "kind": "wizards_card_preview",
+          "url": "https://magic.wizards.com/en/news/card-preview/rograkh-son-rohgahh-2020-10-29"
+        },
+        {
+          "kind": "wizards_card_image",
+          "url": "https://media.wizards.com/2020/cmr/en_P8P5rWqs8Y.png"
+        },
+        {
+          "kind": "wizards_current_2026_reprint_listing",
+          "url": "https://www.magic.wizards.com/en/news/feature/whats-inside-mystery-booster-commander-edition"
+        }
+      ],
+      "authority_status": "PASS"
+    },
+    {
+      "fixture_id": "CARD_04",
+      "card_name": "Kediss, Emberclaw Familiar",
+      "corpus_role": "current RogShai nontrivial multiplayer interaction",
+      "expected_runtime_discriminator": "When a commander controlled by Kediss's controller deals combat damage to one opponent, Kediss causes that commander to deal that much noncombat damage to each other opponent.",
+      "official_sources": [
+        {
+          "kind": "wizards_commander_legends_release_notes",
+          "url": "https://magic.wizards.com/en/news/feature/commander-legends-release-notes-2020-11-06",
+          "authority_note": "Contains full Kediss rules text and rulings, including that the additional damage is not combat damage and does not retrigger Kediss."
+        },
+        {
+          "kind": "wizards_card_image",
+          "url": "https://media.wizards.com/2020/cmr/en_nF5DblRzcq.png"
+        }
+      ],
+      "authority_status": "PASS"
+    },
+    {
+      "fixture_id": "CARD_24",
+      "card_name": "Warstorm Surge",
+      "corpus_role": "Kaervek/opponent actual card",
+      "expected_runtime_discriminator": "Whenever a creature controlled by Warstorm Surge's controller enters, that creature deals damage equal to its power to any target.",
+      "official_sources": [
+        {
+          "kind": "wizards_avatar_release_notes",
+          "url": "https://magic.wizards.com/en/news/feature/avatar-the-last-airbender-release-notes",
+          "authority_note": "Contains full Warstorm Surge rules text and current rulings about source and power determination."
+        }
+      ],
+      "authority_status": "PASS"
+    }
+  ],
+  "authority_blocked": []
+}

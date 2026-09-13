@@ -1,0 +1,160 @@
+name: WS46 XMage v1.0.4 Build and Native Restore Runtime
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ws46/xmage-v1.0.4-successor-qualification
+    paths:
+      - '.github/workflows/ws46-xmage-v104-build-restore.yml'
+      - 'candidate-qualification/ws46-xmage-v1.0.4/phase2/CommanderDamageStateRestoreTest.java'
+
+permissions:
+  contents: read
+
+env:
+  XMAGE_COMMIT: 0c1f455ea8c8fa48ab9d638ad5068ec242800428
+  XMAGE_TREE: fdb8bf56a8bd8199a4ef372e468d93d6550b0649
+
+jobs:
+  build-and-native-restore:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout exact WS46 provider head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Record Commander Lab identity
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws46-xmage-build-restore/surefire
+          git rev-parse HEAD | tee artifacts/ws46-xmage-build-restore/COMMANDER_LAB_COMMIT.txt
+          git rev-parse HEAD^{tree} | tee artifacts/ws46-xmage-build-restore/COMMANDER_LAB_TREE.txt
+          printf '%s\n' '${{ github.event_name }}' > artifacts/ws46-xmage-build-restore/TRIGGER_EVENT_NAME.txt
+
+      - name: Checkout exact XMage candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Verify exact XMage source lock and native restore APIs
+        run: |
+          set -euo pipefail
+          ACTUAL_COMMIT="$(git -C vendor/engine-source/xmage rev-parse HEAD)"
+          ACTUAL_TREE="$(git -C vendor/engine-source/xmage rev-parse HEAD^{tree})"
+          test "$ACTUAL_COMMIT" = "$XMAGE_COMMIT"
+          test "$ACTUAL_TREE" = "$XMAGE_TREE"
+          printf '%s\n' "$ACTUAL_COMMIT" > artifacts/ws46-xmage-build-restore/XMAGE_COMMIT.txt
+          printf '%s\n' "$ACTUAL_TREE" > artifacts/ws46-xmage-build-restore/XMAGE_TREE.txt
+          grep -F 'restoreStateForGameLoad' vendor/engine-source/xmage/Mage/src/main/java/mage/watchers/common/CommanderPlaysCountWatcher.java > artifacts/ws46-xmage-build-restore/CAST_HISTORY_RESTORE_API.txt
+          grep -F 'restoreDamageStateForGameLoad' vendor/engine-source/xmage/Mage/src/main/java/mage/watchers/common/CommanderInfoWatcher.java > artifacts/ws46-xmage-build-restore/DAMAGE_RESTORE_API.txt
+          sha256sum \
+            vendor/engine-source/xmage/Mage/src/main/java/mage/watchers/common/CommanderPlaysCountWatcher.java \
+            vendor/engine-source/xmage/Mage/src/main/java/mage/watchers/common/CommanderPlaysCountState.java \
+            vendor/engine-source/xmage/Mage/src/main/java/mage/watchers/common/CommanderInfoWatcher.java \
+            vendor/engine-source/xmage/Mage.Tests/src/test/java/org/mage/test/cards/commander/CommanderPlaysCountStateRestoreTest.java \
+            > artifacts/ws46-xmage-build-restore/NATIVE_RESTORE_SOURCE_SHA256.txt
+          test -z "$(git -C vendor/engine-source/xmage status --porcelain)"
+
+      - name: Fresh build exact unmodified XMage candidate
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -o pipefail
+          mvn -B -ntp -DskipTests install 2>&1 | tee ../../../artifacts/ws46-xmage-build-restore/XMAGE_BUILD.log
+
+      - name: Install WS46 test-only Commander-damage overlay
+        run: |
+          set -euo pipefail
+          cp candidate-qualification/ws46-xmage-v1.0.4/phase2/CommanderDamageStateRestoreTest.java \
+            vendor/engine-source/xmage/Mage.Tests/src/test/java/org/mage/test/cards/commander/CommanderDamageStateRestoreTest.java
+          git -C vendor/engine-source/xmage diff --exit-code
+          STATUS="$(git -C vendor/engine-source/xmage status --porcelain --untracked-files=all)"
+          printf '%s\n' "$STATUS" | tee artifacts/ws46-xmage-build-restore/XMAGE_TEST_OVERLAY_STATUS.txt
+          test "$STATUS" = '?? Mage.Tests/src/test/java/org/mage/test/cards/commander/CommanderDamageStateRestoreTest.java'
+          sha256sum \
+            candidate-qualification/ws46-xmage-v1.0.4/phase2/CommanderDamageStateRestoreTest.java \
+            vendor/engine-source/xmage/Mage.Tests/src/test/java/org/mage/test/cards/commander/CommanderDamageStateRestoreTest.java \
+            > artifacts/ws46-xmage-build-restore/DAMAGE_TEST_OVERLAY_SHA256.txt
+
+      - name: Execute native Commander cast-history and damage restore runtime tests
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -o pipefail
+          mvn test -B -ntp \
+            -Dtest=CommanderPlaysCountStateRestoreTest,CommanderDamageStateRestoreTest \
+            -Dsurefire.failIfNoSpecifiedTests=false \
+            -Dxmage.dataCollectors.printGameLogs=false \
+            -Dlog4j.configuration=file:${PWD}/.travis/log4j.properties \
+            2>&1 | tee ../../../artifacts/ws46-xmage-build-restore/NATIVE_RESTORE_TEST.log
+
+      - name: Prove exact restore tests executed successfully
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          root = Path('vendor/engine-source/xmage')
+          expected = {
+              'org.mage.test.cards.commander.CommanderPlaysCountStateRestoreTest': 7,
+              'org.mage.test.cards.commander.CommanderDamageStateRestoreTest': 2,
+          }
+          result = {'classes': {}, 'total_tests': 0, 'failures': 0, 'errors': 0, 'skipped': 0}
+          for class_name, exact_tests in expected.items():
+              matches = list(root.rglob(f'TEST-{class_name}.xml'))
+              assert len(matches) == 1, (class_name, [str(p) for p in matches])
+              suite = ET.parse(matches[0]).getroot()
+              tests = int(suite.attrib.get('tests', '0'))
+              failures = int(suite.attrib.get('failures', '0'))
+              errors = int(suite.attrib.get('errors', '0'))
+              skipped = int(suite.attrib.get('skipped', '0'))
+              assert tests == exact_tests, (class_name, tests, exact_tests)
+              assert failures == 0 and errors == 0 and skipped == 0, (class_name, failures, errors, skipped)
+              result['classes'][class_name] = {
+                  'tests': tests,
+                  'failures': failures,
+                  'errors': errors,
+                  'skipped': skipped,
+                  'report': str(matches[0]),
+              }
+              result['total_tests'] += tests
+              result['failures'] += failures
+              result['errors'] += errors
+              result['skipped'] += skipped
+          assert result['total_tests'] == 9
+          Path('artifacts/ws46-xmage-build-restore/NATIVE_RESTORE_TEST_SUMMARY.json').write_text(
+              json.dumps(result, indent=2, sort_keys=True) + '\n'
+          )
+          PY
+          cp $(find vendor/engine-source/xmage -name 'TEST-org.mage.test.cards.commander.CommanderPlaysCountStateRestoreTest.xml' -print -quit) artifacts/ws46-xmage-build-restore/surefire/
+          cp $(find vendor/engine-source/xmage -name 'TEST-org.mage.test.cards.commander.CommanderDamageStateRestoreTest.xml' -print -quit) artifacts/ws46-xmage-build-restore/surefire/
+
+      - name: Seal Phase 2 evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ws46-xmage-build-restore
+          printf '%s\n' "$XMAGE_COMMIT" > artifacts/ws46-xmage-build-restore/EXPECTED_XMAGE_COMMIT.txt
+          printf '%s\n' "$XMAGE_TREE" > artifacts/ws46-xmage-build-restore/EXPECTED_XMAGE_TREE.txt
+          find artifacts/ws46-xmage-build-restore -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > artifacts/ws46-xmage-build-restore/SHA256SUMS || true
+
+      - name: Upload WS46 Phase 2 evidence
+        if: always()
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: ws46-xmage-v104-build-restore-${{ github.sha }}
+          path: artifacts/ws46-xmage-build-restore/
+          if-no-files-found: error

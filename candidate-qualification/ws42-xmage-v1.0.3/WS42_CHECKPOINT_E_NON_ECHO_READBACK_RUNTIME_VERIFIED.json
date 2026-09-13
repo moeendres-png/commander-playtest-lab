@@ -1,0 +1,69 @@
+{
+  "artifact_version": "commander-lab.ws42-checkpoint-e-native-readback-runtime/1.0.0",
+  "status": "RUNTIME_VERIFIED_NO_CONSTRUCTION_CREDIT",
+  "branch_head_under_test": "f969af77062a3612242b238a32036b75797a8f22",
+  "workflow": {
+    "name": "WS42 XMage v1.0.3 Census and Construction",
+    "run_id": 33906575250,
+    "job_id": 101132791749,
+    "conclusion": "success",
+    "artifact_id": 9950121063,
+    "artifact_name": "ws42-v103-construction-8d9b6e90817f5fb08f2b0d2b974b2724e191d829",
+    "artifact_zip_sha256": "db86da75c311af4ab2ff954b034f7f59fc24232b734093ca031fdb6d09e00be6",
+    "probe_sha256": "f0d39178606d6eb0d659941cde79614cce4940a450e45ae1c118e6538bd6afd0",
+    "artifact_internal_sha256_entries": 15,
+    "artifact_internal_sha256_all_verified": true
+  },
+  "source_locks": {
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "xmage_commit": "7bde812727817723616c575759f39bfc4cda4607",
+    "xmage_tree": "a44f32e9d34109ac3f272494f0e8eb9ea3e6280c"
+  },
+  "runtime_results": {
+    "denominator": 107,
+    "record_count": 107,
+    "counts": {
+      "NATIVE_SETUP_PASS_AWAITING_INDEPENDENT_NORMALIZATION": 53,
+      "FAIL_CLOSED_UNSUPPORTED_NATIVE_DIMENSION": 47,
+      "DEFERRED_TO_FRESH_NATURAL_EXECUTOR": 7
+    },
+    "non_echo_native_readback_rows": 53,
+    "request_object_copied_as_proof": false,
+    "legacy_normalized_constructed_state_consumed": false,
+    "legacy_declared_digest_consumed": false,
+    "historical_pass_imported": false,
+    "runtime_credit_granted_by_probe": false,
+    "independent_normalized_construction_gate_closed": false,
+    "native_commander_history_regression": "PASS",
+    "exact_xmage_build": "PASS",
+    "qualification_bridge_build": "PASS",
+    "fresh_full107_probe_step": "PASS"
+  },
+  "new_defect": {
+    "id": "WS42-CI-SOURCE-LOCK-001",
+    "classification": "QUALIFICATION_PROVENANCE",
+    "description": "For pull_request events, the construction workflow checked out github.sha. GitHub resolved that value to the temporary pull-request merge commit 8d9b6e90817f5fb08f2b0d2b974b2724e191d829 rather than the intended branch head f969af77062a3612242b238a32036b75797a8f22. The artifact therefore proves the readback implementation can build and run in the exact recorded merge snapshot, but it is not yet an exact branch-head provider source lock for WS42 qualification credit.",
+    "merge_commit_observed": "8d9b6e90817f5fb08f2b0d2b974b2724e191d829",
+    "merge_tree_observed": "a51431bdab9c71753022fd5ec366807608a43131",
+    "intended_branch_head": "f969af77062a3612242b238a32036b75797a8f22",
+    "construction_credit_blocked": true,
+    "behavior_credit_blocked": true,
+    "required_repair": "Pin pull_request checkout and candidate-identity evidence to github.event.pull_request.head.sha; preserve github.sha only for non-PR triggers, then rerun and audit the exact branch-head artifact."
+  },
+  "credit": {
+    "construction_runtime_verified": "0/107",
+    "behavior_runtime_verified": "0/107",
+    "af04": "0/24",
+    "af05": "0/20",
+    "af06": "0/17",
+    "af08": "0/36",
+    "af09": "0/5",
+    "card_02": "NOT_RUN",
+    "xmage_successor_provider_qualified": false,
+    "af07_granted": false,
+    "architecture_freeze": false
+  },
+  "next_action": "Repair WS42 pull-request source locking so the workflow executes the exact branch head, then rerun and audit the same non-echo 107-record construction diagnostic before independent normalization receives any credit."
+}
