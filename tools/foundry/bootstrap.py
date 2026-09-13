@@ -8,6 +8,11 @@ goes to --json-output.
 Read-only, except --init-state which writes a minimal schema-2.0 state
 document (validated_head=null, placeholder objective the owner must replace).
 
+Explicit-state authority (ROOT_STATE_SEMANTICS): --state is mandatory.
+There is no implicit active repository-root state; the gate never falls
+back to <worktree>/.foundry/WORKSTREAM_STATE.yaml. --init-state writes
+only to the explicitly supplied --state path.
+
 Exit codes: 0 BOOTSTRAP_PASS (notes allowed); 1 BOOTSTRAP_FAIL.
 """
 
@@ -37,10 +42,6 @@ def _git(args: list[str], cwd: str) -> str:
     if proc.returncode != 0:
         raise RuntimeError(f"git {' '.join(args)} failed: {proc.stderr.strip()[:200]}")
     return proc.stdout.strip()
-
-
-def _default_state_path(worktree: str) -> str:
-    return str(Path(worktree) / ".foundry" / "WORKSTREAM_STATE.yaml")
 
 
 def init_state(
@@ -73,18 +74,28 @@ def init_state(
     }
 
 
+def parse_worktree_state(spec: str) -> tuple[str, str]:
+    """Shared WORKTREE=STATE semantics (canonical in worktree_inventory).
+
+    Kept as a delegate so existing importers keep working; no second
+    implementation lives here.
+    """
+    return inventory_mod.parse_worktree_state(spec)
+
+
 def bootstrap(
     worktree: str,
     workstream: str,
     branch: str,
     audit_base_sha: str,
-    state_path: str | None,
+    state_path: str,
     profile_name: str,
     profiles_dir: str = DEFAULT_PROFILES_DIR,
     canonical_root: str = "",
     allow_same_cwd_pids: bool = False,
     allow_suppressed_routing: bool = False,
     references: list[dict] | None = None,
+    worktree_states: dict[str, str] | None = None,
 ) -> dict:
     """Run every gate. Returns a result dict; verdict is BOOTSTRAP_PASS/FAIL."""
     notes: list[str] = []
@@ -106,9 +117,12 @@ def bootstrap(
         except RuntimeError:
             pass
 
-    # 2. duplicate writer across worktrees of this repo.
+    # 2. duplicate writer across worktrees of this repo. Ownership for each
+    # worktree comes only from the explicit state map (launcher auto-supplies
+    # its own worktree pair; siblings are operator-declared); otherwise
+    # UNKNOWN. No conventional-path fallback exists.
     try:
-        entries = inventory_mod.inventory(canonical)
+        entries = inventory_mod.inventory(canonical, worktree_states)
         conflicts = inventory_mod.find_duplicate_writers(entries)
     except RuntimeError as exc:
         failures.append(f"worktree inventory: {exc}")
@@ -116,16 +130,22 @@ def bootstrap(
     if conflicts:
         failures.append(f"duplicate writer: {conflicts[0]}")
 
-    # 3. state file.
-    resolved_state = state_path or _default_state_path(canonical)
-    try:
-        with open(resolved_state, encoding="utf-8") as handle:
-            import yaml
-
-            data = yaml.safe_load(handle)
-    except OSError:
-        failures.append(f"state missing: {resolved_state} (create with --init-state)")
+    # 3. state file. Explicit-state authority: no silent fallback to an
+    # implicit worktree-root state path. A missing --state fails closed.
+    if not state_path:
+        failures.append("explicit --state is required (no implicit active repository-root state)")
+        resolved_state = ""
         data = None
+    else:
+        resolved_state = state_path
+        try:
+            with open(resolved_state, encoding="utf-8") as handle:
+                import yaml
+
+                data = yaml.safe_load(handle)
+        except OSError:
+            failures.append(f"state missing: {resolved_state} (create with --init-state)")
+            data = None
     if data is not None:
         errors = state_mod.validate(data if isinstance(data, dict) else {})
         if errors:
@@ -145,6 +165,12 @@ def bootstrap(
                 ownership = str(data.get("ownership", ""))
                 if not ownership or ownership == "UNKNOWN":
                     notes.append("state ownership unknown (proceeding; push will refuse)")
+                elif ownership != workstream:
+                    failures.append(
+                        f"state ownership {ownership!r} != workstream {workstream!r} "
+                        "(explicit state conflict: refusing to run under another "
+                        "workstream's state)"
+                    )
 
     # 4. writer lock must be FREE (we acquire later) + no same-CWD opencode.
     lock_path = writer_lock_mod.lock_path_for(canonical)
@@ -237,7 +263,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--workstream", required=True)
     parser.add_argument("--branch", required=True)
     parser.add_argument("--audit-base-sha", required=True)
-    parser.add_argument("--state", default=None)
+    parser.add_argument(
+        "--state",
+        required=True,
+        help="Explicit workstream state file (mandatory; no implicit fallback).",
+    )
     parser.add_argument("--profile", required=True)
     parser.add_argument("--profiles-dir", default=DEFAULT_PROFILES_DIR)
     parser.add_argument("--canonical-root", default="")
@@ -252,14 +282,23 @@ def main(argv: list[str] | None = None) -> int:
         help="Declared read-only reference root as JSON (repeatable).",
     )
     parser.add_argument(
+        "--worktree-state",
+        action="append",
+        default=[],
+        help="Explicit ownership authority as WORKTREE=STATE (repeatable).",
+    )
+    parser.add_argument(
         "--init-state",
         action="store_true",
         help="Write a minimal 2.0 state file when none exists, then continue.",
     )
     args = parser.parse_args(argv)
-    resolved_state = args.state or _default_state_path(
-        os.path.realpath(os.path.abspath(args.worktree))
-    )
+    resolved_state = args.state
+    try:
+        worktree_states = inventory_mod.parse_worktree_state_specs(args.worktree_state)
+    except ValueError as exc:
+        print(f"BOOTSTRAP_FAIL: {exc}", file=sys.stderr)
+        return 1
     if args.init_state and not Path(resolved_state).exists():
         try:
             profile = drift_mod.load_profile(args.profile, args.profiles_dir)
@@ -296,6 +335,7 @@ def main(argv: list[str] | None = None) -> int:
         args.allow_same_cwd_pids,
         args.allow_suppressed_routing,
         _parse_cli_references(args.reference),
+        worktree_states,
     )
     text = json.dumps(result, indent=2, sort_keys=True)
     if args.json_output:

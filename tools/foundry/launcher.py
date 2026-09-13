@@ -256,7 +256,7 @@ def resolve_environment(
     session: str,
     drift_suppressed: bool,
     run_dir: str,
-    state_path: str | None,
+    state_path: str,
     mode: str,
     references: list[dict],
     opencode_binary: str,
@@ -286,13 +286,14 @@ def resolve_environment(
     env["FOUNDRY_BRANCH"] = branch
     env["FOUNDRY_SESSION"] = session
     env["FOUNDRY_EFFORT"] = effort
-    # WS75 state-path context: the exact launcher state path (or the
-    # resolved default) plus worktree/branch/workstream/run-dir/mode/
-    # effort, so Muse never guesses `.foundry/WORKSTREAM_STATE.yaml`.
+    # WS75 state-path context, hardened by ROOT_STATE_SEMANTICS: the exact
+    # explicit launcher state path is mandatory. There is no implicit active
+    # repository-root state and no silent fallback, so Muse never guesses
+    # `.foundry/WORKSTREAM_STATE.yaml`.
     # Values are paths/identities only — never secrets.
-    env["FOUNDRY_STATE_PATH"] = state_path or str(
-        Path(worktree) / ".foundry" / "WORKSTREAM_STATE.yaml"
-    )
+    if not state_path:
+        raise ValueError("explicit --state is required (no implicit active state)")
+    env["FOUNDRY_STATE_PATH"] = state_path
     env["FOUNDRY_WORKTREE"] = worktree
     env["FOUNDRY_RUN_DIR"] = run_dir
     env["FOUNDRY_MODE"] = mode
@@ -328,7 +329,7 @@ def init(
     effort: str,
     mode: str,
     session: str,
-    state_path: str | None,
+    state_path: str,
     canonical_root: str,
     allow_same_cwd_pids: bool,
     allow_suppressed_routing: bool,
@@ -338,8 +339,14 @@ def init(
     references: list[str] | None = None,
     opencode_bin: str | None = None,
     version_audit_mode: bool = False,
+    worktree_states: list[str] | None = None,
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
+    if not state_path:
+        return {
+            "verdict": "LAUNCH_REFUSED",
+            "error": "explicit --state is required (no implicit active repository-root state)",
+        }
     if ui_mode not in UI_MODES:
         return {"verdict": "LAUNCH_REFUSED", "error": f"unknown ui_mode {ui_mode!r}"}
     canonical = os.path.realpath(os.path.abspath(worktree))
@@ -349,6 +356,28 @@ def init(
             parsed_refs.append(reference_mod.parse_spec(raw))
         except reference_mod.ReferenceError as exc:
             return {"verdict": "LAUNCH_REFUSED", "error": f"reference: {exc}"}
+    # Explicit ownership authority: the launcher always declares its own
+    # worktree/state pair (ground truth for this run) plus any
+    # operator-declared sibling pairs. A conflicting operator pair for our
+    # own worktree is ambiguous and fails closed. Nothing is discovered.
+    state_map: dict[str, str] = {}
+    for raw in worktree_states or []:
+        try:
+            key, value = bootstrap_mod.parse_worktree_state(raw)
+        except ValueError as exc:
+            return {"verdict": "LAUNCH_REFUSED", "error": f"worktree-state: {exc}"}
+        if key in state_map and state_map[key] != value:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"conflicting --worktree-state for {key!r}",
+            }
+        state_map[key] = value
+    if canonical in state_map and state_map[canonical] != state_path:
+        return {
+            "verdict": "LAUNCH_REFUSED",
+            "error": "--worktree-state for this worktree conflicts with --state",
+        }
+    state_map[canonical] = state_path
     binary = resolve_opencode_binary(opencode_bin)
     try:
         version = version_mod.verify(binary)
@@ -381,11 +410,12 @@ def init(
         allow_same_cwd_pids,
         allow_suppressed_routing,
         parsed_refs,
+        state_map,
     )
     if gate["verdict"] != "BOOTSTRAP_PASS":
         return {"verdict": "LAUNCH_REFUSED", "gate": gate}
     drift_suppressed = gate["drift"]["verdict"] == "DRIFT_FAIL"
-    resolved_state = state_path or str(Path(canonical) / ".foundry" / "WORKSTREAM_STATE.yaml")
+    resolved_state = state_path
     try:
         env = resolve_environment(
             canonical_root=canonical_root,
@@ -429,6 +459,7 @@ def init(
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
         "references": parsed_refs,
+        "worktree_states": state_map,
         "live_head": live_head,
     }
     try:
@@ -451,6 +482,7 @@ def init(
         "live_head": live_head,
         "run_dir": run_dir,
         "state_path": resolved_state,
+        "worktree_states": state_map,
         "opencode_binary": binary,
         "opencode_version": version,
         "version_audit_mode": version_audit_mode,
@@ -566,7 +598,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--effort", default="high")
     parser.add_argument("--mode", default="writer", choices=("writer", "reader"))
     parser.add_argument("--session", default="")
-    parser.add_argument("--state", default=None)
+    parser.add_argument(
+        "--state",
+        required=True,
+        help="Explicit workstream state file (mandatory; no implicit fallback).",
+    )
     parser.add_argument("--canonical-root", required=True)
     parser.add_argument("--allow-same-cwd-pids", action="store_true")
     parser.add_argument("--allow-suppressed-routing", action="store_true")
@@ -583,6 +619,12 @@ def main(argv: list[str] | None = None) -> int:
         action="append",
         default=[],
         help="Declared read-only reference root as JSON (repeatable).",
+    )
+    parser.add_argument(
+        "--worktree-state",
+        action="append",
+        default=[],
+        help="Explicit ownership authority as WORKTREE=STATE (repeatable).",
     )
     parser.add_argument(
         "--opencode-bin",
@@ -619,6 +661,7 @@ def main(argv: list[str] | None = None) -> int:
         references=args.reference,
         opencode_bin=args.opencode_bin,
         version_audit_mode=args.version_audit_mode,
+        worktree_states=args.worktree_state,
     )
     printable = {k: v for k, v in plan.items() if k != "_env"}
     print(json.dumps(printable, indent=2, sort_keys=True, default=str))

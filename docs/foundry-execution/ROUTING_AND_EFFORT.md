@@ -68,5 +68,6 @@ possible operation. Otherwise `WORK_NECESSITY = FAIL` and Work must not be used.
 
 Parallelism only across independent surfaces: verify branch ownership, remote head,
 active worker, touched files, semantic surface, active runs, and expected output first.
-Every workstream persists Git plus `.foundry/WORKSTREAM_STATE.yaml` plus sealed
+Every workstream persists Git plus its explicit dedicated state file (the exact
+`--state` path; there is no implicit active repository-root state) plus sealed
 evidence so any qualified worker resumes after interruption.

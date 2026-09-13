@@ -21,7 +21,7 @@ repository rulesets are empty.
 
 ## Required remote gates (human to apply per repository)
 
-For each of `commander-playtest-lab/main`, `mage/master`, `forge/master`:
+### A. `commander-playtest-lab` / `main` (project work branch)
 
 1. **PR path to the protected default branch.** Require pull requests
    before merging; disable direct pushes to the default branch for all
@@ -32,18 +32,45 @@ For each of `commander-playtest-lab/main`, `mage/master`, `forge/master`:
    flags, and `git push*`-family bypass shapes are DENY in `opencode.json`.)
 3. **Branch deletion prohibited.** Block deletion of the default branch.
 4. **Relevant required CI checks.** Mark the qualification lanes that must
-   pass before merge as required status checks, including at minimum:
-   - `commander-playtest-lab`: the core CI lane (`.github/workflows/ci.yml`)
-     and the OpenCode lane (`.github/workflows/opencode.yml`);
-   - engine forks (`mage`, `forge`): whatever CI their maintainers treat
-     as merge-blocking, so engine checkouts referenced by declared
-     reference roots keep a verifiable green lineage.
+   pass before merge as required status checks, at minimum the core CI lane
+   (`.github/workflows/ci.yml`). Do NOT mark the comment-triggered OpenCode
+   lane (`.github/workflows/opencode.yml`) as a required check: it triggers
+   only on `issue_comment` / `pull_request_review_comment` containing `/oc`
+   (runs with `contents: read`, never yields PR checks), so requiring it
+   would block merges on a check that normal PR activity never produces.
    Require branches to be up to date before merging where the team can
    sustain it.
 5. **No OpenCode/Muse direct push to the default branch.** Automation
    (including the `opencode` GitHub workflow in this repo, which runs
    with `contents: read`) must never receive push rights to a default
    branch. Workstream branches land via `safe_push` + PR review only.
+
+### B. `mage` / `master` and `forge` / `master` (upstream mirrors — sync-only)
+
+These default branches are upstream mirrors, not project-work branches
+(mirror rule: direct commits prohibited; sync is fast-forward-only from
+upstream, recorded with before/after SHAs; see `docs/FORK_AGENT_POINTER_SPEC.md`
+§2 and `docs/RETENTION_AND_LIFECYCLE_POLICY.md` Appendix G). Do NOT impose
+PR-only semantics on them: requiring pull requests before merging (or
+disabling all direct/admin writes needed for fast-forward sync) would
+intentionally create project divergence between the mirror and upstream.
+Protection here must stay sync-compatible: block force-push, block branch
+deletion, never grant automation push rights — while preserving the
+fast-forward-only upstream-sync path (or admin-mediated sync where the team
+adopts it). Never land project-only files (including any `AGENTS.md`
+pointer) on a mirror `master`; project work lives on explicitly owned
+`foundry/*`, `work/*`, or `playtest-lab-*` branches only. Engine checkouts
+referenced by declared reference roots keep their lineage from the pinned
+commit/tree plus review, not from mirror-branch CI; do not designate fork
+CI as merge-blocking for lab purposes.
+
+(WS-ARCLOSE-D1 2026-09-13: §A narrows the former uniform guidance to
+`commander-playtest-lab/main` and removes the OpenCode lane from the
+required-checks recommendation — the lane has no `pull_request` trigger and
+cannot function as a required PR check. §B replaces the former uniform
+PR-path recommendation on the engine mirrors with sync-compatible
+protection. Observed-state section above preserved verbatim as the
+2026-09-12 read-only record.)
 
 ## Why this matters to Foundry tooling
 

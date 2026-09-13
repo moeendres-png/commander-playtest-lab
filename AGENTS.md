@@ -3,7 +3,8 @@
 Durable instructions for every OpenCode/Muse session on `moeendres-png/commander-playtest-lab`.
 Stable rules only. Never place volatile data here: no SHAs, run IDs, PASS counts, failure
 diagnoses, pricing, or rate limits. Session-specific facts live in the Workstream Contract
-and `.foundry/WORKSTREAM_STATE.yaml`.
+and the workstream's explicit dedicated state file (the exact `--state` path supplied
+to the launcher; there is no implicit active repository-root state).
 
 ## 1. Mission and scope
 
