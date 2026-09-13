@@ -4,8 +4,8 @@ worktree: /mnt/c/Users/moeen/.codex/.chatgpt-projects/g-p-6a9197e782048191a98ff3
 branch: ws190/opencode-zen-provider-override-20260913
 audit_base_sha: 6eea80fb33746257e8434fd4e1c906765d8f22e9
 audit_base_tree: 3a3ca37639d6cb30864bda0fa60bb35d3d7b94c5
-state_written_against_head: 6eea80fb33746257e8434fd4e1c906765d8f22e9
-validated_head: null
+state_written_against_head: 775384c27f24ad6ae198cadb4c36fd501d979ec3
+validated_head: 775384c27f24ad6ae198cadb4c36fd501d979ec3
 objective: Interrupt-safe Foundry launcher and explicit Zen execution override
 in_scope:
 - tools/foundry/launcher.py
@@ -21,6 +21,6 @@ out_of_scope:
 - provider runtime calls
 - main/merge/PR
 ownership: WS190
-status: ACTIVE
-exact_next_action: Validate the committed technical head, then seal evidence and push
-  this authorized branch.
+status: COMPLETE
+exact_next_action: Publish this evidence seal to the authorized WS190 branch; no PR/merge.
+  Future operator explicitly selects Zen, authenticated runtime NOT_RUN.

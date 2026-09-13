@@ -1,0 +1,72 @@
+{
+  "workstream": "WS190",
+  "audit_base_sha": "6eea80fb33746257e8434fd4e1c906765d8f22e9",
+  "audit_base_tree": "3a3ca37639d6cb30864bda0fa60bb35d3d7b94c5",
+  "validated_technical_head": "775384c27f24ad6ae198cadb4c36fd501d979ec3",
+  "validated_technical_tree": "4fe833a5d7d7b33e9956445dda6b5c39dd31dfc1",
+  "classification": "DIRECTLY_VERIFIED",
+  "test_first": {
+    "new_cases_initially_failed": 28,
+    "interrupt_reproducer": "test_ws190_child_lifecycle[None-interrupt]",
+    "original_failure": "KeyboardInterrupt masked by UnboundLocalError at exit_status=rc"
+  },
+  "validation": {
+    "command": "python3 -m pytest -q tests/foundry tests/unit/test_ws78_token_economy.py --tb=short",
+    "environment": "Ubuntu WSL; Python 3; hermetic OpenCode stubs",
+    "passed": 294,
+    "failed": 0,
+    "skipped": 2,
+    "seconds": 32.23,
+    "modules": {
+      "tests/foundry/test_launcher.py": {"passed": 62, "skipped": 0},
+      "tests/foundry/test_foundry_tools.py": {"passed": 53, "skipped": 0},
+      "tests/foundry/test_ws75_tooling_hardening.py": {"passed": 35, "skipped": 1},
+      "tests/unit/test_ws78_token_economy.py": {"passed": 22, "skipped": 0}
+    },
+    "skip_reasons": ["No live export snapshot present", "No opencode executable on test PATH; standard-path CLI inspected separately offline"],
+    "junit_sha256": "4db299f30b1926eb12e43c61f907820e0005e0f4119a3ccbb4888e0112e136ab",
+    "ruff_check": "PASS: launcher.py, metrics.py, test_launcher.py",
+    "ruff_format_check": "PASS: launcher.py, metrics.py, test_launcher.py"
+  },
+  "offline_cli": {
+    "version": "1.18.30",
+    "command": "opencode debug config",
+    "network": "disabled by unshare -Urn",
+    "credentials": "empty isolated HOME/XDG directories; no inherited credential variables",
+    "default_config": "PASS",
+    "zen_config": "PASS",
+    "checked": ["selected model and sole provider", "share disabled", "2000/51200 output bounds", "git push deny", "external sibling deny", "reviewer edit deny", "work command agent", "Zen model and empty variant on canonical agents", "Go disabled for Zen"],
+    "provider_native_reasoning_variant": "UNVERIFIED; provider default, no fabricated reasoningEffort",
+    "authenticated_model_call": "NOT_RUN"
+  },
+  "gates": {
+    "SOURCE_LOCK": "PASS",
+    "CANONICAL_DEFAULT_PROVIDER": "opencode-go",
+    "CANONICAL_DEFAULT_MODEL": "opencode-go/muse-spark-1.3-contributor",
+    "CANONICAL_DEFAULT_CHANGED": "NO",
+    "WS190_LONG_TURN_RESILIENCE": "PASS",
+    "INTERRUPT_SAFE_LAUNCHER": "PASS",
+    "ZEN_OVERRIDE_TOOLING": "PASS",
+    "ZEN_OVERRIDE_CLI": "--execution-provider zen",
+    "ZEN_OVERRIDE_MODEL": "opencode/muse-spark-1.3-contributor-free",
+    "ZEN_OVERRIDE_EXPLICIT": "PASS",
+    "ZEN_AUTO_FALLBACK": 0,
+    "UNKNOWN_OVERRIDE_FAIL_CLOSED": "PASS",
+    "ZEN_OVERRIDE_RECORDED_IN_LAUNCH_CONTEXT": "PASS",
+    "ZEN_OVERRIDE_RECORDED_IN_TELEMETRY": "PASS",
+    "SHARE_REMAINS_DISABLED": "PASS",
+    "PERMISSION_WEAKENING": 0,
+    "BELOW_HIGH_EXECUTION_ENABLED": 0,
+    "WS78_TOKEN_ECONOMY_PRESERVED": "PASS",
+    "INTERRUPT_UNBOUNDLOCALERROR": 0,
+    "INTERRUPT_WRITER_LOCK_RELEASE": "PASS",
+    "INTERRUPT_TELEMETRY": "PASS",
+    "ZEN_PROVIDER_RUNTIME": "NOT_RUN",
+    "RULES_BEHAVIOR_CHANGE": 0,
+    "ENGINE_PIN_CHANGE": 0,
+    "QUALIFICATION_BEHAVIOR_CREDIT_CHANGE": 0,
+    "ARCHITECTURE_FREEZE": "NOT_CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT_SELECTED"
+  },
+  "impact": "Foundry launcher/config/telemetry only. No simulator, engine or qualification suites required. Final evidence/state seal changes no validated executable or test bytes."
+}
