@@ -14,6 +14,12 @@ superseded PRs are provenance only.
 Muse and Spark routings, and never substitute another provider or model without an
 explicit user instruction and a matching policy and config update.
 
+An operator-authorized invocation may explicitly select `--execution-provider zen`
+in the Foundry launcher. This substitutes only that execution with
+`opencode/muse-spark-1.3-contributor-free`; no automatic fallback or canonical
+default change. HIGH/XHIGH remains the requested project tier, not a claim of
+equivalent provider variants. See `EXECUTION_PROVIDER_OVERRIDE.md` for resolution.
+
 ## Effort policy
 
 Allowed project efforts: `high`, `xhigh`. Minimum: `high`. Default: `high`.

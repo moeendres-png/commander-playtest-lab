@@ -825,5 +825,166 @@ def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
     assert rc == 1
 
 
+@pytest.mark.parametrize(
+    "override,provider,model",
+    [
+        (None, "opencode-go", "opencode-go/muse-spark-1.3-contributor"),
+        ("zen", "opencode", "opencode/muse-spark-1.3-contributor-free"),
+    ],
+)
+def test_ws190_execution_identity(target, canon, override, provider, model):
+    before = (canon / "opencode.json").read_bytes()
+    plan = _plan(target, canon, execution_provider=override)
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    assert bundle["model"] == model
+    assert bundle["enabled_providers"] == [provider]
+    assert bundle["share"] == "disabled"
+    original = json.loads(before)
+    assert bundle["permission"] == original["permission"]
+    assert bundle["experimental"]["policies"][-1] == {
+        "action": "provider.use",
+        "effect": "allow",
+        "resource": provider,
+    }
+    context = json.loads(Path(plan["context_path"]).read_text())
+    assert context["execution"]["provider"] == provider
+    assert context["execution"]["model"] == model
+    assert context["execution"]["override"] == (override or "canonical")
+    assert context["execution"]["requested_effort"] == "high"
+    if override:
+        assert bundle["disabled_providers"] == ["opencode-go"]
+        assert bundle["small_model"] == model
+        variants = bundle["provider"][provider]["models"][model.split("/")[1]]["variants"]
+        assert all(v == {"disabled": True} for v in variants.values())
+        assert "reasoningEffort" not in json.dumps(bundle["provider"][provider])
+        for agent in bundle["agent"].values():
+            assert agent["model"] == model
+            assert agent["variant"] == ""
+    else:
+        assert "opencode" not in bundle["provider"]
+    assert (canon / "opencode.json").read_bytes() == before
+
+
+@pytest.mark.parametrize("override", ["auto", "openai", "", "opencode"])
+def test_ws190_unknown_override_refused(target, canon, override):
+    plan = _plan(target, canon, execution_provider=override)
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+
+
+@pytest.mark.parametrize("effort", ["medium", "low", "minimal", "none", "off"])
+def test_ws190_zen_below_high_refused(target, canon, effort):
+    assert (
+        _plan(target, canon, execution_provider="zen", effort=effort)["verdict"] == "LAUNCH_REFUSED"
+    )
+
+
+@pytest.mark.parametrize("result", [0, 7, 130, -2, "interrupt", "spawn-error"])
+@pytest.mark.parametrize("override", [None, "zen"])
+def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
+    plan = _plan(target, canon, **({"execution_provider": override} if override else {}))
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    real_run = subprocess.run
+    calls = []
+
+    def child(args, **kwargs):
+        if args[0] == "git":
+            return real_run(args, **kwargs)
+        calls.append(args)
+        contender = launcher_mod.writer_lock_mod.WriterLock(str(target["wt"]), "OTHER", "b", "s")
+        with pytest.raises(launcher_mod.writer_lock_mod.LockedError):
+            contender.acquire()
+        if result == "interrupt":
+            raise KeyboardInterrupt
+        if result == "spawn-error":
+            raise FileNotFoundError("stub missing")
+        return subprocess.CompletedProcess(args, result)
+
+    monkeypatch.setattr(launcher_mod.subprocess, "run", child)
+    expected = 130 if result in ("interrupt", -2) else 127 if result == "spawn-error" else result
+    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == expected
+    assert len(calls) == 1  # no fallback/retry, including provider failure
+    if override:
+        assert calls[0][3:5] == ["--model", launcher_mod.ZEN_MODEL]
+    records = [
+        json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
+    ]
+    assert len(records) == 2
+    for record in records:
+        assert record["model"] == plan["execution"]["model"]
+        assert record["execution_provider"] == plan["execution"]["provider"]
+        assert record["execution_override"] == (override or "canonical")
+    assert records[-1]["exit_status"] == expected
+    assert records[-1]["completed"] is (result == 0)
+    assert records[-1]["interrupted"] is (result in ("interrupt", -2, 130))
+    contender = launcher_mod.writer_lock_mod.WriterLock(str(target["wt"]), "NEXT", "b", "s")
+    contender.acquire()
+    contender.release()
+
+
+@pytest.mark.parametrize(
+    "extra", [["--model", "other/x"], ["-mother/x"], ["--variant=low"], ["--continue"], ["-c"]]
+)
+def test_ws190_child_cannot_override_policy(target, canon, extra, monkeypatch):
+    plan = _plan(target, canon, execution_provider="zen")
+    monkeypatch.setattr(
+        launcher_mod.subprocess, "run", lambda *a, **k: pytest.fail("must not execute")
+    )
+    assert launcher_mod.launch(plan, extra, str(target["wt"]), "TEST-WS", "high") == 1
+
+
+def test_ws190_ambient_permission_override_removed(target, canon, monkeypatch):
+    monkeypatch.setenv("OPENCODE_PERMISSION", '{"bash":"allow"}')
+    plan = _plan(target, canon, execution_provider="zen")
+    assert "OPENCODE_PERMISSION" not in plan["_env"]
+
+
+def test_ws190_end_telemetry_failure_still_releases(target, canon, monkeypatch):
+    plan = _plan(target, canon)
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    real_record = launcher_mod.metrics_mod.record
+
+    def record(*args, **kwargs):
+        if "ended_utc" in kwargs:
+            raise ValueError("telemetry defect")
+        return real_record(*args, **kwargs)
+
+    monkeypatch.setattr(launcher_mod.metrics_mod, "record", record)
+    with pytest.raises(ValueError, match="telemetry defect"):
+        launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high")
+    lock = launcher_mod.writer_lock_mod.WriterLock(str(target["wt"]), "NEXT", "b", "s")
+    lock.acquire()
+    lock.release()
+
+
+def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys):
+    captured = {}
+
+    def fake_init(**kwargs):
+        captured.update(kwargs)
+        return {"verdict": "LAUNCH_READY"}
+
+    monkeypatch.setattr(launcher_mod, "init", fake_init)
+    rc = launcher_mod.main(
+        [
+            "init",
+            *_cli_base(target),
+            "--state",
+            str(target["state"]),
+            "--profile",
+            "cpl",
+            "--canonical-root",
+            str(canon),
+            "--execution-provider",
+            "zen",
+            "--run-dir",
+            str(target["wt"].parent / "cli-run"),
+        ]
+    )
+    assert rc == 0
+    assert captured["execution_provider"] == "zen"
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
