@@ -224,3 +224,6 @@ def test_workstream_bootstrap_skill_matches_explicit_ownership(
     assert "duplicate" in text.lower()
     assert "no implicit active repository-root state" in text.lower()
     assert ".foundry/WORKSTREAM_STATE.yaml" not in text
+    # Realizable explicit-map inventory path (Finding 2).
+    assert "worktree_inventory.py" in text
+    assert "--workdir" in text

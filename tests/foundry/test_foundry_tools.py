@@ -662,6 +662,74 @@ def test_inventory_missing_mapped_file_stays_unknown(repo: Path, tmp_path: Path)
     assert entries[0]["ownership"] == "UNKNOWN"
 
 
+def test_inventory_ignores_conventional_root_file(repo: Path, tmp_path: Path) -> None:
+    """ROOT_STATE_SEMANTICS: a conventional root file alone grants no authority."""
+    legacy = repo / ".foundry" / "WORKSTREAM_STATE.yaml"
+    legacy.parent.mkdir(parents=True)
+    legacy.write_text(yaml.safe_dump(_ownership_state("STALE-WS")), encoding="utf-8")
+    assert worktree_inventory.inventory(str(repo))[0]["ownership"] == "UNKNOWN"
+    assert (
+        worktree_inventory.inventory(
+            str(repo), {str(tmp_path / "elsewhere"): str(tmp_path / "nope.yaml")}
+        )[0]["ownership"]
+        == "UNKNOWN"
+    )
+
+
+def _inventory_cli(args: list[str]) -> tuple[int, dict, str]:
+    import io
+    from contextlib import redirect_stderr, redirect_stdout
+
+    out, err = io.StringIO(), io.StringIO()
+    with redirect_stdout(out), redirect_stderr(err):
+        rc = worktree_inventory.main(args)
+    listing = out.getvalue()
+    payload = json.loads(listing) if listing.strip() else {}
+    return rc, payload, err.getvalue()
+
+
+def test_inventory_cli_reports_mapped_owner(repo: Path, tmp_path: Path) -> None:
+    custom = tmp_path / "dedicated" / "WS-CLI.yaml"
+    custom.parent.mkdir(parents=True)
+    custom.write_text(yaml.safe_dump(_ownership_state("WS-CLI")), encoding="utf-8")
+    rc, payload, _ = _inventory_cli(
+        ["--workdir", str(repo), "--worktree-state", f"{repo}={custom}"]
+    )
+    assert rc == 0
+    assert payload["worktrees"][0]["ownership"] == "WS-CLI"
+
+
+def test_inventory_cli_without_map_reports_unknown(repo: Path, tmp_path: Path) -> None:
+    rc, payload, _ = _inventory_cli(["--workdir", str(repo)])
+    assert rc == 0
+    assert payload["worktrees"][0]["ownership"] == "UNKNOWN"
+
+
+def test_inventory_cli_rejects_malformed_mapping(repo: Path, tmp_path: Path) -> None:
+    rc, _, err = _inventory_cli(["--workdir", str(repo), "--worktree-state", "malformed"])
+    assert rc == 1
+    assert "INVENTORY_FAIL" in err
+
+
+def test_inventory_cli_rejects_conflicting_mapping(repo: Path, tmp_path: Path) -> None:
+    first = tmp_path / "A.yaml"
+    second = tmp_path / "B.yaml"
+    first.write_text(yaml.safe_dump(_ownership_state("WS-A")), encoding="utf-8")
+    second.write_text(yaml.safe_dump(_ownership_state("WS-B")), encoding="utf-8")
+    rc, _, err = _inventory_cli(
+        [
+            "--workdir",
+            str(repo),
+            "--worktree-state",
+            f"{repo}={first}",
+            "--worktree-state",
+            f"{repo}={second}",
+        ]
+    )
+    assert rc == 1
+    assert "conflicting" in err
+
+
 def test_state_head_mismatch_warns(repo: Path, tmp_path: Path) -> None:
     import yaml as _yaml
 

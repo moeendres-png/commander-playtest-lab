@@ -35,10 +35,14 @@ canonical-remote state from an unrelated local clone.
     Ownership authority is explicit, never discovered: the launcher
     auto-declares its own worktree/state pair and the operator declares any
     sibling pair via repeatable `--worktree-state WORKTREE=STATE` (recorded
-    in `launch-context.json` as `worktree_states`). A worktree with no
-    declared state location reports `UNKNOWN`. Never guess a state file,
-    never scan historical state files, never treat a historical snapshot as
-    live ownership. There is no implicit active repository-root state.
+    in `launch-context.json` as `worktree_states`). The realizable
+    standalone invocation carrying ownership evidence is:
+    `python3 tools/foundry/worktree_inventory.py --workdir <repo>
+    --worktree-state <WT>=<STATE> [--worktree-state ...]`
+    A worktree with no declared state location reports `UNKNOWN`. Never
+    guess a state file, never scan historical state files, never treat a
+    historical snapshot as live ownership.
+    There is no implicit active repository-root state. There is no conventional-path fallback.
 7. Existing branch owner: for the intended branch, determine the owning
     worktree's `ownership` from the explicit state map when declared, else
     `UNKNOWN`. Fail closed: if another workstream's explicit state owns the

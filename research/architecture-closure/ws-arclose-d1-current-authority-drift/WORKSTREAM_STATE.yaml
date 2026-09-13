@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws-arclose-d1
 branch: ws-arclose/d1-current-authority-drift-20260913
 audit_base_sha: f89c824e93664b8285b0b44e4445118bd99b9f98
 audit_base_tree: b250c599f03df4750b06dab739a6e1d7940fe337
-state_written_against_head: e41a1e0ce468d0a31c0dbb1c7c7de30ffdecca89
-validated_head: e41a1e0ce468d0a31c0dbb1c7c7de30ffdecca89
+state_written_against_head: bfd99087cd5afffe17eade506c1c0f42f272ca9c
+validated_head: null
 objective: Reconcile verified current Source Truth and documentation drift remaining
   from the architecture/repository improvement program. No Rules semantics, engine
   pins, protocol, provider selection, Architecture Freeze state, Docker behavior,
@@ -33,11 +33,10 @@ out_of_scope:
 - Architecture Freeze
 - Production Provider selection
 ownership: WS-ARCLOSE-D1
-status: COMPLETE
-exact_next_action: 'COMPLETE: P2 ownership-authority remediation validated at e41a1e0c
-  and sealed. Broad signature 831 passed / 5 pre-existing failures / 32 errors (strict
-  subset of prior 40 baseline; 8 optimizer tests order-dependent, pass standalone,
-  unclaimed). No push, no PR action (Coordinator handles GitHub).'
+status: ACTIVE
+exact_next_action: 'Final findings implementation complete in worktree. Next: commit
+  descendant implementation commit, revalidate at that commit, then seal COMPLETE
+  with honest validated_head. No push, no PR action.'
 dependencies:
 - CPL Source Lock f89c824e / tree b250c599
 - current Foundry authority
@@ -67,7 +66,8 @@ artifacts:
 - 'tests/unit/test_ws_arclose_d1_authority_drift.py (10 regression tests: drift closure
   + root-absence/archive/doc-coherence/skill-coherence locks, structural only)'
 - tests/foundry/test_launcher.py (+8 explicit-state/ownership CLI/API tests)
-- tests/foundry/test_foundry_tools.py (+3 inventory ownership-map tests)
+- tests/foundry/test_foundry_tools.py (+8 inventory ownership-map/CLI/no-fallback
+  tests)
 - research/architecture-closure/ws-arclose-d1-current-authority-drift/HISTORICAL-WS-A1D-H4-archived-root-state.yaml
   (byte-identical WS-A1D-H4 archive)
 evidence:
@@ -90,23 +90,25 @@ evidence:
   at audit base f89c824e (blob 6cf09d17); archived via git rename (100% similarity,
   0 content lines); sha256 e0e572093eedeb051a0836c4a10d650bb8183b3bbf6276b06a44257d4dbd1da0,
   20712 bytes; WS-A1D-H4 identity intact; WS58/WS61 records untouched'
-- 'P2 Coordinator finding PR #186 (DIRECTLY_VERIFIED input, blocks merge): ROOT_STATE_SEMANTICS
-  migration incomplete; worktree_inventory._ownership reads only the removed root
-  path and the bootstrap skill still instructs reading it, so compliant explicit-state
-  worktrees report UNKNOWN and the ownership/bootstrap gate is incoherent.'
-- 'P2 implementation validation (worktree, pre-commit): focused Foundry/inventory/bootstrap/launcher/state/D1
-  suites 340 passed, 1 skipped (pre-existing live-export skip); broad tests/foundry+tests/unit
-  823 passed, 1 skipped; 5 failed + 40 errors identical to pre-existing baseline (missing
-  typer/openpyxl; none reference changed files); ruff check + format clean; state.py
-  valid on dedicated + archived files; root .foundry/ holds schema only; no remaining
-  root-path instruction in current docs/skill sources (remaining code mentions are
-  prohibitions or filename-pattern docs)'
-- 'WS78 boundary (CODE_DERIVED inspection of mainline f0e314e5): WS78 launcher hunk
-  (tool_output bundle validation) and implementer tip are textually disjoint from
-  D1 hunks; WS78 launcher tests exercise only build_content_bundle (untouched by D1);
-  WS78 capsule tests use explicit --state. WS78 context_capsule.py keeps a CWD-default
-  state read for ad-hoc runs; left untouched as WS78-owned qualified tooling out of
-  D1 scope and recorded here as a Coordinator-visible observation, not a D1 defect.'
+- 'Final Coordinator findings PR #186 (DIRECTLY_VERIFIED input): (1) inventory _ownership
+  conventional root-path fallback violates ROOT_STATE_SEMANTICS and must be removed
+  completely; ownership ONLY from explicit deterministic authority, else UNKNOWN,
+  never guessed/scanned. (2) inventory CLI cannot consume the explicit map while the
+  skill documents standalone invocation; required repeatable --worktree-state with
+  bootstrap/launcher parse semantics, fail-closed malformed/conflicts, no discovery/registry/scanning/root
+  fallback; skill must show the realizable explicit-map path.'
+- 'Final implementation validation (worktree, pre-commit): focused inventory/bootstrap/launcher/state/D1
+  suites green (incl. 6 new CLI/no-fallback tests); broad tests/foundry+tests/unit
+  828 passed, 1 skipped; 5 failed + 40 errors identical to long-standing pre-existing
+  baseline (missing typer/openpyxl; optimizer variance order-dependent, file untouched
+  by D1, unclaimed); ruff check + format clean; state.py valid on dedicated + archived
+  files; root .foundry/ holds schema only; WS78 launcher/implementer hunks verified
+  disjoint and intact (build_content_bundle untouched; WS78 tests exercise only it).'
+- 'WS78 boundary (CODE_DERIVED inspection of mainline f0e314e5): WS78 launcher bundle/tool_output
+  hunks and implementer tip are textually and semantically disjoint from D1 hunks;
+  WS78 launcher tests touch only build_content_bundle (D1-untouched); WS78 context_capsule.py
+  CWD-default read left intact as WS78-owned qualified tooling out of D1 scope (Coordinator-visible
+  observation).'
 - 'COORDINATOR AUTHORITY DECISION ROOT_STATE_SEMANTICS (2026-09-13, applied): explicit
   workstream-specific state always; no silent <worktree>/.foundry/WORKSTREAM_STATE.yaml
   fallback; --state mandatory; --init-state only for the explicit path; root file
@@ -191,9 +193,8 @@ technical_decisions:
     ownership != requested workstream. Duplicate-branch rejection stays branch-based
     (strictest). Writer lock untouched as live-exclusion authority. Historical states
     never read (evidence only).'
-  evidence: inventory/bootstrap/launcher diffs; writer_lock read_holder semantics
-    (holder workstream/branch, lock-gated acquire); skill rewrite; regression tests
-    below.
+  evidence: inventory/bootstrap/launcher diffs; writer_lock read_holder semantics;
+    skill rewrite; regression tests.
   id: TD-D1-13-ownership-model
 - decision: 'WS78 boundary: WS78 (mainline f0e314e5) launcher bundle/tool_output hunks
     and implementer tip are textually and semantically disjoint from D1 hunks; WS78
@@ -204,15 +205,31 @@ technical_decisions:
   evidence: git show f0e314e5 hunks + WS78 test grep for launcher/bootstrap/state
     usage.
   id: TD-D1-14-ws78-boundary
+- decision: 'Reopen for final PR #186 Coordinator review remediation (2 findings)
+    via canonical writer; clear validation credit (validated_head e41a1e0c invalidated
+    for new work).'
+  evidence: Coordinator review findings; state.py STATE_OK output.
+  id: TD-D1-15-final-reopen
+- decision: 'Final ownership model (no fallback, consumable CLI, shared semantics):
+    (1) conventional root-path fallback removed from _ownership completely; map-only
+    else UNKNOWN. (2) inventory CLI gains repeatable --worktree-state with INVENTORY_FAIL
+    exit 1 on malformed/conflicting input. (3) WORKTREE=STATE parse/normalization
+    canonicalized in worktree_inventory (dependency leaf); bootstrap delegates (no
+    duplicate semantic); launcher unchanged (calls through bootstrap delegate). (4)
+    skill shows the realizable standalone invocation and dual no-fallback doctrine.
+    No discovery, registry, scanning, or root fallback anywhere in D1 surfaces.'
+  evidence: worktree diff of inventory/bootstrap/skill/tests; ruff clean; focused
+    + broad validation runs.
+  id: TD-D1-16-final-ownership
 tests_run:
-- pytest D1 battery -> 10 passed (incl. skill-coherence lock)
-- pytest test_launcher.py + test_foundry_tools.py + test_ws75_tooling_hardening.py
-  + state/drift/safe_push/telemetry/writer-lock/pin/H4 suites -> 340 passed, 1 skipped
-  (pre-existing live-export skip)
-- pytest tests/foundry/ + tests/unit/ broad -> 823 passed, 1 skipped; 5 failed + 40
-  errors identical to pre-existing baseline (missing typer/openpyxl; none reference
-  changed files)
+- pytest D1 battery -> 10 passed (incl. skill-coherence lock with realizable-path
+  assertions)
+- pytest test_launcher.py + test_foundry_tools.py (incl. 6 new CLI/no-fallback tests)
+  + test_ws75_tooling_hardening.py + state/drift/safe_push/telemetry/writer-lock/pin/H4
+  suites -> green
+- pytest tests/foundry/ + tests/unit/ broad -> 828 passed, 1 skipped; 5 failed + 40
+  errors identical to long-standing baseline (missing typer/openpyxl; optimizer variance
+  order-dependent, D1-untouched, unclaimed)
 - ruff check + format on all touched Python files -> clean
 - state.py validation on dedicated D1 state + archived historical state -> valid;
-  root .foundry/ holds schema only; no root-path instruction remains in current docs/skill
-  sources
+  root .foundry/ holds schema only; inventory CLI map path exercised end-to-end

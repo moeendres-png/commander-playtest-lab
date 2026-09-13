@@ -75,15 +75,12 @@ def init_state(
 
 
 def parse_worktree_state(spec: str) -> tuple[str, str]:
-    """Parse one WORKTREE=STATE mapping (fail closed on malformed input).
+    """Shared WORKTREE=STATE semantics (canonical in worktree_inventory).
 
-    The worktree key is normalized to its real path so inventory entries
-    match deterministically. No discovery, no guessing, no scanning.
+    Kept as a delegate so existing importers keep working; no second
+    implementation lives here.
     """
-    worktree, sep, state = spec.partition("=")
-    if not sep or not worktree.strip() or not state.strip():
-        raise ValueError(f"malformed --worktree-state {spec!r} (want WORKTREE=STATE)")
-    return os.path.realpath(os.path.abspath(worktree.strip())), state.strip()
+    return inventory_mod.parse_worktree_state(spec)
 
 
 def bootstrap(
@@ -121,9 +118,9 @@ def bootstrap(
             pass
 
     # 2. duplicate writer across worktrees of this repo. Ownership for each
-    # worktree comes from the explicit state map when supplied (launcher
-    # auto-supplies its own worktree pair; siblings are operator-declared),
-    # else the legacy conventional path when present, else UNKNOWN.
+    # worktree comes only from the explicit state map (launcher auto-supplies
+    # its own worktree pair; siblings are operator-declared); otherwise
+    # UNKNOWN. No conventional-path fallback exists.
     try:
         entries = inventory_mod.inventory(canonical, worktree_states)
         conflicts = inventory_mod.find_duplicate_writers(entries)
@@ -298,16 +295,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     resolved_state = args.state
     try:
-        worktree_states: dict[str, str] = {}
-        for spec in args.worktree_state:
-            key, value = parse_worktree_state(spec)
-            if key in worktree_states and worktree_states[key] != value:
-                print(
-                    f"BOOTSTRAP_FAIL: conflicting --worktree-state for {key!r}",
-                    file=sys.stderr,
-                )
-                return 1
-            worktree_states[key] = value
+        worktree_states = inventory_mod.parse_worktree_state_specs(args.worktree_state)
     except ValueError as exc:
         print(f"BOOTSTRAP_FAIL: {exc}", file=sys.stderr)
         return 1

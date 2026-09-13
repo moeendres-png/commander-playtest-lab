@@ -1,13 +1,16 @@
 """Machine-readable worktree/session inventory.
 
 Lists every worktree known to the current repository with branch, HEAD,
-clean/dirty state, and ownership. Ownership authority is explicit: an
-optional state map (worktree path -> explicit dedicated state file, supplied
-by the launcher/operator) is read first; the legacy conventional path
-<worktree>/.foundry/WORKSTREAM_STATE.yaml is read only when present
-(transitional); otherwise ownership is UNKNOWN, never fabricated and never
-guessed by scanning. Read-only: never kills processes, never deletes
-worktrees.
+clean/dirty state, and ownership. Ownership authority is explicit only: an
+explicit state map (worktree path -> dedicated state file, supplied via the
+API or the repeatable --worktree-state CLI flag) is the sole ownership
+source. Absent, unreadable, or unmapped authority yields UNKNOWN, never
+fabricated and never guessed: no conventional-path fallback, no discovery,
+no scanning. Read-only: never kills processes, never deletes worktrees.
+
+The WORKTREE=STATE parsing/normalization helpers live here (this module is
+a dependency leaf) so bootstrap/launcher share one semantic instead of
+duplicating it.
 """
 
 from __future__ import annotations
@@ -34,6 +37,29 @@ def _git_in(path: str, args: list[str]) -> str | None:
         return None
 
 
+def parse_worktree_state(spec: str) -> tuple[str, str]:
+    """Parse one WORKTREE=STATE mapping (fail closed on malformed input).
+
+    The worktree key is normalized to its real path so inventory entries
+    match deterministically. No discovery, no guessing, no scanning.
+    """
+    worktree, sep, state = spec.partition("=")
+    if not sep or not worktree.strip() or not state.strip():
+        raise ValueError(f"malformed --worktree-state {spec!r} (want WORKTREE=STATE)")
+    return os.path.realpath(os.path.abspath(worktree.strip())), state.strip()
+
+
+def parse_worktree_state_specs(specs: list[str]) -> dict[str, str]:
+    """Parse repeatable WORKTREE=STATE flags (conflicting duplicates refused)."""
+    mapping: dict[str, str] = {}
+    for spec in specs:
+        key, value = parse_worktree_state(spec)
+        if key in mapping and mapping[key] != value:
+            raise ValueError(f"conflicting --worktree-state for {key!r}")
+        mapping[key] = value
+    return mapping
+
+
 def _ownership_from_file(state: Path) -> str:
     """Read the ownership field from one explicit state file (UNKNOWN on doubt)."""
     try:
@@ -46,16 +72,13 @@ def _ownership_from_file(state: Path) -> str:
 
 
 def _ownership(path: str, state_map: dict[str, str] | None = None) -> str:
-    """Ownership for one worktree: explicit map first, legacy path, else UNKNOWN."""
+    """Ownership for one worktree from the explicit map only, else UNKNOWN."""
     if state_map:
         canonical = os.path.realpath(os.path.abspath(path))
         mapped = state_map.get(canonical, state_map.get(path, state_map.get(os.path.abspath(path))))
         if mapped:
             return _ownership_from_file(Path(mapped))
-    state = Path(path) / ".foundry" / "WORKSTREAM_STATE.yaml"
-    if not state.exists():
-        return "UNKNOWN"
-    return _ownership_from_file(state)
+    return "UNKNOWN"
 
 
 def find_duplicate_writers(
@@ -136,8 +159,19 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Exit nonzero when the same branch is checked out twice.",
     )
+    parser.add_argument(
+        "--worktree-state",
+        action="append",
+        default=[],
+        help="Explicit ownership authority as WORKTREE=STATE (repeatable).",
+    )
     args = parser.parse_args(argv)
-    entries = inventory(args.workdir)
+    try:
+        state_map = parse_worktree_state_specs(args.worktree_state)
+    except ValueError as exc:
+        print(f"INVENTORY_FAIL: {exc}", file=sys.stderr)
+        return 1
+    entries = inventory(args.workdir, state_map)
     conflicts = find_duplicate_writers(entries)
     payload = {"worktrees": entries, "duplicate_writers": conflicts}
     text = json.dumps(payload, indent=2, sort_keys=True)
