@@ -1,0 +1,78 @@
+schema_version: '2.0'
+repository: 'moeendres-png/commander-playtest-lab'
+worktree: 'REMOTE_GITHUB_COORDINATOR_NO_LOCAL_WORKTREE'
+branch: 'ws191/forge-successor-integration-coordinator-20260914'
+audit_base_sha: '7725570b6b8690daed6e645dc1611f5e196de8c5'
+audit_base_tree: '8b926c73cf35468c6110d64615c5f5e863ac2aa1'
+state_written_against_head: '2ad09ce2701df6e20f927f25db1d06013e7ce1db'
+validated_head: null
+objective: 'Prepare and hand off the bounded integration of the qualified H4F Forge Protocol-2 bridge onto the WS90-required aa5c00aa Rules-Core lineage without repinning Lab authority or granting behavior credit.'
+in_scope:
+  - 'Fresh source-truth reconciliation across current Lab main, current H4F Forge source, WS77 successor evidence, and WS90 corrected authority.'
+  - 'Coordinator workstream contract for a clean Forge bridge port onto aa5c00aa.'
+  - 'Foundry/Astra research delta reconciliation against current repository state.'
+out_of_scope:
+  - 'Forge source mutation in this coordinator-only preparation branch.'
+  - 'Lab engine repin or config/rules_engines.json mutation.'
+  - 'WS90 First-Wave runtime execution.'
+  - 'Full107 behavior qualification.'
+  - 'Architecture Freeze or Production Provider selection.'
+ownership: 'WS191_COORDINATOR_PREPARATION'
+dependencies:
+  - 'moeendres-png/forge@aa5c00aa32dfd40e213f223f8fd400c43daabb24 remains reachable.'
+  - 'moeendres-png/forge@4753bb7c72ea60d653121e0bab989077b4009f9c remains reachable.'
+  - 'Execution worker gets one isolated Forge branch/worktree when execution begins.'
+hard_gates:
+  - 'Do not conflate current a37a865/4753 H4F lineage with aa5c00aa Rules-Core lineage.'
+  - 'No Lab repin before integrated Forge successor validation and Coordinator impact adjudication.'
+  - 'No behavior credit, Full107 claim, Architecture Freeze, or Production Provider selection in preparation.'
+forbidden_shortcuts:
+  - 'No historical PASS import as fresh integrated-source evidence.'
+  - 'No merge/cherry-pick that silently restores old a37a865 Rules-Core semantics.'
+  - 'No AI/default/fabricated decision path.'
+validated_gates:
+  - 'Current Lab main source lock directly verified.'
+  - 'Current config/rules_engines.json Forge dual identity directly verified.'
+  - 'aa5c00aa Forge commit/tree directly verified.'
+  - '4753bb7c Forge commit/tree directly verified.'
+  - 'Direct compare verified aa5c00aa and 4753bb7c diverge at a37a865.'
+failed_gates: []
+invalidated_gates: []
+do_not_rerun:
+  - 'Do not repeat the source-lineage comparison unless one of the locked refs moves or authority changes.'
+current_failure: 'None. Material Forge integration has not started.'
+failure_class: 'NONE'
+current_hypothesis: 'The missing technical dependency is a clean H4F bridge port onto aa5c00aa; additional Foundry tooling is not the primary blocker.'
+files_modified:
+  - 'handoffs/ws191/WS191_FORGE_SUCCESSOR_BRIDGE_INTEGRATION.md'
+  - 'docs/foundry-execution/ASTRA_RESEARCH_DELTA_2026-09-14.md'
+  - 'handoffs/ws191/WORKSTREAM_STATE.yaml'
+tests_run:
+  - 'No runtime tests: coordinator preparation/documentation only.'
+evidence:
+  - 'Commander Lab main 7725570b6b8690daed6e645dc1611f5e196de8c5 / tree 8b926c73cf35468c6110d64615c5f5e863ac2aa1.'
+  - 'Forge H4F 4753bb7c72ea60d653121e0bab989077b4009f9c / tree 4cd539f1c56876590b8679dc1534d4632560c66d.'
+  - 'Forge target aa5c00aa32dfd40e213f223f8fd400c43daabb24 / tree 8aed9d8754a4b3bedfc57d2a2b47d997bcff4dec.'
+  - 'WS90 FORGE_FIRST_WAVE_EXECUTION_READINESS=WAITING_FOR_WS89.'
+artifacts: []
+remaining_scope:
+  - 'Create isolated Forge execution branch from aa5c00aa (or proven state-only descendant).'
+  - 'Port H4F bridge delta and run contract G1-G12.'
+  - 'Seal integrated-source evidence and return Coordinator handoff.'
+  - 'Only after acceptance, plan canonical Lab repin + fresh WS90 First-Wave execution.'
+status: 'WAITING'
+technical_decision_authority: 'AUTONOMOUS_WITHIN_CONTRACT; authority-policy changes and repin acceptance remain Coordinator-only.'
+current_reasoning_tier: 'xhigh'
+hypotheses_rejected:
+  - 'Astra tooling backlog is the immediate project blocker.'
+  - 'Current 4753bb7 H4F source can be treated as WS90-ready without lineage integration.'
+technical_decisions:
+  - 'Prepare a clean bridge-port workstream rather than repin or run First Wave prematurely.'
+  - 'Keep HIGH/XHIGH benchmark NOT_RUN during unavailable execution plane; do not fabricate results.'
+authority_gates:
+  - 'Coordinator acceptance of exact integrated Forge successor before Lab repin.'
+  - 'Coordinator impact adjudication for engine-pin/bridge-source change before qualification credit reuse.'
+first_failing_boundary: 'FORGE_RULES_CORE_LINEAGE_MISMATCH_BEFORE_WS90_EXECUTION'
+root_cause_class: 'ENGINE_DEFECT'
+next_action: 'Execute the WS191 Forge bridge-port contract when the execution plane is available.'
+exact_next_action: 'Bootstrap one XHIGH Forge workstream from aa5c00aa32dfd40e213f223f8fd400c43daabb24, port only the H4F bridge/materialization delta from 4753bb7c72ea60d653121e0bab989077b4009f9c, run G1-G12, seal exact-source evidence, and return the required handoff without editing Lab pins or running WS90 First Wave.'
