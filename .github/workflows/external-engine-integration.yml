@@ -31,13 +31,13 @@ on:
       xmage_commit:
         description: Verified full XMage commit SHA
         required: true
-        default: 77d7646da6958fdf8125ee7c8f4aabd130d21d4c
+        default: cfc36f445f917f101fa2ed588770e043f53bc44c
 
 permissions:
   contents: read
 
 env:
-  XMAGE_COMMIT: ${{ inputs.xmage_commit || '77d7646da6958fdf8125ee7c8f4aabd130d21d4c' }}
+  XMAGE_COMMIT: ${{ inputs.xmage_commit || 'cfc36f445f917f101fa2ed588770e043f53bc44c' }}
   ENGINE_PROVIDER: xmage
   ENGINE_MODE: external
   ALLOW_TACTICAL_ORACLE_FALLBACK: "false"

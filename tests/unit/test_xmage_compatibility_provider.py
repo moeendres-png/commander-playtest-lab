@@ -5,7 +5,7 @@ from pathlib import Path
 
 XMAGE_REPOSITORY = "https://github.com/moeendres-png/mage.git"
 XMAGE_ACTIONS_REPOSITORY = "moeendres-png/mage"
-XMAGE_COMMIT = "77d7646da6958fdf8125ee7c8f4aabd130d21d4c"
+XMAGE_COMMIT = "cfc36f445f917f101fa2ed588770e043f53bc44c"
 
 
 def test_current_xmage_b4d_runtime_truth_is_pinned_and_fail_closed(repo_root: Path) -> None:

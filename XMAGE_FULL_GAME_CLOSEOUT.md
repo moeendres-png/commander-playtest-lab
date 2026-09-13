@@ -8,7 +8,7 @@ The implementation is mergeable only when all of the following are true on the f
 - Windows Runtime Hygiene passes;
 - Core Workflow Acceptance passes;
 - legacy External XMage Integration passes unchanged;
-- dedicated XMage Full Game Conformance passes against pinned XMage commit `77d7646da6958fdf8125ee7c8f4aabd130d21d4c`;
+- dedicated XMage Full Game Conformance passes against pinned XMage commit `cfc36f445f917f101fa2ed588770e043f53bc44c`;
 - a real four-player technical fixture reaches XMage Game Over in two fresh JVMs;
 - same-seed semantic replay matches;
 - hidden-information boundary verification passes;
