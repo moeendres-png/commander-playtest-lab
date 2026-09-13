@@ -4,8 +4,8 @@ worktree: /home/moeen/code/ws88-xmage-integrated-successor-promotion
 branch: ws88/xmage-integrated-successor-promotion-20260913
 audit_base_sha: f0e314e5cd250f2a0d79ba50f33c87435807be89
 audit_base_tree: 80982bd46cb5e270569f7748cd6f9b20ebae8b10
-state_written_against_head: null
-validated_head: null
+state_written_against_head: e6eb730639cc51cd6448c507119ff322d01790f8
+validated_head: e6eb730639cc51cd6448c507119ff322d01790f8
 objective: Promote the Coordinator-accepted XMage technical successor
   cfc36f445f917f101fa2ed588770e043f53bc44c into the explicit integrated CPL
   runtime candidate with fresh runtime evidence, without capability inflation,
