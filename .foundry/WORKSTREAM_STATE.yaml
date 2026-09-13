@@ -10,12 +10,20 @@ dependencies:
 - CPL Source Lock f89c824e / tree b250c599
 - current Foundry authority
 - current repository evidence at Source Lock
-evidence: []
-exact_next_action: Validate all six remediations (structured-file validation + impact-selected
-  tests), inspect final diff, checkpoint-commit, produce handoff.
+evidence:
+- 'WS-ARCLOSE-D1 remediation validated at 27f0acb3: 8 new drift-closure tests + 155
+  pin/retention/truth/H4/drift/state suites + 53 launcher/hardening suites pass; structured
+  files validate'
+exact_next_action: 'COMPLETE: handoff produced. No push, no PR (not authorized). Await
+  Coordinator direction for any follow-up.'
 files_modified:
 - config/rules_engines.json
 - docs/RETENTION_AND_LIFECYCLE_POLICY.md
+- .foundry/repo-profiles/mage.json
+- docs/foundry-execution/GITHUB_REMOTE_GATES.md
+- docs/FORK_AGENT_POINTER_SPEC.md
+- tests/unit/test_ws_arclose_d1_authority_drift.py
+- research/architecture-closure/ws-arclose-d1-current-authority-drift/WORKSTREAM_STATE.yaml
 forbidden_shortcuts:
 - deleting evidence to hide drift
 - rewriting historical reports to make them appear current
@@ -61,8 +69,8 @@ out_of_scope:
 ownership: WS-ARCLOSE-D1
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: f89c824e93664b8285b0b44e4445118bd99b9f98
-status: ACTIVE
+state_written_against_head: 27f0acb399791f42b5f8037fb03f9e45dafea395
+status: COMPLETE
 technical_decisions:
 - decision: 'Root state rebound to WS-ARCLOSE-D1 on this branch via explicit rebind.
     Prior content (WS-A1D-H4 ACTIVE state: branch architecture/ws-a1d-h4-docker-materialization-20260911,
@@ -73,5 +81,5 @@ technical_decisions:
   evidence: git show HEAD:.foundry/WORKSTREAM_STATE.yaml (prior identity); git for-each-ref
     (h4 branch at 9ee55eb4); WS61 precedent 2829b2bc.
   id: TD-D1-03-root-state
-validated_head: null
+validated_head: 27f0acb399791f42b5f8037fb03f9e45dafea395
 worktree: /home/moeen/code/ws-arclose-d1
