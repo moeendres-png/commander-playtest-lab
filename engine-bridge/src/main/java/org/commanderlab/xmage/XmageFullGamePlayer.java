@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Headless XMage player whose discretionary decisions are supplied externally.
@@ -990,12 +991,35 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // GUI-only skip action. Priority decisions are handled explicitly by priority().
     }
 
+    /**
+     * WS213 one-shot principal-bound concession authorizations. The set holds
+     * the exact native player UUIDs whose next synchronous {@code concede}
+     * call was authorized by {@link XmageFullGameSession#submitConcede} after
+     * a live {@code Game.canConcede} check. It is an authorization token, not
+     * a decision: availability and selection stay engine/pilot-owned.
+     */
+    private final Set<UUID> concessionArmed = ConcurrentHashMap.newKeySet();
+
+    void armConcession(UUID principal) {
+        if (principal == null || !principal.equals(getId())) {
+            fail("PILOT_RESPONSE_INVALID", "concession arming requires the exact principal");
+        }
+        concessionArmed.add(principal);
+    }
+
+    void disarmConcession(UUID principal) {
+        concessionArmed.remove(principal);
+    }
+
     @Override
     public void concede(Game game) {
-        // WS204: concession has no native external decision boundary on the
-        // pinned engine. Failing closed preserves concede_supported=false and
-        // prevents the inherited PlayerImpl default from silently marking the
-        // actor as lost outside external pilot authority.
+        // WS213: unattributed engine calls (idle timeout, inherited defaults)
+        // still fail closed. Only a submitConcede-authorized synchronous call
+        // for the exact principal reaches the native PlayerImpl path.
+        if (game != null && concessionArmed.remove(getId())) {
+            super.concede(game);
+            return;
+        }
         fail("OUT_OF_SCOPE_DECISION", "concession is not part of Commander full-game conformance");
     }
 

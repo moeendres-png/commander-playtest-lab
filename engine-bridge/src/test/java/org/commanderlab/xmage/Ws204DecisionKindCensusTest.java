@@ -447,12 +447,16 @@ class Ws204DecisionKindCensusTest {
         kinds.put("trigger ordering", statusFor(observedClasses, "trigger_order"));
         kinds.put("modes", statusFor(observedClasses, "mode"));
         kinds.put("combat damage assignment",
-                "NOT_OBSERVED: no Player damage-assignment hook exists on the pinned "
-                        + "engine; XMAGE_ENGINE_CORE_REMEDIATION_REQUIRED (see WS204 report)");
+                "NOT_OBSERVED in this generic-boundary run: the WS213 pin routes "
+                        + "damage assignment through the native multi_amount seam "
+                        + "(WS206 CombatGroup validation); this census driver answers "
+                        + "zero blockers so no multi-blocker distribution frame opens");
         kinds.put("Commander movement", statusFor(observedClasses, "choose_use"));
         kinds.put("concession",
-                "NOT_OBSERVED: concession is explicitly fail-closed "
-                        + "(concede_supported=false; XMAGE_ENGINE_CORE_REMEDIATION_REQUIRED)");
+                "NOT_OBSERVED in this generic-boundary run: the WS213 pin exposes "
+                        + "CONCEDE as an authoritative LegalAction via the concede "
+                        + "offer/submit boundary (WS211 Game.canConcede); this census "
+                        + "driver never submits a concession");
         for (String kind : kindToClass.keySet()) {
             kinds.putIfAbsent(kind, "NOT_OBSERVED in this generic-boundary run");
         }
@@ -460,7 +464,7 @@ class Ws204DecisionKindCensusTest {
         JsonObject census = new JsonObject();
         census.addProperty("schema", "ws204.decision-kind-census.v1");
         census.addProperty("workstream", "WS204-XMAGE-B4D-ACTION-SUBMISSION");
-        census.addProperty("engine_commit", "cfc36f445f917f101fa2ed588770e043f53bc44c");
+        census.addProperty("engine_commit", "db134b9737e951367d65ef5806ad986319cc73ab");
         census.addProperty("seed", CENSUS_SEED);
         census.addProperty("deck", "rogshai_current.json");
         census.addProperty("operational_pod_size", 4);

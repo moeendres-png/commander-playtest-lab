@@ -16,7 +16,7 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "cfc36f445f917f101fa2ed588770e043f53bc44c"
+XMAGE_COMMIT = "db134b9737e951367d65ef5806ad986319cc73ab"
 
 
 def _deck(seat: int) -> RulesDeckInput:

@@ -31,7 +31,7 @@ permissions:
   contents: read
 
 env:
-  XMAGE_COMMIT: cfc36f445f917f101fa2ed588770e043f53bc44c
+  XMAGE_COMMIT: db134b9737e951367d65ef5806ad986319cc73ab
   PYTHONHASHSEED: "0"
   COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game

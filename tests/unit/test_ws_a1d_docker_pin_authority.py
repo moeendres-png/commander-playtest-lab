@@ -27,7 +27,8 @@ import pytest
 
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
-CANONICAL_XMAGE_PIN = "cfc36f445f917f101fa2ed588770e043f53bc44c"
+# WS213 authorized repin: WS212 production candidate (was cfc36f44).
+CANONICAL_XMAGE_PIN = "db134b9737e951367d65ef5806ad986319cc73ab"
 CANONICAL_FORGE_PIN = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _MANIFEST_REL = "config/rules_engines.json"

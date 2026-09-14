@@ -27,12 +27,18 @@ PRODUCTION_SESSION = (
 ORCHESTRATOR = WS207_ROOT / "ws207_setup.py"
 
 
-def test_production_session_stays_randomutil_only():
+def test_production_session_binds_rules_seed_natively():
+    # WS213 SUCCESSOR REVISION (supersedes the WS207 RandomUtil-only guard,
+    # which explicitly deferred this change to WS213): the production session
+    # now binds the explicit orchestration seed to the native per-game Rules
+    # RNG before start/init; RandomUtil is retired as Rules authority.
+    # Recorded in qualification/ws213 / IMPACT_ADJUDICATION; WS207 sealed
+    # evidence itself is untouched.
     text = PRODUCTION_SESSION.read_text()
-    assert "RandomUtil.setSeed" in text
-    assert "setRulesSeed" not in text
-    assert "setRequireExplicitSeed" not in text
-    assert "isRulesSeedExplicit" not in text
+    assert "setRulesSeed(seed)" in text
+    assert "setRequireExplicitSeed(true)" in text
+    assert "import mage.util.RandomUtil" not in text
+    assert "RandomUtil." not in text
 
 
 def test_setup_driver_binds_rules_seed_before_start():

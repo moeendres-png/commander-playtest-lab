@@ -11,7 +11,6 @@ import mage.game.GameOptions;
 import mage.game.events.TableEvent;
 import mage.game.mulligan.MulliganType;
 import mage.players.Player;
-import mage.util.RandomUtil;
 import mage.util.ThreadUtils;
 import mage.util.XmageThreadFactory;
 
@@ -25,10 +24,15 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * One-process/one-game full Commander session for external pilot conformance.
  *
- * <p>XMage 1.4.61 exposes a process-global RNG. This session therefore refuses
- * to host a second game and expects the Python runner to launch a fresh bridge
- * JVM per game. The supplied seed is applied before any game shuffle. JVM UUIDs
- * are deliberately not treated as seeded replay identity.</p>
+ * <p>Every credited session binds the orchestration seed to the authoritative
+ * per-game Rules RNG ({@code game.setRulesSeed(seed)} plus
+ * {@code game.setRequireExplicitSeed(true)}) immediately after game
+ * construction and before any Rules-random consumption (initial shuffle,
+ * choosing-player pick, opening hands). The legacy process-global
+ * {@code RandomUtil} seed is retired: it is not Rules-RNG authority and no
+ * non-Rules purpose for it remains in this session. The one-game-per-process
+ * discipline is retained as defense in depth. JVM UUIDs are deliberately not
+ * treated as seeded replay identity.</p>
  */
 final class XmageFullGameSession {
 
@@ -85,10 +89,6 @@ final class XmageFullGameSession {
             decks.add(deckImporter.requireDeck(deckHandle));
         }
 
-        // Pinned XMage 1.4.61 uses one static RandomUtil RNG. Per-process game
-        // isolation is therefore a correctness requirement, not an optimization.
-        RandomUtil.setSeed(seed);
-
         this.game = new CommanderFreeForAll(
                 MultiplayerAttackOption.MULTIPLE,
                 RangeOfInfluence.ALL,
@@ -96,6 +96,16 @@ final class XmageFullGameSession {
                 startingLife,
                 7
         );
+        // WS213 authoritative Rules-RNG binding (WS212 engine contract): the
+        // explicit orchestration seed replaces the per-game Rules stream and
+        // arms the fail-closed explicit-seed requirement. This lands after
+        // construction and before any Rules-random consumption: construction,
+        // deck loading and player setup consume zero Rules randomness on the
+        // pinned engine, while game.start/init performs the initial shuffle,
+        // choosing-player pick and opening hands. The legacy process-global
+        // seed call is retired here: it never was Rules-RNG authority.
+        game.setRulesSeed(seed);
+        game.setRequireExplicitSeed(true);
         game.setNumPlayers(PLAYER_COUNT);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
@@ -260,6 +270,163 @@ final class XmageFullGameSession {
         return result;
     }
 
+    /**
+     * WS213 live Rules-seed binding proof. Every field is read from the native
+     * game at payload time; nothing is cached from construction. {@code
+     * seed_supported} is true only when this proof holds for the run.
+     */
+    synchronized JsonObject rulesSeedBindingPayload() {
+        JsonObject binding = new JsonObject();
+        binding.addProperty("explicit_seed", seed);
+        binding.addProperty("rules_seed", game.getRulesSeed());
+        binding.addProperty("rules_seed_matches", game.getRulesSeed() == seed);
+        binding.addProperty("rules_seed_explicit", game.isRulesSeedExplicit());
+        binding.addProperty("require_explicit_seed", true);
+        binding.addProperty("rules_random_calls", game.getRulesRandomCalls());
+        binding.addProperty("seed_scope", "authoritative_per_game_rules_rng");
+        binding.addProperty(
+                "binding_model",
+                "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + "
+                        + "game.setRequireExplicitSeed(true) after construction, "
+                        + "before game.start/init"
+        );
+        binding.addProperty(
+                "seed_supported",
+                game.getRulesSeed() == seed && game.isRulesSeedExplicit()
+        );
+        return binding;
+    }
+
+    /**
+     * WS213 authoritative concession offer (WS211 engine contract).
+     *
+     * <p>Availability originates exclusively in {@code
+     * game.canConcede(exactPrincipal)}: true if and only if the game has not
+     * ended and the actor is a player still in this game. No Lab-side legality
+     * heuristic exists. The offer is per-principal and carries no priority,
+     * stack, step or turn-control requirement (CR 104.3a, CR 723.6).</p>
+     */
+    synchronized JsonObject concedeOfferPayload(String principalId) {
+        ensureStarted();
+        UUID principal = requireSessionPlayer(principalId);
+        boolean available = game.canConcede(principal);
+        JsonObject payload = statusPayload();
+        payload.addProperty("concede_available", available);
+        payload.addProperty("concede_actor_id", principal.toString());
+        if (available) {
+            JsonObject action = new JsonObject();
+            action.addProperty("action_id", "concede:" + principal);
+            action.addProperty("actor_id", principal.toString());
+            action.addProperty("action_type", "concede");
+            action.add("source_object_id", com.google.gson.JsonNull.INSTANCE);
+            action.add("target_ids", new JsonArray());
+            action.add("allowed_target_ids", new JsonArray());
+            action.add("modes", new JsonArray());
+            JsonObject metadata = new JsonObject();
+            metadata.addProperty("availability", "Game.canConcede(exactPrincipal)");
+            metadata.addProperty("rules_authority", "xmage");
+            action.add("metadata", metadata);
+            payload.add("concede_action", action);
+        } else {
+            payload.add("concede_action", com.google.gson.JsonNull.INSTANCE);
+        }
+        return payload;
+    }
+
+    /**
+     * WS213 authoritative concession execution (WS211 engine contract).
+     *
+     * <p>Binding order: the proposal must name the exact native session player
+     * UUID as both actor and subject (actor == subject == exact principal).
+     * A controller UUID named for a controlled player is rejected: execution
+     * always submits the named principal itself to native {@code
+     * game.concede}, so one principal can never be conceded for another.
+     * Availability is re-checked live; stale requests fail closed. Execution
+     * is native (one-shot principal-bound authorization releases the player's
+     * exact native concede path; no Lab-side outcome is synthesized).</p>
+     */
+    synchronized JsonObject submitConcede(JsonObject proposal) {
+        ensureStarted();
+        if (proposal == null) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: concede proposal is null"
+            );
+        }
+        String actor = textOrEmpty(proposal, "actor_id");
+        String subject = textOrEmpty(proposal, "player_id");
+        if (actor.isBlank() || subject.isBlank()) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: concede proposal requires actor_id and player_id"
+            );
+        }
+        if (!actor.equals(subject)) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: concede actor must be the conceding principal itself"
+            );
+        }
+        UUID principal = requireSessionPlayer(actor);
+        if (!game.canConcede(principal)) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "CONCEDE_UNAVAILABLE: Game.canConcede rejects this principal now"
+            );
+        }
+        XmageFullGamePlayer player = playerById(principal);
+        player.armConcession(principal);
+        try {
+            game.concede(principal);
+        } finally {
+            player.disarmConcession(principal);
+        }
+        JsonObject result = pendingDecisionPayload();
+        result.addProperty("conceded_actor_id", principal.toString());
+        result.addProperty("concede_available_before", true);
+        result.addProperty("concede_available_after", game.canConcede(principal));
+        return result;
+    }
+
+    private UUID requireSessionPlayer(String principalId) {
+        UUID principal;
+        try {
+            principal = UUID.fromString(principalId == null ? "" : principalId.trim());
+        } catch (IllegalArgumentException exc) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: unknown concede principal", exc
+            );
+        }
+        for (XmageFullGamePlayer player : players) {
+            if (player.getId().equals(principal)) {
+                return principal;
+            }
+        }
+        throw new XmageFullGameDecisionController.DecisionException(
+                "PILOT_RESPONSE_INVALID: unknown concede principal"
+        );
+    }
+
+    private XmageFullGamePlayer playerById(UUID principal) {
+        for (XmageFullGamePlayer player : players) {
+            if (player.getId().equals(principal)) {
+                return player;
+            }
+        }
+        throw new XmageFullGameDecisionController.DecisionException(
+                "PILOT_RESPONSE_INVALID: unknown concede principal"
+        );
+    }
+
+    private static String textOrEmpty(JsonObject proposal, String property) {
+        if (!proposal.has(property) || proposal.get(property).isJsonNull()) {
+            return "";
+        }
+        try {
+            return proposal.get(property).getAsString().trim();
+        } catch (RuntimeException exc) {
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "PILOT_RESPONSE_INVALID: " + property + " must be a string", exc
+            );
+        }
+    }
+
     JsonObject resultPayload() {
         ensureStarted();
         JsonObject payload = statusPayload();
@@ -273,6 +440,7 @@ final class XmageFullGameSession {
         payload.addProperty("decision_policy_authority", "commander_lab_external_pilot");
         payload.addProperty("seed", seed);
         payload.addProperty("seed_scope", "single_isolated_jvm_process");
+        payload.add("rules_seed_binding", rulesSeedBindingPayload());
         payload.addProperty("bit_exact_replay_validated", false);
         return payload;
     }
@@ -387,9 +555,13 @@ final class XmageFullGameSession {
             item.addProperty("won", player.hasWon());
             item.addProperty("lost", player.hasLost());
             item.addProperty("left", player.hasLeft());
+            // WS213 live authoritative availability per principal (WS211):
+            // proof, not heuristic; re-evaluated on every payload.
+            item.addProperty("can_concede", game.canConcede(player.getId()));
             outcomes.add(item);
         }
         payload.add("outcomes", outcomes);
+        payload.add("rules_seed_binding", rulesSeedBindingPayload());
         payload.addProperty("turn_number", game.getState().getTurnNum());
         return payload;
     }

@@ -47,13 +47,13 @@ Structural Simulation and Tactical Oracle have **no decision authority** in this
 ## Runtime identity
 
 - XMage engine version: `1.4.61`.
-- Pinned XMage commit: `cfc36f445f917f101fa2ed588770e043f53bc44c`.
+- Pinned XMage commit: `db134b9737e951367d65ef5806ad986319cc73ab` (WS213 consolidated repin; see `config/rules_engines.json`).
 - Engine protocol: `2.0.0` envelope.
 - Full-game decision protocol: `xmage-external-decision-protocol-1.0.0`.
 - Lane: `xmage_full_game_external_pilots`.
 - Evidence class: `technical_conformance_only`.
 
-The pinned XMage runtime exposes `mage.util.RandomUtil.setSeed(long)`. Because this RNG is process-global, the correctness contract is **one isolated JVM process per game**. A new process is launched for every run. No starting-state or scenario-state injection is used.
+The pinned XMage runtime binds every credited session's explicit orchestration seed to the authoritative per-game Rules RNG (`Game.setRulesSeed` plus `Game.setRequireExplicitSeed`) after construction and before start/init. The legacy process-global `RandomUtil` seed is retired as Rules authority. The correctness contract retains **one isolated JVM process per game** as defense in depth for credited runs. No starting-state or scenario-state injection is used.
 
 ## Decision handoff
 
