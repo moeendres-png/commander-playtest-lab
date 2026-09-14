@@ -1,0 +1,31 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9107,
+  "slot": "RQ-C3-E01",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Propaganda"
+  ],
+  "1": [
+   "Runeclaw Bear"
+  ]
+ },
+ "declare_attacker": {
+  "1": [
+   "Runeclaw Bear"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Propaganda"
+  ],
+  "1": [
+   "Runeclaw Bear"
+  ]
+ }
+}

@@ -1,0 +1,37 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9104,
+  "slot": "RQ-C3-C01",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Force of Will",
+   "Turn to Frog"
+  ],
+  "1": [
+   "Llanowar Elves"
+  ]
+ },
+ "choose_object": {
+  "0": [
+   "Turn to Frog"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Force of Will"
+  ],
+  "1": [
+   "Llanowar Elves"
+  ]
+ },
+ "target": {
+  "0": [
+   "Llanowar Elves"
+  ]
+ }
+}

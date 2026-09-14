@@ -1,0 +1,8974 @@
+[
+ {
+  "actor_seat": 0,
+  "class": "choose_object",
+  "label_ambiguous": false,
+  "offered_count": 4,
+  "offered_types": [
+   {
+    "count": 4,
+    "type": "choice"
+   }
+  ],
+  "offset": 1,
+  "selected_label": "Full Game Seat 3"
+ },
+ {
+  "actor_seat": 2,
+  "class": "mulligan",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "keep"
+   },
+   {
+    "count": 1,
+    "type": "mulligan"
+   }
+  ],
+  "offset": 2,
+  "selected_label": "Keep opening hand"
+ },
+ {
+  "actor_seat": 1,
+  "class": "mulligan",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "keep"
+   },
+   {
+    "count": 1,
+    "type": "mulligan"
+   }
+  ],
+  "offset": 3,
+  "selected_label": "Keep opening hand"
+ },
+ {
+  "actor_seat": 0,
+  "class": "mulligan",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "keep"
+   },
+   {
+    "count": 1,
+    "type": "mulligan"
+   }
+  ],
+  "offset": 4,
+  "selected_label": "Keep opening hand"
+ },
+ {
+  "actor_seat": 3,
+  "class": "mulligan",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "keep"
+   },
+   {
+    "count": 1,
+    "type": "mulligan"
+   }
+  ],
+  "offset": 5,
+  "selected_label": "Keep opening hand"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 6,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 7,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 8,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 9,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 10,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 11,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 12,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 13,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 9,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 14,
+  "selected_label": "Island \u2014 Play Island"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 15,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 16,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 17,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 18,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 19,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 20,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 21,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 22,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 23,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 24,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 25,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 26,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 27,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 28,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 29,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 30,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 31,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 32,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 33,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 34,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 35,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 36,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 37,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 38,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 39,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 40,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 41,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 42,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 43,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 44,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 45,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 46,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 9,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 47,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 48,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 49,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 50,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 51,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 52,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 53,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 54,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 55,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 56,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 57,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 58,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 59,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 60,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 61,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 62,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 63,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 64,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 65,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 66,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 67,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 68,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 69,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 70,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 71,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 72,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 73,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 74,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 75,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 76,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 77,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 78,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 79,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 9,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 80,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 81,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 82,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 83,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 84,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 85,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 86,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 87,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 88,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 89,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 90,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 91,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 92,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 93,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 94,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 95,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 96,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 97,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 98,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 99,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 100,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 101,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 102,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 103,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 104,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 105,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 106,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 107,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 108,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 1,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 109,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 110,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 111,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 112,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 9,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 113,
+  "selected_label": "Mountain \u2014 Play Mountain"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 114,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 115,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 116,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 117,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 118,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 119,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 120,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 121,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 122,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 123,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 124,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 125,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 126,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 127,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 128,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 129,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 130,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 131,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 132,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 133,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 134,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 135,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 136,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 137,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 138,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 139,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 140,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 141,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 142,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 143,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 144,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 145,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 146,
+  "selected_label": "Island \u2014 Play Island"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 147,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 148,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 149,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 150,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 151,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 152,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 153,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 154,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 155,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 156,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 157,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 158,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 159,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 160,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 161,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 162,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 163,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 164,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 165,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 166,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 167,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 168,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 169,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 170,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 171,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 172,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 173,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 174,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 175,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 176,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 177,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 178,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 179,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 180,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 181,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 182,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 183,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 184,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 185,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 186,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 187,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 188,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 189,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 190,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 191,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 192,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 193,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 194,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 195,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 196,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 197,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 198,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 199,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 200,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 201,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 202,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 203,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 204,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 205,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 206,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 207,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 208,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 209,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 210,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 211,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 212,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 213,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 214,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 215,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 216,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 217,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 218,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 219,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 220,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 221,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 222,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 223,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 224,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 225,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 226,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 227,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 228,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 229,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 230,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 231,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 232,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 233,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 234,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 235,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 236,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 237,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 238,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 239,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 240,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 241,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 242,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 243,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 244,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 245,
+  "selected_label": "Mountain \u2014 Play Mountain"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 246,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 247,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 248,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 249,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 250,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 251,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 252,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 253,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 254,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 255,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 256,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 257,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 258,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 259,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 260,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 261,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 262,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 263,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 264,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 265,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 266,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 267,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 268,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 269,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 270,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 271,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 272,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 273,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 274,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 275,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 276,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 277,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 278,
+  "selected_label": "Island \u2014 Play Island"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 279,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 280,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 281,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 282,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 283,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 284,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 285,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 286,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 287,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 288,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 289,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 290,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 291,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 292,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 293,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 294,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 295,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 296,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 297,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 298,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 299,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 300,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 301,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 302,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 303,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 304,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 305,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 306,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 307,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 308,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 309,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 310,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 311,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 312,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 313,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 314,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 315,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 316,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 317,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 318,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 319,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 320,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 321,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 322,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 323,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 324,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 325,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 326,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 327,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 328,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 329,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 330,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 331,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 332,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 333,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 334,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 335,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 336,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 337,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 338,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 339,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 340,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 341,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 342,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 343,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 344,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 345,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 346,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 347,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 348,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 349,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 350,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 351,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 352,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 353,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 354,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 355,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 356,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 357,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 358,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 359,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 360,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 361,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 362,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 363,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 364,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 365,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 366,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 367,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 368,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 369,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 370,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 371,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 372,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 373,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 374,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 375,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 376,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 377,
+  "selected_label": "Mountain \u2014 Play Mountain"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 378,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 379,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 380,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 381,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 382,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 383,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 384,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 385,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 386,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 387,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 388,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 389,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 390,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 391,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 392,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 393,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 394,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 395,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 396,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 397,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 398,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 399,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 400,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 401,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 402,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 403,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 404,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 405,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 406,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 407,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 408,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 409,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 410,
+  "selected_label": "Island \u2014 Play Island"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 411,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 412,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 413,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 414,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 415,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 416,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 417,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 418,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 419,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 420,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 421,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 422,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 423,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 424,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 425,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 426,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 427,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 428,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 429,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 430,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 431,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 432,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 433,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 434,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 435,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 436,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 437,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 438,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 439,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 440,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 441,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 442,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 443,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 444,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 445,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 446,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 447,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 448,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 449,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 450,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 451,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 452,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 453,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 454,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 455,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 456,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 457,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 458,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 459,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 460,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 461,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 462,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 463,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 464,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 465,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 466,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 467,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 468,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 469,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 470,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 471,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 472,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 473,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 474,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 475,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": true,
+  "offered_count": 10,
+  "offered_types": [
+   {
+    "count": 8,
+    "type": "activated_ability"
+   },
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 476,
+  "selected_label": "Forest \u2014 Play Forest"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 477,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 478,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 479,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 480,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 481,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 482,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 483,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 484,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 485,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 486,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 487,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 488,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 489,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 490,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 491,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 492,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 493,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 494,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 495,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 496,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 0,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 497,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 3,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 498,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 2,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 499,
+  "selected_label": "Pass priority"
+ },
+ {
+  "actor_seat": 1,
+  "class": "priority",
+  "label_ambiguous": false,
+  "offered_count": 2,
+  "offered_types": [
+   {
+    "count": 1,
+    "type": "mana_ability"
+   },
+   {
+    "count": 1,
+    "type": "pass_priority"
+   }
+  ],
+  "offset": 500,
+  "selected_label": "Pass priority"
+ },
+ {
+  "terminal_board": [
+   {
+    "ability_count": 2,
+    "controller_seat": 0,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 0,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 0,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 0,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 1,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 1,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 1,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 1,
+    "is_copy": false,
+    "name": "Forest",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 2,
+    "is_copy": false,
+    "name": "Island",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 2,
+    "is_copy": false,
+    "name": "Island",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 2,
+    "is_copy": false,
+    "name": "Island",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 2,
+    "is_copy": false,
+    "name": "Island",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 3,
+    "is_copy": false,
+    "name": "Mountain",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 3,
+    "is_copy": false,
+    "name": "Mountain",
+    "power": 0,
+    "toughness": 0
+   },
+   {
+    "ability_count": 2,
+    "controller_seat": 3,
+    "is_copy": false,
+    "name": "Mountain",
+    "power": 0,
+    "toughness": 0
+   }
+  ]
+ },
+ {
+  "terminal_seats": [
+   {
+    "graveyard": [],
+    "hand_size": 7,
+    "library_size": 88,
+    "life": 40,
+    "seat": 0
+   },
+   {
+    "graveyard": [],
+    "hand_size": 7,
+    "library_size": 88,
+    "life": 40,
+    "seat": 1
+   },
+   {
+    "graveyard": [],
+    "hand_size": 7,
+    "library_size": 88,
+    "life": 40,
+    "seat": 2
+   },
+   {
+    "graveyard": [],
+    "hand_size": 7,
+    "library_size": 89,
+    "life": 40,
+    "seat": 3
+   }
+  ]
+ }
+]

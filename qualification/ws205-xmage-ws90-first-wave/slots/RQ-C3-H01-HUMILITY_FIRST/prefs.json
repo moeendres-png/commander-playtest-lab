@@ -1,0 +1,40 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9113,
+  "slot": "RQ-C3-H01",
+  "subcase": "HUMILITY_FIRST"
+ },
+ "choice": {
+  "0": [
+   "Clone",
+   "Runeclaw Bear"
+  ],
+  "1": [
+   "Runeclaw Bear"
+  ],
+  "2": [
+   "Humility",
+   "Disenchant"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Clone"
+  ],
+  "1": [
+   "Runeclaw Bear"
+  ],
+  "2": [
+   "Humility",
+   "Disenchant"
+  ]
+ },
+ "target": {
+  "2": [
+   "Humility"
+  ]
+ }
+}

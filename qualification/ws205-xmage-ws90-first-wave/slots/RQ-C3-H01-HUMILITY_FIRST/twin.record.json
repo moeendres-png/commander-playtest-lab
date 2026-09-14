@@ -1,0 +1,9 @@
+{
+ "primary_entries": 500,
+ "semantic_replay_match": false,
+ "semantic_transcript_hash": "b64f19443c0db0a127671fd95b89e51fd1e358e35573354c0247a58912be3daa",
+ "stream_diverged": true,
+ "stream_divergence_detail": "offered label 'Clone \u2014 Cast Clone' absent at offset 411",
+ "stream_entries_followed": 410,
+ "twin_semantic_transcript_hash": "ed4abb25906be0fb027e8cab503d9a2e02b632e233b6e1d22506ae00bd504081"
+}

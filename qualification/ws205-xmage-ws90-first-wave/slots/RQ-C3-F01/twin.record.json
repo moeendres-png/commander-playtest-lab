@@ -1,0 +1,9 @@
+{
+ "primary_entries": 500,
+ "semantic_replay_match": true,
+ "semantic_transcript_hash": "cb8dfc2f0828c23489d115e3dc93d66ba334606f6e2a334fc50850498d666f02",
+ "stream_diverged": false,
+ "stream_divergence_detail": "",
+ "stream_entries_followed": 500,
+ "twin_semantic_transcript_hash": "cb8dfc2f0828c23489d115e3dc93d66ba334606f6e2a334fc50850498d666f02"
+}

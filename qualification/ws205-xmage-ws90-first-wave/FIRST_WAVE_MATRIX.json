@@ -1,0 +1,875 @@
+{
+ "schema": "ws205.first-wave-matrix.v1",
+ "slots": [
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Lightning Bolt', 'Drudge Skeletons'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Lightning Bolt', 'Drudge Skeletons'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-A03"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-A03/primary.json",
+    "slots/RQ-C3-A03/twin.json",
+    "slots/RQ-C3-A03/primary.semantic.sha256",
+    "slots/RQ-C3-A03/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "targets",
+    "mana payment",
+    "activate",
+    "mana source",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-A03",
+   "scenario_offered": {
+    "Drudge Skeletons": false,
+    "Lightning Bolt": false
+   },
+   "seed": 9101,
+   "semantic_replay_match": false,
+   "semantic_transcript_hash": "60099dbccec758b175cff258c20f26958529e3cbbe4cec292196d5f79bc40cd2",
+   "slot_id": "RQ-C3-A03",
+   "twin_semantic_transcript_hash": "0223ff99a689715bcc5788dee216e2978767337fb4063137648ac1960190c2de"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Stonecoil Serpent', 'Doubling Season', 'Hardened Scales'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Stonecoil Serpent', 'Doubling Season', 'Hardened Scales'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-A04"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-A04/primary.json",
+    "slots/RQ-C3-A04/twin.json",
+    "slots/RQ-C3-A04/primary.semantic.sha256",
+    "slots/RQ-C3-A04/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "X",
+    "mana source",
+    "mana payment",
+    "replacement ordering",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-A04",
+   "scenario_offered": {
+    "Doubling Season": false,
+    "Hardened Scales": false,
+    "Stonecoil Serpent": false
+   },
+   "seed": 9102,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "a535e92dc18e33141eb08dd72d506a7665d00877c06436eb4d67a4ec410e112f",
+   "slot_id": "RQ-C3-A04",
+   "twin_semantic_transcript_hash": "a535e92dc18e33141eb08dd72d506a7665d00877c06436eb4d67a4ec410e112f"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "Neutral state requires P0 to control 2x Soul Warden; Commander singleton construction permits 1 copy per deck, and no control-change/copy mechanism exists in this scenario. Exact neutral state unassemblable under qualified deck mechanisms.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "Neutral state requires P0 to control 2x Soul Warden; Commander singleton construction permits 1 copy per deck, and no control-change/copy mechanism exists in this scenario. Exact neutral state unassemblable under qualified deck mechanisms.",
+    "reachability_verdict": "BLOCKED",
+    "slot": "RQ-C3-B01"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-B01/primary.json",
+    "slots/RQ-C3-B01/twin.json",
+    "slots/RQ-C3-B01/primary.semantic.sha256",
+    "slots/RQ-C3-B01/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "BLOCKED",
+   "reached": "BLOCKED",
+   "required_decision_kinds": [
+    "cast",
+    "mana payment",
+    "trigger ordering",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-B01",
+   "scenario_offered": {
+    "Llanowar Elves": false,
+    "Soul Warden": false
+   },
+   "seed": 9103,
+   "semantic_replay_match": false,
+   "semantic_transcript_hash": "144452478bd281ed6157ae013fc90f2a3189a0230312e6dcfdea3d7b5a52df1a",
+   "slot_id": "RQ-C3-B01",
+   "twin_semantic_transcript_hash": "c166214e851cf705f889eb796fc05e8f03007d2198c7d3b8a207b57826bb79f5"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Force of Will', 'Turn to Frog', 'Llanowar Elves'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Force of Will', 'Turn to Frog', 'Llanowar Elves'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-C01"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-C01/primary.json",
+    "slots/RQ-C3-C01/twin.json",
+    "slots/RQ-C3-C01/primary.semantic.sha256",
+    "slots/RQ-C3-C01/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "targets",
+    "alternate cost",
+    "hidden-zone selection",
+    "mana source",
+    "mana payment",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-C01",
+   "scenario_offered": {
+    "Force of Will": false,
+    "Llanowar Elves": false,
+    "Turn to Frog": false
+   },
+   "seed": 9104,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "492047a07e8e0d94de71d82093f553ee1735ff464b4bb11b9f2deee0a7aac878",
+   "slot_id": "RQ-C3-C01",
+   "twin_semantic_transcript_hash": "492047a07e8e0d94de71d82093f553ee1735ff464b4bb11b9f2deee0a7aac878"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Fireball'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Fireball'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-C03"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-C03/primary.json",
+    "slots/RQ-C3-C03/twin.json",
+    "slots/RQ-C3-C03/primary.semantic.sha256",
+    "slots/RQ-C3-C03/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "X",
+    "targets",
+    "mana payment",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-C03",
+   "scenario_offered": {
+    "Fireball": false
+   },
+   "seed": 9105,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "965e8b9f236b1076a84f03ea96bbde62e6f04920b33a5be57ab1f3c596dc7970",
+   "slot_id": "RQ-C3-C03",
+   "twin_semantic_transcript_hash": "965e8b9f236b1076a84f03ea96bbde62e6f04920b33a5be57ab1f3c596dc7970"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Casualties of War', 'Ornithopter', 'Runeclaw Bear'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Casualties of War', 'Ornithopter', 'Runeclaw Bear'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-D06"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-D06/primary.json",
+    "slots/RQ-C3-D06/twin.json",
+    "slots/RQ-C3-D06/primary.semantic.sha256",
+    "slots/RQ-C3-D06/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "modes",
+    "targets",
+    "mana payment",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-D06",
+   "scenario_offered": {
+    "Casualties of War": false,
+    "Ornithopter": false,
+    "Runeclaw Bear": false
+   },
+   "seed": 9106,
+   "semantic_replay_match": false,
+   "semantic_transcript_hash": "16ebfe3faf80703880958564b234e01377a9782666fbe84de28f0dc692fcb41e",
+   "slot_id": "RQ-C3-D06",
+   "twin_semantic_transcript_hash": "fdc51d3ba53f3a782f815d39ad3306bb6ecbc67409a51396538dd1d8cdea1893"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "Neutral state requires P1 to control 2x Runeclaw Bear; Commander singleton construction permits 1 copy per deck. Exact neutral state unassemblable under qualified deck mechanisms.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "Neutral state requires P1 to control 2x Runeclaw Bear; Commander singleton construction permits 1 copy per deck. Exact neutral state unassemblable under qualified deck mechanisms.",
+    "reachability_verdict": "BLOCKED",
+    "slot": "RQ-C3-E01"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-E01/primary.json",
+    "slots/RQ-C3-E01/twin.json",
+    "slots/RQ-C3-E01/primary.semantic.sha256",
+    "slots/RQ-C3-E01/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "BLOCKED",
+   "reached": "BLOCKED",
+   "required_decision_kinds": [
+    "attackers",
+    "defender per attacker",
+    "mana payment",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-E01",
+   "scenario_offered": {
+    "Propaganda": false,
+    "Runeclaw Bear": false
+   },
+   "seed": 9107,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "80b99f1634e39b9a91b758b327c4c991502b55cca0201bae040f8d5b86547375",
+   "slot_id": "RQ-C3-E01",
+   "twin_semantic_transcript_hash": "80b99f1634e39b9a91b758b327c4c991502b55cca0201bae040f8d5b86547375"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "BLOCKED",
+   "blocker_class": "ENGINE_CORE_BLOCKER",
+   "blocker_detail": "Required externally controlled combat damage assignment (scripted 2/1/4 division) has no Player hook on pinned engine (WS204 XMAGE_ENGINE_CORE_REMEDIATION_REQUIRED; concede/combat-damage section). Damage resolves inside engine mechanics; Lab-side division would be a second Rules engine. Run corroboration: 500 decisions, zero attacker/blocker/damage frames (key creatures undrawn), zero damage-distribution decisions offered.",
+   "blocker_record": {
+    "behavior_verdict": "BLOCKED",
+    "blocker_class": "ENGINE_CORE_BLOCKER",
+    "blocker_detail": "Required externally controlled combat damage assignment (scripted 2/1/4 division) has no Player hook on pinned engine (WS204 XMAGE_ENGINE_CORE_REMEDIATION_REQUIRED; concede/combat-damage section). Damage resolves inside engine mechanics; Lab-side division would be a second Rules engine. Run corroboration: 500 decisions, zero attacker/blocker/damage frames (key creatures undrawn), zero damage-distribution decisions offered.",
+    "reachability_verdict": "BLOCKED",
+    "slot": "RQ-C3-E02"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "CODE_DERIVED",
+   "evidence_paths": [
+    "slots/RQ-C3-E02/primary.json",
+    "slots/RQ-C3-E02/twin.json",
+    "slots/RQ-C3-E02/primary.semantic.sha256",
+    "slots/RQ-C3-E02/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "BLOCKED",
+   "reached": "BLOCKED",
+   "required_decision_kinds": [
+    "attackers",
+    "defender per attacker",
+    "blockers",
+    "combat damage assignment",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-E02",
+   "scenario_offered": {
+    "Carnage Tyrant": false,
+    "Llanowar Elves": false,
+    "Runeclaw Bear": false
+   },
+   "seed": 9108,
+   "semantic_replay_match": false,
+   "semantic_transcript_hash": "aa12716d580a243504c5bdeff1906cc04b93d45af02adf6776bd182bfe2a5083",
+   "slot_id": "RQ-C3-E02",
+   "twin_semantic_transcript_hash": "93ffcf9dc5944f4c92569d36ba82d1499a7af74b7210bc6e6335f4ad84eb68bb"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Rampant Growth'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Rampant Growth'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-F01"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-F01/primary.json",
+    "slots/RQ-C3-F01/twin.json",
+    "slots/RQ-C3-F01/primary.semantic.sha256",
+    "slots/RQ-C3-F01/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "mana payment",
+    "search",
+    "hidden-zone selection",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-F01",
+   "scenario_offered": {
+    "Rampant Growth": false
+   },
+   "seed": 9109,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "cb8dfc2f0828c23489d115e3dc93d66ba334606f6e2a334fc50850498d666f02",
+   "slot_id": "RQ-C3-F01",
+   "twin_semantic_transcript_hash": "cb8dfc2f0828c23489d115e3dc93d66ba334606f6e2a334fc50850498d666f02"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Ghalta', 'Murder'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Ghalta', 'Murder'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-G02"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-G02/primary.json",
+    "slots/RQ-C3-G02/twin.json",
+    "slots/RQ-C3-G02/primary.semantic.sha256",
+    "slots/RQ-C3-G02/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "targets",
+    "mana payment",
+    "Commander movement",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-G02",
+   "scenario_offered": {
+    "Ghalta": false,
+    "Murder": false
+   },
+   "seed": 9110,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "f0b91ddbdf3f69064fdc09a9a08ee0515713bd7086bd44f65e5138332561bf96",
+   "slot_id": "RQ-C3-G02",
+   "twin_semantic_transcript_hash": "f0b91ddbdf3f69064fdc09a9a08ee0515713bd7086bd44f65e5138332561bf96"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "PRE_DECISION_CONSTRUCTION seeded-12 commander-damage ledger has no qualified mechanism (starting_state_injection_supported=false); native assembly of 12 commander damage plus Ghalta recast within budget not achieved (Ghalta 1-of undrawn, zero combat frames).",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "PRE_DECISION_CONSTRUCTION seeded-12 commander-damage ledger has no qualified mechanism (starting_state_injection_supported=false); native assembly of 12 commander damage plus Ghalta recast within budget not achieved (Ghalta 1-of undrawn, zero combat frames).",
+    "reachability_verdict": "BLOCKED",
+    "slot": "RQ-C3-G03"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-G03/primary.json",
+    "slots/RQ-C3-G03/twin.json",
+    "slots/RQ-C3-G03/primary.semantic.sha256",
+    "slots/RQ-C3-G03/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "BLOCKED",
+   "reached": "BLOCKED",
+   "required_decision_kinds": [
+    "attackers",
+    "defender per attacker",
+    "blockers",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-G03",
+   "scenario_offered": {
+    "Ghalta": false
+   },
+   "seed": 9111,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "8cb623c5c96dd95b4c9624d90529f1f8fdd1a64ccc63f6da5cf6a717a2c8d721",
+   "slot_id": "RQ-C3-G03",
+   "twin_semantic_transcript_hash": "8cb623c5c96dd95b4c9624d90529f1f8fdd1a64ccc63f6da5cf6a717a2c8d721"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "BLOCKED",
+   "blocker_class": "ENGINE_CORE_BLOCKER",
+   "blocker_detail": "Required external pilot concession has no blocking discretionary concede decision on pinned engine (WS204 fail-closed OUT_OF_SCOPE_DECISION; concede_supported=false; policy excludes concede). Run corroboration: 500 decisions, zero concede frames offered; concession behavior requiring external pilot concession = BLOCKED_BY_ENGINE_CORE.",
+   "blocker_record": {
+    "behavior_verdict": "BLOCKED",
+    "blocker_class": "ENGINE_CORE_BLOCKER",
+    "blocker_detail": "Required external pilot concession has no blocking discretionary concede decision on pinned engine (WS204 fail-closed OUT_OF_SCOPE_DECISION; concede_supported=false; policy excludes concede). Run corroboration: 500 decisions, zero concede frames offered; concession behavior requiring external pilot concession = BLOCKED_BY_ENGINE_CORE.",
+    "reachability_verdict": "BLOCKED",
+    "slot": "RQ-C3-G04"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "CODE_DERIVED",
+   "evidence_paths": [
+    "slots/RQ-C3-G04/primary.json",
+    "slots/RQ-C3-G04/twin.json",
+    "slots/RQ-C3-G04/primary.semantic.sha256",
+    "slots/RQ-C3-G04/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "BLOCKED",
+   "reached": "BLOCKED",
+   "required_decision_kinds": [
+    "concession",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-G04",
+   "scenario_offered": {
+    "Control Magic": false,
+    "Runeclaw Bear": false
+   },
+   "seed": 9112,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "24d3bbf965e3d4be759add93734b7550f9b4d0e174de24334eecf8d31edc7273",
+   "slot_id": "RQ-C3-G04",
+   "twin_semantic_transcript_hash": "24d3bbf965e3d4be759add93734b7550f9b4d0e174de24334eecf8d31edc7273"
+  },
+  {
+   "CLONE_FIRST": "UNKNOWN",
+   "H01_CASES": {
+    "CLONE_FIRST": {
+     "blocker_class": "SCENARIO_SETUP_BLOCKER",
+     "clone_cast_observed": false,
+     "copy_entry_choose_use": false,
+     "detail": "B-ordering not achieved: Clone and Bear never both on the battlefield within budget (1-ofs undrawn); no copy decision offered or taken; no post-Humility retention observable.",
+     "scenario_offered": {
+      "Clone": false,
+      "Disenchant": false,
+      "Humility": false,
+      "Runeclaw Bear": false
+     },
+     "seed": 9213,
+     "semantic_replay_match": true,
+     "verdict": "UNKNOWN"
+    },
+    "HUMILITY_FIRST": {
+     "blocker_class": "SCENARIO_SETUP_BLOCKER",
+     "clone_cast_observed": true,
+     "copy_entry_choose_use": true,
+     "detail": "A-ordering not achieved: Humility never reached the battlefield (1-of undrawn in 500 decisions); Bear never reached the battlefield. Clone WAS cast natively (cast=True, copy-entry choose_use=True, terminal Clone in graveyard=True) via the generic boundary with zero copy-choice frames (no creatures existed): mechanism evidence only, zero behavior credit. No A-falsifier triggered.",
+     "scenario_offered": {
+      "Clone": true,
+      "Disenchant": false,
+      "Humility": false,
+      "Runeclaw Bear": false
+     },
+     "seed": 9113,
+     "semantic_replay_match": false,
+     "verdict": "UNKNOWN"
+    },
+    "NO_HUMILITY": {
+     "blocker_class": "SCENARIO_SETUP_BLOCKER",
+     "clone_cast_observed": false,
+     "copy_entry_choose_use": false,
+     "detail": "C-ordering not achieved: Clone never drawn/cast within budget; no copy decision offered or taken.",
+     "scenario_offered": {
+      "Clone": false,
+      "Disenchant": false,
+      "Humility": false,
+      "Runeclaw Bear": false
+     },
+     "seed": 9313,
+     "semantic_replay_match": true,
+     "verdict": "UNKNOWN"
+    }
+   },
+   "HUMILITY_FIRST": "UNKNOWN",
+   "NO_HUMILITY": "UNKNOWN",
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "H01 aggregate UNKNOWN: no subcase achieved its required ordering within budget (Humility/Bear/Clone 1-ofs undrawn). Mechanism evidence (DIRECTLY_VERIFIED, zero credit): Clone cast + mana payment + copy-entry choose_use through the generic boundary in HUMILITY_FIRST construction with 0/0 SBA death and zero copy frames when no creatures exist.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "H01 aggregate UNKNOWN: no subcase achieved its required ordering within budget (Humility/Bear/Clone 1-ofs undrawn). Mechanism evidence (DIRECTLY_VERIFIED, zero credit): Clone cast + mana payment + copy-entry choose_use through the generic boundary in HUMILITY_FIRST construction with 0/0 SBA death and zero copy frames when no creatures exist.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-H01"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-H01-HUMILITY_FIRST/primary.json",
+    "slots/RQ-C3-H01-HUMILITY_FIRST/twin.json",
+    "slots/RQ-C3-H01-HUMILITY_FIRST/primary.semantic.sha256",
+    "slots/RQ-C3-H01-HUMILITY_FIRST/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "choose_use"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "copy choices",
+    "mana payment",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-H01",
+   "seed": 9113,
+   "semantic_replay_match": false,
+   "semantic_transcript_hash": "b64f19443c0db0a127671fd95b89e51fd1e358e35573354c0247a58912be3daa",
+   "slot_id": "RQ-C3-H01",
+   "twin_semantic_transcript_hash": "ed4abb25906be0fb027e8cab503d9a2e02b632e233b6e1d22506ae00bd504081"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Momentary Blink', 'Runeclaw Bear', 'Pacifism'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Momentary Blink', 'Runeclaw Bear', 'Pacifism'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-I01"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-I01/primary.json",
+    "slots/RQ-C3-I01/twin.json",
+    "slots/RQ-C3-I01/primary.semantic.sha256",
+    "slots/RQ-C3-I01/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "cast",
+    "targets",
+    "mana payment",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-I01",
+   "scenario_offered": {
+    "Momentary Blink": false,
+    "Pacifism": false,
+    "Runeclaw Bear": false
+   },
+   "seed": 9114,
+   "semantic_replay_match": false,
+   "semantic_transcript_hash": "b64689975f8527ac68ea99574103c7c489b867f5bc436bb1ccf531dc320a277f",
+   "slot_id": "RQ-C3-I01",
+   "twin_semantic_transcript_hash": "c19e9e483e376bdf47b9435d9bbda0c32a5fabb896b370242ec0c6efbf47d5c6"
+  },
+  {
+   "actual_cards": true,
+   "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+   "behavior_credit": 0,
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Delina', 'Runeclaw Bear'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "blocker_record": {
+    "behavior_verdict": "UNKNOWN",
+    "blocker_class": "SCENARIO_SETUP_BLOCKER",
+    "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Delina', 'Runeclaw Bear'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+    "reachability_verdict": "UNKNOWN",
+    "slot": "RQ-C3-J02"
+   },
+   "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+   "decision_count": 500,
+   "decision_policy_version": "ws205-pilot-v1",
+   "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+   "evidence_classification": "UNKNOWN",
+   "evidence_paths": [
+    "slots/RQ-C3-J02/primary.json",
+    "slots/RQ-C3-J02/twin.json",
+    "slots/RQ-C3-J02/primary.semantic.sha256",
+    "slots/RQ-C3-J02/twin.semantic.sha256"
+   ],
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws205",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "reachability_verdict": "UNKNOWN",
+   "reached": "UNKNOWN",
+   "required_decision_kinds": [
+    "attackers",
+    "defender per attacker",
+    "targets",
+    "pass"
+   ],
+   "scenario_id": "RQ-C3-J02",
+   "scenario_offered": {
+    "Delina": false,
+    "Runeclaw Bear": false
+   },
+   "seed": 9115,
+   "semantic_replay_match": true,
+   "semantic_transcript_hash": "6ad091bd029d321744cf18ce1d33a32e231e740ccaf992c18890860a9e83ebfa",
+   "slot_id": "RQ-C3-J02",
+   "twin_semantic_transcript_hash": "6ad091bd029d321744cf18ce1d33a32e231e740ccaf992c18890860a9e83ebfa"
+  }
+ ]
+}

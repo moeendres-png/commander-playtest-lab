@@ -1,0 +1,31 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9110,
+  "slot": "RQ-C3-G02",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Ghalta"
+  ],
+  "1": [
+   "Murder"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Ghalta"
+  ],
+  "1": [
+   "Murder"
+  ]
+ },
+ "target": {
+  "1": [
+   "Ghalta"
+  ]
+ }
+}

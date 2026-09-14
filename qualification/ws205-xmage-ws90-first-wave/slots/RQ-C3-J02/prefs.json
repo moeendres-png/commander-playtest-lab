@@ -1,0 +1,32 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9115,
+  "slot": "RQ-C3-J02",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Delina",
+   "Runeclaw Bear"
+  ]
+ },
+ "declare_attacker": {
+  "0": [
+   "Delina"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Delina",
+   "Runeclaw Bear"
+  ]
+ },
+ "target": {
+  "0": [
+   "Runeclaw Bear"
+  ]
+ }
+}

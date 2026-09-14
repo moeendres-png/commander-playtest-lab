@@ -11,7 +11,8 @@
      "count": 4
     }
    ],
-   "selected_label": "Full Game Seat 2",
+   "selected_label": "Full Game Seat 3",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -19,7 +20,7 @@
   {
    "offset": 2,
    "class": "mulligan",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -32,6 +33,7 @@
     }
    ],
    "selected_label": "Keep opening hand",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -39,7 +41,7 @@
   {
    "offset": 3,
    "class": "mulligan",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -52,6 +54,7 @@
     }
    ],
    "selected_label": "Keep opening hand",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -59,7 +62,7 @@
   {
    "offset": 4,
    "class": "mulligan",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -72,6 +75,7 @@
     }
    ],
    "selected_label": "Keep opening hand",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -79,7 +83,7 @@
   {
    "offset": 5,
    "class": "mulligan",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -92,6 +96,7 @@
     }
    ],
    "selected_label": "Keep opening hand",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -99,7 +104,7 @@
   {
    "offset": 6,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 1,
    "offered_types": [
     {
@@ -108,6 +113,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -115,7 +121,7 @@
   {
    "offset": 7,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -124,6 +130,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -131,7 +138,7 @@
   {
    "offset": 8,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -140,6 +147,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -147,7 +155,7 @@
   {
    "offset": 9,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -156,6 +164,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -163,7 +172,7 @@
   {
    "offset": 10,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 1,
    "offered_types": [
     {
@@ -172,6 +181,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -179,7 +189,7 @@
   {
    "offset": 11,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -188,6 +198,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -195,7 +206,7 @@
   {
    "offset": 12,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -204,6 +215,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -211,7 +223,7 @@
   {
    "offset": 13,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -220,6 +232,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -227,7 +240,7 @@
   {
    "offset": 14,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 9,
    "offered_types": [
     {
@@ -239,7 +252,8 @@
      "count": 8
     }
    ],
-   "selected_label": "Mountain \u2014 Play Mountain",
+   "selected_label": "Forest \u2014 Play Forest",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -247,7 +261,7 @@
   {
    "offset": 15,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -260,6 +274,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -267,7 +282,7 @@
   {
    "offset": 16,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -276,6 +291,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -283,7 +299,7 @@
   {
    "offset": 17,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -292,6 +308,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -299,7 +316,7 @@
   {
    "offset": 18,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -308,6 +325,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -315,7 +333,7 @@
   {
    "offset": 19,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -328,6 +346,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -335,7 +354,7 @@
   {
    "offset": 20,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -344,6 +363,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -351,7 +371,7 @@
   {
    "offset": 21,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -360,6 +380,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -367,7 +388,7 @@
   {
    "offset": 22,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -376,6 +397,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -383,7 +405,7 @@
   {
    "offset": 23,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -396,6 +418,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -403,7 +426,7 @@
   {
    "offset": 24,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -412,6 +435,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -419,7 +443,7 @@
   {
    "offset": 25,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -428,6 +452,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -435,7 +460,7 @@
   {
    "offset": 26,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -444,6 +469,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -451,7 +477,7 @@
   {
    "offset": 27,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -464,6 +490,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -471,7 +498,7 @@
   {
    "offset": 28,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -480,6 +507,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -487,7 +515,7 @@
   {
    "offset": 29,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -496,6 +524,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -503,7 +532,7 @@
   {
    "offset": 30,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -512,6 +541,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -519,7 +549,7 @@
   {
    "offset": 31,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -532,6 +562,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -539,7 +570,7 @@
   {
    "offset": 32,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -548,6 +579,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -555,7 +587,7 @@
   {
    "offset": 33,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -564,6 +596,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -571,7 +604,7 @@
   {
    "offset": 34,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -580,6 +613,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -587,7 +621,7 @@
   {
    "offset": 35,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -600,6 +634,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -607,7 +642,7 @@
   {
    "offset": 36,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -616,6 +651,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -623,7 +659,7 @@
   {
    "offset": 37,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -632,6 +668,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -639,7 +676,7 @@
   {
    "offset": 38,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -648,6 +685,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -655,7 +693,7 @@
   {
    "offset": 39,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -664,6 +702,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -671,7 +710,7 @@
   {
    "offset": 40,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -680,6 +719,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -687,7 +727,7 @@
   {
    "offset": 41,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -696,6 +736,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -703,7 +744,7 @@
   {
    "offset": 42,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -716,6 +757,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -723,7 +765,7 @@
   {
    "offset": 43,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 1,
    "offered_types": [
     {
@@ -732,6 +774,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -739,7 +782,7 @@
   {
    "offset": 44,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -748,6 +791,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -755,7 +799,7 @@
   {
    "offset": 45,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -764,6 +808,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -771,7 +816,7 @@
   {
    "offset": 46,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -784,6 +829,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -791,7 +837,7 @@
   {
    "offset": 47,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 9,
    "offered_types": [
     {
@@ -803,7 +849,8 @@
      "count": 8
     }
    ],
-   "selected_label": "Swamp \u2014 Play Swamp",
+   "selected_label": "Mountain \u2014 Play Mountain",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -811,7 +858,7 @@
   {
    "offset": 48,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -824,6 +871,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -831,7 +879,7 @@
   {
    "offset": 49,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -840,6 +888,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -847,7 +896,7 @@
   {
    "offset": 50,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -856,6 +905,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -863,7 +913,7 @@
   {
    "offset": 51,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -876,6 +926,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -883,7 +934,7 @@
   {
    "offset": 52,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -896,6 +947,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -903,7 +955,7 @@
   {
    "offset": 53,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -912,6 +964,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -919,7 +972,7 @@
   {
    "offset": 54,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -928,6 +981,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -935,7 +989,7 @@
   {
    "offset": 55,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -948,6 +1002,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -955,7 +1010,7 @@
   {
    "offset": 56,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -968,6 +1023,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -975,7 +1031,7 @@
   {
    "offset": 57,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -984,6 +1040,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -991,7 +1048,7 @@
   {
    "offset": 58,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1000,6 +1057,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1007,7 +1065,7 @@
   {
    "offset": 59,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1020,6 +1078,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1027,7 +1086,7 @@
   {
    "offset": 60,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1040,6 +1099,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1047,7 +1107,7 @@
   {
    "offset": 61,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1056,6 +1116,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1063,7 +1124,7 @@
   {
    "offset": 62,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1072,6 +1133,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1079,7 +1141,7 @@
   {
    "offset": 63,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1092,6 +1154,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1099,7 +1162,7 @@
   {
    "offset": 64,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1112,6 +1175,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1119,7 +1183,7 @@
   {
    "offset": 65,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1128,6 +1192,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1135,7 +1200,7 @@
   {
    "offset": 66,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1144,6 +1209,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1151,7 +1217,7 @@
   {
    "offset": 67,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1164,6 +1230,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1171,7 +1238,7 @@
   {
    "offset": 68,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1184,6 +1251,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1191,7 +1259,7 @@
   {
    "offset": 69,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1200,6 +1268,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1207,7 +1276,7 @@
   {
    "offset": 70,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1216,6 +1285,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1223,7 +1293,7 @@
   {
    "offset": 71,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1236,6 +1306,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1243,7 +1314,7 @@
   {
    "offset": 72,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1252,6 +1323,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1259,7 +1331,7 @@
   {
    "offset": 73,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1268,6 +1340,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1275,7 +1348,7 @@
   {
    "offset": 74,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1288,6 +1361,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1295,7 +1369,7 @@
   {
    "offset": 75,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1308,6 +1382,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1315,7 +1390,7 @@
   {
    "offset": 76,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1324,6 +1399,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1331,7 +1407,7 @@
   {
    "offset": 77,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1340,6 +1416,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1347,7 +1424,7 @@
   {
    "offset": 78,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1360,6 +1437,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1367,7 +1445,7 @@
   {
    "offset": 79,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1380,6 +1458,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1387,7 +1466,7 @@
   {
    "offset": 80,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 9,
    "offered_types": [
     {
@@ -1399,7 +1478,8 @@
      "count": 8
     }
    ],
-   "selected_label": "Plains \u2014 Play Plains",
+   "selected_label": "Swamp \u2014 Play Swamp",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -1407,7 +1487,7 @@
   {
    "offset": 81,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1420,6 +1500,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1427,7 +1508,7 @@
   {
    "offset": 82,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1436,6 +1517,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1443,7 +1525,7 @@
   {
    "offset": 83,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1456,6 +1538,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1463,7 +1546,7 @@
   {
    "offset": 84,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1476,6 +1559,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1483,7 +1567,7 @@
   {
    "offset": 85,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1496,6 +1580,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1503,7 +1588,7 @@
   {
    "offset": 86,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1512,6 +1597,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1519,7 +1605,7 @@
   {
    "offset": 87,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1532,6 +1618,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1539,7 +1626,7 @@
   {
    "offset": 88,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1552,6 +1639,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1559,7 +1647,7 @@
   {
    "offset": 89,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1572,6 +1660,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1579,7 +1668,7 @@
   {
    "offset": 90,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1588,6 +1677,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1595,7 +1685,7 @@
   {
    "offset": 91,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1608,6 +1698,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1615,7 +1706,7 @@
   {
    "offset": 92,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1628,6 +1719,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1635,7 +1727,7 @@
   {
    "offset": 93,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1648,6 +1740,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1655,7 +1748,7 @@
   {
    "offset": 94,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1664,6 +1757,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1671,7 +1765,7 @@
   {
    "offset": 95,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1684,6 +1778,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1691,7 +1786,7 @@
   {
    "offset": 96,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1704,6 +1799,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1711,7 +1807,7 @@
   {
    "offset": 97,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1724,6 +1820,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1731,7 +1828,7 @@
   {
    "offset": 98,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1740,6 +1837,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1747,7 +1845,7 @@
   {
    "offset": 99,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1760,6 +1858,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1767,7 +1866,7 @@
   {
    "offset": 100,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1780,6 +1879,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1787,7 +1887,7 @@
   {
    "offset": 101,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1800,6 +1900,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1807,7 +1908,7 @@
   {
    "offset": 102,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1816,6 +1917,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1823,7 +1925,7 @@
   {
    "offset": 103,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1836,6 +1938,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1843,7 +1946,7 @@
   {
    "offset": 104,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -1856,6 +1959,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1863,7 +1967,7 @@
   {
    "offset": 105,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1872,6 +1976,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1879,6 +1984,27 @@
   {
    "offset": 106,
    "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 107,
+   "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
@@ -1892,12 +2018,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 107,
+   "offset": 108,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -1912,26 +2039,7 @@
     }
    ],
    "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 108,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -1939,7 +2047,7 @@
   {
    "offset": 109,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 1,
    "offered_types": [
     {
@@ -1948,12 +2056,34 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
    "offset": 110,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 111,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -1968,12 +2098,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 111,
+   "offset": 112,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -1988,26 +2119,7 @@
     }
    ],
    "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 112,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2015,7 +2127,7 @@
   {
    "offset": 113,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 9,
    "offered_types": [
     {
@@ -2027,7 +2139,8 @@
      "count": 8
     }
    ],
-   "selected_label": "Forest \u2014 Play Forest",
+   "selected_label": "Plains \u2014 Play Plains",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -2035,7 +2148,7 @@
   {
    "offset": 114,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2048,6 +2161,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2055,7 +2169,7 @@
   {
    "offset": 115,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2068,6 +2182,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2075,7 +2190,7 @@
   {
    "offset": 116,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2088,6 +2203,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2095,7 +2211,7 @@
   {
    "offset": 117,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2108,6 +2224,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2115,7 +2232,7 @@
   {
    "offset": 118,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2128,6 +2245,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2135,7 +2253,7 @@
   {
    "offset": 119,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2148,6 +2266,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2155,7 +2274,7 @@
   {
    "offset": 120,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2168,6 +2287,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2175,7 +2295,7 @@
   {
    "offset": 121,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2188,6 +2308,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2195,7 +2316,7 @@
   {
    "offset": 122,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2208,6 +2329,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2215,7 +2337,7 @@
   {
    "offset": 123,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2228,6 +2350,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2235,7 +2358,7 @@
   {
    "offset": 124,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2248,6 +2371,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2255,7 +2379,7 @@
   {
    "offset": 125,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2268,6 +2392,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2275,7 +2400,7 @@
   {
    "offset": 126,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2288,6 +2413,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2295,7 +2421,7 @@
   {
    "offset": 127,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2308,6 +2434,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2315,7 +2442,7 @@
   {
    "offset": 128,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2328,6 +2455,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2335,7 +2463,7 @@
   {
    "offset": 129,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2348,6 +2476,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2355,7 +2484,7 @@
   {
    "offset": 130,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2368,6 +2497,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2375,7 +2505,7 @@
   {
    "offset": 131,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2388,6 +2518,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2395,7 +2526,7 @@
   {
    "offset": 132,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2408,6 +2539,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2415,7 +2547,7 @@
   {
    "offset": 133,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2428,6 +2560,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2435,7 +2568,7 @@
   {
    "offset": 134,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2448,6 +2581,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2455,7 +2589,7 @@
   {
    "offset": 135,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2468,6 +2602,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2475,7 +2610,7 @@
   {
    "offset": 136,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2488,6 +2623,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2495,7 +2631,7 @@
   {
    "offset": 137,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2508,6 +2644,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2515,7 +2652,7 @@
   {
    "offset": 138,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2528,6 +2665,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2535,7 +2673,7 @@
   {
    "offset": 139,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2548,6 +2686,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2555,7 +2694,7 @@
   {
    "offset": 140,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2568,6 +2707,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2575,7 +2715,7 @@
   {
    "offset": 141,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2588,6 +2728,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2595,7 +2736,7 @@
   {
    "offset": 142,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2608,6 +2749,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2615,7 +2757,7 @@
   {
    "offset": 143,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2628,6 +2770,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2635,7 +2778,7 @@
   {
    "offset": 144,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2648,6 +2791,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2655,7 +2799,7 @@
   {
    "offset": 145,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2668,6 +2812,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2675,7 +2820,7 @@
   {
    "offset": 146,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 10,
    "offered_types": [
     {
@@ -2683,15 +2828,16 @@
      "count": 1
     },
     {
-     "type": "activated_ability",
-     "count": 8
-    },
-    {
      "type": "mana_ability",
      "count": 1
+    },
+    {
+     "type": "activated_ability",
+     "count": 8
     }
    ],
-   "selected_label": "Mountain \u2014 Play Mountain",
+   "selected_label": "Forest \u2014 Play Forest",
+   "selected_index": 2,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -2699,7 +2845,7 @@
   {
    "offset": 147,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2712,6 +2858,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2719,7 +2866,7 @@
   {
    "offset": 148,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2732,6 +2879,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2739,7 +2887,7 @@
   {
    "offset": 149,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2752,6 +2900,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2759,7 +2908,7 @@
   {
    "offset": 150,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2772,6 +2921,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2779,7 +2929,7 @@
   {
    "offset": 151,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2792,6 +2942,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2799,7 +2950,7 @@
   {
    "offset": 152,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2812,6 +2963,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2819,7 +2971,7 @@
   {
    "offset": 153,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2832,6 +2984,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2839,7 +2992,7 @@
   {
    "offset": 154,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2852,6 +3005,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2859,7 +3013,7 @@
   {
    "offset": 155,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2872,6 +3026,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2879,7 +3034,7 @@
   {
    "offset": 156,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2892,6 +3047,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2899,7 +3055,7 @@
   {
    "offset": 157,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2912,6 +3068,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2919,7 +3076,7 @@
   {
    "offset": 158,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2932,6 +3089,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2939,7 +3097,7 @@
   {
    "offset": 159,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2952,6 +3110,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2959,7 +3118,7 @@
   {
    "offset": 160,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2972,6 +3131,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2979,7 +3139,7 @@
   {
    "offset": 161,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -2992,6 +3152,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -2999,7 +3160,7 @@
   {
    "offset": 162,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3012,6 +3173,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3019,7 +3181,7 @@
   {
    "offset": 163,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3032,6 +3194,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3039,7 +3202,7 @@
   {
    "offset": 164,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3052,6 +3215,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3059,7 +3223,7 @@
   {
    "offset": 165,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3072,6 +3236,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3079,7 +3244,7 @@
   {
    "offset": 166,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3092,6 +3257,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3099,7 +3265,7 @@
   {
    "offset": 167,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3112,6 +3278,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3119,7 +3286,7 @@
   {
    "offset": 168,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3132,6 +3299,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3139,7 +3307,7 @@
   {
    "offset": 169,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3152,6 +3320,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3159,7 +3328,7 @@
   {
    "offset": 170,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3172,6 +3341,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3179,7 +3349,7 @@
   {
    "offset": 171,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3192,6 +3362,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3199,7 +3370,7 @@
   {
    "offset": 172,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3212,6 +3383,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3219,7 +3391,7 @@
   {
    "offset": 173,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3232,6 +3404,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3239,7 +3412,7 @@
   {
    "offset": 174,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3252,6 +3425,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3259,7 +3433,7 @@
   {
    "offset": 175,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3272,6 +3446,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3279,7 +3454,7 @@
   {
    "offset": 176,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3292,6 +3467,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3299,7 +3475,7 @@
   {
    "offset": 177,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3312,6 +3488,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3319,7 +3496,7 @@
   {
    "offset": 178,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3332,6 +3509,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3339,7 +3517,7 @@
   {
    "offset": 179,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 10,
    "offered_types": [
     {
@@ -3347,15 +3525,16 @@
      "count": 1
     },
     {
-     "type": "activated_ability",
-     "count": 8
-    },
-    {
      "type": "mana_ability",
      "count": 1
+    },
+    {
+     "type": "activated_ability",
+     "count": 8
     }
    ],
-   "selected_label": "Swamp \u2014 Play Swamp",
+   "selected_label": "Mountain \u2014 Play Mountain",
+   "selected_index": 2,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -3363,7 +3542,7 @@
   {
    "offset": 180,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3376,6 +3555,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3383,7 +3563,7 @@
   {
    "offset": 181,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3396,6 +3576,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3403,7 +3584,7 @@
   {
    "offset": 182,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3416,6 +3597,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3423,7 +3605,7 @@
   {
    "offset": 183,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3436,6 +3618,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3443,7 +3626,7 @@
   {
    "offset": 184,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3456,6 +3639,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3463,7 +3647,7 @@
   {
    "offset": 185,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3476,6 +3660,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3483,7 +3668,7 @@
   {
    "offset": 186,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3496,6 +3681,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3503,7 +3689,7 @@
   {
    "offset": 187,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3516,6 +3702,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3523,7 +3710,7 @@
   {
    "offset": 188,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3536,6 +3723,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3543,7 +3731,7 @@
   {
    "offset": 189,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3556,6 +3744,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3563,7 +3752,7 @@
   {
    "offset": 190,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3576,6 +3765,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3583,7 +3773,7 @@
   {
    "offset": 191,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3596,6 +3786,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3603,7 +3794,7 @@
   {
    "offset": 192,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3616,6 +3807,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3623,7 +3815,7 @@
   {
    "offset": 193,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3636,6 +3828,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3643,7 +3836,7 @@
   {
    "offset": 194,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3656,6 +3849,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3663,7 +3857,7 @@
   {
    "offset": 195,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3676,6 +3870,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3683,7 +3878,7 @@
   {
    "offset": 196,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3696,6 +3891,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3703,7 +3899,7 @@
   {
    "offset": 197,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3716,6 +3912,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3723,7 +3920,7 @@
   {
    "offset": 198,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3736,6 +3933,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3743,7 +3941,7 @@
   {
    "offset": 199,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3756,6 +3954,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3763,7 +3962,7 @@
   {
    "offset": 200,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3776,6 +3975,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3783,7 +3983,7 @@
   {
    "offset": 201,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3796,6 +3996,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3803,7 +4004,7 @@
   {
    "offset": 202,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3816,6 +4017,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3823,7 +4025,7 @@
   {
    "offset": 203,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3836,6 +4038,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3843,7 +4046,7 @@
   {
    "offset": 204,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3856,6 +4059,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3863,7 +4067,7 @@
   {
    "offset": 205,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3876,6 +4080,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3883,7 +4088,7 @@
   {
    "offset": 206,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3896,6 +4101,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3903,7 +4109,7 @@
   {
    "offset": 207,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3916,6 +4122,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3923,7 +4130,7 @@
   {
    "offset": 208,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3936,6 +4143,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3943,7 +4151,7 @@
   {
    "offset": 209,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3956,6 +4164,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3963,7 +4172,7 @@
   {
    "offset": 210,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3976,6 +4185,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -3983,7 +4193,7 @@
   {
    "offset": 211,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -3996,6 +4206,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4003,7 +4214,7 @@
   {
    "offset": 212,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 10,
    "offered_types": [
     {
@@ -4011,15 +4222,16 @@
      "count": 1
     },
     {
-     "type": "activated_ability",
-     "count": 8
-    },
-    {
      "type": "mana_ability",
      "count": 1
+    },
+    {
+     "type": "activated_ability",
+     "count": 8
     }
    ],
-   "selected_label": "Plains \u2014 Play Plains",
+   "selected_label": "Swamp \u2014 Play Swamp",
+   "selected_index": 2,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -4027,7 +4239,7 @@
   {
    "offset": 213,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4040,6 +4252,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4047,7 +4260,7 @@
   {
    "offset": 214,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4060,6 +4273,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4067,7 +4281,7 @@
   {
    "offset": 215,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4080,6 +4294,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4087,7 +4302,7 @@
   {
    "offset": 216,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4100,6 +4315,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4107,7 +4323,7 @@
   {
    "offset": 217,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4120,6 +4336,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4127,7 +4344,7 @@
   {
    "offset": 218,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4140,6 +4357,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4147,7 +4365,7 @@
   {
    "offset": 219,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4160,6 +4378,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4167,7 +4386,7 @@
   {
    "offset": 220,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4180,6 +4399,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4187,7 +4407,7 @@
   {
    "offset": 221,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4200,6 +4420,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4207,7 +4428,7 @@
   {
    "offset": 222,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4220,6 +4441,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4227,7 +4449,7 @@
   {
    "offset": 223,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4240,6 +4462,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4247,7 +4470,7 @@
   {
    "offset": 224,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4260,6 +4483,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4267,7 +4491,7 @@
   {
    "offset": 225,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4280,6 +4504,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4287,7 +4512,7 @@
   {
    "offset": 226,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4300,6 +4525,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4307,7 +4533,7 @@
   {
    "offset": 227,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4320,6 +4546,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4327,7 +4554,7 @@
   {
    "offset": 228,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4340,6 +4567,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4347,7 +4575,7 @@
   {
    "offset": 229,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4360,6 +4588,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4367,7 +4596,7 @@
   {
    "offset": 230,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4380,6 +4609,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4387,7 +4617,7 @@
   {
    "offset": 231,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4400,6 +4630,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4407,7 +4638,7 @@
   {
    "offset": 232,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4420,6 +4651,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4427,7 +4659,7 @@
   {
    "offset": 233,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4440,6 +4672,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4447,7 +4680,7 @@
   {
    "offset": 234,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4460,6 +4693,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4467,7 +4701,7 @@
   {
    "offset": 235,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4480,6 +4714,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4487,7 +4722,7 @@
   {
    "offset": 236,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4500,6 +4735,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4507,7 +4743,7 @@
   {
    "offset": 237,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4520,6 +4756,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4527,7 +4764,7 @@
   {
    "offset": 238,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4540,6 +4777,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4547,7 +4785,7 @@
   {
    "offset": 239,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4560,6 +4798,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4567,7 +4806,7 @@
   {
    "offset": 240,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4580,6 +4819,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4587,7 +4827,7 @@
   {
    "offset": 241,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4600,6 +4840,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4607,7 +4848,7 @@
   {
    "offset": 242,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4620,6 +4861,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4627,7 +4869,7 @@
   {
    "offset": 243,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4640,6 +4882,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4647,7 +4890,7 @@
   {
    "offset": 244,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4660,6 +4903,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4667,7 +4911,7 @@
   {
    "offset": 245,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 10,
    "offered_types": [
     {
@@ -4675,15 +4919,16 @@
      "count": 1
     },
     {
-     "type": "activated_ability",
-     "count": 8
-    },
-    {
      "type": "mana_ability",
      "count": 1
+    },
+    {
+     "type": "activated_ability",
+     "count": 8
     }
    ],
-   "selected_label": "Forest \u2014 Play Forest",
+   "selected_label": "Plains \u2014 Play Plains",
+   "selected_index": 2,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -4691,7 +4936,7 @@
   {
    "offset": 246,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4704,6 +4949,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4711,7 +4957,7 @@
   {
    "offset": 247,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4724,6 +4970,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4731,7 +4978,7 @@
   {
    "offset": 248,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4744,6 +4991,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4751,7 +4999,7 @@
   {
    "offset": 249,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4764,6 +5012,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4771,7 +5020,7 @@
   {
    "offset": 250,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4784,6 +5033,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4791,7 +5041,7 @@
   {
    "offset": 251,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4804,6 +5054,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4811,7 +5062,7 @@
   {
    "offset": 252,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4824,6 +5075,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4831,7 +5083,7 @@
   {
    "offset": 253,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4844,6 +5096,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4851,7 +5104,7 @@
   {
    "offset": 254,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4864,6 +5117,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4871,7 +5125,7 @@
   {
    "offset": 255,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4884,6 +5138,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4891,7 +5146,7 @@
   {
    "offset": 256,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4904,6 +5159,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4911,7 +5167,7 @@
   {
    "offset": 257,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4924,6 +5180,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4931,7 +5188,7 @@
   {
    "offset": 258,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4944,6 +5201,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4951,7 +5209,7 @@
   {
    "offset": 259,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4964,6 +5222,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4971,7 +5230,7 @@
   {
    "offset": 260,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -4984,6 +5243,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -4991,7 +5251,7 @@
   {
    "offset": 261,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5004,6 +5264,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5011,7 +5272,7 @@
   {
    "offset": 262,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5024,6 +5285,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5031,7 +5293,7 @@
   {
    "offset": 263,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5044,6 +5306,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5051,7 +5314,7 @@
   {
    "offset": 264,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5064,6 +5327,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5071,7 +5335,7 @@
   {
    "offset": 265,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5084,6 +5348,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5091,7 +5356,7 @@
   {
    "offset": 266,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5104,6 +5369,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5111,7 +5377,7 @@
   {
    "offset": 267,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5124,6 +5390,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5131,7 +5398,7 @@
   {
    "offset": 268,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5144,6 +5411,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5151,7 +5419,7 @@
   {
    "offset": 269,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5164,6 +5432,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5171,7 +5440,7 @@
   {
    "offset": 270,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -5184,6 +5453,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -5191,6 +5461,27 @@
   {
    "offset": 271,
    "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 272,
+   "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
@@ -5204,12 +5495,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 272,
+   "offset": 273,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5224,12 +5516,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 273,
+   "offset": 274,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5244,12 +5537,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 274,
+   "offset": 275,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5264,12 +5558,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 275,
+   "offset": 276,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5284,12 +5579,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 276,
+   "offset": 277,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5304,12 +5600,38 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 277,
+   "offset": 278,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 10,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    },
+    {
+     "type": "activated_ability",
+     "count": 8
+    }
+   ],
+   "selected_label": "Forest \u2014 Play Forest",
+   "selected_index": 2,
+   "label_ambiguous": true,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 279,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5324,12 +5646,664 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 278,
+   "offset": 280,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 281,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 282,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 283,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 284,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 285,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 286,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 287,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 288,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 289,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 290,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 291,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 292,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 293,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 294,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 295,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 296,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 297,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 298,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 299,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 300,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 301,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 302,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 303,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 304,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 305,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 306,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 307,
+   "class": "priority",
+   "actor_seat": 1,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 308,
+   "class": "priority",
+   "actor_seat": 0,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 309,
+   "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 310,
+   "class": "priority",
+   "actor_seat": 2,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 311,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 10,
@@ -5348,12 +6322,13 @@
     }
    ],
    "selected_label": "Mountain \u2014 Play Mountain",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 279,
+   "offset": 312,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5368,12 +6343,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 280,
+   "offset": 313,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5388,12 +6364,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 281,
+   "offset": 314,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5408,12 +6385,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 282,
+   "offset": 315,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5428,12 +6406,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 283,
+   "offset": 316,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5448,12 +6427,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 284,
+   "offset": 317,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5468,12 +6448,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 285,
+   "offset": 318,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5488,12 +6469,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 286,
+   "offset": 319,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5508,12 +6490,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 287,
+   "offset": 320,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5528,12 +6511,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 288,
+   "offset": 321,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5548,12 +6532,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 289,
+   "offset": 322,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5568,12 +6553,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 290,
+   "offset": 323,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5588,12 +6574,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 291,
+   "offset": 324,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5608,12 +6595,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 292,
+   "offset": 325,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5628,12 +6616,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 293,
+   "offset": 326,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5648,12 +6637,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 294,
+   "offset": 327,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5668,12 +6658,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 295,
+   "offset": 328,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5688,12 +6679,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 296,
+   "offset": 329,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5708,12 +6700,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 297,
+   "offset": 330,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5728,12 +6721,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 298,
+   "offset": 331,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5748,12 +6742,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 299,
+   "offset": 332,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5768,12 +6763,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 300,
+   "offset": 333,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5788,12 +6784,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 301,
+   "offset": 334,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5808,12 +6805,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 302,
+   "offset": 335,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5828,12 +6826,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 303,
+   "offset": 336,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5848,12 +6847,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 304,
+   "offset": 337,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5868,12 +6868,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 305,
+   "offset": 338,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5888,12 +6889,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 306,
+   "offset": 339,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5908,12 +6910,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 307,
+   "offset": 340,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -5928,12 +6931,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 308,
+   "offset": 341,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -5948,12 +6952,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 309,
+   "offset": 342,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -5968,12 +6973,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 310,
+   "offset": 343,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -5988,12 +6994,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 311,
+   "offset": 344,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 10,
@@ -6012,12 +7019,13 @@
     }
    ],
    "selected_label": "Swamp \u2014 Play Swamp",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 312,
+   "offset": 345,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6032,12 +7040,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 313,
+   "offset": 346,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6052,12 +7061,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 314,
+   "offset": 347,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6072,12 +7082,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 315,
+   "offset": 348,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6092,12 +7103,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 316,
+   "offset": 349,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6112,12 +7124,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 317,
+   "offset": 350,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6132,12 +7145,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 318,
+   "offset": 351,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6152,12 +7166,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 319,
+   "offset": 352,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6172,12 +7187,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 320,
+   "offset": 353,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6192,12 +7208,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 321,
+   "offset": 354,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6212,12 +7229,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 322,
+   "offset": 355,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6232,12 +7250,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 323,
+   "offset": 356,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6252,12 +7271,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 324,
+   "offset": 357,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6272,12 +7292,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 325,
+   "offset": 358,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6292,12 +7313,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 326,
+   "offset": 359,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6312,12 +7334,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 327,
+   "offset": 360,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6332,12 +7355,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 328,
+   "offset": 361,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6352,12 +7376,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 329,
+   "offset": 362,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6372,12 +7397,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 330,
+   "offset": 363,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6392,12 +7418,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 331,
+   "offset": 364,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6412,12 +7439,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 332,
+   "offset": 365,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6432,12 +7460,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 333,
+   "offset": 366,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6452,12 +7481,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 334,
+   "offset": 367,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6472,12 +7502,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 335,
+   "offset": 368,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6492,12 +7523,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 336,
+   "offset": 369,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6512,12 +7544,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 337,
+   "offset": 370,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6532,12 +7565,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 338,
+   "offset": 371,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6552,12 +7586,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 339,
+   "offset": 372,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6572,12 +7607,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 340,
+   "offset": 373,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6592,12 +7628,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 341,
+   "offset": 374,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6612,12 +7649,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 342,
+   "offset": 375,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6632,12 +7670,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 343,
+   "offset": 376,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6652,12 +7691,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 344,
+   "offset": 377,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 10,
@@ -6676,12 +7716,13 @@
     }
    ],
    "selected_label": "Plains \u2014 Play Plains",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 345,
+   "offset": 378,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6696,12 +7737,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 346,
+   "offset": 379,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6716,12 +7758,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 347,
+   "offset": 380,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6736,12 +7779,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 348,
+   "offset": 381,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6756,12 +7800,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 349,
+   "offset": 382,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6776,12 +7821,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 350,
+   "offset": 383,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6796,12 +7842,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 351,
+   "offset": 384,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6816,12 +7863,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 352,
+   "offset": 385,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6836,12 +7884,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 353,
+   "offset": 386,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6856,12 +7905,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 354,
+   "offset": 387,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6876,12 +7926,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 355,
+   "offset": 388,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6896,12 +7947,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 356,
+   "offset": 389,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6916,12 +7968,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 357,
+   "offset": 390,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -6936,12 +7989,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 358,
+   "offset": 391,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -6956,12 +8010,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 359,
+   "offset": 392,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -6976,12 +8031,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 360,
+   "offset": 393,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -6996,12 +8052,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 361,
+   "offset": 394,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -7016,12 +8073,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 362,
+   "offset": 395,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -7036,12 +8094,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 363,
+   "offset": 396,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -7056,12 +8115,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 364,
+   "offset": 397,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -7076,12 +8136,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 365,
+   "offset": 398,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -7096,12 +8157,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 366,
+   "offset": 399,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -7116,12 +8178,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 367,
+   "offset": 400,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -7136,12 +8199,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 368,
+   "offset": 401,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -7156,12 +8220,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 369,
+   "offset": 402,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -7176,12 +8241,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 370,
+   "offset": 403,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -7196,12 +8262,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 371,
+   "offset": 404,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -7216,12 +8283,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 372,
+   "offset": 405,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -7236,12 +8304,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 373,
+   "offset": 406,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -7256,12 +8325,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 374,
+   "offset": 407,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -7276,12 +8346,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 375,
+   "offset": 408,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -7296,12 +8367,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 376,
+   "offset": 409,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -7316,12 +8388,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 377,
+   "offset": 410,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 10,
@@ -7340,670 +8413,7 @@
     }
    ],
    "selected_label": "Forest \u2014 Play Forest",
-   "label_ambiguous": true,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 378,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 379,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 380,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 381,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 382,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 383,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 384,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 385,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 386,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 387,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 388,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 389,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 390,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 391,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 392,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 393,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 394,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 395,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 396,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 397,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 398,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 399,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 400,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 401,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 402,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 403,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 404,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 405,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 406,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 407,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 408,
-   "class": "priority",
-   "actor_seat": 3,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 409,
-   "class": "priority",
-   "actor_seat": 2,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 410,
-   "class": "priority",
-   "actor_seat": 1,
-   "offered_count": 10,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "activated_ability",
-     "count": 8
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Mountain \u2014 Play Mountain",
+   "selected_index": 1,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -8011,7 +8421,7 @@
   {
    "offset": 411,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8024,6 +8434,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8031,7 +8442,7 @@
   {
    "offset": 412,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8044,6 +8455,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8051,7 +8463,7 @@
   {
    "offset": 413,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8064,6 +8476,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8071,7 +8484,7 @@
   {
    "offset": 414,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8084,6 +8497,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8091,7 +8505,7 @@
   {
    "offset": 415,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8104,6 +8518,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8111,7 +8526,7 @@
   {
    "offset": 416,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8124,6 +8539,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8131,7 +8547,7 @@
   {
    "offset": 417,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8144,6 +8560,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8151,7 +8568,7 @@
   {
    "offset": 418,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8164,6 +8581,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8171,7 +8589,7 @@
   {
    "offset": 419,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8184,6 +8602,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8191,7 +8610,7 @@
   {
    "offset": 420,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8204,6 +8623,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8211,7 +8631,7 @@
   {
    "offset": 421,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8224,6 +8644,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8231,7 +8652,7 @@
   {
    "offset": 422,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8244,6 +8665,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8251,7 +8673,7 @@
   {
    "offset": 423,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8264,6 +8686,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8271,7 +8694,7 @@
   {
    "offset": 424,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8284,6 +8707,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8291,7 +8715,7 @@
   {
    "offset": 425,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8304,6 +8728,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8311,7 +8736,7 @@
   {
    "offset": 426,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8324,6 +8749,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8331,7 +8757,7 @@
   {
    "offset": 427,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8344,6 +8770,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8351,7 +8778,7 @@
   {
    "offset": 428,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8364,6 +8791,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8371,7 +8799,7 @@
   {
    "offset": 429,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8384,6 +8812,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8391,7 +8820,7 @@
   {
    "offset": 430,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8404,6 +8833,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8411,7 +8841,7 @@
   {
    "offset": 431,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8424,6 +8854,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8431,7 +8862,7 @@
   {
    "offset": 432,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8444,6 +8875,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8451,7 +8883,7 @@
   {
    "offset": 433,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8464,6 +8896,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8471,7 +8904,7 @@
   {
    "offset": 434,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8484,6 +8917,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8491,7 +8925,7 @@
   {
    "offset": 435,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8504,6 +8938,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8511,7 +8946,7 @@
   {
    "offset": 436,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8524,6 +8959,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8531,7 +8967,7 @@
   {
    "offset": 437,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8544,6 +8980,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8551,7 +8988,7 @@
   {
    "offset": 438,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8564,6 +9001,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8571,7 +9009,7 @@
   {
    "offset": 439,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8584,6 +9022,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8591,7 +9030,7 @@
   {
    "offset": 440,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8604,6 +9043,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8611,7 +9051,7 @@
   {
    "offset": 441,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8624,6 +9064,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8631,7 +9072,7 @@
   {
    "offset": 442,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8644,6 +9085,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8651,7 +9093,7 @@
   {
    "offset": 443,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 10,
    "offered_types": [
     {
@@ -8659,15 +9101,16 @@
      "count": 1
     },
     {
-     "type": "activated_ability",
-     "count": 8
-    },
-    {
      "type": "mana_ability",
      "count": 1
+    },
+    {
+     "type": "activated_ability",
+     "count": 8
     }
    ],
-   "selected_label": "Swamp \u2014 Play Swamp",
+   "selected_label": "Mountain \u2014 Play Mountain",
+   "selected_index": 2,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -8675,7 +9118,7 @@
   {
    "offset": 444,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8688,6 +9131,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8695,7 +9139,7 @@
   {
    "offset": 445,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8708,6 +9152,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8715,7 +9160,7 @@
   {
    "offset": 446,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8728,6 +9173,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8735,7 +9181,7 @@
   {
    "offset": 447,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8748,6 +9194,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8755,7 +9202,7 @@
   {
    "offset": 448,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8768,6 +9215,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8775,7 +9223,7 @@
   {
    "offset": 449,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8788,6 +9236,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8795,7 +9244,7 @@
   {
    "offset": 450,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8808,6 +9257,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8815,7 +9265,7 @@
   {
    "offset": 451,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8828,6 +9278,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8835,7 +9286,7 @@
   {
    "offset": 452,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8848,6 +9299,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8855,7 +9307,7 @@
   {
    "offset": 453,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8868,6 +9320,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8875,7 +9328,7 @@
   {
    "offset": 454,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8888,6 +9341,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8895,7 +9349,7 @@
   {
    "offset": 455,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8908,6 +9362,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8915,7 +9370,7 @@
   {
    "offset": 456,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8928,6 +9383,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8935,7 +9391,7 @@
   {
    "offset": 457,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8948,6 +9404,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8955,7 +9412,7 @@
   {
    "offset": 458,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8968,6 +9425,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8975,7 +9433,7 @@
   {
    "offset": 459,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -8988,6 +9446,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -8995,7 +9454,7 @@
   {
    "offset": 460,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9008,6 +9467,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9015,7 +9475,7 @@
   {
    "offset": 461,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9028,6 +9488,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9035,7 +9496,7 @@
   {
    "offset": 462,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9048,6 +9509,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9055,7 +9517,7 @@
   {
    "offset": 463,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9068,6 +9530,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9075,7 +9538,7 @@
   {
    "offset": 464,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9088,6 +9551,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9095,7 +9559,7 @@
   {
    "offset": 465,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9108,6 +9572,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9115,7 +9580,7 @@
   {
    "offset": 466,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9128,6 +9593,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9135,7 +9601,7 @@
   {
    "offset": 467,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9148,6 +9614,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9155,7 +9622,7 @@
   {
    "offset": 468,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9168,6 +9635,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9175,7 +9643,7 @@
   {
    "offset": 469,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9188,6 +9656,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9195,7 +9664,7 @@
   {
    "offset": 470,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9208,6 +9677,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9215,7 +9685,7 @@
   {
    "offset": 471,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9228,6 +9698,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9235,7 +9706,7 @@
   {
    "offset": 472,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9248,6 +9719,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9255,7 +9727,7 @@
   {
    "offset": 473,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9268,6 +9740,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9275,7 +9748,7 @@
   {
    "offset": 474,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9288,6 +9761,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9295,7 +9769,7 @@
   {
    "offset": 475,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9308,6 +9782,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9315,7 +9790,7 @@
   {
    "offset": 476,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 10,
    "offered_types": [
     {
@@ -9323,15 +9798,16 @@
      "count": 1
     },
     {
-     "type": "activated_ability",
-     "count": 8
-    },
-    {
      "type": "mana_ability",
      "count": 1
+    },
+    {
+     "type": "activated_ability",
+     "count": 8
     }
    ],
-   "selected_label": "Plains \u2014 Play Plains",
+   "selected_label": "Swamp \u2014 Play Swamp",
+   "selected_index": 2,
    "label_ambiguous": true,
    "selection_basis": "neutral",
    "advanced": true
@@ -9339,7 +9815,7 @@
   {
    "offset": 477,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9352,6 +9828,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9359,7 +9836,7 @@
   {
    "offset": 478,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9372,6 +9849,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9379,7 +9857,7 @@
   {
    "offset": 479,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9392,6 +9870,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9399,7 +9878,7 @@
   {
    "offset": 480,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9412,6 +9891,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9419,7 +9899,7 @@
   {
    "offset": 481,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9432,6 +9912,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9439,7 +9920,7 @@
   {
    "offset": 482,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9452,6 +9933,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9459,7 +9941,7 @@
   {
    "offset": 483,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9472,6 +9954,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9479,7 +9962,7 @@
   {
    "offset": 484,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9492,6 +9975,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9499,7 +9983,7 @@
   {
    "offset": 485,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9512,6 +9996,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9519,7 +10004,7 @@
   {
    "offset": 486,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9532,6 +10017,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9539,7 +10025,7 @@
   {
    "offset": 487,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9552,6 +10038,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9559,7 +10046,7 @@
   {
    "offset": 488,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9572,6 +10059,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9579,7 +10067,7 @@
   {
    "offset": 489,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9592,6 +10080,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9599,7 +10088,7 @@
   {
    "offset": 490,
    "class": "priority",
-   "actor_seat": 2,
+   "actor_seat": 3,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9612,6 +10101,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9619,7 +10109,7 @@
   {
    "offset": 491,
    "class": "priority",
-   "actor_seat": 1,
+   "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9632,6 +10122,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9639,7 +10130,7 @@
   {
    "offset": 492,
    "class": "priority",
-   "actor_seat": 0,
+   "actor_seat": 1,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9652,6 +10143,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9659,7 +10151,7 @@
   {
    "offset": 493,
    "class": "priority",
-   "actor_seat": 3,
+   "actor_seat": 0,
    "offered_count": 2,
    "offered_types": [
     {
@@ -9672,6 +10164,7 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
@@ -9679,6 +10172,27 @@
   {
    "offset": 494,
    "class": "priority",
+   "actor_seat": 3,
+   "offered_count": 2,
+   "offered_types": [
+    {
+     "type": "pass_priority",
+     "count": 1
+    },
+    {
+     "type": "mana_ability",
+     "count": 1
+    }
+   ],
+   "selected_label": "Pass priority",
+   "selected_index": 0,
+   "label_ambiguous": false,
+   "selection_basis": "neutral",
+   "advanced": true
+  },
+  {
+   "offset": 495,
+   "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
    "offered_types": [
@@ -9692,12 +10206,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 495,
+   "offset": 496,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -9712,12 +10227,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 496,
+   "offset": 497,
    "class": "priority",
    "actor_seat": 0,
    "offered_count": 2,
@@ -9732,12 +10248,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 497,
+   "offset": 498,
    "class": "priority",
    "actor_seat": 3,
    "offered_count": 2,
@@ -9752,12 +10269,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 498,
+   "offset": 499,
    "class": "priority",
    "actor_seat": 2,
    "offered_count": 2,
@@ -9772,12 +10290,13 @@
     }
    ],
    "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true
   },
   {
-   "offset": 499,
+   "offset": 500,
    "class": "priority",
    "actor_seat": 1,
    "offered_count": 2,
@@ -9792,26 +10311,7 @@
     }
    ],
    "selected_label": "Pass priority",
-   "label_ambiguous": false,
-   "selection_basis": "neutral",
-   "advanced": true
-  },
-  {
-   "offset": 500,
-   "class": "priority",
-   "actor_seat": 0,
-   "offered_count": 2,
-   "offered_types": [
-    {
-     "type": "pass_priority",
-     "count": 1
-    },
-    {
-     "type": "mana_ability",
-     "count": 1
-    }
-   ],
-   "selected_label": "Pass priority",
+   "selected_index": 0,
    "label_ambiguous": false,
    "selection_basis": "neutral",
    "advanced": true

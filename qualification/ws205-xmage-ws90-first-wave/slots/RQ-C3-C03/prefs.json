@@ -1,0 +1,23 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9105,
+  "slot": "RQ-C3-C03",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Fireball"
+  ]
+ },
+ "neutral_play_land": "true",
+ "numeric": {
+  "0": 4
+ },
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Fireball"
+  ]
+ }
+}

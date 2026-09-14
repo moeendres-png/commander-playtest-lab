@@ -1,0 +1,27 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9102,
+  "slot": "RQ-C3-A04",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Stonecoil Serpent",
+   "Doubling Season",
+   "Hardened Scales"
+  ]
+ },
+ "neutral_play_land": "true",
+ "numeric": {
+  "0": 2
+ },
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Stonecoil Serpent",
+   "Doubling Season",
+   "Hardened Scales"
+  ]
+ }
+}

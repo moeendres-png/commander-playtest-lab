@@ -1,0 +1,110 @@
+{
+ "blockers": [
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Lightning Bolt', 'Drudge Skeletons'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-A03"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Stonecoil Serpent', 'Doubling Season', 'Hardened Scales'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-A04"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "Neutral state requires P0 to control 2x Soul Warden; Commander singleton construction permits 1 copy per deck, and no control-change/copy mechanism exists in this scenario. Exact neutral state unassemblable under qualified deck mechanisms.",
+   "reachability_verdict": "BLOCKED",
+   "slot": "RQ-C3-B01"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Force of Will', 'Turn to Frog', 'Llanowar Elves'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-C01"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Fireball'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-C03"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Casualties of War', 'Ornithopter', 'Runeclaw Bear'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-D06"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "Neutral state requires P1 to control 2x Runeclaw Bear; Commander singleton construction permits 1 copy per deck. Exact neutral state unassemblable under qualified deck mechanisms.",
+   "reachability_verdict": "BLOCKED",
+   "slot": "RQ-C3-E01"
+  },
+  {
+   "behavior_verdict": "BLOCKED",
+   "blocker_class": "ENGINE_CORE_BLOCKER",
+   "blocker_detail": "Required externally controlled combat damage assignment (scripted 2/1/4 division) has no Player hook on pinned engine (WS204 XMAGE_ENGINE_CORE_REMEDIATION_REQUIRED; concede/combat-damage section). Damage resolves inside engine mechanics; Lab-side division would be a second Rules engine. Run corroboration: 500 decisions, zero attacker/blocker/damage frames (key creatures undrawn), zero damage-distribution decisions offered.",
+   "reachability_verdict": "BLOCKED",
+   "slot": "RQ-C3-E02"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Rampant Growth'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-F01"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Ghalta', 'Murder'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-G02"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "PRE_DECISION_CONSTRUCTION seeded-12 commander-damage ledger has no qualified mechanism (starting_state_injection_supported=false); native assembly of 12 commander damage plus Ghalta recast within budget not achieved (Ghalta 1-of undrawn, zero combat frames).",
+   "reachability_verdict": "BLOCKED",
+   "slot": "RQ-C3-G03"
+  },
+  {
+   "behavior_verdict": "BLOCKED",
+   "blocker_class": "ENGINE_CORE_BLOCKER",
+   "blocker_detail": "Required external pilot concession has no blocking discretionary concede decision on pinned engine (WS204 fail-closed OUT_OF_SCOPE_DECISION; concede_supported=false; policy excludes concede). Run corroboration: 500 decisions, zero concede frames offered; concession behavior requiring external pilot concession = BLOCKED_BY_ENGINE_CORE.",
+   "reachability_verdict": "BLOCKED",
+   "slot": "RQ-C3-G04"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "H01 aggregate UNKNOWN: no subcase achieved its required ordering within budget (Humility/Bear/Clone 1-ofs undrawn). Mechanism evidence (DIRECTLY_VERIFIED, zero credit): Clone cast + mana payment + copy-entry choose_use through the generic boundary in HUMILITY_FIRST construction with 0/0 SBA death and zero copy frames when no creatures exist.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-H01"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Momentary Blink', 'Runeclaw Bear', 'Pacifism'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-I01"
+  },
+  {
+   "behavior_verdict": "UNKNOWN",
+   "blocker_class": "SCENARIO_SETUP_BLOCKER",
+   "blocker_detail": "500-decision native run via generic boundary answered 500 decisions (classes ['choose_object', 'mulligan', 'priority']); none of ['Delina', 'Runeclaw Bear'] was ever offered (1-ofs undrawn/unplayed within budget; no teleport mechanism exists). Required scenario callbacks never arrived; zero behavior evidence.",
+   "reachability_verdict": "UNKNOWN",
+   "slot": "RQ-C3-J02"
+  }
+ ],
+ "schema": "ws205.blockers.v1"
+}
