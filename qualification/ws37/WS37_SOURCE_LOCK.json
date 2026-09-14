@@ -1,0 +1,33 @@
+{
+  "base_ws35_head": "1d7f0d9ab21610ad03c5f3614033b7c64d8b2679",
+  "base_ws35_tree": "1403ac99e065213ee3768a9563da8ec56dede3ff",
+  "branch": "ws37/actual-card-authority-curation",
+  "fresh_main_head": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+  "fresh_main_tree": "551c0d55a171508618d2b7d29e0f49b19893f886",
+  "materialization_input_commit": "5cf4b0538b85dfd01d40107361e579d0baac0d45",
+  "post135": {
+    "card_feature_matrix_sha256": "b6e4af7cc6e782c2520ec093a1314a64725ee0ffe272bb0962c085b0928d8a6f",
+    "card_semantic_obligation_seeds_sha256": "cb43caab1d3b6df3257fa32bb7c1480d402621bafa852d22e23d3025ac5e9158",
+    "design_sha256": "55b5d77b13b1a06d6f78dd2e83b273a0166a151f83eb04bb2d2b95eda7f90048",
+    "tier_manifests_sha256": "30cd44bfbc75aa530aa7bf09d2ce5195de9cdf257b6ef82408e0bb3f293422c9"
+  },
+  "provider_behavior_used_as_authority": false,
+  "repository": "moeendres-png/commander-playtest-lab",
+  "runtime_executed": false,
+  "schema_version": "commander-lab.ws37.source-lock/1.0.0",
+  "ws31": {
+    "aggregate_authority_digest": "d8337dc0a243fddbede3e9d2cec7b3938a1007970a23dea04855149fbfc55d5e",
+    "head": "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e",
+    "prior_cr_sha256": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
+    "tree": "6b934837fe79bcfb951245371142d013c6179580"
+  },
+  "ws35": {
+    "canonical_bundle_digest": "65d4a5dc44c3729ba7c78ec06f4334a21de1b73882c69cf649e993270881c7a0",
+    "execution_variants": 335,
+    "identities": 29,
+    "obligations": 335,
+    "scenarios": 295,
+    "semantic_truth": "UNKNOWN_NOT_EXECUTED",
+    "terminal_result": "COMPLETE / FAIL_TERMINAL_NO_QUALIFIED_PROVIDER"
+  }
+}

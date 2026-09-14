@@ -1,0 +1,68 @@
+{
+  "af07_granted": false,
+  "architecture_freeze_granted": false,
+  "classification_counts": {
+    "AUTHORITY_UNRESOLVED": 0,
+    "CORRECT_AND_PROMOTE": 33,
+    "MERGE_EQUIVALENT": 4,
+    "PROMOTE_AUTHORITY_BACKED": 52,
+    "REJECT_INVALID": 11,
+    "REJECT_REDUNDANT": 2,
+    "SPLIT_AND_PROMOTE": 8
+  },
+  "final_obligation_count": 326,
+  "gates": {
+    "G37-01": {
+      "detail": "Exact 29-card identity set preserved.",
+      "status": "PASS"
+    },
+    "G37-02": {
+      "detail": "110/110 heuristic parents accounted exactly once.",
+      "status": "PASS"
+    },
+    "G37-03": {
+      "detail": "Current official Rules page/CR acquired; all 29 CR references used by the curated contract passed explicit current semantic predicates; fresh exact-29 official Gatherer authority acquired.",
+      "status": "PASS"
+    },
+    "G37-04": {
+      "detail": "No Forge/XMage behavior used as semantic authority.",
+      "status": "PASS"
+    },
+    "G37-05": {
+      "detail": "Every parent has explicit disposition and lineage.",
+      "status": "PASS"
+    },
+    "G37-06": {
+      "detail": "Every retained obligation has explicit observable semantics directly or by immutable inherited executable contract.",
+      "status": "PASS"
+    },
+    "G37-07": {
+      "detail": "Successor contract is provider-neutral.",
+      "status": "PASS"
+    },
+    "G37-08": {
+      "detail": "Material multiplayer/Commander obligations require exact 4P topology.",
+      "status": "PASS"
+    },
+    "G37-09": {
+      "detail": "326/326 retained obligations covered by 283 semantically executable successor scenarios.",
+      "status": "PASS"
+    },
+    "G37-10": {
+      "detail": "Runtime execution and runtime PASS remain zero.",
+      "status": "PASS"
+    },
+    "G37-11": {
+      "detail": "Materializer is deterministic for fixed authority acquisition inputs; CI compares two independent output directories byte-for-byte.",
+      "status": "PASS"
+    },
+    "G37-12": {
+      "detail": "Obligations reconcile 335->326; scenarios reconcile 295->283.",
+      "status": "PASS"
+    }
+  },
+  "runtime_pass": 0,
+  "schema_version": "commander-lab.ws37.validation/1.0.0",
+  "status": "PASS",
+  "successor_scenario_count": 283
+}

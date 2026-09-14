@@ -1,0 +1,3551 @@
+{
+  "heuristic_parent_count": 110,
+  "parent_row_count": 335,
+  "records": [
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:ATTACHMENTS",
+      "parent_scenario_id": "WS35-SC-220",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:ATTACHMENTS"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:DEATHTOUCH",
+      "parent_scenario_id": "WS35-SC-221",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:DEATHTOUCH"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:LIFELINK",
+      "parent_scenario_id": "WS35-SC-222",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:LIFELINK"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:NONCOMBAT_DAMAGE",
+      "parent_scenario_id": "WS35-SC-223",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:NONCOMBAT_DAMAGE"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-224",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-225",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-226",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-227",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-896a05f3a917b1d5853ac2a3"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-227",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-ba579866a06e07b12cd996e1"
+      ]
+    },
+    {
+      "card_identity": "Basilisk Collar",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8ca58574e4aff7f424d163770208b5f215339d52d1f019bcee7d2766293971e7:TARGET_CLASS:CREATURE",
+      "parent_scenario_id": "WS35-SC-228",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-3d059d5f2cc0831799052b00"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:COST_REDUCTIONS",
+      "parent_scenario_id": "WS35-SC-196",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:COST_REDUCTIONS"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-197",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-198",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:RETARGETING",
+      "parent_scenario_id": "WS35-SC-199",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:RETARGETING"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-200",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-201",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-1f60bdc52d1cdee62d8aa7ae"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-201",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a031b7f5ed6eeb44ae3841b4"
+      ]
+    },
+    {
+      "card_identity": "Bolt Bend",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:85ce904a22547e8b3611ae6cff48333f3699e770a036ea3c9d9e94b718c897ad:TARGET_CLASS:OF_TARGET_SPELL_OR_ABILITY",
+      "parent_scenario_id": "WS35-SC-202",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a352c6f87d5daffbc58ac81f"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SAGAS",
+      "parent_scenario_id": "WS35-SC-270",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SAGAS"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:BATTLEFIELD",
+      "parent_scenario_id": "WS35-SC-271",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:BATTLEFIELD"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:CARD_FACES",
+      "parent_scenario_id": "WS35-SC-272",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:CARD_FACES"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:DOUBLE_FACED_TRANSFORMING_CARDS",
+      "parent_scenario_id": "WS35-SC-273",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:DOUBLE_FACED_TRANSFORMING_CARDS"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:EVASION",
+      "parent_scenario_id": "WS35-SC-274",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:EVASION"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:EXILE",
+      "parent_scenario_id": "WS35-SC-275",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:EXILE"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:GRAVEYARD",
+      "parent_scenario_id": "WS35-SC-276",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:GRAVEYARD"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-277",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "parent_scenario_id": "WS35-SC-278",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:HIDDEN_LIBRARY_INFORMATION"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:LIBRARY",
+      "parent_scenario_id": "WS35-SC-279",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:LIBRARY"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:LINKED_OBJECTS",
+      "parent_scenario_id": "WS35-SC-280",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:LINKED_OBJECTS"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-281",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-282",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:POWER_TOUGHNESS_LAYERS",
+      "parent_scenario_id": "WS35-SC-283",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:POWER_TOUGHNESS_LAYERS"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:REVEAL",
+      "parent_scenario_id": "WS35-SC-284",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:REVEAL"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:REVEAL_BOUNDARIES",
+      "parent_scenario_id": "WS35-SC-285",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:REVEAL_BOUNDARIES"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SEARCH",
+      "parent_scenario_id": "WS35-SC-286",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SEARCH"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SHUFFLE",
+      "parent_scenario_id": "WS35-SC-287",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:SHUFFLE"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-288",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-289",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-ca28722776c8210baed0625f"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-289",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-0184b94e7ff569cff643bea6"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:TARGET_CLASS:LAND_CARD_FROM_YOUR_GRAVEYARD_ON_TOP_OF_YOUR_LIBRARY",
+      "parent_scenario_id": "WS35-SC-290",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-db4f8d1a52908a9c01c2229d"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:VARIABLE_TARGETS:ZERO_OR_MIN",
+      "parent_scenario_id": "WS35-SC-291",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-8303dd9af26e2e5cd33d5331",
+        "WS37-OBL-0722ce20de35824d6aada7be"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:VARIABLE_TARGETS:MEANINGFUL_INTERMEDIATE",
+      "parent_scenario_id": "WS35-SC-291",
+      "rejection_reason": "No target count exists strictly between zero and one, so this generated intermediate candidate has no independent semantic state.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "MERGE_EQUIVALENT",
+      "merge_target_obligation_id": "WS37-OBL-0722ce20de35824d6aada7be",
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:VARIABLE_TARGETS:MAX_LEGAL",
+      "parent_scenario_id": "WS35-SC-291",
+      "rejection_reason": null,
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:LINKED_OBJECT:DEPENDENCE",
+      "parent_scenario_id": "WS35-SC-292",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:LINKED_OBJECT:DEPENDENCE"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:MULTIFACE",
+      "parent_scenario_id": "WS35-SC-293",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:MULTIFACE"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:SAGA_TRANSFORM",
+      "parent_scenario_id": "WS35-SC-294",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:SAGA_TRANSFORM"
+      ]
+    },
+    {
+      "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:TRANSFORM",
+      "parent_scenario_id": "WS35-SC-295",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:15681b352ab6b44dbb824b8b1ff55859cfe4e1b280158541835b5fce33e68c6b:STRUCTURE:TRANSFORM"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:MODES",
+      "parent_scenario_id": "WS35-SC-229",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:MODES"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NONCOMBAT_DAMAGE",
+      "parent_scenario_id": "WS35-SC-230",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NONCOMBAT_DAMAGE"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-231",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-232",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-233",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-234",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:ZONE_CHANGE_SEMANTICS",
+      "parent_scenario_id": "WS35-SC-235",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:PATH:ZONE_CHANGE_SEMANTICS"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:MODE:1",
+      "parent_scenario_id": "WS35-SC-236",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a3281871058e8149cee8c6fe"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:MODE:2",
+      "parent_scenario_id": "WS35-SC-236",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a0a3ec698f1ba6c98b347ef4"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-237",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-ff4d3cc17d0c0ba5cdff2736"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-237",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-0ddb916cb184571a6d430b41"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-238",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-ad87788bfc6afe5db2e51e60"
+      ]
+    },
+    {
+      "card_identity": "Burn Down the House",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:8016ddeb0d4ad9b07a2824458fea6ea8535940273cc7788c063bfcecabb22d4d:CONTEXT:LKI_CONTEXT",
+      "parent_scenario_id": "WS35-SC-239",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-bb3c9e21ccc33020e18da588"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:EACH_PLAYER_EACH_OPPONENT",
+      "parent_scenario_id": "WS35-SC-179",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:EACH_PLAYER_EACH_OPPONENT"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:EVASION",
+      "parent_scenario_id": "WS35-SC-180",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:EVASION"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:MULTIPLE_OPPONENTS",
+      "parent_scenario_id": "WS35-SC-181",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:MULTIPLE_OPPONENTS"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-182",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-183",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-184",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:ZONE_CHANGE_SEMANTICS",
+      "parent_scenario_id": "WS35-SC-185",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:PATH:ZONE_CHANGE_SEMANTICS"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-186",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-5ecf743f7d4300ddb98e3f5a"
+      ]
+    },
+    {
+      "card_identity": "Butcher of Malakir",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:dceadbf5daa70b5de03651227b996467943b3f690c46aaa010762b4e7144e638:CONTEXT:LKI_CONTEXT",
+      "parent_scenario_id": "WS35-SC-187",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-236acaa21d5d273bdd5432ea"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:EXILE",
+      "parent_scenario_id": "WS35-SC-113",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:EXILE"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:GRAVEYARD",
+      "parent_scenario_id": "WS35-SC-114",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:GRAVEYARD"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-115",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:LIBRARY",
+      "parent_scenario_id": "WS35-SC-116",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:LIBRARY"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-117",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-118",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:REVEAL_BOUNDARIES",
+      "parent_scenario_id": "WS35-SC-119",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:PATH:REVEAL_BOUNDARIES"
+      ]
+    },
+    {
+      "card_identity": "Dig Through Time",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:c0ab024a0670d4b60061c9da1fc6ec4a715a6f767fd57c05d7078b2053ddace9:CONTEXT:HIDDEN_LOOK",
+      "parent_scenario_id": "WS35-SC-120",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a5a458713e735fdaa13016ab"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:PARTNER",
+      "parent_scenario_id": "WS35-SC-022",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:PARTNER"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:COST_INCREASES",
+      "parent_scenario_id": "WS35-SC-023",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:COST_INCREASES"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:EVASION",
+      "parent_scenario_id": "WS35-SC-024",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:EVASION"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:MULTIPLE_OPPONENTS",
+      "parent_scenario_id": "WS35-SC-025",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:MULTIPLE_OPPONENTS"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-026",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-027",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-028",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-029",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-bee56e509eb2d88f5112bcf6"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-029",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-8d294a281c0a8a18aaf186c6"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:TARGET_CLASS:ONE_OR_MORE_COMMANDERS",
+      "parent_scenario_id": "WS35-SC-030",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a8eb995c5f59b7f1e30cefb9"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:CONTEXT:COMMANDER_DAMAGE_CONTEXT",
+      "parent_scenario_id": "WS35-SC-031",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-0985bbfcad4b9b5ea1de7072"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:CONTEXT:COMMANDER_REPLACEMENT_CONTEXT",
+      "parent_scenario_id": "WS35-SC-032",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-3f1d545d2d480d97e07c941c",
+        "WS37-OBL-f5573698f0335ca8663dd737"
+      ]
+    },
+    {
+      "card_identity": "Esior, Wardwing Familiar",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:54310aa1138fef71be4e7413d3facb4c7bd6541c2ffc6b7894af91618a73874d:CONTEXT:COMMANDER_TAX_CONTEXT",
+      "parent_scenario_id": "WS35-SC-033",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-0fabe420a580cdbbd0fec35b"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:EXILE",
+      "parent_scenario_id": "WS35-SC-139",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:EXILE"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:GRAVEYARD",
+      "parent_scenario_id": "WS35-SC-140",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:GRAVEYARD"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-141",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "parent_scenario_id": "WS35-SC-142",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:HIDDEN_LIBRARY_INFORMATION"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:LIBRARY",
+      "parent_scenario_id": "WS35-SC-143",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:LIBRARY"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-144",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-145",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:REPLACEMENT_EFFECTS",
+      "parent_scenario_id": "WS35-SC-146",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:REPLACEMENT_EFFECTS"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:SHUFFLE",
+      "parent_scenario_id": "WS35-SC-147",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:SHUFFLE"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:VARIABLE_X_COSTS",
+      "parent_scenario_id": "WS35-SC-148",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:PATH:VARIABLE_X_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:X:ZERO_IF_LEGAL",
+      "parent_scenario_id": "WS35-SC-149",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-9ecc46d9d2a14f5ef5a315b0"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:X:MEANINGFUL_INTERMEDIATE",
+      "parent_scenario_id": "WS35-SC-149",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-5db62dd232feb178be17664b"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:X:MAX_LEGAL_UNDER_STATE",
+      "parent_scenario_id": "WS35-SC-149",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-19a0eb13e2b13d052676d21a"
+      ]
+    },
+    {
+      "card_identity": "Finale of Revelation",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:REPLACEMENT:APPLIES",
+      "parent_scenario_id": "WS35-SC-150",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:4387146fc70412c89ccd53f5f1c9223d19c3bd5eea72bbd210263371e27cf5cb:REPLACEMENT:APPLIES"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:CARD_FACES",
+      "parent_scenario_id": "WS35-SC-253",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:CARD_FACES"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:COUNTERS",
+      "parent_scenario_id": "WS35-SC-254",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:COUNTERS"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:GRAVEYARD",
+      "parent_scenario_id": "WS35-SC-255",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:GRAVEYARD"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-256",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:MULTIPLE_TARGETS",
+      "parent_scenario_id": "WS35-SC-257",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:MULTIPLE_TARGETS"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-258",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-259",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-260",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:POWER_TOUGHNESS_LAYERS",
+      "parent_scenario_id": "WS35-SC-261",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:POWER_TOUGHNESS_LAYERS"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:RECURSION",
+      "parent_scenario_id": "WS35-SC-262",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:RECURSION"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-263",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:MAY:YES",
+      "parent_scenario_id": "WS35-SC-264",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-bdb0edca8e095af449c9a3f7"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:MAY:NO",
+      "parent_scenario_id": "WS35-SC-264",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-216a20163136cf7cf565e1ee"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-265",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-9cef406540b858b0b1f03e8a"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-265",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-6cf7360a47a6bcfcd960b279"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:TARGET_CLASS:CREATURE_CARDS_FROM_YOUR_GRAVEYARD_TO_YOUR_HAND",
+      "parent_scenario_id": "WS35-SC-266",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a471665edafd3acf186c0718"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:VARIABLE_TARGETS:ZERO_OR_MIN",
+      "parent_scenario_id": "WS35-SC-267",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-d781832e448a78a4057d3804",
+        "WS37-OBL-ea4e05861ddf8f57c957f4e1"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "MERGE_EQUIVALENT",
+      "merge_target_obligation_id": "WS37-OBL-ea4e05861ddf8f57c957f4e1",
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:VARIABLE_TARGETS:MEANINGFUL_INTERMEDIATE",
+      "parent_scenario_id": "WS35-SC-267",
+      "rejection_reason": null,
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:VARIABLE_TARGETS:MAX_LEGAL",
+      "parent_scenario_id": "WS35-SC-267",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-fb68181da2cc33ae4be3b9e8"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:STRUCTURE:MULTIFACE",
+      "parent_scenario_id": "WS35-SC-268",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:STRUCTURE:MULTIFACE"
+      ]
+    },
+    {
+      "card_identity": "Find // Finality",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:149bca69baf839649936173909345b7692416cb2ce6b33c538a4c92eb116dbc8:CONTEXT:TIMESTAMP_CONTEXT",
+      "parent_scenario_id": "WS35-SC-269",
+      "rejection_reason": "Current CR timestamp rules do not create an independent card-specific outcome for this generated context; the actual reachable behavior is already governed by trigger modification, counters, or power/toughness rules.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:ALTERNATIVE_COSTS",
+      "parent_scenario_id": "WS35-SC-121",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:ALTERNATIVE_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:COPIES",
+      "parent_scenario_id": "WS35-SC-122",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:COPIES"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:MULTIPLE_TARGETS",
+      "parent_scenario_id": "WS35-SC-123",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:MULTIPLE_TARGETS"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-124",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-125",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-126",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:RETARGETING",
+      "parent_scenario_id": "WS35-SC-127",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:RETARGETING"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-128",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "MERGE_EQUIVALENT",
+      "merge_target_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:ALT_COST",
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:MAY:YES",
+      "parent_scenario_id": "WS35-SC-129",
+      "rejection_reason": null,
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "MERGE_EQUIVALENT",
+      "merge_target_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:NORMAL_COST",
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:MAY:NO",
+      "parent_scenario_id": "WS35-SC-129",
+      "rejection_reason": null,
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-130",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-7a490702df9de6a5c30e365b"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-130",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-382d8608df27860e22def6b9"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:TARGET_CLASS:INSTANT_OR_SORCERY_SPELL",
+      "parent_scenario_id": "WS35-SC-131",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-de6697fc70a6e9c16e67ad97"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:NORMAL_COST",
+      "parent_scenario_id": "WS35-SC-132",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:NORMAL_COST"
+      ]
+    },
+    {
+      "card_identity": "Flare of Duplication",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:ALT_COST",
+      "parent_scenario_id": "WS35-SC-132",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f788a98eb039f16109a4761cf634aab32556128109a274eb0975587a27b2b687:CAST:ALT_COST"
+      ]
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:NONCOMBAT_DAMAGE",
+      "parent_scenario_id": "WS35-SC-191",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:NONCOMBAT_DAMAGE"
+      ]
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-192",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-193",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:REPLACEMENT_EFFECTS",
+      "parent_scenario_id": "WS35-SC-194",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:PATH:REPLACEMENT_EFFECTS"
+      ]
+    },
+    {
+      "card_identity": "Gratuitous Violence",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:REPLACEMENT:APPLIES",
+      "parent_scenario_id": "WS35-SC-195",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:e4874802aff04f2176ebe2b19036303f39426ff62199d67dab1c22b6e8561c00:REPLACEMENT:APPLIES"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:INTERVENING_IF_CLAUSES",
+      "parent_scenario_id": "WS35-SC-058",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:INTERVENING_IF_CLAUSES"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-059",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-060",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-061",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:POWER_TOUGHNESS_LAYERS",
+      "parent_scenario_id": "WS35-SC-062",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:POWER_TOUGHNESS_LAYERS"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:TRIGGER_MULTIPLICATION_DUPLICATION",
+      "parent_scenario_id": "WS35-SC-063",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:PATH:TRIGGER_MULTIPLICATION_DUPLICATION"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:TRIGGER:INTERVENING_IF_TRUE",
+      "parent_scenario_id": "WS35-SC-064",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:TRIGGER:INTERVENING_IF_TRUE"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:TRIGGER:INTERVENING_IF_FALSE",
+      "parent_scenario_id": "WS35-SC-064",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:TRIGGER:INTERVENING_IF_FALSE"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-065",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-f5ad051aef63d7027f34f6cd"
+      ]
+    },
+    {
+      "card_identity": "Harmonic Prodigy",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:38dba58cce84af2c823c8b95261f5343e3bd315d7bfbafbbaa4b78b1c7b7bdfe:CONTEXT:TIMESTAMP_CONTEXT",
+      "parent_scenario_id": "WS35-SC-066",
+      "rejection_reason": "Current CR timestamp rules do not create an independent card-specific outcome for this generated context; the actual reachable behavior is already governed by trigger modification, counters, or power/toughness rules.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:PARTNER",
+      "parent_scenario_id": "WS35-SC-001",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:PARTNER"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:COUNTERS",
+      "parent_scenario_id": "WS35-SC-002",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:COUNTERS"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:EVASION",
+      "parent_scenario_id": "WS35-SC-003",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:EVASION"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:INTERVENING_IF_CLAUSES",
+      "parent_scenario_id": "WS35-SC-004",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:INTERVENING_IF_CLAUSES"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:MULTIPLE_OPPONENTS",
+      "parent_scenario_id": "WS35-SC-005",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:MULTIPLE_OPPONENTS"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-006",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-007",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-008",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:TRIGGER:INTERVENING_IF_TRUE",
+      "parent_scenario_id": "WS35-SC-009",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:TRIGGER:INTERVENING_IF_TRUE"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:TRIGGER:INTERVENING_IF_FALSE",
+      "parent_scenario_id": "WS35-SC-009",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:TRIGGER:INTERVENING_IF_FALSE"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-010",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-6e9f02fe4505ec73f0585281"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:CONTEXT:COMMANDER_DAMAGE_CONTEXT",
+      "parent_scenario_id": "WS35-SC-011",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-f8af828137f83d3d35cf3b8d"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:CONTEXT:COMMANDER_REPLACEMENT_CONTEXT",
+      "parent_scenario_id": "WS35-SC-012",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-8d48892d93e110b0f3897d3e",
+        "WS37-OBL-9a9a361a6ab08459dd3d0163"
+      ]
+    },
+    {
+      "card_identity": "Ishai, Ojutai Dragonspeaker",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3722dac50f8a5eba89ffc6de085de7af8dc9a458955449abb80ee0c2316f0cda:CONTEXT:COMMANDER_TAX_CONTEXT",
+      "parent_scenario_id": "WS35-SC-013",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-754ee077d7dbe4f51d93b224"
+      ]
+    },
+    {
+      "card_identity": "Jeska, Thrice Reborn",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-081",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Jeska, Thrice Reborn",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-082",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Jeska, Thrice Reborn",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:PLANESWALKERS_LOYALTY_ABILITIES",
+      "parent_scenario_id": "WS35-SC-083",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:bae969af51fd372a0096d1f95a8b3476b5325a563127490980ac3ac1ba9a33af:PATH:PLANESWALKERS_LOYALTY_ABILITIES"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:MULTIPLE_OPPONENTS",
+      "parent_scenario_id": "WS35-SC-159",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:MULTIPLE_OPPONENTS"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-160",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-161",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-162",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-163",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-164",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-f0801b2b8998f06ff2474dcc"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-164",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-aa454acb2113307bbeb2a512"
+      ]
+    },
+    {
+      "card_identity": "Kaervek the Merciless",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:a0e0946b7b1e3a69bc081dda9be741a05f2d07d2d79b87b60f7b9476db88a77c:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-165",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-d29ff9da4512cfbfe3dddc34"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:PARTNER",
+      "parent_scenario_id": "WS35-SC-034",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:PARTNER"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:COMBAT_DAMAGE_ASSIGNMENT",
+      "parent_scenario_id": "WS35-SC-035",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:COMBAT_DAMAGE_ASSIGNMENT"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:COMMANDER_DESIGNATION",
+      "parent_scenario_id": "WS35-SC-036",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:COMMANDER_DESIGNATION"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:INTERVENING_IF_CLAUSES",
+      "parent_scenario_id": "WS35-SC-037",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:INTERVENING_IF_CLAUSES"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:MULTIPLE_OPPONENTS",
+      "parent_scenario_id": "WS35-SC-038",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:MULTIPLE_OPPONENTS"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NONCOMBAT_DAMAGE",
+      "parent_scenario_id": "WS35-SC-039",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NONCOMBAT_DAMAGE"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-040",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-041",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-042",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:TRIGGER:INTERVENING_IF_TRUE",
+      "parent_scenario_id": "WS35-SC-043",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:TRIGGER:INTERVENING_IF_TRUE"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:TRIGGER:INTERVENING_IF_FALSE",
+      "parent_scenario_id": "WS35-SC-043",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:TRIGGER:INTERVENING_IF_FALSE"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-044",
+      "rejection_reason": "No independent Kediss, Emberclaw Familiar-specific simultaneous cross-controller trigger topology is required by the exact 29-card frozen scenarios; general APNAP exists but this generator context is not a reachable additional card obligation.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:CONTEXT:COMMANDER_DAMAGE_CONTEXT",
+      "parent_scenario_id": "WS35-SC-045",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-0ae758607ba4923c0eda4474"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:CONTEXT:COMMANDER_REPLACEMENT_CONTEXT",
+      "parent_scenario_id": "WS35-SC-046",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-f9b6f49f1d5cf2a386af230c",
+        "WS37-OBL-1acccccc331dbfc07ee1e62d"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:CONTEXT:COMMANDER_TAX_CONTEXT",
+      "parent_scenario_id": "WS35-SC-047",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-8b528fb395e04c490acfa084"
+      ]
+    },
+    {
+      "card_identity": "Kediss, Emberclaw Familiar",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:62fcba0d9fbc1b8565fa8c1c69bcf6ed7f21602373b0ae37010108c4c2d39dd9:CONTEXT:MULTIPLE_DEFENDERS_CONTEXT",
+      "parent_scenario_id": "WS35-SC-048",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-de80dd615632422bc042daf0"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:DISTRIBUTED_TARGETS",
+      "parent_scenario_id": "WS35-SC-084",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:DISTRIBUTED_TARGETS"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "parent_scenario_id": "WS35-SC-085",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:HIDDEN_LIBRARY_INFORMATION"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:MULTIPLE_TARGETS",
+      "parent_scenario_id": "WS35-SC-086",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:MULTIPLE_TARGETS"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:NONCOMBAT_DAMAGE",
+      "parent_scenario_id": "WS35-SC-087",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:NONCOMBAT_DAMAGE"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-088",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-089",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-090",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-091",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-d00c0632f95829635143bac7"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-091",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-caa7d8e32349b236be40d323"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:TARGET_CLASS:PERMANENTS",
+      "parent_scenario_id": "WS35-SC-092",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-443b95a4ad28efb6a1b68066",
+        "WS37-OBL-46484e1cfc298b402b64f5f1"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:VARIABLE_TARGETS:ZERO_OR_MIN",
+      "parent_scenario_id": "WS35-SC-093",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-38376e4cec72ce187a10a929",
+        "WS37-OBL-7e4e18dfefb1e25ae0e4476e"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:VARIABLE_TARGETS:MEANINGFUL_INTERMEDIATE",
+      "parent_scenario_id": "WS35-SC-093",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-82ed656a2299ed563c3ae044"
+      ]
+    },
+    {
+      "card_identity": "Magma Opus",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:adbc29f44402b17a496ee0dc688449ebadeab2a7936bef9e13867ce85a0769c6:VARIABLE_TARGETS:MAX_LEGAL",
+      "parent_scenario_id": "WS35-SC-093",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-1544ba47680ab7bdffce981f"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:BATTLEFIELD",
+      "parent_scenario_id": "WS35-SC-203",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:BATTLEFIELD"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:COUNTERS",
+      "parent_scenario_id": "WS35-SC-204",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:COUNTERS"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:GRAVEYARD",
+      "parent_scenario_id": "WS35-SC-205",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:GRAVEYARD"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-206",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-207",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-208",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:RECURSION",
+      "parent_scenario_id": "WS35-SC-209",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:RECURSION"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-210",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-211",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-6c861461faee4cc95d969066"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-211",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-9ceb899dfab2496b950a2d00"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:TARGET_CLASS:CREATURE_CARD_FROM_YOUR_GRAVEYARD_TO_THE_BATTLEFIELD",
+      "parent_scenario_id": "WS35-SC-212",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-7ebcdd094156549498368787"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:TARGET_CLASS:OF_A_SPELL_OR_ABILITY",
+      "parent_scenario_id": "WS35-SC-212",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-746697d5484539217753bd87"
+      ]
+    },
+    {
+      "card_identity": "Makeshift Mannequin",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:caddd80648c77f21ca30e5493e85f200ec71388912c2d157f895e7eccdd0274e:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-213",
+      "rejection_reason": "No independent Makeshift Mannequin-specific simultaneous cross-controller trigger topology is required by the exact 29-card frozen scenarios; general APNAP exists but this generator context is not a reachable additional card obligation.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:EACH_PLAYER_EACH_OPPONENT",
+      "parent_scenario_id": "WS35-SC-067",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:EACH_PLAYER_EACH_OPPONENT"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-068",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "parent_scenario_id": "WS35-SC-069",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:HIDDEN_LIBRARY_INFORMATION"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:LIBRARY",
+      "parent_scenario_id": "WS35-SC-070",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:LIBRARY"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:MULTIPLE_OPPONENTS",
+      "parent_scenario_id": "WS35-SC-071",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:MULTIPLE_OPPONENTS"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-072",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-073",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-074",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:PLANESWALKERS_LOYALTY_ABILITIES",
+      "parent_scenario_id": "WS35-SC-075",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:PLANESWALKERS_LOYALTY_ABILITIES"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:RANDOM_CHOICES",
+      "parent_scenario_id": "WS35-SC-076",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:RANDOM_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:REVEAL",
+      "parent_scenario_id": "WS35-SC-077",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:REVEAL"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:REVEAL_BOUNDARIES",
+      "parent_scenario_id": "WS35-SC-078",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:PATH:REVEAL_BOUNDARIES"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:MAY:YES",
+      "parent_scenario_id": "WS35-SC-079",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-87f20d0ea16c8812cb3da073"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:MAY:NO",
+      "parent_scenario_id": "WS35-SC-079",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a551144842fb2a872b7026be"
+      ]
+    },
+    {
+      "card_identity": "Narset, Parter of Veils",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:2317441650a4f83341cef2e8d6527644f3bb55f05f9d8dc49cdc2c36f4dc3bbb:CONTEXT:HIDDEN_LOOK",
+      "parent_scenario_id": "WS35-SC-080",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-902257544ce22108d6c54856"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:COMMANDER_DESIGNATION",
+      "parent_scenario_id": "WS35-SC-240",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:COMMANDER_DESIGNATION"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:LIBRARY",
+      "parent_scenario_id": "WS35-SC-241",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:LIBRARY"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:MANA_ABILITIES",
+      "parent_scenario_id": "WS35-SC-242",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:MANA_ABILITIES"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-243",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-244",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-245",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:REVEAL_BOUNDARIES",
+      "parent_scenario_id": "WS35-SC-246",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:PATH:REVEAL_BOUNDARIES"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:MAY:YES",
+      "parent_scenario_id": "WS35-SC-247",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-68d3b50bf775115a6b8eb0d8"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:MAY:NO",
+      "parent_scenario_id": "WS35-SC-247",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a5ebcc647cb292652d77fd4c"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-248",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-6764dbdfb9833efe1184aa7d"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:CONTEXT:COMMANDER_DAMAGE_CONTEXT",
+      "parent_scenario_id": "WS35-SC-249",
+      "rejection_reason": "Path of Ancestry is a land, not a commander; commander combat-damage tracking cannot attach to this card identity.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:CONTEXT:COMMANDER_REPLACEMENT_CONTEXT",
+      "parent_scenario_id": "WS35-SC-250",
+      "rejection_reason": "Path of Ancestry is a land, not a commander; CR 903.9 commander-zone movement does not attach to this card identity.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:CONTEXT:COMMANDER_TAX_CONTEXT",
+      "parent_scenario_id": "WS35-SC-251",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-eb161a8532778ac9babf95fe"
+      ]
+    },
+    {
+      "card_identity": "Path of Ancestry",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b08ec7828697a90d743262685a7cf33e1047fe63400451158be0e6812508733f:CONTEXT:HIDDEN_LOOK",
+      "parent_scenario_id": "WS35-SC-252",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-2dc5359677a9e5d62262c81f"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:EACH_PLAYER_EACH_OPPONENT",
+      "parent_scenario_id": "WS35-SC-151",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:EACH_PLAYER_EACH_OPPONENT"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-152",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "parent_scenario_id": "WS35-SC-153",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:HIDDEN_LIBRARY_INFORMATION"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:MULTIPLE_OPPONENTS",
+      "parent_scenario_id": "WS35-SC-154",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:MULTIPLE_OPPONENTS"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-155",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-156",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-157",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Psychosis Crawler",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:587b0c6082a076c730a7d0adf2eda20988533db22f919538fcfdb61b673eba39:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-158",
+      "rejection_reason": "No independent Psychosis Crawler-specific simultaneous cross-controller trigger topology is required by the exact 29-card frozen scenarios; general APNAP exists but this generator context is not a reachable additional card obligation.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:PARTNER",
+      "parent_scenario_id": "WS35-SC-014",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:PARTNER"
+      ]
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:EVASION",
+      "parent_scenario_id": "WS35-SC-015",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:EVASION"
+      ]
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:FIRST_STRIKE",
+      "parent_scenario_id": "WS35-SC-016",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:FIRST_STRIKE"
+      ]
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-017",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-018",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:CONTEXT:COMMANDER_DAMAGE_CONTEXT",
+      "parent_scenario_id": "WS35-SC-019",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-0b53b9e879434c58189ee1d1"
+      ]
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "SPLIT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:CONTEXT:COMMANDER_REPLACEMENT_CONTEXT",
+      "parent_scenario_id": "WS35-SC-020",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-97a30f0f43826cf7c1fbee72",
+        "WS37-OBL-802268a068d1e8c0d2b5ee26"
+      ]
+    },
+    {
+      "card_identity": "Rograkh, Son of Rohgahh",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:19d5b04df94e732b3130646763e19838f71bbb7e0b44a6a167767ec30125cf1c:CONTEXT:COMMANDER_TAX_CONTEXT",
+      "parent_scenario_id": "WS35-SC-021",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-bd76cecb667b073cf1f7dbd0"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:BLOCKERS",
+      "parent_scenario_id": "WS35-SC-166",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:BLOCKERS"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:EVASION",
+      "parent_scenario_id": "WS35-SC-167",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:EVASION"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:INTERVENING_IF_CLAUSES",
+      "parent_scenario_id": "WS35-SC-168",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:INTERVENING_IF_CLAUSES"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-169",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-170",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-171",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-172",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-173",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:MAY:YES",
+      "parent_scenario_id": "WS35-SC-174",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-33bffe4ade81d44da8690c49"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:MAY:NO",
+      "parent_scenario_id": "WS35-SC-174",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-c9f7f6dacc6bd6e4fb2e9c2c"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-175",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-832f707fb5f3033c703a8652"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-175",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-a46023fbf7a3d4cb852150df"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TARGET_CLASS:NONARTIFACT",
+      "parent_scenario_id": "WS35-SC-176",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-b50dd862a99a16cc82947dab"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TRIGGER:INTERVENING_IF_TRUE",
+      "parent_scenario_id": "WS35-SC-177",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TRIGGER:INTERVENING_IF_TRUE"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TRIGGER:INTERVENING_IF_FALSE",
+      "parent_scenario_id": "WS35-SC-177",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:TRIGGER:INTERVENING_IF_FALSE"
+      ]
+    },
+    {
+      "card_identity": "Shriekmaw",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:3ba7c9dace41fb6bfbff106fdd1dbdda2e7380c6473e986bfde919c3976bcf7d:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-178",
+      "rejection_reason": "No independent Shriekmaw-specific simultaneous cross-controller trigger topology is required by the exact 29-card frozen scenarios; general APNAP exists but this generator context is not a reachable additional card obligation.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Syphon Mind",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:HIDDEN_LIBRARY_INFORMATION",
+      "parent_scenario_id": "WS35-SC-188",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:HIDDEN_LIBRARY_INFORMATION"
+      ]
+    },
+    {
+      "card_identity": "Syphon Mind",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-189",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Syphon Mind",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-190",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:b736651aebd12be78b861ba49938539cfdbab0f3df5419a673f4ac62507ef4c6:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-133",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-134",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-135",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:MAY:YES",
+      "parent_scenario_id": "WS35-SC-136",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-9aa88eef7bb0592a971eae98"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:MAY:NO",
+      "parent_scenario_id": "WS35-SC-136",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-aa4775a24d110f6f2e679634"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-137",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-79bf70403d0065fc88639749"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-137",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-1e1c699ec91035a5f6f62f53"
+      ]
+    },
+    {
+      "card_identity": "Vandalblast",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:f8b2fe89a13d4790d13aded7df4720a30b99f62625f50d9c6f8836d0917abcf4:TARGET_CLASS:ARTIFACT",
+      "parent_scenario_id": "WS35-SC-138",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-e0100e769e4782ac225ec47f"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:INTERVENING_IF_CLAUSES",
+      "parent_scenario_id": "WS35-SC-049",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:INTERVENING_IF_CLAUSES"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-050",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-051",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-052",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:POWER_TOUGHNESS_LAYERS",
+      "parent_scenario_id": "WS35-SC-053",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:POWER_TOUGHNESS_LAYERS"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:TRIGGER_MULTIPLICATION_DUPLICATION",
+      "parent_scenario_id": "WS35-SC-054",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:PATH:TRIGGER_MULTIPLICATION_DUPLICATION"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:TRIGGER:INTERVENING_IF_TRUE",
+      "parent_scenario_id": "WS35-SC-055",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:TRIGGER:INTERVENING_IF_TRUE"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:TRIGGER:INTERVENING_IF_FALSE",
+      "parent_scenario_id": "WS35-SC-055",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:TRIGGER:INTERVENING_IF_FALSE"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-056",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-ec8e5a013e76957e25f3e0c9"
+      ]
+    },
+    {
+      "card_identity": "Veyran, Voice of Duality",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:fa4f9c09f1bdea39884541ec01a8a8c865d1b56b3dfdb2f2b69e8f0af76090c9:CONTEXT:TIMESTAMP_CONTEXT",
+      "parent_scenario_id": "WS35-SC-057",
+      "rejection_reason": "Current CR timestamp rules do not create an independent card-specific outcome for this generated context; the actual reachable behavior is already governed by trigger modification, counters, or power/toughness rules.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-214",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:NORMAL_TRIGGERS",
+      "parent_scenario_id": "WS35-SC-215",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:NORMAL_TRIGGERS"
+      ]
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-216",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-217",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-218",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-91641a95a24e33e20c585019"
+      ]
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-218",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-3f878088821851e599e8b890"
+      ]
+    },
+    {
+      "card_identity": "Warstorm Surge",
+      "disposition": "REJECT_INVALID",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:5b70a1747579a98b9dd41329974b8764de558df27ba5712cd7c95ce0486c8d37:CONTEXT:APNAP_TRIGGER_CONTEXT",
+      "parent_scenario_id": "WS35-SC-219",
+      "rejection_reason": "No independent Warstorm Surge-specific simultaneous cross-controller trigger topology is required by the exact 29-card frozen scenarios; general APNAP exists but this generator context is not a reachable additional card obligation.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-094",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-095",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-096",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-097",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:MAY:YES",
+      "parent_scenario_id": "WS35-SC-098",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-e8d2ce36df7b03277594fd58"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:MAY:NO",
+      "parent_scenario_id": "WS35-SC-098",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-c4219a02adccc97b8ff1570e"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-099",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-e64c87628710775475858e31"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-099",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-f1e26bdfd06f4d297ff32737"
+      ]
+    },
+    {
+      "card_identity": "Wash Away",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:1779f66204a0d54b3fb4974996c3e38f9b8eff4d2377cb050bbdd455abf81569:TARGET_CLASS:SPELL",
+      "parent_scenario_id": "WS35-SC-100",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-04c718dc317ab8ce5814bb19"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:CARD_FACES",
+      "parent_scenario_id": "WS35-SC-101",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:CARD_FACES"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:HAND",
+      "parent_scenario_id": "WS35-SC-102",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:HAND"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:NORMAL_COSTS",
+      "parent_scenario_id": "WS35-SC-103",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:NORMAL_COSTS"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OBJECT_IDENTITY",
+      "parent_scenario_id": "WS35-SC-104",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OBJECT_IDENTITY"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OPTIONAL_MAY_CHOICES",
+      "parent_scenario_id": "WS35-SC-105",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OPTIONAL_MAY_CHOICES"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OTHER_SPECIAL_FORMS_REACHABLE_IN_THE_ACTUAL_CARD_UNIVERSE",
+      "parent_scenario_id": "WS35-SC-106",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:OTHER_SPECIAL_FORMS_REACHABLE_IN_THE_ACTUAL_CARD_UNIVERSE"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:TARGET_LEGALITY",
+      "parent_scenario_id": "WS35-SC-107",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:PATH:TARGET_LEGALITY"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "REJECT_REDUNDANT",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:MAY:YES",
+      "parent_scenario_id": "WS35-SC-108",
+      "rejection_reason": "The binary MAY candidate adds no independent observable rule beyond the existing authority-backed structure/optional-choice obligations for this card.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "REJECT_REDUNDANT",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:MAY:NO",
+      "parent_scenario_id": "WS35-SC-108",
+      "rejection_reason": "The binary MAY candidate adds no independent observable rule beyond the existing authority-backed structure/optional-choice obligations for this card.",
+      "successor_obligation_ids": []
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:TARGET:LEGAL_SELECTION",
+      "parent_scenario_id": "WS35-SC-109",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-5e8ed2eb18604e89370eb806"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "CORRECT_AND_PROMOTE",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:TARGET:RECHECK_ON_RESOLUTION",
+      "parent_scenario_id": "WS35-SC-109",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-c4897bc4183bda115f2ffde0"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:TARGET_CLASS:ARTIFACT",
+      "parent_scenario_id": "WS35-SC-110",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-b338a527d7269dc89d4168f5"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "PROMOTE_AUTHORITY_BACKED",
+      "merge_target_obligation_id": null,
+      "parent_classification": "HEURISTIC_CANDIDATE_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:TARGET_CLASS:ENCHANTMENT",
+      "parent_scenario_id": "WS35-SC-110",
+      "rejection_reason": null,
+      "successor_obligation_ids": [
+        "WS37-OBL-f4e79ec9d2bb4fec37e856f2"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:STRUCTURE:FUSE",
+      "parent_scenario_id": "WS35-SC-111",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:STRUCTURE:FUSE"
+      ]
+    },
+    {
+      "card_identity": "Wear // Tear",
+      "disposition": "INHERITED_AUTHORITY_BACKED_UNCHANGED",
+      "parent_classification": "AUTHORITY_DERIVED_OBLIGATION",
+      "parent_obligation_id": "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:STRUCTURE:MULTIFACE",
+      "parent_scenario_id": "WS35-SC-112",
+      "successor_obligation_ids": [
+        "CARD:mtg:oracle-semantic:d6227637562d00af90b39519cd94614d001693252a3e029f2fec1f51ba18dfd1:STRUCTURE:MULTIFACE"
+      ]
+    }
+  ],
+  "schema_version": "commander-lab.ws37.obligation-lineage/1.0.0"
+}
