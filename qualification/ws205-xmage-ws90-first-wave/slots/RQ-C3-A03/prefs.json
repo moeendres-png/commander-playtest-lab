@@ -1,0 +1,33 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws205-pilot-v1",
+  "seed": 9101,
+  "slot": "RQ-C3-A03",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Regenerate",
+   "Drudge Skeletons"
+  ],
+  "1": [
+   "Lightning Bolt"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Regenerate",
+   "Drudge Skeletons"
+  ],
+  "1": [
+   "Lightning Bolt"
+  ]
+ },
+ "target": {
+  "1": [
+   "Drudge Skeletons"
+  ]
+ }
+}
