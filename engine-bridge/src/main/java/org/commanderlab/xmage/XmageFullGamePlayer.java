@@ -428,11 +428,50 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean choose(Outcome outcome, Choice choice, Game game) {
+        // WS92-D4 key-mode Choice projection (systemic reacquisition).
+        // Alternative-cost and modal menus carry items in keyChoices while the
+        // plain choice set stays empty; projecting zero options would silently
+        // cancel the cast. Project key -> engine text and record the pick by
+        // key. The engine alone supplies the eligible set; the adapter never
+        // computes legality.
+        if (choice.isKeyChoice() && !choice.getKeyChoices().isEmpty()) {
+            List<String> keys = new ArrayList<>(choice.getKeyChoices().keySet());
+            keys.sort(String::compareTo);
+            JsonArray options = new JsonArray();
+            Map<String, String> byOption = new HashMap<>();
+            for (String key : keys) {
+                String text = choiceText(choice.getKeyChoices().get(key));
+                String optionId = optionId("choice-key", key);
+                JsonObject metadata = new JsonObject();
+                metadata.addProperty("choice_key", key);
+                metadata.addProperty("choice", text == null ? key : text);
+                options.add(XmageFullGameDecisionController.option(
+                        optionId, text == null ? key : text, "choice", metadata));
+                byOption.put(optionId, key);
+            }
+            String selected = requireSingle(request(
+                    game,
+                    "choice",
+                    choicePrompt(choice),
+                    1,
+                    1,
+                    options,
+                    outcomeContext(outcome),
+                    null
+            ));
+            String key = byOption.get(selected);
+            if (key == null) {
+                fail("ILLEGAL_ACTION", "choice option disappeared: " + selected);
+            }
+            choice.setChoiceByKey(key, false);
+            return true;
+        }
         List<String> values = new ArrayList<>(choice.getChoices());
         values.sort(String::compareTo);
         JsonArray options = new JsonArray();
         Map<String, String> choices = new HashMap<>();
-        for (String value : values) {
+        for (String raw : values) {
+            String value = choiceText(raw);
             String optionId = optionId("choice", value);
             JsonObject metadata = new JsonObject();
             metadata.addProperty("choice", value);
@@ -447,7 +486,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         String selected = requireSingle(request(
                 game,
                 "choice",
-                "Choose option",
+                choicePrompt(choice),
                 1,
                 1,
                 options,
@@ -460,6 +499,38 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         choice.setChoice(value);
         return true;
+    }
+
+    private static final java.util.regex.Pattern CHOICE_SHORT_ID =
+            java.util.regex.Pattern.compile(" \\[[0-9a-z]{1,8}\\]");
+
+    /**
+     * WS92-D4 twin-stable choice text (systemic reacquisition). Strips
+     * per-game identity from engine choice text (UUIDs plus GameLog short-id
+     * suffixes like "Force of Will [bd5]"); Rules content untouched.
+     */
+    private static String choiceText(String text) {
+        if (text == null) {
+            return null;
+        }
+        String redacted = XmageFullGameDecisionController.redactObjectIds(text);
+        return CHOICE_SHORT_ID.matcher(redacted).replaceAll(" [#]");
+    }
+
+    /** Engine choice message (with sub-message) or the legacy generic prompt. */
+    private static String choicePrompt(Choice choice) {
+        try {
+            String message = choice.getMessage();
+            String sub = choice.getSubMessage();
+            String combined = ((message == null ? "" : message)
+                    + " " + (sub == null ? "" : sub)).trim();
+            if (!combined.isEmpty()) {
+                return choiceText(combined);
+            }
+        } catch (RuntimeException ignored) {
+            // Fall through to the legacy prompt.
+        }
+        return "Choose option";
     }
 
     @Override
@@ -714,7 +785,10 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public void selectAttackers(Game game, UUID attackingPlayerId) {
         List<Permanent> attackers = new ArrayList<>(getAvailableAttackers(game));
-        attackers.sort(Comparator.comparing(permanent -> permanent.getId().toString()));
+        // WS92-D5 twin-stable frame sequence (systemic reacquisition): native
+        // UUIDs are random per game, so declaration order follows Rules-visible
+        // content (name, entry order, characteristics), never native identity.
+        attackers.sort(stablePermanentOrder(game));
         List<UUID> defenders = game.getCombat().getDefenders().stream()
                 .sorted(Comparator.comparing(UUID::toString))
                 .toList();
@@ -776,7 +850,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
             UUID defendingPlayerId
     ) {
         List<Permanent> blockers = new ArrayList<>(getAvailableBlockers(game));
-        blockers.sort(Comparator.comparing(permanent -> permanent.getId().toString()));
+        // WS92-D5 twin-stable frame sequence (see selectAttackers):
+        // declaration order among co-blockers carries no Rules content itself.
+        blockers.sort(stablePermanentOrder(game));
         List<UUID> attackers = game.getCombat().getAttackers().stream()
                 .sorted(Comparator.comparing(UUID::toString))
                 .toList();
@@ -822,6 +898,26 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 declareBlocker(defendingPlayerId, blocker.getId(), attackerId, game, false);
             }
         }
+    }
+
+    /**
+     * WS92-D5 twin-stable permanent order over Rules-visible content
+     * (systemic reacquisition). Native UUIDs (and their string forms) are
+     * random per game and must never sequence decision frames; names, entry
+     * order (zone-change counter), and characteristics reproduce identically
+     * on twin re-execution. No Rules content: co-declaration order is a
+     * replay framing choice, never legality.
+     */
+    private static Comparator<Permanent> stablePermanentOrder(Game game) {
+        return Comparator
+                .comparing(
+                        (Permanent permanent) -> permanent.getName(),
+                        Comparator.nullsFirst(String::compareTo))
+                .thenComparingInt(permanent -> permanent.getZoneChangeCounter(game))
+                .thenComparingInt(permanent -> permanent.getPower().getValue())
+                .thenComparingInt(permanent -> permanent.getToughness().getValue())
+                .thenComparing(permanent -> permanent.isTapped())
+                .thenComparingInt(Permanent::getDamage);
     }
 
     @Override
@@ -947,25 +1043,75 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("target_name", target.getTargetName());
         context.addProperty("required", target.isRequired());
 
-        XmageFullGameDecisionController.DecisionResponse response = request(
-                game,
-                targeted ? "target" : "choose_object",
-                target.getMessage(game),
-                min,
-                max,
-                objectOptions(sorted, game, targeted ? "target" : "choice"),
-                context,
-                source
-        );
-        for (String selected : response.selectedOptionIds()) {
-            UUID id = UUID.fromString(selected);
-            if (targeted) {
-                target.addTarget(id, source, game);
-            } else {
-                target.add(id, game);
+        // WS92-D2 Rules-entitled hidden-zone look window (systemic
+        // reacquisition). The engine alone selected the eligible set; the
+        // adapter only projects identities the deciding principal is entitled
+        // to see while choosing (paper search/scry is a look), then closes
+        // the window. Creates no Rules semantics: no legality, target, cost,
+        // or outcome is computed or altered here.
+        Player lookOwner = lookOwnerFor(restrictedCards, game);
+        boolean lookGranted = false;
+        if (lookOwner != null) {
+            XmageFullGameStateRedactor.beginZoneFullLook(this, lookOwner, game);
+            lookGranted = true;
+        }
+        try {
+            XmageFullGameDecisionController.DecisionResponse response = request(
+                    game,
+                    targeted ? "target" : "choose_object",
+                    target.getMessage(game),
+                    min,
+                    max,
+                    objectOptions(sorted, game, targeted ? "target" : "choice"),
+                    context,
+                    source
+            );
+            for (String selected : response.selectedOptionIds()) {
+                UUID id = UUID.fromString(selected);
+                if (targeted) {
+                    target.addTarget(id, source, game);
+                } else {
+                    target.add(id, game);
+                }
+            }
+            return !response.selectedOptionIds().isEmpty();
+        } finally {
+            if (lookGranted) {
+                XmageFullGameStateRedactor.endZoneFullLook(this, lookOwner);
             }
         }
-        return !response.selectedOptionIds().isEmpty();
+    }
+
+    /**
+     * Owner of the first library-zone card in a restricted decision set, or
+     * null when the set involves no hidden library identities (hand,
+     * battlefield, graveyard, stack and exile projections need no grant).
+     */
+    private Player lookOwnerFor(Cards restrictedCards, Game game) {
+        if (restrictedCards == null || game == null) {
+            return null;
+        }
+        try {
+            for (Card card : restrictedCards.getCards(game)) {
+                if (card == null) {
+                    continue;
+                }
+                Card main = card.getMainCard();
+                Zone zone = game.getState().getZone(main.getId());
+                if (zone == null) {
+                    zone = game.getState().getZone(card.getId());
+                }
+                if (zone == Zone.LIBRARY && card.getOwnerId() != null) {
+                    Player owner = game.getPlayer(card.getOwnerId());
+                    if (owner != null) {
+                        return owner;
+                    }
+                }
+            }
+        } catch (RuntimeException ignored) {
+            return null;
+        }
+        return null;
     }
 
     private static JsonObject outcomeContext(Outcome outcome) {
