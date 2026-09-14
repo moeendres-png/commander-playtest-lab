@@ -170,6 +170,96 @@ final class XmageFullGameSession {
         return pendingDecisionPayload();
     }
 
+    /**
+     * WS204 B4-D generic decision-scoped legal-action projection.
+     *
+     * <p>Returns only the exact currently pending native decision projected
+     * through {@link XmageFullGameActionProjection}. Never synthesizes options;
+     * fails closed when no decision is pending. The payload is decision-scoped,
+     * not a globally complete free-standing legal-actions API.</p>
+     */
+    synchronized JsonObject legalActionsPayload() {
+        ensureStarted();
+        controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
+        JsonObject pending = controller.pendingDecision();
+        if (pending == null) {
+            if (controller.terminalFailure() != null) {
+                throw controller.terminalFailure();
+            }
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "STALE_DECISION: no pending decision"
+            );
+        }
+        JsonArray actions;
+        try {
+            actions = XmageFullGameActionProjection.project(pending);
+        } catch (XmageFullGameActionProjection.ProjectionException exc) {
+            throw new XmageFullGameDecisionController.DecisionException(exc.getMessage(), exc);
+        }
+        JsonObject payload = statusPayload();
+        payload.addProperty("decision_offset", pending.get("decision_offset").getAsLong());
+        payload.addProperty("decision_id", pending.get("decision_id").getAsString());
+        payload.addProperty("actor_id", pending.get("actor_id").getAsString());
+        payload.addProperty("decision_class", pending.get("decision_class").getAsString());
+        payload.addProperty("decision_scoped", true);
+        payload.addProperty("global_capability_promoted", false);
+        payload.addProperty("complete", true);
+        payload.add("actions", actions);
+        payload.add("decision", pending);
+        return payload;
+    }
+
+    /**
+     * WS204 B4-D generic submission: validates a generic proposal against the
+     * exact current pending decision, translates only the selected authoritative
+     * option into the native controller response, and lets XMage execute.
+     */
+    JsonObject submitAction(JsonObject proposal) {
+        ensureStarted();
+        controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
+        JsonObject pending = controller.pendingDecision();
+        if (pending == null) {
+            if (controller.terminalFailure() != null) {
+                throw controller.terminalFailure();
+            }
+            throw new XmageFullGameDecisionController.DecisionException(
+                    "STALE_DECISION: no pending decision"
+            );
+        }
+        JsonObject response;
+        try {
+            response = XmageFullGameActionProjection.toDecisionResponse(pending, proposal);
+        } catch (XmageFullGameActionProjection.ProjectionException exc) {
+            throw new XmageFullGameDecisionController.DecisionException(exc.getMessage(), exc);
+        }
+        String legalActionId = proposal.has("legal_action_id")
+                && !proposal.get("legal_action_id").isJsonNull()
+                ? proposal.get("legal_action_id").getAsString() : "";
+        String proposalType = proposal.has("action_type")
+                && !proposal.get("action_type").isJsonNull()
+                ? proposal.get("action_type").getAsString() : "";
+        controller.submit(response);
+        awaitDecisionAdvance(pending.get("decision_id").getAsString(), Duration.ofSeconds(20));
+        JsonObject result = pendingDecisionPayload();
+        result.addProperty("executed_decision_id", pending.get("decision_id").getAsString());
+        result.addProperty("executed_actor_id", pending.get("actor_id").getAsString());
+        result.addProperty("executed_action_id", legalActionId);
+        result.addProperty("executed_action_type", proposalType);
+        result.addProperty("decision_scoped", true);
+        result.addProperty("global_capability_promoted", false);
+        try {
+            JsonObject next = controller.pendingDecision();
+            if (next != null) {
+                result.add("next_actions", XmageFullGameActionProjection.project(next));
+            } else {
+                result.add("next_actions", new JsonArray());
+            }
+        } catch (XmageFullGameActionProjection.ProjectionException exc) {
+            result.add("next_actions", new JsonArray());
+        }
+        return result;
+    }
+
     JsonObject resultPayload() {
         ensureStarted();
         JsonObject payload = statusPayload();

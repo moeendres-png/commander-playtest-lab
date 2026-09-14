@@ -62,6 +62,8 @@ final class XmageFullGameJsonlBridge {
             case "get_full_game_decision" -> getDecision(requestId);
             case "submit_full_game_decision" -> submitDecision(requestId, request);
             case "get_full_game_result" -> getResult(requestId);
+            case "get_legal_actions" -> getLegalActions(requestId);
+            case "submit_action" -> submitAction(requestId, request);
             case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
             default -> error(
                     requestId,
@@ -288,6 +290,72 @@ final class XmageFullGameJsonlBridge {
         }
     }
 
+    /**
+     * WS204 B4-D decision-scoped generic projection. Returns only the exact
+     * currently pending native decision as generic actions. Flags remain
+     * unpromoted: this is not a globally complete free-standing API.
+     */
+    private Result getLegalActions(String requestId) {
+        try {
+            return success(requestId, requireSession().legalActionsPayload(), false);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "external_pilot_decision_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "full_game_decision_failed",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    /**
+     * WS204 B4-D generic submission: validates a generic proposal against the
+     * exact current decision and routes only the selected authoritative option
+     * to the native controller.
+     */
+    private Result submitAction(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "SUBMIT_ACTION requires an object payload"
+            );
+            if (!payload.has("proposal") || !payload.get("proposal").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_full_game_decision",
+                        "SUBMIT_ACTION requires payload.proposal",
+                        false
+                );
+            }
+            return success(
+                    requestId,
+                    requireSession().submitAction(payload.getAsJsonObject("proposal")),
+                    false
+            );
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "external_pilot_decision_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_full_game_decision",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
     private XmageFullGameSession requireSession() {
         if (session == null) {
             throw new IllegalStateException("FULL_GAME_NOT_CREATED");
@@ -337,6 +405,7 @@ final class XmageFullGameJsonlBridge {
         notes.add("One isolated JVM process is required per game because XMage RandomUtil is process-global");
         notes.add("Full-game runs are technical conformance only and may not consume gameplay evidence or holdouts");
         notes.add("Bit-exact replay remains unclaimed until a duplicate-run gate proves it");
+        notes.add("WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; global legal_actions/action_submission promotion remains false");
         capabilities.add("notes", notes);
 
         JsonObject lane = new JsonObject();

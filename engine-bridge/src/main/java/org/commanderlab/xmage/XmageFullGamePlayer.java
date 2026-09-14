@@ -991,6 +991,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     @Override
+    public void concede(Game game) {
+        // WS204: concession has no native external decision boundary on the
+        // pinned engine. Failing closed preserves concede_supported=false and
+        // prevents the inherited PlayerImpl default from silently marking the
+        // actor as lost outside external pilot authority.
+        fail("OUT_OF_SCOPE_DECISION", "concession is not part of Commander full-game conformance");
+    }
+
+    @Override
     public void sideboard(Match match, Deck deck) {
         fail("OUT_OF_SCOPE_DECISION", "sideboarding is not part of Commander full-game conformance");
     }
