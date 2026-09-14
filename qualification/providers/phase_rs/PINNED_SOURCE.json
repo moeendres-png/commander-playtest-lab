@@ -1,0 +1,49 @@
+{
+  "schema_version": "ws20-phase-rs-source-lock/2.0.0",
+  "candidate": "phase.rs",
+  "selected_upstream": {
+    "repository": "phase-rs/phase",
+    "branch": "main",
+    "commit": "5c87559082f4703c10c3f70692a02bb675c5e576",
+    "tree": "f4c7abc087566979672097baadd259dc0040874d",
+    "workspace_version": "0.67.0",
+    "toolchain": "nightly-2026-04-19",
+    "license_expression": "MIT OR Apache-2.0",
+    "license_mit_blob": "757ab5c3f8cddd11a8f05d4d16d6d0bd5bc5ba1a",
+    "license_apache_blob": "f5c2a72aa04b76d55ba884bee16541b2a6851bfc",
+    "commander_rs_blob": "95cdac34e2f11c5236c437882e533d5917cb78a6"
+  },
+  "requested_repository_check": {
+    "repository": "JJarrie/phase-rs",
+    "branch": "main",
+    "commit": "df3518d2464826b222b2cb659d1426c9425094ed",
+    "tree": "f263f39c60378cd103889b889f602772dbe62e15",
+    "assessment": "historical mirror; not substituted for the already-established active phase.rs candidate repository"
+  },
+  "prior_locks": {
+    "ws15_commit": "92c67b872c2a7f69c4a2069f0d0c3cb1b6b0d4c6",
+    "pre_ws17r_ws20_commit": "bc218c51cec9cc2cec56f5c4de7c72be3d8e331c",
+    "pre_ws17r_ws20_tree": "6e3f70d7de25c1f28919b73b2ee32654ee866ac0"
+  },
+  "fresh_delta": {
+    "from_ws15_ahead": 11,
+    "from_ws15_behind": 0,
+    "from_pre_ws17r_ws20_ahead": 4,
+    "from_pre_ws17r_ws20_behind": 0,
+    "commander_rs_changed_since_pre_ws17r_ws20": false
+  },
+  "commander_blocker": {
+    "status": "PRESENT_UPSTREAM",
+    "file": "crates/engine/src/game/commander.rs",
+    "symbol": "commander_creature_types",
+    "source_observation": "TODO(strict) CR 702.73a remains; implementation returns only explicit registered/live commander subtypes and does not expand Changeling CDA semantics.",
+    "required_treatment": "fresh runtime reproduction followed by reproducible local Rules-Core remediation; no adapter-side repair"
+  },
+  "target_baseline": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "commit": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "tree": "551c0d55a171508618d2b7d29e0f49b19893f886",
+    "baseline_reproduction_run": 33263002771
+  },
+  "evidence_policy": "All candidate runtime and AF evidence must be regenerated post-WS17R. Pre-WS17R evidence is HISTORICAL_PROVENANCE only."
+}
