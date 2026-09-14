@@ -25,7 +25,7 @@ def test_manifest_declares_sole_pin_authority(repo_root: Path) -> None:
 
 def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     config = _manifest(repo_root)
-    assert config["secondary_engine"]["commit"] == "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    assert config["secondary_engine"]["commit"] == "aa5c00aa32dfd40e213f223f8fd400c43daabb24"
     assert config["primary_engine"]["commit"] == "cfc36f445f917f101fa2ed588770e043f53bc44c"
     assert config["provider_decision"] == "NO_PROVIDER_READY"
     assert config["current_runtime"]["provider_selected"] is False

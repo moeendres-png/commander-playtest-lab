@@ -13,8 +13,8 @@ case "$PROVIDER" in
     REQUIRED_JAVA_MIN=8
     ;;
   forge)
-    REPO="https://github.com/Card-Forge/forge.git"
-    COMMIT="a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+    REPO="https://github.com/moeendres-png/forge.git"
+    COMMIT="aa5c00aa32dfd40e213f223f8fd400c43daabb24"
     REQUIRED_JAVA_MIN=17
     ;;
   *) echo "ERROR: ENGINE_PROVIDER must be xmage or forge" >&2; exit 2 ;;

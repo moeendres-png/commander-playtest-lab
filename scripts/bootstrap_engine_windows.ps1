@@ -5,8 +5,8 @@ if ($Provider -eq "xmage") {
   $Repo = if ($env:COMMANDER_LAB_XMAGE_REPOSITORY) { $env:COMMANDER_LAB_XMAGE_REPOSITORY } else { "https://github.com/moeendres-png/mage.git" }
   $Commit = if ($env:COMMANDER_LAB_XMAGE_COMMIT) { $env:COMMANDER_LAB_XMAGE_COMMIT } else { "cfc36f445f917f101fa2ed588770e043f53bc44c" }
 } elseif ($Provider -eq "forge") {
-  $Repo = "https://github.com/Card-Forge/forge.git"
-  $Commit = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+  $Repo = "https://github.com/moeendres-png/forge.git"
+  $Commit = "aa5c00aa32dfd40e213f223f8fd400c43daabb24"
 } else { throw "ENGINE_PROVIDER must be xmage or forge" }
 $Source = if ($env:ENGINE_SOURCE_PATH) { $env:ENGINE_SOURCE_PATH } else { Join-Path $Root "vendor\engine-source\$Provider" }
 $Binary = if ($env:ENGINE_BINARY_PATH) { $env:ENGINE_BINARY_PATH } else { Join-Path $Root "vendor\engine-binaries\$Provider" }

@@ -56,7 +56,7 @@ from commander_lab.models import (
 
 pytestmark = pytest.mark.external
 
-FORGE_RULES_COMMIT = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+FORGE_RULES_COMMIT = "aa5c00aa32dfd40e213f223f8fd400c43daabb24"
 
 # Bounded H4F-style fixture data (card NAMES only; the bridge resolves them
 # against real Forge card data and rejects unknown names explicitly).
@@ -158,6 +158,7 @@ def _bridge_command(source: Path, tmp_path: Path) -> tuple[str, ...]:
             "-q",
             "-pl",
             "forge-protocol2-bridge",
+            "-am",
             "dependency:build-classpath",
             f"-Dmdep.outputFile={cp_file}",
             "-DincludeScope=runtime",

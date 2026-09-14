@@ -44,9 +44,9 @@
   "secondary_engine": {
     "provider": "forge",
     "release": "forge-2.0.14",
-    "commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
-    "repository": "https://github.com/Card-Forge/forge.git",
-    "source_archive": "https://github.com/Card-Forge/forge/archive/a37a865a53280dd8ad6fad3384d69611e8c5a42f.tar.gz",
+    "commit": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "repository": "https://github.com/moeendres-png/forge.git",
+    "source_archive": "https://github.com/moeendres-png/forge/archive/aa5c00aa32dfd40e213f223f8fd400c43daabb24.tar.gz",
     "license": "GPL-3.0",
     "role": "candidate provider; PARTIAL real evidence, not production-selected",
     "status": "PARTIAL",
@@ -54,8 +54,8 @@
     "production_ready": false,
     "bridge_source": {
       "repository": "https://github.com/moeendres-png/forge.git",
-      "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
-      "rules_core_base_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+      "commit": "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff",
+      "rules_core_base_commit": "aa5c00aa32dfd40e213f223f8fd400c43daabb24"
     }
   },
   "maven": {

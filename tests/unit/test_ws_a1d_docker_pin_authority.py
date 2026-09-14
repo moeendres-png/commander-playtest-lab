@@ -28,7 +28,7 @@ import pytest
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 CANONICAL_XMAGE_PIN = "cfc36f445f917f101fa2ed588770e043f53bc44c"
-CANONICAL_FORGE_PIN = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
+CANONICAL_FORGE_PIN = "aa5c00aa32dfd40e213f223f8fd400c43daabb24"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _MANIFEST_REL = "config/rules_engines.json"
 
@@ -422,7 +422,7 @@ def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> Non
 
 
 CANONICAL_FORGE_BRIDGE_REPO = "https://github.com/moeendres-png/forge.git"
-CANONICAL_FORGE_BRIDGE_COMMIT = "4753bb7c72ea60d653121e0bab989077b4009f9c"
+CANONICAL_FORGE_BRIDGE_COMMIT = "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff"
 
 
 def test_forge_bridge_source_resolves_dual_identity(repo_root: Path) -> None:
