@@ -1,0 +1,37 @@
+name: WS41 CARD13 CARD22 decision causality diagnostic
+on:
+  push:
+    branches:
+      - ws41/successor-contract-v1.0.3-freeze
+    paths:
+      - .github/workflows/ws41-decision-diagnostic.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Print exact frozen causality for CARD_13 and CARD_22
+        run: |
+          python - <<'PY'
+          import json
+          p='qualification/ws32/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_2.json'
+          b=json.load(open(p,encoding='utf-8'))
+          for r in b['records']:
+              if r['fixture_id'] not in {'CARD_13','CARD_22'}:
+                  continue
+              print('WS41_DECISION_CAUSALITY='+json.dumps({
+                  'fixture_id':r['fixture_id'],
+                  'decision_script':r.get('decision_script',[]),
+                  'native_procedure':r.get('native_procedure',[]),
+                  'stack_state':r.get('stack_state',[]),
+                  'semantic_objects':[o for o in r.get('semantic_objects',[]) if o.get('semantic_id') in {
+                      'obj:card_13-subject','obj:card13-bolt','obj:card_22-subject','obj:card22-bolt'
+                  }],
+              },sort_keys=True,separators=(',',':')))
+          PY
