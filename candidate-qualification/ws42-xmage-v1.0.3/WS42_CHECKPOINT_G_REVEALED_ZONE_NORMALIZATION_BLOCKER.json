@@ -1,0 +1,74 @@
+{
+  "schema_version": "commander-lab.ws42-checkpoint/1.0.1",
+  "workstream": "WS-42",
+  "checkpoint": "G_SOURCE_BOUND_CONSTRUCTION_STATUS_CORRECTION",
+  "recorded_date": "2026-09-05",
+  "source_lock": {
+    "provider_repository": "moeendres-png/commander-playtest-lab",
+    "provider_branch": "ws42/xmage-v1.0.3-successor-qualification",
+    "provider_commit_under_test": "c6ad30a2134fac29602a3bdd9394de9cdc0dbdea",
+    "ws41_freeze_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_freeze_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "xmage_commit": "7bde812727817723616c575759f39bfc4cda4607",
+    "xmage_tree": "a44f32e9d34109ac3f272494f0e8eb9ea3e6280c"
+  },
+  "fresh_run": {
+    "workflow_run_id": 33919745872,
+    "job_id": 101175095656,
+    "conclusion": "failure",
+    "artifact_id": 9955091697,
+    "artifact_name": "ws42-v103-construction-c6ad30a2134fac29602a3bdd9394de9cdc0dbdea",
+    "artifact_digest": "sha256:3aeeeff668e8edabc1e84508616ecb8b662cdabd8c20bf5e6914dd91dfc62196",
+    "artifact_truth_precedence": "The source-bound uploaded artifact is authoritative over a contradictory compacted/intermediate job-log interpretation."
+  },
+  "verified_progress": {
+    "provider_denominator": 107,
+    "native_setup_pass_no_runtime": 53,
+    "native_setup_unavailable": 47,
+    "natural_start_deferred": 7,
+    "native_construction_failures": 0,
+    "independent_construction_normalization_status": "FAIL",
+    "compliant_construction_credit": 0
+  },
+  "verified_pilot_pile_state": {
+    "fixture_id": "PILOT_PILE",
+    "status": "NATIVE_SETUP_UNAVAILABLE",
+    "blockers": [
+      "zone:revealed"
+    ],
+    "normalizer_reached": false,
+    "classification": "PRE_ADMISSION_UNSUPPORTED_DIMENSION"
+  },
+  "historical_independent_normalizer_blocker": {
+    "source_run": 33918709195,
+    "source_job": 101171787550,
+    "fixture_id": "HIDDEN_04",
+    "semantic_id": "obj:bobhand-hidden",
+    "field": "card_lineage_id",
+    "requested": "lineage:hidden-04-card",
+    "native_readback": null,
+    "exception_prefix": "WS42_NORMALIZE_NATIVE_READBACK_MISMATCH",
+    "status": "NOT_YET_REQUALIFIED_AFTER_EXTENSION_WIRING"
+  },
+  "extension_status": {
+    "substrate_present_at_provider_commit": true,
+    "extension_overlay_applied_by_source_bound_workflow": false,
+    "enriched_runner_used_by_source_bound_workflow": false,
+    "runtime_credit": "NONE",
+    "required_next_action": "Wire apply_ws42_native_state_extension_overlay.py and run_full107_construction_probe_v103_enriched.py into the source-bound WS42 construction workflow, then execute a fresh run before granting any additional admission or construction credit."
+  },
+  "retraction": {
+    "claim": "100 native admitted plus 7 natural and PILOT_PILE failed inside independent normalization",
+    "status": "RETRACTED_UNSUPPORTED_BY_SOURCE_BOUND_ARTIFACT",
+    "credit_derived": false
+  },
+  "credit": {
+    "compliant_construction_credit": 0,
+    "fresh_behavior_runtime_credit": 0,
+    "af07_granted": false,
+    "architecture_freeze_granted": false,
+    "xmage_successor_provider_qualified": false
+  },
+  "stop_condition": "NOT_MET_REMEDIABLE_PROVIDER_WIRING_AND_STATE_SUPPORT_GAPS"
+}

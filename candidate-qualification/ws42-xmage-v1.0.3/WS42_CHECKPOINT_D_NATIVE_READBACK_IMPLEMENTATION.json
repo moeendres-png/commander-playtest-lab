@@ -1,0 +1,37 @@
+{
+  "artifact_version": "commander-lab.ws42-checkpoint-d-implementation/1.0.0",
+  "status": "IMPLEMENTED_NOT_RUNTIME_VERIFIED",
+  "source_head_before_checkpoint": "11dc3662f8ce79e042243202cee6f61d564a58d3",
+  "purpose": "Persist the completed implementation step that disconnects WS42 construction evidence from the inherited WS34 requested-state echo and captures request-independent XMage native setup-boundary readback. This checkpoint grants no construction or behavior credit until a fresh current-head workflow succeeds and its artifact is audited.",
+  "implementation": {
+    "overlay": "candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_readback_overlay.py",
+    "consumer": "candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103.py",
+    "workflow": ".github/workflows/ws42-xmage-v103-construction.yml",
+    "readback_schema": "xmage-ws42-native-construction-readback/1.0.0",
+    "snapshot_boundary": "AFTER_NATIVE_SETUP_VALIDATION_BEFORE_PRIORITY_RESUME",
+    "request_object_copied_as_proof": false,
+    "legacy_normalized_constructed_state_consumed": false,
+    "legacy_declared_digest_consumed": false,
+    "native_fields_extended": [
+      "face_down",
+      "controlled_since_turn_began",
+      "attached_to_semantic_id"
+    ],
+    "rules_seed_binding_checked_by_consumer": true
+  },
+  "credit": {
+    "construction_runtime_verified": "0/107",
+    "behavior_runtime_verified": "0/107",
+    "af04": "0/24",
+    "af05": "0/20",
+    "af06": "0/17",
+    "af08": "0/36",
+    "af09": "0/5",
+    "card_02": "NOT_RUN",
+    "xmage_successor_provider_qualified": false,
+    "af07_granted": false,
+    "architecture_freeze": false
+  },
+  "hard_gate": "No construction credit may be granted from this file. The next fresh current-head construction workflow must compile the exact pinned XMage plus all qualification overlays and emit audited non-echo native readback before independent normalization can begin.",
+  "next_action": "Execute the push-triggered WS42 XMage v1.0.3 Census and Construction workflow, audit its exact artifact, then persist a runtime-evidence checkpoint before extending independent normalization."
+}
