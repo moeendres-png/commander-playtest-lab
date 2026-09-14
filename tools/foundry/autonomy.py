@@ -416,6 +416,266 @@ def check_successor(data: dict, spec: dict | None = None) -> tuple[str, list[str
 # Session rotation (advisory, threshold-free, evidence-honest).
 # --------------------------------------------------------------------------
 
+#: WS200 reason codes for REVIEW_PROMPT. Every code names an exact
+#: structural fact (state-derived or Git-derived); subjective codes
+#: (SESSION_FEELS_LONG, CONTEXT_PROBABLY_FULL, MODEL_SEEMS_STUCK) are
+#: forbidden and must never appear here.
+ROTATION_REASON_CODES = (
+    "PERSISTED_ROTATION_REVIEW_REQUEST",
+    "PERSISTED_ROTATE_REQUEST",
+    "EXPLICIT_STALL_STATE",
+    "REPEATED_CHECKPOINT_WITHOUT_MATERIAL_PROGRESS",
+)
+
+#: Explicit stall statuses only. ACTIVE/WAITING/COMPLETE (even with a
+#: recorded failure under investigation) never constitute a stall: ordinary
+#: active engineering must not become REVIEW_PROMPT noise.
+ROTATION_STALL_STATUSES = ("BLOCKED", "STALE")
+
+#: Telemetry fields that may be DISPLAYED informationally when the I/O
+#: layer proves CAPTURED exact-run AUTOCAPTURED provenance. These names
+#: exist here only so renderers share one allowlist; their VALUES must
+#: never enter the recommendation path (no threshold, no comparison).
+TELEMETRY_DISPLAY_FIELDS = (
+    "model_turns",
+    "tool_calls",
+    "tool_errors",
+    "tokens_input",
+    "tokens_output",
+    "tokens_reasoning",
+    "tokens_cache_read",
+    "tokens_cache_write",
+    "cost_usd",
+    "elapsed_seconds",
+)
+
+#: Concise operator guidance surfaced with a REVIEW_PROMPT. Session
+#: rotation is NOT workstream rotation: the same WS/branch/worktree/state
+#: remains authoritative.
+ROTATION_REVIEW_GUIDANCE = (
+    "REVIEW_PROMPT: at the next safe checkpoint decide whether a fresh "
+    "compact continuation is preferable. First make or preserve a validated "
+    "checkpoint, derive the compact capsule, launch a fresh session against "
+    "the same workstream/branch/state, continue from capsule plus exact "
+    "state, and do not rerun do_not_rerun items. Advisory only: it never "
+    "kills, resets, compacts, or restarts the live process and never "
+    "changes model/provider."
+)
+
+
+def _fnv1a_hex(text: str) -> str:
+    """Deterministic 64-bit FNV-1a hex (no imports; stable across runs)."""
+    digest = 14695981039346656037
+    for byte in text.encode("utf-8"):
+        digest ^= byte
+        digest = (digest * 1099511628211) & 0xFFFFFFFFFFFFFFFF
+    return format(digest, "016x")
+
+
+def checkpoint_fingerprint(data: dict, git_facts: dict | None = None) -> str:
+    """Deterministic structural checkpoint fingerprint (16 hex chars).
+
+    Pure function of six facts only: live HEAD, validated_head,
+    exact_next_action, remaining_scope identity (ordered), current
+    failure identity, state-written-against-head. Provenance: state
+    plus Git (caller-supplied ``git_facts``). No counts, no telemetry,
+    no wall-clock, no thresholds. A repeated identical fingerprint at a
+    later explicit milestone is evidence to REVIEW, never to force
+    rotation.
+    """
+    facts = git_facts or {}
+    remaining = data.get("remaining_scope")
+    scope_items = list(remaining) if isinstance(remaining, list) else []
+    failure_class = data.get("failure_class")
+    current_failure = data.get("current_failure")
+    canonical = repr(
+        (
+            str(facts.get("head", "")),
+            str(data.get("validated_head")),
+            str(data.get("exact_next_action", "")),
+            [str(item) for item in scope_items],
+            str(failure_class if failure_class is not None else "NONE"),
+            str(current_failure if current_failure is not None else ""),
+            str(data.get("state_written_against_head", "")),
+        )
+    )
+    return _fnv1a_hex(canonical)
+
+
+def _persisted_rotation(data: dict) -> str:
+    guidance = data.get("rotation_guidance")
+    if not isinstance(guidance, dict):
+        return ROTATION_DEFAULT
+    rec = guidance.get("recommendation", ROTATION_DEFAULT)
+    return rec if rec in ROTATION_RECOMMENDATIONS else ROTATION_DEFAULT
+
+
+def _explicit_stall(data: dict) -> bool:
+    """True only for an explicit stall state (BLOCKED/STALE + failure)."""
+    if data.get("status") not in ROTATION_STALL_STATUSES:
+        return False
+    failure_class = data.get("failure_class")
+    current_failure = data.get("current_failure")
+    has_class = isinstance(failure_class, str) and failure_class not in ("NONE", "")
+    has_failure = isinstance(current_failure, str) and bool(current_failure.strip())
+    return bool(has_class or has_failure)
+
+
+def recommend_rotation(
+    data: dict,
+    git_facts: dict | None = None,
+    previous_observation: dict | None = None,
+) -> tuple[str, list[dict]]:
+    """Pure threshold-free rotation recommendation.
+
+    Inputs are authoritative state/Git milestone facts only. Telemetry
+    values are not parameters here by construction: identical state/Git
+    facts always yield the same recommendation regardless of token,
+    cache, cost, turn, tool-call, or elapsed values (proven by
+    adversarial invariance tests). Returns ``(recommendation, reasons)``
+    where each reason is ``{"code": ..., "source": ..., "detail": ...}``
+    with source in ("state-derived", "git-derived",
+    "state-derived+git-derived").
+    """
+    facts = git_facts or {}
+    persisted = _persisted_rotation(data)
+    if persisted == "ROTATE_TO_FRESH_CONTINUATION":
+        return persisted, [
+            {
+                "code": "PERSISTED_ROTATE_REQUEST",
+                "source": "state-derived",
+                "detail": "rotation_guidance explicitly requests a fresh continuation",
+            }
+        ]
+    if persisted == "REVIEW_PROMPT":
+        return persisted, [
+            {
+                "code": "PERSISTED_ROTATION_REVIEW_REQUEST",
+                "source": "state-derived",
+                "detail": "rotation_guidance explicitly requests review",
+            }
+        ]
+    if _explicit_stall(data):
+        return "REVIEW_PROMPT", [
+            {
+                "code": "EXPLICIT_STALL_STATE",
+                "source": "state-derived",
+                "detail": (
+                    f"status={data.get('status')} with "
+                    f"failure_class={data.get('failure_class')} "
+                    f"current_failure={data.get('current_failure')!r}"
+                ),
+            }
+        ]
+    current = checkpoint_fingerprint(data, facts)
+    previous_fp = None
+    if isinstance(previous_observation, dict):
+        previous_fp = previous_observation.get("fingerprint")
+    if isinstance(previous_fp, str) and previous_fp and previous_fp == current:
+        return "REVIEW_PROMPT", [
+            {
+                "code": "REPEATED_CHECKPOINT_WITHOUT_MATERIAL_PROGRESS",
+                "source": "state-derived+git-derived",
+                "detail": (
+                    "identical structural checkpoint fingerprint observed again "
+                    f"({current}) with no material source/state progress"
+                ),
+            }
+        ]
+    return "NO_ROTATION", []
+
+
+def observe_rotation(
+    data: dict,
+    git_facts: dict | None = None,
+    previous_observation: dict | None = None,
+) -> dict:
+    """Pure factual rotation observation (facts, never scores).
+
+    Descriptive counts (remaining-scope size, dirty entries, commits
+    since base when the caller supplies them) are reported, never
+    thresholded. Telemetry is not an input: the I/O layer renders it
+    separately via ``render_telemetry_info``.
+    """
+    facts = git_facts or {}
+    recommendation, reasons = recommend_rotation(data, facts, previous_observation)
+    remaining = data.get("remaining_scope")
+    observation: dict = {
+        "recommendation": recommendation,
+        "reasons": reasons,
+        "fingerprint": checkpoint_fingerprint(data, facts),
+        "live_head": str(facts.get("head", "")),
+        "validated_head": data.get("validated_head"),
+        "state_written_against_head": data.get("state_written_against_head"),
+        "head_drift": bool(
+            data.get("state_written_against_head")
+            and facts.get("head")
+            and str(data.get("state_written_against_head")) != str(facts.get("head"))
+        ),
+        "tree_clean": facts.get("dirty_entries", 0) == 0,
+        "dirty_entries": facts.get("dirty_entries", 0),
+        "remaining_scope_count": len(remaining) if isinstance(remaining, list) else 0,
+        "remaining_scope_present": bool(isinstance(remaining, list) and len(remaining) > 0),
+        "exact_next_action": data.get("exact_next_action"),
+        "failure_class": data.get("failure_class"),
+        "status": data.get("status"),
+        "persisted_recommendation": _persisted_rotation(data),
+        "provenance": "state-derived+git-derived",
+    }
+    for key in ("commits_since_base", "validated_in_history", "validated_ancestor_of_head"):
+        if key in facts:
+            observation[key] = facts[key]
+    return observation
+
+
+def format_observation(observation: dict) -> str:
+    """One-line deterministic rendering of a pure observation."""
+    rec = observation.get("recommendation", ROTATION_DEFAULT)
+    if rec == "NO_ROTATION":
+        return f"rotation: NO_ROTATION [fingerprint {observation.get('fingerprint')}]"
+    reasons = observation.get("reasons") or []
+    code = reasons[0].get("code", "REVIEW") if isinstance(reasons[0], dict) else "REVIEW"
+    source = reasons[0].get("source", "state-derived") if isinstance(reasons[0], dict) else "state-derived"
+    return (
+        f"rotation: {rec} ({code}; source: {source}) "
+        f"[fingerprint {observation.get('fingerprint')}]"
+    )
+
+
+def render_telemetry_info(telemetry: dict | None) -> str:
+    """Informational telemetry line; never a recommendation input.
+
+    The I/O layer (capsule/launcher) passes only telemetry it has proven
+    CAPTURED for the exact run with AUTOCAPTURED provenance; anything
+    else (None, absent, PENDING, malformed, another session) renders the
+    export-missing disclaimer. Values are displayed, never compared.
+    """
+    if not isinstance(telemetry, dict) or not telemetry.get("available"):
+        return (
+            "telemetry: absent [export-missing: hygiene reminder, not telemetry; "
+            "no token/cache figures exist without an `opencode export` aggregate]"
+        )
+    if telemetry.get("provenance") != "AUTOCAPTURED":
+        return (
+            "telemetry: absent [export-missing: hygiene reminder, not telemetry; "
+            "no token/cache figures exist without an `opencode export` aggregate]"
+        )
+    values = telemetry.get("values")
+    if not isinstance(values, dict):
+        return (
+            "telemetry: absent [export-missing: hygiene reminder, not telemetry; "
+            "no token/cache figures exist without an `opencode export` aggregate]"
+        )
+    shown = []
+    for field in TELEMETRY_DISPLAY_FIELDS:
+        if field in values and values[field] is not None:
+            shown.append(f"{field}={values[field]}")
+    session = telemetry.get("session_id")
+    head = f"session {session} " if isinstance(session, str) and session else ""
+    if not shown:
+        return f"telemetry: CAPTURED {head}(AUTOCAPTURED; no numeric aggregates present)".strip()
+    return f"telemetry: CAPTURED {head}(AUTOCAPTURED): " + ", ".join(shown)
+
 def rotation_render(data: dict) -> str:
     """Human-readable rotation advisory; never a gate, never telemetry."""
     guidance = data.get("rotation_guidance") or {}

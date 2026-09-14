@@ -7,6 +7,14 @@ evidence, privacy, and fail-closed safety outrank savings everywhere here.
 been measured yet (see Benchmarking). Byte/line figures below are STRUCTURAL
 context-size metrics, never token claims.
 
+`SESSION_ROTATION_THRESHOLD` does not exist: WS200 rotation observability
+is threshold-free and advisory-only. The capsule carries the rotation
+recommendation, its exact structural reason code, a checkpoint
+fingerprint, and a telemetry availability line (absent keeps the
+export-missing disclaimer; `CAPTURED` exact-run aggregates render
+informationally with `AUTOCAPTURED` provenance). Telemetry values never
+change the recommendation. See `AUTONOMY.md` §7 and `METRICS.md`.
+
 ## Operator workflow
 
 1. Launch the validated Foundry session for the prepared workstream

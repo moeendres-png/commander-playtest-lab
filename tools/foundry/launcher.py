@@ -745,6 +745,41 @@ def init(
                 "completion_reason": _reasons[0] if _reasons else "n/a",
             }
     except Exception:
+        _state_data = None
+    # WS200 rotation advisory (fail-open, advisory-only): the same pure
+    # state/Git observation the capsule renders, plus a telemetry
+    # availability flag. It never gates LAUNCH_READY, never kills/resets,
+    # never changes model/provider, and never thresholds telemetry values
+    # (values are not read here at all).
+    rotation_advisory: dict = {
+        "recommendation": autonomy_values["rotation_recommendation"],
+        "reasons": [],
+        "fingerprint": None,
+        "provenance": "state-derived",
+    }
+    rotation_telemetry_available = False
+    try:
+        if isinstance(_state_data, dict) and live_head != "UNKNOWN":
+            _facts: dict = {"head": live_head}
+            _porcelain = _git(["status", "--porcelain"], canonical)
+            _facts["dirty_entries"] = len(_porcelain.splitlines()) if _porcelain else 0
+            _observation = autonomy_mod.observe_rotation(_state_data, _facts, None)
+            rotation_advisory = {
+                "recommendation": _observation.get("recommendation"),
+                "reasons": _observation.get("reasons"),
+                "fingerprint": _observation.get("fingerprint"),
+                "provenance": _observation.get("provenance"),
+            }
+        _status_raw = Path(run_dir, "telemetry-status.json").read_text(encoding="utf-8")
+        _status_doc = json.loads(_status_raw)
+        if (
+            isinstance(_status_doc, dict)
+            and _status_doc.get("status") == "CAPTURED"
+            and isinstance(_status_doc.get("session_id"), str)
+            and _status_doc.get("session_id")
+        ):
+            rotation_telemetry_available = True
+    except Exception:
         pass
     context = {
         "execution": execution,
@@ -775,6 +810,8 @@ def init(
         "continuation_policy": autonomy_values["continuation_policy"],
         "successor_status": autonomy_values["successor_status"],
         "rotation_recommendation": autonomy_values["rotation_recommendation"],
+        "rotation_advisory": rotation_advisory,
+        "rotation_telemetry_available": rotation_telemetry_available,
         "completion_ready": autonomy_values["completion_ready"],
         "completion_reason": autonomy_values["completion_reason"],
         "references": parsed_refs,

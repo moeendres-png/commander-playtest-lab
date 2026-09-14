@@ -15,6 +15,7 @@ Stdlib plus PyYAML only. Never writes. Never prints environment values.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import subprocess
@@ -135,10 +136,117 @@ def _count_items(value: object) -> int:
     return 0
 
 
-def _autonomy_lines(data: dict) -> list[str]:
-    """WS198 values-only autonomy signals (no policy prose, no telemetry)."""
+def _rotation_git_facts(data: dict, facts: dict, workdir: str) -> dict:
+    """Enrich Git facts with descriptive checkpoint-density signals.
+
+    Fail-open: any unreadable signal is omitted (UNKNOWN), never
+    estimated, never a capsule refusal. Counts are descriptive only;
+    autonomy.observe_rotation never thresholds them.
+    """
+    enriched = dict(facts)
+    base = data.get("audit_base_sha")
+    head = facts.get("head", "")
+    if isinstance(base, str) and base and isinstance(head, str) and head:
+        try:
+            proc = subprocess.run(
+                ["git", "rev-list", "--count", f"{base}..{head}"],
+                cwd=workdir,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if proc.returncode == 0 and proc.stdout.strip().isdigit():
+                enriched["commits_since_base"] = int(proc.stdout.strip())
+        except OSError:
+            pass
+    validated = data.get("validated_head")
+    if isinstance(validated, str) and validated and isinstance(base, str) and base:
+        with contextlib.suppress(Exception):
+            enriched["validated_in_history"] = bool(
+                state_mod._is_ancestor(base, validated, workdir)
+            )
+    if isinstance(validated, str) and validated and isinstance(head, str) and head:
+        with contextlib.suppress(Exception):
+            enriched["validated_ancestor_of_head"] = bool(
+                state_mod._is_ancestor(validated, head, workdir)
+            )
+    return enriched
+
+
+def _load_telemetry(run_dir: str | None) -> dict | None:
+    """Optional WS199 enrichment: proven CAPTURED exact-run aggregates only.
+
+    Returns ``{"available": True, "provenance": "AUTOCAPTURED",
+    "session_id": ..., "values": {...}}`` when ``<run_dir>/
+    telemetry-status.json`` proves ``status == "CAPTURED"`` for an exact
+    session AND the matching ``metrics.jsonl`` session-telemetry record
+    carries AUTOCAPTURED provenance per cited field. Every other shape
+    (absent run dir, missing/malformed status, PENDING/FAILED, another
+    session, missing provenance) yields None: the advisory renders the
+    export-missing disclaimer and never estimates.
+    """
+    if not run_dir:
+        return None
+    try:
+        status_doc = json.loads(
+            Path(run_dir, "telemetry-status.json").read_text(encoding="utf-8")
+        )
+    except (OSError, ValueError):
+        return None
+    if not isinstance(status_doc, dict):
+        return None
+    if status_doc.get("status") != "CAPTURED":
+        return None
+    session_id = status_doc.get("session_id")
+    if not isinstance(session_id, str) or not session_id:
+        return None
+    try:
+        lines = Path(run_dir, "metrics.jsonl").read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    match: dict | None = None
+    for line in lines:
+        try:
+            record = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get("task_class") != "session-telemetry":
+            continue
+        if record.get("session_id") != session_id:
+            continue
+        match = record
+    if match is None:
+        return None
+    provenance = match.get("provenance")
+    if not isinstance(provenance, dict):
+        return None
+    values: dict = {}
+    for field in autonomy_mod.TELEMETRY_DISPLAY_FIELDS:
+        if field in match and match[field] is not None:
+            if provenance.get(field) != "AUTOCAPTURED":
+                return None
+            values[field] = match[field]
+    return {
+        "available": True,
+        "provenance": "AUTOCAPTURED",
+        "session_id": session_id,
+        "values": values,
+    }
+
+
+def _autonomy_lines(
+    data: dict,
+    facts: dict | None = None,
+    telemetry: dict | None = None,
+    previous_fingerprint: str | None = None,
+) -> list[str]:
+    """WS198 values-only autonomy signals plus WS200 rotation observation."""
     resolved = autonomy_mod.autonomy_defaults(data)
     ready, reasons = autonomy_mod.check_completion_readiness(data)
+    previous = {"fingerprint": previous_fingerprint} if previous_fingerprint else None
+    observation = autonomy_mod.observe_rotation(data, facts or {}, previous)
     lines = [
         f"technical_decision_authority: {resolved['technical_decision_authority']}",
         f"continuation_policy: {resolved['continuation_policy']}",
@@ -148,12 +256,26 @@ def _autonomy_lines(data: dict) -> list[str]:
         " (inspect with --full when needed)",
         f"completion_ready: {'yes' if ready else 'no'} ({reasons[0] if reasons else 'n/a'})",
         f"successor_plan: {resolved['successor_status']}",
-        autonomy_mod.rotation_render(data),
+        autonomy_mod.format_observation(observation),
+        autonomy_mod.render_telemetry_info(telemetry),
     ]
+    if observation.get("recommendation") == "REVIEW_PROMPT":
+        lines.append(
+            "review_guidance: preserve/make a validated checkpoint, derive the "
+            "capsule, continue in a fresh session on the same "
+            "workstream/branch/state (advisory only; never kills/resets, never "
+            "changes model/provider)"
+        )
     return lines
 
 
-def build_capsule(data: dict, facts: dict, state_path: str) -> str:
+def build_capsule(
+    data: dict,
+    facts: dict,
+    state_path: str,
+    telemetry: dict | None = None,
+    previous_fingerprint: str | None = None,
+) -> str:
     """Render the deterministic text capsule (fixed field order)."""
     recorded = data.get("state_written_against_head")
     drift_note = ""
@@ -179,7 +301,7 @@ def build_capsule(data: dict, facts: dict, state_path: str) -> str:
         f"objective: {data.get('objective')}",
         f"exact_next_action: {data.get('exact_next_action')}",
     ]
-    lines.extend(_autonomy_lines(data))
+    lines.extend(_autonomy_lines(data, facts, telemetry, previous_fingerprint))
     failure = str(data.get("failure_class", "NONE"))
     if failure not in ("NONE", ""):
         lines.append(f"failure_class: {failure}")
@@ -198,11 +320,19 @@ def build_capsule(data: dict, facts: dict, state_path: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def build_capsule_json(data: dict, facts: dict, state_path: str) -> str:
+def build_capsule_json(
+    data: dict,
+    facts: dict,
+    state_path: str,
+    telemetry: dict | None = None,
+    previous_fingerprint: str | None = None,
+) -> str:
     """Deterministic JSON capsule (sorted keys, same critical fields)."""
     recorded = data.get("state_written_against_head")
     resolved = autonomy_mod.autonomy_defaults(data)
     ready, reasons = autonomy_mod.check_completion_readiness(data)
+    previous = {"fingerprint": previous_fingerprint} if previous_fingerprint else None
+    observation = autonomy_mod.observe_rotation(data, facts, previous)
     doc = {
         "_kind": "DERIVED_INDEX (not Source Authority)",
         "repository": data.get("repository"),
@@ -231,24 +361,40 @@ def build_capsule_json(data: dict, facts: dict, state_path: str) -> str:
         "completion_ready": ready,
         "completion_reason": reasons[0] if reasons else "n/a",
         "successor_status": resolved["successor_status"],
-        "rotation": autonomy_mod.rotation_render(data),
+        "rotation": autonomy_mod.format_observation(observation),
+        "rotation_recommendation": observation.get("recommendation"),
+        "rotation_reasons": observation.get("reasons"),
+        "rotation_fingerprint": observation.get("fingerprint"),
+        "rotation_provenance": observation.get("provenance"),
+        "telemetry_available": bool(telemetry and telemetry.get("available")),
+        "telemetry_provenance": (
+            telemetry.get("provenance") if isinstance(telemetry, dict) else None
+        ),
         "full_state": state_path,
     }
     return json.dumps(doc, indent=2, sort_keys=True) + "\n"
 
 
-def derive(state_path: str, workdir: str, fmt: str = "text", full: bool = False) -> str:
+def derive(
+    state_path: str,
+    workdir: str,
+    fmt: str = "text",
+    full: bool = False,
+    run_dir: str | None = None,
+    previous_fingerprint: str | None = None,
+) -> str:
     """Load, identity-check, and render. Raises CapsuleError fail-closed."""
     data = _load_state(state_path)
-    facts = _git_facts(workdir)
+    facts = _rotation_git_facts(data, _git_facts(workdir), workdir)
     problems = _check_identity(data, facts, workdir)
     if problems:
         raise CapsuleError(problems[0])
     if full:
         return state_mod.dump_state(data)
+    telemetry = _load_telemetry(run_dir)
     if fmt == "json":
-        return build_capsule_json(data, facts, state_path)
-    return build_capsule(data, facts, state_path)
+        return build_capsule_json(data, facts, state_path, telemetry, previous_fingerprint)
+    return build_capsule(data, facts, state_path, telemetry, previous_fingerprint)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -265,11 +411,31 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Opt-in: print the full validated state instead of the compact capsule.",
     )
+    parser.add_argument(
+        "--run-dir",
+        default=None,
+        help="Foundry run directory for optional WS199 telemetry enrichment "
+        "(default: FOUNDRY_RUN_DIR env; absent keeps the export-missing "
+        "disclaimer and never blocks).",
+    )
+    parser.add_argument(
+        "--previous-fingerprint",
+        default=None,
+        help="Fingerprint from an earlier explicit milestone observation; an "
+        "exact repeat without material progress yields REVIEW_PROMPT.",
+    )
     args = parser.parse_args(argv)
     state_path = resolve_state_path(args.state)
     workdir = args.workdir or os.getcwd()
+    run_dir = args.run_dir or os.environ.get("FOUNDRY_RUN_DIR")
     try:
-        print(derive(state_path, workdir, args.format, args.full), end="")
+        print(
+            derive(
+                state_path, workdir, args.format, args.full, run_dir,
+                args.previous_fingerprint,
+            ),
+            end="",
+        )
     except CapsuleError as exc:
         print(f"CAPSULE_REJECT: {exc}", file=sys.stderr)
         return 2

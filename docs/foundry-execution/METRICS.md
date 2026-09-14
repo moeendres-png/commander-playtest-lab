@@ -85,6 +85,19 @@ unavailable on the pinned CLI for TUI launches. Pinned assumptions (CLI
 `--sanitize` (used when advertised, never required). No token-based rotation
 threshold exists; WS199 collects facts only.
 
+## WS200 rotation observability (advisory, threshold-free)
+
+Rotation recommendations derive from state/Git milestone facts only and
+are surfaced in the capsule (`rotation:`, `telemetry:`, `review_guidance:`
+lines; structured `rotation_*` / `telemetry_*` JSON fields) and in
+`launch-context.json` (`rotation_advisory`, `rotation_telemetry_available`).
+`telemetry-status.json` `CAPTURED` exact-run aggregates with per-field
+`AUTOCAPTURED` provenance render informationally; absent, `PENDING`,
+malformed, or foreign-session telemetry renders the export-missing
+disclaimer and never blocks. Advisory presence never changes
+`LAUNCH_READY`. No token, cache, cost, turn, tool-call, or elapsed value
+may change a recommendation (adversarial invariance tests).
+
 The core project effectiveness notion is verified engineering progress per human
 coordination per model effort — not commit count. These records feed the
 HIGH-vs-XHIGH comparison; the benchmark itself remains NOT_RUN by design.

@@ -96,6 +96,32 @@ then recommend a fresh compact continuation from the exact resumable state —
 never kill/reset the live process, never change model/provider). Non-`NONE`
 guidance without export provenance carries the export-missing hygiene reminder.
 
+WS200 rotation observability (threshold-free, advisory-only): the capsule
+and launch context surface a pure factual rotation observation derived
+from state/Git milestone facts only (`tools/foundry/autonomy.py`:
+`observe_rotation` / `recommend_rotation` / `checkpoint_fingerprint`;
+`tools/foundry/context_capsule.py` collects facts and renders). Signals:
+persisted `rotation_guidance` requests are honored; an explicit stall
+(`BLOCKED`/`STALE` plus a recorded failure identity) yields
+`REVIEW_PROMPT` (`EXPLICIT_STALL_STATE`); one exact repeated structural
+checkpoint fingerprint (live HEAD, validated_head, exact_next_action,
+remaining-scope identity, failure identity, state-written-against-head)
+at a later explicit milestone yields `REVIEW_PROMPT`
+(`REPEATED_CHECKPOINT_WITHOUT_MATERIAL_PROGRESS`). Everything else —
+clean validated checkpoints, HEAD ahead of validated, dirty trees, HEAD
+drift, remaining scope, active failures, completion-ready states — stays
+`NO_ROTATION`. Checkpoint density (commits since audit base, validated
+ancestry, dirtiness) is descriptive only. WS199 aggregates render
+informationally when `telemetry-status.json` proves `CAPTURED` exact-run
+`AUTOCAPTURED` provenance, and never change the recommendation; absent
+telemetry keeps the export-missing disclaimer and never blocks. No token,
+context, wall-clock, commit-count, cache, or cost threshold exists
+anywhere in the signal path (locked by adversarial invariance tests).
+`REVIEW_PROMPT` means: at the next safe checkpoint, inspect whether a
+fresh compact continuation on the same workstream/branch/state is
+preferable — never kill, reset, compact, restart, or switch
+model/provider. Session rotation is not workstream rotation.
+
 ## 8. Compact continuation
 
 `/work` + the derived capsule resume the autonomous contract without another
