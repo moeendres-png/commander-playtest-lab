@@ -1,0 +1,63 @@
+{
+  "artifacts": [
+    {
+      "name": "ARTIFACT_INDEX.json",
+      "path": "research/xmage/ws208-offer-determinism-isolation/ARTIFACT_INDEX.json",
+      "run": "UNKNOWN",
+      "sha256": "cea780a33ce48a30ac2f25186eeb7e98e3c6b4cd81546313f6a1490a5819ff1f",
+      "size": 2147,
+      "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+    },
+    {
+      "name": "EVIDENCE_SEAL.md",
+      "path": "research/xmage/ws208-offer-determinism-isolation/EVIDENCE_SEAL.md",
+      "run": "UNKNOWN",
+      "sha256": "e113ac42285b1e0328bbb3682dbe7daf7bf75003aa1a4c7570192a1b72c4476b",
+      "size": 6031,
+      "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+    },
+    {
+      "name": "HYPOTHESIS_MATRIX.md",
+      "path": "research/xmage/ws208-offer-determinism-isolation/HYPOTHESIS_MATRIX.md",
+      "run": "UNKNOWN",
+      "sha256": "fabb143415a2dc369b7b889d9160f99e91d62dce68053bc7de3ab3c20e613b63",
+      "size": 7261,
+      "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+    },
+    {
+      "name": "XMAGE_ENGINE_SUCCESSOR_SPEC.md",
+      "path": "research/xmage/ws208-offer-determinism-isolation/XMAGE_ENGINE_SUCCESSOR_SPEC.md",
+      "run": "UNKNOWN",
+      "sha256": "75a9834da951a443f165f7f5d4ec6cba322d6103abdc6ed2a49aee31976ba833",
+      "size": 7418,
+      "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+    },
+    {
+      "name": "Ws208TraceDriver.java",
+      "path": "research/xmage/ws208-offer-determinism-isolation/driver/org/commanderlab/xmage/Ws208TraceDriver.java",
+      "run": "UNKNOWN",
+      "sha256": "c7ca432220dffde2012e5a02fc630ddb01e08752a0d02d7eb3ce437623a5df9a",
+      "size": 53984,
+      "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+    },
+    {
+      "name": "ws208_diff.py",
+      "path": "research/xmage/ws208-offer-determinism-isolation/ws208_diff.py",
+      "run": "UNKNOWN",
+      "sha256": "31b413e2f0b00930a6e0e97fe77716438d9f493aba6692e5e269298426027f9e",
+      "size": 5690,
+      "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+    },
+    {
+      "name": "ws208_run.py",
+      "path": "research/xmage/ws208-offer-determinism-isolation/ws208_run.py",
+      "run": "UNKNOWN",
+      "sha256": "be0bb1548aed04a686134be02ece19bf001cdf80184cc368047c4c722c339196",
+      "size": 6491,
+      "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+    }
+  ],
+  "generated_utc": "2026-09-14T12:44:25+00:00",
+  "run": "UNKNOWN",
+  "source_sha": "1dee8b77f7243900eec5a7cc05fb1fe26467aea9"
+}
