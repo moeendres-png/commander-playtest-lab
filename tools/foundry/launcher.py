@@ -39,6 +39,14 @@ WS75 hardening:
 - The exact ``--state`` path plus worktree/branch/workstream/run-dir/
   mode/effort reach Muse as ``FOUNDRY_*`` env (no secrets) and as
   ``run_dir/launch-context.json``.
+- Canonical control-plane tool identity (WS196): the exact canonical root
+  plus the exact canonical ``tools/foundry/safe_push.py`` reach Muse as
+  ``FOUNDRY_CANONICAL_ROOT`` / ``FOUNDRY_SAFE_PUSH`` and as
+  ``canonical_root`` / ``canonical_safe_push`` in ``launch-context.json``.
+  Cross-repo (Forge/XMage) sessions resolve the same identity by
+  construction — no filesystem globbing, no sibling-worktree discovery, no
+  copied control-plane tools. A canonical root without the exact tool file
+  fails closed before any discovery.
 - Declared read-only reference roots (``--reference`` JSON, repeatable)
   are verified at bootstrap and exposed as ``FOUNDRY_REFERENCE_ROOTS``.
 - The installed OpenCode CLI must equal the canonical qualified version
@@ -151,6 +159,37 @@ def resolve_opencode_binary(explicit: str | None) -> str:
     if explicit:
         return explicit
     return os.environ.get(OPENCODE_BIN_ENV, "opencode")
+
+
+CANONICAL_SAFE_PUSH_REL = ("tools", "foundry", "safe_push.py")
+
+
+def resolve_canonical_tools(canonical_root: str) -> dict:
+    """Deterministic canonical control-plane tool identity (no discovery).
+
+    Returns ``{"canonical_root": <realpath>, "safe_push": <abspath>}`` where
+    ``safe_push`` is exactly ``<root>/tools/foundry/safe_push.py`` joined by
+    construction — never globbed, never searched across sibling worktrees,
+    never assumed inside the session CWD (which for Forge/XMage runs is an
+    engine checkout without control-plane tooling).
+
+    Fail-closed: an empty root or a root whose exact tool file is absent
+    raises ``ValueError`` so ``init`` refuses the launch before any
+    model-driven discovery can start. Permissions are intentionally
+    untouched here: the identity is the grant, and the external-directory
+    surface stays narrow (no broad allow is injected).
+    """
+    if not canonical_root:
+        raise ValueError("canonical root is required to resolve canonical tools")
+    root = os.path.realpath(os.path.abspath(canonical_root))
+    safe_push = os.path.join(root, *CANONICAL_SAFE_PUSH_REL)
+    if not os.path.isfile(safe_push):
+        raise ValueError(
+            f"canonical safe_push missing at {safe_push!r} "
+            "(canonical root must carry tools/foundry/safe_push.py; "
+            "refusing before any filesystem discovery)"
+        )
+    return {"canonical_root": root, "safe_push": safe_push}
 
 
 def _git(args: list[str], cwd: str) -> str:
@@ -342,6 +381,10 @@ def resolve_environment(
     canonical = Path(canonical_root)
     if not (canonical / "opencode.json").is_file() or not (canonical / "AGENTS.md").is_file():
         raise ValueError(f"canonical root {canonical_root!r} lacks policy files")
+    # WS196: exact canonical tool identity by construction (fail closed when
+    # the canonical root carries no control-plane tooling). CPL-native and
+    # Forge/XMage sessions receive the same authority model.
+    tools = resolve_canonical_tools(canonical_root)
     denies = sibling_denies(worktree)
     static_denies = json.loads((canonical / "opencode.json").read_text(encoding="utf-8"))[
         "permission"
@@ -376,6 +419,11 @@ def resolve_environment(
     env["FOUNDRY_RUN_DIR"] = run_dir
     env["FOUNDRY_MODE"] = mode
     env["FOUNDRY_REFERENCE_ROOTS"] = json.dumps(references, sort_keys=True)
+    # WS196 canonical tool identity (paths/identities only — never secrets).
+    # The session CWD may be an engine checkout; the exact canonical tool
+    # path is authoritative, so no globbing or sibling discovery is needed.
+    env["FOUNDRY_CANONICAL_ROOT"] = tools["canonical_root"]
+    env["FOUNDRY_SAFE_PUSH"] = tools["safe_push"]
     env["FOUNDRY_CANONICAL_POLICY_HASH"] = policy_hash
     env["FOUNDRY_CONFIG_DIR_MANIFEST"] = manifest["sha256"]
     if drift_suppressed:
@@ -543,6 +591,9 @@ def init(
         "version_audit_mode": version_audit_mode,
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
+        # WS196: machine-readable canonical tool identity (paths only).
+        "canonical_root": env["FOUNDRY_CANONICAL_ROOT"],
+        "canonical_safe_push": env["FOUNDRY_SAFE_PUSH"],
         "references": parsed_refs,
         "worktree_states": state_map,
         "live_head": live_head,
@@ -561,6 +612,8 @@ def init(
         "env_keys": sorted(k for k in env if k.startswith(("OPENCODE_", "FOUNDRY_"))),
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
+        "canonical_root": env["FOUNDRY_CANONICAL_ROOT"],
+        "canonical_safe_push": env["FOUNDRY_SAFE_PUSH"],
         "hook_path": hook_path,
         "mode": mode,
         "ui_mode": ui_mode,

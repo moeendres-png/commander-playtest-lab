@@ -56,6 +56,17 @@ The launcher injects exact run context as `FOUNDRY_*` environment plus
   `foundry-adjudicator` subagent, never by lowering effort).
 - `FOUNDRY_REFERENCE_ROOTS` — JSON list of verified read-only reference
   roots (label/root/slug/commit/tree/cleanliness), if the run declares any.
+- `FOUNDRY_CANONICAL_ROOT` — the exact Commander-Lab checkout carrying
+  canonical control-plane tooling. It is not your CWD on cross-repo
+  (Forge/XMage) runs; never guess it from sibling paths.
+- `FOUNDRY_SAFE_PUSH` — the exact canonical `tools/foundry/safe_push.py`.
+  This is the only authorized remote-write path: invoke exactly this file
+  (e.g. `python3 "$FOUNDRY_SAFE_PUSH" --worktree "$FOUNDRY_WORKTREE"
+  --expected-branch "$FOUNDRY_BRANCH" --state "$FOUNDRY_STATE_PATH"`).
+  Never glob for it, never assume `tools/foundry/*` exists under your CWD,
+  never copy control-plane tools into an engine repository, and never fall
+  back to direct `git push` (denied; only `safe_push.py` sets the hook
+  marker). A missing `FOUNDRY_SAFE_PUSH` fails closed: stop, do not discover.
 
 ## Tool-call ergonomics
 

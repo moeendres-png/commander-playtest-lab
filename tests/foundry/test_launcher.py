@@ -101,6 +101,13 @@ def canon(tmp_path: Path) -> Path:
         ),
         encoding="utf-8",
     )
+    # WS196: the canonical root must carry control-plane tooling; the
+    # launcher fails closed without the exact safe_push file.
+    tools_dir = root / "tools" / "foundry"
+    tools_dir.mkdir(parents=True)
+    (tools_dir / "safe_push.py").write_text(
+        "# canonical safe-push stub for routing tests\n", encoding="utf-8"
+    )
     return root
 
 

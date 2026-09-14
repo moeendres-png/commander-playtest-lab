@@ -62,6 +62,23 @@ The project-local `workstream-bootstrap`, `failure-classification`,
 `test-impact`, `evidence-seal`, and `continuation` skills are authoritative in
 this repository. Do not edit user-global skills from this workstream.
 
+## Canonical cross-repo tool routing (WS196)
+
+Every launch publishes deterministic canonical control-plane identity in
+both the child environment (`FOUNDRY_CANONICAL_ROOT`, `FOUNDRY_SAFE_PUSH`)
+and `$FOUNDRY_RUN_DIR/launch-context.json` (`canonical_root`,
+`canonical_safe_push`): paths/identities only, never secrets. CPL-native,
+Forge and XMage workstreams resolve the same exact
+`<canonical-root>/tools/foundry/safe_push.py` by construction — no
+filesystem globbing, no sibling-worktree discovery, no copied
+control-plane tools, no direct-`git push` fallback. A canonical root
+without the exact tool file fails closed (`LAUNCH_REFUSED`) before any
+model-driven discovery. The external-directory surface stays narrow (no
+broad allow injected; sibling denies and the `git push*` deny hold),
+`safe_push.py` gates are unchanged, TUI and headless launches carry
+identical identity, the canonical Go provider stays default, and Zen
+remains explicit operator-selected override only.
+
 ## Permission model (summary)
 
 Root `opencode.json` is the single permission authority; agents inherit it and
