@@ -1,0 +1,226 @@
+{
+ "19108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "declare_attacker"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "declare_attacker": 2,
+    "mana_payment": 4,
+    "mulligan": 4,
+    "priority": 489
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 19108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "273c6a7252d249980b2e10f90d66e2e84e6abae41da66261d0c185b52a2f3b93",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 19108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "combat-scan-19108"
+ },
+ "29108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 29108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "1630e526e3f364876db3af6d92f680dcceda35abb2297bf0593cbb4e9b10b17b",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 29108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "combat-scan-29108"
+ },
+ "39108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 39108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "35f37500f3db964acdfd240f495cfc8b16860be6b117ab85a74b71e99a507dc7",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 39108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "combat-scan-39108"
+ },
+ "49108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "declare_attacker"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "declare_attacker": 3,
+    "mana_payment": 2,
+    "mulligan": 4,
+    "priority": 490
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 49108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "066d6e532ee9ebfdba873a6c3b21928ff70e3fc0e37b75327df34798f401062d",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 49108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "combat-scan-49108"
+ },
+ "59108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 59108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "52f4136d392cee630e035db7d8a1ba325411f0b369c8e0a8b964ac3973cfac7b",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 59108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "combat-scan-59108"
+ },
+ "9108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 9108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "a0c97cac48332de5780a638d66793ac3de58287a9b531d8255166fdabee87224",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 9108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "combat-scan-9108"
+ }
+}

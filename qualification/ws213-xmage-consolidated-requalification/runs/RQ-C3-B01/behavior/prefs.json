@@ -1,0 +1,41 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws213-pilot-v1",
+  "seed": 9103,
+  "slot": "RQ-C3-B01",
+  "subcase": "",
+  "tag": "behavior"
+ },
+ "choice": {
+  "0": [
+   "Llanowar Elves",
+   "Soul Warden"
+  ],
+  "1": [
+   "Soul Warden"
+  ],
+  "2": [
+   "Soul Warden"
+  ],
+  "3": [
+   "Soul Warden"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Llanowar Elves",
+   "Soul Warden"
+  ],
+  "1": [
+   "Soul Warden"
+  ],
+  "2": [
+   "Soul Warden"
+  ],
+  "3": [
+   "Soul Warden"
+  ]
+ }
+}

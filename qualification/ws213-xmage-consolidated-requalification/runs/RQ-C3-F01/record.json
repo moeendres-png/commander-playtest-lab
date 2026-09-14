@@ -1,0 +1,328 @@
+{
+ "behavior": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "target"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mana_payment": 4,
+    "mulligan": 4,
+    "priority": 490,
+    "target": 1
+   },
+   "ok": true,
+   "rules_random_calls": 480,
+   "rules_seed": 13405,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "b15e378149b46fffd1a4f8615986ba7a00305b8590200bd49f4060dc39aaedba",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 13405,
+  "slot": "RQ-C3-F01",
+  "stream_diverged": false,
+  "stream_divergence_detail": "",
+  "subcase": "",
+  "tag": "behavior",
+  "twin": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "target"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mana_payment": 4,
+    "mulligan": 4,
+    "priority": 490,
+    "target": 1
+   },
+   "ok": true,
+   "rules_random_calls": 480,
+   "rules_seed": 13405,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "b15e378149b46fffd1a4f8615986ba7a00305b8590200bd49f4060dc39aaedba",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "twin_match": true
+ },
+ "opening_a": {
+  "evidence": {
+   "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+   "first_decision": {
+    "class": "mulligan",
+    "prompt": "Keep or mulligan",
+    "seat": 1
+   },
+   "opening": [
+    {
+     "hand_names": [
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Rampant Growth"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 0
+    },
+    {
+     "hand_names": [
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 1
+    },
+    {
+     "hand_names": [
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 2
+    },
+    {
+     "hand_names": [
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 3
+    }
+   ],
+   "pregame_steps": [
+    {
+     "basis": "neutral-pregame",
+     "class": "choose_object"
+    }
+   ],
+   "pregame_stop": "dealt",
+   "rules_seed_binding": {
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "explicit_seed": 13405,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "rules_seed": 13405,
+    "rules_seed_explicit": true,
+    "rules_seed_matches": true,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "seed_supported": true
+   },
+   "schema": "ws213.opening-hand.v1",
+   "seed": 13405,
+   "starting_seat": 1
+  },
+  "ok": true
+ },
+ "opening_b": {
+  "evidence": {
+   "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+   "first_decision": {
+    "class": "mulligan",
+    "prompt": "Keep or mulligan",
+    "seat": 1
+   },
+   "opening": [
+    {
+     "hand_names": [
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Rampant Growth"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 0
+    },
+    {
+     "hand_names": [
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 1
+    },
+    {
+     "hand_names": [
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 2
+    },
+    {
+     "hand_names": [
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains",
+      "Plains"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 3
+    }
+   ],
+   "pregame_steps": [
+    {
+     "basis": "neutral-pregame",
+     "class": "choose_object"
+    }
+   ],
+   "pregame_stop": "dealt",
+   "rules_seed_binding": {
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "explicit_seed": 13405,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "rules_seed": 13405,
+    "rules_seed_explicit": true,
+    "rules_seed_matches": true,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "seed_supported": true
+   },
+   "schema": "ws213.opening-hand.v1",
+   "seed": 13405,
+   "starting_seat": 1
+  },
+  "ok": true
+ },
+ "setup": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 13405,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "02448455c8e57b171c6589f37f555009547486debc02f17a6f8aa912569e40af",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 13405,
+  "slot": "RQ-C3-F01",
+  "stream_diverged": false,
+  "stream_divergence_detail": "",
+  "subcase": "",
+  "tag": "setup",
+  "twin": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 13405,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "02448455c8e57b171c6589f37f555009547486debc02f17a6f8aa912569e40af",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "twin_match": true
+ }
+}

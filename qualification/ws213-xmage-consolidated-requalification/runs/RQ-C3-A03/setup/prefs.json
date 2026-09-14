@@ -1,0 +1,29 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws213-pilot-v1",
+  "seed": 9788,
+  "slot": "RQ-C3-A03",
+  "subcase": "",
+  "tag": "setup"
+ },
+ "_setup": {
+  "held_behavior_cards": [
+   "Lightning Bolt"
+  ],
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-A03",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Drudge Skeletons"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Drudge Skeletons"
+  ]
+ }
+}

@@ -1,0 +1,27 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws213-pilot-v1",
+  "seed": 13405,
+  "slot": "RQ-C3-F01",
+  "subcase": "",
+  "tag": "behavior"
+ },
+ "choice": {
+  "0": [
+   "Rampant Growth",
+   "Forest"
+  ]
+ },
+ "choose_object": {
+  "0": [
+   "Forest"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Rampant Growth"
+  ]
+ }
+}

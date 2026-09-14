@@ -1,0 +1,19 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws213-pilot-v1",
+  "seed": 13405,
+  "slot": "RQ-C3-F01",
+  "subcase": "",
+  "tag": "setup"
+ },
+ "_setup": {
+  "held_behavior_cards": [
+   "Rampant Growth"
+  ],
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-F01",
+  "subcase": ""
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12
+}

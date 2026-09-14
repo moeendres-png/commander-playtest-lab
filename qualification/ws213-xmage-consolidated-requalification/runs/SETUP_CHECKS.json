@@ -1,0 +1,65 @@
+{
+ "RQ-C3-A03": {
+  "met": true,
+  "missing": [],
+  "predicates": [
+   [
+    "Drudge Skeletons",
+    0
+   ],
+   [
+    "Swamp",
+    0
+   ],
+   [
+    "Mountain",
+    1
+   ]
+  ]
+ },
+ "RQ-C3-C01": {
+  "met": true,
+  "missing": [],
+  "predicates": []
+ },
+ "RQ-C3-C03": {
+  "met": true,
+  "missing": [],
+  "predicates": []
+ },
+ "RQ-C3-D06": {
+  "met": true,
+  "missing": [],
+  "predicates": []
+ },
+ "RQ-C3-F01": {
+  "met": true,
+  "missing": [],
+  "predicates": [
+   [
+    "Forest",
+    0
+   ]
+  ]
+ },
+ "RQ-C3-H01-CLONE_FIRST": {
+  "met": true,
+  "missing": [],
+  "predicates": [
+   [
+    "Runeclaw Bear",
+    1
+   ]
+  ]
+ },
+ "RQ-C3-H01-NO_HUMILITY": {
+  "met": true,
+  "missing": [],
+  "predicates": [
+   [
+    "Runeclaw Bear",
+    1
+   ]
+  ]
+ }
+}

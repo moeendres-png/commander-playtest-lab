@@ -1,0 +1,4733 @@
+{
+  "schema": "ws213.slot-evidence.v1",
+  "slot": "RQ-C3-C01",
+  "subcase": "",
+  "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "seed": 10704,
+  "candidate_head": "88026afc8d46db016422fb525fb8f76b639f6b3b",
+  "decision_policy_version": "ws213-pilot-v1",
+  "setup_boundary": "NATURAL_GAME_START",
+  "authority_hash": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json blob 5852965e59412399a947c626d4f7d428be8ef337",
+  "twin_run": true,
+  "stopped_by": "terminal",
+  "stop_detail": "",
+  "decisions_answered": 87,
+  "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "target"
+  ],
+  "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 78,
+    "mana_payment": 3,
+    "target": 1
+  },
+  "negative_controls": {
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor",
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "unadvanced": true
+  },
+  "decision_stream": [
+    {
+      "offset": 1,
+      "class": "choose_object",
+      "actor_seat": 0,
+      "offered_count": 4,
+      "offered_types": [
+        {
+          "type": "choice",
+          "count": 4
+        }
+      ],
+      "selected_label": "Full Game Seat 4",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Full Game Seat 4",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 2,
+      "class": "mulligan",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "keep",
+          "count": 1
+        },
+        {
+          "type": "mulligan",
+          "count": 1
+        }
+      ],
+      "selected_label": "Keep opening hand",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Keep opening hand",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 3,
+      "class": "mulligan",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "keep",
+          "count": 1
+        },
+        {
+          "type": "mulligan",
+          "count": 1
+        }
+      ],
+      "selected_label": "Keep opening hand",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Keep opening hand",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 4,
+      "class": "mulligan",
+      "actor_seat": 1,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "keep",
+          "count": 1
+        },
+        {
+          "type": "mulligan",
+          "count": 1
+        }
+      ],
+      "selected_label": "Keep opening hand",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Keep opening hand",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 5,
+      "class": "mulligan",
+      "actor_seat": 0,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "keep",
+          "count": 1
+        },
+        {
+          "type": "mulligan",
+          "count": 1
+        }
+      ],
+      "selected_label": "Keep opening hand",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Keep opening hand",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 6,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 7,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 8,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 9,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 10,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 11,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 12,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 13,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 14,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 9,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "activated_ability",
+          "count": 8
+        }
+      ],
+      "selected_label": "Swamp — Play Swamp",
+      "selected_index": 1,
+      "label_ambiguous": true,
+      "selection_basis": "twin_stream:Swamp — Play Swamp",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 15,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 16,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 17,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 18,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 19,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 20,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 21,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 22,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 23,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 24,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 25,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 26,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 27,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 28,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 29,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 30,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 31,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 32,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 33,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 34,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 35,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 36,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 37,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 38,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 39,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 40,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 41,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 42,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 43,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 44,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 45,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 46,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 297
+      }
+    },
+    {
+      "offset": 47,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 9,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "activated_ability",
+          "count": 8
+        }
+      ],
+      "selected_label": "Mountain — Play Mountain",
+      "selected_index": 1,
+      "label_ambiguous": true,
+      "selection_basis": "twin_stream:Mountain — Play Mountain",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 48,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 49,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 50,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 51,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 52,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 53,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 54,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 55,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 56,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 57,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 58,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 59,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 60,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 61,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 62,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 63,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 64,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 65,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 66,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 67,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 68,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 69,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 70,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 71,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 72,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 73,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 74,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 75,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 76,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 77,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 78,
+      "class": "priority",
+      "actor_seat": 3,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 79,
+      "class": "priority",
+      "actor_seat": 2,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 296
+      }
+    },
+    {
+      "offset": 80,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 8,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "activated_ability",
+          "count": 7
+        }
+      ],
+      "selected_label": "Forest — Play Forest",
+      "selected_index": 1,
+      "label_ambiguous": true,
+      "selection_basis": "twin_stream:Forest — Play Forest",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 81,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 3,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        },
+        {
+          "type": "activated_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Llanowar Elves — Cast Llanowar Elves",
+      "selected_index": 2,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Llanowar Elves — Cast Llanowar Elves",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 82,
+      "class": "mana_payment",
+      "actor_seat": 1,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "cancel_mana_payment",
+          "count": 1
+        },
+        {
+          "type": "mana_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Forest — {T}: Add {G}.",
+      "selected_index": 1,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Forest — {T}: Add {G}.",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 83,
+      "class": "mana_payment",
+      "actor_seat": 1,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "cancel_mana_payment",
+          "count": 1
+        },
+        {
+          "type": "mana_pool",
+          "count": 1
+        }
+      ],
+      "selected_label": "Spend green mana from pool",
+      "selected_index": 1,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Spend green mana from pool",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 84,
+      "class": "priority",
+      "actor_seat": 1,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        }
+      ],
+      "selected_label": "Pass priority",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Pass priority",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 295
+      }
+    },
+    {
+      "offset": 85,
+      "class": "priority",
+      "actor_seat": 0,
+      "offered_count": 2,
+      "offered_types": [
+        {
+          "type": "pass_priority",
+          "count": 1
+        },
+        {
+          "type": "activated_ability",
+          "count": 1
+        }
+      ],
+      "selected_label": "Force of Will — Cast Force of Will",
+      "selected_index": 1,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Force of Will — Cast Force of Will",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 293
+      }
+    },
+    {
+      "offset": 86,
+      "class": "target",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "target",
+          "count": 1
+        }
+      ],
+      "selected_label": "Llanowar Elves",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Llanowar Elves",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 293
+      }
+    },
+    {
+      "offset": 87,
+      "class": "mana_payment",
+      "actor_seat": 0,
+      "offered_count": 1,
+      "offered_types": [
+        {
+          "type": "cancel_mana_payment",
+          "count": 1
+        }
+      ],
+      "selected_label": "Cancel mana payment",
+      "selected_index": 0,
+      "label_ambiguous": false,
+      "selection_basis": "twin_stream:Cancel mana payment",
+      "advanced": true,
+      "hidden_info": {
+        "ok": true,
+        "detail": "",
+        "oracle_ids_checked": 293
+      }
+    }
+  ],
+  "semantic_replay_match": false,
+  "stream_diverged": false,
+  "stream_divergence_detail": "",
+  "stream_entries_followed": 87,
+  "assertion_state": {
+    "seats": [
+      {
+        "seat": 0,
+        "life": 40,
+        "hand_size": 7,
+        "library_size": 92,
+        "graveyard": []
+      },
+      {
+        "seat": 1,
+        "life": 40,
+        "hand_size": 8,
+        "library_size": 91,
+        "graveyard": []
+      },
+      {
+        "seat": 2,
+        "life": 40,
+        "hand_size": 7,
+        "library_size": 91,
+        "graveyard": []
+      },
+      {
+        "seat": 3,
+        "life": 40,
+        "hand_size": 7,
+        "library_size": 91,
+        "graveyard": []
+      }
+    ],
+    "battlefield": [
+      {
+        "name": "Swamp",
+        "controller_seat": 3,
+        "power": 0,
+        "toughness": 0,
+        "is_copy": false,
+        "abilities": 2
+      },
+      {
+        "name": "Mountain",
+        "controller_seat": 2,
+        "power": 0,
+        "toughness": 0,
+        "is_copy": false,
+        "abilities": 2
+      }
+    ]
+  },
+  "native_transcript": [
+    {
+      "sequence": 1,
+      "kind": "decision_requested",
+      "decision_class": "choose_object",
+      "actor_seat": 0,
+      "prompt": "Select a starting player",
+      "public_state_reference": "actor-view:8764d0a1c04642cae775b21ff8f8e0b7a38c2626fc00e190877ff13793d15c38",
+      "private_actor_state_reference": "actor-view:8764d0a1c04642cae775b21ff8f8e0b7a38c2626fc00e190877ff13793d15c38",
+      "legal_option_types": [
+        "choice",
+        "choice",
+        "choice",
+        "choice"
+      ],
+      "legal_option_labels": [
+        "Full Game Seat 4",
+        "Full Game Seat 2",
+        "Full Game Seat 3",
+        "Full Game Seat 1"
+      ]
+    },
+    {
+      "sequence": 2,
+      "kind": "decision_accepted",
+      "decision_class": "choose_object",
+      "actor_seat": 0,
+      "prompt": "Select a starting player",
+      "selected_option_types": [
+        "choice"
+      ],
+      "selected_option_labels": [
+        "Full Game Seat 4"
+      ]
+    },
+    {
+      "sequence": 3,
+      "kind": "decision_requested",
+      "decision_class": "mulligan",
+      "actor_seat": 3,
+      "prompt": "Keep or mulligan",
+      "public_state_reference": "actor-view:9dc305943fa7b44bfb823a3501044e379dd256f4906fc4b9922e9c9f5da91d62",
+      "private_actor_state_reference": "actor-view:9dc305943fa7b44bfb823a3501044e379dd256f4906fc4b9922e9c9f5da91d62",
+      "legal_option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "legal_option_labels": [
+        "Keep opening hand",
+        "Take mulligan"
+      ]
+    },
+    {
+      "sequence": 4,
+      "kind": "decision_accepted",
+      "decision_class": "mulligan",
+      "actor_seat": 3,
+      "prompt": "Keep or mulligan",
+      "selected_option_types": [
+        "keep"
+      ],
+      "selected_option_labels": [
+        "Keep opening hand"
+      ]
+    },
+    {
+      "sequence": 5,
+      "kind": "decision_requested",
+      "decision_class": "mulligan",
+      "actor_seat": 2,
+      "prompt": "Keep or mulligan",
+      "public_state_reference": "actor-view:94533dd6bc961d6c5956918c7dc54dddd2626f28fecad69c7d176053c02acae2",
+      "private_actor_state_reference": "actor-view:94533dd6bc961d6c5956918c7dc54dddd2626f28fecad69c7d176053c02acae2",
+      "legal_option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "legal_option_labels": [
+        "Keep opening hand",
+        "Take mulligan"
+      ]
+    },
+    {
+      "sequence": 6,
+      "kind": "decision_accepted",
+      "decision_class": "mulligan",
+      "actor_seat": 2,
+      "prompt": "Keep or mulligan",
+      "selected_option_types": [
+        "keep"
+      ],
+      "selected_option_labels": [
+        "Keep opening hand"
+      ]
+    },
+    {
+      "sequence": 7,
+      "kind": "decision_requested",
+      "decision_class": "mulligan",
+      "actor_seat": 1,
+      "prompt": "Keep or mulligan",
+      "public_state_reference": "actor-view:9b0b8475127b8b81a3122430b091179c193c86450a30fa10993612e548fb0bf1",
+      "private_actor_state_reference": "actor-view:9b0b8475127b8b81a3122430b091179c193c86450a30fa10993612e548fb0bf1",
+      "legal_option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "legal_option_labels": [
+        "Keep opening hand",
+        "Take mulligan"
+      ]
+    },
+    {
+      "sequence": 8,
+      "kind": "decision_accepted",
+      "decision_class": "mulligan",
+      "actor_seat": 1,
+      "prompt": "Keep or mulligan",
+      "selected_option_types": [
+        "keep"
+      ],
+      "selected_option_labels": [
+        "Keep opening hand"
+      ]
+    },
+    {
+      "sequence": 9,
+      "kind": "decision_requested",
+      "decision_class": "mulligan",
+      "actor_seat": 0,
+      "prompt": "Keep or mulligan",
+      "public_state_reference": "actor-view:96a461932b779ee877999786d466bd9cf930c1f2ba84fe2b39ee8580469a7dc1",
+      "private_actor_state_reference": "actor-view:96a461932b779ee877999786d466bd9cf930c1f2ba84fe2b39ee8580469a7dc1",
+      "legal_option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "legal_option_labels": [
+        "Keep opening hand",
+        "Take mulligan"
+      ]
+    },
+    {
+      "sequence": 10,
+      "kind": "decision_accepted",
+      "decision_class": "mulligan",
+      "actor_seat": 0,
+      "prompt": "Keep or mulligan",
+      "selected_option_types": [
+        "keep"
+      ],
+      "selected_option_labels": [
+        "Keep opening hand"
+      ]
+    },
+    {
+      "sequence": 11,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:e01cff1900b4b8a91e2ddab8ba2191514c3fa16321ff5055a6561660da9833c5",
+      "private_actor_state_reference": "actor-view:e01cff1900b4b8a91e2ddab8ba2191514c3fa16321ff5055a6561660da9833c5",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 12,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 13,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:625d7f1588509b41eb435d11d814e5983232dbb9a11c0524cbaca41a151a029b",
+      "private_actor_state_reference": "actor-view:625d7f1588509b41eb435d11d814e5983232dbb9a11c0524cbaca41a151a029b",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 14,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 15,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:af6766214c3decb9c3e3af8add23a2a63d82c1b40953ba150889c6ffcf8660c8",
+      "private_actor_state_reference": "actor-view:af6766214c3decb9c3e3af8add23a2a63d82c1b40953ba150889c6ffcf8660c8",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 16,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 17,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:35643b7cffd2e1fd04e7d45318f29bf9bfa97c1376f7ecbfa6151049a640426f",
+      "private_actor_state_reference": "actor-view:35643b7cffd2e1fd04e7d45318f29bf9bfa97c1376f7ecbfa6151049a640426f",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 18,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 19,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:43f1f4a08c65d1d4c721752a153e7ac33c60dc67f078cededcbd7dde5449206a",
+      "private_actor_state_reference": "actor-view:43f1f4a08c65d1d4c721752a153e7ac33c60dc67f078cededcbd7dde5449206a",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 20,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 21,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:92f516bd6d8cb73168971c44dcbea2824aed4cbe94dbfe94df70dc54a8aee410",
+      "private_actor_state_reference": "actor-view:92f516bd6d8cb73168971c44dcbea2824aed4cbe94dbfe94df70dc54a8aee410",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 22,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 23,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:fc598216d23bb4b66e901c0312abb633a395688e3b312359122a3676e797e1b0",
+      "private_actor_state_reference": "actor-view:fc598216d23bb4b66e901c0312abb633a395688e3b312359122a3676e797e1b0",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 24,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 25,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:7c36b7080c9166a58f4495dcd56413fad934ff00f6a8690a8024e16eb717a3f5",
+      "private_actor_state_reference": "actor-view:7c36b7080c9166a58f4495dcd56413fad934ff00f6a8690a8024e16eb717a3f5",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 26,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 27,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:fe1955fc1afc4ad1a20c9979f75d61260fe2ca9ffbcf6088c3ea4e5912842b2d",
+      "private_actor_state_reference": "actor-view:fe1955fc1afc4ad1a20c9979f75d61260fe2ca9ffbcf6088c3ea4e5912842b2d",
+      "legal_option_types": [
+        "pass_priority",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — Play Swamp",
+        "Swamp — Play Swamp",
+        "Swamp — Play Swamp",
+        "Swamp — Play Swamp",
+        "Swamp — Play Swamp",
+        "Swamp — Play Swamp",
+        "Swamp — Play Swamp",
+        "Swamp — Play Swamp"
+      ]
+    },
+    {
+      "sequence": 28,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "activated_ability"
+      ],
+      "selected_option_labels": [
+        "Swamp — Play Swamp"
+      ]
+    },
+    {
+      "sequence": 29,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:cf7a0ddd734829631bceede7c8d810f89ad7bcf58353ae27f2a51513db21c9c4",
+      "private_actor_state_reference": "actor-view:cf7a0ddd734829631bceede7c8d810f89ad7bcf58353ae27f2a51513db21c9c4",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 30,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 31,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:2f377c83f6da2c6e0f63ae0744138597013de323e07af0196d3067eb1bf8c93b",
+      "private_actor_state_reference": "actor-view:2f377c83f6da2c6e0f63ae0744138597013de323e07af0196d3067eb1bf8c93b",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 32,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 33,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:0aaad9bb8ef0f3ea6efbf6209f681ee55938a34e72addbc5eba4973835bd4c07",
+      "private_actor_state_reference": "actor-view:0aaad9bb8ef0f3ea6efbf6209f681ee55938a34e72addbc5eba4973835bd4c07",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 34,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 35,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:4f3e73e1905c7e6dcd8bbbd888c42aebf8107eec368168b94b0e41650a02f3b9",
+      "private_actor_state_reference": "actor-view:4f3e73e1905c7e6dcd8bbbd888c42aebf8107eec368168b94b0e41650a02f3b9",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 36,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 37,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:bbd6a1816479f1e3232cb9339f5a58a2876a5bfc3e9e5e918b1f26029b55970d",
+      "private_actor_state_reference": "actor-view:bbd6a1816479f1e3232cb9339f5a58a2876a5bfc3e9e5e918b1f26029b55970d",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 38,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 39,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:8dd8eb7ab023ab5eb4e24862cbac527bd3686f4ea4abfbce972805313d237754",
+      "private_actor_state_reference": "actor-view:8dd8eb7ab023ab5eb4e24862cbac527bd3686f4ea4abfbce972805313d237754",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 40,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 41,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:03e51daeec7f1162ceec4c54c34dad9f286aa4439f0d28e4516cdb4d45a3035b",
+      "private_actor_state_reference": "actor-view:03e51daeec7f1162ceec4c54c34dad9f286aa4439f0d28e4516cdb4d45a3035b",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 42,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 43,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:f9e035b0fa160bce6464b4898ce8f4b7e6e5190bec355c3eb76b6a3609719562",
+      "private_actor_state_reference": "actor-view:f9e035b0fa160bce6464b4898ce8f4b7e6e5190bec355c3eb76b6a3609719562",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 44,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 45,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:6e0121ef11adbebde9412050e08e1ddc38f6351839bceb0e1f9f03bbec78aa11",
+      "private_actor_state_reference": "actor-view:6e0121ef11adbebde9412050e08e1ddc38f6351839bceb0e1f9f03bbec78aa11",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 46,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 47,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:2d3f722f1821fbefb69606fe773a5d81c0b37b3d2e21b35bb9575efdd8dee1e7",
+      "private_actor_state_reference": "actor-view:2d3f722f1821fbefb69606fe773a5d81c0b37b3d2e21b35bb9575efdd8dee1e7",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 48,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 49,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:f466542fc0d4fc5df6614222a78057f4d6cfd2e77fc31f2a583591190fb006de",
+      "private_actor_state_reference": "actor-view:f466542fc0d4fc5df6614222a78057f4d6cfd2e77fc31f2a583591190fb006de",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 50,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 51,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:8a50af80280f47aca9e95e45be9e994a2c87f9f40f6a38d1f72eb257343af83c",
+      "private_actor_state_reference": "actor-view:8a50af80280f47aca9e95e45be9e994a2c87f9f40f6a38d1f72eb257343af83c",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 52,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 53,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:85fbb0a3b6990fb405ed3b2fb3caa5752859e95506bea68a627bc4158f04f276",
+      "private_actor_state_reference": "actor-view:85fbb0a3b6990fb405ed3b2fb3caa5752859e95506bea68a627bc4158f04f276",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 54,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 55,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:34d7e48df9d0588f7e1a60a09e6915bbe661b43be6c7ce0795b8eda1d63d3021",
+      "private_actor_state_reference": "actor-view:34d7e48df9d0588f7e1a60a09e6915bbe661b43be6c7ce0795b8eda1d63d3021",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 56,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 57,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:80bd13cdf8c00d8260771c4812d42e2e68aa48de08f3f47e04f7b188b4dc28b0",
+      "private_actor_state_reference": "actor-view:80bd13cdf8c00d8260771c4812d42e2e68aa48de08f3f47e04f7b188b4dc28b0",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 58,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 59,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:0696ead49df64174455a2c3611542f255f4a5aee8b0d9926cf9f50a077645a5a",
+      "private_actor_state_reference": "actor-view:0696ead49df64174455a2c3611542f255f4a5aee8b0d9926cf9f50a077645a5a",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 60,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 61,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:4bd9c913ad5df37830a5d015b301e61615d582e3e5fc1bf6ec7bd402524551cd",
+      "private_actor_state_reference": "actor-view:4bd9c913ad5df37830a5d015b301e61615d582e3e5fc1bf6ec7bd402524551cd",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 62,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 63,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:49729bff56f2bebd09b1580598c2a9b621e4f2e533f1f4486a499d272476a534",
+      "private_actor_state_reference": "actor-view:49729bff56f2bebd09b1580598c2a9b621e4f2e533f1f4486a499d272476a534",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 64,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 65,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:a82a25503fa7a9c6130959fc39cf51798c6df23fd5a027a9b534978e8e39169f",
+      "private_actor_state_reference": "actor-view:a82a25503fa7a9c6130959fc39cf51798c6df23fd5a027a9b534978e8e39169f",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 66,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 67,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:1955816fc88f21e9de0d6d08fb39bae7450faeeac7ebc9b95750c3439dca1eee",
+      "private_actor_state_reference": "actor-view:1955816fc88f21e9de0d6d08fb39bae7450faeeac7ebc9b95750c3439dca1eee",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 68,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 69,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:2c3d50b74b281d66e812b4e6affd62ca40941848253c58df793905eb4893f2cd",
+      "private_actor_state_reference": "actor-view:2c3d50b74b281d66e812b4e6affd62ca40941848253c58df793905eb4893f2cd",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 70,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 71,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:fa9185d37a21fe6c467d70be93ae8fa9f87720cc78bbb0cfc773bb88cf5705af",
+      "private_actor_state_reference": "actor-view:fa9185d37a21fe6c467d70be93ae8fa9f87720cc78bbb0cfc773bb88cf5705af",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 72,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 73,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:50ae6723c5fc071220c598f53e6703104c9c5e7e77f0111774235fca7d5d99c3",
+      "private_actor_state_reference": "actor-view:50ae6723c5fc071220c598f53e6703104c9c5e7e77f0111774235fca7d5d99c3",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 74,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 75,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:154dd1e56263ca7f90da06c8eb6cc9dc0258c7490198130653a237545af9b6f5",
+      "private_actor_state_reference": "actor-view:154dd1e56263ca7f90da06c8eb6cc9dc0258c7490198130653a237545af9b6f5",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 76,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 77,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:bbf071aa42503e895e428ee65ae476651f71de64d4a840db1f497ad2bd9d0cab",
+      "private_actor_state_reference": "actor-view:bbf071aa42503e895e428ee65ae476651f71de64d4a840db1f497ad2bd9d0cab",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 78,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 79,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:cf0cb418f5d5a1e2f2b95f49ec08fdfeb24e7ea2780a6709368eec70b9d00708",
+      "private_actor_state_reference": "actor-view:cf0cb418f5d5a1e2f2b95f49ec08fdfeb24e7ea2780a6709368eec70b9d00708",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 80,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 81,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:383d4c691f5f6fafbde5208bf1b24b94a922d1de69d9420276824e59a6d4df1d",
+      "private_actor_state_reference": "actor-view:383d4c691f5f6fafbde5208bf1b24b94a922d1de69d9420276824e59a6d4df1d",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 82,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 83,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:3cc5f1bd5da5ca7ef75fa766e5aa865a692a8a245011536aef298c6b8bcc043b",
+      "private_actor_state_reference": "actor-view:3cc5f1bd5da5ca7ef75fa766e5aa865a692a8a245011536aef298c6b8bcc043b",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 84,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 85,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:a003fc43743cae25a4a3f7cb865c088503669634bf5a80100589b3e00f035bda",
+      "private_actor_state_reference": "actor-view:a003fc43743cae25a4a3f7cb865c088503669634bf5a80100589b3e00f035bda",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 86,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 87,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:905937bea0fabb760b292b1ce8df3c30bed9e345d1b4316035bd1d1f3936ca88",
+      "private_actor_state_reference": "actor-view:905937bea0fabb760b292b1ce8df3c30bed9e345d1b4316035bd1d1f3936ca88",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 88,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 89,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:4fb84a98fb501cfcea79125167257bdc1571b8b4120374ad2196b5ba90b5bed6",
+      "private_actor_state_reference": "actor-view:4fb84a98fb501cfcea79125167257bdc1571b8b4120374ad2196b5ba90b5bed6",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 90,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 91,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:f508cac4ed74df05069407844f1d9aa9d21fd0c097f22ca480db6b02a0a397cf",
+      "private_actor_state_reference": "actor-view:f508cac4ed74df05069407844f1d9aa9d21fd0c097f22ca480db6b02a0a397cf",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 92,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 93,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:a030a35ff0db6f4be7e1e439045c2954fe3ed9b3afedc2ac86b372248399e7dd",
+      "private_actor_state_reference": "actor-view:a030a35ff0db6f4be7e1e439045c2954fe3ed9b3afedc2ac86b372248399e7dd",
+      "legal_option_types": [
+        "pass_priority",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — Play Mountain",
+        "Mountain — Play Mountain",
+        "Mountain — Play Mountain",
+        "Mountain — Play Mountain",
+        "Mountain — Play Mountain",
+        "Mountain — Play Mountain",
+        "Mountain — Play Mountain",
+        "Mountain — Play Mountain"
+      ]
+    },
+    {
+      "sequence": 94,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "activated_ability"
+      ],
+      "selected_option_labels": [
+        "Mountain — Play Mountain"
+      ]
+    },
+    {
+      "sequence": 95,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:ca7e1388aa0374f7f8f8940d3507d11cf0d71bd9155ae5720a0d54999a588fc7",
+      "private_actor_state_reference": "actor-view:ca7e1388aa0374f7f8f8940d3507d11cf0d71bd9155ae5720a0d54999a588fc7",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 96,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 97,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:e480602b7fef7057cad32a2ceba6eb2c509eac89bd9d15cb84e45513f6355d06",
+      "private_actor_state_reference": "actor-view:e480602b7fef7057cad32a2ceba6eb2c509eac89bd9d15cb84e45513f6355d06",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 98,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 99,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:6c2ded0d1e421843a31f60a93c35972b6faac79d67da138110b4614b08905308",
+      "private_actor_state_reference": "actor-view:6c2ded0d1e421843a31f60a93c35972b6faac79d67da138110b4614b08905308",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 100,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 101,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:d85082c3149cf5c58e989124606f7634e973b7fb76b5f2ad785145800ed02283",
+      "private_actor_state_reference": "actor-view:d85082c3149cf5c58e989124606f7634e973b7fb76b5f2ad785145800ed02283",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 102,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 103,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:bf4d4798b267270d5c12dc191d6046a17acfa596e5c91d4a8047ae46fe1a5ce9",
+      "private_actor_state_reference": "actor-view:bf4d4798b267270d5c12dc191d6046a17acfa596e5c91d4a8047ae46fe1a5ce9",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 104,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 105,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:f2fa30a74b068a0f79bddfcae6edc3c5123fa0f636c58d74bc844930608c9aab",
+      "private_actor_state_reference": "actor-view:f2fa30a74b068a0f79bddfcae6edc3c5123fa0f636c58d74bc844930608c9aab",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 106,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 107,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:968e8bc48cf6518f265e003e3329b97f7bae3c308e172f0f2cd001a0fab2135b",
+      "private_actor_state_reference": "actor-view:968e8bc48cf6518f265e003e3329b97f7bae3c308e172f0f2cd001a0fab2135b",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 108,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 109,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:dd258aa06af481b6903ddcc8d7a12de4605431847ab2495e6af9cacfe43db26d",
+      "private_actor_state_reference": "actor-view:dd258aa06af481b6903ddcc8d7a12de4605431847ab2495e6af9cacfe43db26d",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 110,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 111,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:a669aba9cd0ace7509d5186293a884d0a36eafe2097857233e14f2f1c20e1cf6",
+      "private_actor_state_reference": "actor-view:a669aba9cd0ace7509d5186293a884d0a36eafe2097857233e14f2f1c20e1cf6",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 112,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 113,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:bd8f5cb4eace2aa8a1039086fbd5630ff1b669faa938228ddf7b3ff1aa356a37",
+      "private_actor_state_reference": "actor-view:bd8f5cb4eace2aa8a1039086fbd5630ff1b669faa938228ddf7b3ff1aa356a37",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 114,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 115,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:46e971a24eab586e9c2b2e9bac0e2b25dde04145bcf0d72ee9798bbf685bf7c5",
+      "private_actor_state_reference": "actor-view:46e971a24eab586e9c2b2e9bac0e2b25dde04145bcf0d72ee9798bbf685bf7c5",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 116,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 117,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:5449b11401003799a1924665eaf6a1a870d747fd13f9ae996943da1ef46c2ddc",
+      "private_actor_state_reference": "actor-view:5449b11401003799a1924665eaf6a1a870d747fd13f9ae996943da1ef46c2ddc",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 118,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 119,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:c67c2f5b9a515c49324cba2620d78f456e23213a51c4df57b6793a180c0ee59d",
+      "private_actor_state_reference": "actor-view:c67c2f5b9a515c49324cba2620d78f456e23213a51c4df57b6793a180c0ee59d",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 120,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 121,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:237b8cf2d358890a09aa1ca2262314db579321b5f66aa121afcd87d083936044",
+      "private_actor_state_reference": "actor-view:237b8cf2d358890a09aa1ca2262314db579321b5f66aa121afcd87d083936044",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 122,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 123,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:f9887f42765095a40ab5ba18d3ba1d30a657b0ad68261d7125bcc20f8fd88115",
+      "private_actor_state_reference": "actor-view:f9887f42765095a40ab5ba18d3ba1d30a657b0ad68261d7125bcc20f8fd88115",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 124,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 125,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:c40f6e6ef55acea5340f0f82746b7f8dc246362f0660bff9c7c7f49c219df114",
+      "private_actor_state_reference": "actor-view:c40f6e6ef55acea5340f0f82746b7f8dc246362f0660bff9c7c7f49c219df114",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 126,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 127,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:6b69909ad73f87df930c2c84f3a4f2cb577044720d5e1d70562b830ecd76189c",
+      "private_actor_state_reference": "actor-view:6b69909ad73f87df930c2c84f3a4f2cb577044720d5e1d70562b830ecd76189c",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 128,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 129,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:957562cc0e34cd2d5138dd54e439125bf9ceb27c3c0399287b4777aca1a468e4",
+      "private_actor_state_reference": "actor-view:957562cc0e34cd2d5138dd54e439125bf9ceb27c3c0399287b4777aca1a468e4",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 130,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 131,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:4ed861cedec120c3ae8a0fd415a6049b7b95ad977b2503c853d4f4a0981f0dbf",
+      "private_actor_state_reference": "actor-view:4ed861cedec120c3ae8a0fd415a6049b7b95ad977b2503c853d4f4a0981f0dbf",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 132,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 133,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:ddf11f9e8b9a13b96ea3e646214ac3453c553fdb8bbe4008ac7c37bf4251ec03",
+      "private_actor_state_reference": "actor-view:ddf11f9e8b9a13b96ea3e646214ac3453c553fdb8bbe4008ac7c37bf4251ec03",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 134,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 135,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:f638b625ef605ef7818b26050005ada3d9e6ab89221406b6b13b0ebc63028223",
+      "private_actor_state_reference": "actor-view:f638b625ef605ef7818b26050005ada3d9e6ab89221406b6b13b0ebc63028223",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 136,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 137,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:fdae3294df7725d854dcce6cf0077abfaefc2fd63248a27d98d510328b9c70e1",
+      "private_actor_state_reference": "actor-view:fdae3294df7725d854dcce6cf0077abfaefc2fd63248a27d98d510328b9c70e1",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 138,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 139,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:f3f2133189a7ddacdd1cd2e95e87d5188048d766968dbdd08b89dccc40e8425d",
+      "private_actor_state_reference": "actor-view:f3f2133189a7ddacdd1cd2e95e87d5188048d766968dbdd08b89dccc40e8425d",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 140,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 141,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:62935d7a8abced3e759310b4ff658b4d2679c6a6261730159baafaa8f456f03b",
+      "private_actor_state_reference": "actor-view:62935d7a8abced3e759310b4ff658b4d2679c6a6261730159baafaa8f456f03b",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 142,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 143,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:26289edadf08b2b622e1c3044a6191af4a9746d23c3289aa0bb85769b4f48273",
+      "private_actor_state_reference": "actor-view:26289edadf08b2b622e1c3044a6191af4a9746d23c3289aa0bb85769b4f48273",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 144,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 145,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:c9f5659f49254a6902962dd0a5ec1672917c82dcec388995f71476cfe585c3cd",
+      "private_actor_state_reference": "actor-view:c9f5659f49254a6902962dd0a5ec1672917c82dcec388995f71476cfe585c3cd",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 146,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 147,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:1afdcb742d6d1f12be74368242c2e126c2cb6868c7617ceb81609777217f67fc",
+      "private_actor_state_reference": "actor-view:1afdcb742d6d1f12be74368242c2e126c2cb6868c7617ceb81609777217f67fc",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 148,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 149,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:622d079d7fc0b470bd6a632eca6f6eddbef14ca3cc28235e54c250f701f277cc",
+      "private_actor_state_reference": "actor-view:622d079d7fc0b470bd6a632eca6f6eddbef14ca3cc28235e54c250f701f277cc",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 150,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 151,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:d15bf5887ca684904c1c6c1d5db1c36785c2497135befb7f68b21bd38d7c3126",
+      "private_actor_state_reference": "actor-view:d15bf5887ca684904c1c6c1d5db1c36785c2497135befb7f68b21bd38d7c3126",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 152,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 153,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:ddc1c225707804040309f41d0936fadc546ec52b2bdc1624aeb41f59d7ae9b3c",
+      "private_actor_state_reference": "actor-view:ddc1c225707804040309f41d0936fadc546ec52b2bdc1624aeb41f59d7ae9b3c",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 154,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 155,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:50acb941bcb8af368aaea73bdb14499278c116a625af417ae2aaef40d37d7f85",
+      "private_actor_state_reference": "actor-view:50acb941bcb8af368aaea73bdb14499278c116a625af417ae2aaef40d37d7f85",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Swamp — {T}: Add {B}."
+      ]
+    },
+    {
+      "sequence": 156,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 3,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 157,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:e69feb0b2c02b1f04aaba8212432fa267af5986a6b1caa95cc1a3c2870a1dcc3",
+      "private_actor_state_reference": "actor-view:e69feb0b2c02b1f04aaba8212432fa267af5986a6b1caa95cc1a3c2870a1dcc3",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Mountain — {T}: Add {R}."
+      ]
+    },
+    {
+      "sequence": 158,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 2,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 159,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:92aef23bf741f2f665e8233ded0a10c942f2591f04bf0b27750912f81a444cbe",
+      "private_actor_state_reference": "actor-view:92aef23bf741f2f665e8233ded0a10c942f2591f04bf0b27750912f81a444cbe",
+      "legal_option_types": [
+        "pass_priority",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability",
+        "activated_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Forest — Play Forest",
+        "Forest — Play Forest",
+        "Forest — Play Forest",
+        "Forest — Play Forest",
+        "Forest — Play Forest",
+        "Forest — Play Forest",
+        "Forest — Play Forest"
+      ]
+    },
+    {
+      "sequence": 160,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "activated_ability"
+      ],
+      "selected_option_labels": [
+        "Forest — Play Forest"
+      ]
+    },
+    {
+      "sequence": 161,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:0a50100ff968f30970bdae2ccb5507ad61feef0dcdd6be170cd643e14f919102",
+      "private_actor_state_reference": "actor-view:0a50100ff968f30970bdae2ccb5507ad61feef0dcdd6be170cd643e14f919102",
+      "legal_option_types": [
+        "pass_priority",
+        "mana_ability",
+        "activated_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Forest — {T}: Add {G}.",
+        "Llanowar Elves — Cast Llanowar Elves"
+      ]
+    },
+    {
+      "sequence": 162,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "activated_ability"
+      ],
+      "selected_option_labels": [
+        "Llanowar Elves — Cast Llanowar Elves"
+      ]
+    },
+    {
+      "sequence": 163,
+      "kind": "decision_requested",
+      "decision_class": "mana_payment",
+      "actor_seat": 1,
+      "prompt": "{G}\u003cdiv style\u003d\u0027font-size:11pt\u0027\u003e\u003cfont color\u003d\u0027#90EE90\u0027 object_id\u003d\u00271e65003d-0e95-4a0e-8d6a-d44bdfa9912a\u0027\u003eLlanowar Elves\u003c/font\u003e [1e6]\u003c/div\u003e",
+      "public_state_reference": "actor-view:59ddac286b93a30c1f81db085ee8969b48c84260e5e5853d18eaeed29316406f",
+      "private_actor_state_reference": "actor-view:59ddac286b93a30c1f81db085ee8969b48c84260e5e5853d18eaeed29316406f",
+      "legal_option_types": [
+        "cancel_mana_payment",
+        "mana_ability"
+      ],
+      "legal_option_labels": [
+        "Cancel mana payment",
+        "Forest — {T}: Add {G}."
+      ]
+    },
+    {
+      "sequence": 164,
+      "kind": "decision_accepted",
+      "decision_class": "mana_payment",
+      "actor_seat": 1,
+      "prompt": "{G}\u003cdiv style\u003d\u0027font-size:11pt\u0027\u003e\u003cfont color\u003d\u0027#90EE90\u0027 object_id\u003d\u00271e65003d-0e95-4a0e-8d6a-d44bdfa9912a\u0027\u003eLlanowar Elves\u003c/font\u003e [1e6]\u003c/div\u003e",
+      "selected_option_types": [
+        "mana_ability"
+      ],
+      "selected_option_labels": [
+        "Forest — {T}: Add {G}."
+      ]
+    },
+    {
+      "sequence": 165,
+      "kind": "decision_requested",
+      "decision_class": "mana_payment",
+      "actor_seat": 1,
+      "prompt": "{G}\u003cdiv style\u003d\u0027font-size:11pt\u0027\u003e\u003cfont color\u003d\u0027#90EE90\u0027 object_id\u003d\u00271e65003d-0e95-4a0e-8d6a-d44bdfa9912a\u0027\u003eLlanowar Elves\u003c/font\u003e [1e6]\u003c/div\u003e",
+      "public_state_reference": "actor-view:8f55fe8e9bea7bec2386c527f6a5b8c2a744094721d3ddf3587ff449d5463cee",
+      "private_actor_state_reference": "actor-view:8f55fe8e9bea7bec2386c527f6a5b8c2a744094721d3ddf3587ff449d5463cee",
+      "legal_option_types": [
+        "cancel_mana_payment",
+        "mana_pool"
+      ],
+      "legal_option_labels": [
+        "Cancel mana payment",
+        "Spend green mana from pool"
+      ]
+    },
+    {
+      "sequence": 166,
+      "kind": "decision_accepted",
+      "decision_class": "mana_payment",
+      "actor_seat": 1,
+      "prompt": "{G}\u003cdiv style\u003d\u0027font-size:11pt\u0027\u003e\u003cfont color\u003d\u0027#90EE90\u0027 object_id\u003d\u00271e65003d-0e95-4a0e-8d6a-d44bdfa9912a\u0027\u003eLlanowar Elves\u003c/font\u003e [1e6]\u003c/div\u003e",
+      "selected_option_types": [
+        "mana_pool"
+      ],
+      "selected_option_labels": [
+        "Spend green mana from pool"
+      ]
+    },
+    {
+      "sequence": 167,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:97d9dddf97d7f91b290e0bc2d8bbf069cb84e4380036e614c3f1faee67c6936c",
+      "private_actor_state_reference": "actor-view:97d9dddf97d7f91b290e0bc2d8bbf069cb84e4380036e614c3f1faee67c6936c",
+      "legal_option_types": [
+        "pass_priority"
+      ],
+      "legal_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 168,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 1,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "pass_priority"
+      ],
+      "selected_option_labels": [
+        "Pass priority"
+      ]
+    },
+    {
+      "sequence": 169,
+      "kind": "decision_requested",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "public_state_reference": "actor-view:eb36c94a1b71c522caa4d7cea4a9143fd4252ab290d321c5404b5c6636e1a29b",
+      "private_actor_state_reference": "actor-view:eb36c94a1b71c522caa4d7cea4a9143fd4252ab290d321c5404b5c6636e1a29b",
+      "legal_option_types": [
+        "pass_priority",
+        "activated_ability"
+      ],
+      "legal_option_labels": [
+        "Pass priority",
+        "Force of Will — Cast Force of Will"
+      ]
+    },
+    {
+      "sequence": 170,
+      "kind": "decision_accepted",
+      "decision_class": "priority",
+      "actor_seat": 0,
+      "prompt": "Choose priority action",
+      "selected_option_types": [
+        "activated_ability"
+      ],
+      "selected_option_labels": [
+        "Force of Will — Cast Force of Will"
+      ]
+    },
+    {
+      "sequence": 171,
+      "kind": "decision_requested",
+      "decision_class": "target",
+      "actor_seat": 0,
+      "prompt": "Select a spell",
+      "public_state_reference": "actor-view:948f927d77503b2d4c4fe31531140c6c007df940c0d4dc04eab86953be0eebea",
+      "private_actor_state_reference": "actor-view:948f927d77503b2d4c4fe31531140c6c007df940c0d4dc04eab86953be0eebea",
+      "legal_option_types": [
+        "target"
+      ],
+      "legal_option_labels": [
+        "Llanowar Elves"
+      ]
+    },
+    {
+      "sequence": 172,
+      "kind": "decision_accepted",
+      "decision_class": "target",
+      "actor_seat": 0,
+      "prompt": "Select a spell",
+      "selected_option_types": [
+        "target"
+      ],
+      "selected_option_labels": [
+        "Llanowar Elves"
+      ]
+    },
+    {
+      "sequence": 173,
+      "kind": "decision_requested",
+      "decision_class": "mana_payment",
+      "actor_seat": 0,
+      "prompt": "{3}{U}{U}\u003cdiv style\u003d\u0027font-size:11pt\u0027\u003e\u003cfont color\u003d\u0027#87CEFA\u0027 object_id\u003d\u00272905b33c-fdb6-49d9-adb1-a36195ae6613\u0027\u003eForce of Will\u003c/font\u003e [290]\u003c/div\u003e",
+      "public_state_reference": "actor-view:948f927d77503b2d4c4fe31531140c6c007df940c0d4dc04eab86953be0eebea",
+      "private_actor_state_reference": "actor-view:948f927d77503b2d4c4fe31531140c6c007df940c0d4dc04eab86953be0eebea",
+      "legal_option_types": [
+        "cancel_mana_payment"
+      ],
+      "legal_option_labels": [
+        "Cancel mana payment"
+      ]
+    },
+    {
+      "sequence": 174,
+      "kind": "decision_accepted",
+      "decision_class": "mana_payment",
+      "actor_seat": 0,
+      "prompt": "{3}{U}{U}\u003cdiv style\u003d\u0027font-size:11pt\u0027\u003e\u003cfont color\u003d\u0027#87CEFA\u0027 object_id\u003d\u00272905b33c-fdb6-49d9-adb1-a36195ae6613\u0027\u003eForce of Will\u003c/font\u003e [290]\u003c/div\u003e",
+      "selected_option_types": [
+        "cancel_mana_payment"
+      ],
+      "selected_option_labels": [
+        "Cancel mana payment"
+      ]
+    },
+    {
+      "offset": 175,
+      "event_type": "controller_failure",
+      "payload": {
+        "message": "XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: 06270a3a8fb4c30225a09461e5d67c403fefb864bd0ac43656fa5c6b2f448316"
+      }
+    }
+  ],
+  "native_decision_count": 87,
+  "deck_id": "ws213-RQ-C3-C01-p3",
+  "deck_handles": [
+    "xmage-deck-0b55cc25-338f-4679-be05-7d3e0c6a717d",
+    "xmage-deck-d0f4e802-220a-4dfa-b1a7-fa9f2ae3d250",
+    "xmage-deck-3b824f9f-553f-40d6-bbf9-7826bcb5960d",
+    "xmage-deck-677d7ae3-12ba-4f27-b2ea-1b00ee3f80d3"
+  ],
+  "rules_seed_binding": {
+    "explicit_seed": 10704,
+    "rules_seed": 10704,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "hidden_info_rows_scanned": 87,
+  "hidden_info_violations": 0,
+  "hidden_info_violation_detail": []
+}

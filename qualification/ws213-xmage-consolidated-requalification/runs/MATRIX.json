@@ -1,0 +1,729 @@
+{
+ "RQ-C3-E02": {
+  "behavior": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "mulligan": 4,
+     "priority": 495
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 9108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "35f37500f3db964acdfd240f495cfc8b16860be6b117ab85a74b71e99a507dc7",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 9108,
+   "slot": "RQ-C3-E02",
+   "stream_diverged": false,
+   "stream_divergence_detail": "",
+   "subcase": "",
+   "tag": "behavior",
+   "twin": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "mulligan": 4,
+     "priority": 495
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 9108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "35f37500f3db964acdfd240f495cfc8b16860be6b117ab85a74b71e99a507dc7",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "twin_match": true
+  },
+  "opening_a": {
+   "evidence": {
+    "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+    "first_decision": {
+     "class": "mulligan",
+     "prompt": "Keep or mulligan",
+     "seat": 0
+    },
+    "opening": [
+     {
+      "hand_names": [
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 0
+     },
+     {
+      "hand_names": [
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 1
+     },
+     {
+      "hand_names": [
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 2
+     },
+     {
+      "hand_names": [
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 3
+     }
+    ],
+    "pregame_steps": [
+     {
+      "basis": "neutral-pregame",
+      "class": "choose_object"
+     }
+    ],
+    "pregame_stop": "dealt",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 9108,
+     "require_explicit_seed": true,
+     "rules_random_calls": 392,
+     "rules_seed": 9108,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "schema": "ws213.opening-hand.v1",
+    "seed": 9108,
+    "starting_seat": 0
+   },
+   "ok": true
+  },
+  "opening_b": {
+   "evidence": {
+    "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+    "first_decision": {
+     "class": "mulligan",
+     "prompt": "Keep or mulligan",
+     "seat": 0
+    },
+    "opening": [
+     {
+      "hand_names": [
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 0
+     },
+     {
+      "hand_names": [
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 1
+     },
+     {
+      "hand_names": [
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 2
+     },
+     {
+      "hand_names": [
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 3
+     }
+    ],
+    "pregame_steps": [
+     {
+      "basis": "neutral-pregame",
+      "class": "choose_object"
+     }
+    ],
+    "pregame_stop": "dealt",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 9108,
+     "require_explicit_seed": true,
+     "rules_random_calls": 392,
+     "rules_seed": 9108,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "schema": "ws213.opening-hand.v1",
+    "seed": 9108,
+    "starting_seat": 0
+   },
+   "ok": true
+  }
+ },
+ "RQ-C3-E02:combat-scan": {
+  "19108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority",
+     "mana_payment",
+     "declare_attacker"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "declare_attacker": 2,
+     "mana_payment": 4,
+     "mulligan": 4,
+     "priority": 489
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 19108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "273c6a7252d249980b2e10f90d66e2e84e6abae41da66261d0c185b52a2f3b93",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 19108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "combat-scan-19108"
+  },
+  "29108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "mulligan": 4,
+     "priority": 495
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 29108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "1630e526e3f364876db3af6d92f680dcceda35abb2297bf0593cbb4e9b10b17b",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 29108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "combat-scan-29108"
+  },
+  "39108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "mulligan": 4,
+     "priority": 495
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 39108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "35f37500f3db964acdfd240f495cfc8b16860be6b117ab85a74b71e99a507dc7",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 39108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "combat-scan-39108"
+  },
+  "49108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority",
+     "mana_payment",
+     "declare_attacker"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "declare_attacker": 3,
+     "mana_payment": 2,
+     "mulligan": 4,
+     "priority": 490
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 49108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "066d6e532ee9ebfdba873a6c3b21928ff70e3fc0e37b75327df34798f401062d",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 49108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "combat-scan-49108"
+  },
+  "59108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "mulligan": 4,
+     "priority": 495
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 59108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "52f4136d392cee630e035db7d8a1ba325411f0b369c8e0a8b964ac3973cfac7b",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 59108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "combat-scan-59108"
+  },
+  "9108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "mulligan": 4,
+     "priority": 495
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 9108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "a0c97cac48332de5780a638d66793ac3de58287a9b531d8255166fdabee87224",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 9108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "combat-scan-9108"
+  }
+ },
+ "RQ-C3-E02:control": {
+  "behavior_alt_seed": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 500,
+    "hidden_info_rows": 500,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority",
+     "mana_payment",
+     "declare_attacker"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "declare_attacker": 2,
+     "mana_payment": 4,
+     "mulligan": 4,
+     "priority": 489
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 19108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "273c6a7252d249980b2e10f90d66e2e84e6abae41da66261d0c185b52a2f3b93",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 19108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "behavior-alt-seed"
+  },
+  "opening_alt_seed": {
+   "evidence": {
+    "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+    "first_decision": {
+     "class": "mulligan",
+     "prompt": "Keep or mulligan",
+     "seat": 0
+    },
+    "opening": [
+     {
+      "hand_names": [
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Runeclaw Bear"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 0
+     },
+     {
+      "hand_names": [
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest",
+       "Forest"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 1
+     },
+     {
+      "hand_names": [
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island",
+       "Island"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 2
+     },
+     {
+      "hand_names": [
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain",
+       "Mountain"
+      ],
+      "hand_size": 7,
+      "library_size": 92,
+      "seat": 3
+     }
+    ],
+    "pregame_steps": [
+     {
+      "basis": "neutral-pregame",
+      "class": "choose_object"
+     }
+    ],
+    "pregame_stop": "dealt",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 19108,
+     "require_explicit_seed": true,
+     "rules_random_calls": 392,
+     "rules_seed": 19108,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "schema": "ws213.opening-hand.v1",
+    "seed": 19108,
+    "starting_seat": 0
+   },
+   "ok": true
+  }
+ },
+ "RQ-C3-E02:long-scan": {
+  "19108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 3000,
+    "hidden_info_rows": 3000,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority",
+     "mana_payment",
+     "declare_attacker"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "declare_attacker": 21,
+     "mana_payment": 16,
+     "mulligan": 4,
+     "priority": 2958
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 19108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "0b8f0c0abe7ff61453affd3ea58fe346ea8a01a145383e1d68c977766ade3d1f",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 19108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "long-scan-19108"
+  },
+  "29108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 3000,
+    "hidden_info_rows": 3000,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority",
+     "mana_payment",
+     "declare_attacker"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "declare_attacker": 25,
+     "mana_payment": 7,
+     "mulligan": 4,
+     "priority": 2963
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 29108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "5338ce5be6c41c2e5d0f505645e776742718ce718d865eb0f1670d718ed2d281",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 29108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "long-scan-29108"
+  },
+  "9108": {
+   "primary": {
+    "concede_record": null,
+    "decisions_answered": 3000,
+    "hidden_info_rows": 3000,
+    "hidden_info_violations": 0,
+    "multi_amount_frames": 0,
+    "negative_controls": {
+     "unadvanced": true,
+     "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+     "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+    },
+    "observed_decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "observed_decision_counts": {
+     "choose_object": 1,
+     "mulligan": 4,
+     "priority": 2995
+    },
+    "ok": true,
+    "rules_random_calls": 392,
+    "rules_seed": 9108,
+    "rules_seed_explicit": true,
+    "seed_supported": true,
+    "semantic_hash": "1a9288151915d09d8af35fb8908a74bd8d3b355b3cab19da453c127d26c4bd99",
+    "stop_detail": "",
+    "stopped_by": "budget"
+   },
+   "seed": 9108,
+   "slot": "RQ-C3-E02",
+   "subcase": "",
+   "tag": "long-scan-9108"
+  }
+ }
+}

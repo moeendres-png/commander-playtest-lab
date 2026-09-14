@@ -1,0 +1,19 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws213-pilot-v1",
+  "seed": 11412,
+  "slot": "RQ-C3-C03",
+  "subcase": "",
+  "tag": "setup"
+ },
+ "_setup": {
+  "held_behavior_cards": [
+   "Fireball"
+  ],
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-C03",
+  "subcase": ""
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12
+}

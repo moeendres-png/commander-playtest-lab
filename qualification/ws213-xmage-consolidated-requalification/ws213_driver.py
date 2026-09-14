@@ -230,7 +230,6 @@ def check_setup(slot: str, subcase: str, evidence: dict) -> dict:
     if slot == "RQ-C3-H01":
         predicates = [("Runeclaw Bear", 1)] if subcase else predicates
     missing = [list(p) for p in predicates if tuple(p) not in board]
-    held = (evidence.get("prefs_held") or []) if isinstance(evidence, dict) else []
     return {
         "predicates": [list(p) for p in predicates],
         "missing": missing,
@@ -290,6 +289,26 @@ def main(argv: list[str]) -> int:
         matrix["RQ-C3-E02:combat-scan"] = run_combat_scan()
     if wanted is None or "RQ-C3-E02" in wanted or "long-scan" in (wanted or set()):
         matrix["RQ-C3-E02:long-scan"] = run_long_scan()
+    # Post-hoc neutral-predicate setup checks over written setup primaries
+    # (no JVM; predicates consumed from the WS207 authority).
+    setup_checks = {}
+    for slot, subcase in decks.CONSTRUCTIONS:
+        key = decks.seed_key(slot, subcase)
+        if wanted is not None and key not in wanted and slot not in wanted:
+            continue
+        if key not in SETUP_QUALIFIED:
+            continue
+        primary_path = WS213_ROOT / "runs" / key / "setup" / "primary.json"
+        if not primary_path.exists():
+            continue
+        setup_checks[key] = check_setup(
+            slot, subcase, json.loads(primary_path.read_text())
+        )
+    if setup_checks:
+        (WS213_ROOT / "runs" / "SETUP_CHECKS.json").write_text(
+            json.dumps(setup_checks, indent=1, sort_keys=True)
+        )
+        matrix["SETUP_CHECKS"] = setup_checks
     (WS213_ROOT / "runs" / "MATRIX.json").write_text(
         json.dumps(matrix, indent=1, sort_keys=True)
     )

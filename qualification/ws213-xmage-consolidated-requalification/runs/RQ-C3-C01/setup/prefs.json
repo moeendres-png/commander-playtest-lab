@@ -1,0 +1,20 @@
+{
+ "_meta": {
+  "decision_policy_version": "ws213-pilot-v1",
+  "seed": 10704,
+  "slot": "RQ-C3-C01",
+  "subcase": "",
+  "tag": "setup"
+ },
+ "_setup": {
+  "held_behavior_cards": [
+   "Force of Will",
+   "Llanowar Elves"
+  ],
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-C01",
+  "subcase": ""
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12
+}

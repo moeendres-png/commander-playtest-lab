@@ -1,0 +1,87 @@
+{
+  "schema": "ws213.opening-hand.v1",
+  "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "seed": 9788,
+  "starting_seat": 0,
+  "pregame_steps": [
+    {
+      "class": "choose_object",
+      "basis": "neutral-pregame"
+    }
+  ],
+  "pregame_stop": "dealt",
+  "opening": [
+    {
+      "seat": 0,
+      "hand_names": [
+        "Swamp",
+        "Swamp",
+        "Swamp",
+        "Swamp",
+        "Swamp",
+        "Swamp",
+        "Drudge Skeletons"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    },
+    {
+      "seat": 1,
+      "hand_names": [
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Lightning Bolt"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    },
+    {
+      "seat": 2,
+      "hand_names": [
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    },
+    {
+      "seat": 3,
+      "hand_names": [
+        "Plains",
+        "Plains",
+        "Plains",
+        "Plains",
+        "Plains",
+        "Plains",
+        "Plains"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    }
+  ],
+  "first_decision": {
+    "class": "mulligan",
+    "seat": 0,
+    "prompt": "Keep or mulligan"
+  },
+  "rules_seed_binding": {
+    "explicit_seed": 9788,
+    "rules_seed": 9788,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  }
+}

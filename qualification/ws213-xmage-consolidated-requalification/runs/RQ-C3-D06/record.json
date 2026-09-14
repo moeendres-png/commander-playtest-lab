@@ -1,0 +1,320 @@
+{
+ "behavior": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 11912,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "80c700e308029a0d6bf41520e1ab46b7ff8081de01fc91791a45dc6931683d19",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 11912,
+  "slot": "RQ-C3-D06",
+  "stream_diverged": false,
+  "stream_divergence_detail": "",
+  "subcase": "",
+  "tag": "behavior",
+  "twin": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 11912,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "80c700e308029a0d6bf41520e1ab46b7ff8081de01fc91791a45dc6931683d19",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "twin_match": true
+ },
+ "opening_a": {
+  "evidence": {
+   "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+   "first_decision": {
+    "class": "mulligan",
+    "prompt": "Keep or mulligan",
+    "seat": 0
+   },
+   "opening": [
+    {
+     "hand_names": [
+      "Forest",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Casualties of War"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 0
+    },
+    {
+     "hand_names": [
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 1
+    },
+    {
+     "hand_names": [
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 2
+    },
+    {
+     "hand_names": [
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 3
+    }
+   ],
+   "pregame_steps": [
+    {
+     "basis": "neutral-pregame",
+     "class": "choose_object"
+    }
+   ],
+   "pregame_stop": "dealt",
+   "rules_seed_binding": {
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "explicit_seed": 11912,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "rules_seed": 11912,
+    "rules_seed_explicit": true,
+    "rules_seed_matches": true,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "seed_supported": true
+   },
+   "schema": "ws213.opening-hand.v1",
+   "seed": 11912,
+   "starting_seat": 0
+  },
+  "ok": true
+ },
+ "opening_b": {
+  "evidence": {
+   "engine_pin": "db134b9737e951367d65ef5806ad986319cc73ab",
+   "first_decision": {
+    "class": "mulligan",
+    "prompt": "Keep or mulligan",
+    "seat": 0
+   },
+   "opening": [
+    {
+     "hand_names": [
+      "Forest",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Swamp",
+      "Casualties of War"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 0
+    },
+    {
+     "hand_names": [
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest",
+      "Forest"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 1
+    },
+    {
+     "hand_names": [
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island",
+      "Island"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 2
+    },
+    {
+     "hand_names": [
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain",
+      "Mountain"
+     ],
+     "hand_size": 7,
+     "library_size": 92,
+     "seat": 3
+    }
+   ],
+   "pregame_steps": [
+    {
+     "basis": "neutral-pregame",
+     "class": "choose_object"
+    }
+   ],
+   "pregame_stop": "dealt",
+   "rules_seed_binding": {
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "explicit_seed": 11912,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "rules_seed": 11912,
+    "rules_seed_explicit": true,
+    "rules_seed_matches": true,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "seed_supported": true
+   },
+   "schema": "ws213.opening-hand.v1",
+   "seed": 11912,
+   "starting_seat": 0
+  },
+  "ok": true
+ },
+ "setup": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 11912,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "8f7bf68bceeae924c53abb956e9c7398d5564f59bc03f8bb5734f37c26c94959",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 11912,
+  "slot": "RQ-C3-D06",
+  "stream_diverged": false,
+  "stream_divergence_detail": "",
+  "subcase": "",
+  "tag": "setup",
+  "twin": {
+   "concede_record": null,
+   "decisions_answered": 500,
+   "hidden_info_rows": 500,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 495
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 11912,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "8f7bf68bceeae924c53abb956e9c7398d5564f59bc03f8bb5734f37c26c94959",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "twin_match": true
+ }
+}

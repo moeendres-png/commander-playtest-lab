@@ -1,0 +1,44 @@
+{
+ "primary": {
+  "concede_record": null,
+  "decisions_answered": 5746,
+  "hidden_info_rows": 5746,
+  "hidden_info_violations": 0,
+  "multi_amount_frames": 3,
+  "negative_controls": {
+   "unadvanced": true,
+   "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+   "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+  },
+  "observed_decision_classes": [
+   "choose_object",
+   "mulligan",
+   "priority",
+   "mana_payment",
+   "declare_attacker",
+   "declare_blocker",
+   "multi_amount"
+  ],
+  "observed_decision_counts": {
+   "choose_object": 1,
+   "declare_attacker": 63,
+   "declare_blocker": 3,
+   "mana_payment": 19,
+   "mulligan": 4,
+   "multi_amount": 3,
+   "priority": 5653
+  },
+  "ok": true,
+  "rules_random_calls": 392,
+  "rules_seed": 29108,
+  "rules_seed_explicit": true,
+  "seed_supported": true,
+  "semantic_hash": "1ff3573a147c6e03fffd0fcb3c882be9c4e37d256816fa26eef5d4b2305b1f89",
+  "stop_detail": "",
+  "stopped_by": "terminal"
+ },
+ "seed": 29108,
+ "slot": "RQ-C3-E02",
+ "subcase": "",
+ "tag": "xlong3-6000"
+}

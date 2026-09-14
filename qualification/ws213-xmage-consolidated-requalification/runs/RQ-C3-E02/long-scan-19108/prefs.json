@@ -1,0 +1,41 @@
+{
+ "_attack_all": [
+  1
+ ],
+ "_block_all": [
+  0
+ ],
+ "_meta": {
+  "decision_policy_version": "ws213-pilot-v1",
+  "seed": 19108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "long-scan-19108"
+ },
+ "_spoil_damage_once": true,
+ "choice": {
+  "0": [
+   "Runeclaw Bear",
+   "Llanowar Elves"
+  ],
+  "1": [
+   "Carnage Tyrant"
+  ]
+ },
+ "declare_attacker": {
+  "1": [
+   "Carnage Tyrant"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Runeclaw Bear",
+   "Llanowar Elves"
+  ],
+  "1": [
+   "Carnage Tyrant"
+  ]
+ }
+}

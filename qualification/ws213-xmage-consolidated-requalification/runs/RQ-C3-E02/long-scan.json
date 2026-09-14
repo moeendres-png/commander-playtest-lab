@@ -1,0 +1,118 @@
+{
+ "19108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 3000,
+   "hidden_info_rows": 3000,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "declare_attacker"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "declare_attacker": 21,
+    "mana_payment": 16,
+    "mulligan": 4,
+    "priority": 2958
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 19108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "0b8f0c0abe7ff61453affd3ea58fe346ea8a01a145383e1d68c977766ade3d1f",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 19108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "long-scan-19108"
+ },
+ "29108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 3000,
+   "hidden_info_rows": 3000,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority",
+    "mana_payment",
+    "declare_attacker"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "declare_attacker": 25,
+    "mana_payment": 7,
+    "mulligan": 4,
+    "priority": 2963
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 29108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "5338ce5be6c41c2e5d0f505645e776742718ce718d865eb0f1670d718ed2d281",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 29108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "long-scan-29108"
+ },
+ "9108": {
+  "primary": {
+   "concede_record": null,
+   "decisions_answered": 3000,
+   "hidden_info_rows": 3000,
+   "hidden_info_violations": 0,
+   "multi_amount_frames": 0,
+   "negative_controls": {
+    "unadvanced": true,
+    "unknown_action": "REJECTED:ILLEGAL_ACTION: option not offered by XMage: ghost-option-ws213",
+    "wrong_actor": "REJECTED:PILOT_RESPONSE_INVALID: wrong actor"
+   },
+   "observed_decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+   ],
+   "observed_decision_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 2995
+   },
+   "ok": true,
+   "rules_random_calls": 392,
+   "rules_seed": 9108,
+   "rules_seed_explicit": true,
+   "seed_supported": true,
+   "semantic_hash": "1a9288151915d09d8af35fb8908a74bd8d3b355b3cab19da453c127d26c4bd99",
+   "stop_detail": "",
+   "stopped_by": "budget"
+  },
+  "seed": 9108,
+  "slot": "RQ-C3-E02",
+  "subcase": "",
+  "tag": "long-scan-9108"
+ }
+}
