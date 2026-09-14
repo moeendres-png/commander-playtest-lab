@@ -1,0 +1,27 @@
+{
+ "battlefield_predicates": [
+  "Delina@0",
+  "Runeclaw Bear@0"
+ ],
+ "behavior_credit": 0,
+ "decisions_answered": 500,
+ "evidence_classification": "UNKNOWN",
+ "failures": [
+  "battlefield missing Delina under seat0"
+ ],
+ "held_behavior_cards": [],
+ "key": "RQ-C3-J02",
+ "ledger_note": "",
+ "rules_seed": 16403,
+ "rules_seed_bound_before_start": true,
+ "rules_seed_explicit": true,
+ "schema": "ws207.setup-check.v2",
+ "seed": 16403,
+ "seed_binding_model": "EXPLICIT_RULES_SEED (game.setRulesSeed + game.setRequireExplicitSeed before game.start/init; qualification-only reflective hook)",
+ "setup_boundary": "PRE_STEP_NATIVE_PROGRESSION",
+ "setup_verdict": "UNKNOWN",
+ "slot": "RQ-C3-J02",
+ "stopped_by": "budget",
+ "subcase": "",
+ "twin_stream_match": true
+}

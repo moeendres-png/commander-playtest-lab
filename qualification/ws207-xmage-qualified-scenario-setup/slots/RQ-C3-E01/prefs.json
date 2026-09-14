@@ -1,0 +1,33 @@
+{
+ "_meta": {
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-E01",
+  "subcase": ""
+ },
+ "_setup": {
+  "held_behavior_cards": [],
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-E01",
+  "subcase": ""
+ },
+ "choice": {
+  "0": [
+   "Propaganda"
+  ],
+  "1": [
+   "Runeclaw Bear",
+   "Grizzly Bears"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "0": [
+   "Propaganda"
+  ],
+  "1": [
+   "Runeclaw Bear",
+   "Grizzly Bears"
+  ]
+ }
+}

@@ -1,0 +1,34 @@
+{
+ "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+ "seats": [
+  {
+   "seat": 0,
+   "ok": true,
+   "deck_handle": "xmage-deck-7c5b5247-3c46-4bec-aba3-0796f521c573",
+   "mainboard_count": 99,
+   "commander_count": 1
+  },
+  {
+   "seat": 1,
+   "ok": true,
+   "deck_handle": "xmage-deck-3632b5ca-d29e-4449-9c7e-9e703329169e",
+   "mainboard_count": 99,
+   "commander_count": 1
+  },
+  {
+   "seat": 2,
+   "ok": true,
+   "deck_handle": "xmage-deck-0ee423cd-3554-4cd5-8999-76b55173688e",
+   "mainboard_count": 99,
+   "commander_count": 1
+  },
+  {
+   "seat": 3,
+   "ok": true,
+   "deck_handle": "xmage-deck-1cf2a6a3-e1ab-4d78-8a02-b2b53f5e3761",
+   "mainboard_count": 99,
+   "commander_count": 1
+  }
+ ],
+ "ws207_construction": "RQ-C3-C01"
+}

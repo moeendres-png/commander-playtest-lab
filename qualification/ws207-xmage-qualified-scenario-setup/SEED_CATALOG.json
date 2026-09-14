@@ -1,0 +1,403 @@
+{
+ "authority": "WS207 qualified setup seed catalog (explicit Rules seeds only)",
+ "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+ "schema": "ws207.seed-catalog.v1",
+ "seeds": [
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 9788,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 9788,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-A03",
+   "randomutil_seed": 9788,
+   "rules_seed": 9788,
+   "scan_record": "slots/RQ-C3-A03/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Drudge Skeletons\"], \"seat1\": [\"Lightning Bolt\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+   "slot": "RQ-C3-A03",
+   "subcase": "",
+   "target_milestone": [
+    "Drudge Skeletons@0",
+    "Swamp@0",
+    "Mountain@1"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 9919,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 9919,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-A04",
+   "randomutil_seed": 9919,
+   "rules_seed": 9919,
+   "scan_record": "slots/RQ-C3-A04/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Doubling Season|Hardened Scales\", \"Stonecoil Serpent\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-A04",
+   "subcase": "",
+   "target_milestone": [
+    "Doubling Season@0",
+    "Hardened Scales@0"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 10498,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 10498,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-B01",
+   "randomutil_seed": 10498,
+   "rules_seed": 10498,
+   "scan_record": "slots/RQ-C3-B01/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Llanowar Elves\", \"Soul Warden|Essence Warden\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-B01",
+   "subcase": "",
+   "target_milestone": [
+    "Soul Warden@0",
+    "Essence Warden@0",
+    "Soul Warden@1",
+    "Soul Warden@2",
+    "Soul Warden@3"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 10704,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 10704,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-C01",
+   "randomutil_seed": 10704,
+   "rules_seed": 10704,
+   "scan_record": "slots/RQ-C3-C01/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Force of Will\"], \"seat1\": [\"Llanowar Elves\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+   "slot": "RQ-C3-C01",
+   "subcase": "",
+   "target_milestone": []
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 11412,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 11412,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-C03",
+   "randomutil_seed": 11412,
+   "rules_seed": 11412,
+   "scan_record": "slots/RQ-C3-C03/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Fireball\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+   "slot": "RQ-C3-C03",
+   "subcase": "",
+   "target_milestone": []
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 11912,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 11912,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-D06",
+   "randomutil_seed": 11912,
+   "rules_seed": 11912,
+   "scan_record": "slots/RQ-C3-D06/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Casualties of War\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+   "slot": "RQ-C3-D06",
+   "subcase": "",
+   "target_milestone": []
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 12463,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 12463,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-E01",
+   "randomutil_seed": 12463,
+   "rules_seed": 12463,
+   "scan_record": "slots/RQ-C3-E01/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Propaganda\"], \"seat1\": [\"Runeclaw Bear|Grizzly Bears\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-E01",
+   "subcase": "",
+   "target_milestone": [
+    "Propaganda@0",
+    "Runeclaw Bear@1",
+    "Grizzly Bears@1"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 13405,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 13405,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-F01",
+   "randomutil_seed": 13405,
+   "rules_seed": 13405,
+   "scan_record": "slots/RQ-C3-F01/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Rampant Growth\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+   "slot": "RQ-C3-F01",
+   "subcase": "",
+   "target_milestone": [
+    "Forest@0"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 13915,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 13915,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-G02",
+   "randomutil_seed": 13915,
+   "rules_seed": 13915,
+   "scan_record": "slots/RQ-C3-G02/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat1\": [\"Murder\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-G02",
+   "subcase": "",
+   "target_milestone": [
+    "Ghalta@0"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 14401,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 14401,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-G03",
+   "randomutil_seed": 14401,
+   "rules_seed": 14401,
+   "scan_record": "slots/RQ-C3-G03/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-G03",
+   "subcase": "",
+   "target_milestone": [
+    "Ghalta@0"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 15258,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 15258,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-H01-HUMILITY_FIRST",
+   "randomutil_seed": 15258,
+   "rules_seed": 15258,
+   "scan_record": "slots/RQ-C3-H01-HUMILITY_FIRST/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Clone\"], \"seat1\": [\"Runeclaw Bear\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-H01",
+   "subcase": "HUMILITY_FIRST",
+   "target_milestone": [
+    "Humility@2",
+    "Runeclaw Bear@1"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 16238,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 16238,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-H01-CLONE_FIRST",
+   "randomutil_seed": 16238,
+   "rules_seed": 16238,
+   "scan_record": "slots/RQ-C3-H01-CLONE_FIRST/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Clone\"], \"seat1\": [\"Runeclaw Bear\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+   "slot": "RQ-C3-H01",
+   "subcase": "CLONE_FIRST",
+   "target_milestone": [
+    "Runeclaw Bear@1"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 16859,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 16859,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-H01-NO_HUMILITY",
+   "randomutil_seed": 16859,
+   "rules_seed": 16859,
+   "scan_record": "slots/RQ-C3-H01-NO_HUMILITY/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Clone\"], \"seat1\": [\"Runeclaw Bear\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+   "slot": "RQ-C3-H01",
+   "subcase": "NO_HUMILITY",
+   "target_milestone": [
+    "Runeclaw Bear@1"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 16025,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 16025,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-I01",
+   "randomutil_seed": 16025,
+   "rules_seed": 16025,
+   "scan_record": "slots/RQ-C3-I01/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Momentary Blink\"], \"seat1\": [\"Pacifism\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-I01",
+   "subcase": "",
+   "target_milestone": [
+    "Runeclaw Bear@0",
+    "Pacifism@0"
+   ]
+  },
+  {
+   "binding_evidence": {
+    "probe_rules_seed": 16403,
+    "probe_rules_seed_explicit": true,
+    "setup_run_rules_seed": 16403,
+    "setup_run_rules_seed_explicit": true
+   },
+   "fresh_process_reproduction": {
+    "primary_decisions_answered": 500,
+    "primary_stopped_by": "budget",
+    "twin_entries": 500,
+    "twin_stream_match": true
+   },
+   "key": "RQ-C3-J02",
+   "randomutil_seed": 16403,
+   "rules_seed": 16403,
+   "scan_record": "slots/RQ-C3-J02/opening_rs_scan.json",
+   "seed_binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) before game.start/init (qualification-only reflective hook; production session untouched)",
+   "selection_criterion": "first seed whose engine-native dealt opening hands contain {\"seat0\": [\"Delina, Wild Mage|Runeclaw Bear\"]} (setup-only; no behavior outcome involved)",
+   "setup_verdict": "UNKNOWN",
+   "slot": "RQ-C3-J02",
+   "subcase": "",
+   "target_milestone": [
+    "Delina@0",
+    "Runeclaw Bear@0"
+   ]
+  }
+ ]
+}

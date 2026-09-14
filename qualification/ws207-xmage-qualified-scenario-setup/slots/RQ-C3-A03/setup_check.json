@@ -1,0 +1,28 @@
+{
+ "battlefield_predicates": [
+  "Drudge Skeletons@0",
+  "Swamp@0",
+  "Mountain@1"
+ ],
+ "behavior_credit": 0,
+ "decisions_answered": 500,
+ "evidence_classification": "DIRECTLY_VERIFIED",
+ "failures": [],
+ "held_behavior_cards": [
+  "Lightning Bolt"
+ ],
+ "key": "RQ-C3-A03",
+ "ledger_note": "",
+ "rules_seed": 9788,
+ "rules_seed_bound_before_start": true,
+ "rules_seed_explicit": true,
+ "schema": "ws207.setup-check.v2",
+ "seed": 9788,
+ "seed_binding_model": "EXPLICIT_RULES_SEED (game.setRulesSeed + game.setRequireExplicitSeed before game.start/init; qualification-only reflective hook)",
+ "setup_boundary": "NATURAL_GAME_START",
+ "setup_verdict": "QUALIFIED_SETUP_AVAILABLE",
+ "slot": "RQ-C3-A03",
+ "stopped_by": "budget",
+ "subcase": "",
+ "twin_stream_match": true
+}

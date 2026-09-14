@@ -1,0 +1,30 @@
+{
+ "battlefield_predicates": [
+  "Runeclaw Bear@0",
+  "Pacifism@0"
+ ],
+ "behavior_credit": 0,
+ "decisions_answered": 500,
+ "evidence_classification": "UNKNOWN",
+ "failures": [
+  "battlefield missing Runeclaw Bear under seat0",
+  "battlefield missing Pacifism under seat0"
+ ],
+ "held_behavior_cards": [
+  "Momentary Blink"
+ ],
+ "key": "RQ-C3-I01",
+ "ledger_note": "",
+ "rules_seed": 16025,
+ "rules_seed_bound_before_start": true,
+ "rules_seed_explicit": true,
+ "schema": "ws207.setup-check.v2",
+ "seed": 16025,
+ "seed_binding_model": "EXPLICIT_RULES_SEED (game.setRulesSeed + game.setRequireExplicitSeed before game.start/init; qualification-only reflective hook)",
+ "setup_boundary": "NATURAL_GAME_START",
+ "setup_verdict": "UNKNOWN",
+ "slot": "RQ-C3-I01",
+ "stopped_by": "budget",
+ "subcase": "",
+ "twin_stream_match": true
+}

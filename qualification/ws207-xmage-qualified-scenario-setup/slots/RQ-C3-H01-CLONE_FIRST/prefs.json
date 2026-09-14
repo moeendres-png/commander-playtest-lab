@@ -1,0 +1,27 @@
+{
+ "_meta": {
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-H01",
+  "subcase": "CLONE_FIRST"
+ },
+ "_setup": {
+  "held_behavior_cards": [
+   "Clone"
+  ],
+  "setup_policy_version": "ws207-setup-v1",
+  "slot": "RQ-C3-H01",
+  "subcase": "CLONE_FIRST"
+ },
+ "choice": {
+  "1": [
+   "Runeclaw Bear"
+  ]
+ },
+ "neutral_play_land": "true",
+ "play_land_max": 12,
+ "priority": {
+  "1": [
+   "Runeclaw Bear"
+  ]
+ }
+}

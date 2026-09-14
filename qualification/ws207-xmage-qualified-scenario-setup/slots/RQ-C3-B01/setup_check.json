@@ -1,0 +1,36 @@
+{
+ "battlefield_predicates": [
+  "Soul Warden@0",
+  "Essence Warden@0",
+  "Soul Warden@1",
+  "Soul Warden@2",
+  "Soul Warden@3"
+ ],
+ "behavior_credit": 0,
+ "decisions_answered": 500,
+ "evidence_classification": "UNKNOWN",
+ "failures": [
+  "battlefield missing Soul Warden under seat0",
+  "battlefield missing Essence Warden under seat0",
+  "battlefield missing Soul Warden under seat1",
+  "battlefield missing Soul Warden under seat2",
+  "battlefield missing Soul Warden under seat3"
+ ],
+ "held_behavior_cards": [
+  "Llanowar Elves"
+ ],
+ "key": "RQ-C3-B01",
+ "ledger_note": "",
+ "rules_seed": 10498,
+ "rules_seed_bound_before_start": true,
+ "rules_seed_explicit": true,
+ "schema": "ws207.setup-check.v2",
+ "seed": 10498,
+ "seed_binding_model": "EXPLICIT_RULES_SEED (game.setRulesSeed + game.setRequireExplicitSeed before game.start/init; qualification-only reflective hook)",
+ "setup_boundary": "NATURAL_GAME_START",
+ "setup_verdict": "UNKNOWN",
+ "slot": "RQ-C3-B01",
+ "stopped_by": "budget",
+ "subcase": "",
+ "twin_stream_match": true
+}

@@ -1,0 +1,1 @@
+WS207_EVIDENCE_WRITTEN /home/moeen/code/ws207-xmage-qualified-scenario-setup/qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-J02/twin.json answered=500 stopped_by=budget

@@ -1,0 +1,27 @@
+{
+ "battlefield_predicates": [
+  "Ghalta@0"
+ ],
+ "behavior_credit": 0,
+ "decisions_answered": 500,
+ "evidence_classification": "UNKNOWN",
+ "failures": [
+  "battlefield missing Ghalta under seat0",
+  "native ledger prelude unproven: P1 life=40 (40=>28 proves one native 12-hit; CODE_DERIVED)"
+ ],
+ "held_behavior_cards": [],
+ "key": "RQ-C3-G03",
+ "ledger_note": "P1 life=40 (40=>28 proves one native 12-hit; CODE_DERIVED)",
+ "rules_seed": 14401,
+ "rules_seed_bound_before_start": true,
+ "rules_seed_explicit": true,
+ "schema": "ws207.setup-check.v2",
+ "seed": 14401,
+ "seed_binding_model": "EXPLICIT_RULES_SEED (game.setRulesSeed + game.setRequireExplicitSeed before game.start/init; qualification-only reflective hook)",
+ "setup_boundary": "NATIVE_LEDGER_PRELUDE",
+ "setup_verdict": "UNKNOWN",
+ "slot": "RQ-C3-G03",
+ "stopped_by": "budget",
+ "subcase": "",
+ "twin_stream_match": true
+}

@@ -1,0 +1,29 @@
+{
+ "battlefield_predicates": [
+  "Humility@2",
+  "Runeclaw Bear@1"
+ ],
+ "behavior_credit": 0,
+ "decisions_answered": 500,
+ "evidence_classification": "UNKNOWN",
+ "failures": [
+  "battlefield missing Humility under seat2"
+ ],
+ "held_behavior_cards": [
+  "Clone"
+ ],
+ "key": "RQ-C3-H01-HUMILITY_FIRST",
+ "ledger_note": "",
+ "rules_seed": 15258,
+ "rules_seed_bound_before_start": true,
+ "rules_seed_explicit": true,
+ "schema": "ws207.setup-check.v2",
+ "seed": 15258,
+ "seed_binding_model": "EXPLICIT_RULES_SEED (game.setRulesSeed + game.setRequireExplicitSeed before game.start/init; qualification-only reflective hook)",
+ "setup_boundary": "NATURAL_GAME_START",
+ "setup_verdict": "UNKNOWN",
+ "slot": "RQ-C3-H01",
+ "stopped_by": "budget",
+ "subcase": "HUMILITY_FIRST",
+ "twin_stream_match": true
+}

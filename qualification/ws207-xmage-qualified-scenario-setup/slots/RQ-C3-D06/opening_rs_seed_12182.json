@@ -1,0 +1,86 @@
+{
+  "schema": "ws207.opening-hand.v1",
+  "slot": "RQ-C3-D06",
+  "subcase": "",
+  "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+  "seed": 12182,
+  "rules_seed": 12182,
+  "rules_seed_bound_before_start": true,
+  "rules_seed_explicit": true,
+  "randomutil_seed": 12182,
+  "seed_binding_model": "EXPLICIT_RULES_SEED (setRulesSeed + requireExplicitSeed before start/init; RandomUtil.setSeed retained by production constructor for compat only)",
+  "starting_seat": 2,
+  "hand_contents_classification": "QUALIFICATION_ASSERTION_ONLY: setup seed-selection control only; never pilot gameplay input",
+  "seats": [
+    {
+      "seat": 0,
+      "hand_names": [
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest",
+        "Swamp",
+        "Swamp",
+        "Swamp"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    },
+    {
+      "seat": 1,
+      "hand_names": [
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest",
+        "Forest"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    },
+    {
+      "seat": 2,
+      "hand_names": [
+        "Island",
+        "Island",
+        "Island",
+        "Island",
+        "Island",
+        "Island",
+        "Island"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    },
+    {
+      "seat": 3,
+      "hand_names": [
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Mountain",
+        "Mountain"
+      ],
+      "hand_size": 7,
+      "library_size": 92
+    }
+  ],
+  "pregame_steps": [
+    {
+      "class": "choose_object",
+      "basis": "starting-seat-2"
+    }
+  ],
+  "pregame_stop": "dealt",
+  "first_decision_class": "mulligan",
+  "first_decision_seat": 2,
+  "first_decision_prompt": "Keep or mulligan",
+  "first_decision_offered_labels": [
+    "Keep opening hand",
+    "Take mulligan"
+  ]
+}

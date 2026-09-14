@@ -1,0 +1,90 @@
+{
+ "behavior_credit_change": 0,
+ "denominator": 15,
+ "engine_core_carryover": {
+  "RQ-C3-E02": "BLOCKED_BY_ENGINE_CORE (WS205; untouched by WS207)",
+  "RQ-C3-G04": "BLOCKED_BY_ENGINE_CORE (WS205; untouched by WS207)"
+ },
+ "h01_slot_count": 1,
+ "schema": "ws207.setup-matrix.v1",
+ "slots": [
+  {
+   "behavior_credit": 0,
+   "detail": "neutral predicates met with twin match",
+   "slot": "RQ-C3-A03",
+   "ws207_setup_verdict": "QUALIFIED_SETUP_AVAILABLE"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "battlefield missing Doubling Season under seat0; battlefield missing Hardened Scales under seat0",
+   "slot": "RQ-C3-A04",
+   "ws207_setup_verdict": "UNKNOWN"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "battlefield missing Soul Warden under seat0; battlefield missing Essence Warden under seat0; battlefield missing Soul Warden under seat1; battlefield missing Soul Warden under seat2; battlefield missing Soul Warden under seat3",
+   "slot": "RQ-C3-B01",
+   "ws207_setup_verdict": "UNKNOWN"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "neutral predicates met with twin match",
+   "slot": "RQ-C3-C01",
+   "ws207_setup_verdict": "QUALIFIED_SETUP_AVAILABLE"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "neutral predicates met with twin match",
+   "slot": "RQ-C3-C03",
+   "ws207_setup_verdict": "QUALIFIED_SETUP_AVAILABLE"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "neutral predicates met with twin match",
+   "slot": "RQ-C3-D06",
+   "ws207_setup_verdict": "QUALIFIED_SETUP_AVAILABLE"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "battlefield missing Grizzly Bears under seat1",
+   "slot": "RQ-C3-E01",
+   "ws207_setup_verdict": "UNKNOWN"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "neutral predicates met with twin match",
+   "slot": "RQ-C3-F01",
+   "ws207_setup_verdict": "QUALIFIED_SETUP_AVAILABLE"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "battlefield missing Ghalta under seat0",
+   "slot": "RQ-C3-G02",
+   "ws207_setup_verdict": "UNKNOWN"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "battlefield missing Ghalta under seat0; native ledger prelude unproven: P1 life=40 (40=>28 proves one native 12-hit; CODE_DERIVED)",
+   "slot": "RQ-C3-G03",
+   "ws207_setup_verdict": "UNKNOWN"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "HUMILITY_FIRST=UNKNOWN (Humility undrawn/uncast in 500; Bear cast natively, Clone held, twin match) while CLONE_FIRST and NO_HUMILITY pre-boundaries are QUALIFIED_SETUP_AVAILABLE with twin match; binding ordering unmet so the ONE H01 slot stays UNKNOWN with zero behavior credit.",
+   "slot": "RQ-C3-H01",
+   "ws207_setup_verdict": "UNKNOWN"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "battlefield missing Runeclaw Bear under seat0; battlefield missing Pacifism under seat0",
+   "slot": "RQ-C3-I01",
+   "ws207_setup_verdict": "UNKNOWN"
+  },
+  {
+   "behavior_credit": 0,
+   "detail": "battlefield missing Delina under seat0",
+   "slot": "RQ-C3-J02",
+   "ws207_setup_verdict": "UNKNOWN"
+  }
+ ]
+}

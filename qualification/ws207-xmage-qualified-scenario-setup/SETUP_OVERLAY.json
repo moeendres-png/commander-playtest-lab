@@ -1,0 +1,917 @@
+{
+ "authority": "WS207 setup-only authority overlay (Coordinator-authorized). The sealed WS90 pack remains immutable provenance; this overlay alters only setup facts impossible under legal Commander construction.",
+ "b01_oracle_equivalence": {
+  "Essence Warden": {
+   "mana_cost": "{G}",
+   "oracle_id": "6ca2a89e-7032-4864-b4e9-66f3178f90ab",
+   "oracle_text": "Whenever another creature enters, you gain 1 life.",
+   "power": "1",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Elf Shaman"
+  },
+  "Soul Warden": {
+   "mana_cost": "{W}",
+   "oracle_id": "f3fad295-1af2-4ecc-8546-b121ad6be27b",
+   "oracle_text": "Whenever another creature enters, you gain 1 life.",
+   "power": "1",
+   "toughness": "1",
+   "type_line": "Creature \u2014 Human Cleric"
+  }
+ },
+ "behavior_credit_change": 0,
+ "e01_oracle_equivalence": {
+  "Grizzly Bears": {
+   "mana_cost": "{1}{G}",
+   "oracle_id": "14c8f55d-d177-4c25-a931-ebeb9e6062a0",
+   "oracle_text": "",
+   "power": "2",
+   "toughness": "2",
+   "type_line": "Creature \u2014 Bear"
+  },
+  "Runeclaw Bear": {
+   "mana_cost": "{1}{G}",
+   "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+   "oracle_text": "",
+   "power": "2",
+   "toughness": "2",
+   "type_line": "Creature \u2014 Bear"
+  }
+ },
+ "out_of_scope_reference": {
+  "RQ-C3-E02": "WS205 ENGINE_CORE_BLOCKER carried forward; no setup authority asserted.",
+  "RQ-C3-G04": "WS205 ENGINE_CORE_BLOCKER carried forward; no setup authority asserted."
+ },
+ "scenarios": [
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-A03/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-A03/deck_validation.json",
+   "explicit_rules_seed": 9788,
+   "original_setup": {
+    "active_player": "P1",
+    "battlefield": [
+     {
+      "card": "Drudge Skeletons",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Swamp",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Mountain",
+      "controller": "P1",
+      "owner": "P1"
+     }
+    ],
+    "hands": {
+     "P0": "HIDDEN:3",
+     "P1": [
+      "Lightning Bolt"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 4
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "QUALIFIED_SETUP_AVAILABLE",
+   "scenario_id": "RQ-C3-A03",
+   "semantic_objective_after": "Prove optional replacement with cost: activating Drudge Skeletons regeneration in response to lethal damage taps and heals it instead of destroying it.",
+   "semantic_objective_before": "Prove optional replacement with cost: activating Drudge Skeletons regeneration in response to lethal damage taps and heals it instead of destroying it.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-A04/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-A04/deck_validation.json",
+   "explicit_rules_seed": 9919,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Doubling Season",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Hardened Scales",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Stonecoil Serpent"
+     ],
+     "P1": "HIDDEN:4",
+     "P2": "HIDDEN:4",
+     "P3": "HIDDEN:4"
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 8
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-A04",
+   "semantic_objective_after": "Prove multiple-replacement ordering with divergent results: with Doubling Season and Hardened Scales out, Stonecoil Serpent (X=3) must offer both application orders and place 8 counters on the scripted Scales-first order.",
+   "semantic_objective_before": "Prove multiple-replacement ordering with divergent results: with Doubling Season and Hardened Scales out, Stonecoil Serpent (X=3) must offer both application orders and place 8 counters on the scripted Scales-first order.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "battlefield": [
+     {
+      "card": "Soul Warden",
+      "controller": "P0"
+     },
+     {
+      "card": "Essence Warden",
+      "controller": "P0"
+     },
+     {
+      "card": "Soul Warden",
+      "controller": "P1"
+     },
+     {
+      "card": "Soul Warden",
+      "controller": "P2"
+     },
+     {
+      "card": "Soul Warden",
+      "controller": "P3"
+     },
+     {
+      "card": "Forest/Plains",
+      "controller": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Llanowar Elves (held)"
+     ]
+    }
+   },
+   "deck_legality": "slots/RQ-C3-B01/deck_validation.json",
+   "explicit_rules_seed": 10498,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Soul Warden",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Soul Warden",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Soul Warden",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Soul Warden",
+      "controller": "P2",
+      "owner": "P2"
+     },
+     {
+      "card": "Soul Warden",
+      "controller": "P3",
+      "owner": "P3"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Llanowar Elves"
+     ],
+     "P1": "HIDDEN:4",
+     "P2": "HIDDEN:4",
+     "P3": "HIDDEN:4"
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 3
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-B01",
+   "semantic_objective_after": "Prove simultaneous-trigger APNAP across 4 players plus intra-controller ordering: one ETB with five Wardens out must create five triggers stacked active-player-first with P0 ordering its own two.",
+   "semantic_objective_before": "Prove simultaneous-trigger APNAP across 4 players plus intra-controller ordering: one ETB with five Wardens out must create five triggers stacked active-player-first with P0 ordering its own two.",
+   "semantic_objective_unchanged_proof": "B01: five simultaneous mandatory ETB life-gain triggers (P0x2 + P1/P2/P3), APNAP stacking plus same-controller ordering; substitute trigger text identical, no may, no extra trigger. E01: two separate vanilla 2/2 attackers, two defenders, Propaganda {2} tax on the P0-bound attacker only, unblocked damage; substitute game object identical except name. G03: 12 pre-ledgered plus one native unblocked 12-power hit to 24 (21+ SBA loss); only the ledger provenance changes (native prelude instead of injection). All other slots: objective text byte-identical to WS90 authority.",
+   "setup_correction_status": "CORRECTED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "P0 controlling two copies of Soul Warden is impossible under Commander singleton construction. ONE duplicate replaced by Essence Warden."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-C01/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-C01/deck_validation.json",
+   "explicit_rules_seed": 10704,
+   "original_setup": {
+    "active_player": "P1",
+    "battlefield": [
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P1",
+      "owner": "P1"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Force of Will",
+      "Turn to Frog (blue nonland pitch card)"
+     ],
+     "P1": [
+      "Llanowar Elves"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 2
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "QUALIFIED_SETUP_AVAILABLE",
+   "scenario_id": "RQ-C3-C01",
+   "semantic_objective_after": "Prove alternate-vs-mana payment fork with both routes genuinely legal: Force of Will must offer NORMAL_COST_AVAILABLE (3UU via five Islands) and ALTERNATE_COST_AVAILABLE (1 life + exile blue nonland Turn to Frog), pay the scripted pitch route via hidden-zone selection, and counter the target spell.",
+   "semantic_objective_before": "Prove alternate-vs-mana payment fork with both routes genuinely legal: Force of Will must offer NORMAL_COST_AVAILABLE (3UU via five Islands) and ALTERNATE_COST_AVAILABLE (1 life + exile blue nonland Turn to Frog), pay the scripted pitch route via hidden-zone selection, and counter the target spell.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-C03/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-C03/deck_validation.json",
+   "explicit_rules_seed": 11412,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Mountain",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Mountain",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Mountain",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Mountain",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Mountain",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Mountain",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Mountain",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Fireball"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 8
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "QUALIFIED_SETUP_AVAILABLE",
+   "scenario_id": "RQ-C3-C03",
+   "semantic_objective_after": "Prove X plus per-target cost increase with rules-determined division: Fireball X=5 at two targets costs 7 and deals 2/2 with the remainder lost.",
+   "semantic_objective_before": "Prove X plus per-target cost increase with rules-determined division: Fireball X=5 at two targets costs 7 and deals 2/2 with the remainder lost.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-D06/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-D06/deck_validation.json",
+   "explicit_rules_seed": 11912,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Ornithopter (0/2 artifact creature)",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Runeclaw Bear",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Forest",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Swamp",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Swamp",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Casualties of War"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 8
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "QUALIFIED_SETUP_AVAILABLE",
+   "scenario_id": "RQ-C3-D06",
+   "semantic_objective_after": "Prove choose-one-or-more modal integrity: Casualties of War must offer all 31 mode subsets with one typed target per chosen mode and destroy the scripted three.",
+   "semantic_objective_before": "Prove choose-one-or-more modal integrity: Casualties of War must offer all 31 mode subsets with one typed target per chosen mode and destroy the scripted three.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "battlefield": [
+     {
+      "card": "Propaganda",
+      "controller": "P0"
+     },
+     {
+      "card": "Runeclaw Bear",
+      "controller": "P1"
+     },
+     {
+      "card": "Grizzly Bears",
+      "controller": "P1"
+     }
+    ],
+    "hands": {}
+   },
+   "deck_legality": "slots/RQ-C3-E01/deck_validation.json",
+   "explicit_rules_seed": 12463,
+   "original_setup": {
+    "active_player": "P1",
+    "battlefield": [
+     {
+      "card": "Propaganda",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Runeclaw Bear",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Runeclaw Bear",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Island",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Island",
+      "controller": "P1",
+      "owner": "P1"
+     }
+    ],
+    "hands": {
+     "P0": "HIDDEN:4",
+     "P1": "HIDDEN:3",
+     "P2": "HIDDEN:4",
+     "P3": "HIDDEN:4"
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "DECLARE_ATTACKERS",
+    "turn_number": 5
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-E01",
+   "semantic_objective_after": "Prove multi-defender attack legality: two Bears attacking two different opponents with Propaganda on one must pay {2} for the taxed attacker only.",
+   "semantic_objective_before": "Prove multi-defender attack legality: two Bears attacking two different opponents with Propaganda on one must pay {2} for the taxed attacker only.",
+   "semantic_objective_unchanged_proof": "B01: five simultaneous mandatory ETB life-gain triggers (P0x2 + P1/P2/P3), APNAP stacking plus same-controller ordering; substitute trigger text identical, no may, no extra trigger. E01: two separate vanilla 2/2 attackers, two defenders, Propaganda {2} tax on the P0-bound attacker only, unblocked damage; substitute game object identical except name. G03: 12 pre-ledgered plus one native unblocked 12-power hit to 24 (21+ SBA loss); only the ledger provenance changes (native prelude instead of injection). All other slots: objective text byte-identical to WS90 authority.",
+   "setup_correction_status": "CORRECTED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "P1 controlling two copies of Runeclaw Bear is impossible under Commander singleton construction. ONE duplicate replaced by Grizzly Bears."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-F01/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-F01/deck_validation.json",
+   "explicit_rules_seed": 13405,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Forest",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Rampant Growth"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 3
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "QUALIFIED_SETUP_AVAILABLE",
+   "scenario_id": "RQ-C3-F01",
+   "semantic_objective_after": "Prove principal-scoped search with journaled shuffle: Rampant Growth must let only P0 see the library, offer fail-to-find, and shuffle with an RNG journal entry.",
+   "semantic_objective_before": "Prove principal-scoped search with journaled shuffle: Rampant Growth must let only P0 see the library, offer fail-to-find, and shuffle with an RNG journal entry.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-G02/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-G02/deck_validation.json",
+   "explicit_rules_seed": 13915,
+   "original_setup": {
+    "active_player": "P1",
+    "battlefield": [
+     {
+      "card": "Ghalta, Stampede Tyrant (P0 commander)",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Swamp",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Swamp",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Swamp",
+      "controller": "P1",
+      "owner": "P1"
+     }
+    ],
+    "hands": {
+     "P0": [],
+     "P1": [
+      "Murder"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 9
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-G02",
+   "semantic_objective_after": "Prove commander movement plus tax: destroying P0's commander must offer the command-zone choice and the recast must cost 2 more.",
+   "semantic_objective_before": "Prove commander movement plus tax: destroying P0's commander must offer the command-zone choice and the recast must cost 2 more.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "battlefield": [
+     {
+      "card": "Ghalta, Stampede Tyrant (P0 commander)",
+      "controller": "P0"
+     }
+    ],
+    "prelude": "native Ghalta combat hits on P1 until ledger >= 12, then the tested subsequent hit; prelude moves are setup-only"
+   },
+   "deck_legality": "slots/RQ-C3-G03/deck_validation.json",
+   "explicit_rules_seed": 14401,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Ghalta, Stampede Tyrant (P0 commander)",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": "HIDDEN:4",
+     "P1": "HIDDEN:4",
+     "P2": "HIDDEN:4",
+     "P3": "HIDDEN:4"
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "DECLARE_ATTACKERS",
+    "turn_number": 10
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-G03",
+   "semantic_objective_after": "Prove commander-damage loss: with 12 pre-ledgered, one native unblocked 12-power commander hit must take P1 to 24 and eliminate P1.",
+   "semantic_objective_before": "Prove commander-damage loss: with 12 pre-ledgered, one native unblocked 12-power commander hit must take P1 to 24 and eliminate P1.",
+   "semantic_objective_unchanged_proof": "B01: five simultaneous mandatory ETB life-gain triggers (P0x2 + P1/P2/P3), APNAP stacking plus same-controller ordering; substitute trigger text identical, no may, no extra trigger. E01: two separate vanilla 2/2 attackers, two defenders, Propaganda {2} tax on the P0-bound attacker only, unblocked damage; substitute game object identical except name. G03: 12 pre-ledgered plus one native unblocked 12-power hit to 24 (21+ SBA loss); only the ledger provenance changes (native prelude instead of injection). All other slots: objective text byte-identical to WS90 authority.",
+   "setup_correction_status": "CORRECTED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Injecting 12 commander damage is forbidden. The ledger must be constructed through native prior combat damage by the same commander to the same player; the setup prelude carries zero behavior credit for the tested event."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-H01/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-H01-HUMILITY_FIRST/deck_validation.json",
+   "explicit_rules_seed": null,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Humility",
+      "controller": "P2",
+      "owner": "P2"
+     },
+     {
+      "card": "Runeclaw Bear",
+      "controller": "P1",
+      "owner": "P1"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Island",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Clone"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 7
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-H01",
+   "semantic_objective_after": "Prove CR 614.12 entry-replacement applicability for Clone under pre-existing Humility: HUMILITY_FIRST requires NO copy decision (Clone enters as Clone, 1/1 under Humility, printed 0/0 SBA death after Humility leaves); CLONE_FIRST and NO_HUMILITY controls require the normal Bear-copy decision with post-Humility 2/2 retention (B) or normal copy (C). The under-Humility 1/1 visible state alone is non-discriminating and insufficient for H01 PASS.",
+   "semantic_objective_before": "Prove CR 614.12 entry-replacement applicability for Clone under pre-existing Humility: HUMILITY_FIRST requires NO copy decision (Clone enters as Clone, 1/1 under Humility, printed 0/0 SBA death after Humility leaves); CLONE_FIRST and NO_HUMILITY controls require the normal Bear-copy decision with post-Humility 2/2 retention (B) or normal copy (C). The under-Humility 1/1 visible state alone is non-discriminating and insufficient for H01 PASS.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-I01/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-I01/deck_validation.json",
+   "explicit_rules_seed": 16025,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Runeclaw Bear (+1/+1 counter)",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Pacifism (P1) enchanting Bear",
+      "controller": "P0",
+      "owner": "P1"
+     },
+     {
+      "card": "Plains",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Plains",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": [
+      "Momentary Blink"
+     ]
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "PRECOMBAT_MAIN",
+    "turn_number": 6
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-I01",
+   "semantic_objective_after": "Prove blink identity reset: Momentary Blink on a counter-bearing Pacified Bear must return a clean 2/2 and send Pacifism to its owner's graveyard.",
+   "semantic_objective_before": "Prove blink identity reset: Momentary Blink on a counter-bearing Pacified Bear must return a clean 2/2 and send Pacifism to its owner's graveyard.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  },
+  {
+   "actual_cards": true,
+   "assertion_only_inputs": "opening-hand contents (seed selection), terminal assertion state (setup check); never pilot input",
+   "corrected_setup": {
+    "reference": "original WS90 neutral state (see original_setup)",
+    "setup_procedure": "slots/RQ-C3-J02/prefs.json + selected explicit seed"
+   },
+   "deck_legality": "slots/RQ-C3-J02/deck_validation.json",
+   "explicit_rules_seed": 16403,
+   "original_setup": {
+    "active_player": "P0",
+    "battlefield": [
+     {
+      "card": "Delina, Wild Mage",
+      "controller": "P0",
+      "owner": "P0"
+     },
+     {
+      "card": "Runeclaw Bear",
+      "controller": "P0",
+      "owner": "P0"
+     }
+    ],
+    "hands": {
+     "P0": "HIDDEN:4",
+     "P1": "HIDDEN:4",
+     "P2": "HIDDEN:4",
+     "P3": "HIDDEN:4"
+    },
+    "life": {
+     "P0": 40,
+     "P1": 40,
+     "P2": 40,
+     "P3": 40
+    },
+    "phase": "DECLARE_ATTACKERS",
+    "turn_number": 6
+   },
+   "original_ws90_artifact": "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json",
+   "original_ws90_artifact_blob": "5852965e59412399a947c626d4f7d428be8ef337",
+   "pilot_visible_inputs": "principal-scoped observations + authoritative legal Decision Options only",
+   "reproducibility": "UNKNOWN",
+   "scenario_id": "RQ-C3-J02",
+   "semantic_objective_after": "Prove journaled d20 with recursion offer: Delina attacking must roll in Rules RNG, create the tapped-attacking token on 17, offer roll-again, and exile the token at end of combat.",
+   "semantic_objective_before": "Prove journaled d20 with recursion offer: Delina attacking must roll in Rules RNG, create the tapped-attacking token on 17, offer roll-again, and exile the token at end of combat.",
+   "semantic_objective_unchanged_proof": "Objective text carried byte-identical from WS90 authority; only the setup fixture (decks + explicit seed + setup-state machine) is new.",
+   "setup_correction_status": "UNCHANGED",
+   "setup_procedure": "legal Commander decks + explicit Rules seed + native shuffle + engine-offered mulligan keep + native setup-state machine (ws207-setup-v1) holding behavior cards",
+   "why_correction_necessary": "Original setup is assemblable under legal construction."
+  }
+ ],
+ "schema": "ws207.setup-overlay.v1",
+ "ws90_pack_blob": "5852965e59412399a947c626d4f7d428be8ef337"
+}
