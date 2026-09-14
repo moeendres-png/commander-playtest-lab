@@ -1,0 +1,24 @@
+{
+  "binding": "H01 PASS only if every REQUIRED H01 discriminator passes (A + B + C as defined in corrected pack). Under-Humility 1/1 terminal alone NEVER satisfies H01.",
+  "classification": "BLOCKED",
+  "slot": "RQ-C3-H01",
+  "slot_count": 1,
+  "subcases": {
+    "CLONE_FIRST": {
+      "observed": "copy-choice surface UNSUPPORTED; required positive offer absent on live bridge",
+      "required": "copy offered+taken (Runeclaw Bear); post-Humility 2/2 Bear retained",
+      "verdict": "BLOCKED"
+    },
+    "HUMILITY_FIRST": {
+      "observed": "copy-choice surface UNSUPPORTED on H4F (chooseCard/getChoices throw); absence alone non-discriminating; post-Humility discriminator unexecutable without scenario injection",
+      "required": "no copy offered/taken; Clone-as-Clone 1/1; post-Humility 0/0 SBA death (704.5f), NOT 2/2 Bear",
+      "verdict": "BLOCKED"
+    },
+    "NO_HUMILITY": {
+      "observed": "copy-choice surface UNSUPPORTED; required positive offer absent on live bridge",
+      "required": "copy offered+taken normally (Bear 2/2)",
+      "verdict": "BLOCKED"
+    }
+  },
+  "terminal_1_1_insufficient": true
+}

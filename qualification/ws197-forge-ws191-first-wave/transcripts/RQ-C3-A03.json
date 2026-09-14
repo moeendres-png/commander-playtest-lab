@@ -1,0 +1,104 @@
+{
+  "classification": "BLOCKED",
+  "deck_handles": [
+    "deck-54b0562f-e87b-40ce-a8b5-0211b3a8bf22",
+    "deck-162b775d-7160-435d-949d-9dd02053b4a4",
+    "deck-6a84dbed-f546-42af-a547-291628c3db8e",
+    "deck-af285d0f-88b2-427b-b202-7ded3e33884b"
+  ],
+  "deck_import_ok": true,
+  "events": [
+    "import_deck 4/4 ok (commander p0=Kenrith, the Returned King)",
+    "create+start 4P ok (no injected seat/life)",
+    "STARTING_PLAYER chooser=p2 rev=1 chose=p3 action=opt-c1b3be30-f782-4030-a600-127ace14ddd6",
+    "mulligan keeps ok",
+    "PRIORITY pass actor=p3 rev=6 hash 75e3d44f7bc0->2b33f4c897cf",
+    "principal-scoped observation ok observer=p4 parked=PRIORITY rev=7",
+    "fail-closed probe rejected ok (RulesEngineProtocolError)",
+    "shutdown ok"
+  ],
+  "fail_closed_probe_ok": true,
+  "first_blocker": "SCENARIO_INJECTION_UNSUPPORTED + CAST_UNSUPPORTED :: cast: nonzero mana costs force MANA_PAYMENT_CHOICE (zero-mana-only execution); neutral_initial_state battlefield/hands cannot be established via native start; H4F zero-mana/bounded surface cannot execute the slot's scripted Rules events terminally.",
+  "game_id": "ws197-rq-c3-a03-fc759959",
+  "handshake": {
+    "caps": {
+      "events": false,
+      "legal": false,
+      "submit": false
+    },
+    "engine_commit": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "protocol": "2.0.0"
+  },
+  "parked_frame": {
+    "actor": "p4",
+    "kind": "PRIORITY",
+    "revision": 7
+  },
+  "principal_scoping": {
+    "observer": "p4",
+    "others_hidden": true,
+    "own_visible": true
+  },
+  "priority_frame": {
+    "actor": "p3",
+    "post_hash": "2b33f4c897cf70ef7d42e2756826522c381d10d1dedb8281b1ae2969e0552326",
+    "pre_hash": "75e3d44f7bc0228d3e5f350f9a8e6160c53684605b03b77da49b2d0f04df12e2",
+    "revision": 6
+  },
+  "probe_error": "RulesEngineProtocolError",
+  "required_kinds": [
+    "cast",
+    "targets",
+    "mana payment",
+    "activate",
+    "mana source",
+    "pass"
+  ],
+  "scenario_injection": "UNSUPPORTED (natural game start only; no WS90 board-state injection surface)",
+  "slot": "RQ-C3-A03",
+  "source_lock": {
+    "forge_bridge_commit": "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff",
+    "forge_bridge_tree": "378cec5d90d847aeb38d69165f7eff97a0c4d146",
+    "forge_rules_core": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "forge_rules_tree": "8aed9d8754a4b3bedfc57d2a2b47d997bcff4dec",
+    "replay": "NO_TWIN_REPLAY (no seed control; single live execution per slot)",
+    "rng": "UNCONTROLLED (H4F seed_supported=false; global MyRandom, no per-game seed)",
+    "ws197_head": "edad66c83f2c83e67afb3e35b2d91c50af13c128",
+    "ws197_tree": "e83c2c175ef8436bd45a5f9d534f3d974a0ca712",
+    "ws90_package": "qualification/ws90-rqc3-corrected-first-wave-reissue/"
+  },
+  "starting_frame": {
+    "actor": "p2",
+    "kind": "STARTING_PLAYER",
+    "revision": 1
+  },
+  "supported_kinds_live": [
+    "pass",
+    "STARTING_PLAYER",
+    "MULLIGAN",
+    "PRIORITY(pass)"
+  ],
+  "title": "Regeneration shield as automatic replacement (corrected: no may at destruction)",
+  "unsupported_kinds": [
+    {
+      "kind": "cast",
+      "reason": "nonzero mana costs force MANA_PAYMENT_CHOICE (zero-mana-only execution)"
+    },
+    {
+      "kind": "targets",
+      "reason": "targeting needs fail closed (classifier UNSUPPORTED)"
+    },
+    {
+      "kind": "mana payment",
+      "reason": "nonzero CostPartMana forces MANA_PAYMENT_CHOICE"
+    },
+    {
+      "kind": "activate",
+      "reason": "activation with nonzero cost forces MANA_PAYMENT_CHOICE"
+    },
+    {
+      "kind": "mana source",
+      "reason": "choice mana outputs force MANA_OUTPUT_CHOICE (fixed taps only)"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "classification": "BLOCKED",
+  "deck_handles": [
+    "deck-c0675ecc-94b9-4e35-b29e-5288d314f179",
+    "deck-9e21673c-3e47-4b7e-8331-144e38511102",
+    "deck-573a25c7-1fc3-4a79-9d21-a90643d14c3e",
+    "deck-9baad462-0451-481e-a110-4f9529d64a9a"
+  ],
+  "deck_import_ok": true,
+  "events": [
+    "import_deck 4/4 ok (commander p0=Kenrith, the Returned King)",
+    "create+start 4P ok (no injected seat/life)",
+    "STARTING_PLAYER chooser=p2 rev=1 chose=p3 action=opt-b3a22412-ee5a-42fb-b26c-10a1911f3a46",
+    "mulligan keeps ok",
+    "PRIORITY pass actor=p3 rev=6 hash ecc20a527e96->b7aca4ea3ddc",
+    "principal-scoped observation ok observer=p4 parked=PRIORITY rev=7",
+    "fail-closed probe rejected ok (RulesEngineProtocolError)",
+    "shutdown ok"
+  ],
+  "fail_closed_probe_ok": true,
+  "first_blocker": "SCENARIO_INJECTION_UNSUPPORTED + ATTACKERS_UNSUPPORTED :: attackers: combat remains unsupported; neutral_initial_state battlefield/hands cannot be established via native start; H4F zero-mana/bounded surface cannot execute the slot's scripted Rules events terminally.",
+  "game_id": "ws197-rq-c3-e02-f1e05c9e",
+  "handshake": {
+    "caps": {
+      "events": false,
+      "legal": false,
+      "submit": false
+    },
+    "engine_commit": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "protocol": "2.0.0"
+  },
+  "parked_frame": {
+    "actor": "p4",
+    "kind": "PRIORITY",
+    "revision": 7
+  },
+  "principal_scoping": {
+    "observer": "p4",
+    "others_hidden": true,
+    "own_visible": true
+  },
+  "priority_frame": {
+    "actor": "p3",
+    "post_hash": "b7aca4ea3ddc49807649f23b2ff41215d437bf3fc2446f30eaed0f37da61ef58",
+    "pre_hash": "ecc20a527e9650c4f2050a668340ca92f79bd9a27e37744e6836335a2850cd11",
+    "revision": 6
+  },
+  "probe_error": "RulesEngineProtocolError",
+  "required_kinds": [
+    "attackers",
+    "defender per attacker",
+    "blockers",
+    "combat damage assignment",
+    "pass"
+  ],
+  "scenario_injection": "UNSUPPORTED (natural game start only; no WS90 board-state injection surface)",
+  "slot": "RQ-C3-E02",
+  "source_lock": {
+    "forge_bridge_commit": "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff",
+    "forge_bridge_tree": "378cec5d90d847aeb38d69165f7eff97a0c4d146",
+    "forge_rules_core": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "forge_rules_tree": "8aed9d8754a4b3bedfc57d2a2b47d997bcff4dec",
+    "replay": "NO_TWIN_REPLAY (no seed control; single live execution per slot)",
+    "rng": "UNCONTROLLED (H4F seed_supported=false; global MyRandom, no per-game seed)",
+    "ws197_head": "edad66c83f2c83e67afb3e35b2d91c50af13c128",
+    "ws197_tree": "e83c2c175ef8436bd45a5f9d534f3d974a0ca712",
+    "ws90_package": "qualification/ws90-rqc3-corrected-first-wave-reissue/"
+  },
+  "starting_frame": {
+    "actor": "p2",
+    "kind": "STARTING_PLAYER",
+    "revision": 1
+  },
+  "supported_kinds_live": [
+    "pass",
+    "STARTING_PLAYER",
+    "MULLIGAN",
+    "PRIORITY(pass)"
+  ],
+  "title": "Double-blocked trampler compliant division and rollover (corrected: no ordering)",
+  "unsupported_kinds": [
+    {
+      "kind": "attackers",
+      "reason": "combat remains unsupported"
+    },
+    {
+      "kind": "defender per attacker",
+      "reason": "combat remains unsupported"
+    },
+    {
+      "kind": "blockers",
+      "reason": "combat remains unsupported"
+    },
+    {
+      "kind": "combat damage assignment",
+      "reason": "combat remains unsupported"
+    }
+  ]
+}

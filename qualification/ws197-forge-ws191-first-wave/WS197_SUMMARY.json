@@ -1,0 +1,47 @@
+{
+  "architecture_freeze": "NOT_CLAIMED",
+  "counts": {
+    "BLOCKED": 15,
+    "FAIL": 0,
+    "PASS": 0,
+    "UNKNOWN": 0
+  },
+  "denominator": 15,
+  "fail_closed_all": true,
+  "forge_bridge_commit": "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff",
+  "forge_bridge_tree": "378cec5d90d847aeb38d69165f7eff97a0c4d146",
+  "forge_rules_core": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+  "full107": "NOT_RUN",
+  "global_behavior_credit_change": 0,
+  "h01_family": {
+    "binding": "H01 PASS only if every REQUIRED H01 discriminator passes (A + B + C as defined in corrected pack). Under-Humility 1/1 terminal alone NEVER satisfies H01.",
+    "classification": "BLOCKED",
+    "slot": "RQ-C3-H01",
+    "slot_count": 1,
+    "subcases": {
+      "CLONE_FIRST": {
+        "observed": "copy-choice surface UNSUPPORTED; required positive offer absent on live bridge",
+        "required": "copy offered+taken (Runeclaw Bear); post-Humility 2/2 Bear retained",
+        "verdict": "BLOCKED"
+      },
+      "HUMILITY_FIRST": {
+        "observed": "copy-choice surface UNSUPPORTED on H4F (chooseCard/getChoices throw); absence alone non-discriminating; post-Humility discriminator unexecutable without scenario injection",
+        "required": "no copy offered/taken; Clone-as-Clone 1/1; post-Humility 0/0 SBA death (704.5f), NOT 2/2 Bear",
+        "verdict": "BLOCKED"
+      },
+      "NO_HUMILITY": {
+        "observed": "copy-choice surface UNSUPPORTED; required positive offer absent on live bridge",
+        "required": "copy offered+taken normally (Bear 2/2)",
+        "verdict": "BLOCKED"
+      }
+    },
+    "terminal_1_1_insufficient": true
+  },
+  "internal_forge_ai_authority": "ABSENT",
+  "legal_action_authority": "Rules Core alone (bridge-native legality; Lab routes only)",
+  "principal_scoping": true,
+  "production_provider": "NOT_SELECTED",
+  "requested_option_filtering": "ABSENT",
+  "ws197_head": "edad66c83f2c83e67afb3e35b2d91c50af13c128",
+  "ws197_tree": "e83c2c175ef8436bd45a5f9d534f3d974a0ca712"
+}

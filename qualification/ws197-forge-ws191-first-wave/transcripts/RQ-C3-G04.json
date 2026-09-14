@@ -1,0 +1,84 @@
+{
+  "classification": "BLOCKED",
+  "deck_handles": [
+    "deck-9e36ac3d-5848-4ad2-b1a6-036aee65aca8",
+    "deck-5292a3b4-806b-4d4a-b386-df3b35c6595a",
+    "deck-41a74ca9-7b5e-41ff-b047-7d9f3d2638d5",
+    "deck-8e4ba071-10d3-41f0-8154-bde5b07db39f"
+  ],
+  "deck_import_ok": true,
+  "events": [
+    "import_deck 4/4 ok (commander p0=Kenrith, the Returned King)",
+    "create+start 4P ok (no injected seat/life)",
+    "STARTING_PLAYER chooser=p4 rev=1 chose=p3 action=opt-504d6811-dfc8-4a39-a31a-c93c384bb2d2",
+    "mulligan keeps ok",
+    "PRIORITY pass actor=p3 rev=6 hash f8aeef1b89f7->e7ec397818a5",
+    "principal-scoped observation ok observer=p4 parked=PRIORITY rev=7",
+    "fail-closed probe rejected ok (RulesEngineProtocolError)",
+    "shutdown ok"
+  ],
+  "fail_closed_probe_ok": true,
+  "first_blocker": "SCENARIO_INJECTION_UNSUPPORTED + CONCESSION_UNSUPPORTED :: concession: concede remains unsupported; neutral_initial_state battlefield/hands cannot be established via native start; H4F zero-mana/bounded surface cannot execute the slot's scripted Rules events terminally.",
+  "game_id": "ws197-rq-c3-g04-d5625de2",
+  "handshake": {
+    "caps": {
+      "events": false,
+      "legal": false,
+      "submit": false
+    },
+    "engine_commit": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "protocol": "2.0.0"
+  },
+  "parked_frame": {
+    "actor": "p4",
+    "kind": "PRIORITY",
+    "revision": 7
+  },
+  "principal_scoping": {
+    "observer": "p4",
+    "others_hidden": true,
+    "own_visible": true
+  },
+  "priority_frame": {
+    "actor": "p3",
+    "post_hash": "e7ec397818a55956850a15a557d831c1beb39fb0d02efd48b553259c5878e216",
+    "pre_hash": "f8aeef1b89f7e669e74e214531b52d01b868cf19b60f7daf52cc4b3be10b4358",
+    "revision": 6
+  },
+  "probe_error": "RulesEngineProtocolError",
+  "required_kinds": [
+    "concession",
+    "pass"
+  ],
+  "scenario_injection": "UNSUPPORTED (natural game start only; no WS90 board-state injection surface)",
+  "slot": "RQ-C3-G04",
+  "source_lock": {
+    "forge_bridge_commit": "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff",
+    "forge_bridge_tree": "378cec5d90d847aeb38d69165f7eff97a0c4d146",
+    "forge_rules_core": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "forge_rules_tree": "8aed9d8754a4b3bedfc57d2a2b47d997bcff4dec",
+    "replay": "NO_TWIN_REPLAY (no seed control; single live execution per slot)",
+    "rng": "UNCONTROLLED (H4F seed_supported=false; global MyRandom, no per-game seed)",
+    "ws197_head": "edad66c83f2c83e67afb3e35b2d91c50af13c128",
+    "ws197_tree": "e83c2c175ef8436bd45a5f9d534f3d974a0ca712",
+    "ws90_package": "qualification/ws90-rqc3-corrected-first-wave-reissue/"
+  },
+  "starting_frame": {
+    "actor": "p4",
+    "kind": "STARTING_PLAYER",
+    "revision": 1
+  },
+  "supported_kinds_live": [
+    "pass",
+    "STARTING_PLAYER",
+    "MULLIGAN",
+    "PRIORITY(pass)"
+  ],
+  "title": "Control Magic controller leaves game",
+  "unsupported_kinds": [
+    {
+      "kind": "concession",
+      "reason": "concede remains unsupported"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "classification": "BLOCKED",
+  "deck_handles": [
+    "deck-f87230e7-a3e0-495c-a694-24fd8b1cc0c0",
+    "deck-a6192b47-5784-4382-8f7c-1d8d064ac5b6",
+    "deck-da9ffcae-2347-4ef6-9484-64ec8b4bf3ac",
+    "deck-5bebabd1-34e1-4117-b172-e2e0f3c9ae55"
+  ],
+  "deck_import_ok": true,
+  "events": [
+    "import_deck 4/4 ok (commander p0=Kenrith, the Returned King)",
+    "create+start 4P ok (no injected seat/life)",
+    "STARTING_PLAYER chooser=p1 rev=1 chose=p3 action=opt-68281731-28f1-479c-9b55-866b0082f394",
+    "mulligan keeps ok",
+    "PRIORITY pass actor=p3 rev=6 hash 7dd6df70694d->f9f91091777e",
+    "principal-scoped observation ok observer=p4 parked=PRIORITY rev=7",
+    "fail-closed probe rejected ok (RulesEngineProtocolError)",
+    "shutdown ok"
+  ],
+  "fail_closed_probe_ok": true,
+  "first_blocker": "SCENARIO_INJECTION_UNSUPPORTED + CAST_UNSUPPORTED :: cast: nonzero mana costs force MANA_PAYMENT_CHOICE (zero-mana-only execution); neutral_initial_state battlefield/hands cannot be established via native start; H4F zero-mana/bounded surface cannot execute the slot's scripted Rules events terminally.",
+  "game_id": "ws197-rq-c3-d06-d33dc65d",
+  "handshake": {
+    "caps": {
+      "events": false,
+      "legal": false,
+      "submit": false
+    },
+    "engine_commit": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "protocol": "2.0.0"
+  },
+  "parked_frame": {
+    "actor": "p4",
+    "kind": "PRIORITY",
+    "revision": 7
+  },
+  "principal_scoping": {
+    "observer": "p4",
+    "others_hidden": true,
+    "own_visible": true
+  },
+  "priority_frame": {
+    "actor": "p3",
+    "post_hash": "f9f91091777e6a12484c0c827539d576b4148165c88168a733f6fde487bd308e",
+    "pre_hash": "7dd6df70694dc81ba2f4a25ef890832c521d8282140099001f14bbfd921195bb",
+    "revision": 6
+  },
+  "probe_error": "RulesEngineProtocolError",
+  "required_kinds": [
+    "cast",
+    "modes",
+    "targets",
+    "mana payment",
+    "pass"
+  ],
+  "scenario_injection": "UNSUPPORTED (natural game start only; no WS90 board-state injection surface)",
+  "slot": "RQ-C3-D06",
+  "source_lock": {
+    "forge_bridge_commit": "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff",
+    "forge_bridge_tree": "378cec5d90d847aeb38d69165f7eff97a0c4d146",
+    "forge_rules_core": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "forge_rules_tree": "8aed9d8754a4b3bedfc57d2a2b47d997bcff4dec",
+    "replay": "NO_TWIN_REPLAY (no seed control; single live execution per slot)",
+    "rng": "UNCONTROLLED (H4F seed_supported=false; global MyRandom, no per-game seed)",
+    "ws197_head": "edad66c83f2c83e67afb3e35b2d91c50af13c128",
+    "ws197_tree": "e83c2c175ef8436bd45a5f9d534f3d974a0ca712",
+    "ws90_package": "qualification/ws90-rqc3-corrected-first-wave-reissue/"
+  },
+  "starting_frame": {
+    "actor": "p1",
+    "kind": "STARTING_PLAYER",
+    "revision": 1
+  },
+  "supported_kinds_live": [
+    "pass",
+    "STARTING_PLAYER",
+    "MULLIGAN",
+    "PRIORITY(pass)"
+  ],
+  "title": "Casualties of War choose one or more",
+  "unsupported_kinds": [
+    {
+      "kind": "cast",
+      "reason": "nonzero mana costs force MANA_PAYMENT_CHOICE (zero-mana-only execution)"
+    },
+    {
+      "kind": "modes",
+      "reason": "modal choices fail closed"
+    },
+    {
+      "kind": "targets",
+      "reason": "targeting needs fail closed (classifier UNSUPPORTED)"
+    },
+    {
+      "kind": "mana payment",
+      "reason": "nonzero CostPartMana forces MANA_PAYMENT_CHOICE"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "classification": "BLOCKED",
+  "deck_handles": [
+    "deck-dc951a1c-082f-454d-bec2-0ebc57a2ddbe",
+    "deck-472598e1-037f-4966-9d00-d133f66f5ade",
+    "deck-784f0afe-19f7-4aae-8687-ec016fd64af0",
+    "deck-56216d81-9276-4902-8b2f-4f3bde73283f"
+  ],
+  "deck_import_ok": true,
+  "events": [
+    "import_deck 4/4 ok (commander p0=Kenrith, the Returned King)",
+    "create+start 4P ok (no injected seat/life)",
+    "STARTING_PLAYER chooser=p2 rev=1 chose=p3 action=opt-c038e185-b117-4059-ba74-e3f5d9911ce9",
+    "mulligan keeps ok",
+    "PRIORITY pass actor=p3 rev=6 hash 948e3a24e2ef->a1fb6f8e563d",
+    "principal-scoped observation ok observer=p4 parked=PRIORITY rev=7",
+    "fail-closed probe rejected ok (RulesEngineProtocolError)",
+    "shutdown ok"
+  ],
+  "fail_closed_probe_ok": true,
+  "first_blocker": "SCENARIO_INJECTION_UNSUPPORTED + CAST_UNSUPPORTED :: cast: nonzero mana costs force MANA_PAYMENT_CHOICE (zero-mana-only execution); neutral_initial_state battlefield/hands cannot be established via native start; H4F zero-mana/bounded surface cannot execute the slot's scripted Rules events terminally.",
+  "game_id": "ws197-rq-c3-h01-ee31c524",
+  "handshake": {
+    "caps": {
+      "events": false,
+      "legal": false,
+      "submit": false
+    },
+    "engine_commit": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "protocol": "2.0.0"
+  },
+  "parked_frame": {
+    "actor": "p4",
+    "kind": "PRIORITY",
+    "revision": 7
+  },
+  "principal_scoping": {
+    "observer": "p4",
+    "others_hidden": true,
+    "own_visible": true
+  },
+  "priority_frame": {
+    "actor": "p3",
+    "post_hash": "a1fb6f8e563d1eba99d297ed9d7b9f8910fb7e1f9c295976733610e8e51113ca",
+    "pre_hash": "948e3a24e2efa7479ffa0c8202ec042c38e9e2834ce869ce2a85970b212465c3",
+    "revision": 6
+  },
+  "probe_error": "RulesEngineProtocolError",
+  "required_kinds": [
+    "cast",
+    "copy choices",
+    "mana payment",
+    "pass"
+  ],
+  "scenario_injection": "UNSUPPORTED (natural game start only; no WS90 board-state injection surface)",
+  "slot": "RQ-C3-H01",
+  "source_lock": {
+    "forge_bridge_commit": "7360737b7f1f3580eb51b7aca49bd1c0e72d9bff",
+    "forge_bridge_tree": "378cec5d90d847aeb38d69165f7eff97a0c4d146",
+    "forge_rules_core": "aa5c00aa32dfd40e213f223f8fd400c43daabb24",
+    "forge_rules_tree": "8aed9d8754a4b3bedfc57d2a2b47d997bcff4dec",
+    "replay": "NO_TWIN_REPLAY (no seed control; single live execution per slot)",
+    "rng": "UNCONTROLLED (H4F seed_supported=false; global MyRandom, no per-game seed)",
+    "ws197_head": "edad66c83f2c83e67afb3e35b2d91c50af13c128",
+    "ws197_tree": "e83c2c175ef8436bd45a5f9d534f3d974a0ca712",
+    "ws90_package": "qualification/ws90-rqc3-corrected-first-wave-reissue/"
+  },
+  "starting_frame": {
+    "actor": "p2",
+    "kind": "STARTING_PLAYER",
+    "revision": 1
+  },
+  "supported_kinds_live": [
+    "pass",
+    "STARTING_PLAYER",
+    "MULLIGAN",
+    "PRIORITY(pass)"
+  ],
+  "title": "Clone under Humility (corrected: CR 614.12 applicability + discriminating family)",
+  "unsupported_kinds": [
+    {
+      "kind": "cast",
+      "reason": "nonzero mana costs force MANA_PAYMENT_CHOICE (zero-mana-only execution)"
+    },
+    {
+      "kind": "copy choices",
+      "reason": "chooseCard/getChoices throw BridgeUnsupportedDecision"
+    },
+    {
+      "kind": "mana payment",
+      "reason": "nonzero CostPartMana forces MANA_PAYMENT_CHOICE"
+    }
+  ]
+}
