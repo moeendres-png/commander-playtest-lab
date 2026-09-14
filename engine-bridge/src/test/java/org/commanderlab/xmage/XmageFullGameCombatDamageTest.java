@@ -67,6 +67,7 @@ class XmageFullGameCombatDamageTest {
         AtomicReference<Throwable> responderFailure = new AtomicReference<>();
         Thread responder = new Thread(() -> {
             try {
+                java.util.Set<String> answeredIds = new java.util.HashSet<>();
                 boolean rejectedOnce = false;
                 while (!Thread.currentThread().isInterrupted()) {
                     JsonObject pending = fixture.controller.pendingDecision();
@@ -74,33 +75,43 @@ class XmageFullGameCombatDamageTest {
                         Thread.sleep(5L);
                         continue;
                     }
+                    String id = pending.get("decision_id").getAsString();
+                    if (answeredIds.contains(id)) {
+                        Thread.sleep(5L);
+                        continue;
+                    }
                     JsonObject context = pending.getAsJsonObject("context");
                     int min = context.get("numeric_min").getAsInt();
                     int max = context.get("numeric_max").getAsInt();
                     JsonObject response = new JsonObject();
-                    response.addProperty(
-                            "decision_id", pending.get("decision_id").getAsString());
+                    response.addProperty("decision_id", id);
                     response.addProperty(
                             "actor_id", pending.get("actor_id").getAsString());
                     response.add("selected_option_ids", new JsonArray());
                     response.add("ordering", new JsonArray());
-                    if (!rejectedOnce) {
-                        rejectedOnce = true;
-                        response.addProperty("numeric_choice", max + 1);
-                        try {
-                            fixture.controller.submit(response);
+                    boolean spoilAttempt = !rejectedOnce;
+                    response.addProperty(
+                            "numeric_choice", spoilAttempt ? max + 1 : min);
+                    try {
+                        fixture.controller.submit(response);
+                        answeredIds.add(id);
+                        if (spoilAttempt) {
                             firstRejection.set("NO_REJECTION");
-                        } catch (XmageFullGameDecisionController.DecisionException exc) {
-                            firstRejection.set(exc.getMessage());
+                            rejectedOnce = true;
                         }
-                        continue;
-                    }
-                    response.addProperty("numeric_choice", min);
-                    fixture.controller.submit(response);
-                    if (fixture.controller.pendingDecision() == null) {
-                        Thread.sleep(25L);
-                        if (fixture.controller.pendingDecision() == null) {
-                            return;
+                    } catch (XmageFullGameDecisionController.DecisionException exc) {
+                        if (!rejectedOnce && exc.getMessage() != null
+                                && exc.getMessage().contains("out of range")) {
+                            // Expected rejection of the over-maximum spoil;
+                            // retry the same decision with the minimum.
+                            firstRejection.set(exc.getMessage());
+                            rejectedOnce = true;
+                        } else if (exc.getMessage() != null
+                                && exc.getMessage().contains("STALE_DECISION")) {
+                            // Concurrent advance; re-read the current pending.
+                            continue;
+                        } else {
+                            throw exc;
                         }
                     }
                 }
@@ -196,6 +207,7 @@ class XmageFullGameCombatDamageTest {
             Fixture fixture, AtomicReference<Throwable> failure) {
         Thread responder = new Thread(() -> {
             try {
+                java.util.Set<String> answeredIds = new java.util.HashSet<>();
                 int answered = 0;
                 while (answered < 16 && !Thread.currentThread().isInterrupted()) {
                     JsonObject pending = fixture.controller.pendingDecision();
@@ -203,17 +215,30 @@ class XmageFullGameCombatDamageTest {
                         Thread.sleep(5L);
                         continue;
                     }
+                    String id = pending.get("decision_id").getAsString();
+                    if (answeredIds.contains(id)) {
+                        Thread.sleep(5L);
+                        continue;
+                    }
                     JsonObject context = pending.getAsJsonObject("context");
                     int min = context.get("numeric_min").getAsInt();
                     JsonObject response = new JsonObject();
-                    response.addProperty(
-                            "decision_id", pending.get("decision_id").getAsString());
+                    response.addProperty("decision_id", id);
                     response.addProperty(
                             "actor_id", pending.get("actor_id").getAsString());
                     response.add("selected_option_ids", new JsonArray());
                     response.add("ordering", new JsonArray());
                     response.addProperty("numeric_choice", min);
-                    fixture.controller.submit(response);
+                    try {
+                        fixture.controller.submit(response);
+                    } catch (XmageFullGameDecisionController.DecisionException exc) {
+                        if (exc.getMessage() != null
+                                && exc.getMessage().contains("STALE_DECISION")) {
+                            continue;
+                        }
+                        throw exc;
+                    }
+                    answeredIds.add(id);
                     answered++;
                     Thread.sleep(5L);
                 }
