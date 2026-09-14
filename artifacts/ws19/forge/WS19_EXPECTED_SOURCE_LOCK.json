@@ -1,0 +1,35 @@
+{
+  "schema_version": "ws19-source-lock/2.0.0",
+  "target": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "base_commit": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "base_tree": "551c0d55a171508618d2b7d29e0f49b19893f886",
+    "license": "LicenseRef-Proprietary",
+    "baseline_status": "COMMON_QUALIFICATION_BASELINE_HEALTHY"
+  },
+  "ws10r": {
+    "protocol": "commander-lab.rules-service/1.1.0",
+    "bundle_sha256": "2f002a4d020e99e44270239fd3a894e9be6f08eddf9fdd233b81ba8d3f070577",
+    "common_fixture_manifest_sha256": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+    "obligation_catalog_sha256": "df3b354858d5e01cdb899ac24cdbf5f269fb81c0bf495b1bcb4129b1498dd963"
+  },
+  "forge": {
+    "repository": "Card-Forge/forge",
+    "branch": "master",
+    "commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "tree": "994976e06aaf99b807646b60b1aa2ac9f7703df4",
+    "version": "2.0.15-SNAPSHOT",
+    "license": "GPL-3.0-or-later",
+    "license_git_blob": "e72bfddabc15be5718a7cc061ac10e47741d8219",
+    "player_controller_git_blob": "192ef8737ecd645b75d50782693d5eab948d43a7",
+    "remote_client_gui_git_blob": "768faa260fd3d8049258f38419e48704e257a490"
+  },
+  "fresh_relock": {
+    "previous_forge_commit": "1e604105f9e279331063824943b9222b6589f5d8",
+    "commit_changed_since_pre_ws17r": false,
+    "tree_changed_since_pre_ws17r": false,
+    "player_controller_blob_changed": false,
+    "remote_client_gui_blob_changed": false
+  },
+  "old_evidence_policy": "PROVISIONAL_PRE_WS17R_NOT_ADMISSIBLE"
+}
