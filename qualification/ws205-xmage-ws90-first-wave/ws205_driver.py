@@ -45,6 +45,7 @@ SLOT_ORDER = [
     "RQ-C3-J02",
 ]
 SEEDS = {slot: 9101 + index for index, slot in enumerate(SLOT_ORDER)}
+SEEDS["RQ-C3-H01-HUMILITY_FIRST"] = 9113
 SEEDS["RQ-C3-H01-CLONE_FIRST"] = 9213
 SEEDS["RQ-C3-H01-NO_HUMILITY"] = 9313
 
@@ -424,12 +425,18 @@ def semantic_transcript(evidence: dict) -> list[dict]:
         # metadata, not Rules semantics; it is excluded from the semantic
         # projection. Twin stream-following is verified separately by
         # stream_entries_followed + stream_diverged in twin.record.json.
+        # offered_types is normalized as a multiset sorted by type: engine
+        # enumeration ORDER is process-local, but offered COUNTS are Rules
+        # relevant and must match exactly.
+        offered_types = row.get("offered_types", [])
+        if isinstance(offered_types, list):
+            offered_types = sorted(offered_types, key=lambda r: str(r.get("type", "")))
         entry = {
             "offset": row.get("offset"),
             "class": row.get("class"),
             "actor_seat": row.get("actor_seat"),
             "offered_count": row.get("offered_count"),
-            "offered_types": row.get("offered_types"),
+            "offered_types": offered_types,
             "selected_label": normalize_label(str(row.get("selected_label", ""))),
             "label_ambiguous": bool(row.get("label_ambiguous", False)),
         }

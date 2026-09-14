@@ -46,6 +46,9 @@ public final class Ws205FirstWaveDriver {
     private static final String POLICY_VERSION = "ws205-pilot-v1";
     private static final String ENGINE_PIN = "cfc36f445f917f101fa2ed588770e043f53bc44c";
 
+    /** Offered-order index of the last matcher pick (-1 when unmatched). */
+    private static int lastMatchIndex = -1;
+
     private Ws205FirstWaveDriver() {
     }
 
@@ -218,6 +221,7 @@ public final class Ws205FirstWaveDriver {
 
             JsonObject proposal;
             String selectionBasis;
+            lastMatchIndex = -1;
             if (twin && stream != null) {
                 TwinPick pick = pickTwinAction(legal, pending, stream, streamCursor);
                 if (pick == null || pick.diverged) {
@@ -272,6 +276,7 @@ public final class Ws205FirstWaveDriver {
                     "offered_count", pending.getAsJsonArray("legal_options").size());
             record.add("offered_types", typeHistogram(pending));
             record.addProperty("selected_label", submittedLabel == null ? "" : submittedLabel);
+            record.addProperty("selected_index", lastMatchIndex);
             record.addProperty("label_ambiguous",
                     countLabelMatches(pending, submittedLabel) > 1);
             if (submittedNumeric != null) {
@@ -432,6 +437,9 @@ public final class Ws205FirstWaveDriver {
         if (fallback == null) {
             return null;
         }
+        lastMatchIndex = indexOfAction(legal, pending,
+                fallback.has("legal_action_id") && !fallback.get("legal_action_id").isJsonNull()
+                        ? fallback.get("legal_action_id").getAsString() : "");
         applyNumericPref(fallback, pending, prefs, decisionClass, seat, true);
         if (!validateNumeric(fallback, pending)) {
             return null;
@@ -665,7 +673,10 @@ public final class Ws205FirstWaveDriver {
         }
         String decisionId = pending.get("decision_id").getAsString();
         JsonObject best = null;
+        int bestIndex = -1;
+        int index = -1;
         for (JsonElement element : pending.getAsJsonArray("legal_options")) {
+            index++;
             JsonObject option = element.getAsJsonObject();
             String label = option.has("label") && !option.get("label").isJsonNull()
                     ? option.get("label").getAsString() : "";
@@ -681,11 +692,15 @@ public final class Ws205FirstWaveDriver {
             if (action == null) {
                 continue;
             }
-            if (best == null || action.get("action_id").getAsString()
-                    .compareTo(best.get("action_id").getAsString()) < 0) {
+            // Tie-break by offered order (engine enumeration position), never
+            // by UUID-bearing action_id: action_ids differ across JVMs, so a
+            // UUID tie-break would inject harness nondeterminism into twins.
+            if (best == null) {
                 best = action;
+                bestIndex = index;
             }
         }
+        lastMatchIndex = bestIndex;
         return best;
     }
 
@@ -697,7 +712,10 @@ public final class Ws205FirstWaveDriver {
         }
         String decisionId = pending.get("decision_id").getAsString();
         JsonObject best = null;
+        int bestIndex = -1;
+        int index = -1;
         for (JsonElement element : pending.getAsJsonArray("legal_options")) {
+            index++;
             JsonObject option = element.getAsJsonObject();
             String offered = option.has("label") && !option.get("label").isJsonNull()
                     ? option.get("label").getAsString() : "";
@@ -713,11 +731,13 @@ public final class Ws205FirstWaveDriver {
             if (action == null) {
                 continue;
             }
-            if (best == null || action.get("action_id").getAsString()
-                    .compareTo(best.get("action_id").getAsString()) < 0) {
+            // Same offered-order tie-break as the primary (see matchWish).
+            if (best == null) {
                 best = action;
+                bestIndex = index;
             }
         }
+        lastMatchIndex = bestIndex;
         return best;
     }
 
@@ -731,6 +751,26 @@ public final class Ws205FirstWaveDriver {
             }
         }
         return null;
+    }
+
+    /** Offered-order index backing an action (-1 when unmapped/empty). */
+    private static int indexOfAction(
+            JsonObject legal, JsonObject pending, String actionId) {
+        if (actionId == null || !actionId.contains(":")) {
+            return -1;
+        }
+        String suffix = actionId.substring(actionId.indexOf(':') + 1);
+        int index = -1;
+        for (JsonElement element : pending.getAsJsonArray("legal_options")) {
+            index++;
+            JsonObject option = element.getAsJsonObject();
+            String optionId = option.has("option_id") && !option.get("option_id").isJsonNull()
+                    ? option.get("option_id").getAsString() : "";
+            if (suffix.equals(optionId)) {
+                return index;
+            }
+        }
+        return -1;
     }
 
     /** Native pending label for a submitted action (stable across JVMs). */

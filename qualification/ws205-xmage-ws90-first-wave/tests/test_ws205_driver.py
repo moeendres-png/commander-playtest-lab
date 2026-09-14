@@ -42,9 +42,11 @@ def test_seeds_fixed_neutrally_before_execution():
     # Neutral rule: 9101 + slot index; H01 controls offset. No outcome tuning.
     for index, slot in enumerate(driver.SLOT_ORDER):
         assert driver.SEEDS[slot] == 9101 + index
+    assert driver.SEEDS["RQ-C3-H01-HUMILITY_FIRST"] == driver.SEEDS["RQ-C3-H01"] == 9113
     assert driver.SEEDS["RQ-C3-H01-CLONE_FIRST"] == 9213
     assert driver.SEEDS["RQ-C3-H01-NO_HUMILITY"] == 9313
-    assert len(set(driver.SEEDS.values())) == len(driver.SEEDS)
+    values = [v for k, v in driver.SEEDS.items() if k != "RQ-C3-H01"]
+    assert len(set(values)) == len(values)
 
 
 def test_engine_pin_and_policy_version_pinned():
