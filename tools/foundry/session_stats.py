@@ -22,6 +22,8 @@ from pathlib import Path
 
 
 def _ms_to_utc(ms: object) -> str | None:
+    if isinstance(ms, bool):
+        return None
     if not isinstance(ms, (int, float)):
         return None
     return datetime.fromtimestamp(ms / 1000, UTC).isoformat(timespec="seconds")
@@ -42,18 +44,31 @@ def summarize(export_path: str) -> dict:
         raise ValueError("export JSON has empty info/messages (not a session export)")
 
     out: dict = {}
-    out["session_id"] = info.get("id")
-    out["agent"] = info.get("agent")
+    # WS199: aggregate-only allowlist. Identity strings pass through only
+    # when actually strings; anything else stays absent (never coerced,
+    # never estimated). No transcript/command/output/patch content is read.
+    session_id = info.get("id")
+    if isinstance(session_id, str) and session_id:
+        out["session_id"] = session_id
+    agent = info.get("agent")
+    if isinstance(agent, str) and agent:
+        out["agent"] = agent
     model = info.get("model", {})
     if isinstance(model, dict):
-        out["model"] = (
-            f"{model.get('providerID')}/{model.get('id')}"
-            if model.get("providerID") and model.get("id")
-            else model.get("id")
-        )
-        out["provider"] = model.get("providerID")
-        out["variant"] = model.get("variant")
-    out["cli_version"] = info.get("version")
+        provider_id = model.get("providerID")
+        model_id = model.get("id")
+        variant = model.get("variant")
+        if isinstance(provider_id, str) and isinstance(model_id, str) and provider_id and model_id:
+            out["model"] = f"{provider_id}/{model_id}"
+        elif isinstance(model_id, str) and model_id:
+            out["model"] = model_id
+        if isinstance(provider_id, str) and provider_id:
+            out["provider"] = provider_id
+        if isinstance(variant, str) and variant:
+            out["variant"] = variant
+    cli_version = info.get("version")
+    if isinstance(cli_version, str) and cli_version:
+        out["cli_version"] = cli_version
 
     turns = 0
     tool_calls = 0
@@ -89,15 +104,18 @@ def summarize(export_path: str) -> dict:
     tokens = info.get("tokens", {})
     if isinstance(tokens, dict):
         for key in ("input", "output", "reasoning"):
-            if isinstance(tokens.get(key), (int, float)):
-                out[f"tokens_{key}"] = tokens[key]
+            value = tokens.get(key)
+            # WS199: bool is an int subclass; True/False are never token counts.
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                out[f"tokens_{key}"] = value
         cache = tokens.get("cache", {})
         if isinstance(cache, dict):
             for key in ("read", "write"):
-                if isinstance(cache.get(key), (int, float)):
-                    out[f"tokens_cache_{key}"] = cache[key]
+                value = cache.get(key)
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    out[f"tokens_cache_{key}"] = value
     cost = info.get("cost")
-    if isinstance(cost, (int, float)):
+    if isinstance(cost, (int, float)) and not isinstance(cost, bool):
         out["cost_usd"] = cost
     timing = info.get("time", {})
     if isinstance(timing, dict):
@@ -105,7 +123,12 @@ def summarize(export_path: str) -> dict:
         out["ended_utc"] = _ms_to_utc(timing.get("updated"))
         created = timing.get("created")
         updated = timing.get("updated")
-        if isinstance(created, (int, float)) and isinstance(updated, (int, float)):
+        if (
+            isinstance(created, (int, float))
+            and not isinstance(created, bool)
+            and isinstance(updated, (int, float))
+            and not isinstance(updated, bool)
+        ):
             out["elapsed_seconds"] = round((updated - created) / 1000, 1)
     out["compaction_count"] = None  # no marker in export format: unavailable
     return {k: v for k, v in out.items() if v is not None or k == "compaction_count"}

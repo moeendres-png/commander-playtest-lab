@@ -90,12 +90,25 @@ recovery path cannot silently drift.
 
 ## Authoritative metrics
 
-Use `tools/foundry/session_stats.py` (aggregate an `opencode export`
-JSON file) plus `tools/foundry/metrics.py` (JSONL records with provenance).
-Raw export files are `LOCAL_ONLY`: never commit or paste them. Record only:
+Use `tools/foundry/session_capture.py` (exact-session export → aggregate →
+`metrics.jsonl` with AUTOCAPTURED provenance; reuses
+`tools/foundry/session_stats.py`) plus `tools/foundry/metrics.py` (JSONL
+records with provenance). Raw export files are `LOCAL_ONLY` under the run
+directory: never commit or paste them. Record only aggregates:
 
-- `tokens_input`, `tokens_output`, `tokens_cache_read`, `tokens_cache_write`,
-  `cost_usd`, model turns, tool calls (by tool), tool errors.
+- `session_id`, `model`/`provider`/`variant`/`agent`/`cli_version`,
+  `tokens_input`, `tokens_output`, `tokens_reasoning`,
+  `tokens_cache_read`, `tokens_cache_write`, `cost_usd`, model turns, tool
+  calls (by tool), tool errors, `patch_count`, timings.
+
+Capture workflow: `python3 tools/foundry/session_capture.py --run-dir
+<run_dir> --session-id <OpenCode-sessionID>` after a checkpoint or at
+session end; the launcher attempts the same bounded capture when the exact
+ID is supplied (`--opencode-session-id` / env / run-dir file) and otherwise
+emits a non-blocking `TELEMETRY_PENDING`/`TELEMETRY_HINT`. Exact ID only —
+never newest-session guessing under concurrent workers. Missing fields stay
+absent; `compaction_count` stays unavailable; no rotation threshold exists
+(WS199 collects facts only).
 
 ## Benchmarking without spending quota
 

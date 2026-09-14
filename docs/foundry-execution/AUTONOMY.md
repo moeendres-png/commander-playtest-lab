@@ -85,7 +85,12 @@ Each proposal is classed `IMMEDIATE` / `DEPENDENCY_BLOCKED` /
 
 WS78B's natural baseline contributed structural guidance only; token/cache
 figures remain `UNKNOWN` without an `opencode export` aggregate, and no
-token-based rotation threshold exists anywhere. `rotation_guidance` is advisory:
+token-based rotation threshold exists anywhere. WS199 provides the bounded
+exact-session capture (`tools/foundry/session_capture.py`; exact OpenCode
+session ID required, raw `LOCAL_ONLY`, aggregates `AUTOCAPTURED`, telemetry
+fail-open) so future workstreams can accumulate export-proven aggregates
+naturally; it introduces no threshold, no automatic rotation, no kill/reset,
+and no model/provider change. `rotation_guidance` is advisory:
 `NO_ROTATION` / `REVIEW_PROMPT` / `ROTATE_TO_FRESH_CONTINUATION` (checkpoint,
 then recommend a fresh compact continuation from the exact resumable state —
 never kill/reset the live process, never change model/provider). Non-`NONE`

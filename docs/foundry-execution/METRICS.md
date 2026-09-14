@@ -1,14 +1,15 @@
-# Session Metrics with Provenance (Checkpoint E)
+# Session Metrics with Provenance (Checkpoint E, WS199 capture)
 
 No dashboard. One JSONL record per task or session, appended with
 `tools/foundry/metrics.py`. Never invent token counts, tool-call counts, or
-timings; missing measurements stay absent.
+timings; missing measurements stay absent (never zero as sentinel).
 
 ## Provenance (required discipline, `--provenance FIELD=CLASS`)
 
 - `AUTOCAPTURED` — read deterministically by project tooling (launcher,
-  safe_push, session_stats) from an authoritative source.
-- `CALLER_SUPPLIED` — provided by a human/operator (e.g. intervention counts).
+  safe_push, session_stats, session_capture) from an authoritative source.
+- `CALLER_SUPPLIED` — provided by a human/operator (e.g. intervention counts,
+  explicit `--task-id` to session_capture).
 - `UNAVAILABLE_FROM_PINNED_CLI` — the pinned CLI exposes no such signal.
 - `UNKNOWN` — provenance not established.
 
@@ -19,8 +20,9 @@ timings; missing measurements stay absent.
 | task/workstream ID, profile, model, effort | launcher plan | AUTOCAPTURED |
 | source/final SHA | launcher git reads | AUTOCAPTURED |
 | start/end UTC, elapsed, exit status | launcher clock/child | AUTOCAPTURED |
-| model turns, tool calls (+by tool), tool errors, patches | `session_stats.py` over `opencode export` JSON | AUTOCAPTURED |
+| model turns, tool calls (+by tool), tool errors, patches | `session_capture.py` over `opencode export` JSON (via `session_stats.py`) | AUTOCAPTURED |
 | tokens in/out/reasoning/cache, cost USD | same export `info` block | AUTOCAPTURED |
+| session/agent/provider/variant/cli_version identity | same export `info` block | AUTOCAPTURED |
 | push result / reject reason | safe_push `--metrics` | AUTOCAPTURED |
 | human interventions | operator report | CALLER_SUPPLIED |
 | build/test attempts | caller or wrapper counts | CALLER_SUPPLIED |
@@ -28,11 +30,15 @@ timings; missing measurements stay absent.
 | per-turn model internals | not exposed | UNAVAILABLE_FROM_PINNED_CLI |
 
 Raw `opencode export` files are LOCAL_ONLY (they contain session content):
-`session_stats.py` emits counts only, and raw exports are never committed.
+they live only under the run directory (outside any Git worktree), are
+aggregated immediately by `session_capture.py` (which reuses
+`session_stats.py` and never duplicates its parser), and are never committed.
+`session_stats.py` emits counts only. Even `--sanitize` exports stay LOCAL_ONLY.
 
 ## Recorded fields
 
-`task_id`, `task_class`, `repo_profile`, `model`, `reasoning_effort`,
+`task_id`, `task_class`, `repo_profile`, `model`, `provider`, `variant`,
+`agent`, `session_id`, `cli_version`, `reasoning_effort`,
 `source_sha`, `final_sha`, `started_utc`, `ended_utc`, `elapsed_seconds`,
 `exit_status`, `completed`, `human_interventions`, `model_turns`, `tool_calls`,
 `tool_calls_by_tool`, `tool_errors`, `token_usage`, `tokens_input`,
@@ -60,13 +66,24 @@ python3 tools/foundry/metrics.py --metrics /tmp/my-run/metrics.jsonl \
 
 Launcher sessions record start/end automatically under the run directory
 (`<run_dir>/metrics.jsonl`, outside the Git worktree so execution leaves
-the tree clean; sealed into evidence, never committed raw). Enrich a
-finished session with export counts:
+the tree clean; sealed into evidence, never committed raw). Capture one
+exact session after a checkpoint or at session end (WS199; telemetry never
+blocks engineering, never guesses identity):
 
 ```bash
-opencode export <sessionID> > /tmp/proven-session.json  # LOCAL_ONLY
-python3 tools/foundry/session_stats.py --export /tmp/proven-session.json
+python3 tools/foundry/session_capture.py --run-dir <run_dir> --session-id <OpenCode-sessionID>
 ```
+
+Attribution: the exact OpenCode session ID is required (launcher
+`--opencode-session-id`, `FOUNDRY_OPENCODE_SESSION_ID`, or
+`<run_dir>/opencode-session-id`). `FOUNDRY_SESSION` stays the workstream
+label and is never an OpenCode ID. `session list` is an operator discovery
+aid only; no tooling auto-selects newest. Missing/ambiguous identity stays
+TELEMETRY_PENDING with a follow-up hint. Automatic session-ID discovery is
+unavailable on the pinned CLI for TUI launches. Pinned assumptions (CLI
+1.18.30, DIRECTLY_VERIFIED): `opencode export [sessionID]` plus optional
+`--sanitize` (used when advertised, never required). No token-based rotation
+threshold exists; WS199 collects facts only.
 
 The core project effectiveness notion is verified engineering progress per human
 coordination per model effort — not commit count. These records feed the

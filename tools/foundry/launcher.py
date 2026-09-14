@@ -76,8 +76,10 @@ import writer_lock as writer_lock_mod
 
 try:  # package import (tests) vs script CWD (tools/foundry)
     from foundry import autonomy as autonomy_mod
+    from foundry import session_capture as session_capture_mod
 except ImportError:  # pragma: no cover - script-relative fallback
-    import autonomy as autonomy_mod
+    import autonomy as autonomy_mod  # type: ignore[no-redef]
+    import session_capture as session_capture_mod  # type: ignore[no-redef]
 
 CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
 CANONICAL_PROVIDER = "opencode-go"
@@ -516,6 +518,78 @@ def write_launch_context(run_dir: str, context: dict) -> str:
     return str(path)
 
 
+def session_end_telemetry(
+    *,
+    run_dir: str,
+    workstream: str,
+    worktree: str,
+    opencode_binary: str,
+    explicit_session_id: str | None = None,
+    timeout: int = 60,
+) -> dict:
+    """WS199 fail-open session-end telemetry (never blocks engineering).
+
+    When the exact OpenCode session ID is available (explicit launcher flag,
+    ``FOUNDRY_OPENCODE_SESSION_ID`` env, or ``<run_dir>/opencode-session-id``
+    file), attempt one bounded exact-session capture. Otherwise emit a
+    concise TELEMETRY_PENDING/TELEMETRY_HINT directing the operator to the
+    explicit follow-up command. Never lists sessions, never guesses newest,
+    never raises, never changes the engineering exit code (callers preserve
+    ``rc`` regardless of this result).
+    """
+    try:
+        exact = session_capture_mod.read_exact_session_id(run_dir, explicit_session_id)
+    except Exception:
+        exact = None
+    if not exact:
+        print("TELEMETRY_PENDING: exact OpenCode session ID unavailable", file=sys.stderr)
+        print(
+            f"TELEMETRY_HINT: {session_capture_mod.format_hint(run_dir)}",
+            file=sys.stderr,
+        )
+        return {"status": "PENDING", "reason": "EXACT_SESSION_ID_UNAVAILABLE"}
+    try:
+        result = session_capture_mod.capture(
+            run_dir=run_dir,
+            session_id=exact,
+            metrics_path=_metrics_path(run_dir),
+            opencode_bin=opencode_binary,
+            task_id=workstream,
+            worktree=worktree,
+            timeout=timeout,
+        )
+    except ValueError as exc:
+        print(f"TELEMETRY_PENDING: {exc}", file=sys.stderr)
+        print(
+            f"TELEMETRY_HINT: {session_capture_mod.format_hint(run_dir)}",
+            file=sys.stderr,
+        )
+        return {"status": "PENDING", "reason": str(exc)[:200]}
+    except Exception as exc:  # fail-open: telemetry defects never gate engineering
+        print(f"TELEMETRY_PENDING: capture defect: {exc}", file=sys.stderr)
+        print(
+            f"TELEMETRY_HINT: {session_capture_mod.format_hint(run_dir)}",
+            file=sys.stderr,
+        )
+        return {"status": "PENDING", "reason": "CAPTURE_DEFECT"}
+    if result.get("status") == "CAPTURED":
+        # Aggregate identity only; raw content never reaches stdout/stderr.
+        print(
+            f"TELEMETRY_CAPTURED: session={result.get('session_id')} "
+            f"metrics={result.get('metrics_path')}",
+        )
+    else:
+        print(
+            f"TELEMETRY_PENDING: {result.get('reason')} session={result.get('session_id')}",
+            file=sys.stderr,
+        )
+        print(
+            f"TELEMETRY_HINT: {session_capture_mod.format_hint(run_dir)}",
+            file=sys.stderr,
+        )
+    return result
+
+
 def init(
     *,
     profile: str,
@@ -538,6 +612,7 @@ def init(
     version_audit_mode: bool = False,
     worktree_states: list[str] | None = None,
     execution_provider: str | None = None,
+    opencode_session_id: str | None = None,
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
     try:
@@ -682,6 +757,11 @@ def init(
         "ui_mode": ui_mode,
         "effort": effort,
         "session": session,
+        # WS199: exact OpenCode session ID for session-end capture when the
+        # operator supplies it. FOUNDRY_SESSION stays the workstream label
+        # (never an OpenCode ID). Empty means capture stays PENDING with a
+        # hint; telemetry never blocks engineering and never guesses.
+        "opencode_session_id": (opencode_session_id or "").strip(),
         "opencode_binary": binary,
         "opencode_version": version,
         "version_audit_mode": version_audit_mode,
@@ -705,7 +785,15 @@ def init(
         context_path = write_launch_context(run_dir, context)
     except OSError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": f"context: {exc}"}
+    # WS199: persist an explicitly supplied exact session ID for session-end
+    # capture durability (fail-open: a write failure never refuses launch).
     notes = []
+    explicit_sid = (opencode_session_id or "").strip()
+    if explicit_sid:
+        try:
+            Path(run_dir, "opencode-session-id").write_text(explicit_sid + "\n", encoding="utf-8")
+        except OSError:
+            notes.append("opencode session ID not persisted (run-dir unwritable)")
     if version_note:
         notes.append(version_note)
     return {
@@ -721,6 +809,7 @@ def init(
         "mode": mode,
         "ui_mode": ui_mode,
         "session": session,
+        "opencode_session_id": (opencode_session_id or "").strip(),
         "live_head": live_head,
         "run_dir": run_dir,
         "state_path": resolved_state,
@@ -770,9 +859,26 @@ def launch(
         print(str(exc), file=sys.stderr)
         return writer_lock_mod.HELD_EXIT
     try:
-        return _launch_locked(plan, argv_extra, worktree, workstream, effort, mode, execution)
+        rc = _launch_locked(plan, argv_extra, worktree, workstream, effort, mode, execution)
     finally:
         lock.release()
+    # WS199: fail-open session-end telemetry runs AFTER the writer lock is
+    # released (run_dir only; never the worktree). It never changes rc:
+    # exact ID -> bounded capture attempt; absent -> PENDING + hint.
+    try:
+        session_end_telemetry(
+            run_dir=plan.get("run_dir") or "/tmp/foundry-launch-unknown",
+            workstream=workstream,
+            worktree=worktree,
+            opencode_binary=plan.get("opencode_binary")
+            or plan.get("_env", {}).get(OPENCODE_BIN_ENV, "opencode"),
+            explicit_session_id=plan.get("opencode_session_id") or None,
+        )
+    except Exception as exc:  # never gate engineering on telemetry
+        print(f"TELEMETRY_PENDING: session-end telemetry defect: {exc}", file=sys.stderr)
+    except KeyboardInterrupt:
+        print("TELEMETRY_PENDING: session-end telemetry interrupted", file=sys.stderr)
+    return rc
 
 
 def _launch_locked(
@@ -949,6 +1055,14 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Bounded migration/audit mode: proceed despite CLI version drift (recorded).",
     )
+    parser.add_argument(
+        "--opencode-session-id",
+        default="",
+        help="Exact OpenCode session ID for WS199 session-end telemetry capture "
+        "(optional; never auto-selected). FOUNDRY_SESSION stays the workstream "
+        "label. Absent keeps telemetry PENDING with a follow-up hint; telemetry "
+        "never blocks engineering.",
+    )
     args, extra = parser.parse_known_args(argv)
     if args.command == "launch" and args.mode == "reader":
         print("LAUNCH_REFUSED: reader mode is audit-only (use init)", file=sys.stderr)
@@ -976,6 +1090,7 @@ def main(argv: list[str] | None = None) -> int:
         version_audit_mode=args.version_audit_mode,
         worktree_states=args.worktree_state,
         execution_provider=args.execution_provider,
+        opencode_session_id=args.opencode_session_id,
     )
     printable = {k: v for k, v in plan.items() if k != "_env"}
     print(json.dumps(printable, indent=2, sort_keys=True, default=str))
