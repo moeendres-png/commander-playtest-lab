@@ -1,1 +1,43 @@
-{"D1_D5_RERUN":{"D1_GRANTED_LIBRARY":"PASS","D2_LOOK_GRANT_LIFECYCLE":"PASS","D3_STATE_PROJECTION":"PASS","D4_CHOICE_REDACTION":"PASS","D5_STABLE_ORDERING":"PASS","D5_TWIN_EQUALITY":"UNKNOWN","note":"88-test Maven green preserves WS204 gates; D5 twin equality stays UNKNOWN globally (mixed per-construction twin results, see TWIN_REPLAY.json)"},"authority":{"H01_BINDING.json":"eb0874644083bf6a9e004ebc4eea91dc35522553","FIRST_WAVE_DECISION_REQUIREMENTS_CORRECTED.json":"1340f8cc244e7d5e8337c3bc321806341fbe2967","FIRST_WAVE_EXECUTION_PACK_CORRECTED.json":"5852965e59412399a947c626d4f7d428be8ef337","blobs_preserved":true,"verify_py":"VALIDATION_PASS (zero behavior credit, no execution)"},"candidate_head":"5994019b4da59e27a388eec47e6805404bd98df9","decision_policy_version":"ws205-pilot-v1","driver_tests":{"pytest":"qualification/ws205-xmage-ws90-first-wave/tests/test_ws205_driver.py: 24 passed","ruff":"PASS (check + format)"},"engine_pin":"cfc36f445f917f101fa2ed588770e043f53bc44c","generic_transport_rerun":{"XmageFullGameActionProjectionTest":17,"XmageFullGameGenericActionSubmissionTest":4,"XmageFullGameGenericBridgeTest":3,"Ws204DecisionKindCensusTest":1,"maven_total":"88/88 green (failures=0 errors=0 skipped=0)","python_subset":"75 passed (a1r/a1d/full_game/compat/arclose-d1)","status":"PASS"},"pre_existing_failures":["tests/qualification/test_ws17_qualification.py::test_all_ws17_hash_manifests_verify_and_cover_changed_artifacts fails on pristine audit base (WS17_SHA256SUMS predates ws203/ws204 packages; unrelated to WS205; reseal at seal time)"],"schema":"ws205.driver-validation.v1","smoke":{"construction":"RQ-C3-A03 seed 9101","negative_controls":"wrong-actor REJECTED, unknown-action REJECTED, unadvanced true","result":"PASS (primary 500/500 answered via generic boundary; twin completed; hashes recorded in slots/RQ-C3-A03/twin.record.json)"}}
+{
+ "D1_D5_RERUN": {
+  "D1_GRANTED_LIBRARY": "PASS",
+  "D2_LOOK_GRANT_LIFECYCLE": "PASS",
+  "D3_STATE_PROJECTION": "PASS",
+  "D4_CHOICE_REDACTION": "PASS",
+  "D5_STABLE_ORDERING": "PASS",
+  "D5_TWIN_EQUALITY": "UNKNOWN",
+  "note": "88-test Maven green preserves WS204 gates; D5 twin equality stays UNKNOWN globally (mixed per-construction twin results, see TWIN_REPLAY.json)"
+ },
+ "authority": {
+  "FIRST_WAVE_DECISION_REQUIREMENTS_CORRECTED.json": "1340f8cc244e7d5e8337c3bc321806341fbe2967",
+  "FIRST_WAVE_EXECUTION_PACK_CORRECTED.json": "5852965e59412399a947c626d4f7d428be8ef337",
+  "H01_BINDING.json": "eb0874644083bf6a9e004ebc4eea91dc35522553",
+  "blobs_preserved": true,
+  "verify_py": "VALIDATION_PASS (zero behavior credit, no execution)"
+ },
+ "candidate_head": "5994019b4da59e27a388eec47e6805404bd98df9",
+ "decision_policy_version": "ws205-pilot-v1",
+ "driver_tests": {
+  "pytest": "qualification/ws205-xmage-ws90-first-wave/tests/test_ws205_driver.py: 24 passed",
+  "ruff": "PASS (check + format)"
+ },
+ "engine_pin": "cfc36f445f917f101fa2ed588770e043f53bc44c",
+ "generic_transport_rerun": {
+  "Ws204DecisionKindCensusTest": 1,
+  "XmageFullGameActionProjectionTest": 17,
+  "XmageFullGameGenericActionSubmissionTest": 4,
+  "XmageFullGameGenericBridgeTest": 3,
+  "maven_total": "88/88 green (failures=0 errors=0 skipped=0)",
+  "python_subset": "75 passed (a1r/a1d/full_game/compat/arclose-d1)",
+  "status": "PASS"
+ },
+ "pre_existing_failures": [
+  "tests/qualification/test_ws17_qualification.py manifest coverage failed on pristine audit base (manifests predated ws203/ws204); resolved in WS205 by resealing WS17_SHA256SUMS + qualification/SHA256SUMS per WS17 contract - 12/12 qualification tests green at seal"
+ ],
+ "schema": "ws205.driver-validation.v1",
+ "smoke": {
+  "construction": "RQ-C3-A03 seed 9101",
+  "negative_controls": "wrong-actor REJECTED, unknown-action REJECTED, unadvanced true",
+  "result": "PASS (primary 500/500 answered via generic boundary; twin completed; hashes recorded in slots/RQ-C3-A03/twin.record.json)"
+ }
+}

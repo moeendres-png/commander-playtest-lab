@@ -82,8 +82,9 @@ untracked, never committed.
   unadvanced; twin hashes recorded.
 - Per-slot: `slots/<key>/{primary,twin}.json + .semantic.json/.sha256 +
   twin.record.json + decks/prefs/stdout`.
-- Pre-existing, unrelated: WS17 manifest coverage test fails on the pristine
-  audit base (manifests predate ws203/ws204 packages); reseal at publication.
+- Pre-existing, unrelated: WS17 manifest coverage test failed on the pristine
+  audit base (manifests predated ws203/ws204 packages); resolved in WS205 by
+  resealing both manifests per the WS17 contract — 12/12 green at seal.
 
 Evidence classes: run facts `DIRECTLY_VERIFIED`; missing-hook BLOCKEDs
 `CODE_DERIVED` (+ run corroboration); behavior `UNKNOWN` stays UNKNOWN;
