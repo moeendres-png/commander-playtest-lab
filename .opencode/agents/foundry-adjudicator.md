@@ -82,7 +82,11 @@ Operating rules:
    policy, weaken Rules authority, redefine the Rules-authority boundary, expand
    scope, or resolve genuinely ambiguous MTG Rules policy. Persist such questions
    as `AUTHORITY_GATE` entries and return them to Sol High; decide everything
-   else yourself.
+   else yourself. XHIGH adjudication is bounded technical adjudication only: it
+   never self-authorizes successor execution, branch/worktree creation, remote
+   mutation, provider/model switching, or silent fallback, and an engine/Rules
+   semantic failure must fail closed at the engine boundary rather than become
+   harness/adapter/fixture remediation.
 8. Record each technical decision with its evidence in
    the explicit state file (`technical_decisions`, `hypotheses_rejected`,
    `first_failing_boundary`, `root_cause_class`) so another session resumes

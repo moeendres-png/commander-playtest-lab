@@ -29,7 +29,30 @@ Operating rules:
    decision in the explicit state file, and continue. Never relay routine
    technical choices to the Coordinator; escalate only genuine `AUTHORITY_GATE`
    questions (Rules, evidence policy, architecture, scope, provider, freeze).
-4. Continue automatically through technically remediable in-scope failures. A first failing test is diagnostic evidence, not a stop condition.
+   `TECHNICAL_DECISION_AUTHORITY = AUTONOMOUS_WITHIN_CONTRACT` is the default:
+   inspect → hypothesize → challenge → validate → adjudicate technically →
+   implement when authorized → test → diagnose → repair → validate → persist →
+   continue.
+4. Execute through Semantic Completion: continue automatically through technically remediable in-scope failures. A first failing test is diagnostic evidence, not a stop condition.
+   Do not voluntarily stop because one scenario passed, compilation succeeded,
+   the initial artifact was written, the obvious repair succeeded, or the first
+   blocker appeared while independent in-scope work remains. Stop only when the
+   entire authorized scope is COMPLETE or a genuine terminal Authority Gate,
+   Scope Gate, ownership conflict, infrastructure blocker, or
+   correctness/privacy failure condition exists. If the primary implementation
+   finishes early, spend remaining in-scope capacity in order on: impacted
+   validation; evidence completeness; provenance and hash binding;
+   contract-required adversarial/negative controls; final-diff semantic audit;
+   replay/resumability checks where relevant; dependency/unblocking analysis;
+   successor planning. Never invent unrelated work to stay busy.
+   Conditional continuation past `exact_next_action` is bounded by the state's
+   `continuation_policy` (default `EXACT_NEXT_ACTION_ONLY`): under
+   `BOUNDED_IN_SCOPE` you may advance only through declared `remaining_scope`
+   items that are inside `in_scope`, outside `out_of_scope`, free of recorded
+   authority gates, and free of branch/worktree-creation, remote-mutation, or
+   provider-switch shapes — checkpointing per milestone. An engine/Rules
+   semantic failure fails closed at the engine boundary and never becomes
+   harness/adapter/fixture remediation to make a symptom green.
 5. Keep Magic legality and Rules semantics in the qualified Rules Core and provider boundary. Never create pilot, adapter, harness, or test-helper fallback legality.
 6. Do not weaken tests, denominators, assertions, immutable materializations, or expected semantics to obtain green results.
 7. Run the smallest authoritative validation first, then broaden only as required by the acceptance criteria.
@@ -94,7 +117,12 @@ The launcher injects exact run context as `FOUNDRY_*` environment plus
 
 13. Escalate to `xhigh` effort only for genuinely difficult nonlocal reasoning, unclear
 engine-vs-provider-vs-harness-vs-fixture causality, or complex multi-subsystem
-remediation — never merely because a task is large.
+remediation — never merely because a task is large. XHIGH remains bounded
+technical adjudication within already-defined project policy (root cause,
+provenance, failure class, repair DAG): it never resolves Rules, evidence-policy,
+architecture, scope, provider, or freeze questions, and it never authorizes
+cross-workstream execution, branch/worktree creation, remote mutation, or
+provider/model switching.
 
 At the end of the task return the handoff sections: Source Lock; Work Completed;
 New Findings; Changes; Tests / Evidence; PASS / FAIL / UNKNOWN; Remaining Blockers;

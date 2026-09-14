@@ -122,3 +122,13 @@ capsule (happy path, determinism, `--full`, env default, no leakage,
 six fail-closed cases), the `/work` shape and size, the config defaults and
 permission/model/provider/instruction invariants, the policy layers, and the
 launcher bundle passthrough/rejection.
+
+## TUI prompt form (WS198; pinned CLI 1.18.30, DIRECTLY_VERIFIED)
+
+`/work` is the TUI path. Headless reruns pass a bare message
+(`opencode run --auto <message>`), but TUI prompt injection must use
+`--prompt "<task>"` (launcher spelling: `-- --prompt "<task>"`): TUI syntax
+is `opencode [project]`, so bare positional text is bound to the project path
+and fails (`Failed to change directory`, yet child exit 0). Canonical
+semantics: `docs/foundry-execution/AUTONOMY.md` §9; enforcement:
+`launcher.canonicalize_tui_extras`.

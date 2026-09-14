@@ -26,6 +26,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import state as state_mod
 import yaml
 
+try:  # package import (tests) vs script CWD (tools/foundry, /work interpolation)
+    from foundry import autonomy as autonomy_mod
+except ImportError:  # pragma: no cover - script-relative fallback
+    import autonomy as autonomy_mod
+
 STATE_ENV_VAR = "FOUNDRY_STATE_PATH"
 IN_WORKTREE_DEFAULT = Path(".foundry") / "WORKSTREAM_STATE.yaml"
 
@@ -124,6 +129,30 @@ def _as_lines(value: object, field: str) -> list[str]:
     raise CapsuleError(f"state field {field!r} must be a string list")
 
 
+def _count_items(value: object) -> int:
+    if isinstance(value, list):
+        return len(value)
+    return 0
+
+
+def _autonomy_lines(data: dict) -> list[str]:
+    """WS198 values-only autonomy signals (no policy prose, no telemetry)."""
+    resolved = autonomy_mod.autonomy_defaults(data)
+    ready, reasons = autonomy_mod.check_completion_readiness(data)
+    lines = [
+        f"technical_decision_authority: {resolved['technical_decision_authority']}",
+        f"continuation_policy: {resolved['continuation_policy']}",
+        f"remaining_scope: {_count_items(data.get('remaining_scope'))} item(s)"
+        " (inspect with --full when needed)",
+        f"do_not_rerun: {_count_items(data.get('do_not_rerun'))} entr(ies)"
+        " (inspect with --full when needed)",
+        f"completion_ready: {'yes' if ready else 'no'} ({reasons[0] if reasons else 'n/a'})",
+        f"successor_plan: {resolved['successor_status']}",
+        autonomy_mod.rotation_render(data),
+    ]
+    return lines
+
+
 def build_capsule(data: dict, facts: dict, state_path: str) -> str:
     """Render the deterministic text capsule (fixed field order)."""
     recorded = data.get("state_written_against_head")
@@ -150,6 +179,7 @@ def build_capsule(data: dict, facts: dict, state_path: str) -> str:
         f"objective: {data.get('objective')}",
         f"exact_next_action: {data.get('exact_next_action')}",
     ]
+    lines.extend(_autonomy_lines(data))
     failure = str(data.get("failure_class", "NONE"))
     if failure not in ("NONE", ""):
         lines.append(f"failure_class: {failure}")
@@ -171,6 +201,8 @@ def build_capsule(data: dict, facts: dict, state_path: str) -> str:
 def build_capsule_json(data: dict, facts: dict, state_path: str) -> str:
     """Deterministic JSON capsule (sorted keys, same critical fields)."""
     recorded = data.get("state_written_against_head")
+    resolved = autonomy_mod.autonomy_defaults(data)
+    ready, reasons = autonomy_mod.check_completion_readiness(data)
     doc = {
         "_kind": "DERIVED_INDEX (not Source Authority)",
         "repository": data.get("repository"),
@@ -192,6 +224,14 @@ def build_capsule_json(data: dict, facts: dict, state_path: str) -> str:
         "failure_class": data.get("failure_class"),
         "hard_gates": _as_lines(data.get("hard_gates"), "hard_gates"),
         "authority_gates": _as_lines(data.get("authority_gates"), "authority_gates"),
+        "technical_decision_authority": resolved["technical_decision_authority"],
+        "continuation_policy": resolved["continuation_policy"],
+        "remaining_scope_count": _count_items(data.get("remaining_scope")),
+        "do_not_rerun_count": _count_items(data.get("do_not_rerun")),
+        "completion_ready": ready,
+        "completion_reason": reasons[0] if reasons else "n/a",
+        "successor_status": resolved["successor_status"],
+        "rotation": autonomy_mod.rotation_render(data),
         "full_state": state_path,
     }
     return json.dumps(doc, indent=2, sort_keys=True) + "\n"

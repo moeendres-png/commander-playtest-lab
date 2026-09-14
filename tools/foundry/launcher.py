@@ -74,6 +74,11 @@ import opencode_cli_version as version_mod
 import reference_roots as reference_mod
 import writer_lock as writer_lock_mod
 
+try:  # package import (tests) vs script CWD (tools/foundry)
+    from foundry import autonomy as autonomy_mod
+except ImportError:  # pragma: no cover - script-relative fallback
+    import autonomy as autonomy_mod
+
 CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
 CANONICAL_PROVIDER = "opencode-go"
 ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
@@ -101,10 +106,20 @@ def execution_identity(override: str | None, effort: str) -> dict:
 
 
 def validate_child_options(extra: list[str]) -> None:
-    """Selection belongs to the launcher; explicit session IDs remain supported."""
+    """Selection belongs to the launcher; explicit session IDs remain supported.
+
+    NOTE (WS198): a bare ``--`` separator does NOT make trailing text safe
+    prompt input for every mode. Headless ``run [message..]`` accepts a bare
+    message, but TUI ``opencode [project]`` binds a bare positional to the
+    project path (pinned 1.18.30: instant ``Failed to change directory`` with
+    child exit 0). TUI prompt text must use ``--prompt`` (see
+    ``canonicalize_tui_extras``); this function only guards model/variant/
+    session-resume selection here.
+    """
     for arg in extra:
         if arg == "--":
-            break  # Remaining words are literal prompt text, not CLI options.
+            continue  # Separator is structural, not a CLI option; TUI bare-
+            # positional safety is enforced separately (canonicalize_tui_extras).
         key = arg.split("=", 1)[0]
         if (
             key in ("--model", "--variant", "--continue")
@@ -112,6 +127,62 @@ def validate_child_options(extra: list[str]) -> None:
             or arg == "-c"
         ):
             raise ValueError("model/variant/continue child flags are launcher-controlled")
+
+
+# WS198: TUI value flags whose immediate successor is a value, never a
+# project path. Pinned CLI 1.18.30 TUI options (``opencode --help``).
+_TUI_VALUE_FLAGS = frozenset(
+    {
+        "--prompt",
+        "--agent",
+        "-s",
+        "--session",
+        "--log-level",
+        "--port",
+        "--hostname",
+        "--replay-limit",
+    }
+)
+
+
+def canonicalize_tui_extras(argv_extra: list[str]) -> list[str]:
+    """Fail-closed TUI extras: prompt injection must use ``--prompt``.
+
+    DIRECTLY_VERIFIED (pinned 1.18.30, WS92/WS93 shape reproduced): TUI
+    syntax is ``opencode [project]`` — a bare positional is bound to the
+    project path, fails instantly with ``Failed to change directory`` on
+    stderr, and STILL returns child exit 0, so ``LAUNCH_END: exit=0`` would
+    certify a session in which no agent task executed. Refusing the shape
+    at construction is the systemic fix: post-hoc detection without
+    heuristic stderr parsing is not reliable (exit 0 is the CLI contract).
+
+    - A single leading ``--`` (launcher-argparse passthrough artifact) is
+      dropped; the canonical child form carries no stray separator.
+    - Any remaining bare positional outside a value-flag value raises
+      ``ValueError`` (``LAUNCH_REFUSED``) directing the caller to
+      ``--prompt "<task>"`` (launcher spelling: ``-- --prompt "<task>"``).
+    - Headless is untouched: ``opencode run [message..]`` takes a bare
+      message, so headless/TUI prompt semantics stay explicitly distinct.
+    """
+    extras = list(argv_extra)
+    if extras and extras[0] == "--":
+        extras = extras[1:]
+    skip_next = False
+    for token in extras:
+        if skip_next:
+            skip_next = False
+            continue
+        if token.startswith("-") and token != "-":
+            if "=" not in token and token in _TUI_VALUE_FLAGS:
+                skip_next = True
+            continue
+        raise ValueError(
+            f"TUI positional {token!r} refused: TUI syntax is `opencode [project]`, "
+            'so bare text is a project path, not a prompt (it fails with '
+            "'Failed to change directory' yet child exit 0). Pass prompt text via "
+            '`--prompt "<task>"` (launcher: `-- --prompt "<task>"`).'
+        )
+    return extras
 
 
 HOOK_MARKER = "# foundry-launcher-managed pre-push hook"
@@ -575,6 +646,31 @@ def init(
         live_head = _git(["rev-parse", "HEAD"], canonical)
     except RuntimeError:
         live_head = "UNKNOWN"
+    # WS198 autonomy values (paths/identities/bounded enums only — never
+    # prose, never secrets, never telemetry). Advisory snapshot for audit
+    # parity with the capsule; the state file stays authoritative.
+    autonomy_values: dict = autonomy_mod.autonomy_defaults({})
+    autonomy_values.update(
+        {
+            "completion_ready": True,
+            "completion_reason": "state unreadable at init (capsule is authoritative)",
+        }
+    )
+    try:
+        import yaml as _yaml
+
+        with open(resolved_state, encoding="utf-8") as _handle:
+            _state_data = _yaml.safe_load(_handle)
+        if isinstance(_state_data, dict):
+            _resolved = autonomy_mod.autonomy_defaults(_state_data)
+            _ready, _reasons = autonomy_mod.check_completion_readiness(_state_data)
+            autonomy_values = {
+                **_resolved,
+                "completion_ready": _ready,
+                "completion_reason": _reasons[0] if _reasons else "n/a",
+            }
+    except Exception:
+        pass
     context = {
         "execution": execution,
         "workstream": workstream,
@@ -594,6 +690,13 @@ def init(
         # WS196: machine-readable canonical tool identity (paths only).
         "canonical_root": env["FOUNDRY_CANONICAL_ROOT"],
         "canonical_safe_push": env["FOUNDRY_SAFE_PUSH"],
+        # WS198: autonomy values snapshot (values only; state authoritative).
+        "technical_decision_authority": autonomy_values["technical_decision_authority"],
+        "continuation_policy": autonomy_values["continuation_policy"],
+        "successor_status": autonomy_values["successor_status"],
+        "rotation_recommendation": autonomy_values["rotation_recommendation"],
+        "completion_ready": autonomy_values["completion_ready"],
+        "completion_reason": autonomy_values["completion_reason"],
         "references": parsed_refs,
         "worktree_states": state_map,
         "live_head": live_head,
@@ -645,6 +748,11 @@ def launch(
         return 1
     try:
         validate_child_options(argv_extra)
+        mode = ui_mode or plan.get("ui_mode", "headless")
+        if mode == "tui":
+            # WS198: bare TUI positionals are project paths, not prompts
+            # (exit-0 false success). Canonicalize before taking the lock.
+            argv_extra = canonicalize_tui_extras(argv_extra)
         execution = plan.get("execution") or execution_identity(None, effort)
         if effort not in ALLOWED_EFFORTS or execution["requested_effort"] != effort:
             raise ValueError("launch effort differs from validated plan")
@@ -686,6 +794,7 @@ def _launch_locked(
         "task_id": "AUTOCAPTURED",
         "task_class": "AUTOCAPTURED",
         "repo_profile": "AUTOCAPTURED",
+        "ui_mode": "AUTOCAPTURED",
         "model": "AUTOCAPTURED",
         "reasoning_effort": "AUTOCAPTURED",
         "source_sha": "AUTOCAPTURED",
@@ -701,6 +810,7 @@ def _launch_locked(
             task_id=workstream,
             task_class="workstream-session",
             repo_profile=plan.get("gate", {}).get("profile", "UNKNOWN"),
+            ui_mode=mode,
             model=execution["model"],
             execution_provider=execution["provider"],
             execution_override=execution["override"],
@@ -756,10 +866,12 @@ def _launch_locked(
                     "completed": "AUTOCAPTURED",
                     "interrupted": "AUTOCAPTURED",
                     "failure_class": "AUTOCAPTURED",
+                    "ui_mode": "AUTOCAPTURED",
                 },
                 task_id=workstream,
                 task_class="workstream-session",
                 repo_profile=plan.get("gate", {}).get("profile", "UNKNOWN"),
+                ui_mode=mode,
                 model=execution["model"],
                 execution_provider=execution["provider"],
                 execution_override=execution["override"],
@@ -810,7 +922,10 @@ def main(argv: list[str] | None = None) -> int:
         "--ui-mode",
         default="headless",
         choices=("headless", "tui"),
-        help="headless execs `opencode run --auto ...`; tui execs `opencode --auto ...`.",
+        help="headless execs `opencode run --auto <bare message>`; tui execs "
+        "`opencode --auto --prompt <message>`. Bare positional text is a "
+        "prompt ONLY for headless (TUI binds it to [project] and fails); "
+        "pass TUI prompt text as `-- --prompt \"<task>\"`.",
     )
     parser.add_argument(
         "--reference",

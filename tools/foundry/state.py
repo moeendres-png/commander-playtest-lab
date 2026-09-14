@@ -37,6 +37,11 @@ from typing import Any
 
 import yaml
 
+try:  # package import (tests, launcher) vs script CWD (tools/foundry)
+    from foundry import autonomy as autonomy_mod
+except ImportError:  # pragma: no cover - script-relative fallback
+    import autonomy as autonomy_mod
+
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+$")
 SUPPORTED_VERSIONS = ("1.0", "2.0")
@@ -143,6 +148,9 @@ def _check_common(data: dict, errors: list[str], sha_fields: list[str]) -> None:
     root_cause = data.get("root_cause_class")
     if root_cause is not None and root_cause not in FAILURE_CLASSES:
         errors.append(f"bad root_cause_class: {root_cause!r}")
+    # WS198 autonomy fields: absent resolves to conservative defaults at read;
+    # malformed present values fail closed here (never coerced).
+    errors.extend(autonomy_mod.validate_autonomy(data))
 
 
 def validate(data: dict) -> list[str]:
@@ -684,6 +692,19 @@ def main(argv: list[str] | None = None) -> int:
         help="Exit nonzero on VALIDATED_* problems (informational notes excluded).",
     )
     parser.add_argument(
+        "--check-completion",
+        action="store_true",
+        help="Advisory WS198 completion-readiness for a COMPLETE claim "
+        "(remaining scope, failed gates, validation credit; ancestry only "
+        "with --workdir). Never invalidates legacy states.",
+    )
+    parser.add_argument(
+        "--fail-on-completion-not-ready",
+        action="store_true",
+        help="Exit nonzero when a COMPLETE claim is not ready (requires "
+        "--check-completion).",
+    )
+    parser.add_argument(
         "--migrate",
         action="store_true",
         help="Print (or with --in-place, write) the 2.0 migration of the file.",
@@ -740,6 +761,12 @@ def main(argv: list[str] | None = None) -> int:
     has_structured_write = bool(args.write_from or args.patch_file)
     if args.in_place and not args.migrate:
         print("STATE_REJECT: --in-place requires --migrate", file=sys.stderr)
+        return 1
+    if args.fail_on_completion_not_ready and not args.check_completion:
+        print(
+            "STATE_REJECT: --fail-on-completion-not-ready requires --check-completion",
+            file=sys.stderr,
+        )
         return 1
     if args.migrate and has_structured_write:
         print(
@@ -811,6 +838,28 @@ def main(argv: list[str] | None = None) -> int:
         validated_notes = check_validated_ancestry(args.state, args.workdir or ".")
         for note in validated_notes:
             print(f"STATE_VALIDATED: {note}", file=sys.stderr)
+    completion_notes: list[str] = []
+    completion_ready = True
+    if args.check_completion:
+        live_head: str | None = None
+        if args.workdir:
+            try:
+                live_head = _git(["rev-parse", "HEAD"], args.workdir)
+            except RuntimeError as exc:
+                completion_notes = [f"cannot read live HEAD: {exc}"]
+                completion_ready = False
+        if not completion_notes:
+            completion_ready, completion_notes = autonomy_mod.check_completion_readiness(
+                data if isinstance(data, dict) else {},
+                live_head=live_head,
+                is_ancestor=(
+                    (lambda older, newer: _is_ancestor(older, newer, args.workdir))
+                    if args.workdir
+                    else None
+                ),
+            )
+        for note in completion_notes:
+            print(f"STATE_COMPLETION: {note}", file=sys.stderr)
     version = data.get("schema_version") if isinstance(data, dict) else "?"
     print(f"STATE_OK: schema={version} status={data['status']} branch={data['branch']}")
     if args.fail_on_head_mismatch and warnings:
@@ -819,6 +868,8 @@ def main(argv: list[str] | None = None) -> int:
         n.startswith("VALIDATED_OUTSIDE_LOCK") or n.startswith("VALIDATED_REWRITTEN")
         for n in validated_notes
     ):
+        return 1
+    if args.fail_on_completion_not_ready and not completion_ready:
         return 1
     return 0
 

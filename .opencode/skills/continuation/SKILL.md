@@ -19,6 +19,16 @@ Use this after session loss, compaction, or handoff to resume the active workstr
 4. Continue from the Exact Next Action. If the state file conflicts with Git, test,
    or artifact reality, reality wins — record the discrepancy and proceed from the
    newest genuinely verified state.
+   Conditional continuation past the Exact Next Action is bounded by the state's
+   `continuation_policy` (default `EXACT_NEXT_ACTION_ONLY`: execute exactly the
+   binding action, checkpoint, stop). Under `BOUNDED_IN_SCOPE` you may advance
+   only through declared `remaining_scope` items that are inside `in_scope`,
+   outside `out_of_scope`, not blocked by `authority_gates`, and free of
+   branch/worktree-creation, remote-mutation, or provider-switch shapes —
+   checkpointing state per milestone. The first bound violation stops that line
+   fail-closed (`BLOCKED` + `AUTHORITY_GATE` entry where applicable). A capsule
+   showing `remaining_scope`/`do_not_rerun` counts without content means escalate
+   to `--full`/file read, never choose silently.
 5. Re-enter the autonomous loop directly: a resolved technical decision recorded in
    state (`technical_decisions`, updated hypothesis, next action) is a continuation
    signal, not a handoff to the Coordinator. Resume inspection, validation, and

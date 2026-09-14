@@ -151,7 +151,9 @@ For in-scope technical ambiguity, Muse must:
 Only a real Rules, Evidence-Policy, Architecture, Scope, Provider, or Freeze
 authority question becomes an `AUTHORITY_GATE` for Sol High. A technical decision
 is never an authority decision: reaching and persisting a root cause within policy
-is the job, not an escalation.
+is the job, not an escalation. Conditional continuation past `exact_next_action`
+is allowed only within the `continuation_policy: BOUNDED_IN_SCOPE` bounds recorded
+in the explicit state file (default: exact-action-only).
 
 ## 9. Workstream contract
 
@@ -188,7 +190,10 @@ for: scope COMPLETE; irreconcilable Source Lock violation; another active owner'
 mutation surface; Sol/Human authority requirement (`AUTHORITY_GATE`, see §8);
 destructive/external consent
 requirement; genuinely unobtainable upstream information; or proceeding would weaken
-Rules/Evidence/Privacy invariants. Blocked means fail closed.
+Rules/Evidence/Privacy invariants. Blocked means fail closed. Marking `COMPLETE`
+requires completion-readiness (empty `remaining_scope`, no open `failed_gates`,
+non-null ancestry-clean `validated_head`); otherwise keep `ACTIVE`/`BLOCKED` and
+record the blocker.
 
 ## 13. Persistence and handoff
 

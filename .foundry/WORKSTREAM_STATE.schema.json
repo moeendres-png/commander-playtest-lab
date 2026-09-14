@@ -176,6 +176,57 @@
       "type": "string",
       "description": "Default AUTONOMOUS_WITHIN_CONTRACT; technical decisions are owned in-scope."
     },
+    "continuation_policy": {
+      "type": "string",
+      "enum": [
+        "EXACT_NEXT_ACTION_ONLY",
+        "BOUNDED_IN_SCOPE"
+      ],
+      "description": "Absent = EXACT_NEXT_ACTION_ONLY (advance only via the binding exact_next_action). BOUNDED_IN_SCOPE permits advancing through declared remaining_scope items inside in_scope/out_of_scope/authority-gate bounds with per-milestone checkpoints."
+    },
+    "successor_plan": {
+      "type": ["object", "null"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["NONE", "PROPOSED", "AUTHORIZED"]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "spec_path": {
+          "type": ["string", "null"]
+        },
+        "spec_sha256": {
+          "type": ["string", "null"]
+        },
+        "preauthorized": {
+          "type": "boolean"
+        },
+        "authorization": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Null/absent = NONE (plan-only pointer). Execution of any successor requires status AUTHORIZED + preauthorized true + a Coordinator/operator authorization record + a spec artifact whose sha256 matches; never inferred."
+    },
+    "rotation_guidance": {
+      "type": ["object", "null"],
+      "properties": {
+        "recommendation": {
+          "type": "string",
+          "enum": ["NO_ROTATION", "REVIEW_PROMPT", "ROTATE_TO_FRESH_CONTINUATION"]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "export_verified": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Advisory only, never a gate and never token-threshold based. ROTATE_TO_FRESH_CONTINUATION preserves the exact resumable state (remaining scope, exact next action, validation credit); it never kills or resets the live process. export_verified is true only with an opencode-export aggregate on record."
+    },
     "current_reasoning_tier": {
       "type": "string",
       "enum": [

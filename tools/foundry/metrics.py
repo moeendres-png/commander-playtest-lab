@@ -25,6 +25,7 @@ FIELDS = [
     "task_id",
     "task_class",
     "repo_profile",
+    "ui_mode",
     "model",
     "reasoning_effort",
     "execution_provider",
