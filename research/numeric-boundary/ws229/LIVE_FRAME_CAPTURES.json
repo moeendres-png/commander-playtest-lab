@@ -1,0 +1,52 @@
+{
+ "WS229_PENDING_ANNOUNCE": [
+  {
+   "context": {
+    "numeric_max": 5,
+    "numeric_min": 0
+   },
+   "decision_class": "announce_x",
+   "legal_options": [],
+   "maximum_selections": 0,
+   "minimum_selections": 0,
+   "prompt": "choose X"
+  },
+  {
+   "context": {
+    "numeric_max": 100,
+    "numeric_min": 0
+   },
+   "decision_class": "announce_x",
+   "legal_options": [],
+   "maximum_selections": 0,
+   "minimum_selections": 0,
+   "prompt": "choose X"
+  }
+ ],
+ "WS229_PENDING_JOINT": [
+  {
+   "context": {
+    "numeric_legs": [
+     {
+      "max": 100,
+      "min": 0,
+      "prompt": "damage to A"
+     },
+     {
+      "max": 3,
+      "min": 0,
+      "prompt": "damage to B"
+     }
+    ],
+    "numeric_total_max": 60,
+    "numeric_total_min": 50,
+    "outcome": "neutral"
+   },
+   "decision_class": "multi_amount",
+   "legal_options": [],
+   "maximum_selections": 0,
+   "minimum_selections": 0,
+   "prompt": "Assign amounts (2 legs)"
+  }
+ ]
+}
