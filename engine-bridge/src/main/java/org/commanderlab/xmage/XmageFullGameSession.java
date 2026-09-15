@@ -36,11 +36,14 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class XmageFullGameSession {
 
-    static final int PLAYER_COUNT = 4;
+    /** WS215 variable-player contract: Commander Free-for-All for 2..5 principals. */
+    static final int MIN_PLAYERS = 2;
+    static final int MAX_PLAYERS = 5;
     static final String EVIDENCE_CLASS = "technical_conformance_only";
 
     private final String protocolGameId;
     private final long seed;
+    private final int playerCount;
     private final CommanderFreeForAll game;
     private final List<XmageFullGamePlayer> players;
     private final XmageFullGameDecisionController controller;
@@ -63,13 +66,16 @@ final class XmageFullGameSession {
         if (protocolGameId == null || protocolGameId.isBlank()) {
             throw new IllegalArgumentException("game_id must be nonblank");
         }
-        if (deckHandles == null || deckHandles.size() != PLAYER_COUNT) {
+        if (deckHandles == null || deckHandles.size() < MIN_PLAYERS
+                || deckHandles.size() > MAX_PLAYERS) {
             throw new IllegalArgumentException(
-                    "FULL_GAME_REQUIRES_EXACTLY_FOUR_PLAYERS: observed "
+                    "FULL_GAME_INVALID_PLAYER_COUNT: observed "
                             + (deckHandles == null ? "null" : deckHandles.size())
+                            + " (supported " + MIN_PLAYERS + ".." + MAX_PLAYERS + ")"
             );
         }
-        if (startingPlayerSeat < 0 || startingPlayerSeat >= PLAYER_COUNT) {
+        int sessionsPlayers = deckHandles.size();
+        if (startingPlayerSeat < 0 || startingPlayerSeat >= sessionsPlayers) {
             throw new IllegalArgumentException("invalid starting_player_seat");
         }
         if (startingLife < 1) {
@@ -81,10 +87,11 @@ final class XmageFullGameSession {
 
         this.protocolGameId = protocolGameId;
         this.seed = seed;
+        this.playerCount = sessionsPlayers;
         this.startingPlayerSeat = startingPlayerSeat;
         this.controller = new XmageFullGameDecisionController(Duration.ofMinutes(2));
 
-        List<Deck> decks = new ArrayList<>(PLAYER_COUNT);
+        List<Deck> decks = new ArrayList<>(playerCount);
         for (String deckHandle : deckHandles) {
             decks.add(deckImporter.requireDeck(deckHandle));
         }
@@ -106,7 +113,7 @@ final class XmageFullGameSession {
         // seed call is retired here: it never was Rules-RNG authority.
         game.setRulesSeed(seed);
         game.setRequireExplicitSeed(true);
-        game.setNumPlayers(PLAYER_COUNT);
+        game.setNumPlayers(playerCount);
         GameOptions options = new GameOptions();
         options.rollbackTurnsAllowed = false;
         game.setGameOptions(options);
@@ -125,8 +132,8 @@ final class XmageFullGameSession {
             );
         });
 
-        List<XmageFullGamePlayer> createdPlayers = new ArrayList<>(PLAYER_COUNT);
-        for (int index = 0; index < PLAYER_COUNT; index++) {
+        List<XmageFullGamePlayer> createdPlayers = new ArrayList<>(playerCount);
+        for (int index = 0; index < playerCount; index++) {
             Deck deck = decks.get(index);
             XmageFullGamePlayer player = new XmageFullGamePlayer(
                     "Full Game Seat " + (index + 1),
@@ -139,12 +146,17 @@ final class XmageFullGameSession {
             game.addPlayer(player, deck);
             createdPlayers.add(player);
         }
-        if (game.getPlayers().size() != PLAYER_COUNT) {
+        if (game.getPlayers().size() != playerCount) {
             throw new IllegalStateException(
-                    "XMAGE_PLAYER_SETUP_FAILED: expected 4, observed " + game.getPlayers().size()
+                    "XMAGE_PLAYER_SETUP_FAILED: expected " + playerCount
+                            + ", observed " + game.getPlayers().size()
             );
         }
         this.players = List.copyOf(createdPlayers);
+    }
+
+    int playerCount() {
+        return playerCount;
     }
 
     synchronized JsonObject start() {
@@ -528,7 +540,7 @@ final class XmageFullGameSession {
         payload.addProperty("evidence_class", EVIDENCE_CLASS);
         payload.addProperty("consumed_gameplay_evidence", false);
         payload.addProperty("holdout_consumed", false);
-        payload.addProperty("operational_pod_size", PLAYER_COUNT);
+        payload.addProperty("operational_pod_size", playerCount);
 
         Throwable failure = engineFailure.get();
         if (failure == null && controller.terminalFailure() == null) {

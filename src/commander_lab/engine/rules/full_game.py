@@ -50,7 +50,7 @@ class _StrictModel(BaseModel):
 
 
 class FullGamePilotBinding(_StrictModel):
-    seat: int = Field(ge=1, le=4)
+    seat: int = Field(ge=1, le=5)
     deck_id: str = Field(min_length=1)
     strategy: str = Field(min_length=1)
     commander_names: tuple[str, ...]
@@ -306,14 +306,17 @@ class ExternalPilotDecisionPolicy:
     )
 
     def __init__(self, runtime_pilots: tuple[_RuntimePilot, ...], scenario_seed: int) -> None:
-        if len(runtime_pilots) != 4:
-            raise ValueError("full-game policy requires exactly four pilot bindings")
+        if len(runtime_pilots) < 2 or len(runtime_pilots) > 5:
+            raise ValueError("full-game policy requires two to five pilot bindings")
         seats = {item.binding.seat for item in runtime_pilots}
-        if seats != {1, 2, 3, 4}:
-            raise ValueError("full-game pilot bindings must cover seats 1..4 exactly")
+        if seats != set(range(1, len(runtime_pilots) + 1)):
+            raise ValueError("full-game pilot bindings must cover seats 1..N exactly")
         self._pilots = {item.binding.seat: item for item in runtime_pilots}
+        self._player_count = len(runtime_pilots)
         self.scenario_seed = scenario_seed
-        self._mulligan_count: dict[int, int] = {seat: 0 for seat in range(1, 5)}
+        self._mulligan_count: dict[int, int] = {
+            seat: 0 for seat in range(1, len(runtime_pilots) + 1)
+        }
 
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
@@ -489,13 +492,18 @@ class ExternalPilotDecisionPolicy:
             return []
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
-        ranked: list[tuple[float, str]] = []
+        ranked: list[tuple[float, str, str]] = []
         for option in options:
             action = self._target_action(option, state, outcome)
             breakdown = runtime.pilot.evaluate_action(pilot_state, action)
             score = breakdown.total_utility + self._target_alignment(action, state, outcome)
-            ranked.append((score, action.action_id))
-        ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+            # Tiebreak by stable Rules-visible content (card label), never by
+            # native identity alone: raw option ids embed per-process engine
+            # UUIDs, so a UUID-order tiebreak would make credited same-seed
+            # twins diverge. The residual UUID element only orders options
+            # whose labels are also identical (indistinguishable targets).
+            ranked.append((score, action.card_name, action.action_id))
+        ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
 
         if max_selections <= 0:
             return []
@@ -506,7 +514,7 @@ class ExternalPilotDecisionPolicy:
         else:
             take = min_selections
         take = max(min_selections, min(max_selections, take))
-        return [option_id for _score, option_id in ranked[:take]]
+        return [option_id for _score, _label, option_id in ranked[:take]]
 
     def _decide_semantic_option(
         self,
@@ -613,22 +621,55 @@ class ExternalPilotDecisionPolicy:
         if pool_options:
             unpaid = str(context.get("unpaid_mana", "")).casefold()
 
-            def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
+            def pool_symbol(option: dict[str, Any]) -> str:
                 metadata = option.get("metadata")
                 meta = metadata if isinstance(metadata, dict) else {}
                 mana_type = str(meta.get("mana_type", "")).casefold()
-                symbol = {
+                return {
                     "white": "w",
                     "blue": "u",
                     "black": "b",
                     "red": "r",
                     "green": "g",
                     "colorless": "c",
-                }.get(mana_type)
+                }.get(mana_type, "")
+
+            def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
+                metadata = option.get("metadata")
+                meta = metadata if isinstance(metadata, dict) else {}
+                mana_type = str(meta.get("mana_type", "")).casefold()
+                symbol = pool_symbol(option)
                 exact_required = 1 if symbol and f"{{{symbol}}}" in unpaid else 0
                 return exact_required, mana_type, str(option.get("label", "")).casefold()
 
-            return self._required_text(max(pool_options, key=pool_key), "option_id")
+            # Liveness guard (WS215): pool mana that matches no unpaid colored
+            # requirement can never satisfy the payment; spending it loops the
+            # native payment request forever (budget-burning livelock). Generic-
+            # only costs accept any pool mana; colored costs take an exact
+            # match; otherwise the decision falls through to mana abilities
+            # (tap a source of the required color) or cancel (fizzle cleanly).
+            colored_symbols = {"w", "u", "b", "r", "g"}
+            unpaid_colored = {s for s in colored_symbols if f"{{{s}}}" in unpaid}
+            pool_symbols = {pool_symbol(option) for option in pool_options}
+            if not unpaid_colored:
+                return self._required_text(max(pool_options, key=pool_key), "option_id")
+            if unpaid_colored & pool_symbols:
+                exact = [
+                    option for option in pool_options if pool_symbol(option) in unpaid_colored
+                ]
+                return self._required_text(max(exact, key=pool_key), "option_id")
+
+        non_pool = [
+            option
+            for option in options
+            if self._required_text(option, "option_type") != "mana_pool"
+        ]
+        if not non_pool:
+            raise FullGameProtocolError(
+                "mana decision has no productive option: pool cannot satisfy "
+                "the colored requirement and no ability or cancel is offered"
+            )
+        options = non_pool
 
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
@@ -829,7 +870,7 @@ class ExternalPilotDecisionPolicy:
             deck_id=runtime.binding.deck_id,
             strategy=runtime.binding.strategy,
             turn=max(1, int(state.get("turn_number", 1))),
-            pod_size=4,
+            pod_size=self._player_count,
             seat_position=runtime.binding.seat,
             life=float(actor.get("life", 40)),
             hand_size=int(actor.get("hand_count", len(hand_items))),
@@ -861,7 +902,7 @@ class ExternalPilotDecisionPolicy:
             hidden_information_uncertainty=1.0,
             opponent_intent_uncertainty=1.0,
             unknown_opponent_fraction=1.0,
-            opponents_to_act_before_next_turn=3,
+            opponents_to_act_before_next_turn=self._player_count - 1,
         )
 
     def _priority_action(self, option: dict[str, Any], state: dict[str, Any]) -> PilotActionView:
@@ -1104,7 +1145,10 @@ class ExternalPilotDecisionPolicy:
 
 
 class XmageFullGameRunner:
-    """Run one isolated four-player XMage game with Commander Lab pilot policy."""
+    """Run one isolated 2..5-player XMage Commander game with Commander Lab pilot policy."""
+
+    MIN_PLAYERS = 2
+    MAX_PLAYERS = 5
 
     def __init__(
         self,
@@ -1130,13 +1174,8 @@ class XmageFullGameRunner:
         self,
         *,
         scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput],
-        pilots: tuple[
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-        ],
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
     ) -> FullGameConformanceResult:
         command = self.command
         if command is None:
@@ -1177,19 +1216,20 @@ class XmageFullGameRunner:
                 handles.append(handle_id)
 
             game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
+            player_count = scenario.player_count
             created = client.request(
                 "create_full_game",
                 {
                     "game_id": game_id,
                     "deck_handles": handles,
                     "seed": scenario.seed,
-                    "starting_player_seat": scenario.seed % 4,
+                    "starting_player_seat": scenario.seed % player_count,
                     "starting_life": 40,
                 },
             )
-            if created.get("player_count") != 4 or created.get("seed") != scenario.seed:
+            if created.get("player_count") != player_count or created.get("seed") != scenario.seed:
                 raise FullGameConformanceError(
-                    "full-game creation did not preserve 4p/seed contract"
+                    "full-game creation did not preserve player-count/seed contract"
                 )
             if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
                 raise FullGameConformanceError("full-game creation returned unsafe evidence class")
@@ -1229,13 +1269,8 @@ class XmageFullGameRunner:
         self,
         *,
         scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput],
-        pilots: tuple[
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-        ],
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
     ) -> FullGameReplayGate:
         first = self.run(scenario=scenario, decks=decks, pilots=pilots)
         second = self.run(scenario=scenario, decks=decks, pilots=pilots)
@@ -1256,20 +1291,26 @@ class XmageFullGameRunner:
     @staticmethod
     def _validate_inputs(
         scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput],
-        pilots: tuple[
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-        ],
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
     ) -> None:
-        if scenario.player_count != 4 or len(decks) != 4 or len(pilots) != 4:
-            raise FullGameConformanceError("operational full-game scope is exactly four players")
-        if len({deck.deck_id for deck in decks}) != 4:
-            raise FullGameConformanceError("full-game requires four distinct deck identities")
-        if {pilot.seat for pilot in pilots} != {1, 2, 3, 4}:
-            raise FullGameConformanceError("pilot bindings must cover seats 1..4 exactly")
+        player_count = scenario.player_count
+        if player_count < XmageFullGameRunner.MIN_PLAYERS or player_count > XmageFullGameRunner.MAX_PLAYERS:
+            raise FullGameConformanceError(
+                "operational full-game scope is two to five players"
+            )
+        if len(decks) != player_count or len(pilots) != player_count:
+            raise FullGameConformanceError(
+                "deck/pilot cardinality must equal the scenario player count"
+            )
+        if len({deck.deck_id for deck in decks}) != player_count:
+            raise FullGameConformanceError(
+                "full-game requires distinct deck identities per seat"
+            )
+        if {pilot.seat for pilot in pilots} != set(range(1, player_count + 1)):
+            raise FullGameConformanceError(
+                "pilot bindings must cover seats 1..N exactly"
+            )
         for index, (deck, pilot) in enumerate(
             zip(decks, sorted(pilots, key=lambda item: item.seat), strict=True),
             start=1,
@@ -1325,8 +1366,18 @@ class XmageFullGameRunner:
             raise FullGameConformanceError("full-game lane identity mismatch")
         if lane.get("decision_protocol_version") != FULL_GAME_DECISION_PROTOCOL_VERSION:
             raise FullGameConformanceError("full-game decision protocol mismatch")
-        if lane.get("operational_pod_size") != 4:
-            raise FullGameConformanceError("full-game capability pod size is not 4")
+        lane_min = lane.get("min_players")
+        lane_max = lane.get("max_players")
+        if (
+            not isinstance(lane_min, int)
+            or not isinstance(lane_max, int)
+            or lane_min != XmageFullGameRunner.MIN_PLAYERS
+            or lane_max != XmageFullGameRunner.MAX_PLAYERS
+            or not lane_min <= scenario.player_count <= lane_max
+        ):
+            raise FullGameConformanceError(
+                "full-game capability player-count range does not cover the scenario"
+            )
         if lane.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
             raise FullGameConformanceError("full-game capability evidence class is unsafe")
         if lane.get("generic_capability_promotion") is not False:
@@ -1393,8 +1444,10 @@ class XmageFullGameRunner:
             raise FullGameConformanceError("XMage full-game did not terminate")
 
         outcomes = result.get("outcomes")
-        if not isinstance(outcomes, list) or len(outcomes) != 4:
-            raise FullGameConformanceError("full-game result must contain four seat outcomes")
+        if not isinstance(outcomes, list) or len(outcomes) != scenario.player_count:
+            raise FullGameConformanceError(
+                "full-game result must contain one seat outcome per player"
+            )
         winner_seats = tuple(
             int(item.get("seat", -1)) + 1
             for item in outcomes

@@ -36,20 +36,18 @@ class FullGameFailureClass(StrEnum):
 class FullGameBatchCase(_StrictModel):
     case_id: str = Field(min_length=1)
     scenario: FutureXmageScenario
-    decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput]
-    pilots: tuple[
-        FullGamePilotBinding,
-        FullGamePilotBinding,
-        FullGamePilotBinding,
-        FullGamePilotBinding,
-    ]
+    decks: tuple[RulesDeckInput, ...]
+    pilots: tuple[FullGamePilotBinding, ...]
 
     @model_validator(mode="after")
     def case_matches_operational_scope(self) -> FullGameBatchCase:
-        if self.scenario.player_count != 4:
-            raise ValueError("full-game batch cases require exactly four players")
-        if {pilot.seat for pilot in self.pilots} != {1, 2, 3, 4}:
-            raise ValueError("full-game batch cases require pilot seats 1..4 exactly")
+        player_count = self.scenario.player_count
+        if player_count < 2 or player_count > 5:
+            raise ValueError("full-game batch cases require two to five players")
+        if len(self.decks) != player_count or len(self.pilots) != player_count:
+            raise ValueError("full-game batch deck/pilot cardinality must equal player count")
+        if {pilot.seat for pilot in self.pilots} != set(range(1, player_count + 1)):
+            raise ValueError("full-game batch cases require pilot seats 1..N exactly")
         return self
 
 

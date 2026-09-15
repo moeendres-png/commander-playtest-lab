@@ -1,0 +1,1 @@
+{"fail_closed":["zero players","one player","above max (incl. 6)","mismatched decks/pilots/principals","invalid starting-player seat","duplicate or missing principals","seat-coverage gaps"],"max_players":5,"min_players":2,"schema_version":"ws215-cardinality-contract-1.0.0","seats":"1..N exactly","six_player":"NOT_SUPPORTED","starting_player_seat":"seed mod N"}

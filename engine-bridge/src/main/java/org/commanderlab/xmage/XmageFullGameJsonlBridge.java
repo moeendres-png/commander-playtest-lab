@@ -155,11 +155,15 @@ final class XmageFullGameJsonlBridge {
             );
             String gameId = requiredText(payload, "game_id");
             List<String> deckHandles = requiredStringArray(payload, "deck_handles");
-            if (deckHandles.size() != XmageFullGameSession.PLAYER_COUNT) {
+            if (deckHandles.size() < XmageFullGameSession.MIN_PLAYERS
+                    || deckHandles.size() > XmageFullGameSession.MAX_PLAYERS) {
                 return error(
                         requestId,
                         "invalid_player_count",
-                        "Full-game conformance requires exactly four players; observed "
+                        "Full-game conformance supports "
+                                + XmageFullGameSession.MIN_PLAYERS + ".."
+                                + XmageFullGameSession.MAX_PLAYERS
+                                + " players; observed "
                                 + deckHandles.size(),
                         false
                 );
@@ -187,7 +191,7 @@ final class XmageFullGameJsonlBridge {
 
             JsonObject responsePayload = new JsonObject();
             responsePayload.addProperty("game_id", gameId);
-            responsePayload.addProperty("player_count", XmageFullGameSession.PLAYER_COUNT);
+            responsePayload.addProperty("player_count", session.playerCount());
             responsePayload.addProperty("starting_player_seat", startingPlayerSeat);
             responsePayload.addProperty("starting_life", startingLife);
             responsePayload.addProperty("seed", seed);
@@ -446,7 +450,8 @@ final class XmageFullGameJsonlBridge {
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
         capabilities.addProperty("multiplayer_supported", true);
-        capabilities.addProperty("max_players", XmageFullGameSession.PLAYER_COUNT);
+        capabilities.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
+        capabilities.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
         capabilities.addProperty("headless_supported", true);
         // WS213: seed_supported is true only because every session binds the
         // explicit orchestration seed to the native per-game Rules RNG
@@ -485,7 +490,7 @@ final class XmageFullGameJsonlBridge {
 
         JsonArray notes = new JsonArray();
         notes.add("Dedicated full-game lane; existing B3/B4 JsonlBridge capability truth is unchanged");
-        notes.add("Operational scope is exactly four-player Commander");
+        notes.add("Operational scope is 2..5-player Commander Free-for-All with one authoritative cardinality contract");
         notes.add("XMage is rules authority; Commander Lab external pilots are discretionary decision authority");
         notes.add("No Tactical, Structural, XMage-AI, random or default discretionary fallback is permitted");
         notes.add("Rules randomness remains XMage-owned and uses the explicit per-game Rules seed bound before start (setRulesSeed + requireExplicitSeed; RandomUtil retired as authority)");
@@ -498,7 +503,8 @@ final class XmageFullGameJsonlBridge {
         JsonObject lane = new JsonObject();
         lane.addProperty("lane", "xmage_full_game_external_pilots");
         lane.addProperty("decision_protocol_version", XmageFullGameDecisionController.PROTOCOL_VERSION);
-        lane.addProperty("operational_pod_size", XmageFullGameSession.PLAYER_COUNT);
+        lane.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
+        lane.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
         lane.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
@@ -517,7 +523,8 @@ final class XmageFullGameJsonlBridge {
         payload.addProperty("started", true);
         payload.addProperty("lane", "xmage_full_game_external_pilots");
         payload.addProperty("one_game_per_process", true);
-        payload.addProperty("operational_pod_size", XmageFullGameSession.PLAYER_COUNT);
+        payload.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
+        payload.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
         payload.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         return payload;
     }
