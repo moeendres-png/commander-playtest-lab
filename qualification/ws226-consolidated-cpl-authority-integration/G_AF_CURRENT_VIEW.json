@@ -1,0 +1,234 @@
+{
+  "admission_rollup": "FAIL",
+  "af_gates": {
+    "AF00": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/SOURCE_LOCK.json@189dcfc09e74",
+        "qualification/evidence/candidates/xmage.json@189dcfc09e74"
+      ],
+      "reason": "Exact provider source/build/license identity reproducible at pinned engine.",
+      "verdict": "PASS"
+    },
+    "AF01": {
+      "evidence": [],
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    "AF02": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_2P.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_3P.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_4P.json@189dcfc09e74"
+      ],
+      "reason": "Technical cardinality PASS consumed per WS225 source lock.",
+      "verdict": "PASS"
+    },
+    "AF03": {
+      "evidence": [
+        "qualification/ws213-xmage-consolidated-requalification/D1_D5.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json@189dcfc09e74"
+      ],
+      "reason": "Rules Core sole authority demonstrated behaviorally on the XMage lane.",
+      "verdict": "PASS"
+    },
+    "AF04": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+      ],
+      "reason": "Discretionary family uses provider legal options, fail closed.",
+      "verdict": "PASS"
+    },
+    "AF05": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+      ],
+      "reason": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "verdict": "PASS"
+    },
+    "AF06": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json@189dcfc09e74"
+      ],
+      "reason": "Fresh WS215 suite rerun.; Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "verdict": "PASS"
+    },
+    "AF07": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+      ],
+      "reason": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "verdict": "PASS"
+    },
+    "AF08": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json@189dcfc09e74"
+      ],
+      "reason": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "verdict": "UNKNOWN"
+    },
+    "AF09": {
+      "evidence": [
+        "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json@3cdade1dfb16",
+        "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md@3cdade1dfb16"
+      ],
+      "reason": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "verdict": "PASS"
+    },
+    "AF10": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws221-foundation-integrity-source-truth/VALIDATION.json@189dcfc09e74"
+      ],
+      "reason": "Clean runs plus complete accounting plus integrity validation.",
+      "verdict": "PASS"
+    },
+    "AF11": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.json@189dcfc09e74"
+      ],
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    }
+  },
+  "candidate": "xmage",
+  "g_gates": {
+    "G00": {
+      "evidence": [
+        "qualification/ws226-consolidated-cpl-authority-integration/SOURCE_LOCK.json@LOCAL-WS226-"
+      ],
+      "reason": "Lab-side identity exact on WS226 combined lock.",
+      "verdict": "PASS"
+    },
+    "G01": {
+      "evidence": [
+        "qualification/manifests/AUTHORITY_LOCK_v2.json@LOCAL-WS226-",
+        "qualification/ws222-g01-authority-reacquisition/AUTHORITY_LOCK_v2.json@1dcfe8980338",
+        "qualification/ws222-g01-authority-reacquisition/VALIDATION.json@1dcfe8980338",
+        "qualification/ws222-g01-authority-reacquisition/artifacts/cr/CR_ACQUISITION_RECEIPT.json@1dcfe8980338"
+      ],
+      "reason": "Sealed domain-freshness artifact current (byte-exact CR + bounded official Gatherer Oracle for frozen 29 + Commander/B&R + deck legality). WS222 AUTHORITY_LOCK_v2 scoped PASS; no bulk-oracle generalization.",
+      "verdict": "PASS"
+    },
+    "G02": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_2P.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_3P.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_4P.json@189dcfc09e74"
+      ],
+      "reason": "Technical cardinality PASS consumed per WS225 source lock.",
+      "verdict": "PASS"
+    },
+    "G03": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json@189dcfc09e74"
+      ],
+      "reason": "Fresh WS215 suite rerun.; Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "verdict": "PASS"
+    },
+    "G04": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+      ],
+      "reason": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "verdict": "PASS"
+    },
+    "G05": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json@189dcfc09e74"
+      ],
+      "reason": "Discretionary family uses provider legal options, fail closed.; Fresh WS215 suite rerun.; Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "verdict": "PASS"
+    },
+    "G06": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+      ],
+      "reason": "Discretionary family uses provider legal options, fail closed.",
+      "verdict": "PASS"
+    },
+    "G07": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+      ],
+      "reason": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "verdict": "PASS"
+    },
+    "G08": {
+      "evidence": [
+        "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json@3cdade1dfb16",
+        "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md@3cdade1dfb16"
+      ],
+      "reason": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "verdict": "PASS"
+    },
+    "G09": {
+      "evidence": [
+        "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json@3cdade1dfb16",
+        "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md@3cdade1dfb16"
+      ],
+      "reason": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "verdict": "PASS"
+    },
+    "G10": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json@189dcfc09e74"
+      ],
+      "reason": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "verdict": "UNKNOWN"
+    },
+    "G11": {
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+      ],
+      "reason": "Clean runtime record on the XMage lane.",
+      "verdict": "PASS"
+    },
+    "G12": {
+      "evidence": [],
+      "reason": "Actual integration/distribution topology unselected; interop for the real model unproven.",
+      "verdict": "UNKNOWN"
+    },
+    "G13": {
+      "evidence": [],
+      "reason": "Computed rollup: not all G00-G12 PASS; admission blocked.",
+      "verdict": "FAIL"
+    },
+    "G14": {
+      "evidence": [],
+      "reason": "No frozen campaign contract active.",
+      "verdict": "NOT_APPLICABLE"
+    },
+    "G15": {
+      "evidence": [],
+      "reason": "Holdout disabled (no campaign contract).",
+      "verdict": "NOT_APPLICABLE"
+    }
+  },
+  "generated_by": "qualification/ws226-consolidated-cpl-authority-integration/standing_generator.py",
+  "note": "S5-cardinality (WS220 successor CI) != S5-admission (campaign); generator stage contract decides.",
+  "open_blockers": [
+    "G10",
+    "G12",
+    "G13",
+    "AF01",
+    "AF08",
+    "AF11"
+  ],
+  "schema_version": "ws226-g-af-current-view/1.0.0"
+}

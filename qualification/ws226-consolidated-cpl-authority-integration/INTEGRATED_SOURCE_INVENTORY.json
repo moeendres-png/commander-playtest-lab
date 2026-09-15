@@ -1,0 +1,26 @@
+{
+  "added_namespaces": {
+    "qualification/reporting/ws225": 37,
+    "qualification/ws221-foundation-integrity-source-truth": 23,
+    "qualification/ws222-g01-authority-reacquisition": 71,
+    "qualification/ws224-hidden-info-name-canary": 34,
+    "research/project-audit/ws220": 24,
+    "ws226_namespace_docs_and_standing": "see git status"
+  },
+  "base_files": 12024,
+  "behavior_credit_change": 0,
+  "living_modified_ws221_wins": 8,
+  "manifests": {
+    "inner_entries": 10632,
+    "outer_entries": 10637
+  },
+  "preserved_ws223": [
+    "src/commander_lab/engine/rules/full_game.py",
+    "src/commander_lab/semantic_replay",
+    "requirements/lock.txt",
+    "workflows",
+    "ws218/ws223 namespaces"
+  ],
+  "schema_version": "ws226-integrated-inventory/1.0.0",
+  "standing_digest": "5bc1a02dac066f3fcf33ddd4e6923e537c2f8b5360bd823102deaca563f438d4"
+}

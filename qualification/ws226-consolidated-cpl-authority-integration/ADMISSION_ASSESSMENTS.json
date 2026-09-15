@@ -1,0 +1,322 @@
+{
+  "assessments": {
+    "argentum": {
+      "blocker": "denominator screen terminal: 5/29 SUPPORTED (6 PARTIAL, 18 MISSING), micro 14/17; 18 frozen card() defs missing (incl all 4 Partner commanders); Partner/Background Phase-4 absent; OVERLOAD mechanic absent (Vandalblast impossible); split/aftermath/saga-MDFC unwired for 3 frozen split cards",
+      "blocker_kind": "PROVEN_GAP",
+      "candidate": "argentum",
+      "evidence_pointers": [
+        "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)",
+        "MIT licensed source wingedsheep/argentum-engine@3f46367d87c8",
+        "WS219 admission record (CODE_DERIVED design inventory)",
+        "WS219 admission record (replay gap)",
+        "constructibility record in CANDIDATE_FACTS (CODE_DERIVED)",
+        "research/candidate-freshness/ws219/probes/ws219_argentum_card_check.py@WS219-seal (DIRECTLY_VERIFIED census)"
+      ],
+      "next_required_evidence": "upstream implementation per WS219 next-step plan, then re-probe to 29/29 + 17/17",
+      "qualification_burden": "VERY LARGE upstream build (months) per WS219 QUALIFICATION_BURDEN.json; not bounded measurement.",
+      "source_lock": {
+        "commit": "3f46367d87c88bcf156a843a9e69fd29e1693872",
+        "repo": "wingedsheep/argentum-engine",
+        "tree": "2adf51caa8f9c6a9908ea961fa988ebb5eb1959f"
+      },
+      "stage_detail": {
+        "S0": {
+          "blocker": null,
+          "evidence_pointers": [
+            "MIT licensed source wingedsheep/argentum-engine@3f46367d87c8"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S1": {
+          "blocker": null,
+          "evidence_pointers": [
+            "WS219 admission record (CODE_DERIVED design inventory)"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S2": {
+          "blocker": null,
+          "evidence_pointers": [
+            "constructibility record in CANDIDATE_FACTS (CODE_DERIVED)"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S3": {
+          "blocker": "denominator screen terminal: 5/29 SUPPORTED (6 PARTIAL, 18 MISSING), micro 14/17; 18 frozen card() defs missing (incl all 4 Partner commanders); Partner/Background Phase-4 absent; OVERLOAD mechanic absent (Vandalblast impossible); split/aftermath/saga-MDFC unwired for 3 frozen split cards",
+          "evidence_pointers": [
+            "research/candidate-freshness/ws219/probes/ws219_argentum_card_check.py@WS219-seal (DIRECTLY_VERIFIED census)"
+          ],
+          "next_required_evidence": "upstream implementation per WS219 next-step plan, then re-probe to 29/29 + 17/17",
+          "status": "FAIL"
+        },
+        "S4": {
+          "blocker": "no bounded clean-process semantic-replay runtime proof (design-only or slot-only)",
+          "evidence_pointers": [
+            "WS219 admission record (replay gap)"
+          ],
+          "next_required_evidence": "bounded tape + clean-process replay proof (WS218-Tape-v1 shape)",
+          "status": "FAIL"
+        },
+        "S5": {
+          "blocker": "135/135 RUNTIME_VERIFIED RSP campaign not run at candidate pin",
+          "evidence_pointers": [
+            "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)"
+          ],
+          "next_required_evidence": "full common-fixture campaign after S0-S4 PASS",
+          "status": "FAIL"
+        }
+      },
+      "stage_results": {
+        "S0": "PASS",
+        "S1": "PASS",
+        "S2": "PASS",
+        "S3": "FAIL",
+        "S4": "FAIL",
+        "S5": "FAIL"
+      },
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S3"
+    },
+    "forge": {
+      "blocker": "whole-boundary pilot-authority violation PROVEN (stock remote path prohibited defaults); WS217 seam is seam-scoped only",
+      "blocker_kind": "PROVEN_GAP",
+      "candidate": "forge",
+      "evidence_pointers": [
+        "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)",
+        "GPL-family (Forge project license; distribution topology constrained) licensed source moeendres-png/forge@ba3a7f0dec52",
+        "WS217 seal: replay NOT CLAIMED",
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf (seam-scoped PASS)",
+        "qualification/evidence/candidates/forge.json@189dcfc09e74 (direct_failures)"
+      ],
+      "next_required_evidence": "whole-boundary remediation + Lab requalification at current pin",
+      "qualification_burden": "UNKNOWN (whole-boundary remediation + frozen census + replay proof must be scoped first).",
+      "source_lock": {
+        "commit": "ba3a7f0dec5220754108ceb23783158ba4944e47",
+        "repo": "moeendres-png/forge",
+        "tree": "18e3373509190fbcc8a4eb5fa6db128489ee2b77"
+      },
+      "stage_detail": {
+        "S0": {
+          "blocker": null,
+          "evidence_pointers": [
+            "GPL-family (Forge project license; distribution topology constrained) licensed source moeendres-png/forge@ba3a7f0dec52"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S1": {
+          "blocker": "whole-boundary pilot-authority violation PROVEN (stock remote path prohibited defaults); WS217 seam is seam-scoped only",
+          "evidence_pointers": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74 (direct_failures)",
+            "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf (seam-scoped PASS)"
+          ],
+          "next_required_evidence": "whole-boundary remediation + Lab requalification at current pin",
+          "status": "FAIL"
+        },
+        "S2": {
+          "blocker": "cardinality never inventoried at current pin",
+          "evidence_pointers": [],
+          "next_required_evidence": "2P-5P constructibility inventory",
+          "status": "UNKNOWN"
+        },
+        "S3": {
+          "blocker": "frozen-29 census never performed at current pin",
+          "evidence_pointers": [],
+          "next_required_evidence": "DIRECTLY_VERIFIED frozen-29 census probe + dedicated-test inventory",
+          "status": "UNKNOWN"
+        },
+        "S4": {
+          "blocker": "no bounded clean-process semantic-replay runtime proof (design-only or slot-only)",
+          "evidence_pointers": [
+            "WS217 seal: replay NOT CLAIMED"
+          ],
+          "next_required_evidence": "bounded tape + clean-process replay proof (WS218-Tape-v1 shape)",
+          "status": "FAIL"
+        },
+        "S5": {
+          "blocker": "135/135 RUNTIME_VERIFIED RSP campaign not run at candidate pin",
+          "evidence_pointers": [
+            "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)"
+          ],
+          "next_required_evidence": "full common-fixture campaign after S0-S4 PASS",
+          "status": "FAIL"
+        }
+      },
+      "stage_results": {
+        "S0": "PASS",
+        "S1": "FAIL",
+        "S2": "UNKNOWN",
+        "S3": "UNKNOWN",
+        "S4": "FAIL",
+        "S5": "FAIL"
+      },
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S1"
+    },
+    "quorune": {
+      "blocker": "denominator screen terminal: 0/29 SUPPORTED (20 PARTIAL, 9 MISSING), micro 5/17; 0/29 frozen SUPPORTED with dedicated behavior tests (8 trusted, zero tests; 21 residual); universal grammar blocked (2136 cards sole-blocked by continuous layers; 4949 queue residuals); clean-process replay runtime proof absent",
+      "blocker_kind": "PROVEN_GAP",
+      "candidate": "quorune",
+      "evidence_pointers": [
+        "Apache-2.0 licensed source NullPriority/quorune@64ef65691b29",
+        "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)",
+        "WS219 admission record (CODE_DERIVED design inventory)",
+        "WS219 admission record (replay gap)",
+        "constructibility record in CANDIDATE_FACTS (CODE_DERIVED)",
+        "research/candidate-freshness/ws219/probes/ws219_quorune_frontier_check.py@WS219-seal (DIRECTLY_VERIFIED census)"
+      ],
+      "next_required_evidence": "upstream implementation per WS219 next-step plan, then re-probe to 29/29 + 17/17",
+      "qualification_burden": "VERY LARGE upstream build (months) per WS219 QUALIFICATION_BURDEN.json; not bounded measurement.",
+      "source_lock": {
+        "commit": "64ef65691b2952e29dfb2422687123d3ff5fc1b4",
+        "repo": "NullPriority/quorune",
+        "tree": "3dbb9619ec75bdebec74636a0a0b037cd0d85028"
+      },
+      "stage_detail": {
+        "S0": {
+          "blocker": null,
+          "evidence_pointers": [
+            "Apache-2.0 licensed source NullPriority/quorune@64ef65691b29"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S1": {
+          "blocker": null,
+          "evidence_pointers": [
+            "WS219 admission record (CODE_DERIVED design inventory)"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S2": {
+          "blocker": null,
+          "evidence_pointers": [
+            "constructibility record in CANDIDATE_FACTS (CODE_DERIVED)"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S3": {
+          "blocker": "denominator screen terminal: 0/29 SUPPORTED (20 PARTIAL, 9 MISSING), micro 5/17; 0/29 frozen SUPPORTED with dedicated behavior tests (8 trusted, zero tests; 21 residual); universal grammar blocked (2136 cards sole-blocked by continuous layers; 4949 queue residuals); clean-process replay runtime proof absent",
+          "evidence_pointers": [
+            "research/candidate-freshness/ws219/probes/ws219_quorune_frontier_check.py@WS219-seal (DIRECTLY_VERIFIED census)"
+          ],
+          "next_required_evidence": "upstream implementation per WS219 next-step plan, then re-probe to 29/29 + 17/17",
+          "status": "FAIL"
+        },
+        "S4": {
+          "blocker": "no bounded clean-process semantic-replay runtime proof (design-only or slot-only)",
+          "evidence_pointers": [
+            "WS219 admission record (replay gap)"
+          ],
+          "next_required_evidence": "bounded tape + clean-process replay proof (WS218-Tape-v1 shape)",
+          "status": "FAIL"
+        },
+        "S5": {
+          "blocker": "135/135 RUNTIME_VERIFIED RSP campaign not run at candidate pin",
+          "evidence_pointers": [
+            "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)"
+          ],
+          "next_required_evidence": "full common-fixture campaign after S0-S4 PASS",
+          "status": "FAIL"
+        }
+      },
+      "stage_results": {
+        "S0": "PASS",
+        "S1": "PASS",
+        "S2": "PASS",
+        "S3": "FAIL",
+        "S4": "FAIL",
+        "S5": "FAIL"
+      },
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S3"
+    },
+    "xmage": {
+      "blocker": "135/135 RUNTIME_VERIFIED RSP campaign not run at candidate pin",
+      "blocker_kind": "PROVEN_GAP",
+      "candidate": "xmage",
+      "evidence_pointers": [
+        "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)",
+        "MIT licensed source moeendres-png/mage@db134b9737e9",
+        "WS218 tape lane: dual clean-process replay PASS 2P-5P + tamper matrix (RUNTIME_VERIFIED)",
+        "constructibility record in CANDIDATE_FACTS (CODE_DERIVED)",
+        "frozen-29 SUPPORTED inventory (DIRECTLY_VERIFIED census grade) + WS215 retained-test caveat (target-tiebreak TD01)",
+        "lane authority + pilot-boundary + hidden-info runtime bundles"
+      ],
+      "next_required_evidence": "full common-fixture campaign after S0-S4 PASS",
+      "qualification_burden": "S5 campaign spend only (S0-S4 complete): DAYS (bounded measurement, no upstream build).",
+      "source_lock": {
+        "commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+        "repo": "moeendres-png/mage",
+        "tree": "4c7cae47f355ab41739b489af383ab54bf49e908"
+      },
+      "stage_detail": {
+        "S0": {
+          "blocker": null,
+          "evidence_pointers": [
+            "MIT licensed source moeendres-png/mage@db134b9737e9"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S1": {
+          "blocker": null,
+          "evidence_pointers": [
+            "lane authority + pilot-boundary + hidden-info runtime bundles"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S2": {
+          "blocker": null,
+          "evidence_pointers": [
+            "constructibility record in CANDIDATE_FACTS (CODE_DERIVED)"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S3": {
+          "blocker": null,
+          "evidence_pointers": [
+            "frozen-29 SUPPORTED inventory (DIRECTLY_VERIFIED census grade) + WS215 retained-test caveat (target-tiebreak TD01)"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S4": {
+          "blocker": null,
+          "evidence_pointers": [
+            "WS218 tape lane: dual clean-process replay PASS 2P-5P + tamper matrix (RUNTIME_VERIFIED)"
+          ],
+          "next_required_evidence": null,
+          "status": "PASS"
+        },
+        "S5": {
+          "blocker": "135/135 RUNTIME_VERIFIED RSP campaign not run at candidate pin",
+          "evidence_pointers": [
+            "COMMON_FIXTURE_MANIFEST_v1.json@e7f34ea4 (135 mandatory fixtures)"
+          ],
+          "next_required_evidence": "full common-fixture campaign after S0-S4 PASS",
+          "status": "FAIL"
+        }
+      },
+      "stage_results": {
+        "S0": "PASS",
+        "S1": "PASS",
+        "S2": "PASS",
+        "S3": "PASS",
+        "S4": "PASS",
+        "S5": "FAIL"
+      },
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S5"
+    }
+  },
+  "generated_by": "qualification/ws226-consolidated-cpl-authority-integration/standing_generator.py",
+  "schema_version": "ws226-admission-assessments/1.0.0"
+}

@@ -1,0 +1,312 @@
+{
+  "admission_rollup": "FAIL",
+  "af_gates": {
+    "AF00": {
+      "blocked": false,
+      "current": true,
+      "evidence": [
+        "research/candidate-freshness/ws219/SOURCE_LOCK.json@077c836d27dd"
+      ],
+      "reason": "Exact source/build/license identity reproduced in WS219 seal.",
+      "verdict": "PASS"
+    },
+    "AF01": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    "AF02": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF03": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md@077c836d27dd"
+      ],
+      "reason": "Authority design credible but runtime authority unproven; fail closed.",
+      "verdict": "UNKNOWN"
+    },
+    "AF04": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF05": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF06": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF07": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF08": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF09": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF10": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "No runs at this pin (0/175 by early-stop design); no accounting to verify.",
+      "verdict": "UNKNOWN"
+    },
+    "AF11": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md@077c836d27dd"
+      ],
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    }
+  },
+  "blocked_gates": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G12",
+    "G13",
+    "AF02",
+    "AF03",
+    "AF04",
+    "AF05",
+    "AF06",
+    "AF07",
+    "AF08",
+    "AF09",
+    "AF11"
+  ],
+  "candidate": "argentum",
+  "evidence_classes_used": [
+    "NOT_RUN"
+  ],
+  "fail_closed_notes": [
+    "UNKNOWN/PARTIAL/NOT_RUN preserved through aggregation; nothing upgraded.",
+    "CODE_DERIVED never satisfies a runtime requirement.",
+    "Historical PASS rows survive only via retention predicates."
+  ],
+  "freeze_eligible": false,
+  "g_gates": {
+    "G00": {
+      "blocked": false,
+      "current": true,
+      "evidence": [
+        "qualification/ws226-consolidated-cpl-authority-integration/SOURCE_LOCK.json@LOCAL-WS226-"
+      ],
+      "reason": "Lab-side identity exact on WS226 combined lock.",
+      "verdict": "PASS"
+    },
+    "G01": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/aggregate/GATE_RESULTS.json@189dcfc09e74",
+        "research/project-audit/ws220/FINDINGS.json@189dcfc09e74"
+      ],
+      "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    "G02": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G03": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G04": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G05": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G06": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G07": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G08": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G09": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G10": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G11": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "No runs at this pin; reliability unobserved.",
+      "verdict": "NOT_RUN"
+    },
+    "G12": {
+      "blocked": true,
+      "current": true,
+      "evidence": [],
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    "G13": {
+      "blocked": true,
+      "current": true,
+      "evidence": [],
+      "reason": "Computed rollup: not all G00-G12 PASS; admission blocked.",
+      "verdict": "FAIL"
+    },
+    "G14": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "No frozen campaign contract active.",
+      "verdict": "NOT_APPLICABLE"
+    },
+    "G15": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "Holdout disabled (no campaign contract).",
+      "verdict": "NOT_APPLICABLE"
+    }
+  },
+  "generated_by": "qualification/ws226-consolidated-cpl-authority-integration/standing_generator.py",
+  "open_blockers": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G11",
+    "G12",
+    "G13",
+    "AF01",
+    "AF02",
+    "AF03",
+    "AF04",
+    "AF05",
+    "AF06",
+    "AF07",
+    "AF08",
+    "AF09",
+    "AF10",
+    "AF11"
+  ],
+  "schema_version": "ws226-standing/1.0.0",
+  "source_lock": {
+    "commit": "3f46367d87c88bcf156a843a9e69fd29e1693872",
+    "repo": "wingedsheep/argentum-engine",
+    "tree": "2adf51caa8f9c6a9908ea961fa988ebb5eb1959f"
+  }
+}

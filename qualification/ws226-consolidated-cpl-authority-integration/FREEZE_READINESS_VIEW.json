@@ -1,0 +1,535 @@
+{
+  "architecture_freeze": "NOT_CLAIMED",
+  "candidates": {
+    "argentum": {
+      "af_gates": {
+        "AF00": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "research/candidate-freshness/ws219/SOURCE_LOCK.json@077c836d27dd"
+          ],
+          "reason": "Exact source/build/license identity reproduced in WS219 seal.",
+          "verdict": "PASS"
+        },
+        "AF01": {
+          "blocked": false,
+          "current": true,
+          "evidence": [],
+          "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+          "verdict": "UNKNOWN"
+        },
+        "AF02": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF03": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md@077c836d27dd"
+          ],
+          "reason": "Authority design credible but runtime authority unproven; fail closed.",
+          "verdict": "UNKNOWN"
+        },
+        "AF04": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF05": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF06": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF07": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF08": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF09": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF10": {
+          "blocked": false,
+          "current": true,
+          "evidence": [],
+          "reason": "No runs at this pin (0/175 by early-stop design); no accounting to verify.",
+          "verdict": "UNKNOWN"
+        },
+        "AF11": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md@077c836d27dd"
+          ],
+          "reason": "Production topology unselected; same bar as every candidate.",
+          "verdict": "UNKNOWN"
+        }
+      },
+      "freeze_eligible": false,
+      "open_af": [
+        "AF01",
+        "AF02",
+        "AF03",
+        "AF04",
+        "AF05",
+        "AF06",
+        "AF07",
+        "AF08",
+        "AF09",
+        "AF10",
+        "AF11"
+      ]
+    },
+    "forge": {
+      "af_gates": {
+        "AF00": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "forge-protocol2-bridge/ws217-lab-successor-spec.json@e152688a33bf"
+          ],
+          "reason": "Exact Forge source identities reproduced in WS217 seal.",
+          "verdict": "PASS"
+        },
+        "AF01": {
+          "blocked": false,
+          "current": true,
+          "evidence": [],
+          "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+          "verdict": "UNKNOWN"
+        },
+        "AF02": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF03": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+          ],
+          "reason": "Seam-scoped authority proof is supporting, not satisfying, for the whole-engine gate.",
+          "verdict": "UNKNOWN"
+        },
+        "AF04": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74",
+            "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+          ],
+          "reason": "Preserved direct failure: stock remote path contains prohibited defaults and is not a compliant external-pilot authority boundary (WS17 seal). WS217 divided seam is seam-scoped progress, not whole-boundary remediation.",
+          "verdict": "FAIL"
+        },
+        "AF05": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF06": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF07": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF08": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF09": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/candidates/forge.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF10": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+          ],
+          "reason": "No Lab-side runs at current Forge pin; denominator accounting absent.",
+          "verdict": "UNKNOWN"
+        },
+        "AF11": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+          ],
+          "reason": "Separate-process boundary preserved as positive; gate needs declared production topology (same bar as XMage).",
+          "verdict": "UNKNOWN"
+        }
+      },
+      "freeze_eligible": false,
+      "open_af": [
+        "AF01",
+        "AF02",
+        "AF03",
+        "AF04",
+        "AF05",
+        "AF06",
+        "AF07",
+        "AF08",
+        "AF09",
+        "AF10",
+        "AF11"
+      ]
+    },
+    "quorune": {
+      "af_gates": {
+        "AF00": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "research/candidate-freshness/ws219/SOURCE_LOCK.json@077c836d27dd"
+          ],
+          "reason": "Exact source/build/license identity reproduced in WS219 seal.",
+          "verdict": "PASS"
+        },
+        "AF01": {
+          "blocked": false,
+          "current": true,
+          "evidence": [],
+          "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+          "verdict": "UNKNOWN"
+        },
+        "AF02": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF03": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "research/candidate-freshness/ws219/QUORUNE_ADMISSION.md@077c836d27dd"
+          ],
+          "reason": "Authority design credible but runtime authority unproven; fail closed.",
+          "verdict": "UNKNOWN"
+        },
+        "AF04": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF05": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF06": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF07": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF08": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF09": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+          ],
+          "reason": "Required runtime not executed at candidate pin.",
+          "verdict": "NOT_RUN"
+        },
+        "AF10": {
+          "blocked": false,
+          "current": true,
+          "evidence": [],
+          "reason": "No runs at this pin (0/175 by early-stop design); no accounting to verify.",
+          "verdict": "UNKNOWN"
+        },
+        "AF11": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "research/candidate-freshness/ws219/QUORUNE_ADMISSION.md@077c836d27dd"
+          ],
+          "reason": "Production topology unselected; same bar as every candidate.",
+          "verdict": "UNKNOWN"
+        }
+      },
+      "freeze_eligible": false,
+      "open_af": [
+        "AF01",
+        "AF02",
+        "AF03",
+        "AF04",
+        "AF05",
+        "AF06",
+        "AF07",
+        "AF08",
+        "AF09",
+        "AF10",
+        "AF11"
+      ]
+    },
+    "xmage": {
+      "af_gates": {
+        "AF00": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/SOURCE_LOCK.json@189dcfc09e74",
+            "qualification/evidence/candidates/xmage.json@189dcfc09e74"
+          ],
+          "reason": "Exact provider source/build/license identity reproducible at pinned engine.",
+          "verdict": "PASS"
+        },
+        "AF01": {
+          "blocked": false,
+          "current": true,
+          "evidence": [],
+          "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+          "verdict": "UNKNOWN"
+        },
+        "AF02": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_2P.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_3P.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_4P.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_5P.json@189dcfc09e74"
+          ],
+          "reason": "Technical cardinality PASS consumed per WS225 source lock.",
+          "verdict": "PASS"
+        },
+        "AF03": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws213-xmage-consolidated-requalification/D1_D5.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json@189dcfc09e74"
+          ],
+          "reason": "Rules Core sole authority demonstrated behaviorally on the XMage lane.",
+          "verdict": "PASS"
+        },
+        "AF04": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+          ],
+          "reason": "Discretionary family uses provider legal options, fail closed.",
+          "verdict": "PASS"
+        },
+        "AF05": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+          ],
+          "reason": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+          "verdict": "PASS"
+        },
+        "AF06": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json@189dcfc09e74"
+          ],
+          "reason": "Fresh WS215 suite rerun.; Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+          "verdict": "PASS"
+        },
+        "AF07": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74"
+          ],
+          "reason": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+          "verdict": "PASS"
+        },
+        "AF08": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.json@189dcfc09e74",
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_PARTNER.json@189dcfc09e74"
+          ],
+          "reason": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+          "verdict": "UNKNOWN"
+        },
+        "AF09": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json@3cdade1dfb16",
+            "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md@3cdade1dfb16"
+          ],
+          "reason": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+          "verdict": "PASS"
+        },
+        "AF10": {
+          "blocked": false,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+            "qualification/ws221-foundation-integrity-source-truth/VALIDATION.json@189dcfc09e74"
+          ],
+          "reason": "Clean runs plus complete accounting plus integrity validation.",
+          "verdict": "PASS"
+        },
+        "AF11": {
+          "blocked": true,
+          "current": true,
+          "evidence": [
+            "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.json@189dcfc09e74"
+          ],
+          "reason": "Production topology unselected; same bar as every candidate.",
+          "verdict": "UNKNOWN"
+        }
+      },
+      "freeze_eligible": false,
+      "open_af": [
+        "AF01",
+        "AF08",
+        "AF11"
+      ]
+    }
+  },
+  "global_open": [
+    "AF01",
+    "AF02",
+    "AF03",
+    "AF04",
+    "AF05",
+    "AF06",
+    "AF07",
+    "AF08",
+    "AF09",
+    "AF10",
+    "AF11",
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G11",
+    "G12",
+    "G13"
+  ],
+  "note": "Computable readiness: per-candidate AF dispositions with open items. Only the Coordinator may freeze architecture; this view claims nothing.",
+  "schema_version": "ws226-freeze-readiness/1.0.0"
+}

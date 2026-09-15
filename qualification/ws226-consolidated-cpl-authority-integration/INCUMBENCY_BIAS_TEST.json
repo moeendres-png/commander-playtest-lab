@@ -1,0 +1,39 @@
+{
+  "assessments": {
+    "argentum": {
+      "blocker": "denominator screen terminal: 5/29 SUPPORTED (6 PARTIAL, 18 MISSING), micro 14/17; 18 frozen card() defs missing (incl all 4 Partner commanders); Partner/Background Phase-4 absent; OVERLOAD mechanic absent (Vandalblast impossible); split/aftermath/saga-MDFC unwired for 3 frozen split cards",
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S3"
+    },
+    "forge": {
+      "blocker": "whole-boundary pilot-authority violation PROVEN (stock remote path prohibited defaults); WS217 seam is seam-scoped only",
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S1"
+    },
+    "quorune": {
+      "blocker": "denominator screen terminal: 0/29 SUPPORTED (20 PARTIAL, 9 MISSING), micro 5/17; 0/29 frozen SUPPORTED with dedicated behavior tests (8 trusted, zero tests; 21 residual); universal grammar blocked (2136 cards sole-blocked by continuous layers; 4949 queue residuals); clean-process replay runtime proof absent",
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S3"
+    },
+    "xmage": {
+      "blocker": "135/135 RUNTIME_VERIFIED RSP campaign not run at candidate pin",
+      "status": "DO_NOT_PROMOTE_CURRENT_PIN",
+      "terminal_stage": "S5"
+    }
+  },
+  "method": "Single evaluate function applied to all four candidates over the same stage contract, denominator, vocabulary, and failure semantics. No provider-specific rule exists in the code path.",
+  "questions": {
+    "forge_weaker_bar": "No: Forge AF04 keeps FAIL (whole-gate satisfaction, same as XMage); Forge AF11 stays UNKNOWN for the same unselected-topology reason as XMage; WS217 seam evidence is supporting-only in both directions.",
+    "rejects_quorune_argentum_for_evidence_reasons": {
+      "argentum": "terminal S3 FAIL: 5/29 SUPPORTED, 18 MISSING + Partner/OVERLOAD blocks (DIRECTLY_VERIFIED census). Matches WS219 seal.",
+      "quorune": "terminal S3 FAIL: 0/29 SUPPORTED + universal grammar blocked (DIRECTLY_VERIFIED census). Matches WS219 seal."
+    },
+    "same_bar_admits_incumbents": {
+      "forge": "terminal S1 FAIL (proven whole-boundary violation) => DO_NOT_PROMOTE_CURRENT_PIN. No age exception.",
+      "xmage": "reaches S5-pending (S0-S4 PASS, S5 FAIL: campaign not run) => DO_NOT_PROMOTE_CURRENT_PIN. No privilege: the incumbent is NOT admitted either."
+    },
+    "xmage_exception": "No: XMage S3 PASS rests on retained runtime rows + predicate (same retention rule any candidate may use with its own seals); XMage S5 FAIL shows the bar bites incumbents."
+  },
+  "schema_version": "ws226-incumbency-bias-test/1.0.0",
+  "verdict": "NO_INCUMBENCY_BIAS_DETECTED"
+}

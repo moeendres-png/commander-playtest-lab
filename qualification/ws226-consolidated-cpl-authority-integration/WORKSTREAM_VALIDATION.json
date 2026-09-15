@@ -1,0 +1,76 @@
+{
+  "behavior_credit_change": 0,
+  "evidence_classes": [
+    "DIRECTLY_VERIFIED",
+    "CODE_DERIVED",
+    "TECHNICALLY_CONFORMANT"
+  ],
+  "schema_version": "ws226-workstream-validation/1.0.0",
+  "tests": [
+    {
+      "includes_f_ci_02": true,
+      "result": "12/12 PASS",
+      "suite": "tests/qualification/test_ws17_qualification.py"
+    },
+    {
+      "result": "14/14 PASS",
+      "suite": "tests/qualification/test_ws221_evidence_vocab.py"
+    },
+    {
+      "result": "5/5 PASS",
+      "suite": "tests/qualification/test_ws222_authority.py"
+    },
+    {
+      "result": "26/26 PASS",
+      "suite": "tests/qualification/test_ws225_standing.py"
+    },
+    {
+      "result": "3/3 PASS",
+      "suite": "tests/qualification/test_ws17r_exact_main_runtime.py"
+    },
+    {
+      "result": "21/21 PASS",
+      "suite": "tests/unit/test_ws224_name_canary.py"
+    },
+    {
+      "result": "7/7 PASS",
+      "suite": "tests/unit/test_operational_4p_policy.py"
+    },
+    {
+      "result": "11/11 PASS",
+      "suite": "tests/unit/test_semantic_replay_tape.py"
+    },
+    {
+      "result": "32/32 PASS",
+      "suite": "tests/unit/test_ws223_cardinality_regression.py"
+    },
+    {
+      "result": "11/11 PASS",
+      "suite": "tests/unit/test_ws223_environment_identity.py"
+    },
+    {
+      "result": "MATCH 5bc1a02d",
+      "suite": "standing_generator determinism"
+    },
+    {
+      "result": "PASS",
+      "suite": "verify_authority offline (living v2)"
+    },
+    {
+      "result": "PASS",
+      "suite": "ruff check"
+    },
+    {
+      "result": "FAIL-as-expected then PASS on restore",
+      "suite": "F-CI-02 negative control (tamper)"
+    },
+    {
+      "result": "NOT_RUN (JVM absent; seals stand; production unchanged)",
+      "suite": "Java Maven (canary+hidden-info)"
+    },
+    {
+      "result": "NOT_RUN (no impact reason; credit 0)",
+      "suite": "135-fixture rerun"
+    }
+  ]
+}

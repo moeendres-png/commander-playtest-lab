@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "gate": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked": {
+          "type": "boolean"
+        },
+        "current": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN",
+            "NOT_RUN",
+            "PARTIAL",
+            "UNSUPPORTED",
+            "NOT_APPLICABLE"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "verdict",
+        "blocked",
+        "current",
+        "reason",
+        "evidence"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://commander-lab.local/schemas/ws225-standing-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "WS225 generated per-candidate qualification standing (deterministic view; generator-owned, do not hand-edit).",
+  "properties": {
+    "admission_rollup": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ],
+      "type": "string"
+    },
+    "af_gates": {
+      "additionalProperties": {
+        "$ref": "#/$defs/gate"
+      },
+      "type": "object"
+    },
+    "blocked_gates": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "candidate": {
+      "type": "string"
+    },
+    "evidence_classes_used": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "fail_closed_notes": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "freeze_eligible": {
+      "const": false,
+      "type": "boolean"
+    },
+    "g_gates": {
+      "additionalProperties": {
+        "$ref": "#/$defs/gate"
+      },
+      "type": "object"
+    },
+    "generated_by": {
+      "type": "string"
+    },
+    "generator_digest": {
+      "type": "string"
+    },
+    "open_blockers": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "ws225-standing/1.0.0",
+      "type": "string"
+    },
+    "source_lock": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "candidate",
+    "source_lock",
+    "generated_by",
+    "g_gates",
+    "af_gates",
+    "admission_rollup",
+    "freeze_eligible",
+    "open_blockers"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,317 @@
+{
+  "admission_rollup": "FAIL",
+  "af_gates": {
+    "AF00": {
+      "blocked": false,
+      "current": true,
+      "evidence": [
+        "forge-protocol2-bridge/ws217-lab-successor-spec.json@e152688a33bf"
+      ],
+      "reason": "Exact Forge source identities reproduced in WS217 seal.",
+      "verdict": "PASS"
+    },
+    "AF01": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    "AF02": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF03": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "reason": "Seam-scoped authority proof is supporting, not satisfying, for the whole-engine gate.",
+      "verdict": "UNKNOWN"
+    },
+    "AF04": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74",
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "reason": "Preserved direct failure: stock remote path contains prohibited defaults and is not a compliant external-pilot authority boundary (WS17 seal). WS217 divided seam is seam-scoped progress, not whole-boundary remediation.",
+      "verdict": "FAIL"
+    },
+    "AF05": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF06": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF07": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF08": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF09": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "AF10": {
+      "blocked": false,
+      "current": true,
+      "evidence": [
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "reason": "No Lab-side runs at current Forge pin; denominator accounting absent.",
+      "verdict": "UNKNOWN"
+    },
+    "AF11": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "reason": "Separate-process boundary preserved as positive; gate needs declared production topology (same bar as XMage).",
+      "verdict": "UNKNOWN"
+    }
+  },
+  "blocked_gates": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G12",
+    "G13",
+    "AF02",
+    "AF03",
+    "AF04",
+    "AF05",
+    "AF06",
+    "AF07",
+    "AF08",
+    "AF09",
+    "AF11"
+  ],
+  "candidate": "forge",
+  "evidence_classes_used": [
+    "NOT_RUN"
+  ],
+  "fail_closed_notes": [
+    "UNKNOWN/PARTIAL/NOT_RUN preserved through aggregation; nothing upgraded.",
+    "CODE_DERIVED never satisfies a runtime requirement.",
+    "Historical PASS rows survive only via retention predicates."
+  ],
+  "freeze_eligible": false,
+  "g_gates": {
+    "G00": {
+      "blocked": false,
+      "current": true,
+      "evidence": [
+        "qualification/ws226-consolidated-cpl-authority-integration/SOURCE_LOCK.json@LOCAL-WS226-"
+      ],
+      "reason": "Lab-side identity exact on WS226 combined lock.",
+      "verdict": "PASS"
+    },
+    "G01": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/aggregate/GATE_RESULTS.json@189dcfc09e74",
+        "research/project-audit/ws220/FINDINGS.json@189dcfc09e74"
+      ],
+      "reason": "No sealed domain-freshness artifact. Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    "G02": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G03": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G04": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G05": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G06": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G07": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G08": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G09": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G10": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G11": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "No Lab-side runs at current Forge pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G12": {
+      "blocked": true,
+      "current": true,
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    "G13": {
+      "blocked": true,
+      "current": true,
+      "evidence": [],
+      "reason": "Computed rollup: not all G00-G12 PASS; admission blocked.",
+      "verdict": "FAIL"
+    },
+    "G14": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "No frozen campaign contract active.",
+      "verdict": "NOT_APPLICABLE"
+    },
+    "G15": {
+      "blocked": false,
+      "current": true,
+      "evidence": [],
+      "reason": "Holdout disabled (no campaign contract).",
+      "verdict": "NOT_APPLICABLE"
+    }
+  },
+  "generated_by": "qualification/ws226-consolidated-cpl-authority-integration/standing_generator.py",
+  "open_blockers": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G11",
+    "G12",
+    "G13",
+    "AF01",
+    "AF02",
+    "AF03",
+    "AF04",
+    "AF05",
+    "AF06",
+    "AF07",
+    "AF08",
+    "AF09",
+    "AF10",
+    "AF11"
+  ],
+  "schema_version": "ws226-standing/1.0.0",
+  "source_lock": {
+    "commit": "ba3a7f0dec5220754108ceb23783158ba4944e47",
+    "repo": "moeendres-png/forge",
+    "tree": "18e3373509190fbcc8a4eb5fa6db128489ee2b77"
+  }
+}

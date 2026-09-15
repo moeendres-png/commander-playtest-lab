@@ -1,0 +1,15 @@
+{
+  "current": true,
+  "evidence": [
+    "qualification/manifests/AUTHORITY_LOCK_v2.json@LOCAL-WS226-",
+    "qualification/ws222-g01-authority-reacquisition/AUTHORITY_LOCK_v2.json@1dcfe8980338",
+    "qualification/ws222-g01-authority-reacquisition/VALIDATION.json@1dcfe8980338",
+    "qualification/ws222-g01-authority-reacquisition/artifacts/cr/CR_ACQUISITION_RECEIPT.json@1dcfe8980338",
+    "qualification/ws222-g01-authority-reacquisition/artifacts/oracle/ORACLE_ACQUISITION_RECEIPT.json@1dcfe8980338"
+  ],
+  "gate": "G01",
+  "reason": "Sealed domain-freshness artifact current (byte-exact CR + bounded official Gatherer Oracle for frozen 29 + Commander/B&R + deck legality). WS222 AUTHORITY_LOCK_v2 scoped PASS; no bulk-oracle generalization.",
+  "schema_version": "ws226-g01-status/1.0.0",
+  "verdict": "PASS",
+  "ws222_note": "WS222 may be active. WS222 AUTHORITY_LOCK_v2 consumed (scoped PASS). WS225 G01 FAIL frozen as history; WS226 G01 PASS recomputed from exact v2 trace."
+}
