@@ -25,6 +25,9 @@ release/
 # Ephemeral local runtime state
 .runtime/
 
+# XMage engine card-database bootstrap written by local JVM runs (regenerable cache)
+db/
+
 # Foundry launcher telemetry spool (sealed into evidence/docs, never committed raw)
 .foundry/metrics.jsonl
 
