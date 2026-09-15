@@ -1,0 +1,5253 @@
+{
+ "card": "Kediss, Emberclaw Familiar",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_04",
+ "player_count": 2,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 192,
+  "deck_digests": [
+   "0797c851f07e8e8e95abe650e6b99260a87ab2fe76d59c5b7b1d08a7fa3478a6",
+   "1e54a4793bfb344b8a12880a07416d25227cdb3134c0c95c5e6c0624d779fc6e"
+  ],
+  "deck_ids": [
+   "ws232-CARD_04-2p-s424242-1",
+   "ws232-CARD_04-2p-s424242-2"
+  ],
+  "elapsed_seconds": 6.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 8,
+  "focus_names": [
+   "Kediss, Emberclaw Familiar"
+  ],
+  "log": [
+   {
+    "decision_class": "choose_object",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 1,
+    "option_types": {
+     "choice": 2
+    },
+    "seat": 1,
+    "selected_types": [
+     "choice"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 2,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 3,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 4,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 5,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 6,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 1,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 7,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 2,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 8,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 9,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 10,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 1,
+    "selected_types": [
+     "target"
+    ],
+    "snapshot": {
+     "phase": null,
+     "players": [
+      {
+       "battlefield": {},
+       "command": {
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 7,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {},
+       "command": {
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": null,
+     "turn": 1
+    },
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 6,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 11,
+    "option_types": {
+     "target": 6
+    },
+    "seat": 1,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 12,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 2,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 6,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 13,
+    "option_types": {
+     "target": 6
+    },
+    "seat": 2,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 14,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "keep"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 15,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "keep"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 16,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 17,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 18,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 19,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 8,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 20,
+    "option_types": {
+     "activated_ability": 7,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {},
+       "command": {
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {},
+       "command": {
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 94,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 1
+    },
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 3,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 21,
+    "option_types": {
+     "activated_ability": 1,
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 22,
+    "option_types": {
+     "activated_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 23,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 24,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 25,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 26,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 27,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 28,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 29,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 30,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {},
+       "command": {
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 94,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "declare_attackers",
+     "turn": 1
+    },
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 31,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 32,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 33,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 34,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 35,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 36,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 37,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 38,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 39,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 40,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "beginning",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {},
+       "command": {
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "draw",
+     "turn": 2
+    },
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 41,
+    "option_types": {
+     "activated_ability": 6,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 3,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 42,
+    "option_types": {
+     "activated_ability": 1,
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 43,
+    "option_types": {
+     "activated_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 44,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 45,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 46,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 47,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 48,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 49,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 50,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "declare_attackers",
+     "turn": 2
+    },
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 51,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 52,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 53,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 54,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 55,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 56,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 57,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 58,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 59,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 60,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "beginning",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "upkeep",
+     "turn": 3
+    },
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 61,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 62,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 63,
+    "option_types": {
+     "activated_ability": 6,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 64,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 65,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 66,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 67,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 68,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "declare_attacker",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 69,
+    "option_types": {
+     "declare_attacker": 1,
+     "hold_attacker": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "declare_attacker"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 70,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "declare_attackers",
+     "turn": 3
+    },
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 71,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "declare_blocker",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 72,
+    "option_types": {
+     "declare_blocker": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "declare_blocker"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 73,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 74,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 75,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 76,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 77,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 78,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 79,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 80,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "end_combat",
+     "turn": 3
+    },
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 81,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 82,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 83,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 84,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 85,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 86,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 87,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 88,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 89,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 6,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 90,
+    "option_types": {
+     "activated_ability": 5,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 1,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 91,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 92,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 93,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 94,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 95,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "declare_attacker",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 96,
+    "option_types": {
+     "declare_attacker": 1,
+     "hold_attacker": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "declare_attacker"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 97,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 98,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 99,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 100,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "declare_blockers",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 101,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 102,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 103,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 104,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 105,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 106,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 107,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 108,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 109,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 110,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "end",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "end_turn",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 111,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 112,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 113,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 114,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 115,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 116,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 117,
+    "option_types": {
+     "activated_ability": 6,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 118,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 119,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 120,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 5
+    },
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 121,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 122,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "declare_attacker",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 123,
+    "option_types": {
+     "declare_attacker": 1,
+     "hold_attacker": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "declare_attacker"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 124,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 125,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 126,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 127,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 128,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 129,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 130,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "combat_damage",
+     "turn": 5
+    },
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 131,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 132,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 133,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 134,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 135,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 136,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 137,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 5
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 138,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 139,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 140,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "beginning",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 2,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "upkeep",
+     "turn": 6
+    },
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 141,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 142,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 143,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 6,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 144,
+    "option_types": {
+     "activated_ability": 5,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 145,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 146,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 147,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 148,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 149,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "declare_attacker",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 150,
+    "option_types": {
+     "declare_attacker": 1,
+     "hold_attacker": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "declare_attacker"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "declare_attackers",
+     "turn": 6
+    },
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 151,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 152,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 153,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 154,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 155,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 156,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 157,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 158,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 159,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 160,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "end_combat",
+     "turn": 6
+    },
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 161,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 162,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 163,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 164,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 6
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 165,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 166,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 167,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 168,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 169,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 170,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "beginning",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 90,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "draw",
+     "turn": 7
+    },
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 171,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 172,
+    "option_types": {
+     "activated_ability": 6,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 173,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 174,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 175,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 176,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 177,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "declare_attacker",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 178,
+    "option_types": {
+     "declare_attacker": 1,
+     "hold_attacker": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "declare_attacker"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 179,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 180,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 4,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 90,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "declare_attackers",
+     "turn": 7
+    },
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 181,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 182,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 183,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 184,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 185,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 186,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 187,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 188,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 189,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 190,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "postcombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Mountain": 4,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 90,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Mountain": 3,
+        "Rograkh, Son of Rohgahh": 1
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 91,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "postcombat_main",
+     "turn": 7
+    },
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 191,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 192,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 7
+   }
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 5,
+   "declare_blocker": 1,
+   "mulligan": 8,
+   "priority": 171,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_04-2p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_04_2P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

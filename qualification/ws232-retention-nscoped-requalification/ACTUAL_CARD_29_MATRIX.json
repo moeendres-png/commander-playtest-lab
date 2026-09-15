@@ -1,0 +1,1367 @@
+{
+ "cells": [
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_2P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_2P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_2P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_2P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Kediss, Emberclaw Familiar",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_04",
+   "player_count": 2,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_3P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_3P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_3P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_3P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Kediss, Emberclaw Familiar",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_04",
+   "player_count": 3,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_5P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_5P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_5P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_04_5P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Kediss, Emberclaw Familiar",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_04",
+   "player_count": 5,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 46,
+      "battlefield_arrivals": [
+       [
+        93,
+        1
+       ]
+      ],
+      "decisions": 192,
+      "final_life": [
+       39,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [
+       86
+      ],
+      "post_select_drop": 0,
+      "selects": [
+       86,
+       124,
+       146
+      ],
+      "terminal": false
+     },
+     "rationale": "engine offered, pilot selected, engine moved the actual card to the battlefield",
+     "run_id": "CARD_06_2P_seed424242",
+     "seed": 424242,
+     "verdict": "PASS"
+    }
+   ],
+   "card": "Harmonic Prodigy",
+   "cell_verdict": "PASS",
+   "fixture_id": "CARD_06",
+   "player_count": 2,
+   "run_pointer": "CARD_06_2P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_06_3P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 12,
+      "battlefield_arrivals": [
+       [
+        150,
+        0
+       ],
+       [
+        194,
+        2
+       ]
+      ],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       39
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [
+       142,
+       186
+      ],
+      "post_select_drop": 1,
+      "selects": [
+       142,
+       186,
+       239,
+       271,
+       276
+      ],
+      "terminal": false
+     },
+     "rationale": "engine offered, pilot selected, engine moved the actual card to the battlefield",
+     "run_id": "CARD_06_3P_seed777001",
+     "seed": 777001,
+     "verdict": "PASS"
+    }
+   ],
+   "card": "Harmonic Prodigy",
+   "cell_verdict": "PASS",
+   "fixture_id": "CARD_06",
+   "player_count": 3,
+   "run_pointer": "CARD_06_3P_seed777001"
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 29,
+      "battlefield_arrivals": [
+       [
+        461,
+        4
+       ]
+      ],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [
+       451
+      ],
+      "post_select_drop": 0,
+      "selects": [
+       451
+      ],
+      "terminal": false
+     },
+     "rationale": "engine offered, pilot selected, engine moved the actual card to the battlefield",
+     "run_id": "CARD_06_5P_seed424242",
+     "seed": 424242,
+     "verdict": "PASS"
+    }
+   ],
+   "card": "Harmonic Prodigy",
+   "cell_verdict": "PASS",
+   "fixture_id": "CARD_06",
+   "player_count": 5,
+   "run_pointer": "CARD_06_5P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_2P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_2P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_2P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_2P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Finale of Revelation",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_15",
+   "player_count": 2,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_3P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_3P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_3P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_3P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Finale of Revelation",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_15",
+   "player_count": 3,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_5P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_5P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_5P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_15_5P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Finale of Revelation",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_15",
+   "player_count": 5,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 149,
+      "battlefield_arrivals": [
+       [
+        48,
+        1
+       ]
+      ],
+      "decisions": 192,
+      "final_life": [
+       40,
+       38
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [
+       43
+      ],
+      "post_select_drop": 0,
+      "selects": [
+       43
+      ],
+      "terminal": false
+     },
+     "rationale": "signature not observed in bounded window",
+     "run_id": "CARD_25_2P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_2P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_2P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_2P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Basilisk Collar",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_25",
+   "player_count": 2,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       38
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_3P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       36
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_3P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       38
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_3P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       38
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_3P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Basilisk Collar",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_25",
+   "player_count": 3,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       36
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_5P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       36
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_5P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 236,
+      "battlefield_arrivals": [
+       [
+        154,
+        0
+       ],
+       [
+        252,
+        3
+       ]
+      ],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       38
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [
+       146,
+       244
+      ],
+      "post_select_drop": 0,
+      "selects": [
+       146,
+       244
+      ],
+      "terminal": false
+     },
+     "rationale": "signature not observed in bounded window",
+     "run_id": "CARD_25_5P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       34
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_25_5P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Basilisk Collar",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_25",
+   "player_count": 5,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_2P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_2P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_2P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 192,
+      "final_life": [
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_2P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Burn Down the House",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_26",
+   "player_count": 2,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_3P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_3P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_3P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 288,
+      "final_life": [
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_3P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Burn Down the House",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_26",
+   "player_count": 3,
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_5P_seed424242",
+     "seed": 424242,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_5P_seed777001",
+     "seed": 777001,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_5P_seed777002",
+     "seed": 777002,
+     "verdict": "UNKNOWN"
+    },
+    {
+     "evidence": {
+      "advance_after_select": 0,
+      "battlefield_arrivals": [],
+      "decisions": 480,
+      "final_life": [
+       40,
+       40,
+       40,
+       40,
+       40
+      ],
+      "graveyard_arrivals": [],
+      "numeric_frames": [],
+      "offers": [],
+      "post_select_drop": 0,
+      "selects": [],
+      "terminal": false
+     },
+     "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+     "run_id": "CARD_26_5P_seed777003",
+     "seed": 777003,
+     "verdict": "UNKNOWN"
+    }
+   ],
+   "card": "Burn Down the House",
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "CARD_26",
+   "player_count": 5,
+   "run_pointer": null
+  }
+ ],
+ "schema_version": "ws232-actual-card-29-matrix-1.0.0",
+ "summary": {
+  "PASS": 3,
+  "UNKNOWN": 12
+ }
+}
