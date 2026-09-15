@@ -1,0 +1,97 @@
+{
+ "TAMPER_ACTOR": {
+  "expected": "ACTOR_MISMATCH",
+  "observed": "ACTOR_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_CLASS": {
+  "expected": "DECISION_CLASS_MISMATCH",
+  "observed": "DECISION_CLASS_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_COUNT": {
+  "expected": "MALFORMED_TAPE",
+  "observed": "MALFORMED_TAPE",
+  "ok": true
+ },
+ "TAMPER_DECK": {
+  "expected": "DOMAIN_LOCK_MISMATCH",
+  "observed": "DOMAIN_LOCK_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_EVENT": {
+  "expected": "EVENT_DIGEST_MISMATCH",
+  "observed": "EVENT_DIGEST_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_EXTRA": {
+  "expected": "EARLY_TERMINATION",
+  "observed": "EXTRA_DECISION",
+  "ok": true
+ },
+ "TAMPER_LEGAL": {
+  "expected": "LEGAL_SET_MISMATCH",
+  "observed": "LEGAL_SET_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_OBSERVATION": {
+  "expected": "OBSERVATION_MISMATCH",
+  "observed": "OBSERVATION_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_OPTION_AMBIGUOUS": {
+  "expected": "CHOSEN_OPTION_AMBIGUOUS",
+  "observed": "CHOSEN_OPTION_AMBIGUOUS",
+  "ok": true
+ },
+ "TAMPER_OPTION_MISSING": {
+  "expected": "CHOSEN_OPTION_MISSING",
+  "observed": "CHOSEN_OPTION_MISSING",
+  "ok": true
+ },
+ "TAMPER_PROTOCOL": {
+  "expected": "SOURCE_LOCK_MISMATCH",
+  "observed": "SOURCE_LOCK_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_REVISION": {
+  "expected": "DECISION_REVISION_MISMATCH",
+  "observed": "DECISION_REVISION_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_RNG_CALLS": {
+  "expected": "RULES_RNG_CALL_DRIFT",
+  "observed": "RULES_RNG_CALL_DRIFT",
+  "ok": true
+ },
+ "TAMPER_RNG_RESULT": {
+  "expected": "RULES_RNG_RESULT_DRIFT",
+  "observed": "RULES_RNG_RESULT_DRIFT",
+  "ok": true
+ },
+ "TAMPER_SEED": {
+  "expected": "RULES_RNG_RESULT_DRIFT",
+  "observed": "RULES_RNG_RESULT_DRIFT",
+  "ok": true
+ },
+ "TAMPER_SOURCE": {
+  "expected": "SOURCE_LOCK_MISMATCH",
+  "observed": "SOURCE_LOCK_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_STATE": {
+  "expected": "STATE_DIGEST_MISMATCH",
+  "observed": "STATE_DIGEST_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_TERMINAL": {
+  "expected": "TERMINAL_OUTCOME_MISMATCH",
+  "observed": "TERMINAL_OUTCOME_MISMATCH",
+  "ok": true
+ },
+ "TAMPER_TRUNCATED": {
+  "expected": "MALFORMED_TAPE",
+  "observed": "EXTRA_DECISION",
+  "ok": true
+ }
+}

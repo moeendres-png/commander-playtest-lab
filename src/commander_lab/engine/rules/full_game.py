@@ -510,7 +510,7 @@ class ExternalPilotDecisionPolicy:
         if outcome in {"benefit", "benefit_to_controller"}:
             take = max_selections
         elif min_selections == 0:
-            take = 0 if all(score < 0.0 for score, _ in ranked) else 1
+            take = 0 if all(score < 0.0 for score, _label, _oid in ranked) else 1
         else:
             take = min_selections
         take = max(min_selections, min(max_selections, take))

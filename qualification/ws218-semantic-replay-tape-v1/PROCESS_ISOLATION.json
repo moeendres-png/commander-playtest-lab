@@ -1,0 +1,1 @@
+{"fresh_jvms":"4 records + 8 replays across 2P-5P, all PASS","one_game_per_process":"enforced; second create refused (live proof)","writes":"atomic tmp+replace; .incomplete on interruption, never sealed"}

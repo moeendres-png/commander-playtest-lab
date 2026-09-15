@@ -1,0 +1,1 @@
+{"digests":["internal_checkpoint_digest","public_state_digest","principal_observation_digest"],"hidden_excluded":["opponent hand arrays","opponent mana pools","library order/contents except windowed granted names"],"tape_scan":"0 raw UUIDs; no hand/mana/granted arrays in sealed tapes","version":"semantic-state-digest-1.0.0"}

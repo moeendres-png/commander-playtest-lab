@@ -1,0 +1,364 @@
+{
+ "tamper_all_fail_closed": true,
+ "tamper_matrix": {
+  "TAMPER_ACTOR": {
+   "expected": "ACTOR_MISMATCH",
+   "observed": "ACTOR_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_CLASS": {
+   "expected": "DECISION_CLASS_MISMATCH",
+   "observed": "DECISION_CLASS_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_COUNT": {
+   "expected": "MALFORMED_TAPE",
+   "observed": "MALFORMED_TAPE",
+   "ok": true
+  },
+  "TAMPER_DECK": {
+   "expected": "DOMAIN_LOCK_MISMATCH",
+   "observed": "DOMAIN_LOCK_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_EVENT": {
+   "expected": "EVENT_DIGEST_MISMATCH",
+   "observed": "EVENT_DIGEST_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_EXTRA": {
+   "expected": "EARLY_TERMINATION",
+   "observed": "EXTRA_DECISION",
+   "ok": true
+  },
+  "TAMPER_LEGAL": {
+   "expected": "LEGAL_SET_MISMATCH",
+   "observed": "LEGAL_SET_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_OBSERVATION": {
+   "expected": "OBSERVATION_MISMATCH",
+   "observed": "OBSERVATION_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_OPTION_AMBIGUOUS": {
+   "expected": "CHOSEN_OPTION_AMBIGUOUS",
+   "observed": "CHOSEN_OPTION_AMBIGUOUS",
+   "ok": true
+  },
+  "TAMPER_OPTION_MISSING": {
+   "expected": "CHOSEN_OPTION_MISSING",
+   "observed": "CHOSEN_OPTION_MISSING",
+   "ok": true
+  },
+  "TAMPER_PROTOCOL": {
+   "expected": "SOURCE_LOCK_MISMATCH",
+   "observed": "SOURCE_LOCK_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_REVISION": {
+   "expected": "DECISION_REVISION_MISMATCH",
+   "observed": "DECISION_REVISION_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_RNG_CALLS": {
+   "expected": "RULES_RNG_CALL_DRIFT",
+   "observed": "RULES_RNG_CALL_DRIFT",
+   "ok": true
+  },
+  "TAMPER_RNG_RESULT": {
+   "expected": "RULES_RNG_RESULT_DRIFT",
+   "observed": "RULES_RNG_RESULT_DRIFT",
+   "ok": true
+  },
+  "TAMPER_SEED": {
+   "expected": "RULES_RNG_RESULT_DRIFT",
+   "observed": "RULES_RNG_RESULT_DRIFT",
+   "ok": true
+  },
+  "TAMPER_SOURCE": {
+   "expected": "SOURCE_LOCK_MISMATCH",
+   "observed": "SOURCE_LOCK_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_STATE": {
+   "expected": "STATE_DIGEST_MISMATCH",
+   "observed": "STATE_DIGEST_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_TERMINAL": {
+   "expected": "TERMINAL_OUTCOME_MISMATCH",
+   "observed": "TERMINAL_OUTCOME_MISMATCH",
+   "ok": true
+  },
+  "TAMPER_TRUNCATED": {
+   "expected": "MALFORMED_TAPE",
+   "observed": "EXTRA_DECISION",
+   "ok": true
+  }
+ },
+ "tapes": {
+  "2": {
+   "decision_class_counts": {
+    "choose_object": 1,
+    "choose_use": 8,
+    "concede": 1,
+    "declare_attacker": 18,
+    "declare_blocker": 9,
+    "mana_payment": 134,
+    "mulligan": 8,
+    "multi_amount": 5,
+    "priority": 419,
+    "target": 8
+   },
+   "decision_classes": [
+    "choose_object",
+    "choose_use",
+    "concede",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "multi_amount",
+    "priority",
+    "target"
+   ],
+   "outcomes": [
+    {
+     "left": false,
+     "life": 34,
+     "lost": false,
+     "seat": 1,
+     "won": true
+    },
+    {
+     "left": true,
+     "life": 13,
+     "lost": true,
+     "seat": 2,
+     "won": false
+    }
+   ],
+   "players": 2,
+   "record_seconds": 7.4,
+   "replay_b": "PASS",
+   "replay_b_seconds": 7.2,
+   "replay_c": "PASS",
+   "replay_c_seconds": 7.3,
+   "rng_calls_initial": 196,
+   "rng_calls_terminal": 784,
+   "seed": 424242,
+   "step_kinds": {
+    "decision": 610,
+    "lifecycle_concede": 1
+   },
+   "steps": 611,
+   "tape": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-2p.json",
+   "tape_id": "6dcb5c934a70da243d188b3d4fa3cafcfc13f7b37ecbe492caf75abdd890f197"
+  },
+  "3": {
+   "decision_class_counts": {
+    "choose_object": 1,
+    "choose_use": 2,
+    "concede": 2,
+    "declare_attacker": 1,
+    "declare_blocker": 1,
+    "mana_payment": 6,
+    "mulligan": 12,
+    "priority": 121,
+    "target": 9
+   },
+   "decision_classes": [
+    "choose_object",
+    "choose_use",
+    "concede",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+   ],
+   "outcomes": [
+    {
+     "left": false,
+     "life": 40,
+     "lost": false,
+     "seat": 1,
+     "won": true
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 2,
+     "won": false
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 3,
+     "won": false
+    }
+   ],
+   "players": 3,
+   "record_seconds": 6.3,
+   "replay_b": "PASS",
+   "replay_b_seconds": 6.0,
+   "replay_c": "PASS",
+   "replay_c_seconds": 6.1,
+   "rng_calls_initial": 294,
+   "rng_calls_terminal": 1176,
+   "seed": 424242,
+   "step_kinds": {
+    "decision": 153,
+    "lifecycle_concede": 2
+   },
+   "steps": 155,
+   "tape": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-3p.json",
+   "tape_id": "e4c1c93f718a5eb617c02de954454e6b6a4160a1e1e469456a97507fa534d7b9"
+  },
+  "4": {
+   "decision_class_counts": {
+    "choose_object": 1,
+    "choose_use": 2,
+    "concede": 3,
+    "declare_attacker": 1,
+    "declare_blocker": 1,
+    "mana_payment": 12,
+    "mulligan": 16,
+    "priority": 209,
+    "target": 12
+   },
+   "decision_classes": [
+    "choose_object",
+    "choose_use",
+    "concede",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+   ],
+   "outcomes": [
+    {
+     "left": false,
+     "life": 40,
+     "lost": false,
+     "seat": 1,
+     "won": true
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 2,
+     "won": false
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 3,
+     "won": false
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 4,
+     "won": false
+    }
+   ],
+   "players": 4,
+   "record_seconds": 6.6,
+   "replay_b": "PASS",
+   "replay_b_seconds": 6.6,
+   "replay_c": "PASS",
+   "replay_c_seconds": 6.4,
+   "rng_calls_initial": 392,
+   "rng_calls_terminal": 1568,
+   "seed": 424242,
+   "step_kinds": {
+    "decision": 254,
+    "lifecycle_concede": 3
+   },
+   "steps": 257,
+   "tape": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json",
+   "tape_id": "af7966b4592ce5824884be3f85f43a39269e92355e7178bf1c20cc0b4d54f344"
+  },
+  "5": {
+   "decision_class_counts": {
+    "choose_object": 1,
+    "concede": 4,
+    "mana_payment": 6,
+    "mulligan": 20,
+    "priority": 112,
+    "target": 15
+   },
+   "decision_classes": [
+    "choose_object",
+    "concede",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+   ],
+   "outcomes": [
+    {
+     "left": false,
+     "life": 40,
+     "lost": false,
+     "seat": 1,
+     "won": true
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 2,
+     "won": false
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 3,
+     "won": false
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 4,
+     "won": false
+    },
+    {
+     "left": true,
+     "life": 40,
+     "lost": true,
+     "seat": 5,
+     "won": false
+    }
+   ],
+   "players": 5,
+   "record_seconds": 6.3,
+   "replay_b": "PASS",
+   "replay_b_seconds": 6.3,
+   "replay_c": "PASS",
+   "replay_c_seconds": 6.2,
+   "rng_calls_initial": 490,
+   "rng_calls_terminal": 1960,
+   "seed": 424242,
+   "step_kinds": {
+    "decision": 154,
+    "lifecycle_concede": 4
+   },
+   "steps": 158,
+   "tape": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-5p.json",
+   "tape_id": "a46a1df7398ddee40bdc46669df30503d2a6ea5ff934c6bc4c63a661345f7359"
+  }
+ }
+}

@@ -1,0 +1,1 @@
+{"capture_points":["initial first native decision","per-step post (next pre-state or terminal)","terminal result"],"forbidden":["zone/life/counter/damage/ledger/stack/outcome writes","snapshot restore","sa.resolve/AbilitySub substitutes"],"kind":"evidence only"}

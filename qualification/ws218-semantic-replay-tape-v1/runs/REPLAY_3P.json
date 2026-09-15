@@ -1,0 +1,63 @@
+{
+ "decision_class_counts": {
+  "choose_object": 1,
+  "choose_use": 2,
+  "concede": 2,
+  "declare_attacker": 1,
+  "declare_blocker": 1,
+  "mana_payment": 6,
+  "mulligan": 12,
+  "priority": 121,
+  "target": 9
+ },
+ "decision_classes": [
+  "choose_object",
+  "choose_use",
+  "concede",
+  "declare_attacker",
+  "declare_blocker",
+  "mana_payment",
+  "mulligan",
+  "priority",
+  "target"
+ ],
+ "outcomes": [
+  {
+   "left": false,
+   "life": 40,
+   "lost": false,
+   "seat": 1,
+   "won": true
+  },
+  {
+   "left": true,
+   "life": 40,
+   "lost": true,
+   "seat": 2,
+   "won": false
+  },
+  {
+   "left": true,
+   "life": 40,
+   "lost": true,
+   "seat": 3,
+   "won": false
+  }
+ ],
+ "players": 3,
+ "record_seconds": 6.3,
+ "replay_b": "PASS",
+ "replay_b_seconds": 6.0,
+ "replay_c": "PASS",
+ "replay_c_seconds": 6.1,
+ "rng_calls_initial": 294,
+ "rng_calls_terminal": 1176,
+ "seed": 424242,
+ "step_kinds": {
+  "decision": 153,
+  "lifecycle_concede": 2
+ },
+ "steps": 155,
+ "tape": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-3p.json",
+ "tape_id": "e4c1c93f718a5eb617c02de954454e6b6a4160a1e1e469456a97507fa534d7b9"
+}

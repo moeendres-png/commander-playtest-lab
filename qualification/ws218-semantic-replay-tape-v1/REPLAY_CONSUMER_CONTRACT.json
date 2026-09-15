@@ -1,0 +1,1 @@
+{"exactly_one":"0=>CHOSEN_OPTION_MISSING, >1=>CHOSEN_OPTION_AMBIGUOUS","forbidden":["fuzzy match","skip","missing-decision injection","requested-option filtering","second legality engine"],"fresh_process":"new JVM per replay; one game per process enforced","steps":14}

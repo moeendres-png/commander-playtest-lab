@@ -322,3 +322,23 @@ def test_every_supported_decision_class_returns_only_xmage_legal_output(
     if decision_class in {"announce_x", "amount", "multi_amount", "target_amount"}:
         assert "numeric_choice" in response
         assert context["numeric_min"] <= response["numeric_choice"] <= context["numeric_max"]
+
+
+def test_optional_neutral_target_with_multiple_options_does_not_crash() -> None:
+    """WS218 long-run guard: min==0 neutral targets rank 3-tuples (score, label, id)."""
+    options = [
+        _option(f"target-{index}", "target", f"Target {index}")
+        for index in range(3)
+    ]
+    response = _policy().decide(
+        _request(
+            "target",
+            options,
+            minimum=0,
+            maximum=2,
+            context={"outcome": "neutral"},
+        )
+    )
+    selected = response["selected_option_ids"]
+    assert set(selected).issubset({option["option_id"] for option in options})
+    assert 0 <= len(selected) <= 2
