@@ -10,7 +10,12 @@ existing runtime scope and evidence claims are unchanged by that project directi
 
 This document defines the dedicated full-game lane introduced after the B3/B4 compatibility bridge. It is deliberately separate from the older bounded JSONL bridge so that previously validated capability claims are not silently widened.
 
-Operational scope is **exactly four-player Commander**. A run in this lane is **technical conformance evidence only** until a later, separately authorized decision contract promotes a validated configuration for official deck-comparison evidence.
+Operational scope for conformance evidence in this lane is currently **four-player
+Commander** (the conformance script/workflow runs seeded 4P games; 2–5P CI expansion
+is deferred to successor S5). Lane capability is 2–5P per WS215
+(`XmageFullGameRunner`: `MIN_PLAYERS=2`, `MAX_PLAYERS=5`). A run in this lane is
+**technical conformance evidence only** until a later, separately authorized decision
+contract promotes a validated configuration for official deck-comparison evidence.
 
 ## Authority split
 
@@ -132,7 +137,7 @@ The dedicated `XMage Full Game Conformance` workflow:
 2. builds XMage and the Java bridge;
 3. runs focused Python and Java contract tests;
 4. generates versioned JSON schemas/invariant reports;
-5. runs two fresh, seeded four-player Commander games to Game Over on a synthetic technical fixture;
+5. runs two fresh, seeded four-player Commander games to Game Over on a synthetic technical fixture (current 4P conformance scope; 2–5P expansion is successor S5);
 6. verifies same-seed semantic replay;
 7. verifies the hidden-information/export boundary;
 8. writes checksums and uploads the technical evidence bundle.

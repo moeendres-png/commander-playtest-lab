@@ -249,8 +249,8 @@ class PolicyTournamentConfig:
     def __post_init__(self) -> None:
         if self.pod_sizes != (4,):
             raise ValueError(
-                "Operational Commander Playtest Lab simulations are 4-player only; "
-                "3P/5P pod sensitivity is out of project scope."
+                "Policy tournament configuration supports 4-player pods in this "
+                "Structural lane; run 2/3/5-player pods via the 2-5P full-game lane."
             )
 
 
@@ -757,8 +757,8 @@ def run_structural_self_play(
     """
     if pod_sizes != (4,):
         raise ValueError(
-            "Operational Commander Playtest Lab self-play is 4-player only; "
-            "3P/5P pod sensitivity is out of project scope."
+            "Structural self-play supports 4-player pods in this lane; "
+            "run 2/3/5-player pods via the 2-5P full-game lane."
         )
     if politics not in POLITICS_REGIMES:
         raise KeyError(f"unknown politics regime: {politics}")

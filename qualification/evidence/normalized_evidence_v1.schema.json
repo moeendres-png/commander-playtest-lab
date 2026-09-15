@@ -48,7 +48,13 @@
         "DIRECT_CODE_FAIL",
         "CODE_DERIVED",
         "SOURCE_DERIVED",
-        "NOT_RUN"
+        "NOT_RUN",
+        "DIRECTLY_VERIFIED",
+        "TECHNICALLY_CONFORMANT",
+        "EXTERNALLY_RULE_VALIDATED",
+        "MODELED",
+        "SYNTHETIC",
+        "UNKNOWN"
       ]
     },
     "fixture_id": {

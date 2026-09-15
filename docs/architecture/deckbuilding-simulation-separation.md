@@ -243,8 +243,9 @@ The prepared future scenario contract (`future-xmage-scenario-contract-1.0.0`) r
 
 - `candidate_id`
 - `deck_hash`
-- exactly three `opponent_deck_ids`
-- `player_count = 4`
+- `player_count - 1` `opponent_deck_ids` (`player_count` 2–5 per the variable-player
+  contract; the 4P primary-decision shape below uses exactly three)
+- `player_count` (2–5; shown as `4` for the primary decision shape)
 - `seat`
 - `scenario_id`
 - `seed`
@@ -254,7 +255,8 @@ The prepared future scenario contract (`future-xmage-scenario-contract-1.0.0`) r
 - `pilot_version`
 - `decision_policy_version`
 
-This is an interface contract only. No gameplay result is fabricated.
+The 4P primary-decision shape uses a player count of four with exactly three
+`opponent_deck_ids`. This is an interface contract only. No gameplay result is fabricated.
 
 ## POST-SIMULATION RACING
 

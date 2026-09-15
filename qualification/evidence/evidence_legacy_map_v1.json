@@ -1,0 +1,40 @@
+{
+  "$id": "https://commander-lab.local/schemas/evidence_legacy_map_v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "WS221 versioned legacy evidence-class mapping (read-time adaptor only; sealed artifacts are never rewritten).",
+  "map_version": "evidence-legacy-map-v1",
+  "mappings": [
+    {
+      "artifact": "qualification/ws88-xmage-integrated-successor-promotion/VALIDATION.json",
+      "field": "evidence_class",
+      "legacy_term": "RUNTIME_VERIFIED unless a gate cites a sealed historical frame",
+      "mapped_evidence_class": "RUNTIME_VERIFIED",
+      "legacy_qualified": true,
+      "note": "Dominant sealed claim is RUNTIME_VERIFIED; the trailing qualifier (historical-frame citation) is preserved here and must travel with any consumer of this row."
+    },
+    {
+      "artifact": "qualification/ws90-rqc3-corrected-first-wave-reissue/VALIDATION.json",
+      "field": "evidence_class",
+      "legacy_term": "CODE_DERIVED for semantic comparison; TECHNICALLY_CONFORMANT for authority binding where proven; DIRECTLY_VERIFIED for git-state and validator runs; NOT_RUN for behavior",
+      "mapped_aspects": {
+        "semantic_comparison": "CODE_DERIVED",
+        "authority_binding": "TECHNICALLY_CONFORMANT",
+        "git_state_and_validator_runs": "DIRECTLY_VERIFIED",
+        "behavior": "NOT_RUN"
+      },
+      "mapped_evidence_class": null,
+      "legacy_qualified": true,
+      "note": "Per-aspect breakdown; there is no single-term mapping. Consumers must select the aspect they consume, or treat the row as UNKNOWN for behavior."
+    },
+    {
+      "artifact": "qualification/ws80-xmage-callback-reachability/VALIDATION.json",
+      "field": "evidence_class",
+      "legacy_term": "CODE_DERIVED unless noted as RUNTIME_VERIFIED by the named test or regression run",
+      "mapped_evidence_class": "CODE_DERIVED",
+      "mapped_overrides": "RUNTIME_VERIFIED only for gates the seal explicitly names as covered by a test/regression run",
+      "legacy_qualified": true,
+      "note": "Default CODE_DERIVED; upgrade to RUNTIME_VERIFIED only where the seal names the covering run. Unnamed gates stay CODE_DERIVED."
+    }
+  ],
+  "policy": "Any evidence-class term absent from both evidence-vocab-v1 and this map is INVALID_UNMAPPED and must be rejected at machine joins. This map grows only by explicit versioned amendment; never by silent default."
+}
