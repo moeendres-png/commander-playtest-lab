@@ -427,6 +427,41 @@ class XmageNumericDomainWs229Test {
         assertTrue(failure.getMessage().contains("BRIDGE_PROTOCOL_ERROR"));
     }
 
+    // N-14/N-15 malformed lane: non-integer scalar submissions fail closed
+    // at transport (string) and projection (fractional), never truncated.
+    @Test
+    void malformedScalarSubmissionsRejected() throws Exception {
+        Fixture fixture = liveFixture();
+        AtomicReference<Integer> result = new AtomicReference<>();
+        Thread caller = new Thread(() -> {
+            try {
+                result.set(fixture.player.getAmount(1, 5, "choose amount", null, fixture.game));
+            } catch (Throwable ignored) {
+                // Settled by the lawful answer below.
+            }
+        });
+        caller.setDaemon(true);
+        caller.start();
+        JsonObject pending = awaitPending(fixture);
+        JsonObject text = scalarResponse(pending, pending.get("decision_id").getAsString());
+        text.addProperty("numeric_choice", "many");
+        XmageFullGameDecisionController.DecisionException textRejected = assertThrows(
+                XmageFullGameDecisionController.DecisionException.class,
+                () -> fixture.controller.submit(text));
+        assertTrue(textRejected.getMessage().contains("must be integer"));
+        JsonObject fractional = scalarResponse(pending, pending.get("decision_id").getAsString());
+        fractional.addProperty("numeric_choice", 2.5);
+        XmageFullGameDecisionController.DecisionException fractionalRejected = assertThrows(
+                XmageFullGameDecisionController.DecisionException.class,
+                () -> fixture.controller.submit(fractional));
+        assertTrue(fractionalRejected.getMessage().contains("must be integer"));
+        JsonObject lawful = scalarResponse(pending, pending.get("decision_id").getAsString());
+        lawful.addProperty("numeric_choice", 4);
+        fixture.controller.submit(lawful);
+        caller.join(30_000L);
+        assertEquals(4, result.get());
+    }
+
     // P-T1 live-callback status: UNKNOWN with exact blocker (pinned here).
     // possibleTargets for range-gated targets requires a STARTED game
     // ("game is not started, but you call hasPlayerInRange"); the minimal

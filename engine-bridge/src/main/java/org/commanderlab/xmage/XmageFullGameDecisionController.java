@@ -587,8 +587,22 @@ final class XmageFullGameDecisionController {
         if (!object.has(property) || object.get(property).isJsonNull()) {
             return null;
         }
+        // WS229: strict integer — strings, booleans, and fractionals fail
+        // closed instead of truncating (matches the projection lane).
+        JsonElement element = object.get(property);
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+            throw new DecisionException("PILOT_RESPONSE_INVALID: " + property + " must be integer");
+        }
         try {
-            return object.get(property).getAsInt();
+            double asDouble = element.getAsJsonPrimitive().getAsDouble();
+            int asInt = element.getAsJsonPrimitive().getAsInt();
+            if (asDouble != (double) asInt) {
+                throw new DecisionException(
+                        "PILOT_RESPONSE_INVALID: " + property + " must be integer");
+            }
+            return asInt;
+        } catch (DecisionException exc) {
+            throw exc;
         } catch (RuntimeException exc) {
             throw new DecisionException("PILOT_RESPONSE_INVALID: " + property + " must be integer", exc);
         }
