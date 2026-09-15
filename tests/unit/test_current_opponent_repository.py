@@ -12,8 +12,9 @@ def test_current_opponent_repository_is_single_registry_projection(repo_root) ->
     repository = CurrentOpponentRepository(repo_root)
 
     assert set(repository.current_deck_ids()) == set(registry["current"].values())
-    assert len(repository.current_deck_ids()) == 14
+    assert len(repository.current_deck_ids()) == 15
     assert "opponent/lorehold-spirit-precon" in repository.current_deck_ids()
+    assert "opponent/hosts-of-mordor-precon" in repository.current_deck_ids()
     assert "kaervek/current" in repository.current_deck_ids()
     assert set(repository.profiles()) == set(repository.current_deck_ids())
 
@@ -29,6 +30,10 @@ def test_opponent_evidence_and_frozen_kaervek_are_preserved(repo_root) -> None:
     assert records["opponent/lorehold-spirit-precon"].frozen is False
     assert "official_precon" in {
         kind.value for kind in records["opponent/lorehold-spirit-precon"].evidence_kinds
+    }
+    assert records["opponent/hosts-of-mordor-precon"].frozen is False
+    assert {"official_precon", "reported"} <= {
+        kind.value for kind in records["opponent/hosts-of-mordor-precon"].evidence_kinds
     }
     assert "partially_observed" in {
         kind.value for kind in records["opponent/morcant-elves"].evidence_kinds
