@@ -809,6 +809,35 @@ class XmageVariablePlayerLifecycleTest {
             proposal.getAsJsonObject("choices").addProperty(
                     "numeric_choice", context.get("numeric_min").getAsInt());
         }
+        if (context != null && "multi_amount".equals(decisionClass) && context.has("numeric_legs")
+                && context.get("numeric_legs").isJsonArray()) {
+            // WS229 joint frame: per-leg minimums repaired upward into the
+            // total band (deterministic joint-minimum strategy).
+            com.google.gson.JsonArray legs = context.getAsJsonArray("numeric_legs");
+            int totalMin = context.get("numeric_total_min").getAsInt();
+            java.util.List<Integer> values = new java.util.ArrayList<>();
+            int total = 0;
+            for (int index = 0; index < legs.size(); index++) {
+                int legMin = legs.get(index).getAsJsonObject().get("min").getAsInt();
+                values.add(legMin);
+                total += legMin;
+            }
+            for (int index = 0; total < totalMin; index++) {
+                int leg = index % values.size();
+                int legMax = legs.get(leg).getAsJsonObject().get("max").getAsInt();
+                if (values.get(leg) >= legMax) {
+                    if (index > values.size() * 1000) {
+                        throw new IllegalStateException("joint minimums cannot reach total band");
+                    }
+                    continue;
+                }
+                values.set(leg, values.get(leg) + 1);
+                total += 1;
+            }
+            com.google.gson.JsonArray vector = new com.google.gson.JsonArray();
+            values.forEach(vector::add);
+            proposal.getAsJsonObject("choices").add("numeric_choices", vector);
+        }
         session.submitAction(proposal);
     }
 

@@ -279,7 +279,10 @@ class Ws204DecisionKindCensusTest {
             case "announce_x", "amount", "multi_amount" -> {
                 JsonObject context = pending.getAsJsonObject("context");
                 if (!context.has("numeric_min") || !context.has("numeric_max")) {
-                    yield null;
+                    if (!("multi_amount".equals(pending.get("decision_class").getAsString())
+                            && context.has("numeric_legs"))) {
+                        yield null;
+                    }
                 }
                 if (actions.size() != 1) {
                     yield null;
@@ -289,8 +292,37 @@ class Ws204DecisionKindCensusTest {
                         "ws204-census-numeric", actorId,
                         numeric.get("action_id").getAsString(),
                         numeric.get("action_type").getAsString());
-                proposal.getAsJsonObject("choices").addProperty(
-                        "numeric_choice", context.get("numeric_min").getAsInt());
+                if (context.has("numeric_min") && context.has("numeric_max")) {
+                    proposal.getAsJsonObject("choices").addProperty(
+                            "numeric_choice", context.get("numeric_min").getAsInt());
+                } else {
+                    // WS229 joint frame: per-leg minimums repaired upward
+                    // into the total band.
+                    JsonArray legs = context.getAsJsonArray("numeric_legs");
+                    int totalMin = context.get("numeric_total_min").getAsInt();
+                    java.util.List<Integer> values = new java.util.ArrayList<>();
+                    int total = 0;
+                    for (int index = 0; index < legs.size(); index++) {
+                        int legMin = legs.get(index).getAsJsonObject().get("min").getAsInt();
+                        values.add(legMin);
+                        total += legMin;
+                    }
+                    for (int index = 0; total < totalMin; index++) {
+                        int leg = index % values.size();
+                        int legMax = legs.get(leg).getAsJsonObject().get("max").getAsInt();
+                        if (values.get(leg) >= legMax) {
+                            if (index > values.size() * 1000) {
+                                yield null;
+                            }
+                            continue;
+                        }
+                        values.set(leg, values.get(leg) + 1);
+                        total += 1;
+                    }
+                    JsonArray vector = new JsonArray();
+                    values.forEach(vector::add);
+                    proposal.getAsJsonObject("choices").add("numeric_choices", vector);
+                }
                 yield proposal;
             }
             default -> null;

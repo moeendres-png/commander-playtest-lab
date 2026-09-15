@@ -108,6 +108,15 @@ class TapeReplayStep(_Strict):
     numeric_choice: int | None = None
     numeric_min: int | None = None
     numeric_max: int | None = None
+    # WS229 joint vector extension (additive, scalar path untouched): the
+    # authoritative joint domain plus the chosen ordered vector. All five
+    # fields are None for scalar/non-numeric steps; all existing tapes keep
+    # validating because every new field defaults to None.
+    numeric_choices: tuple[int, ...] | None = None
+    numeric_legs_min: tuple[int, ...] | None = None
+    numeric_legs_max: tuple[int, ...] | None = None
+    numeric_total_min: int | None = None
+    numeric_total_max: int | None = None
     rng_calls_before: int = Field(ge=0)
     rng_calls_after: int | None = None
     event_offset_before: int = Field(ge=0)
@@ -126,6 +135,35 @@ class TapeReplayStep(_Strict):
             assert self.numeric_min is not None and self.numeric_max is not None
             if not self.numeric_min <= self.numeric_choice <= self.numeric_max:
                 raise ValueError("recorded numeric_choice outside recorded bounds")
+        vector_fields = (
+            self.numeric_choices,
+            self.numeric_legs_min,
+            self.numeric_legs_max,
+            self.numeric_total_min,
+            self.numeric_total_max,
+        )
+        vector_present = any(field is not None for field in vector_fields)
+        if vector_present and any(field is None for field in vector_fields):
+            raise ValueError("joint numeric fields must appear together")
+        if vector_present and self.numeric_choice is not None:
+            raise ValueError("a step carries either a scalar or a joint numeric choice")
+        if vector_present:
+            assert self.numeric_choices is not None
+            assert self.numeric_legs_min is not None
+            assert self.numeric_legs_max is not None
+            assert self.numeric_total_min is not None
+            assert self.numeric_total_max is not None
+            if len(self.numeric_choices) != len(self.numeric_legs_min) or len(
+                self.numeric_choices
+            ) != len(self.numeric_legs_max):
+                raise ValueError("joint numeric choice length differs from legs")
+            for value, leg_min, leg_max in zip(
+                self.numeric_choices, self.numeric_legs_min, self.numeric_legs_max, strict=True
+            ):
+                if not leg_min <= value <= leg_max:
+                    raise ValueError("recorded joint leg outside recorded bounds")
+            if not self.numeric_total_min <= sum(self.numeric_choices) <= self.numeric_total_max:
+                raise ValueError("recorded joint total outside recorded band")
         return self
 
 

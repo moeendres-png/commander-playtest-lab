@@ -21,16 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * WS213 combat damage assignment through the authoritative native
- * multi_amount seam (WS206 engine path): sequential per-message numeric
- * decisions with propagated feasibility bounds, exact range validation, and
- * fail-closed infeasible distributions. No Damage Assignment Order semantics:
- * current CR 510 distributes freely.
+ * WS229 joint multi_amount seam: ONE joint frame carries the full legs +
+ * totals domain (F-RULES-02b closed); the pilot-facing decision is a single
+ * vector validated by the exact isGoodValues projection (length, per-leg
+ * range, total band). Sequential per-leg frames are gone. No Damage
+ * Assignment Order semantics: current CR 510 distributes freely.
  */
 class XmageFullGameCombatDamageTest {
 
     @Test
-    void multiAmountGreedyMinimumStaysFeasible() throws Exception {
+    void multiAmountJointMinimumsRepairedToFeasibleBand() throws Exception {
         Fixture fixture = liveFixture();
         List<MultiAmountMessage> messages = List.of(
                 new MultiAmountMessage("damage to A", 0, 3),
@@ -38,7 +38,8 @@ class XmageFullGameCombatDamageTest {
                 new MultiAmountMessage("damage to C", 0, 3)
         );
         AtomicReference<Throwable> responderFailure = new AtomicReference<>();
-        Thread responder = answerMinimums(fixture, responderFailure);
+        AtomicReference<Integer> framesAnswered = new AtomicReference<>(0);
+        Thread responder = answerJointMinimums(fixture, responderFailure, framesAnswered);
         List<Integer> result = fixture.player.getMultiAmountWithIndividualConstraints(
                 Outcome.Neutral, messages, 4, 6, MultiAmountType.MANA, fixture.game
         );
@@ -47,6 +48,8 @@ class XmageFullGameCombatDamageTest {
         if (responderFailure.get() != null) {
             throw new IllegalStateException("responder failed", responderFailure.get());
         }
+        // Exactly one joint frame served the whole distribution.
+        assertEquals(1, framesAnswered.get());
         assertEquals(3, result.size());
         int total = result.stream().mapToInt(Integer::intValue).sum();
         assertTrue(total >= 4 && total <= 6, "total " + total + " must stay feasible");
@@ -67,34 +70,37 @@ class XmageFullGameCombatDamageTest {
         AtomicReference<Throwable> responderFailure = new AtomicReference<>();
         Thread responder = new Thread(() -> {
             try {
-                java.util.Set<String> answeredIds = new java.util.HashSet<>();
                 boolean rejectedOnce = false;
-                while (!Thread.currentThread().isInterrupted()) {
+                boolean answered = false;
+                while (!answered && !Thread.currentThread().isInterrupted()) {
                     JsonObject pending = fixture.controller.pendingDecision();
                     if (pending == null) {
                         Thread.sleep(5L);
                         continue;
                     }
                     String id = pending.get("decision_id").getAsString();
-                    if (answeredIds.contains(id)) {
-                        Thread.sleep(5L);
-                        continue;
-                    }
                     JsonObject context = pending.getAsJsonObject("context");
-                    int min = context.get("numeric_min").getAsInt();
-                    int max = context.get("numeric_max").getAsInt();
+                    JsonArray legs = context.getAsJsonArray("numeric_legs");
                     JsonObject response = new JsonObject();
                     response.addProperty("decision_id", id);
                     response.addProperty(
                             "actor_id", pending.get("actor_id").getAsString());
                     response.add("selected_option_ids", new JsonArray());
                     response.add("ordering", new JsonArray());
+                    JsonArray vector = new JsonArray();
                     boolean spoilAttempt = !rejectedOnce;
-                    response.addProperty(
-                            "numeric_choice", spoilAttempt ? max + 1 : min);
+                    for (int index = 0; index < legs.size(); index++) {
+                        JsonObject leg = legs.get(index).getAsJsonObject();
+                        int legMin = leg.get("min").getAsInt();
+                        int legMax = leg.get("max").getAsInt();
+                        // Spoil the first leg over its maximum once; the
+                        // retry answers per-leg minimums (feasible here).
+                        vector.add(spoilAttempt && index == 0 ? legMax + 1 : legMin);
+                    }
+                    response.add("numeric_choices", vector);
                     try {
                         fixture.controller.submit(response);
-                        answeredIds.add(id);
+                        answered = true;
                         if (spoilAttempt) {
                             firstRejection.set("NO_REJECTION");
                             rejectedOnce = true;
@@ -103,7 +109,7 @@ class XmageFullGameCombatDamageTest {
                         if (!rejectedOnce && exc.getMessage() != null
                                 && exc.getMessage().contains("out of range")) {
                             // Expected rejection of the over-maximum spoil;
-                            // retry the same decision with the minimum.
+                            // retry the same joint frame with minimums.
                             firstRejection.set(exc.getMessage());
                             rejectedOnce = true;
                         } else if (exc.getMessage() != null
@@ -134,7 +140,7 @@ class XmageFullGameCombatDamageTest {
         }
         assertTrue(firstRejection.get() != null
                 && firstRejection.get().contains("out of range"),
-                "over-maximum numeric must be rejected, observed: " + firstRejection.get());
+                "over-maximum joint leg must be rejected, observed: " + firstRejection.get());
         int total = result.stream().mapToInt(Integer::intValue).sum();
         assertTrue(total >= 2 && total <= 6);
     }
@@ -143,7 +149,7 @@ class XmageFullGameCombatDamageTest {
     void multiAmountInfeasibleBoundsFailClosed() {
         Fixture fixture = liveFixture();
         // Minimum sum (6) exceeds the allowed total (5): no legal distribution
-        // exists, so the seam must fail closed before parking any decision.
+        // exists, so the joint seam must fail closed before parking any decision.
         List<MultiAmountMessage> messages = List.of(
                 new MultiAmountMessage("damage to A", 3, 3),
                 new MultiAmountMessage("damage to B", 3, 3)
@@ -157,7 +163,7 @@ class XmageFullGameCombatDamageTest {
         } catch (XmageFullGameDecisionController.DecisionException exc) {
             failure = exc;
         }
-        assertTrue(failure.getMessage().contains("numeric bounds reversed"));
+        assertTrue(failure.getMessage().contains("infeasible"));
     }
 
     @Test
@@ -203,32 +209,53 @@ class XmageFullGameCombatDamageTest {
         assertEquals(3, response.get("numeric_choice").getAsInt());
     }
 
-    private static Thread answerMinimums(
-            Fixture fixture, AtomicReference<Throwable> failure) {
+    private static Thread answerJointMinimums(
+            Fixture fixture,
+            AtomicReference<Throwable> failure,
+            AtomicReference<Integer> framesAnswered) {
         Thread responder = new Thread(() -> {
             try {
-                java.util.Set<String> answeredIds = new java.util.HashSet<>();
                 int answered = 0;
-                while (answered < 16 && !Thread.currentThread().isInterrupted()) {
+                while (answered < 1 && !Thread.currentThread().isInterrupted()) {
                     JsonObject pending = fixture.controller.pendingDecision();
                     if (pending == null) {
                         Thread.sleep(5L);
                         continue;
                     }
                     String id = pending.get("decision_id").getAsString();
-                    if (answeredIds.contains(id)) {
-                        Thread.sleep(5L);
-                        continue;
-                    }
                     JsonObject context = pending.getAsJsonObject("context");
-                    int min = context.get("numeric_min").getAsInt();
+                    JsonArray legs = context.getAsJsonArray("numeric_legs");
+                    int totalMin = context.get("numeric_total_min").getAsInt();
+                    // Per-leg minimums repaired upward into the total band:
+                    // the deterministic joint-minimum strategy.
+                    List<Integer> values = new ArrayList<>();
+                    int total = 0;
+                    for (int index = 0; index < legs.size(); index++) {
+                        int legMin = legs.get(index).getAsJsonObject().get("min").getAsInt();
+                        values.add(legMin);
+                        total += legMin;
+                    }
+                    for (int index = 0; total < totalMin; index++) {
+                        int leg = index % values.size();
+                        int legMax = legs.get(leg).getAsJsonObject().get("max").getAsInt();
+                        if (values.get(leg) >= legMax) {
+                            if (index > values.size() * 1000) {
+                                throw new IllegalStateException("joint minimums cannot reach total band");
+                            }
+                            continue;
+                        }
+                        values.set(leg, values.get(leg) + 1);
+                        total += 1;
+                    }
                     JsonObject response = new JsonObject();
                     response.addProperty("decision_id", id);
                     response.addProperty(
                             "actor_id", pending.get("actor_id").getAsString());
                     response.add("selected_option_ids", new JsonArray());
                     response.add("ordering", new JsonArray());
-                    response.addProperty("numeric_choice", min);
+                    JsonArray vector = new JsonArray();
+                    values.forEach(vector::add);
+                    response.add("numeric_choices", vector);
                     try {
                         fixture.controller.submit(response);
                     } catch (XmageFullGameDecisionController.DecisionException exc) {
@@ -238,8 +265,8 @@ class XmageFullGameCombatDamageTest {
                         }
                         throw exc;
                     }
-                    answeredIds.add(id);
                     answered++;
+                    framesAnswered.set(answered);
                     Thread.sleep(5L);
                 }
             } catch (InterruptedException exc) {

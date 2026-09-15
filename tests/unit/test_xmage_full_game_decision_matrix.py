@@ -258,7 +258,15 @@ def test_attacker_choice_is_independent_of_process_local_option_ids() -> None:
             [],
             0,
             0,
-            {"outcome": "benefit", "numeric_min": 0, "numeric_max": 4},
+            {
+                "outcome": "benefit",
+                "numeric_legs": [
+                    {"min": 0, "max": 4, "prompt": "damage to A"},
+                    {"min": 0, "max": 4, "prompt": "damage to B"},
+                ],
+                "numeric_total_min": 1,
+                "numeric_total_max": 6,
+            },
         ),
         (
             "replacement_effect",
@@ -319,9 +327,20 @@ def test_every_supported_decision_class_returns_only_xmage_legal_output(
     legal = {option["option_id"] for option in options}
     assert set(selected).issubset(legal)
     assert minimum <= len(selected) <= maximum
-    if decision_class in {"announce_x", "amount", "multi_amount", "target_amount"}:
+    if decision_class in {"announce_x", "amount", "target_amount"}:
         assert "numeric_choice" in response
         assert context["numeric_min"] <= response["numeric_choice"] <= context["numeric_max"]
+    if decision_class == "multi_amount":
+        assert "numeric_choices" in response
+        legs = context["numeric_legs"]
+        assert len(response["numeric_choices"]) == len(legs)
+        for value, leg in zip(response["numeric_choices"], legs, strict=True):
+            assert leg["min"] <= value <= leg["max"]
+        assert (
+            context["numeric_total_min"]
+            <= sum(response["numeric_choices"])
+            <= context["numeric_total_max"]
+        )
 
 
 def test_optional_neutral_target_with_multiple_options_does_not_crash() -> None:

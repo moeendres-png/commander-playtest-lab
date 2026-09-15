@@ -308,6 +308,38 @@ def replay_tape(
                     DivergenceClass.DECISION_CLASS_MISMATCH,
                     f"step {step.sequence}: numeric bounds differ",
                 )
+            # WS229: joint legs/totals must match authoritatively before use.
+            joint_recorded = (
+                step.numeric_choices is not None
+                or step.numeric_legs_min is not None
+                or step.numeric_legs_max is not None
+                or step.numeric_total_min is not None
+                or step.numeric_total_max is not None
+            )
+            native_legs = context.get("numeric_legs")
+            if joint_recorded or isinstance(native_legs, list):
+                if not isinstance(native_legs, list):
+                    raise ReplayDivergence(
+                        DivergenceClass.DECISION_CLASS_MISMATCH,
+                        f"step {step.sequence}: joint legs absent natively",
+                    )
+                native_mins = tuple(
+                    leg.get("min") for leg in native_legs if isinstance(leg, dict)
+                )
+                native_maxs = tuple(
+                    leg.get("max") for leg in native_legs if isinstance(leg, dict)
+                )
+                if (
+                    len(native_mins) != len(native_legs)
+                    or native_mins != step.numeric_legs_min
+                    or native_maxs != step.numeric_legs_max
+                    or context.get("numeric_total_min") != step.numeric_total_min
+                    or context.get("numeric_total_max") != step.numeric_total_max
+                ):
+                    raise ReplayDivergence(
+                        DivergenceClass.DECISION_CLASS_MISMATCH,
+                        f"step {step.sequence}: joint numeric domain differs",
+                    )
             # Resolve recorded semantic choice to EXACTLY ONE native option.
             mapping = seat_map_from_pilot_state(native_state)
             index = build_object_index(native_state, mapping)
@@ -359,6 +391,8 @@ def replay_tape(
             }
             if step.numeric_choice is not None:
                 response["numeric_choice"] = step.numeric_choice
+            if step.numeric_choices is not None:
+                response["numeric_choices"] = list(step.numeric_choices)
             status_next = client.request(
                 "submit_full_game_decision", {"response": response}
             )
@@ -399,6 +433,7 @@ def replay_tape(
                 actor_principal=step.actor_principal,
                 selected_fingerprints=tuple(step.selected_fingerprints),
                 numeric_choice=step.numeric_choice,
+                numeric_choices=step.numeric_choices,
                 rng_calls_before=step.rng_calls_before,
                 rng_calls_after=step.rng_calls_after,
                 turn_before=int(status.get("turn_number", 1)),

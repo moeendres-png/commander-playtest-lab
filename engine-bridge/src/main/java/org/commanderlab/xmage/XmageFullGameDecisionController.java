@@ -35,7 +35,8 @@ final class XmageFullGameDecisionController {
             String actorId,
             List<String> selectedOptionIds,
             List<String> ordering,
-            Integer numericChoice
+            Integer numericChoice,
+            List<Integer> numericChoices
     ) {
     }
 
@@ -223,6 +224,12 @@ final class XmageFullGameDecisionController {
         List<String> selected = stringArray(submitted, "selected_option_ids");
         List<String> ordering = stringArray(submitted, "ordering");
         Integer numeric = optionalInteger(submitted, "numeric_choice");
+        List<Integer> numerics = optionalIntegerArray(submitted, "numeric_choices");
+        if (numeric != null && numerics != null) {
+            throw new DecisionException(
+                    "PILOT_RESPONSE_INVALID: numeric_choice and numeric_choices are mutually exclusive"
+            );
+        }
 
         int min = pendingRequest.get("minimum_selections").getAsInt();
         int max = pendingRequest.get("maximum_selections").getAsInt();
@@ -261,6 +268,21 @@ final class XmageFullGameDecisionController {
             if (numeric < numericMin || numeric > numericMax) {
                 throw new DecisionException("PILOT_RESPONSE_INVALID: numeric choice out of range");
             }
+        } else if (numeric != null) {
+            // WS229 N-22 transport lane: a scalar number where no bounds
+            // were authorized is schema confusion and fails closed.
+            throw new DecisionException(
+                    "PILOT_RESPONSE_INVALID: numeric_choice not authorized by decision schema"
+            );
+        }
+
+        // WS229 joint vector transport: the pending joint frame carries its
+        // own authoritative legs/totals (emitted by the native callback
+        // owner). The controller enforces the exact isGoodValues projection
+        // — length, per-leg membership, total band — mirroring the scalar
+        // range check above. It invents no bounds.
+        if (numerics != null) {
+            requireJointVector(numerics, context);
         }
 
         response = new DecisionResponse(
@@ -268,9 +290,10 @@ final class XmageFullGameDecisionController {
                 actorId,
                 List.copyOf(selected),
                 List.copyOf(ordering),
-                numeric
+                numeric,
+                numerics == null ? null : List.copyOf(numerics)
         );
-        recordDecisionAccepted(pendingRequest, selected, numeric);
+        recordDecisionAccepted(pendingRequest, selected, numeric, numerics);
         notifyAll();
     }
 
@@ -301,8 +324,7 @@ final class XmageFullGameDecisionController {
         return decisionOffset;
     }
 
-    private void recordDecisionRequested(JsonObject request) {
-        JsonObject event = new JsonObject();
+    private void recordDecisionRequested(JsonObject request) {        JsonObject event = new JsonObject();
         event.addProperty("sequence", transcript.size() + 1L);
         event.addProperty("kind", "decision_requested");
         event.addProperty("decision_class", request.get("decision_class").getAsString());
@@ -331,7 +353,8 @@ final class XmageFullGameDecisionController {
     private void recordDecisionAccepted(
             JsonObject request,
             List<String> selected,
-            Integer numeric
+            Integer numeric,
+            List<Integer> numerics
     ) {
         JsonObject event = new JsonObject();
         event.addProperty("sequence", transcript.size() + 1L);
@@ -365,7 +388,96 @@ final class XmageFullGameDecisionController {
         } else {
             event.addProperty("numeric_choice", numeric);
         }
+        if (numerics == null) {
+            event.add("numeric_choices", JsonNull.INSTANCE);
+        } else {
+            JsonArray vector = new JsonArray();
+            numerics.forEach(vector::add);
+            event.add("numeric_choices", vector);
+        }
         transcript.add(event);
+    }
+
+    /**
+     * WS229 F-RULES-03 disposition: logged forced-move record for native
+     * auto-submits with no pilot discretion (single-offer ability choice).
+     * Observable in the session transcript; never a pilot decision.
+     */
+    synchronized void recordForcedMove(String decisionClass, String prompt, String detail) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("decision_class", decisionClass == null ? "" : decisionClass);
+        payload.addProperty("prompt", prompt == null ? "" : prompt);
+        payload.addProperty("detail", detail == null ? "" : detail);
+        recordTranscript("forced_move", payload);
+    }
+
+    /**
+     * WS229 joint isGoodValues projection for transport validation.
+     * Bounds come verbatim from the pending frame's own context; a vector
+     * on a frame without joint legs is schema confusion and fails closed.
+     */
+    static void requireJointVector(List<Integer> vector, JsonObject context) {
+        if (context == null
+                || !context.has("numeric_legs")
+                || !context.get("numeric_legs").isJsonArray()) {
+            throw new DecisionException(
+                    "PILOT_RESPONSE_INVALID: numeric_choices not authorized by decision schema"
+            );
+        }
+        JsonArray legs = context.getAsJsonArray("numeric_legs");
+        if (!context.has("numeric_total_min")
+                || !context.has("numeric_total_max")) {
+            throw new DecisionException(
+                    "BRIDGE_PROTOCOL_ERROR: joint frame is missing its total band"
+            );
+        }
+        int totalMin;
+        int totalMax;
+        try {
+            totalMin = context.get("numeric_total_min").getAsInt();
+            totalMax = context.get("numeric_total_max").getAsInt();
+        } catch (RuntimeException exc) {
+            throw new DecisionException(
+                    "BRIDGE_PROTOCOL_ERROR: joint frame total band is malformed", exc);
+        }
+        if (vector.size() != legs.size()) {
+            throw new DecisionException(
+                    "PILOT_RESPONSE_INVALID: joint vector length " + vector.size()
+                            + " differs from legs " + legs.size()
+            );
+        }
+        int total = 0;
+        for (int index = 0; index < legs.size(); index++) {
+            JsonElement legElement = legs.get(index);
+            if (!legElement.isJsonObject()) {
+                throw new DecisionException(
+                        "BRIDGE_PROTOCOL_ERROR: joint frame leg " + index + " is malformed");
+            }
+            JsonObject leg = legElement.getAsJsonObject();
+            int legMin;
+            int legMax;
+            try {
+                legMin = leg.get("min").getAsInt();
+                legMax = leg.get("max").getAsInt();
+            } catch (RuntimeException exc) {
+                throw new DecisionException(
+                        "BRIDGE_PROTOCOL_ERROR: joint frame leg " + index + " is malformed", exc);
+            }
+            int value = vector.get(index);
+            if (value < legMin || value > legMax) {
+                throw new DecisionException(
+                        "PILOT_RESPONSE_INVALID: joint leg " + index + " value " + value
+                                + " out of range " + legMin + ".." + legMax
+                );
+            }
+            total += value;
+        }
+        if (total < totalMin || total > totalMax) {
+            throw new DecisionException(
+                    "PILOT_RESPONSE_INVALID: joint total " + total
+                            + " outside " + totalMin + ".." + totalMax
+            );
+        }
     }
 
     private void recordFailure(String message) {
@@ -480,5 +592,36 @@ final class XmageFullGameDecisionController {
         } catch (RuntimeException exc) {
             throw new DecisionException("PILOT_RESPONSE_INVALID: " + property + " must be integer", exc);
         }
+    }
+
+    private static List<Integer> optionalIntegerArray(JsonObject object, String property) {
+        if (!object.has(property) || object.get(property).isJsonNull()) {
+            return null;
+        }
+        if (!object.get(property).isJsonArray()) {
+            throw new DecisionException("PILOT_RESPONSE_INVALID: " + property + " must be an array");
+        }
+        List<Integer> values = new ArrayList<>();
+        for (JsonElement element : object.getAsJsonArray(property)) {
+            if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+                throw new DecisionException(
+                        "PILOT_RESPONSE_INVALID: non-integer element in " + property);
+            }
+            try {
+                double asDouble = element.getAsJsonPrimitive().getAsDouble();
+                int asInt = element.getAsJsonPrimitive().getAsInt();
+                if (asDouble != (double) asInt) {
+                    throw new DecisionException(
+                            "PILOT_RESPONSE_INVALID: non-integer element in " + property);
+                }
+                values.add(asInt);
+            } catch (DecisionException exc) {
+                throw exc;
+            } catch (RuntimeException exc) {
+                throw new DecisionException(
+                        "PILOT_RESPONSE_INVALID: non-integer element in " + property, exc);
+            }
+        }
+        return values;
     }
 }

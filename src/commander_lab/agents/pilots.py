@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import math
 import random
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import Any
 
 from commander_lab.models import (
     CardRole,
@@ -107,6 +108,156 @@ _GENERIC_WEIGHTS: dict[PilotStrength, PilotUtilityWeights] = {
 def _package_ids(action: PilotActionView) -> frozenset[str]:
     raw = action.metadata.get("package_ids", "")
     return frozenset(part for part in str(raw).split("|") if part)
+
+
+# --- WS229 range-native numeric strategy (WS228 Design B) ----------------------
+#
+# The Rules Core alone defines legal numeric domains. The Lab projects the
+# Core-supplied bounds verbatim into a descriptor; the pilot chooses a
+# strategy WITHIN that domain; Lab-side membership validation plus native
+# submission remain the legality authority. These helpers implement pilot
+# strategy only: they never decide legality, never clamp foreign values,
+# and never fall back. Out-of-domain results fail closed in the Lab.
+#
+# Scalar descriptor shape (provider-neutral, ints only):
+#   {"kind": "contiguous_inclusive_int", "min": int, "max": int,
+#    "outcome": str, "prompt": str}
+# Joint vector descriptor shape:
+#   {"kind": "joint_bounded_int_vector",
+#    "legs": [{"min": int, "max": int, "prompt": str}, ...],
+#    "total_min": int, "total_max": int, "outcome": str}
+
+
+def _numeric_bias(outcome: object) -> int:
+    text = str(outcome or "neutral").casefold()
+    if text in {"benefit", "benefit_to_controller"}:
+        return 1
+    if text in {"detriment", "detriment_to_controller"}:
+        return -1
+    return 0
+
+
+def deterministic_number(domain: Mapping[str, Any]) -> int:
+    """Outcome-aligned scalar strategy: extreme toward benefit, midpoint when neutral."""
+    minimum = int(domain["min"])
+    maximum = int(domain["max"])
+    bias = _numeric_bias(domain.get("outcome", "neutral"))
+    if bias > 0:
+        return maximum
+    if bias < 0:
+        return minimum
+    return minimum + (maximum - minimum) // 2
+
+
+def stochastic_number(domain: Mapping[str, Any], rng: random.Random) -> int:
+    """Seeded scalar strategy: uniform draw inside the authoritative domain."""
+    return rng.randint(int(domain["min"]), int(domain["max"]))
+
+
+def _repair_vector_to_band(
+    values: list[int],
+    legs: list[Mapping[str, Any]],
+    total_min: int,
+    total_max: int,
+) -> list[int]:
+    """Deterministic greedy repair of a strategy vector toward the total band.
+
+    Strategy-side shaping only: the Lab still validates length, per-leg
+    membership, and the total band, and fails closed on any violation.
+    An empty domain (no feasible vector) is returned unrepaired so the
+    Lab fails closed instead of masking it.
+    """
+    repaired = list(values)
+    try:
+        spans = [int(leg["max"]) - int(leg["min"]) for leg in legs]
+    except (KeyError, TypeError, ValueError):
+        return repaired
+    # Every iteration moves one leg one step toward the band; the span sum
+    # plus one bounds every repairable case, so the loop always terminates.
+    for _ in range(sum(span for span in spans if span > 0) + len(repaired) + 1):
+        total = sum(repaired)
+        if total_min <= total <= total_max:
+            return repaired
+        if total > total_max:
+            moved = False
+            for index in range(len(repaired) - 1, -1, -1):
+                if repaired[index] > int(legs[index]["min"]):
+                    repaired[index] -= 1
+                    moved = True
+                    break
+            if not moved:
+                return repaired
+        else:
+            moved = False
+            for index, leg in enumerate(legs):
+                if repaired[index] < int(leg["max"]):
+                    repaired[index] += 1
+                    moved = True
+                    break
+            if not moved:
+                return repaired
+    return repaired
+
+
+def deterministic_numbers(domain: Mapping[str, Any]) -> list[int]:
+    """Outcome-aligned joint strategy: per-leg extremes, then band repair."""
+    raw_legs = domain["legs"]
+    legs = list(raw_legs) if isinstance(raw_legs, list) else list(tuple(raw_legs))
+    bias = _numeric_bias(domain.get("outcome", "neutral"))
+    values = []
+    for leg in legs:
+        leg_min = int(leg["min"])
+        leg_max = int(leg["max"])
+        if bias > 0:
+            values.append(leg_max)
+        elif bias < 0:
+            values.append(leg_min)
+        else:
+            values.append(leg_min + (leg_max - leg_min) // 2)
+    return _repair_vector_to_band(
+        values, legs, int(domain["total_min"]), int(domain["total_max"])
+    )
+
+
+def stochastic_numbers(domain: Mapping[str, Any], rng: random.Random) -> list[int]:
+    """Seeded joint strategy: per-leg uniform draws, then band repair."""
+    raw_legs = domain["legs"]
+    legs = list(raw_legs) if isinstance(raw_legs, list) else list(tuple(raw_legs))
+    values = [rng.randint(int(leg["min"]), int(leg["max"])) for leg in legs]
+    return _repair_vector_to_band(
+        values, legs, int(domain["total_min"]), int(domain["total_max"])
+    )
+
+
+class _NumericStrategyMixin:
+    """Concrete-pilot numeric strategy (WS229 Design B).
+
+    Mixed into every direct BasePilot subclass so each concrete pilot
+    chooses strategy inside the authoritative domain. BasePilot itself
+    keeps fail-closed raising defaults and never reaches this code.
+    """
+
+    def choose_number(
+        self,
+        state: PilotStateView,
+        domain: Mapping[str, Any],
+        rng: random.Random,
+    ) -> int:
+        del state
+        if self.config.mode == PilotDecisionMode.DETERMINISTIC:
+            return deterministic_number(domain)
+        return stochastic_number(domain, rng)
+
+    def choose_numbers(
+        self,
+        state: PilotStateView,
+        domain: Mapping[str, Any],
+        rng: random.Random,
+    ) -> list[int]:
+        del state
+        if self.config.mode == PilotDecisionMode.DETERMINISTIC:
+            return deterministic_numbers(domain)
+        return stochastic_numbers(domain, rng)
 
 
 class BasePilot:
@@ -318,6 +469,39 @@ class BasePilot:
         rng: random.Random,
     ) -> PilotDecision:
         return self.choose_action(state, actions, rng)
+
+    def choose_number(
+        self,
+        state: PilotStateView,
+        domain: Mapping[str, Any],
+        rng: random.Random,
+    ) -> int:
+        """Return one integer inside the authoritative scalar domain.
+
+        BasePilot carries no numeric strategy: fail closed so an
+        unconfigured pilot can never silently default a Rules decision.
+        Concrete pilots implement strategy via _NumericStrategyMixin.
+        """
+        del state, domain, rng
+        raise NotImplementedError(
+            "BasePilot has no numeric strategy; use a concrete pilot"
+        )
+
+    def choose_numbers(
+        self,
+        state: PilotStateView,
+        domain: Mapping[str, Any],
+        rng: random.Random,
+    ) -> list[int]:
+        """Return one joint integer vector inside the authoritative legs/totals.
+
+        BasePilot carries no numeric strategy: fail closed. Concrete
+        pilots implement strategy via _NumericStrategyMixin.
+        """
+        del state, domain, rng
+        raise NotImplementedError(
+            "BasePilot has no joint numeric strategy; use a concrete pilot"
+        )
 
     def specialist_bonus(
         self,
@@ -608,7 +792,7 @@ class BasePilot:
         return exp / (1.0 + exp)
 
 
-class KorvoldPilot(BasePilot):
+class KorvoldPilot(_NumericStrategyMixin, BasePilot):
     pilot_name = "KorvoldPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -768,7 +952,7 @@ class KorvoldPilot(BasePilot):
         return bonus
 
 
-class RogShaiPilot(BasePilot):
+class RogShaiPilot(_NumericStrategyMixin, BasePilot):
     pilot_name = "RogShaiPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1309,7 +1493,7 @@ class RogShaiProtectedFinishPilot(RogShaiPilot):
         return bonus
 
 
-class AggroPilot(BasePilot):
+class AggroPilot(_NumericStrategyMixin, BasePilot):
     pilot_name = "AggroPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1322,7 +1506,7 @@ class AggroPilot(BasePilot):
         return PilotUtilityWeights(**base)
 
 
-class ControlPilot(BasePilot):
+class ControlPilot(_NumericStrategyMixin, BasePilot):
     pilot_name = "ControlPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1335,7 +1519,7 @@ class ControlPilot(BasePilot):
         return PilotUtilityWeights(**base)
 
 
-class EnginePilot(BasePilot):
+class EnginePilot(_NumericStrategyMixin, BasePilot):
     pilot_name = "EnginePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1356,7 +1540,7 @@ class ArtifactPilot(EnginePilot):
     pilot_name = "ArtifactPilot"
 
 
-class GenericCommanderPilot(BasePilot):
+class GenericCommanderPilot(_NumericStrategyMixin, BasePilot):
     pilot_name = "GenericCommanderPilot"
 
 

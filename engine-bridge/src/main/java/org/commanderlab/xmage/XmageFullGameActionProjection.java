@@ -39,7 +39,8 @@ import java.util.UUID;
  *       {@code available_option_ids}).</li>
  *   <li>{@code ActionProposal.choices} may carry only
  *       {@code decision_id}, {@code decision_offset},
- *       {@code selected_option_ids}, {@code ordering}, {@code numeric_choice}.
+ *       {@code selected_option_ids}, {@code ordering}, {@code numeric_choice},
+ *       {@code numeric_choices} (joint vector lane only).
  *       Any other key is rejected. {@code target_ids} and
  *       {@code selected_modes} must remain empty: mode/target selection travels
  *       exclusively through the decision-bound {@code legal_action_id} plus
@@ -61,7 +62,8 @@ final class XmageFullGameActionProjection {
             "decision_offset",
             "selected_option_ids",
             "ordering",
-            "numeric_choice"
+            "numeric_choice",
+            "numeric_choices"
     );
 
     private XmageFullGameActionProjection() {
@@ -104,7 +106,8 @@ final class XmageFullGameActionProjection {
 
         JsonArray actions = new JsonArray();
         if (legalOptions.size() == 0) {
-            if (!context.has("numeric_min") || !context.has("numeric_max")) {
+            if ((!context.has("numeric_min") || !context.has("numeric_max"))
+                    && !hasJointLegs(context)) {
                 return actions;
             }
             actions.add(numericAction(
@@ -228,6 +231,7 @@ final class XmageFullGameActionProjection {
         }
         boolean numericOnly = offeredById.isEmpty()
                 && context.has("numeric_min") && context.has("numeric_max");
+        boolean jointOnly = offeredById.isEmpty() && hasJointLegs(context);
 
         String legalActionId = proposal.has("legal_action_id") && !proposal.get("legal_action_id").isJsonNull()
                 ? proposal.get("legal_action_id").getAsString().trim() : "";
@@ -309,10 +313,16 @@ final class XmageFullGameActionProjection {
         Integer numericChoice = null;
         if (choices.has("numeric_choice") && !choices.get("numeric_choice").isJsonNull()) {
             try {
-                numericChoice = choices.get("numeric_choice").getAsInt();
+                numericChoice = strictInt(choices.get("numeric_choice"));
             } catch (RuntimeException exc) {
                 throw new ProjectionException("PILOT_RESPONSE_INVALID: numeric_choice must be integer");
             }
+        }
+        List<Integer> numericChoices = optionalIntegerArray(choices);
+        if (numericChoice != null && numericChoices != null) {
+            throw new ProjectionException(
+                    "PILOT_RESPONSE_INVALID: numeric_choice and numeric_choices are mutually exclusive"
+            );
         }
         if (hasNumericBounds) {
             int numericMin = context.get("numeric_min").getAsInt();
@@ -335,10 +345,61 @@ final class XmageFullGameActionProjection {
                     );
                 }
             }
+            if (numericChoices != null) {
+                throw new ProjectionException(
+                        "PILOT_RESPONSE_INVALID: numeric_choices not authorized by decision schema"
+                );
+            }
         } else if (numericChoice != null) {
             throw new ProjectionException(
                     "PILOT_RESPONSE_INVALID: numeric_choice not authorized by decision schema"
             );
+        }
+        // WS229 joint vector lane: the joint frame authorizes numeric_choices
+        // only. A scalar numeric_choice on a joint frame is schema confusion.
+        if (hasJointLegs(context)) {
+            if (numericChoices == null) {
+                throw new ProjectionException(
+                        "PILOT_RESPONSE_INVALID: joint numeric choices required for "
+                                + decisionClass
+                );
+            }
+            validateJointVector(numericChoices, context);
+        } else if (numericChoices != null) {
+            throw new ProjectionException(
+                    "PILOT_RESPONSE_INVALID: numeric_choices not authorized by decision schema"
+            );
+        }
+
+        if (jointOnly) {
+            if (legalActionId.isBlank()) {
+                throw new ProjectionException("PILOT_RESPONSE_INVALID: legal_action_id is required");
+            }
+            String[] parts = splitActionId(legalActionId);
+            if (!decisionId.equals(parts[0])) {
+                throw new ProjectionException("STALE_DECISION: expected " + decisionId);
+            }
+            if (!NUMERIC_SUFFIX.equals(parts[1])) {
+                throw new ProjectionException("ILLEGAL_ACTION: option not offered by XMage: " + parts[1]);
+            }
+            String proposalType = proposal.has("action_type") && !proposal.get("action_type").isJsonNull()
+                    ? proposal.get("action_type").getAsString().trim() : "";
+            if (!"structural_decision".equals(proposalType)) {
+                throw new ProjectionException("ACTION_TYPE_MISMATCH: numeric decision requires structural_decision");
+            }
+            if (!ordering.isEmpty()) {
+                throw new ProjectionException("PILOT_RESPONSE_INVALID: ordering not authorized here");
+            }
+            JsonObject response = new JsonObject();
+            response.addProperty("decision_id", decisionId);
+            response.addProperty("actor_id", actorId);
+            response.add("selected_option_ids", new JsonArray());
+            response.add("ordering", new JsonArray());
+            response.add("numeric_choice", JsonNull.INSTANCE);
+            JsonArray vector = new JsonArray();
+            numericChoices.forEach(vector::add);
+            response.add("numeric_choices", vector);
+            return response;
         }
 
         if (numericOnly) {
@@ -566,13 +627,108 @@ final class XmageFullGameActionProjection {
         return "structural_decision";
     }
 
-    private static boolean requiresNumeric(String decisionClass) {
+        private static boolean requiresNumeric(String decisionClass) {
         return "announce_x".equals(decisionClass)
                 || "amount".equals(decisionClass)
                 || "multi_amount".equals(decisionClass);
     }
 
-    private static boolean isTargetLike(String decisionClass) {
+    /** WS229: a joint frame carries its authoritative legs as a context array. */
+    private static boolean hasJointLegs(JsonObject context) {
+        return context != null
+                && context.has("numeric_legs")
+                && context.get("numeric_legs").isJsonArray();
+    }
+
+    /** WS229: strict integer — strings, booleans, and fractionals fail closed. */
+    private static int strictInt(JsonElement element) {
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
+            throw new ProjectionException("not an integer");
+        }
+        double asDouble = element.getAsJsonPrimitive().getAsDouble();
+        int asInt = element.getAsJsonPrimitive().getAsInt();
+        if (asDouble != (double) asInt) {
+            throw new ProjectionException("not an integer");
+        }
+        return asInt;
+    }
+
+    /** WS229: strict integer array for the joint vector lane. */
+    private static List<Integer> optionalIntegerArray(JsonObject choices) {
+        if (!choices.has("numeric_choices") || choices.get("numeric_choices").isJsonNull()) {
+            return null;
+        }
+        if (!choices.get("numeric_choices").isJsonArray()) {
+            throw new ProjectionException("PILOT_RESPONSE_INVALID: numeric_choices must be an array");
+        }
+        List<Integer> values = new ArrayList<>();
+        for (JsonElement element : choices.getAsJsonArray("numeric_choices")) {
+            try {
+                values.add(strictInt(element));
+            } catch (ProjectionException exc) {
+                throw new ProjectionException(
+                        "PILOT_RESPONSE_INVALID: non-integer element in numeric_choices");
+            }
+        }
+        return values;
+    }
+
+    /**
+     * WS229 joint isGoodValues projection for the generic-submission lane.
+     * Mirrors the controller transport check: exact length, per-leg
+     * membership, total band. Bounds come verbatim from the pending frame.
+     */
+    private static void validateJointVector(List<Integer> vector, JsonObject context) {
+        JsonArray legs = context.getAsJsonArray("numeric_legs");
+        if (!context.has("numeric_total_min") || !context.has("numeric_total_max")) {
+            throw new ProjectionException(
+                    "BRIDGE_PROTOCOL_ERROR: joint frame is missing its total band");
+        }
+        int totalMin;
+        int totalMax;
+        try {
+            totalMin = strictInt(context.get("numeric_total_min"));
+            totalMax = strictInt(context.get("numeric_total_max"));
+        } catch (ProjectionException exc) {
+            throw new ProjectionException(
+                    "BRIDGE_PROTOCOL_ERROR: joint frame total band is malformed");
+        }
+        if (vector.size() != legs.size()) {
+            throw new ProjectionException(
+                    "PILOT_RESPONSE_INVALID: joint vector length " + vector.size()
+                            + " differs from legs " + legs.size());
+        }
+        int total = 0;
+        for (int index = 0; index < legs.size(); index++) {
+            JsonElement legElement = legs.get(index);
+            if (!legElement.isJsonObject()) {
+                throw new ProjectionException(
+                        "BRIDGE_PROTOCOL_ERROR: joint frame leg " + index + " is malformed");
+            }
+            JsonObject leg = legElement.getAsJsonObject();
+            int legMin;
+            int legMax;
+            try {
+                legMin = strictInt(leg.get("min"));
+                legMax = strictInt(leg.get("max"));
+            } catch (RuntimeException exc) {
+                throw new ProjectionException(
+                        "BRIDGE_PROTOCOL_ERROR: joint frame leg " + index + " is malformed");
+            }
+            int value = vector.get(index);
+            if (value < legMin || value > legMax) {
+                throw new ProjectionException(
+                        "PILOT_RESPONSE_INVALID: joint leg " + index + " value " + value
+                                + " out of range " + legMin + ".." + legMax);
+            }
+            total += value;
+        }
+        if (total < totalMin || total > totalMax) {
+            throw new ProjectionException(
+                    "PILOT_RESPONSE_INVALID: joint total " + total
+                            + " outside " + totalMin + ".." + totalMax);
+        }
+    }    private static boolean isTargetLike(String decisionClass) {
         return "target".equals(decisionClass)
                 || "choose_object".equals(decisionClass)
                 || "target_amount".equals(decisionClass)
@@ -660,6 +816,25 @@ final class XmageFullGameActionProjection {
         if (context.has("numeric_max") && !context.get("numeric_max").isJsonNull()) {
             try {
                 schema.addProperty("numeric_max", context.get("numeric_max").getAsInt());
+            } catch (RuntimeException ignored) {
+                // Descriptive only.
+            }
+        }
+        // WS229: joint domain described verbatim (descriptive only; range
+        // validation reads the pending context).
+        if (hasJointLegs(context)) {
+            schema.add("numeric_legs", context.getAsJsonArray("numeric_legs").deepCopy());
+        }
+        if (context.has("numeric_total_min") && !context.get("numeric_total_min").isJsonNull()) {
+            try {
+                schema.addProperty("numeric_total_min", context.get("numeric_total_min").getAsInt());
+            } catch (RuntimeException ignored) {
+                // Descriptive only.
+            }
+        }
+        if (context.has("numeric_total_max") && !context.get("numeric_total_max").isJsonNull()) {
+            try {
+                schema.addProperty("numeric_total_max", context.get("numeric_total_max").getAsInt());
             } catch (RuntimeException ignored) {
                 // Descriptive only.
             }

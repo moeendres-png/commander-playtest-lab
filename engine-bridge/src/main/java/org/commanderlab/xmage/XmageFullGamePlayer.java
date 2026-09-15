@@ -115,7 +115,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .sorted(Comparator.comparing(this::abilitySortKey))
                 .toList();
         if (legal.size() == 1) {
-            return legal.get(0);
+            // WS229 F-RULES-03 disposition: no discretion exists with one
+            // lawful ability, so the forced move auto-submits with a logged
+            // forced-move record instead of bypassing pilot+transcript silently.
+            SpellAbility only = legal.get(0);
+            decisionController.recordForcedMove(
+                    "choice",
+                    "Choose how to cast " + card.getName(),
+                    "single castable ability: " + abilityLabel(only, game)
+            );
+            return only;
         }
 
         JsonArray options = new JsonArray();
@@ -181,7 +190,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .sorted(Comparator.comparing(this::abilitySortKey))
                 .toList();
         if (legal.size() == 1) {
-            return legal.get(0);
+            // WS229 F-RULES-03 disposition: single lawful ability, logged
+            // forced move (see chooseAbilityForCast).
+            ActivatedAbility only = legal.get(0);
+            decisionController.recordForcedMove(
+                    "choice",
+                    "Choose land or spell ability for " + card.getName(),
+                    "single legal ability: " + abilityLabel(only, game)
+            );
+            return only;
         }
 
         JsonArray options = new JsonArray();
@@ -305,7 +322,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
-        return chooseTargetInternal(outcome, false, target, source, game, cards, null);
+        JsonObject supplied = null;
+        // WS229 F-RULES-03 disposition: bottom-of-library selection is
+        // identified by the native putCardsOnBottomOfLibrary path (callback
+        // identity), never by prompt-text heuristics in the Lab.
+        if (BOTTOM_SELECTION.get()) {
+            supplied = new JsonObject();
+            supplied.addProperty("bottom_of_library_selection", true);
+        }
+        return chooseTargetInternal(outcome, false, target, source, game, cards, supplied);
     }
 
     @Override
@@ -941,39 +966,94 @@ final class XmageFullGamePlayer extends PlayerImpl {
             MultiAmountType type,
             Game game
     ) {
+        // WS229 joint restoration (F-RULES-02b closed): ONE joint frame with
+        // the full legs+totals domain. The pilot makes a single strategic
+        // vector choice; per-leg sequential frames never reappear as pilot
+        // decisions. Validation is the exact isGoodValues projection.
         if (messages == null || messages.isEmpty()) {
             return List.of();
         }
-        List<Integer> result = new ArrayList<>(messages.size());
-        int allocated = 0;
-        for (int index = 0; index < messages.size(); index++) {
-            MultiAmountMessage current = messages.get(index);
-            int remainingMinAfter = 0;
-            int remainingMaxAfter = 0;
-            for (int future = index + 1; future < messages.size(); future++) {
-                remainingMinAfter += messages.get(future).min;
-                remainingMaxAfter += messages.get(future).max;
+        if (totalMax < totalMin) {
+            fail("BRIDGE_PROTOCOL_ERROR",
+                    "multi amount total band reversed: " + totalMin + ".." + totalMax);
+        }
+        long minSum = 0L;
+        long maxSum = 0L;
+        JsonArray legs = new JsonArray();
+        for (MultiAmountMessage message : messages) {
+            if (message == null) {
+                fail("BRIDGE_PROTOCOL_ERROR", "multi amount leg is missing");
             }
-            int min = Math.max(current.min, totalMin - allocated - remainingMaxAfter);
-            int max = Math.min(current.max, totalMax - allocated - remainingMinAfter);
-            int chosen = chooseNumber(
-                    "multi_amount",
-                    current.message,
-                    min,
-                    max,
-                    null,
-                    game
-            );
-            result.add(chosen);
-            allocated += chosen;
+            if (message.max < message.min) {
+                fail("BRIDGE_PROTOCOL_ERROR", "multi amount leg has reversed bounds");
+            }
+            minSum += message.min;
+            maxSum += message.max;
+            JsonObject leg = new JsonObject();
+            leg.addProperty("min", message.min);
+            leg.addProperty("max", message.max);
+            leg.addProperty("prompt", message.message == null ? "" : message.message);
+            legs.add(leg);
         }
-        if (allocated < totalMin || allocated > totalMax) {
-            fail(
-                    "PILOT_RESPONSE_INVALID",
-                    "multi amount total " + allocated + " outside " + totalMin + ".." + totalMax
-            );
+        if (minSum > totalMax || maxSum < totalMin) {
+            fail("PILOT_RESPONSE_INVALID",
+                    "multi amount domain infeasible: legs admit " + minSum + ".." + maxSum
+                            + " but total requires " + totalMin + ".." + totalMax);
         }
-        return List.copyOf(result);
+        JsonObject context = new JsonObject();
+        context.add("numeric_legs", legs);
+        context.addProperty("numeric_total_min", totalMin);
+        context.addProperty("numeric_total_max", totalMax);
+        context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
+        XmageFullGameDecisionController.DecisionResponse response = request(
+                game,
+                "multi_amount",
+                "Assign amounts (" + messages.size() + " legs)",
+                0,
+                0,
+                new JsonArray(),
+                context,
+                null
+        );
+        List<Integer> chosen = requireJointChoices(response, context, "multi_amount");
+        // Native authority gate: the engine's own isGoodValues predicate
+        // over the original messages must accept the projected vector.
+        // Any divergence between the Lab/controller projection and native
+        // semantics fails closed here, never silently.
+        if (!MultiAmountType.isGoodValues(chosen, messages, totalMin, totalMax)) {
+            fail("PILOT_RESPONSE_INVALID",
+                    "multi amount vector rejected by native isGoodValues gate");
+        }
+        return chosen;
+    }
+
+    /**
+     * WS229 joint isGoodValues projection: exact vector length, strict
+     * integer elements, per-leg inclusive membership, total band. Any
+     * violation fails closed; there is no clamp, default, or fallback.
+     */
+    List<Integer> requireJointChoices(
+            XmageFullGameDecisionController.DecisionResponse response,
+            JsonObject context,
+            String decisionClass
+    ) {
+        if (response == null || response.numericChoices() == null) {
+            fail("PILOT_RESPONSE_INVALID", "joint numeric choice required for " + decisionClass);
+        }
+        try {
+            XmageFullGameDecisionController.requireJointVector(response.numericChoices(), context);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            fail("PILOT_RESPONSE_INVALID", stripCode(exc.getMessage()));
+        }
+        return List.copyOf(response.numericChoices());
+    }
+
+    private static String stripCode(String message) {
+        if (message == null) {
+            return "joint numeric choice rejected";
+        }
+        int colon = message.indexOf(':');
+        return colon < 0 ? message : message.substring(colon + 1).trim();
     }
 
     @Override
@@ -1390,5 +1470,28 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private void fail(String code, String detail) {
         decisionController.failClosed(code, detail);
         throw new XmageFullGameDecisionController.DecisionException(code + ": " + detail);
+    }
+
+    /**
+     * WS229 F-RULES-03 disposition: marks the native
+     * putCardsOnBottomOfLibrary selection path (London mulligan bottom and
+     * other bottom-of-library orderings) so the Lab routes by structured
+     * context instead of prompt-text sniffing. Proven path: PlayerImpl
+     * funnels bottom selection through
+     * {@code choose(Outcome, Cards, TargetCard, Ability, Game)} (pinned
+     * 1.4.61 bytecode). Thread-local because the engine drives each player
+     * on its game thread; always cleared in {@code finally}.
+     */
+    private static final ThreadLocal<Boolean> BOTTOM_SELECTION =
+            ThreadLocal.withInitial(() -> Boolean.FALSE);
+
+    @Override
+    public boolean putCardsOnBottomOfLibrary(Cards cards, Game game, Ability source, boolean anyOrder) {
+        BOTTOM_SELECTION.set(Boolean.TRUE);
+        try {
+            return super.putCardsOnBottomOfLibrary(cards, game, source, anyOrder);
+        } finally {
+            BOTTOM_SELECTION.set(Boolean.FALSE);
+        }
     }
 }

@@ -61,6 +61,7 @@ def event_digest_for_step(
     actor_principal: int,
     selected_fingerprints: tuple[str, ...],
     numeric_choice: int | None,
+    numeric_choices: tuple[int, ...] | list[int] | None = None,
     rng_calls_before: int,
     rng_calls_after: int | None,
     turn_before: int,
@@ -68,22 +69,27 @@ def event_digest_for_step(
     observation_digest: str,
     post_digest: str | None,
 ) -> str:
-    """Semantic event digest (material transitions only, no debug strings)."""
-    return canonical_hash(
-        {
-            "actor_principal": actor_principal,
-            "decision_class": decision_class,
-            "numeric_choice": numeric_choice,
-            "observation_digest": observation_digest,
-            "post_digest": post_digest,
-            "rng_calls_after": rng_calls_after,
-            "rng_calls_before": rng_calls_before,
-            "selected_fingerprints": sorted(selected_fingerprints),
-            "sequence": sequence,
-            "turn_after": turn_after,
-            "turn_before": turn_before,
-        }
-    )
+    """Semantic event digest (material transitions only, no debug strings).
+
+    WS229: the joint vector binds into the digest only when present, so
+    every scalar/non-numeric digest is byte-identical to WS218.
+    """
+    payload: dict[str, object] = {
+        "actor_principal": actor_principal,
+        "decision_class": decision_class,
+        "numeric_choice": numeric_choice,
+        "observation_digest": observation_digest,
+        "post_digest": post_digest,
+        "rng_calls_after": rng_calls_after,
+        "rng_calls_before": rng_calls_before,
+        "selected_fingerprints": sorted(selected_fingerprints),
+        "sequence": sequence,
+        "turn_after": turn_after,
+        "turn_before": turn_before,
+    }
+    if numeric_choices is not None:
+        payload["numeric_choices"] = list(numeric_choices)
+    return canonical_hash(payload)
 
 
 def deck_content_digest(

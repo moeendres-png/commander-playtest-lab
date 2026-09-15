@@ -159,6 +159,76 @@ def _legal_options_of(decision: dict[str, Any]) -> list[dict[str, Any]]:
     return list(raw)
 
 
+def _joint_numeric_of(
+    decision: dict[str, Any], response: dict[str, Any]
+) -> tuple[
+    tuple[int, ...] | None,
+    tuple[int, ...] | None,
+    tuple[int, ...] | None,
+    int | None,
+    int | None,
+]:
+    """Authoritative joint domain + chosen vector for a multi_amount step.
+
+    Returns (choices, legs_min, legs_max, total_min, total_max), all None
+    for non-joint steps. Strict: a joint context with a malformed vector
+    diverges instead of recording a weakened step.
+    """
+    context = decision.get("context")
+    if not isinstance(context, dict):
+        return None, None, None, None, None
+    raw_legs = context.get("numeric_legs")
+    if raw_legs is None:
+        return None, None, None, None, None
+    if not isinstance(raw_legs, list) or not raw_legs:
+        raise ReplayDivergence(
+            DivergenceClass.DECISION_CLASS_MISMATCH, "joint numeric legs malformed"
+        )
+    legs_min: list[int] = []
+    legs_max: list[int] = []
+    for leg in raw_legs:
+        if not isinstance(leg, dict):
+            raise ReplayDivergence(
+                DivergenceClass.DECISION_CLASS_MISMATCH, "joint numeric leg malformed"
+            )
+        leg_min, leg_max = leg.get("min"), leg.get("max")
+        if (
+            isinstance(leg_min, bool)
+            or not isinstance(leg_min, int)
+            or isinstance(leg_max, bool)
+            or not isinstance(leg_max, int)
+        ):
+            raise ReplayDivergence(
+                DivergenceClass.DECISION_CLASS_MISMATCH, "joint numeric leg bound malformed"
+            )
+        legs_min.append(leg_min)
+        legs_max.append(leg_max)
+    total_min, total_max = context.get("numeric_total_min"), context.get("numeric_total_max")
+    if (
+        isinstance(total_min, bool)
+        or not isinstance(total_min, int)
+        or isinstance(total_max, bool)
+        or not isinstance(total_max, int)
+    ):
+        raise ReplayDivergence(
+            DivergenceClass.DECISION_CLASS_MISMATCH, "joint numeric total band malformed"
+        )
+    raw_choices = response.get("numeric_choices")
+    if not isinstance(raw_choices, list) or not all(
+        isinstance(v, int) and not isinstance(v, bool) for v in raw_choices
+    ):
+        raise ReplayDivergence(
+            DivergenceClass.CHOSEN_OPTION_MISSING, "joint numeric choices malformed"
+        )
+    return (
+        tuple(raw_choices),
+        tuple(legs_min),
+        tuple(legs_max),
+        total_min,
+        total_max,
+    )
+
+
 def _seat_uuid_map(status: dict[str, Any], decision: dict[str, Any]) -> dict[int, str]:
     """1-based seat -> native player UUID from current observation."""
     mapping: dict[int, str] = {}
@@ -398,6 +468,7 @@ def record_tape(
                     actor_principal=actor_principal,
                     selected_fingerprints=selected_prints,
                     numeric_choice=int(numeric_choice) if numeric_choice is not None else None,
+                    numeric_choices=_joint_numeric_of(decision, response)[0],
                     rng_calls_before=calls_before,
                     rng_calls_after=calls_after,
                     turn_before=turn_before,
@@ -405,6 +476,13 @@ def record_tape(
                     observation_digest=obs_digest,
                     post_digest=post_digest,
                 )
+                (
+                    joint_choices,
+                    joint_legs_min,
+                    joint_legs_max,
+                    joint_total_min,
+                    joint_total_max,
+                ) = _joint_numeric_of(decision, response)
                 steps.append(
                     TapeReplayStep(
                         sequence=sequence,
@@ -420,6 +498,11 @@ def record_tape(
                         numeric_choice=int(numeric_choice) if numeric_choice is not None else None,
                         numeric_min=int(numeric_min) if isinstance(numeric_min, int) else None,
                         numeric_max=int(numeric_max) if isinstance(numeric_max, int) else None,
+                        numeric_choices=joint_choices,
+                        numeric_legs_min=joint_legs_min,
+                        numeric_legs_max=joint_legs_max,
+                        numeric_total_min=joint_total_min,
+                        numeric_total_max=joint_total_max,
                         rng_calls_before=calls_before,
                         rng_calls_after=calls_after,
                         event_offset_before=revision,
@@ -495,6 +578,7 @@ def record_tape(
                         actor_principal=principal,
                         selected_fingerprints=sel_prints,
                         numeric_choice=int(nchoice) if nchoice is not None else None,
+                        numeric_choices=_joint_numeric_of(dec, resp)[0],
                         rng_calls_before=calls_b,
                         rng_calls_after=calls_a,
                         turn_before=turn_b,
@@ -502,6 +586,13 @@ def record_tape(
                         observation_digest=obs_d,
                         post_digest=post_d,
                     )
+                    (
+                        drain_choices,
+                        drain_legs_min,
+                        drain_legs_max,
+                        drain_total_min,
+                        drain_total_max,
+                    ) = _joint_numeric_of(dec, resp)
                     step_rec = TapeReplayStep(
                         sequence=seq,
                         step_kind="decision",
@@ -516,6 +607,11 @@ def record_tape(
                         numeric_choice=int(nchoice) if nchoice is not None else None,
                         numeric_min=int(nmin) if isinstance(nmin, int) else None,
                         numeric_max=int(nmax) if isinstance(nmax, int) else None,
+                        numeric_choices=drain_choices,
+                        numeric_legs_min=drain_legs_min,
+                        numeric_legs_max=drain_legs_max,
+                        numeric_total_min=drain_total_min,
+                        numeric_total_max=drain_total_max,
                         rng_calls_before=calls_b,
                         rng_calls_after=calls_a,
                         event_offset_before=revision,
