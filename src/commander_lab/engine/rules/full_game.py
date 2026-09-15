@@ -96,6 +96,41 @@ class FullGameConformanceResult(_StrictModel):
     bit_exact_replay_validated: Literal[False] = False
 
 
+class FullGameSmokeResult(_StrictModel):
+    """Bounded cardinality smoke outcome (WS223).
+
+    Proves live production startup and authoritative decision progression up
+    to a calibrated decision target (or earlier terminal) with clean bounded
+    shutdown. This is a lifecycle smoke, not a game-over conformance claim:
+    terminal/outcome-shape evidence stays with :class:`FullGameConformanceResult`
+    (live 4P gate) and the per-count unit outcome guards.
+    """
+
+    schema_version: Literal["xmage-full-game-smoke-result-1.0.0"] = (
+        "xmage-full-game-smoke-result-1.0.0"
+    )
+    scenario_id: str
+    player_count: int = Field(ge=2, le=5)
+    seed: int = Field(ge=0)
+    engine_version: str
+    xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    decision_protocol_version: str
+    decision_count: int = Field(ge=1)
+    smoke_decision_target: int = Field(ge=1)
+    bounded_criterion_met: Literal[True]
+    terminal_reached: bool
+    seed_preserved: Literal[True]
+    player_count_preserved: Literal[True]
+    observed_decision_classes: tuple[str, ...]
+    unsupported_callback_seen: Literal[False] = False
+    clean_shutdown: Literal[True] = True
+    evidence_class: Literal["technical_conformance_only"] = FULL_GAME_EVIDENCE_CLASS
+    consumed_gameplay_evidence: Literal[False] = False
+    holdout_consumed: Literal[False] = False
+    official_campaign_eligible: Literal[False] = False
+    fallback_used: Literal[False] = False
+
+
 class FullGameReplayGate(_StrictModel):
     schema_version: Literal["xmage-full-game-replay-gate-1.0.0"] = (
         "xmage-full-game-replay-gate-1.0.0"
@@ -654,9 +689,7 @@ class ExternalPilotDecisionPolicy:
             if not unpaid_colored:
                 return self._required_text(max(pool_options, key=pool_key), "option_id")
             if unpaid_colored & pool_symbols:
-                exact = [
-                    option for option in pool_options if pool_symbol(option) in unpaid_colored
-                ]
+                exact = [option for option in pool_options if pool_symbol(option) in unpaid_colored]
                 return self._required_text(max(exact, key=pool_key), "option_id")
 
         non_pool = [
@@ -1182,6 +1215,83 @@ class XmageFullGameRunner:
             raise FullGameConformanceError(
                 f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
             )
+        policy = self._validated_policy(scenario, decks, pilots)
+
+        with _RawFullGameClient(
+            command,
+            cwd=self.cwd,
+            request_timeout_seconds=self.request_timeout_seconds,
+        ) as client:
+            provider = self._open_game(client, scenario, decks)
+            _decision_count, _, terminal = self._drive(client, policy, stop_after=None)
+            assert terminal is True
+            result = client.request("get_full_game_result")
+
+        return self._build_result(scenario, provider, result)
+
+    def run_smoke(
+        self,
+        *,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
+        smoke_decision_target: int = 25,
+    ) -> FullGameSmokeResult:
+        """Drive a bounded live lifecycle smoke for one supported cardinality.
+
+        Reuses the exact fail-closed validation, handshake, seed/count binding,
+        and authoritative pilot policy of :meth:`run`, but stops after
+        ``smoke_decision_target`` answered decisions (or earlier terminal) and
+        shuts the engine down cleanly instead of requiring game over. Any
+        unsupported engine callback surfaces as ``FullGameProtocolError`` /
+        ``FullGameConformanceError`` from the shared drive loop, failing the
+        smoke closed.
+        """
+        if smoke_decision_target < 1:
+            raise ValueError("smoke_decision_target must be positive")
+        command = self.command
+        if command is None:
+            raise FullGameConformanceError(
+                f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
+            )
+        policy = self._validated_policy(scenario, decks, pilots)
+
+        with _RawFullGameClient(
+            command,
+            cwd=self.cwd,
+            request_timeout_seconds=self.request_timeout_seconds,
+        ) as client:
+            provider = self._open_game(client, scenario, decks)
+            decision_count, observed, terminal = self._drive(
+                client, policy, stop_after=smoke_decision_target
+            )
+        if decision_count == 0:
+            raise FullGameConformanceError(
+                "bounded smoke observed no authoritative decisions before terminal"
+            )
+
+        return FullGameSmokeResult(
+            scenario_id=scenario.scenario_id,
+            player_count=scenario.player_count,
+            seed=scenario.seed,
+            engine_version=str(provider.get("engine_version", "unknown")),
+            xmage_commit=scenario.xmage_commit,
+            decision_protocol_version=FULL_GAME_DECISION_PROTOCOL_VERSION,
+            decision_count=decision_count,
+            smoke_decision_target=smoke_decision_target,
+            bounded_criterion_met=True,
+            terminal_reached=terminal,
+            seed_preserved=True,
+            player_count_preserved=True,
+            observed_decision_classes=tuple(observed),
+        )
+
+    def _validated_policy(
+        self,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
+    ) -> ExternalPilotDecisionPolicy:
         self._validate_inputs(scenario, decks, pilots)
         runtime_pilots = tuple(
             _RuntimePilot(
@@ -1190,80 +1300,98 @@ class XmageFullGameRunner:
             )
             for binding in sorted(pilots, key=lambda item: item.seat)
         )
-        policy = ExternalPilotDecisionPolicy(runtime_pilots, scenario.seed)
+        return ExternalPilotDecisionPolicy(runtime_pilots, scenario.seed)
 
-        with _RawFullGameClient(
-            command,
-            cwd=self.cwd,
-            request_timeout_seconds=self.request_timeout_seconds,
-        ) as client:
-            started = client.request("start_engine")
-            if started.get("lane") != FULL_GAME_LANE:
-                raise FullGameConformanceError("bridge did not enter explicit full-game lane")
-            provider = client.request("get_provider_version")
-            capabilities = client.request("get_capabilities")
-            self._validate_handshake(scenario, provider, capabilities)
+    def _open_game(
+        self,
+        client: _RawFullGameClient,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+    ) -> dict[str, Any]:
+        started = client.request("start_engine")
+        if started.get("lane") != FULL_GAME_LANE:
+            raise FullGameConformanceError("bridge did not enter explicit full-game lane")
+        provider = client.request("get_provider_version")
+        capabilities = client.request("get_capabilities")
+        self._validate_handshake(scenario, provider, capabilities)
 
-            handles: list[str] = []
-            for deck in decks:
-                imported = client.request("import_deck", {"deck": self._deck_payload(deck)})
-                handle = imported.get("deck_handle")
-                if not isinstance(handle, dict):
-                    raise FullGameConformanceError("IMPORT_DECK returned no deck_handle")
-                handle_id = str(handle.get("handle_id", "")).strip()
-                if not handle_id:
-                    raise FullGameConformanceError("IMPORT_DECK returned blank handle_id")
-                handles.append(handle_id)
+        handles: list[str] = []
+        for deck in decks:
+            imported = client.request("import_deck", {"deck": self._deck_payload(deck)})
+            handle = imported.get("deck_handle")
+            if not isinstance(handle, dict):
+                raise FullGameConformanceError("IMPORT_DECK returned no deck_handle")
+            handle_id = str(handle.get("handle_id", "")).strip()
+            if not handle_id:
+                raise FullGameConformanceError("IMPORT_DECK returned blank handle_id")
+            handles.append(handle_id)
 
-            game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
-            player_count = scenario.player_count
-            created = client.request(
-                "create_full_game",
-                {
-                    "game_id": game_id,
-                    "deck_handles": handles,
-                    "seed": scenario.seed,
-                    "starting_player_seat": scenario.seed % player_count,
-                    "starting_life": 40,
-                },
+        game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
+        player_count = scenario.player_count
+        created = client.request(
+            "create_full_game",
+            {
+                "game_id": game_id,
+                "deck_handles": handles,
+                "seed": scenario.seed,
+                "starting_player_seat": scenario.seed % player_count,
+                "starting_life": 40,
+            },
+        )
+        if created.get("player_count") != player_count or created.get("seed") != scenario.seed:
+            raise FullGameConformanceError(
+                "full-game creation did not preserve player-count/seed contract"
             )
-            if created.get("player_count") != player_count or created.get("seed") != scenario.seed:
+        if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
+            raise FullGameConformanceError("full-game creation returned unsafe evidence class")
+        if created.get("holdout_consumed") is not False:
+            raise FullGameConformanceError("technical conformance must not consume holdout")
+        return provider
+
+    def _drive(
+        self,
+        client: _RawFullGameClient,
+        policy: ExternalPilotDecisionPolicy,
+        *,
+        stop_after: int | None,
+    ) -> tuple[int, list[str], bool]:
+        """Drive authoritative decisions until terminal (or ``stop_after`` answers).
+
+        Returns ``(decision_count, observed_decision_classes, terminal)``.
+        Shared verbatim by :meth:`run` (``stop_after=None``) and
+        :meth:`run_smoke` so smoke progression and full-game progression
+        cannot diverge.
+        """
+        status = client.request("start_full_game")
+        decision_count = 0
+        observed: list[str] = []
+        while True:
+            failure = status.get("failure")
+            if isinstance(failure, dict):
                 raise FullGameConformanceError(
-                    "full-game creation did not preserve player-count/seed contract"
+                    "XMage full-game engine failed: " + json.dumps(failure, sort_keys=True)
                 )
-            if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
-                raise FullGameConformanceError("full-game creation returned unsafe evidence class")
-            if created.get("holdout_consumed") is not False:
-                raise FullGameConformanceError("technical conformance must not consume holdout")
-
-            status = client.request("start_full_game")
-            decision_count = 0
-            while True:
-                failure = status.get("failure")
-                if isinstance(failure, dict):
+            decision = status.get("decision")
+            if isinstance(decision, dict):
+                decision_count += 1
+                if decision_count > self.max_decisions:
                     raise FullGameConformanceError(
-                        "XMage full-game engine failed: " + json.dumps(failure, sort_keys=True)
+                        f"full-game exceeded max_decisions={self.max_decisions}"
                     )
-                decision = status.get("decision")
-                if isinstance(decision, dict):
-                    decision_count += 1
-                    if decision_count > self.max_decisions:
-                        raise FullGameConformanceError(
-                            f"full-game exceeded max_decisions={self.max_decisions}"
-                        )
-                    response = policy.decide(decision)
-                    status = client.request(
-                        "submit_full_game_decision",
-                        {"response": response},
-                    )
-                    continue
-                if bool(status.get("terminal")):
-                    break
-                status = client.request("get_full_game_decision")
-
-            result = client.request("get_full_game_result")
-
-        return self._build_result(scenario, provider, result)
+                decision_class = decision.get("decision_class")
+                if isinstance(decision_class, str) and decision_class not in observed:
+                    observed.append(decision_class)
+                response = policy.decide(decision)
+                status = client.request(
+                    "submit_full_game_decision",
+                    {"response": response},
+                )
+                if stop_after is not None and decision_count >= stop_after:
+                    return decision_count, observed, False
+                continue
+            if bool(status.get("terminal")):
+                return decision_count, observed, True
+            status = client.request("get_full_game_decision")
 
     def run_replay_gate(
         self,
@@ -1295,22 +1423,19 @@ class XmageFullGameRunner:
         pilots: tuple[FullGamePilotBinding, ...],
     ) -> None:
         player_count = scenario.player_count
-        if player_count < XmageFullGameRunner.MIN_PLAYERS or player_count > XmageFullGameRunner.MAX_PLAYERS:
-            raise FullGameConformanceError(
-                "operational full-game scope is two to five players"
-            )
+        if (
+            player_count < XmageFullGameRunner.MIN_PLAYERS
+            or player_count > XmageFullGameRunner.MAX_PLAYERS
+        ):
+            raise FullGameConformanceError("operational full-game scope is two to five players")
         if len(decks) != player_count or len(pilots) != player_count:
             raise FullGameConformanceError(
                 "deck/pilot cardinality must equal the scenario player count"
             )
         if len({deck.deck_id for deck in decks}) != player_count:
-            raise FullGameConformanceError(
-                "full-game requires distinct deck identities per seat"
-            )
+            raise FullGameConformanceError("full-game requires distinct deck identities per seat")
         if {pilot.seat for pilot in pilots} != set(range(1, player_count + 1)):
-            raise FullGameConformanceError(
-                "pilot bindings must cover seats 1..N exactly"
-            )
+            raise FullGameConformanceError("pilot bindings must cover seats 1..N exactly")
         for index, (deck, pilot) in enumerate(
             zip(decks, sorted(pilots, key=lambda item: item.seat), strict=True),
             start=1,

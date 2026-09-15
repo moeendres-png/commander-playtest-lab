@@ -13,6 +13,7 @@ permissions:
 env:
   COMMANDER_LAB_RSP_PROVIDER_CMD: ${{ vars.COMMANDER_LAB_RSP_PROVIDER_CMD || '' }}
   COMMANDER_LAB_PRODUCTION_PROVIDER: ${{ vars.COMMANDER_LAB_PRODUCTION_PROVIDER || 'NO_PRODUCTION_PROVIDER_SELECTED' }}
+  PYTHONHASHSEED: "0"
 
 concurrency:
   group: production-qualification-${{ github.sha }}
@@ -29,8 +30,13 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            pyproject.toml
       - name: Install validation runtime
-        run: python -m pip install -e '.[dev]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Validate WS-17 qualification infrastructure
         run: pytest -q tests/qualification
       - name: Validate canonical fixture manifest
@@ -47,8 +53,14 @@ jobs:
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            pyproject.toml
       - name: Install qualification runtime
-        run: python -m pip install -e '.[dev]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Verify qualification runtime imports
         run: |
           python - <<'PY'

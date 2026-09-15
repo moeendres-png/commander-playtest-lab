@@ -10,6 +10,11 @@ on:
 permissions:
   contents: read
 
+# WS223: deterministic lanes pin hashseed so set/dict iteration cannot differ
+# across runs. PYTHONHASHSEED does not control JVM Rules RNG (engine-owned).
+env:
+  PYTHONHASHSEED: "0"
+
 concurrency:
   group: decision-support-regression-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -26,8 +31,13 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            pyproject.toml
       - name: Install historical regression runtime
-        run: python -m pip install -e '.[dev,api,openai]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Repository integrity
         run: |
           git fsck --full

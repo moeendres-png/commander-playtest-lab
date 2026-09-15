@@ -1,0 +1,7 @@
+{
+  "engine_launched": false,
+  "fail_closed_layer": "conformance_cardinality_table",
+  "player_count": 6,
+  "rejection": "ValueError",
+  "status": "FAIL_CLOSED"
+}

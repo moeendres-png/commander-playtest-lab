@@ -1,4 +1,12 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk@sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6
+# WS223 container identity: the base image is pinned by manifest-list digest
+# (observed 2026-09-15 for tag eclipse-temurin:21-jdk, pushed 2026-09-10) so
+# the bytes cannot drift silently. Re-verify without a daemon via the Docker
+# Hub registry API (see qualification/ws223 CONTAINER_IDENTITY); bump the
+# digest AND the annotation together, never the tag alone.
+LABEL org.commander-lab.base-image-tag="eclipse-temurin:21-jdk"
+LABEL org.commander-lab.base-image-digest="sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6"
+LABEL org.commander-lab.base-image-observed="2026-09-15"
 # WS-A1D pin authority: ENGINE_REPOSITORY / ENGINE_COMMIT / ENGINE_PROTOCOL_VERSION
 # are REQUIRED build args resolved at build time from config/rules_engines.json
 # (the sole pin authority) via scripts/docker_build_engine.sh, which derives them

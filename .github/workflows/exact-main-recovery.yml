@@ -11,6 +11,11 @@ on:
 permissions:
   contents: read
 
+# WS223: deterministic lanes pin hashseed so set/dict iteration cannot differ
+# across runs. PYTHONHASHSEED does not control JVM Rules RNG (engine-owned).
+env:
+  PYTHONHASHSEED: "0"
+
 concurrency:
   group: exact-main-recovery-${{ github.sha }}
   cancel-in-progress: false
@@ -28,10 +33,13 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            pyproject.toml
       - name: Install build and validation runtime
         run: |
-          python -m pip install -e '.[dev]'
-          python -m pip install build
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Focused exact-main architecture conformance
         run: |
           pytest -q tests/test_candidate_lossless_handoff.py tests/unit/test_xmage_full_game.py

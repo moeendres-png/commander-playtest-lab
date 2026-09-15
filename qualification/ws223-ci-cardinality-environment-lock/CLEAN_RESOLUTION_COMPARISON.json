@@ -1,0 +1,24 @@
+{
+  "identity_sets_equal": true,
+  "lock_digest_sha256": "200159e36013f14a6b81373273fbe09439d5ef7b8c0617b846780b6dc2ccd16b",
+  "note": "immediate technical reproducibility proof; longitudinal availability recheck (another calendar day) is FUTURE_ADVISORY per coordinator ruling",
+  "offline_semantics": "pip install --no-index --require-hashes fails explicitly (No matching distribution); markers skip win32 entries without silent substitution",
+  "resolution_a": {
+    "freeze_sha256": "b6ec216c7c9dbeb37b9b44d64d92eb615f0b955a96df17fff2b5facb04b3967b",
+    "packages": 114,
+    "pip": "25.1.1-seeded-then-26.2.1-locked",
+    "python": "3.14.4",
+    "require_hashes": true,
+    "venv": "isolated clean venv, default pip cache; plus offline editable project install"
+  },
+  "resolution_b": {
+    "freeze_sha256": "b6ec216c7c9dbeb37b9b44d64d92eb615f0b955a96df17fff2b5facb04b3967b",
+    "packages": 114,
+    "pip": "25.1.1-seeded-then-26.2.1-locked",
+    "python": "3.14.4",
+    "require_hashes": true,
+    "venv": "isolated clean venv, --no-cache-dir"
+  },
+  "schema_version": "ws223-clean-resolution-comparison-1.0.0",
+  "unpinned_packages": []
+}

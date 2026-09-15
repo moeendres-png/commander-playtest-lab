@@ -1,0 +1,71 @@
+# WS223 transitive dependency lock — compiler input.
+#
+# This file mirrors the DIRECT dependency ranges declared in
+# `pyproject.toml` ([project].dependencies + dev/api/openai extras) plus the
+# audit-tool set from `requirements/quality-tools.verified-upstream.txt` and
+# `jsonschema` (imported by qualification/harness.py; previously only
+# transitively present, now an explicit input with provenance recorded here).
+#
+# DO NOT EDIT the compiled `requirements/lock.txt` by hand. Regenerate with:
+#
+#   python -m venv /tmp/ws223-locktools/.venv
+#   /tmp/ws223-locktools/.venv/bin/pip install "pip-tools==7.6.1"
+#   /tmp/ws223-locktools/.venv/bin/pip-compile \
+#       --generate-hashes --resolver=backtracking --strip-extras --allow-unsafe \
+#       --output-file=requirements/lock.txt requirements/lock.in
+#
+# (--allow-unsafe so the setuptools build backend is pinned like any other
+# artifact; pip itself is pinned because pip-api genuinely requires it.)
+#
+# (Exact reproduction also recorded in requirements/LOCK_PROVENANCE.json.)
+# Then verify with:
+#
+#   python scripts/verify_dependency_lock.py --lock requirements/lock.txt
+
+# --- pyproject [project].dependencies ---
+pydantic>=2.10,<3
+openpyxl>=3.1,<4
+PyYAML>=6.0,<7
+typer>=0.15,<1
+
+# --- pyproject [project.optional-dependencies] dev ---
+pytest>=8.3,<10
+pytest-asyncio>=1.4,<2
+hypothesis>=6.120,<7
+httpx2>=2.7,<3
+jsonschema>=4.23,<5
+ruff>=0.9,<1
+mypy>=1.14,<2
+types-openpyxl>=3.1,<4
+types-PyYAML>=6.0,<7
+
+# --- pyproject [project.optional-dependencies] api ---
+fastapi>=0.115,<1
+uvicorn>=0.34,<1
+
+# --- pyproject [project.optional-dependencies] openai ---
+openai>=2.45,<3
+openai-agents>=0.18.3,<0.19
+
+# --- build backend (pyproject [build-system]) ---
+# Pinned so `pip install --no-deps --no-build-isolation -e .` after a locked
+# install performs zero network resolution for the build backend either.
+setuptools>=75
+wheel
+# --- platform-conditional closure (3.12 linux/win32 completeness) ---
+# pip-compile resolves for the compiling interpreter, so requirements that
+# only apply on other platforms/python versions need explicit conditional
+# inputs; otherwise a locked `--require-hashes` install there would hit the
+# network for an unpinned artifact and fail. Membership verified by
+# scripts/verify_dependency_lock.py against pinned-version metadata.
+colorama>=0.4; sys_platform == 'win32'
+pywin32>=310; sys_platform == 'win32' and python_version < '3.14'
+
+# --- audit tools (requirements/quality-tools.verified-upstream.txt) ---
+# ruff/mypy/hypothesis already covered by the dev extra above.
+# `build` is CI tooling for exact-main-recovery/release-artifacts lanes.
+build
+mutmut
+pip-audit==2.10.1
+cyclonedx-bom==7.3.0
+pip-licenses==5.5.5

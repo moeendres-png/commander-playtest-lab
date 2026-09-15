@@ -31,7 +31,20 @@ STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 CANONICAL_XMAGE_PIN = "db134b9737e951367d65ef5806ad986319cc73ab"
 CANONICAL_FORGE_PIN = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
+_BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 _MANIFEST_REL = "config/rules_engines.json"
+
+
+def _without_base_image_digests(text: str) -> str:
+    """Strip WS223 container-base digest references before engine-pin scans.
+
+    Engine pins (40-hex git SHAs, resolved from config/rules_engines.json via
+    build args) and container-base pins (sha256 digests of the Temurin image)
+    live in different authority domains. The HEX40 prohibition below guards
+    the engine domain only; base-image digests are governed by the WS223
+    container-identity contract, not by this file.
+    """
+    return _BASE_IMAGE_DIGEST.sub("sha256:<base-image-digest>", text)
 
 
 def _manifest(repo_root: Path) -> dict:
@@ -220,7 +233,7 @@ def test_cli_failures_are_nonzero_without_stdout_identity(repo_root: Path) -> No
 def test_dockerfiles_declare_required_args_without_pin_defaults(repo_root: Path) -> None:
     for rel in ("docker/xmage/Dockerfile", "docker/forge/Dockerfile"):
         text = (repo_root / rel).read_text(encoding="utf-8")
-        assert _HEX40.search(text) is None, rel
+        assert _HEX40.search(_without_base_image_digests(text)) is None, rel
         for arg in ("ARG ENGINE_REPOSITORY", "ARG ENGINE_COMMIT", "ARG ENGINE_PROTOCOL_VERSION"):
             matches = [line for line in text.splitlines() if line.startswith(arg)]
             assert len(matches) == 1, (rel, arg)
@@ -321,7 +334,7 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
 
 def test_forge_dockerfile_declares_bridge_args_and_linkage(repo_root: Path) -> None:
     text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
-    assert _HEX40.search(text) is None
+    assert _HEX40.search(_without_base_image_digests(text)) is None
     for arg in ("ARG BRIDGE_REPOSITORY", "ARG BRIDGE_COMMIT"):
         matches = [line for line in text.splitlines() if line.startswith(arg)]
         assert len(matches) == 1, (arg, matches)

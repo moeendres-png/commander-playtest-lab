@@ -21,6 +21,11 @@ on:
 permissions:
   contents: read
 
+# WS223: deterministic lanes pin hashseed so set/dict iteration cannot differ
+# across runs. PYTHONHASHSEED does not control JVM Rules RNG (engine-owned).
+env:
+  PYTHONHASHSEED: "0"
+
 concurrency:
   group: model-resolution-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -35,8 +40,13 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            pyproject.toml
       - name: Install
-        run: python -m pip install -e '.[dev]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Preserve legacy measurement implementation as provenance
         run: >-
           pytest -q

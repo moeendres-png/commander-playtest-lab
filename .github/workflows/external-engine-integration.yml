@@ -86,6 +86,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            pyproject.toml
       - name: Verify XMage commit and metadata
         working-directory: vendor/engine-source/xmage
         run: |
@@ -99,8 +102,10 @@ jobs:
         working-directory: vendor/engine-source/xmage
         run: |
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
-      - name: Install lab
-        run: python -m pip install -e '.[dev,api]'
+      - name: Install lab from transitive hash-pinned lock
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Require provider-specific bridge
         run: |
           test -f engine-bridge/pom.xml || {

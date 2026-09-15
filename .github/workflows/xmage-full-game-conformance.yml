@@ -1,5 +1,15 @@
 name: XMage Full Game Conformance
 
+# WS223 cardinality lane (merge-relevant): live production full-game startup
+# and lifecycle smoke for 2P/3P/4P/5P plus 6P fail-closed.
+#
+# Cost bound (by design, see CI_IMPACT_MAP): one XMage build + one bridge
+# build per run; JVM executions are 3 bounded smokes (25 decisions each) + 1
+# full 4P game-over/replay pair + 6P fail-closed with no engine. Single job,
+# sequential steps, shared build artifacts — no matrix-build multiplication.
+# WS218 trigger adjudication: `src/commander_lab/semantic_replay/**`-only
+# changes ride the light `ci.yml` lane and must NOT be added here.
+
 on:
   pull_request:
     paths:
@@ -11,8 +21,12 @@ on:
       - "src/commander_lab/candidates/models.py"
       - "artifacts/xmage-full-game/**"
       - "tests/unit/test_xmage_full_game.py"
+      - "tests/unit/test_xmage_variable_player.py"
+      - "tests/unit/test_ws223_cardinality_regression.py"
       - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
+      - "scripts/write_environment_receipt.py"
+      - "requirements/lock.txt"
       - ".github/workflows/xmage-full-game-conformance.yml"
   push:
     branches: [main]
@@ -20,10 +34,17 @@ on:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
       - "src/commander_lab/engine/rules/full_game_batch.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/models/pilots.py"
+      - "src/commander_lab/candidates/models.py"
       - "artifacts/xmage-full-game/**"
       - "tests/unit/test_xmage_full_game.py"
+      - "tests/unit/test_xmage_variable_player.py"
+      - "tests/unit/test_ws223_cardinality_regression.py"
       - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
+      - "scripts/write_environment_receipt.py"
+      - "requirements/lock.txt"
       - ".github/workflows/xmage-full-game-conformance.yml"
   workflow_dispatch:
 
@@ -60,6 +81,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            pyproject.toml
       - name: Verify immutable XMage pin
         working-directory: vendor/engine-source/xmage
         run: |
@@ -70,17 +94,30 @@ jobs:
         run: |
           set -euo pipefail
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
-      - name: Install lab
-        run: python -m pip install -e '.[dev,api]'
+      - name: Install lab from transitive hash-pinned lock
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Write environment receipt
+        run: python scripts/write_environment_receipt.py --lane cardinality-conformance --output artifacts/xmage-full-game/ENVIRONMENT_RECEIPT.json
       - name: Generate versioned full-game contracts
         run: python scripts/generate_full_game_contract_artifacts.py
       - name: Run focused Python full-game tests
-        run: pytest -q tests/unit/test_xmage_full_game.py
+        run: pytest -q tests/unit/test_xmage_full_game.py tests/unit/test_xmage_variable_player.py tests/unit/test_ws223_cardinality_regression.py
       - name: Build and verify XMage bridge including full-game contract tests
         working-directory: engine-bridge
         run: mvn -B -ntp verify
+      - name: Run bounded 2P lifecycle smoke
+        run: python scripts/run_external_full_game_conformance.py --player-count 2 --smoke-decisions 25
+      - name: Run bounded 3P lifecycle smoke
+        run: python scripts/run_external_full_game_conformance.py --player-count 3 --smoke-decisions 25
+      - name: Run bounded 5P lifecycle smoke
+        run: python scripts/run_external_full_game_conformance.py --player-count 5 --smoke-decisions 45
       - name: Run real seeded 4P game-over and replay conformance
         run: python scripts/run_external_full_game_conformance.py
+      - name: Prove 6P fails closed without launching an engine
+        run: python scripts/run_external_full_game_conformance.py --player-count 6 --expect-fail-closed
       - name: Verify technical-evidence boundary
         shell: bash
         run: |
@@ -107,6 +144,22 @@ jobs:
           assert hidden['status'] == 'PASS'
           assert invariant['random_or_default_discretionary_fallback'] is False
           assert invariant['canonical_data_mutated'] is False
+          for count in (2, 3, 5):
+              smoke = json.loads((root / f'XMAGE_FULL_GAME_SMOKE_{count}P.json').read_text())
+              assert smoke['status'] == 'PASS', count
+              assert smoke['mode'] == 'bounded_smoke', count
+              assert smoke['player_count'] == count, count
+              assert smoke['seed_preserved'] is True, count
+              assert smoke['player_count_preserved'] is True, count
+              assert smoke['decision_count'] >= smoke['smoke_decision_target'], count
+              assert 'mulligan' in smoke['observed_decision_classes'], count
+              assert 'priority' in smoke['observed_decision_classes'], count
+              assert smoke['unsupported_callback_seen'] is False, count
+              assert smoke['clean_shutdown'] is True, count
+          closed = json.loads((root / 'XMAGE_FULL_GAME_FAIL_CLOSED_6P.json').read_text())
+          assert closed['status'] == 'FAIL_CLOSED'
+          assert closed['player_count'] == 6
+          assert closed['engine_launched'] is False
           PY
       - name: Record test validation and checksums
         if: always()
@@ -122,6 +175,8 @@ jobs:
               'lab_commit': os.environ.get('GITHUB_SHA'),
               'xmage_commit': os.environ['XMAGE_COMMIT'],
               'operational_pod_size': 4,
+              'cardinality_smoke_counts': [2, 3, 5],
+              'unsupported_cardinality_fail_closed': [6],
               'rules_authority': 'xmage',
               'decision_authority': 'commander_lab_external_pilots',
               'evidence_class': 'technical_conformance_only',

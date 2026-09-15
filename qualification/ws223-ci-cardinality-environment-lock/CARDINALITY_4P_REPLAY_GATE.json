@@ -1,0 +1,15 @@
+{
+  "bit_exact_replay_validated": false,
+  "consumed_gameplay_evidence": false,
+  "evidence_class": "technical_conformance_only",
+  "first_raw_sha256": "e3a252b0275503d48b278f09044675544e4549e58ffe714c1c17d4ba36247e8b",
+  "first_semantic_sha256": "73f4d5bf45f8a4ce51e3e3868606cbaf9b868f47d79aa974a613b08c05beaeb7",
+  "holdout_consumed": false,
+  "raw_result_match": false,
+  "scenario_id": "technical-isamaru-full-game-4p-v1",
+  "schema_version": "xmage-full-game-replay-gate-1.0.0",
+  "second_raw_sha256": "d30f487b535817589f51b6820f8367269170bbebf54ee5e4250fe7ecb40a3cf7",
+  "second_semantic_sha256": "73f4d5bf45f8a4ce51e3e3868606cbaf9b868f47d79aa974a613b08c05beaeb7",
+  "seed": 20260824,
+  "semantic_replay_match": true
+}
