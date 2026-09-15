@@ -333,12 +333,23 @@ def run_cell(fid: str, n: int) -> dict:
         zones = summarize_zones(run)
         verdict = evaluate(fid, cfg["kind"], run, zones, power)
         run_id = f"{fid}_{n}P_seed{seed}"
+        # PASS runs keep the compact public log (audit); non-PASS attempts
+        # keep header + verdict evidence only (matrix carries the summary).
+        if verdict["verdict"] == "PASS":
+            run_payload = compact_run(run)
+        else:
+            run_payload = {k: run[k] for k in (
+                "engine_version", "engine_commit", "protocol_version",
+                "player_count", "seed", "scenario_id", "deck_ids",
+                "deck_digests", "focus_names", "elapsed_seconds", "decisions",
+                "terminal", "failure", "budget_exhausted", "observed_classes",
+                "final_outcomes", "final_turn", "rules_random_calls_last")}
         (RUNS / f"{run_id}.json").write_text(json.dumps(
             {"run_id": run_id, "fixture_id": fid, "card": name,
              "player_count": n, "seed": seed,
              "engine_commit": run["engine_commit"],
              "verdict": verdict["verdict"], "rationale": verdict["rationale"],
-             "run": compact_run(run)}, indent=1, sort_keys=True) + "\n")
+             "run": run_payload}, indent=1, sort_keys=True) + "\n")
         attempts.append({"seed": seed, "verdict": verdict["verdict"],
                          "rationale": verdict["rationale"],
                          "evidence": verdict["evidence"], "run_id": run_id})
@@ -355,11 +366,20 @@ def run_cell(fid: str, n: int) -> dict:
 
 def main() -> int:
     only = sys.argv[1:] or []
+    out = NS / "ACTUAL_CARD_29_MATRIX.json"
+    prev = json.loads(out.read_text()) if out.exists() else {"cells": []}
+    prev_cells = {(c["fixture_id"], c["player_count"]): c for c in prev["cells"]}
     matrix = []
     for fid in CARDS:
         if only and fid not in only:
             continue
         for n in NS_COUNTS:
+            prev_cell = prev_cells.get((fid, n))
+            if prev_cell and prev_cell.get("cell_verdict") == "PASS" and fid not in only:
+                matrix.append(prev_cell)
+                print(f"[{fid} {n}P] already PASS ({prev_cell['run_pointer']}), skipping",
+                      flush=True)
+                continue
             matrix.append(run_cell(fid, n))
     out = NS / "ACTUAL_CARD_29_MATRIX.json"
     prev = json.loads(out.read_text()) if out.exists() else {"cells": []}
