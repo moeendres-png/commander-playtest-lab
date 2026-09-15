@@ -1,0 +1,8 @@
+{
+ "fixtures": [
+  "WS05-MP-PRIO-3",
+  "WS05-MP-PRIO-5"
+ ],
+ "schema_version": "ws215-multiplayer-priority-1.0.0",
+ "verdict": "PASS"
+}

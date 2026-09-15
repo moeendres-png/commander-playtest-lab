@@ -1,0 +1,12 @@
+{
+ "exile_no": "UNKNOWN",
+ "exile_yes": "UNKNOWN",
+ "gy_no": "PASS",
+ "gy_yes": "PASS",
+ "hand_no": "UNKNOWN",
+ "hand_yes": "UNKNOWN",
+ "lib_no": "UNKNOWN",
+ "lib_yes": "UNKNOWN",
+ "schema_version": "ws215-commander-zone-choices-1.0.0",
+ "verdict": "PARTIAL"
+}

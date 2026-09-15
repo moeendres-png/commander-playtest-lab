@@ -1,0 +1,2010 @@
+{
+ "artifacts": [
+  {
+   "name": "CAPABILITY_TRUTH.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.json",
+   "sha256": "360572b6068484b12598c6f4e864f87712e8cca5d2082fea02b63f8df454b51b",
+   "size": 145
+  },
+  {
+   "name": "CAPABILITY_TRUTH.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.md",
+   "sha256": "7ec737a0973b81194ac2cf3b875d0f27a0472f307259d8075fb5855051b3edf9",
+   "size": 1146
+  },
+  {
+   "name": "CARDINALITY_CONTRACT.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/CARDINALITY_CONTRACT.json",
+   "sha256": "4ff3edc0acb32b71e7f251931d7a7685fd06ae91d59b4d33ca4d4498d4bb1cd9",
+   "size": 363
+  },
+  {
+   "name": "CARDINALITY_CONTRACT.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/CARDINALITY_CONTRACT.md",
+   "sha256": "7aa4bdd05ba5a14219c8707d68f6fb1fe154327011314fd70829dc068f6fcb59",
+   "size": 2510
+  },
+  {
+   "name": "CARDINALITY_IMPACT_MAP.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/CARDINALITY_IMPACT_MAP.json",
+   "sha256": "cd98303a0e2b6df8a314bca6406f5ba459140ef06ec1154f42b2ef9c0387d73a",
+   "size": 680
+  },
+  {
+   "name": "CARDINALITY_IMPACT_MAP.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/CARDINALITY_IMPACT_MAP.md",
+   "sha256": "6b91531c102ea5f25a2a1ad6a845635ed0fd7987a19ba64483c5755e30585ef0",
+   "size": 6087
+  },
+  {
+   "name": "COMMANDER_DAMAGE.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.json",
+   "sha256": "e4bdd8fa7d36a6bd635635985db7e39baf2e1f94e191221f7c165c4e5188405f",
+   "size": 215
+  },
+  {
+   "name": "COMMANDER_DAMAGE.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.md",
+   "sha256": "488c9616f65169a87dcaa7018d0a5d51dd145d1c6e81c6bb19da6ee485047902",
+   "size": 1350
+  },
+  {
+   "name": "COMMANDER_MULLIGAN.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_MULLIGAN.json",
+   "sha256": "b6c06668644238ba107118304e969151943267a9928e790e99272fc82412bb5c",
+   "size": 135
+  },
+  {
+   "name": "COMMANDER_MULLIGAN.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_MULLIGAN.md",
+   "sha256": "01368618102ff71d8409b1987f38eddf67c0de00cbbf01c5967120453c8e4485",
+   "size": 1122
+  },
+  {
+   "name": "COMMANDER_PARTNER.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_PARTNER.json",
+   "sha256": "6e78d3aef5434e34360c7e0eec959b990a3c0421771c4eecb5566337928a58a9",
+   "size": 112
+  },
+  {
+   "name": "COMMANDER_PARTNER.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_PARTNER.md",
+   "sha256": "cc07646e2baef6f122e95e9c63756c7cbcaf58c362402295226da156a12c1164",
+   "size": 907
+  },
+  {
+   "name": "COMMANDER_START_DRAW.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_START_DRAW.json",
+   "sha256": "4e15471835e97852863d26a40fda3f2f66cd20f38885e2595ba1dd56010149d8",
+   "size": 160
+  },
+  {
+   "name": "COMMANDER_START_DRAW.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_START_DRAW.md",
+   "sha256": "7926bf6bb4aeaa74e2cbc55f42646122c1d3917665c22337f4ce3be341ab4aed",
+   "size": 1396
+  },
+  {
+   "name": "COMMANDER_TAX.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_TAX.json",
+   "sha256": "a149818e4790bf7c3812f1d7f6cb4b44c55b77ab83cc48561e3e93d2d98d02d1",
+   "size": 128
+  },
+  {
+   "name": "COMMANDER_TAX.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_TAX.md",
+   "sha256": "3ab3e0b4307751e23063612fbaf66bcf5f489475458298fcdd50cf9ee74e84e7",
+   "size": 992
+  },
+  {
+   "name": "COMMANDER_ZONE_CHOICES.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+   "sha256": "951c99245d37f4c1c8fba44f9c08637f5952cd6aad1e9ce1374491e4951ba882",
+   "size": 260
+  },
+  {
+   "name": "COMMANDER_ZONE_CHOICES.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.md",
+   "sha256": "f839f6463e924d7171a452be9754114b791a04f67e5aca54c105dfb6e7823381",
+   "size": 1440
+  },
+  {
+   "name": "COMMON_FIXTURE_DISPOSITION.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+   "sha256": "e35f041c9de6d419fc6b3858c8cfeb6d12eb57aa983d92116da5050afd9f71a1",
+   "size": 35620
+  },
+  {
+   "name": "COMMON_FIXTURE_DISPOSITION.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.md",
+   "sha256": "4749ae324506508e6ddbbd9534ff894aa0411ccf278d0eda6a4578a519dd19e0",
+   "size": 1901
+  },
+  {
+   "name": "FINAL_HANDOFF.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/FINAL_HANDOFF.json",
+   "sha256": "d9d543be271c3ff5f49398815184e5fed95a6c36bb9b71f98c259bf18a66323d",
+   "size": 1509
+  },
+  {
+   "name": "FINAL_HANDOFF.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/FINAL_HANDOFF.md",
+   "sha256": "0353a971ae14d6468135d61b4a1ad595011eeecd3e056093d2d0f7ed46e0f637",
+   "size": 6930
+  },
+  {
+   "name": "FOUR_PLAYER_REGRESSION.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/FOUR_PLAYER_REGRESSION.json",
+   "sha256": "2b60e0c6e51a962e3cf1602f4e17955d7940d00b2413bbcc4178348be3d47d52",
+   "size": 96
+  },
+  {
+   "name": "FOUR_PLAYER_REGRESSION.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/FOUR_PLAYER_REGRESSION.md",
+   "sha256": "3ceda6f3a2463a0c03057d05d752ca8138b4c839e8103ff60eac567b8358f009",
+   "size": 844
+  },
+  {
+   "name": "HIDDEN_INFO_CARDINALITY.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+   "sha256": "1bc94ee79cc48cc3adc52971be76ec17ff753f7522e88204d256a9fa8b9d8271",
+   "size": 296
+  },
+  {
+   "name": "HIDDEN_INFO_CARDINALITY.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.md",
+   "sha256": "999cd8a821f2233ec5f20da91a35ca5bcaa91834ff02815362ad9c8124095456",
+   "size": 1767
+  },
+  {
+   "name": "INPUT_AUTHORITY_MATRIX.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/INPUT_AUTHORITY_MATRIX.json",
+   "sha256": "fcb9dc237a3d34c8b7dd4096d5030a6784fd964183f3f016171eb6fd38dad111",
+   "size": 433
+  },
+  {
+   "name": "INPUT_AUTHORITY_MATRIX.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/INPUT_AUTHORITY_MATRIX.md",
+   "sha256": "797bfc7a9495fbd213f40d229f1c761120873f2b110d9becb029b2d3617571cd",
+   "size": 3655
+  },
+  {
+   "name": "MULTIPLAYER_APNAP.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json",
+   "sha256": "8e386ef2105a8f401b559e6c7ce37a2e51956b2b988038a07e5a764c39051ec5",
+   "size": 210
+  },
+  {
+   "name": "MULTIPLAYER_APNAP.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.md",
+   "sha256": "511e94e73cfc5e0a981d9d9d32668be6c5983027a104d9825dd18f0331e4c8a5",
+   "size": 1036
+  },
+  {
+   "name": "MULTIPLAYER_COMBAT.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_COMBAT.json",
+   "sha256": "a9123df484b6113e4beb53da7b8187f4722b4dc110212c587fcc4126aa70f936",
+   "size": 206
+  },
+  {
+   "name": "MULTIPLAYER_COMBAT.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_COMBAT.md",
+   "sha256": "b0bb65e0e065ecb1e7d97697437c701bc84b1bbfd39a07bf85376d276f011bbf",
+   "size": 1344
+  },
+  {
+   "name": "MULTIPLAYER_EXTRA_TURNS.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json",
+   "sha256": "776455031ede8a1593ea3b0a211e5e50e61361fedabbfbdd8473ac07b5a04de2",
+   "size": 192
+  },
+  {
+   "name": "MULTIPLAYER_EXTRA_TURNS.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.md",
+   "sha256": "b78d928919cf78e1ff7bd3dc8fdd523e7324aa21e393c950daba38b4a7ee35ad",
+   "size": 859
+  },
+  {
+   "name": "MULTIPLAYER_PRIORITY.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_PRIORITY.json",
+   "sha256": "37f40de912d0c5700d01cf1b790228c5e5f9ae6f836c337ba2819e242d7ddffd",
+   "size": 135
+  },
+  {
+   "name": "MULTIPLAYER_PRIORITY.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_PRIORITY.md",
+   "sha256": "6484d002f4a5a6dcb59ed24588de3834c9620bd812ca78fc442009e2295e9f49",
+   "size": 830
+  },
+  {
+   "name": "PILOT_BOUNDARY_CARDINALITY.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+   "sha256": "c1ebb5574eeed434e9dffe8cbba24ea11ff08d8210d4b802e3f842596e974700",
+   "size": 114
+  },
+  {
+   "name": "PILOT_BOUNDARY_CARDINALITY.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.md",
+   "sha256": "0b1aca0abcb8adf3dbcfe4f43c295b6704bec3f5d8df6e69de0f417a158f2464",
+   "size": 1983
+  },
+  {
+   "name": "PLAYER_COUNT_2P.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_2P.json",
+   "sha256": "7ba6705b99d55e7a3159c4ef5049f908ab5b4e5895cdd9d272d1f711c2586f75",
+   "size": 553
+  },
+  {
+   "name": "PLAYER_COUNT_2P.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_2P.md",
+   "sha256": "a76ede84cd75b491d842bdca6fad2fb0c6f78270cc7a6a2192cbdcea3031bfd9",
+   "size": 2187
+  },
+  {
+   "name": "PLAYER_COUNT_3P.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_3P.json",
+   "sha256": "a501b22ccfc8f1187b09772ca6b7a333f510571f25631bb65d1132d977e57b03",
+   "size": 553
+  },
+  {
+   "name": "PLAYER_COUNT_3P.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_3P.md",
+   "sha256": "62e3c40d67872ccf6e05fe6bc9bb846a3b65a4a70e206a381ce738b63be63bd1",
+   "size": 1604
+  },
+  {
+   "name": "PLAYER_COUNT_4P.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_4P.json",
+   "sha256": "c96a20c33c1d9597f20fcc0054b41570d3f492d83c2e84ad372137ec7fc4a43a",
+   "size": 553
+  },
+  {
+   "name": "PLAYER_COUNT_4P.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_4P.md",
+   "sha256": "d7988ddddc67edd5ddcf83e58e73542f13d76ef23726a498c78fd34431dcdc67",
+   "size": 1490
+  },
+  {
+   "name": "PLAYER_COUNT_5P.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_5P.json",
+   "sha256": "a64187b3257b02345fe0386a46323f2827051894fc28964c7e4f8da6170c42f6",
+   "size": 553
+  },
+  {
+   "name": "PLAYER_COUNT_5P.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_5P.md",
+   "sha256": "3133250f7b4f171f1660fadfe4c37664256d485fdf0591824417162df929e85a",
+   "size": 1460
+  },
+  {
+   "name": "PLAYER_ELIMINATION_CR800_4.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+   "sha256": "c4732b36f53dec30e1feffad25ae2989bfbf737dd233849d7c0588871de89aa1",
+   "size": 249
+  },
+  {
+   "name": "PLAYER_ELIMINATION_CR800_4.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.md",
+   "sha256": "d750d57f8d0aaf2625e0a0ab90ffcf583d8bd77d38606c0fe3857a9926afe596",
+   "size": 2108
+  },
+  {
+   "name": "RULES_RNG_CARDINALITY.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/RULES_RNG_CARDINALITY.json",
+   "sha256": "ee9c9d9337b05785cc48b662096d167115016e6f333f9197f788e9ea0972b63a",
+   "size": 364
+  },
+  {
+   "name": "RULES_RNG_CARDINALITY.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/RULES_RNG_CARDINALITY.md",
+   "sha256": "d026075e1c0721be540def0ee0f328c1dc571569393769c91e8419bffcb71036",
+   "size": 1881
+  },
+  {
+   "name": "SEMANTIC_REPLAY_IMPACT.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/SEMANTIC_REPLAY_IMPACT.json",
+   "sha256": "5fa1e7a5a6433906297758ab89725a6e19d8573a7dc5cc500c831b8db3ff779b",
+   "size": 145
+  },
+  {
+   "name": "SEMANTIC_REPLAY_IMPACT.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/SEMANTIC_REPLAY_IMPACT.md",
+   "sha256": "cfba0419ff7d71ab6e3255848d0cb7f2ce924bcbeed0c57a38e648628378d6f6",
+   "size": 1641
+  },
+  {
+   "name": "SIX_PLAYER_STRETCH.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/SIX_PLAYER_STRETCH.json",
+   "sha256": "d477e3953e9be2b016b605ad289c73cf20ae31501df04722192ae3bb1df80578",
+   "size": 155
+  },
+  {
+   "name": "SIX_PLAYER_STRETCH.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/SIX_PLAYER_STRETCH.md",
+   "sha256": "e0d15f8529d1ec859ae5bc360fd5c500d5c2816d9604f03278d3b20764f2a9d8",
+   "size": 1308
+  },
+  {
+   "name": "SOURCE_LOCK.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/SOURCE_LOCK.json",
+   "sha256": "7c0bb975ecbe1a375f7e0f16b2d0a66afc8ab11a6cec35be793e3d529bac36dd",
+   "size": 525
+  },
+  {
+   "name": "SOURCE_LOCK.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/SOURCE_LOCK.md",
+   "sha256": "59310aed5f10eeb234bb84bc19400c336f4ed2074f5ac5924963dcf3a1bdece8",
+   "size": 645
+  },
+  {
+   "name": "VALIDATION.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json",
+   "sha256": "22b36d134bd6cd2d3cbe66720ad5bdeefc07658f67917f3a421d3da74ee04956",
+   "size": 398
+  },
+  {
+   "name": "VALIDATION.md",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.md",
+   "sha256": "048b72b5eaea5fd5cdfaa68c1b171274b0a28c9160262b30fbcac104ecfcc1e9",
+   "size": 1976
+  },
+  {
+   "name": "ws215_driver.cpython-314.pyc",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/__pycache__/ws215_driver.cpython-314.pyc",
+   "sha256": "6e67c270d8880fb5de403ca7277976d9cdd438378cf80f1c29ea34cb6e499d40",
+   "size": 13245
+  },
+  {
+   "name": "ws215_lions.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/decks/ws215_lions.json",
+   "sha256": "2766b3c0e508350b33979fb8d9cef1c3d108d5217a248025cba790f9cd793e98",
+   "size": 2003
+  },
+  {
+   "name": "Ws215LifecycleProbe.java",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/driver-java/org/commanderlab/xmage/Ws215LifecycleProbe.java",
+   "sha256": "8259786c1d5b72c573396d617dcc0c1ff0487e510eb6f9f8452be0bbf660f9fe",
+   "size": 59934
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander/stdout.txt",
+   "sha256": "acc50925ca85b5bb7f70c22a60ebda1fd54e36b49ddb74165cf7ac7b5057b79c",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander/summary.json",
+   "sha256": "96234c7b6db254c7a4bc49c2f91dae57868a07f7aa2076dc460bfc1b64eada0c",
+   "size": 42907
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander/transcript_canonical.txt",
+   "sha256": "71d2aad8792d0509de398abf3c319c107ca217bedac70ad53a978d331f647916",
+   "size": 35438
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander2/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander2/stdout.txt",
+   "sha256": "8bfdf767a54bb5f1277aae8aa46c64e591c37f142b49aaa5cc7f176fab65629e",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander2/summary.json",
+   "sha256": "6dc06e98ced05295a78a8edf29a0f4ed0a9548c34ff9399f6444b14a4cd4f88b",
+   "size": 42951
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/commander2/transcript_canonical.txt",
+   "sha256": "4919f684b814b295497f6b548324b3fcfbabd32ab4223526f9a37f20bc438d3a",
+   "size": 29552
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-primary/stdout.txt",
+   "sha256": "acc50925ca85b5bb7f70c22a60ebda1fd54e36b49ddb74165cf7ac7b5057b79c",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-primary/summary.json",
+   "sha256": "d37b2a56c959350850a978bdb1dfdd0d0b96a151a64b95f35be2346ca3645ba5",
+   "size": 3562
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-primary/transcript_canonical.txt",
+   "sha256": "71d2aad8792d0509de398abf3c319c107ca217bedac70ad53a978d331f647916",
+   "size": 35438
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-twin/stdout.txt",
+   "sha256": "acc50925ca85b5bb7f70c22a60ebda1fd54e36b49ddb74165cf7ac7b5057b79c",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-twin/summary.json",
+   "sha256": "21cffa2b42f269cdc41eacd914cdb8fd37ee1bff47241e420a7ca7770ca9147f",
+   "size": 3562
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/develop-twin/transcript_canonical.txt",
+   "sha256": "71d2aad8792d0509de398abf3c319c107ca217bedac70ad53a978d331f647916",
+   "size": 35438
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/observe/stdout.txt",
+   "sha256": "8bfdf767a54bb5f1277aae8aa46c64e591c37f142b49aaa5cc7f176fab65629e",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/observe/summary.json",
+   "sha256": "5de113c64a034566bc1691640a5218d36699febfdfa17a4c52519867d3b5a0e6",
+   "size": 42951
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions/observe/transcript_canonical.txt",
+   "sha256": "4919f684b814b295497f6b548324b3fcfbabd32ab4223526f9a37f20bc438d3a",
+   "size": 29552
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-frames/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-frames/stdout.txt",
+   "sha256": "43aaa6f564b79ea76248b2d6faf5d737efb714a626d980bd652431cb7c805319",
+   "size": 130
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-frames/summary.json",
+   "sha256": "5700377488c2094102ff1337e63a65704d07fd78dbe4c90c456d06cd515700c5",
+   "size": 41617
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-frames/transcript_canonical.txt",
+   "sha256": "ed3a829a09745b2d5971a1c9a758f7851ee63390b42d13d9fd39ffdd1870e48b",
+   "size": 3353
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke/stdout.txt",
+   "sha256": "57f70c9ec6b4229a40146bb73f342e18fa8555c4feb820042f530da48ac6f366",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke/summary.json",
+   "sha256": "25dff2a3378c36debabcabcbc6039a5a62a5d4ced4aed2a570d06e5850322188",
+   "size": 41992
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke/transcript_canonical.txt",
+   "sha256": "c06761ce6bebd968f88ce3ad60b7190c3be96065f30596a91988516c30724905",
+   "size": 11277
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke2/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke2/stdout.txt",
+   "sha256": "8ac7fe31739363fd2997cc57b758d0fff6b241c2a32358917e320726db69d51f",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke2/summary.json",
+   "sha256": "f6ebf7b1c0d339408d7ff33c7f8dc597d0fe90240e84dd4e3d4e095e4d3f81c9",
+   "size": 42050
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke2/transcript_canonical.txt",
+   "sha256": "3f46e5f70b0105b9ecef19aa4353676287e1e9a5af13e7e4ad7c9af2804eff4e",
+   "size": 11332
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke3/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke3/stdout.txt",
+   "sha256": "fd57721a63a56eb8cbca90c9082afe9e9979f7ad1c99ac856aacf06af6569f89",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke3/summary.json",
+   "sha256": "8f0d83ac4913a65f205f0002bd1dcfaa7c66b33a34f621fa5f4ef312bc0db4ce",
+   "size": 42536
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/mulligan-smoke3/transcript_canonical.txt",
+   "sha256": "cfd279c2d3cedf120f451760e806ec3dccda544ad70b20ad803d8236781562ff",
+   "size": 11189
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/observe/stdout.txt",
+   "sha256": "5ccf2c45b83463624b9acb15da21d2b4814aefc5e4fcd4ca0a575ebd02b94b15",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/observe/summary.json",
+   "sha256": "41cf7b52164a8f00462bfa901f1a66a6be80c9e690a3982d69ac5deab66769d5",
+   "size": 43539
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/observe/transcript_canonical.txt",
+   "sha256": "8ec4a1e427b579af19379b3d6d97bc931f7d103b894613366620f19a1547aba7",
+   "size": 29575
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/terminal-check/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/terminal-check/stdout.txt",
+   "sha256": "2acfbdae07621394ef64c845ae3e5511475db5328f14247affc70a7333b165e4",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/terminal-check/summary.json",
+   "sha256": "427eeab63afb7b73d6abdbed8047dc462368b80a27d9cb7dfd10f765fd30cd7b",
+   "size": 42825
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-develop-lions-mulligan/terminal-check/transcript_canonical.txt",
+   "sha256": "a2acad902352544295d0753595c22b600a1a9a4e7cda2d538c832f13a33e23b1",
+   "size": 27719
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/observe/stdout.txt",
+   "sha256": "56139d38d56dfa9d293205a2188753e9a499c965dbdd1ff37adb8fcd143cb350",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/observe/summary.json",
+   "sha256": "8aad8836a339645201579f688d0c4f745f10dfa54a0b3ade3e72f68568145bc0",
+   "size": 55621
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/observe/transcript_canonical.txt",
+   "sha256": "b7a61b0821d6558b40a93800c5689b6ec12982b26c73c16a819dfc1382170bbc",
+   "size": 7866
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug/stderr.txt",
+   "sha256": "9ebcaf7ddbb3dc832b0e4de3fbf55e8288731e7cd5b3446feeb18e63e4144b86",
+   "size": 1280
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug/stdout.txt",
+   "sha256": "ea617fceca4a7902f638996cd6a57de3c1ad93e939b51b7bcfabefa91bca0e95",
+   "size": 129
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug/summary.json",
+   "sha256": "ab2c189e340338c70d7f8dde82ab63c73f57fe5e189956233a0026f202218780",
+   "size": 3812
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug/transcript_canonical.txt",
+   "sha256": "d808249cca1744007229676eb2c6b52822a85ed84429a5f26e6d99078e4439b3",
+   "size": 247
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug2/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug2/stdout.txt",
+   "sha256": "56139d38d56dfa9d293205a2188753e9a499c965dbdd1ff37adb8fcd143cb350",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug2/summary.json",
+   "sha256": "315fc4839693646d2177bfa59e6c8f0fb09782ef719a3121cc9f79b353c2e7bd",
+   "size": 23555
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/oracle-debug2/transcript_canonical.txt",
+   "sha256": "b7a61b0821d6558b40a93800c5689b6ec12982b26c73c16a819dfc1382170bbc",
+   "size": 7866
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/primary/stdout.txt",
+   "sha256": "56139d38d56dfa9d293205a2188753e9a499c965dbdd1ff37adb8fcd143cb350",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/primary/summary.json",
+   "sha256": "5ccb251fd21577f211f97ea5cc47ecc5e2db020174a6cf686b64f6a9cf61210b",
+   "size": 1867
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/primary/transcript_canonical.txt",
+   "sha256": "b7a61b0821d6558b40a93800c5689b6ec12982b26c73c16a819dfc1382170bbc",
+   "size": 7866
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/twin/stdout.txt",
+   "sha256": "56139d38d56dfa9d293205a2188753e9a499c965dbdd1ff37adb8fcd143cb350",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/twin/summary.json",
+   "sha256": "b05f9b67b1654257082a22ec61f69561ee408fbfd41f1814a4d378d39da8f209",
+   "size": 1867
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424242-neutral-rogshai/twin/transcript_canonical.txt",
+   "sha256": "b7a61b0821d6558b40a93800c5689b6ec12982b26c73c16a819dfc1382170bbc",
+   "size": 7866
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-develop-lions/develop-distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-develop-lions/develop-distinct-seed/stdout.txt",
+   "sha256": "5a643624c48e2e6daf381c03f96345a5846d520f351dab4d88c6f216c1a9ef5e",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-develop-lions/develop-distinct-seed/summary.json",
+   "sha256": "04304f5cf679304d0e5e2e3fcb0596fc66d7dfd8f580e64bf7b97a0007b467be",
+   "size": 3593
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-develop-lions/develop-distinct-seed/transcript_canonical.txt",
+   "sha256": "a530bd85302d8bb6521fd749dee98538b181e7b118425874c50cee0914451422",
+   "size": 35295
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-neutral-rogshai/distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-neutral-rogshai/distinct-seed/stdout.txt",
+   "sha256": "6084051cb8b5116ed42bf5a671712b007c5815890f84ce313fbe5b8fd5c9d6d9",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-neutral-rogshai/distinct-seed/summary.json",
+   "sha256": "ee587b1c8115f27b7eba3626957dbd73ccca88ec126a37dafcc6f16ebd459c91",
+   "size": 1867
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/2p-seed424243-neutral-rogshai/distinct-seed/transcript_canonical.txt",
+   "sha256": "8f660dfd68fc697d541f427670ae1a5168c03103c6bb7604898ac079990e49be",
+   "size": 7895
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander/stdout.txt",
+   "sha256": "c568e1eda31c800a43e0da23e57f77f27bdba2345883a21333af985a04cbea38",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander/summary.json",
+   "sha256": "891d85a7249b25b12160d31fc5519a1860bf2c53d11e994b664472e7142c0066",
+   "size": 58332
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander/transcript_canonical.txt",
+   "sha256": "76a3342b7d9f1ee5b7370e433378c49c497dc1c3e1c4feccd2cbd43b079b80ff",
+   "size": 33941
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander2/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander2/stdout.txt",
+   "sha256": "b6b78aac88f1c89219b5cec39f34120359352bf1bf351b5f90c2857c97a9d61f",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander2/summary.json",
+   "sha256": "d55f9c81151e0f6af7b133d9e1f404925d763301c57d94dffb52b43a749de3db",
+   "size": 58974
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/commander2/transcript_canonical.txt",
+   "sha256": "a42f5d56f1717a260daa3765444df1f66b5907f6c80dd02cf42dc9aa69144fcf",
+   "size": 34095
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-primary/stdout.txt",
+   "sha256": "c568e1eda31c800a43e0da23e57f77f27bdba2345883a21333af985a04cbea38",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-primary/summary.json",
+   "sha256": "78c0c7e6dc2c6816453c822fa867d22eb41c7140deb8f76acf700bb5d86eca61",
+   "size": 3692
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-primary/transcript_canonical.txt",
+   "sha256": "76a3342b7d9f1ee5b7370e433378c49c497dc1c3e1c4feccd2cbd43b079b80ff",
+   "size": 33941
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-twin/stdout.txt",
+   "sha256": "c568e1eda31c800a43e0da23e57f77f27bdba2345883a21333af985a04cbea38",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-twin/summary.json",
+   "sha256": "2cf047edd623879a1cb3b0fdc5c48a0997d095984fb1b086c986b1afd886927e",
+   "size": 3692
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/develop-twin/transcript_canonical.txt",
+   "sha256": "76a3342b7d9f1ee5b7370e433378c49c497dc1c3e1c4feccd2cbd43b079b80ff",
+   "size": 33941
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/observe/stdout.txt",
+   "sha256": "b6b78aac88f1c89219b5cec39f34120359352bf1bf351b5f90c2857c97a9d61f",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/observe/summary.json",
+   "sha256": "00df33bdaa95062115af95e756c11e6c9cff9257822000e29b8349dfd24f2c36",
+   "size": 58974
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-develop-lions/observe/transcript_canonical.txt",
+   "sha256": "a42f5d56f1717a260daa3765444df1f66b5907f6c80dd02cf42dc9aa69144fcf",
+   "size": 34095
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/observe/stdout.txt",
+   "sha256": "fb6ca91d6acf079812351a16288432fbfadcd05f2709559f3b02a2b64dc07ca6",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/observe/summary.json",
+   "sha256": "8daef79e68fce0a5b28a694985a3c3ec9fc7ff28a02565fece46610b8c6f4283",
+   "size": 78181
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/observe/transcript_canonical.txt",
+   "sha256": "8607e3f9936b76c13b04e8d81f0bf0c80115bdee962d4f2b3d2a009f1dd0e293",
+   "size": 7878
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/primary/stdout.txt",
+   "sha256": "fb6ca91d6acf079812351a16288432fbfadcd05f2709559f3b02a2b64dc07ca6",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/primary/summary.json",
+   "sha256": "0695e2e7eef3eb00ecd364a097b6c9d3418cc6c13150d4e713ca3a0ddfa7623c",
+   "size": 1955
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/primary/transcript_canonical.txt",
+   "sha256": "8607e3f9936b76c13b04e8d81f0bf0c80115bdee962d4f2b3d2a009f1dd0e293",
+   "size": 7878
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/twin/stdout.txt",
+   "sha256": "fb6ca91d6acf079812351a16288432fbfadcd05f2709559f3b02a2b64dc07ca6",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/twin/summary.json",
+   "sha256": "46ee965bba747874c85b06badb9c1c70367edcea364a8231e62d828d72f77694",
+   "size": 1955
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed424242-neutral-rogshai/twin/transcript_canonical.txt",
+   "sha256": "8607e3f9936b76c13b04e8d81f0bf0c80115bdee962d4f2b3d2a009f1dd0e293",
+   "size": 7878
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-develop-lions/develop-distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-develop-lions/develop-distinct-seed/stdout.txt",
+   "sha256": "1567c2cdd28d5ac00acba255d5e798f3dc13f49cf7af40135cef1a9008e1b16f",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-develop-lions/develop-distinct-seed/summary.json",
+   "sha256": "35f7ea7e01c5ba7407846205350dd57b6de22aa286c22ff9e521d372ad3c4485",
+   "size": 3733
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-develop-lions/develop-distinct-seed/transcript_canonical.txt",
+   "sha256": "e54f3515ef8b47a730848712ad953ae77ba62a888dcb9986fd72a930933db0bd",
+   "size": 34049
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-neutral-rogshai/distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-neutral-rogshai/distinct-seed/stdout.txt",
+   "sha256": "b43f1bac6cae155e1b9657164cb26e8e5c827a4b2ee0f68600b6f02bba3e9c47",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-neutral-rogshai/distinct-seed/summary.json",
+   "sha256": "422a7969e651449357248f1967fa9a070c9ad9a34e404072c2ee1ace76c7d0fc",
+   "size": 1955
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/3p-seed777001-neutral-rogshai/distinct-seed/transcript_canonical.txt",
+   "sha256": "5aaf8852c84f6718a9de5c515bbab2329655f34c33878135c6fcb281401fc10c",
+   "size": 7902
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug/stdout.txt",
+   "sha256": "4c375cb6637228098a6b5c6dade5e2fefef56a8d46fecc1f2705b6fa06b5831c",
+   "size": 130
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug/summary.json",
+   "sha256": "a556024c8bf3b1bd7fd54207c6f27d38a1d6fa769c0cf95ff347947df7304214",
+   "size": 2069
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug/transcript_canonical.txt",
+   "sha256": "3424c0428d3a054aabd5b24d0238e267cc860ea2323225b4eac7b5845139ebf8",
+   "size": 694
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug2/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug2/stdout.txt",
+   "sha256": "edd9fac7878081eb65b471ab85572256eb04466f1ae226176a46c918057098d9",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug2/summary.json",
+   "sha256": "b87716ab1d4706ee335191a49b69e57b7c86f03dd16d1ffc8e015c6573530a0b",
+   "size": 1962
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug2/transcript_canonical.txt",
+   "sha256": "2b9e1ea541378439f69c27028bed837df470312ef05beb6dadf5b66e517466ae",
+   "size": 21045
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug3/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug3/stdout.txt",
+   "sha256": "472fb2686501619afe12256ce1d6db92c6508b87cf28c87651d0df727ff4aa40",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug3/summary.json",
+   "sha256": "accb701fe29c1efac89c6d2393eaab4627ecf83d815b4125bfa0f8d774412577",
+   "size": 1929
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug3/transcript_canonical.txt",
+   "sha256": "095a6a292275c91bcf526f7e2b2d8e0d0699fd2d61065eaf77b469729fa80df8",
+   "size": 6597
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug4/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug4/stdout.txt",
+   "sha256": "edd9fac7878081eb65b471ab85572256eb04466f1ae226176a46c918057098d9",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug4/summary.json",
+   "sha256": "8b7393abcf4ab3ce3b5910d34b78fd33a2977aa0adf6cd0e60b05722a7bc7348",
+   "size": 1962
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug4/transcript_canonical.txt",
+   "sha256": "390c0257aa5186ef14bf14cd3ef6aafc43e1042e477a64da6d6e52ed74116700",
+   "size": 37686
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug5/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug5/stdout.txt",
+   "sha256": "edd9fac7878081eb65b471ab85572256eb04466f1ae226176a46c918057098d9",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug5/summary.json",
+   "sha256": "cffe3e09b67981cf0959e261b0539e725189e292c589fd3949b5541c187fb344",
+   "size": 1962
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug5/transcript_canonical.txt",
+   "sha256": "390c0257aa5186ef14bf14cd3ef6aafc43e1042e477a64da6d6e52ed74116700",
+   "size": 37686
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug6/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug6/stdout.txt",
+   "sha256": "5e72fd9193e5ccaa6e6703d59e89917bb3a3bfbe5f7b5a4f9dace3ac9e5019e4",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug6/summary.json",
+   "sha256": "3514778910c1e8d7451bb1d1ee722f5bde337de1f41805d25fa4f5232f678e0a",
+   "size": 3332
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug6/transcript_canonical.txt",
+   "sha256": "25acdffdd18665a2918f70a9bedb897018bedb034e88460f90357da9dc0db795",
+   "size": 24585
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug7/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug7/stdout.txt",
+   "sha256": "5e72fd9193e5ccaa6e6703d59e89917bb3a3bfbe5f7b5a4f9dace3ac9e5019e4",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug7/summary.json",
+   "sha256": "35cd2d6416172cc7063d3dbfc330f9a1ef5914c81ea623522166d7b81675eb41",
+   "size": 3070
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug7/transcript_canonical.txt",
+   "sha256": "25acdffdd18665a2918f70a9bedb897018bedb034e88460f90357da9dc0db795",
+   "size": 24585
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug8/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug8/stdout.txt",
+   "sha256": "19c017bc0973e2d462b97fbdb365cfbe74a8af83566ada61c955d25bdf2d518f",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug8/summary.json",
+   "sha256": "fbbedf5a2c7da6d136b68bd6817176a385cadad250cdc684d2f1ae870b37efba",
+   "size": 3503
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug8/transcript_canonical.txt",
+   "sha256": "e75c4b43f41887d11389e276f2db68c45bd2667d2a7d2f6e67cae2db9f217e82",
+   "size": 8469
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug9/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug9/stdout.txt",
+   "sha256": "19c017bc0973e2d462b97fbdb365cfbe74a8af83566ada61c955d25bdf2d518f",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug9/summary.json",
+   "sha256": "061eb612aadc19c4db64323b9b512502b76f74e25f691df25c185adc49de7cba",
+   "size": 3666
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-debug9/transcript_canonical.txt",
+   "sha256": "e75c4b43f41887d11389e276f2db68c45bd2667d2a7d2f6e67cae2db9f217e82",
+   "size": 8469
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-primary/stderr.txt",
+   "sha256": "d5831dede6b57fbed6205f1e6b56ebea17ee6dec4894a4811145fa601c16a54e",
+   "size": 693
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-primary/stdout.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-twin/stderr.txt",
+   "sha256": "d5831dede6b57fbed6205f1e6b56ebea17ee6dec4894a4811145fa601c16a54e",
+   "size": 693
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop/develop-twin/stdout.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander/stdout.txt",
+   "sha256": "5fdf5811d66c50d67a855b81ab8df025051473134eafc776f8d0e9cf0acf6fa3",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander/summary.json",
+   "sha256": "2020e48b83b037f6334b5645398e8fbbe1fd84ea1dbf613f1dcad9895db96bd3",
+   "size": 73572
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander/transcript_canonical.txt",
+   "sha256": "507df05ba5121f882be85da63da099d3ed30e92bfcd920178f88b0c21782c08b",
+   "size": 33392
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander2/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander2/stdout.txt",
+   "sha256": "9e90e043cbc48b8394f041b0e494857400bdb858d3a82a746c4695f7c9383eec",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander2/summary.json",
+   "sha256": "d153b50a967268529e0c8491b0267c6e72ae8cbea9e256082334e24775ccf7d1",
+   "size": 73769
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/commander2/transcript_canonical.txt",
+   "sha256": "349058758f8c7e883db6582cf8c5d7d5cc66d80fb1dc73258089b78954d830f1",
+   "size": 33480
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-primary/stdout.txt",
+   "sha256": "5fdf5811d66c50d67a855b81ab8df025051473134eafc776f8d0e9cf0acf6fa3",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-primary/summary.json",
+   "sha256": "d38bf334a66a38392b616ef6a7c946355ce4306b447158058d3c3be7eb41c66e",
+   "size": 3876
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-primary/transcript_canonical.txt",
+   "sha256": "507df05ba5121f882be85da63da099d3ed30e92bfcd920178f88b0c21782c08b",
+   "size": 33392
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-twin/stdout.txt",
+   "sha256": "5fdf5811d66c50d67a855b81ab8df025051473134eafc776f8d0e9cf0acf6fa3",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-twin/summary.json",
+   "sha256": "1aff097acd73eef253370f3160dc6d968f5e45f4d76f98c39735c8c97e78a77e",
+   "size": 3876
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/develop-twin/transcript_canonical.txt",
+   "sha256": "507df05ba5121f882be85da63da099d3ed30e92bfcd920178f88b0c21782c08b",
+   "size": 33392
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/lions-smoke/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/lions-smoke/stdout.txt",
+   "sha256": "5fdf5811d66c50d67a855b81ab8df025051473134eafc776f8d0e9cf0acf6fa3",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/lions-smoke/summary.json",
+   "sha256": "13171a59838471ff1918a5e20ff870fc95f33440ddba514dc7c2f9a02a1c5c2a",
+   "size": 3876
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/lions-smoke/transcript_canonical.txt",
+   "sha256": "507df05ba5121f882be85da63da099d3ed30e92bfcd920178f88b0c21782c08b",
+   "size": 33392
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/observe/stdout.txt",
+   "sha256": "9e90e043cbc48b8394f041b0e494857400bdb858d3a82a746c4695f7c9383eec",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/observe/summary.json",
+   "sha256": "20d8fbdc6466c2b4a90a84bf4463e21fc98a6f604099d6ee0ec58153a6c4b50b",
+   "size": 73904
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions/observe/transcript_canonical.txt",
+   "sha256": "349058758f8c7e883db6582cf8c5d7d5cc66d80fb1dc73258089b78954d830f1",
+   "size": 33480
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions-mulligan/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions-mulligan/observe/stdout.txt",
+   "sha256": "eaff4a693665c734bda1489d15550c2df2b227b556dddc88991543229abc9a85",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions-mulligan/observe/summary.json",
+   "sha256": "3bcbb1e3376aeaf8f97ba874a9f722f3a5a164cfeabb728e83acbf5f767f0f38",
+   "size": 73670
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-develop-lions-mulligan/observe/transcript_canonical.txt",
+   "sha256": "f8a46083f2c4826ad4e40f7b4b2d744e51c8a27cb8df29c0ca392a455777721d",
+   "size": 33301
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/primary/stdout.txt",
+   "sha256": "21c00f661f00f82bbc533caf3311bef07b6fb0f11b3f7dbe25263dd8104d45a1",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/primary/summary.json",
+   "sha256": "beb5106ce537f9f4fc4ce200616ca9e16ff3170cf630ec3219954e0112b583cd",
+   "size": 1855
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/primary/transcript_canonical.txt",
+   "sha256": "b17378f339524149c041b669b097d18364d71eda6bca8da335cc786760154262",
+   "size": 5151
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/twin/stdout.txt",
+   "sha256": "21c00f661f00f82bbc533caf3311bef07b6fb0f11b3f7dbe25263dd8104d45a1",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/twin/summary.json",
+   "sha256": "36a46e9ef1757fc4b5127071ccbf18127508fd917342b2c34f276c274543ef51",
+   "size": 1855
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral/twin/transcript_canonical.txt",
+   "sha256": "b17378f339524149c041b669b097d18364d71eda6bca8da335cc786760154262",
+   "size": 5151
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/observe/stdout.txt",
+   "sha256": "21c00f661f00f82bbc533caf3311bef07b6fb0f11b3f7dbe25263dd8104d45a1",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/observe/summary.json",
+   "sha256": "dd796e5c03eafe28099525a961aa9c4c83cc34d9cd2d07a642d1bfc11dd94916",
+   "size": 100740
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/observe/transcript_canonical.txt",
+   "sha256": "52af0a9a952361add17e5b4e71d4246db176ac8f4c799b9c5f7c3cc4d6b1d69c",
+   "size": 7870
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/primary/stdout.txt",
+   "sha256": "21c00f661f00f82bbc533caf3311bef07b6fb0f11b3f7dbe25263dd8104d45a1",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/primary/summary.json",
+   "sha256": "a941f41d91d12889c1f7779fcdd2e7688ae8fa4e76c4f0a1d67516f6c753463c",
+   "size": 2043
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/primary/transcript_canonical.txt",
+   "sha256": "52af0a9a952361add17e5b4e71d4246db176ac8f4c799b9c5f7c3cc4d6b1d69c",
+   "size": 7870
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/twin/stdout.txt",
+   "sha256": "21c00f661f00f82bbc533caf3311bef07b6fb0f11b3f7dbe25263dd8104d45a1",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/twin/summary.json",
+   "sha256": "89c19bcbb410b3e1091a8037eaf36c5bb13c062e64126ce309169aa393ab625c",
+   "size": 2043
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-neutral-rogshai/twin/transcript_canonical.txt",
+   "sha256": "52af0a9a952361add17e5b4e71d4246db176ac8f4c799b9c5f7c3cc4d6b1d69c",
+   "size": 7870
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-primary/stdout.txt",
+   "sha256": "5b23dab631c5a49ce34094996ee055852845a80f93dec5913bfd29b522c55951",
+   "size": 129
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-primary/summary.json",
+   "sha256": "801e677d23b372046215e44c23a49258f9a42b7ea8c7c548087b4250eb498b11",
+   "size": 1855
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-primary/transcript_canonical.txt",
+   "sha256": "c988f5b7b0cbe68c82aa82bdfeae0fabd7ab8f22b1bbc5618b506239429e25b1",
+   "size": 20974
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-twin/stdout.txt",
+   "sha256": "5b23dab631c5a49ce34094996ee055852845a80f93dec5913bfd29b522c55951",
+   "size": 129
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-twin/summary.json",
+   "sha256": "d0f4dd47a44141c0b9fb13f3c4dbec0496400b7f72c52c1e5ecc9b65b6a6988d",
+   "size": 1855
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424242-press/press-twin/transcript_canonical.txt",
+   "sha256": "c988f5b7b0cbe68c82aa82bdfeae0fabd7ab8f22b1bbc5618b506239429e25b1",
+   "size": 20974
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-develop/develop-distinct-seed/stderr.txt",
+   "sha256": "d5831dede6b57fbed6205f1e6b56ebea17ee6dec4894a4811145fa601c16a54e",
+   "size": 693
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-develop/develop-distinct-seed/stdout.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-develop-lions/develop-distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-develop-lions/develop-distinct-seed/stdout.txt",
+   "sha256": "539f1a3c85b52586670d906b146a959db14132d65098109c6355cd7673ecc8e3",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-develop-lions/develop-distinct-seed/summary.json",
+   "sha256": "2bcda199a3cef11377a0254528f82472a65ff007e4419603b8b0244e782acac6",
+   "size": 3828
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-develop-lions/develop-distinct-seed/transcript_canonical.txt",
+   "sha256": "1b4ee8a9f470e5767e243ba4994a0cd210df9de1ab80e20904f6e5cba2a8c873",
+   "size": 33698
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral/distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral/distinct-seed/stdout.txt",
+   "sha256": "5307c1bb11652005bd5fa94085a608d668c245d1ca12f011113a7b648172b45a",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral/distinct-seed/summary.json",
+   "sha256": "f7d4a5daf4d4de81ab35575b2ccb056ad694d88237f802476ec90be36ececb84",
+   "size": 1855
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral/distinct-seed/transcript_canonical.txt",
+   "sha256": "e1fdfadead93f29b292c2a5b74390f276b4867ed649382aff92629fbad7439e7",
+   "size": 5151
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral-rogshai/distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral-rogshai/distinct-seed/stdout.txt",
+   "sha256": "5307c1bb11652005bd5fa94085a608d668c245d1ca12f011113a7b648172b45a",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral-rogshai/distinct-seed/summary.json",
+   "sha256": "3acd35ce8a65a3b64d723ca0e7d55708e9e78280776e04b9a24ffd66e81910ab",
+   "size": 2043
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed424243-neutral-rogshai/distinct-seed/transcript_canonical.txt",
+   "sha256": "25e7af72885163608dc12d878b14d558b273066621f5e321619e290af3c19b58",
+   "size": 7879
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed888002-neutral/distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed888002-neutral/distinct-seed/stdout.txt",
+   "sha256": "be60884789ec736274828fbc70a00216aa51bfd63593d41a19fdd72997cfed7c",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed888002-neutral/distinct-seed/summary.json",
+   "sha256": "0473606fa13d6546958fd0668d114898591646a04035a1cbe53ce7aaa760ec2e",
+   "size": 1855
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/4p-seed888002-neutral/distinct-seed/transcript_canonical.txt",
+   "sha256": "43a1b19086eac39a1f8ceccf5f4786ede37894a793864aac1112e7e66193b305",
+   "size": 5151
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander/stdout.txt",
+   "sha256": "375cbc458a4e60c479eaec010ee05fbb962422761a835baf51dceb4bac2a88d8",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander/summary.json",
+   "sha256": "2b5b83e533461b24b672b4defe627442dd9d912a293bdbdf826a46ddb542862c",
+   "size": 88718
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander/transcript_canonical.txt",
+   "sha256": "a3c0001362e9668139a9357f98e215866becceae7558159cf5ae663cf2efb15a",
+   "size": 32997
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander2/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander2/stdout.txt",
+   "sha256": "b20dcbf9cb507aabe9df19a57b78173f19c3d18470cb075179c2a194cfbaa125",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander2/summary.json",
+   "sha256": "de152092d3762f57ce3014d0dc9c58950d5a135a195090b330e91d0baaa922c2",
+   "size": 88718
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/commander2/transcript_canonical.txt",
+   "sha256": "2aee3851b48159a01354e0d88932a7208ec0c7730d991ab1020ef3e4f9dbecc9",
+   "size": 33026
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-primary/stdout.txt",
+   "sha256": "375cbc458a4e60c479eaec010ee05fbb962422761a835baf51dceb4bac2a88d8",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-primary/summary.json",
+   "sha256": "666daa3aae7229253aff48d8eb7dead6635860cbd7cd8691b20c3f56f6bb227c",
+   "size": 3975
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-primary/transcript_canonical.txt",
+   "sha256": "a3c0001362e9668139a9357f98e215866becceae7558159cf5ae663cf2efb15a",
+   "size": 32997
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-twin/stdout.txt",
+   "sha256": "375cbc458a4e60c479eaec010ee05fbb962422761a835baf51dceb4bac2a88d8",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-twin/summary.json",
+   "sha256": "7c8479834a13cb90ce332b681da781e68291b9f4586ec7e57a01c0f334edce5d",
+   "size": 3975
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/develop-twin/transcript_canonical.txt",
+   "sha256": "a3c0001362e9668139a9357f98e215866becceae7558159cf5ae663cf2efb15a",
+   "size": 32997
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/lions-smoke/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/lions-smoke/stdout.txt",
+   "sha256": "375cbc458a4e60c479eaec010ee05fbb962422761a835baf51dceb4bac2a88d8",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/lions-smoke/summary.json",
+   "sha256": "c0f64b580c8e3bb679886833b7382bb563edba088d6e048c5a5214b685f49e61",
+   "size": 3975
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/lions-smoke/transcript_canonical.txt",
+   "sha256": "a3c0001362e9668139a9357f98e215866becceae7558159cf5ae663cf2efb15a",
+   "size": 32997
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/observe/stdout.txt",
+   "sha256": "b20dcbf9cb507aabe9df19a57b78173f19c3d18470cb075179c2a194cfbaa125",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/observe/summary.json",
+   "sha256": "2cefa1105a2725bad00a3f046bce552cc6148fcc8c734fb67b3f826c2c0e783f",
+   "size": 88853
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-develop-lions/observe/transcript_canonical.txt",
+   "sha256": "2aee3851b48159a01354e0d88932a7208ec0c7730d991ab1020ef3e4f9dbecc9",
+   "size": 33026
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/observe/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/observe/stdout.txt",
+   "sha256": "f3d506e878a2fef2a2d029c96acb9de0aff94551cd2fa7ab75e70298f71313e2",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/observe/summary.json",
+   "sha256": "4f60a80ea286e76af24c920fcd7ee5ab88a18d63cc8430c6d5f6f437d5bb0d69",
+   "size": 123305
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/observe/transcript_canonical.txt",
+   "sha256": "1ba3b82d5633551da1a0dea7a8d53f7f21e1b104094a2e3b45a5b083563a949d",
+   "size": 7858
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/primary/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/primary/stdout.txt",
+   "sha256": "f3d506e878a2fef2a2d029c96acb9de0aff94551cd2fa7ab75e70298f71313e2",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/primary/summary.json",
+   "sha256": "465956e51140f1495a8e696ac992953db5200b4902ade610e57be22aaa7fc2c5",
+   "size": 2131
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/primary/transcript_canonical.txt",
+   "sha256": "1ba3b82d5633551da1a0dea7a8d53f7f21e1b104094a2e3b45a5b083563a949d",
+   "size": 7858
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/twin/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/twin/stdout.txt",
+   "sha256": "f3d506e878a2fef2a2d029c96acb9de0aff94551cd2fa7ab75e70298f71313e2",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/twin/summary.json",
+   "sha256": "96a7bf10772273564a0f2e21edf2d18889e2aa1e890b7fe7d5d87821b62d782d",
+   "size": 2131
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed424242-neutral-rogshai/twin/transcript_canonical.txt",
+   "sha256": "1ba3b82d5633551da1a0dea7a8d53f7f21e1b104094a2e3b45a5b083563a949d",
+   "size": 7858
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-develop-lions/develop-distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-develop-lions/develop-distinct-seed/stdout.txt",
+   "sha256": "3e1a01b05b17ed26708fef17bcc314189346246e0931df891bc5c03d716611b7",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-develop-lions/develop-distinct-seed/summary.json",
+   "sha256": "6ac56a4ddf1d837982fddfdbc28956441d6103ea4f7e0a9143c0ded66a932ad1",
+   "size": 3975
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-develop-lions/develop-distinct-seed/transcript_canonical.txt",
+   "sha256": "a2cf1aa095231f55452ad64cceba4443ccc279b8688fe1a8048caa1fd740a04a",
+   "size": 33219
+  },
+  {
+   "name": "stderr.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-neutral-rogshai/distinct-seed/stderr.txt",
+   "sha256": "d1743edee7e6a35f1b314ef4f7922a3691d72376fde8ff3fa34eb5ec0da4c03f",
+   "size": 216
+  },
+  {
+   "name": "stdout.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-neutral-rogshai/distinct-seed/stdout.txt",
+   "sha256": "5fa54cbb8b9d0de203c5ea0c3b4a868108da899a44ec732e913603dbbffdf407",
+   "size": 131
+  },
+  {
+   "name": "summary.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-neutral-rogshai/distinct-seed/summary.json",
+   "sha256": "11942d589695631e017cd8abaea82096ffc6cf677c964b119f307e83fc78b174",
+   "size": 2131
+  },
+  {
+   "name": "transcript_canonical.txt",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/5p-seed999003-neutral-rogshai/distinct-seed/transcript_canonical.txt",
+   "sha256": "8dc49a6659aba9fa36ab17b17c53b3504552b756a7875ad45966dc7017d410c9",
+   "size": 7878
+  },
+  {
+   "name": "WS215_MATRIX.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/WS215_MATRIX.json",
+   "sha256": "aaed25ee0af00cffcd51f0800f57639108224a376ce373b7749fa86b1138927b",
+   "size": 76758
+  },
+  {
+   "name": "WS215_OBSERVATIONS.json",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/runs/WS215_OBSERVATIONS.json",
+   "sha256": "9c0cd36a580175e846a604192b6c64c25d19df02777bb51e9585b06f36c944b9",
+   "size": 712229
+  },
+  {
+   "name": "ws215_driver.py",
+   "path": "qualification/ws215-xmage-variable-player-multicardinality/ws215_driver.py",
+   "sha256": "9517d9a70c644741e61afb440fed9b2ab190323fe36e708ede1c867e224f4e19",
+   "size": 9437
+  }
+ ],
+ "count": 334,
+ "schema_version": "ws215-artifact-index-1.0.0"
+}

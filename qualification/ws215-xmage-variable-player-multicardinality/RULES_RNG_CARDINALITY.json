@@ -1,0 +1,1 @@
+{"require_explicit_seed":true,"rules_random_calls_positive":true,"schema_version":"ws215-rules-rng-cardinality-1.0.0","seed_binding_per_count":{"2":"PASS","3":"PASS","4":"PASS","5":"PASS"},"seed_influence_per_count":{"2":true,"3":true,"4":true,"5":true},"seed_supported_truthful":true,"twin_match_per_count":{"2":true,"3":true,"4":true,"5":true},"verdict":"PASS"}

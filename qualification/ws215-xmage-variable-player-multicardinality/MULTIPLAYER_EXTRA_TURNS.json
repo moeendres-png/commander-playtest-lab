@@ -1,0 +1,9 @@
+{
+ "cause": "no extra-turn effect in decks/windows",
+ "fixtures": [
+  "WS05-MP-TURN-3",
+  "WS05-MP-TURN-5"
+ ],
+ "schema_version": "ws215-multiplayer-extra-turns-1.0.0",
+ "verdict": "UNKNOWN"
+}

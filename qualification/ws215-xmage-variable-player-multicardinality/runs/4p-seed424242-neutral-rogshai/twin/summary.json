@@ -1,0 +1,71 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 4,
+  "seed": 424242,
+  "mode": "neutral",
+  "budget": 150,
+  "player_count": 4,
+  "starting_player_seat": 2,
+  "expected_starting_seat": 2,
+  "decisions": 150,
+  "decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+  ],
+  "decision_class_counts": {
+    "choose_object": 5,
+    "mulligan": 4,
+    "priority": 141
+  },
+  "distinct_actors": [
+    "7d4f3c64-5ac7-4925-a933-11ea343d58b6",
+    "b0630565-5442-454e-8bc2-5157b105c8fc",
+    "e983a2aa-b9fc-4914-80b3-8bac1d50c983",
+    "f97240c6-f625-4a14-a151-87a44768447c"
+  ],
+  "priority_actors": [
+    "7d4f3c64-5ac7-4925-a933-11ea343d58b6",
+    "b0630565-5442-454e-8bc2-5157b105c8fc",
+    "e983a2aa-b9fc-4914-80b3-8bac1d50c983",
+    "f97240c6-f625-4a14-a151-87a44768447c"
+  ],
+  "distinct_defenders": [],
+  "defender_attack_frames": {},
+  "mana_debug": [],
+  "last_submission": "pass_priority:c9e18020c36ec2cbfcf6928737326c75952f6d5e54dfa8a9928f19bc48e337fe:3d78d4dac11cb2934ca3cf8d6e879b3f7403098cbdc140897b3c56250582f8e2",
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 4,
+  "max_turn": 5,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 388,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 4,
+  "hidden_violations": 0,
+  "transcript_hash": "b17378f339524149c041b669b097d18364d71eda6bca8da335cc786760154262",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "mulligan:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": false,
+  "failure_message": ""
+}

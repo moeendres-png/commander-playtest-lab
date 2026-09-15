@@ -1,0 +1,8 @@
+{
+ "fixtures": [
+  "WS05-CMD-TAX-2",
+  "WS05-CMD-TAX-4"
+ ],
+ "schema_version": "ws215-commander-tax-1.0.0",
+ "verdict": "PASS"
+}

@@ -1,0 +1,164 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 2,
+  "seed": 424242,
+  "mode": "neutral",
+  "budget": 5,
+  "player_count": 2,
+  "starting_player_seat": 0,
+  "expected_starting_seat": 0,
+  "decisions": 5,
+  "decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+  ],
+  "decision_class_counts": {
+    "choose_object": 1,
+    "mulligan": 2,
+    "priority": 2
+  },
+  "distinct_actors": [
+    "1752b190-6cca-4391-bb0e-303e6798688d",
+    "db790e3c-de02-4091-b701-d461474ac9d0"
+  ],
+  "priority_actors": [
+    "1752b190-6cca-4391-bb0e-303e6798688d",
+    "db790e3c-de02-4091-b701-d461474ac9d0"
+  ],
+  "distinct_defenders": [],
+  "defender_attack_frames": {},
+  "mana_debug": [],
+  "last_submission": "pass_priority:4ef4ce7bfa5ae4712a70cb139aa01c4ad390ec7dfd52a8dccea449494327f1f1:3c3a09447663a7ccae491d3ab8722096566a14ec7c0c392e539f67ad34fb8089",
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 2,
+  "mulligans_taken": 0,
+  "london_bottom_frames": 0,
+  "max_turn": 1,
+  "hand_trace": [
+    {
+      "turn": 1,
+      "offset": 1,
+      "class": "choose_object",
+      "seat_0": {
+        "hand_count": 0,
+        "library_count": 98,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 0,
+        "library_count": 98,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0
+    },
+    {
+      "turn": 1,
+      "offset": 2,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0
+    },
+    {
+      "turn": 1,
+      "offset": 3,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0
+    },
+    {
+      "turn": 1,
+      "offset": 4,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0
+    },
+    {
+      "turn": 1,
+      "offset": 5,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0
+    }
+  ],
+  "command_zone_start": {
+    "seat_0": 2,
+    "seat_1": 2
+  },
+  "commander_casts": {},
+  "command_zone_choice_frames": [],
+  "max_stack_observed": 0,
+  "oracle_frames_checked": 5,
+  "oracle_violations": 0,
+  "oracle_errors": 5,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 194,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 2,
+  "hidden_violations": 0,
+  "transcript_hash": "645a24cc5b29d85ae7567134d96fb42fc72dcb47b10fde279e85294a2eeca931",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "priority:4",
+    "priority:5"
+  ],
+  "failed": false,
+  "failure_message": ""
+}

@@ -1,0 +1,7 @@
+log4j:WARN No appenders could be found for logger (mage.util.ClassScanner).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+Exception in thread "main" java.lang.NullPointerException: Cannot invoke "com.google.gson.JsonElement.getAsString()" because the return value of "com.google.gson.JsonObject.get(String)" is null
+	at org.commanderlab.xmage.Ws215LifecycleProbe.stableTranscriptCanonical(Ws215LifecycleProbe.java:392)
+	at org.commanderlab.xmage.Ws215LifecycleProbe.stableTranscriptHash(Ws215LifecycleProbe.java:377)
+	at org.commanderlab.xmage.Ws215LifecycleProbe.main(Ws215LifecycleProbe.java:131)

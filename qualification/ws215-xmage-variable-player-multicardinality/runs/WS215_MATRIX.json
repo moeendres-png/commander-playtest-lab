@@ -1,0 +1,2775 @@
+{
+ "controls": {
+  "2": {
+   "distinct_seed_diverges": true
+  },
+  "3": {
+   "distinct_seed_diverges": true
+  },
+  "4": {
+   "distinct_seed_diverges": true
+  },
+  "5": {
+   "distinct_seed_diverges": true
+  }
+ },
+ "runs": [
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 2,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 9,
+     "mulligan": 2,
+     "priority": 139
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "47e836bc-56d7-42c5-80f8-d803bee74381",
+     "ef165609-dc6b-4001-a9a7-035a558866f7"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "priority:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:d9956d2c06ab2419b498d1d17163fbdf0871b81e1ce6255f4ace9646b567a684:46a01cbff69ded47e1324842191e8a7f89f0a51b6ce83781860edb176b9fb2f2",
+    "mana_debug": [],
+    "max_turn": 9,
+    "mode": "neutral",
+    "mulligans_answered": 2,
+    "outcome_count": 2,
+    "player_count": 2,
+    "players": 2,
+    "priority_actors": [
+     "47e836bc-56d7-42c5-80f8-d803bee74381",
+     "ef165609-dc6b-4001-a9a7-035a558866f7"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 194,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "b939a7f7bbb8ab770d2caf75da1459d073a3ef193642b945101c08a5b8f37d09",
+    "trigger_order_seen": false
+   },
+   "tag": "primary"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 2,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 9,
+     "mulligan": 2,
+     "priority": 139
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "5e77fc76-6365-402c-8f50-ddf3ae2cfdd2",
+     "7c3c5171-c1ce-414f-89b5-05e636273ec4"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "priority:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:e825e82ef9f577aebc437a7253bcf39936a8c75a10d3543f55ec7355d3fc627b:024ddd3376358a277b91390921761cd43cfefba7a1edf6e6fd7c2d66e2d6cb70",
+    "mana_debug": [],
+    "max_turn": 9,
+    "mode": "neutral",
+    "mulligans_answered": 2,
+    "outcome_count": 2,
+    "player_count": 2,
+    "players": 2,
+    "priority_actors": [
+     "5e77fc76-6365-402c-8f50-ddf3ae2cfdd2",
+     "7c3c5171-c1ce-414f-89b5-05e636273ec4"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 194,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "b939a7f7bbb8ab770d2caf75da1459d073a3ef193642b945101c08a5b8f37d09",
+    "trigger_order_seen": false
+   },
+   "tag": "twin"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 2,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 4,
+     "declare_attacker": 24,
+     "declare_blocker": 8,
+     "mana_payment": 104,
+     "mulligan": 2,
+     "multi_amount": 3,
+     "priority": 446,
+     "target": 8
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "multi_amount",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "59ec3443-065e-4044-83f9-81a1aa7d07e0": 1,
+     "7201b299-7de5-487d-9a98-23fafcfb102b": 23
+    },
+    "distinct_actors": [
+     "59ec3443-065e-4044-83f9-81a1aa7d07e0",
+     "7201b299-7de5-487d-9a98-23fafcfb102b"
+    ],
+    "distinct_defenders": [
+     "59ec3443-065e-4044-83f9-81a1aa7d07e0",
+     "7201b299-7de5-487d-9a98-23fafcfb102b"
+    ],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "priority:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "mana_payment:10",
+     "mana_payment:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "play_land:91b0eae0e92c9f687b745bff994ec6d7c2185c2e8278a7dd8c5c37d55cda28a4:288eb30c91cb21eae249cec227c178ef5a532eb3fe474e50c55e4bf651e715d3",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 555,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 556,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 557,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 558,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 559,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 560,
+      "unpaid": "{1}"
+     }
+    ],
+    "max_turn": 20,
+    "mode": "develop",
+    "mulligans_answered": 2,
+    "outcome_count": 2,
+    "player_count": 2,
+    "players": 2,
+    "priority_actors": [
+     "59ec3443-065e-4044-83f9-81a1aa7d07e0",
+     "7201b299-7de5-487d-9a98-23fafcfb102b"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 196,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "0f1fa6e0d3f94a894ce3373c75a367a25acb00973c74de5a602d7543f36a11d2",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-primary"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 2,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 4,
+     "declare_attacker": 24,
+     "declare_blocker": 8,
+     "mana_payment": 104,
+     "mulligan": 2,
+     "multi_amount": 3,
+     "priority": 446,
+     "target": 8
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "multi_amount",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "9cc4f9fb-faa7-40e2-95f8-b3c8b89dc12b": 1,
+     "f3da83e0-56b5-42b9-b3a8-8aa04a87ba1f": 23
+    },
+    "distinct_actors": [
+     "9cc4f9fb-faa7-40e2-95f8-b3c8b89dc12b",
+     "f3da83e0-56b5-42b9-b3a8-8aa04a87ba1f"
+    ],
+    "distinct_defenders": [
+     "9cc4f9fb-faa7-40e2-95f8-b3c8b89dc12b",
+     "f3da83e0-56b5-42b9-b3a8-8aa04a87ba1f"
+    ],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "priority:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "mana_payment:10",
+     "mana_payment:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "play_land:4b4afb1cf199ff6297ba8b24fab897f0307209e6ee92d5e1e21ed87fb162a562:8795b6400a2d69dfe151a78dcb16aca68240b2b1b7b1afd1caa0cc6296b8adb1",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 555,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 556,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 557,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 558,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 559,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 560,
+      "unpaid": "{1}"
+     }
+    ],
+    "max_turn": 20,
+    "mode": "develop",
+    "mulligans_answered": 2,
+    "outcome_count": 2,
+    "player_count": 2,
+    "players": 2,
+    "priority_actors": [
+     "9cc4f9fb-faa7-40e2-95f8-b3c8b89dc12b",
+     "f3da83e0-56b5-42b9-b3a8-8aa04a87ba1f"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 196,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "0f1fa6e0d3f94a894ce3373c75a367a25acb00973c74de5a602d7543f36a11d2",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-twin"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 2,
+   "returncode": 0,
+   "seed": 424243,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 9,
+     "mulligan": 2,
+     "priority": 139
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "a7b512d6-ee09-4757-b9b2-5746a1903596",
+     "eea70a06-b8a0-47a8-9a20-363bc2bef513"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 1,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "priority:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:ac5078de241f6315b0074af9c406f372f8d5432fe6da5967a81f9f699e3c38dd:c991ac0d93c0fa6729a1a9ea59d8bee188646b2f2ccf3a2f56ca4ca442e4f865",
+    "mana_debug": [],
+    "max_turn": 9,
+    "mode": "neutral",
+    "mulligans_answered": 2,
+    "outcome_count": 2,
+    "player_count": 2,
+    "players": 2,
+    "priority_actors": [
+     "a7b512d6-ee09-4757-b9b2-5746a1903596",
+     "eea70a06-b8a0-47a8-9a20-363bc2bef513"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424243,
+     "require_explicit_seed": true,
+     "rules_random_calls": 194,
+     "rules_seed": 424243,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424243,
+    "starting_player_seat": 1,
+    "transcript_hash": "f26f2024baf843518ca0a9d22374ab10a1f1d5bbc0c1a32f9ccb89de9c3615af",
+    "trigger_order_seen": false
+   },
+   "tag": "distinct-seed"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 2,
+   "returncode": 0,
+   "seed": 424243,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 2,
+     "declare_attacker": 39,
+     "declare_blocker": 17,
+     "mana_payment": 60,
+     "mulligan": 2,
+     "multi_amount": 12,
+     "priority": 465,
+     "target": 1,
+     "trigger_order": 1
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "multi_amount",
+     "priority",
+     "target",
+     "trigger_order"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "8b87e023-2158-4b33-85fd-3c6894ca2a3d": 15,
+     "a427902f-bdd4-4eac-a6c4-75b9f6608097": 24
+    },
+    "distinct_actors": [
+     "8b87e023-2158-4b33-85fd-3c6894ca2a3d",
+     "a427902f-bdd4-4eac-a6c4-75b9f6608097"
+    ],
+    "distinct_defenders": [
+     "8b87e023-2158-4b33-85fd-3c6894ca2a3d",
+     "a427902f-bdd4-4eac-a6c4-75b9f6608097"
+    ],
+    "expected_starting_seat": 1,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "priority:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "mana_payment:10",
+     "mana_payment:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "declare_blockers:e2541e7ace005466ea425b40a342da5087dff20d0f635cbf2bb4c8db0befef1b:83cef671-9c82-4806-8aa8-b7bfeb1787bb",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 392,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 393,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 426,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 427,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 428,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 429,
+      "unpaid": "{W}"
+     }
+    ],
+    "max_turn": 20,
+    "mode": "develop",
+    "mulligans_answered": 2,
+    "outcome_count": 2,
+    "player_count": 2,
+    "players": 2,
+    "priority_actors": [
+     "8b87e023-2158-4b33-85fd-3c6894ca2a3d",
+     "a427902f-bdd4-4eac-a6c4-75b9f6608097"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424243,
+     "require_explicit_seed": true,
+     "rules_random_calls": 196,
+     "rules_seed": 424243,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424243,
+    "starting_player_seat": 1,
+    "transcript_hash": "a434d0e7c8212bb2e664c8e85b849e3dc5f386eee622e3033a9eda21f088d42f",
+    "trigger_order_seen": true
+   },
+   "tag": "develop-distinct-seed"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 3,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 6,
+     "mulligan": 3,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "1da0ab4a-1cd2-4a13-bc2b-e3e37219414a",
+     "27925eb7-52f7-4445-8b29-13fc867528ca",
+     "ecb403a1-62b2-4d2f-aa77-96328f3a9515"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:c6f1bb53546cdb9f3f765bebfe6f34c72a3599781d369f2d6c8fd01852b969c6:7ad28ba1aa7d0ea7cd1813d6250b1357404f8f1142c036407ed786a39c3c360f",
+    "mana_debug": [],
+    "max_turn": 6,
+    "mode": "neutral",
+    "mulligans_answered": 3,
+    "outcome_count": 3,
+    "player_count": 3,
+    "players": 3,
+    "priority_actors": [
+     "1da0ab4a-1cd2-4a13-bc2b-e3e37219414a",
+     "27925eb7-52f7-4445-8b29-13fc867528ca",
+     "ecb403a1-62b2-4d2f-aa77-96328f3a9515"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 291,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "3af22b141f7e7333287a89b50c3cb8a0ab564016de275712b98683dc55fc419c",
+    "trigger_order_seen": false
+   },
+   "tag": "primary"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 3,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 6,
+     "mulligan": 3,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "330c0c14-6954-44e8-827f-e846b74cf24c",
+     "47ce1d77-1d83-4de3-a480-a29a676f4121",
+     "6a9d5a31-40b6-4cbf-9de2-cc60fd336172"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:40240dd406e9f598438b4c78b3559685953b0cef8eaf353afbdaa11596103b2b:3fc036f7c7a46330f82965f3378a6214acfec9a60c0b931af0d7f791d0cb2f96",
+    "mana_debug": [],
+    "max_turn": 6,
+    "mode": "neutral",
+    "mulligans_answered": 3,
+    "outcome_count": 3,
+    "player_count": 3,
+    "players": 3,
+    "priority_actors": [
+     "330c0c14-6954-44e8-827f-e846b74cf24c",
+     "47ce1d77-1d83-4de3-a480-a29a676f4121",
+     "6a9d5a31-40b6-4cbf-9de2-cc60fd336172"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 291,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "3af22b141f7e7333287a89b50c3cb8a0ab564016de275712b98683dc55fc419c",
+    "trigger_order_seen": false
+   },
+   "tag": "twin"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 3,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 3,
+     "declare_attacker": 10,
+     "declare_blocker": 5,
+     "mana_payment": 56,
+     "mulligan": 3,
+     "priority": 521,
+     "target": 1
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "44460da4-66ba-4f0b-8d8f-c3c491ce7045": 9,
+     "55395243-2445-4e21-ad5d-6217dcb4c8bb": 7,
+     "ea003b99-7309-44d7-89f4-03efcb90e0d9": 4
+    },
+    "distinct_actors": [
+     "44460da4-66ba-4f0b-8d8f-c3c491ce7045",
+     "55395243-2445-4e21-ad5d-6217dcb4c8bb",
+     "ea003b99-7309-44d7-89f4-03efcb90e0d9"
+    ],
+    "distinct_defenders": [
+     "44460da4-66ba-4f0b-8d8f-c3c491ce7045",
+     "55395243-2445-4e21-ad5d-6217dcb4c8bb",
+     "ea003b99-7309-44d7-89f4-03efcb90e0d9"
+    ],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:b460bb4f4b20af7d2671e2c6ac81819833457602907effc7d239990bff15ba00:15d7687b149ec023d8ee068b9e888e881b6678ae785f43940b78eb106b4ef46d",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 544,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 545,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 546,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 547,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 548,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 549,
+      "unpaid": "{1}"
+     }
+    ],
+    "max_turn": 17,
+    "mode": "develop",
+    "mulligans_answered": 3,
+    "outcome_count": 3,
+    "player_count": 3,
+    "players": 3,
+    "priority_actors": [
+     "44460da4-66ba-4f0b-8d8f-c3c491ce7045",
+     "55395243-2445-4e21-ad5d-6217dcb4c8bb",
+     "ea003b99-7309-44d7-89f4-03efcb90e0d9"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 294,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "73505f9ba9b9b9025b58f1799567aa3461e25d7cacd6cc3a26c3d03c1e602f61",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-primary"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 3,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 3,
+     "declare_attacker": 10,
+     "declare_blocker": 5,
+     "mana_payment": 56,
+     "mulligan": 3,
+     "priority": 521,
+     "target": 1
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "37ced0e3-141b-40f6-b268-03a5836f1e84": 7,
+     "87dfc0de-dca0-47e2-8293-26e12cfac0c7": 4,
+     "b367da1b-0404-4899-b202-124606204b7c": 9
+    },
+    "distinct_actors": [
+     "37ced0e3-141b-40f6-b268-03a5836f1e84",
+     "87dfc0de-dca0-47e2-8293-26e12cfac0c7",
+     "b367da1b-0404-4899-b202-124606204b7c"
+    ],
+    "distinct_defenders": [
+     "37ced0e3-141b-40f6-b268-03a5836f1e84",
+     "87dfc0de-dca0-47e2-8293-26e12cfac0c7",
+     "b367da1b-0404-4899-b202-124606204b7c"
+    ],
+    "expected_starting_seat": 0,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:1c58df2d80ba1c9aeea9d8af81b0d334b813823a5ed4801a4f3314deda2598c4:325edd2a0efa721eb75237cf641704fbc6db6f86197f03558c4932dedd13a49d",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 544,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 545,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 546,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 547,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 548,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 549,
+      "unpaid": "{1}"
+     }
+    ],
+    "max_turn": 17,
+    "mode": "develop",
+    "mulligans_answered": 3,
+    "outcome_count": 3,
+    "player_count": 3,
+    "players": 3,
+    "priority_actors": [
+     "37ced0e3-141b-40f6-b268-03a5836f1e84",
+     "87dfc0de-dca0-47e2-8293-26e12cfac0c7",
+     "b367da1b-0404-4899-b202-124606204b7c"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 294,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 0,
+    "transcript_hash": "73505f9ba9b9b9025b58f1799567aa3461e25d7cacd6cc3a26c3d03c1e602f61",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-twin"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 3,
+   "returncode": 0,
+   "seed": 777001,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 6,
+     "mulligan": 3,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "5130bedb-275c-4cce-9588-6d14dd642ee6",
+     "8a52f1e9-1ba2-46fc-acaa-60c0a948cbac",
+     "935360a1-ec7b-499c-9045-39243c292942"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 1,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:e3dfaaac4f93bd3b5b24effbf8e76e5de1a9ec9945b5e1dd7d04e7c47d0013fc:5560e3bf481807fc889f8b6e9e5cdd3594427448ee04d431134348712d9a4110",
+    "mana_debug": [],
+    "max_turn": 6,
+    "mode": "neutral",
+    "mulligans_answered": 3,
+    "outcome_count": 3,
+    "player_count": 3,
+    "players": 3,
+    "priority_actors": [
+     "5130bedb-275c-4cce-9588-6d14dd642ee6",
+     "8a52f1e9-1ba2-46fc-acaa-60c0a948cbac",
+     "935360a1-ec7b-499c-9045-39243c292942"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 777001,
+     "require_explicit_seed": true,
+     "rules_random_calls": 291,
+     "rules_seed": 777001,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 777001,
+    "starting_player_seat": 1,
+    "transcript_hash": "c7224e50cc5473349fa06d8cc0a353b31d36ea4f06230beee8dad34bf26317d3",
+    "trigger_order_seen": false
+   },
+   "tag": "distinct-seed"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 3,
+   "returncode": 0,
+   "seed": 777001,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 3,
+     "declare_attacker": 9,
+     "declare_blocker": 5,
+     "mana_payment": 48,
+     "mulligan": 3,
+     "priority": 527,
+     "target": 4
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "587c85e1-2d8f-46b5-b028-9a306bfb5ff9": 8,
+     "5d5f7600-bd89-4c3a-9c52-cbf1a28ea4eb": 8,
+     "b048333e-730e-4528-9c0d-15af0005028b": 2,
+     "bfe664b1-f27e-43a7-a573-29cc0897ab72": 2
+    },
+    "distinct_actors": [
+     "587c85e1-2d8f-46b5-b028-9a306bfb5ff9",
+     "5d5f7600-bd89-4c3a-9c52-cbf1a28ea4eb",
+     "b048333e-730e-4528-9c0d-15af0005028b"
+    ],
+    "distinct_defenders": [
+     "587c85e1-2d8f-46b5-b028-9a306bfb5ff9",
+     "5d5f7600-bd89-4c3a-9c52-cbf1a28ea4eb",
+     "b048333e-730e-4528-9c0d-15af0005028b",
+     "bfe664b1-f27e-43a7-a573-29cc0897ab72"
+    ],
+    "expected_starting_seat": 1,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "priority:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:3b42b6bedfd8e30451f8df933a5975d83f1aab3412d153f2d5950f9f13562d55:eb43da322beeef60106690d395e784070c3f64eb4410ef99a5211c661e0ded2c",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 479,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 480,
+      "unpaid": "{3}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 481,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 482,
+      "unpaid": "{2}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 483,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool"
+      ],
+      "offset": 484,
+      "unpaid": "{1}"
+     }
+    ],
+    "max_turn": 17,
+    "mode": "develop",
+    "mulligans_answered": 3,
+    "outcome_count": 3,
+    "player_count": 3,
+    "players": 3,
+    "priority_actors": [
+     "587c85e1-2d8f-46b5-b028-9a306bfb5ff9",
+     "5d5f7600-bd89-4c3a-9c52-cbf1a28ea4eb",
+     "b048333e-730e-4528-9c0d-15af0005028b"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 777001,
+     "require_explicit_seed": true,
+     "rules_random_calls": 294,
+     "rules_seed": 777001,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 777001,
+    "starting_player_seat": 1,
+    "transcript_hash": "d8dd35a12f9952e9dfd0ad18317e16f70cba4db2f3b8652060b11cca2f3ecc6e",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-distinct-seed"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 4,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 5,
+     "mulligan": 4,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "1bbefb88-6764-4e9d-81e8-79c9cbfb4c85",
+     "1d9f1aad-756b-4c91-b8e0-3a9ea4f363f0",
+     "29f63cdd-2fda-4901-a378-1c619db0a393",
+     "c8eec94b-e6e2-4f16-99d2-595187dfa75f"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:1b5f906f4ae4808f360385ab228deb4ccea771d004d684ad010af592cd1f2574:a53a583433415c7e30ab00ac53af19aa7e875244362544c753842f64591252c6",
+    "mana_debug": [],
+    "max_turn": 5,
+    "mode": "neutral",
+    "mulligans_answered": 4,
+    "outcome_count": 4,
+    "player_count": 4,
+    "players": 4,
+    "priority_actors": [
+     "1bbefb88-6764-4e9d-81e8-79c9cbfb4c85",
+     "1d9f1aad-756b-4c91-b8e0-3a9ea4f363f0",
+     "29f63cdd-2fda-4901-a378-1c619db0a393",
+     "c8eec94b-e6e2-4f16-99d2-595187dfa75f"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 388,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "b17378f339524149c041b669b097d18364d71eda6bca8da335cc786760154262",
+    "trigger_order_seen": false
+   },
+   "tag": "primary"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 4,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 5,
+     "mulligan": 4,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "7d4f3c64-5ac7-4925-a933-11ea343d58b6",
+     "b0630565-5442-454e-8bc2-5157b105c8fc",
+     "e983a2aa-b9fc-4914-80b3-8bac1d50c983",
+     "f97240c6-f625-4a14-a151-87a44768447c"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:c9e18020c36ec2cbfcf6928737326c75952f6d5e54dfa8a9928f19bc48e337fe:3d78d4dac11cb2934ca3cf8d6e879b3f7403098cbdc140897b3c56250582f8e2",
+    "mana_debug": [],
+    "max_turn": 5,
+    "mode": "neutral",
+    "mulligans_answered": 4,
+    "outcome_count": 4,
+    "player_count": 4,
+    "players": 4,
+    "priority_actors": [
+     "7d4f3c64-5ac7-4925-a933-11ea343d58b6",
+     "b0630565-5442-454e-8bc2-5157b105c8fc",
+     "e983a2aa-b9fc-4914-80b3-8bac1d50c983",
+     "f97240c6-f625-4a14-a151-87a44768447c"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 388,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "b17378f339524149c041b669b097d18364d71eda6bca8da335cc786760154262",
+    "trigger_order_seen": false
+   },
+   "tag": "twin"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 4,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 3,
+     "declare_attacker": 6,
+     "declare_blocker": 5,
+     "mana_payment": 36,
+     "mulligan": 4,
+     "priority": 544,
+     "target": 1
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "16bfb803-dcdb-4fa0-954a-71c8ea0e98e1": 3,
+     "9766ee8a-0dc5-43dd-92c4-44d9bc0b56db": 5,
+     "accd3585-019a-4c5e-ac69-ca3aefc3f1c9": 5,
+     "d4525450-9726-4d94-90c3-4f2f2b11dddb": 5
+    },
+    "distinct_actors": [
+     "16bfb803-dcdb-4fa0-954a-71c8ea0e98e1",
+     "9766ee8a-0dc5-43dd-92c4-44d9bc0b56db",
+     "accd3585-019a-4c5e-ac69-ca3aefc3f1c9",
+     "d4525450-9726-4d94-90c3-4f2f2b11dddb"
+    ],
+    "distinct_defenders": [
+     "16bfb803-dcdb-4fa0-954a-71c8ea0e98e1",
+     "9766ee8a-0dc5-43dd-92c4-44d9bc0b56db",
+     "accd3585-019a-4c5e-ac69-ca3aefc3f1c9",
+     "d4525450-9726-4d94-90c3-4f2f2b11dddb"
+    ],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:f3892dbb30c39c9ee5454636de25c5b8aaeaac3fe2e931f624061d4d4c802325:9ca728ee87253c5cdffb49a3752bd1a3aa6cae2c5500c389eabba367e44942b3",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 487,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 488,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 570,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 571,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 572,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 573,
+      "unpaid": "{W}"
+     }
+    ],
+    "max_turn": 13,
+    "mode": "develop",
+    "mulligans_answered": 4,
+    "outcome_count": 4,
+    "player_count": 4,
+    "players": 4,
+    "priority_actors": [
+     "16bfb803-dcdb-4fa0-954a-71c8ea0e98e1",
+     "9766ee8a-0dc5-43dd-92c4-44d9bc0b56db",
+     "accd3585-019a-4c5e-ac69-ca3aefc3f1c9",
+     "d4525450-9726-4d94-90c3-4f2f2b11dddb"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 392,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "713e9d963e9d0c117d047bb8eea468309c08e66ab9fdecca881e2df604fd46ac",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-primary"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 4,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 3,
+     "declare_attacker": 6,
+     "declare_blocker": 5,
+     "mana_payment": 36,
+     "mulligan": 4,
+     "priority": 544,
+     "target": 1
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "0e0452f0-e5d6-4c9f-875d-c038fc96a47c": 5,
+     "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4": 3,
+     "d3558f14-c578-4176-b62a-42588b2a7f9d": 5,
+     "fc981538-b16e-4721-b682-2e4d5a415ff3": 5
+    },
+    "distinct_actors": [
+     "0e0452f0-e5d6-4c9f-875d-c038fc96a47c",
+     "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4",
+     "d3558f14-c578-4176-b62a-42588b2a7f9d",
+     "fc981538-b16e-4721-b682-2e4d5a415ff3"
+    ],
+    "distinct_defenders": [
+     "0e0452f0-e5d6-4c9f-875d-c038fc96a47c",
+     "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4",
+     "d3558f14-c578-4176-b62a-42588b2a7f9d",
+     "fc981538-b16e-4721-b682-2e4d5a415ff3"
+    ],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:3057cb921939dd34fba781ee0f798ac83b2cbcc2f9ad4df49557055d9f810169:22cfb8442913fe2ba3da3ab2ad36ea7e441703609df1de934732e40a1c26211b",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 487,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 488,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 570,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 571,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 572,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 573,
+      "unpaid": "{W}"
+     }
+    ],
+    "max_turn": 13,
+    "mode": "develop",
+    "mulligans_answered": 4,
+    "outcome_count": 4,
+    "player_count": 4,
+    "players": 4,
+    "priority_actors": [
+     "0e0452f0-e5d6-4c9f-875d-c038fc96a47c",
+     "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4",
+     "d3558f14-c578-4176-b62a-42588b2a7f9d",
+     "fc981538-b16e-4721-b682-2e4d5a415ff3"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 392,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "713e9d963e9d0c117d047bb8eea468309c08e66ab9fdecca881e2df604fd46ac",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-twin"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 4,
+   "returncode": 0,
+   "seed": 424243,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 5,
+     "mulligan": 4,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "446926eb-d14a-43b6-b2ed-74b7fc1df83e",
+     "87275a4d-2b45-4365-989e-0d15687eece1",
+     "c389a77b-77e1-450a-952b-f21630420381",
+     "f0ca4a32-fa75-4234-a409-956d56ef14a8"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 3,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "priority:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:053fb0cbe8d94497489b79d4e5c74fa8eed8bde64142cc5a37b820aae13d3924:4a0b326686034758b1d63f767a747ca4e7081fd656036cdb1a03d69d44c272b3",
+    "mana_debug": [],
+    "max_turn": 5,
+    "mode": "neutral",
+    "mulligans_answered": 4,
+    "outcome_count": 4,
+    "player_count": 4,
+    "players": 4,
+    "priority_actors": [
+     "446926eb-d14a-43b6-b2ed-74b7fc1df83e",
+     "87275a4d-2b45-4365-989e-0d15687eece1",
+     "c389a77b-77e1-450a-952b-f21630420381",
+     "f0ca4a32-fa75-4234-a409-956d56ef14a8"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424243,
+     "require_explicit_seed": true,
+     "rules_random_calls": 388,
+     "rules_seed": 424243,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424243,
+    "starting_player_seat": 3,
+    "transcript_hash": "e1fdfadead93f29b292c2a5b74390f276b4867ed649382aff92629fbad7439e7",
+    "trigger_order_seen": false
+   },
+   "tag": "distinct-seed"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 4,
+   "returncode": 0,
+   "seed": 424243,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 4,
+     "declare_attacker": 7,
+     "declare_blocker": 6,
+     "mana_payment": 42,
+     "mulligan": 5,
+     "priority": 534,
+     "target": 1
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority",
+     "target"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "2f32ceee-689b-4aea-9fde-d789e16c5ffc": 6,
+     "30dc25b1-7b71-49b8-b8ca-4bd1b11165dc": 5,
+     "9f5428da-ff40-4bd0-9dec-f854d27bc6dd": 5,
+     "f1b10813-ebbe-452f-aa8f-60ef7e60beee": 5
+    },
+    "distinct_actors": [
+     "2f32ceee-689b-4aea-9fde-d789e16c5ffc",
+     "30dc25b1-7b71-49b8-b8ca-4bd1b11165dc",
+     "9f5428da-ff40-4bd0-9dec-f854d27bc6dd",
+     "f1b10813-ebbe-452f-aa8f-60ef7e60beee"
+    ],
+    "distinct_defenders": [
+     "2f32ceee-689b-4aea-9fde-d789e16c5ffc",
+     "30dc25b1-7b71-49b8-b8ca-4bd1b11165dc",
+     "9f5428da-ff40-4bd0-9dec-f854d27bc6dd",
+     "f1b10813-ebbe-452f-aa8f-60ef7e60beee"
+    ],
+    "expected_starting_seat": 3,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "mulligan:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pay_cost:b40a64baf6cb6c9b01c1ab7738544a759415bb1ac8ddb57b9040d058782297e6:829ba9dd01794808c9dd9cfc55e28c3937d9afc03c028cf9b60abbe4f8216835",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 542,
+      "unpaid": "{1}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 543,
+      "unpaid": "{1}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 544,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool"
+      ],
+      "offset": 545,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 599,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 600,
+      "unpaid": "{W}{W}"
+     }
+    ],
+    "max_turn": 13,
+    "mode": "develop",
+    "mulligans_answered": 5,
+    "outcome_count": 4,
+    "player_count": 4,
+    "players": 4,
+    "priority_actors": [
+     "2f32ceee-689b-4aea-9fde-d789e16c5ffc",
+     "30dc25b1-7b71-49b8-b8ca-4bd1b11165dc",
+     "9f5428da-ff40-4bd0-9dec-f854d27bc6dd",
+     "f1b10813-ebbe-452f-aa8f-60ef7e60beee"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424243,
+     "require_explicit_seed": true,
+     "rules_random_calls": 490,
+     "rules_seed": 424243,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424243,
+    "starting_player_seat": 3,
+    "transcript_hash": "d77004d087c21162cc82c18d2fc43d4d3bf4c9162e5a130b30339c975061f2ae",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-distinct-seed"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 5,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 4,
+     "mulligan": 5,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "101b216d-2179-4fbb-923c-1d65bac901bd",
+     "b6a2b678-840c-4ea9-84be-8fe9714c07b7",
+     "ce87dc2b-39be-44b9-bcbc-f0ba4c68c726",
+     "df78888f-0aab-4743-ac52-02d3d64f9a14",
+     "f4e8a0c4-a5c6-4090-9cb5-6d876e9a181f"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "mulligan:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:c80cb265732994514f920617e890eccb2953f22accc277b72e8b46db01890c7f:688bb107a64dc4584b7eacf10d831029870b98ec29c40c29698369d135b1c022",
+    "mana_debug": [],
+    "max_turn": 4,
+    "mode": "neutral",
+    "mulligans_answered": 5,
+    "outcome_count": 5,
+    "player_count": 5,
+    "players": 5,
+    "priority_actors": [
+     "101b216d-2179-4fbb-923c-1d65bac901bd",
+     "b6a2b678-840c-4ea9-84be-8fe9714c07b7",
+     "ce87dc2b-39be-44b9-bcbc-f0ba4c68c726",
+     "df78888f-0aab-4743-ac52-02d3d64f9a14",
+     "f4e8a0c4-a5c6-4090-9cb5-6d876e9a181f"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 485,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "ae8230646f9bae1250a77d451171562f97ae0f170a6bfa796d80c5d05c83afc2",
+    "trigger_order_seen": false
+   },
+   "tag": "primary"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 5,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 4,
+     "mulligan": 5,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "227ff9c7-df8d-45d7-9e97-1af30692bece",
+     "328ebb13-908d-4c2c-9087-9ba2140d188a",
+     "49787ead-7ad7-4051-8ae0-ce883d10458c",
+     "5f955610-c547-49c4-8919-5086c39c606e",
+     "7d004ef0-3199-46a4-8a61-3000f6ec1250"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "mulligan:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:768b0088693cf020a92350dfcaf435eade73579d8f9a0b7ad550c5fc2334e290:90768e09ca5c40ea36f4a98164ba28f4a6fdb529e43b353873e9da54b07bb1cd",
+    "mana_debug": [],
+    "max_turn": 4,
+    "mode": "neutral",
+    "mulligans_answered": 5,
+    "outcome_count": 5,
+    "player_count": 5,
+    "players": 5,
+    "priority_actors": [
+     "227ff9c7-df8d-45d7-9e97-1af30692bece",
+     "328ebb13-908d-4c2c-9087-9ba2140d188a",
+     "49787ead-7ad7-4051-8ae0-ce883d10458c",
+     "5f955610-c547-49c4-8919-5086c39c606e",
+     "7d004ef0-3199-46a4-8a61-3000f6ec1250"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 485,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "ae8230646f9bae1250a77d451171562f97ae0f170a6bfa796d80c5d05c83afc2",
+    "trigger_order_seen": false
+   },
+   "tag": "twin"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 5,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 3,
+     "declare_attacker": 4,
+     "declare_blocker": 2,
+     "mana_payment": 26,
+     "mulligan": 5,
+     "priority": 559
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "0654a74f-fb43-404e-8250-7de640940760": 4,
+     "3613630f-bce1-4634-97be-c9b54438762f": 3,
+     "53469d23-a81d-40f1-b694-3aecf88a4339": 3,
+     "b8447133-5a5a-43ba-9573-51960c7e4acd": 3,
+     "ddf0ea9f-9daa-4d43-bb09-0975aca327c1": 3
+    },
+    "distinct_actors": [
+     "0654a74f-fb43-404e-8250-7de640940760",
+     "3613630f-bce1-4634-97be-c9b54438762f",
+     "53469d23-a81d-40f1-b694-3aecf88a4339",
+     "b8447133-5a5a-43ba-9573-51960c7e4acd",
+     "ddf0ea9f-9daa-4d43-bb09-0975aca327c1"
+    ],
+    "distinct_defenders": [
+     "0654a74f-fb43-404e-8250-7de640940760",
+     "3613630f-bce1-4634-97be-c9b54438762f",
+     "53469d23-a81d-40f1-b694-3aecf88a4339",
+     "b8447133-5a5a-43ba-9573-51960c7e4acd",
+     "ddf0ea9f-9daa-4d43-bb09-0975aca327c1"
+    ],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "mulligan:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:cabf56d855a21487f7c63871ed6c95eed8c75ce0c94f90b1d05cddd8ba863f43:4b06ed23f4a16db2ffbe41fd81f9e79c57bf7f8d7de6d5a90d86ca86da8cb084",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 510,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool"
+      ],
+      "offset": 511,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 559,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 560,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 561,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 562,
+      "unpaid": "{W}"
+     }
+    ],
+    "max_turn": 12,
+    "mode": "develop",
+    "mulligans_answered": 5,
+    "outcome_count": 5,
+    "player_count": 5,
+    "players": 5,
+    "priority_actors": [
+     "0654a74f-fb43-404e-8250-7de640940760",
+     "3613630f-bce1-4634-97be-c9b54438762f",
+     "53469d23-a81d-40f1-b694-3aecf88a4339",
+     "b8447133-5a5a-43ba-9573-51960c7e4acd",
+     "ddf0ea9f-9daa-4d43-bb09-0975aca327c1"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 490,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "4b930a17aa8d2dece8f776026ccf7714992c344d0963b48dd0b0291e720b2591",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-primary"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 5,
+   "returncode": 0,
+   "seed": 424242,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 3,
+     "declare_attacker": 4,
+     "declare_blocker": 2,
+     "mana_payment": 26,
+     "mulligan": 5,
+     "priority": 559
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "07c42354-4294-4c81-9656-4cbc2926e60a": 3,
+     "161221f4-2cde-4c8a-9275-6a43421cca05": 3,
+     "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0": 4,
+     "68733b7d-1ce2-4068-8e0f-6bb0e88bb806": 3,
+     "88e45f2d-8015-4810-b4b1-0c60ad3a0f08": 3
+    },
+    "distinct_actors": [
+     "07c42354-4294-4c81-9656-4cbc2926e60a",
+     "161221f4-2cde-4c8a-9275-6a43421cca05",
+     "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0",
+     "68733b7d-1ce2-4068-8e0f-6bb0e88bb806",
+     "88e45f2d-8015-4810-b4b1-0c60ad3a0f08"
+    ],
+    "distinct_defenders": [
+     "07c42354-4294-4c81-9656-4cbc2926e60a",
+     "161221f4-2cde-4c8a-9275-6a43421cca05",
+     "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0",
+     "68733b7d-1ce2-4068-8e0f-6bb0e88bb806",
+     "88e45f2d-8015-4810-b4b1-0c60ad3a0f08"
+    ],
+    "expected_starting_seat": 2,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "mulligan:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:5467c5865b5fb928d7864d86048b2779f4c18c50e25d61b8085b179d6465b0bb:53d0ffcae20b404ce52daedb19fb17a4010d18fb11678208eee16d0093b571b1",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 510,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool"
+      ],
+      "offset": 511,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 559,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 560,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 561,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 562,
+      "unpaid": "{W}"
+     }
+    ],
+    "max_turn": 12,
+    "mode": "develop",
+    "mulligans_answered": 5,
+    "outcome_count": 5,
+    "player_count": 5,
+    "players": 5,
+    "priority_actors": [
+     "07c42354-4294-4c81-9656-4cbc2926e60a",
+     "161221f4-2cde-4c8a-9275-6a43421cca05",
+     "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0",
+     "68733b7d-1ce2-4068-8e0f-6bb0e88bb806",
+     "88e45f2d-8015-4810-b4b1-0c60ad3a0f08"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 424242,
+     "require_explicit_seed": true,
+     "rules_random_calls": 490,
+     "rules_seed": 424242,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 424242,
+    "starting_player_seat": 2,
+    "transcript_hash": "4b930a17aa8d2dece8f776026ccf7714992c344d0963b48dd0b0291e720b2591",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-twin"
+  },
+  {
+   "mode": "neutral",
+   "ok": true,
+   "players": 5,
+   "returncode": 0,
+   "seed": 999003,
+   "summary": {
+    "budget": 150,
+    "decision_class_counts": {
+     "choose_object": 4,
+     "mulligan": 5,
+     "priority": 141
+    },
+    "decision_classes": [
+     "choose_object",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 150,
+    "defender_attack_frames": {},
+    "distinct_actors": [
+     "17ab1781-36b1-4de4-a95f-232b3f2592fe",
+     "29d4f9af-c954-4afc-b8ba-3ebe203def5a",
+     "6d225979-3ee3-4b2d-aff9-f93045c0dda9",
+     "8d2e3030-c92f-47ef-84f8-b4031712765f",
+     "e081bdae-50d6-445c-bde4-85eb6057d1c6"
+    ],
+    "distinct_defenders": [],
+    "expected_starting_seat": 3,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "mulligan:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:5ca3530b111453b32d7b996ab62ae259acd5dad58bf35936c095e49fb9508ac8:2b0a699c5c2cef8249ccc554cda229038e24027eb4a6565aea7edf05582064a6",
+    "mana_debug": [],
+    "max_turn": 4,
+    "mode": "neutral",
+    "mulligans_answered": 5,
+    "outcome_count": 5,
+    "player_count": 5,
+    "players": 5,
+    "priority_actors": [
+     "17ab1781-36b1-4de4-a95f-232b3f2592fe",
+     "29d4f9af-c954-4afc-b8ba-3ebe203def5a",
+     "6d225979-3ee3-4b2d-aff9-f93045c0dda9",
+     "8d2e3030-c92f-47ef-84f8-b4031712765f",
+     "e081bdae-50d6-445c-bde4-85eb6057d1c6"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 999003,
+     "require_explicit_seed": true,
+     "rules_random_calls": 485,
+     "rules_seed": 999003,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 999003,
+    "starting_player_seat": 3,
+    "transcript_hash": "a2d1e8d37e414e51b4e91ad073fd75fa588e012e20d624e2b3ae328e05ebebe2",
+    "trigger_order_seen": false
+   },
+   "tag": "distinct-seed"
+  },
+  {
+   "mode": "develop",
+   "ok": true,
+   "players": 5,
+   "returncode": 0,
+   "seed": 999003,
+   "summary": {
+    "budget": 600,
+    "decision_class_counts": {
+     "choose_object": 1,
+     "choose_use": 5,
+     "declare_attacker": 5,
+     "declare_blocker": 4,
+     "mana_payment": 26,
+     "mulligan": 5,
+     "priority": 554
+    },
+    "decision_classes": [
+     "choose_object",
+     "choose_use",
+     "declare_attacker",
+     "declare_blocker",
+     "mana_payment",
+     "mulligan",
+     "priority"
+    ],
+    "decisions": 600,
+    "defender_attack_frames": {
+     "2541f7ac-0e07-44ba-b0db-baad6a70d07b": 4,
+     "49f884a3-6324-481c-9c1e-d636bbedb1cf": 5,
+     "5df2b38b-fc45-4102-8c55-62af340c9464": 3,
+     "7a498a4a-47a1-4855-82a7-734d851910f3": 4,
+     "983d2c90-e21d-40b8-b602-8120328daeae": 4
+    },
+    "distinct_actors": [
+     "2541f7ac-0e07-44ba-b0db-baad6a70d07b",
+     "49f884a3-6324-481c-9c1e-d636bbedb1cf",
+     "5df2b38b-fc45-4102-8c55-62af340c9464",
+     "7a498a4a-47a1-4855-82a7-734d851910f3",
+     "983d2c90-e21d-40b8-b602-8120328daeae"
+    ],
+    "distinct_defenders": [
+     "2541f7ac-0e07-44ba-b0db-baad6a70d07b",
+     "49f884a3-6324-481c-9c1e-d636bbedb1cf",
+     "5df2b38b-fc45-4102-8c55-62af340c9464",
+     "7a498a4a-47a1-4855-82a7-734d851910f3",
+     "983d2c90-e21d-40b8-b602-8120328daeae"
+    ],
+    "expected_starting_seat": 3,
+    "extra_turn_signal_seen": false,
+    "failed": false,
+    "failure_message": "",
+    "first_decision_frames": [
+     "choose_object:1",
+     "mulligan:2",
+     "mulligan:3",
+     "mulligan:4",
+     "mulligan:5",
+     "mulligan:6",
+     "priority:7",
+     "priority:8",
+     "priority:9",
+     "priority:10",
+     "priority:11",
+     "priority:12"
+    ],
+    "hidden_violations": 0,
+    "last_submission": "pass_priority:f784bc82ade52b9045b25b43e541ed22fb07d2c977c15f18062e1f1fb78644a6:c86b08e179d56647115537132ffc836f968de502916c0528aa35b3e78fe98bfb",
+    "mana_debug": [
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 449,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool"
+      ],
+      "offset": 450,
+      "unpaid": "{1}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 552,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 553,
+      "unpaid": "{W}{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 554,
+      "unpaid": "{W}"
+     },
+     {
+      "offered": [
+       "cancel_mana_payment:Cancel mana payment",
+       "mana_pool:Spend white mana from pool",
+       "mana_ability:Plains \u2014 {T}: Add {W}."
+      ],
+      "offset": 555,
+      "unpaid": "{W}"
+     }
+    ],
+    "max_turn": 11,
+    "mode": "develop",
+    "mulligans_answered": 5,
+    "outcome_count": 5,
+    "player_count": 5,
+    "players": 5,
+    "priority_actors": [
+     "2541f7ac-0e07-44ba-b0db-baad6a70d07b",
+     "49f884a3-6324-481c-9c1e-d636bbedb1cf",
+     "5df2b38b-fc45-4102-8c55-62af340c9464",
+     "7a498a4a-47a1-4855-82a7-734d851910f3",
+     "983d2c90-e21d-40b8-b602-8120328daeae"
+    ],
+    "probe": "ws215-lifecycle-probe-1.0.0",
+    "rules_seed_binding": {
+     "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+     "explicit_seed": 999003,
+     "require_explicit_seed": true,
+     "rules_random_calls": 490,
+     "rules_seed": 999003,
+     "rules_seed_explicit": true,
+     "rules_seed_matches": true,
+     "seed_scope": "authoritative_per_game_rules_rng",
+     "seed_supported": true
+    },
+    "seed": 999003,
+    "starting_player_seat": 3,
+    "transcript_hash": "6579d673f6213915284066411ae5d8f130a90cba93b86e9fb854d323ab79d17b",
+    "trigger_order_seen": false
+   },
+   "tag": "develop-distinct-seed"
+  }
+ ],
+ "twins": {
+  "2": {
+   "develop_gates_primary": [],
+   "develop_gates_twin": [],
+   "develop_twin_match": true,
+   "neutral_gates_primary": [],
+   "neutral_gates_twin": [],
+   "neutral_twin_match": true
+  },
+  "3": {
+   "develop_gates_primary": [],
+   "develop_gates_twin": [],
+   "develop_twin_match": true,
+   "neutral_gates_primary": [],
+   "neutral_gates_twin": [],
+   "neutral_twin_match": true
+  },
+  "4": {
+   "develop_gates_primary": [],
+   "develop_gates_twin": [],
+   "develop_twin_match": true,
+   "neutral_gates_primary": [],
+   "neutral_gates_twin": [],
+   "neutral_twin_match": true
+  },
+  "5": {
+   "develop_gates_primary": [],
+   "develop_gates_twin": [],
+   "develop_twin_match": true,
+   "neutral_gates_primary": [],
+   "neutral_gates_twin": [],
+   "neutral_twin_match": true
+  }
+ }
+}

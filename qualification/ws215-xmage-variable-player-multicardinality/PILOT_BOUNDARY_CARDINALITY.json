@@ -1,0 +1,5 @@
+{
+ "fallback_introduced": false,
+ "schema_version": "ws215-pilot-boundary-cardinality-1.0.0",
+ "verdict": "PASS"
+}

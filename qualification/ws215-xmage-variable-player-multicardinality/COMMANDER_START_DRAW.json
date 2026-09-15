@@ -1,0 +1,9 @@
+{
+ "fixtures": [
+  "WS05-CMD-START-2",
+  "WS05-CMD-START-3",
+  "WS05-CMD-ELIM-4"
+ ],
+ "schema_version": "ws215-commander-start-draw-1.0.0",
+ "verdict": "PASS"
+}

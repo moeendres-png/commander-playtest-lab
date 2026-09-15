@@ -1,0 +1,71 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 4,
+  "seed": 424242,
+  "mode": "develop",
+  "budget": 600,
+  "player_count": 4,
+  "starting_player_seat": 2,
+  "expected_starting_seat": 2,
+  "decisions": 21,
+  "decision_classes": [
+    "choose_object",
+    "mana_payment",
+    "mulligan",
+    "priority"
+  ],
+  "decision_class_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 15,
+    "mana_payment": 1
+  },
+  "distinct_actors": [
+    "14082918-3ced-4bd9-805c-aecd5682ed60",
+    "3b3368bd-eba8-4566-9c1d-e8ec2121b22d",
+    "cc38171a-1946-46e4-b5ef-5e5a3257dba8",
+    "f3917aea-1af1-4cfd-a42d-ff2039d022f2"
+  ],
+  "priority_actors": [
+    "14082918-3ced-4bd9-805c-aecd5682ed60",
+    "3b3368bd-eba8-4566-9c1d-e8ec2121b22d",
+    "cc38171a-1946-46e4-b5ef-5e5a3257dba8",
+    "f3917aea-1af1-4cfd-a42d-ff2039d022f2"
+  ],
+  "distinct_defenders": [],
+  "defender_attack_frames": {},
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 4,
+  "max_turn": 1,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 388,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 4,
+  "hidden_violations": 0,
+  "transcript_hash": "3424c0428d3a054aabd5b24d0238e267cc860ea2323225b4eac7b5845139ebf8",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "mulligan:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": true,
+  "failure_message": "{\"type\":\"decision_controller\",\"message\":\"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: 6a296167c1fbd74f1960d1f9cb6ba2643556d88187c6634ddb7102ae0ae5ce66\"}"
+}

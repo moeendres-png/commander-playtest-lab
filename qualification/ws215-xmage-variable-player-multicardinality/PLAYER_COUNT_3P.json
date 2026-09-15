@@ -1,0 +1,29 @@
+{
+ "develop": {
+  "decisions": 600,
+  "gates": [],
+  "max_turn": 17,
+  "transcript_hash": "73505f9ba9b9",
+  "twin_match": true
+ },
+ "distinct_defenders_develop": 3,
+ "distinct_hashes": [
+  "c7224e50cc54",
+  "d8dd35a12f99"
+ ],
+ "distinct_seed": 777001,
+ "hidden_info": "PASS",
+ "neutral": {
+  "decisions": 150,
+  "gates": [],
+  "max_turn": 6,
+  "transcript_hash": "3af22b141f7e",
+  "twin_match": true
+ },
+ "players": 3,
+ "schema_version": "ws215-player-count-1.0.0",
+ "seed": 424242,
+ "seed_binding": "PASS",
+ "seed_influence": true,
+ "verdict": "PASS"
+}

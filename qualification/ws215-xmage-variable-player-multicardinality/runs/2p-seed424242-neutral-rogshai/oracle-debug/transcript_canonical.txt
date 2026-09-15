@@ -1,0 +1,5 @@
+2|choose_object|0|["choice"]|-|["Full Game Seat 1"]
+4|mulligan|0|["keep"]|-|["Keep opening hand"]
+6|mulligan|1|["keep"]|-|["Keep opening hand"]
+8|priority|0|["pass_priority"]|-|["Pass priority"]
+10|priority|1|["pass_priority"]|-|["Pass priority"]

@@ -1,0 +1,15 @@
+log4j:WARN No appenders could be found for logger (mage.util.ClassScanner).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+java.lang.IllegalArgumentException: object is not an instance of declaring class
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.checkReceiver(DirectMethodHandleAccessor.java:197)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:99)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.commanderlab.xmage.Ws215LifecycleProbe.oracleScan(Ws215LifecycleProbe.java:400)
+	at org.commanderlab.xmage.Ws215LifecycleProbe.main(Ws215LifecycleProbe.java:157)
+java.lang.IllegalArgumentException: object is not an instance of declaring class
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.checkReceiver(DirectMethodHandleAccessor.java:197)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:99)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.commanderlab.xmage.Ws215LifecycleProbe.oracleScan(Ws215LifecycleProbe.java:400)
+	at org.commanderlab.xmage.Ws215LifecycleProbe.main(Ws215LifecycleProbe.java:157)

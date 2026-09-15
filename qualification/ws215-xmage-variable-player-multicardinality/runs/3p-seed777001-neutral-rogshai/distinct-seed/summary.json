@@ -1,0 +1,69 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 3,
+  "seed": 777001,
+  "mode": "neutral",
+  "budget": 150,
+  "player_count": 3,
+  "starting_player_seat": 1,
+  "expected_starting_seat": 1,
+  "decisions": 150,
+  "decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+  ],
+  "decision_class_counts": {
+    "choose_object": 6,
+    "mulligan": 3,
+    "priority": 141
+  },
+  "distinct_actors": [
+    "5130bedb-275c-4cce-9588-6d14dd642ee6",
+    "8a52f1e9-1ba2-46fc-acaa-60c0a948cbac",
+    "935360a1-ec7b-499c-9045-39243c292942"
+  ],
+  "priority_actors": [
+    "5130bedb-275c-4cce-9588-6d14dd642ee6",
+    "8a52f1e9-1ba2-46fc-acaa-60c0a948cbac",
+    "935360a1-ec7b-499c-9045-39243c292942"
+  ],
+  "distinct_defenders": [],
+  "defender_attack_frames": {},
+  "mana_debug": [],
+  "last_submission": "pass_priority:e3dfaaac4f93bd3b5b24effbf8e76e5de1a9ec9945b5e1dd7d04e7c47d0013fc:5560e3bf481807fc889f8b6e9e5cdd3594427448ee04d431134348712d9a4110",
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 3,
+  "max_turn": 6,
+  "rules_seed_binding": {
+    "explicit_seed": 777001,
+    "rules_seed": 777001,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 291,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 3,
+  "hidden_violations": 0,
+  "transcript_hash": "c7224e50cc5473349fa06d8cc0a353b31d36ea4f06230beee8dad34bf26317d3",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "priority:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": false,
+  "failure_message": ""
+}

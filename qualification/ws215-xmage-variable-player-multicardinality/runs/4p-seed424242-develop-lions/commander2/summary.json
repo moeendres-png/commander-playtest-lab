@@ -1,0 +1,3379 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 4,
+  "seed": 424242,
+  "mode": "develop",
+  "budget": 600,
+  "player_count": 4,
+  "starting_player_seat": 2,
+  "expected_starting_seat": 2,
+  "decisions": 600,
+  "decision_classes": [
+    "choose_object",
+    "choose_use",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+  ],
+  "decision_class_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 538,
+    "mana_payment": 42,
+    "declare_attacker": 6,
+    "declare_blocker": 4,
+    "choose_use": 4,
+    "target": 1
+  },
+  "distinct_actors": [
+    "5d4a16a5-6e36-4c86-8042-9796a3f2665d",
+    "cc24889b-8749-4125-887a-12a7a929c4cc",
+    "e2ac8ec0-faff-4ed5-98cc-e7f183fb0914",
+    "ff8c32c1-1d85-4e17-b351-e5f7beb43f96"
+  ],
+  "priority_actors": [
+    "5d4a16a5-6e36-4c86-8042-9796a3f2665d",
+    "cc24889b-8749-4125-887a-12a7a929c4cc",
+    "e2ac8ec0-faff-4ed5-98cc-e7f183fb0914",
+    "ff8c32c1-1d85-4e17-b351-e5f7beb43f96"
+  ],
+  "distinct_defenders": [
+    "5d4a16a5-6e36-4c86-8042-9796a3f2665d",
+    "cc24889b-8749-4125-887a-12a7a929c4cc",
+    "e2ac8ec0-faff-4ed5-98cc-e7f183fb0914",
+    "ff8c32c1-1d85-4e17-b351-e5f7beb43f96"
+  ],
+  "defender_attack_frames": {
+    "5d4a16a5-6e36-4c86-8042-9796a3f2665d": 5,
+    "cc24889b-8749-4125-887a-12a7a929c4cc": 3,
+    "e2ac8ec0-faff-4ed5-98cc-e7f183fb0914": 5,
+    "ff8c32c1-1d85-4e17-b351-e5f7beb43f96": 5
+  },
+  "mana_debug": [
+    {
+      "offset": 574,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 575,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 581,
+      "unpaid": "{W}{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 582,
+      "unpaid": "{W}{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 583,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 584,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool"
+      ]
+    }
+  ],
+  "last_submission": "pass_priority:5599420685b5e17024053829f96293864c763b2e57eef0f25fa53d11a42e25c9:bb9d36e93aa06c93e8d91e4f9fed2eed939c38e96144ac17ba2ac7e29e3d50ec",
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 4,
+  "mulligans_taken": 0,
+  "london_bottom_frames": 0,
+  "mulligan_frames": [
+    {
+      "offset": 2,
+      "option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "min": 1,
+      "max": 1
+    },
+    {
+      "offset": 3,
+      "option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "min": 1,
+      "max": 1
+    },
+    {
+      "offset": 4,
+      "option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "min": 1,
+      "max": 1
+    },
+    {
+      "offset": 5,
+      "option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "max_turn": 13,
+  "hand_trace": [
+    {
+      "turn": 1,
+      "offset": 1,
+      "class": "choose_object",
+      "seat_0": {
+        "hand_count": 0,
+        "library_count": 99,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 0,
+        "library_count": 99,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 0,
+        "library_count": 99,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 0,
+        "library_count": 99,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 2,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 3,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 4,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 5,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 6,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 7,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 8,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 9,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 10,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 11,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 12,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 13,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 14,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 15,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 16,
+      "class": "mana_payment",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 17,
+      "class": "mana_payment",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 18,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 19,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 20,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 21,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 22,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 23,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 24,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 25,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 26,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 27,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 28,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 29,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 30,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 31,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 32,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 33,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 34,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 35,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 36,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 37,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 38,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 39,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 40,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 41,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 42,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 43,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 44,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 45,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 46,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 47,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 48,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 49,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 50,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 51,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 52,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 53,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 54,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 8,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 55,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 56,
+      "class": "mana_payment",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 57,
+      "class": "mana_payment",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 58,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 59,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_3": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 60,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 92,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_3": {
+        "hand_count": 6,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 2,
+      "commander_status": [
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Isamaru, Hound of Konda",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    }
+  ],
+  "command_zone_start": {
+    "seat_0": 1,
+    "seat_1": 1,
+    "seat_2": 1,
+    "seat_3": 1
+  },
+  "commander_casts": {
+    "Isamaru, Hound of Konda — Cast Isamaru, Hound of Konda": 13
+  },
+  "commander_damage_max": {
+    "Isamaru, Hound of Konda": 0
+  },
+  "commander_final": [
+    {
+      "name": "Isamaru, Hound of Konda",
+      "casts": "2",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Isamaru, Hound of Konda",
+      "casts": "1",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Isamaru, Hound of Konda",
+      "casts": "1",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Isamaru, Hound of Konda",
+      "casts": "1",
+      "damage_dealt": 0
+    }
+  ],
+  "command_zone_choice_frames": [
+    "choose_use:200:move \u003cfont color\u003d\u0027#f0e68c\u0027 object_id\u003d\u00274a983716-0931-49f5-ad84-0e930d4f9df4\u0027\u003eisamaru, hound of konda\u003c/font\u003e [4a9] to the command zone or leave it in current zone (graveyard)?",
+    "choose_use:311:move \u003cfont color\u003d\u0027#f0e68c\u0027 object_id\u003d\u0027f6a7f719-ec2f-43db-87d7-5e4d34bfec20\u0027\u003eisamaru, hound of konda\u003c/font\u003e [f6a] to the command zone or leave it in current zone (graveyard)?",
+    "choose_use:458:move \u003cfont color\u003d\u0027#f0e68c\u0027 object_id\u003d\u0027f6a7f719-ec2f-43db-87d7-5e4d34bfec20\u0027\u003eisamaru, hound of konda\u003c/font\u003e [f6a] to the command zone or leave it in current zone (graveyard)?",
+    "choose_use:459:move \u003cfont color\u003d\u0027#f0e68c\u0027 object_id\u003d\u002709f9fbd3-6e78-496b-832c-fc04f8e7aedd\u0027\u003eisamaru, hound of konda\u003c/font\u003e [09f] to the command zone or leave it in current zone (graveyard)?"
+  ],
+  "max_stack_observed": 1,
+  "oracle_frames_checked": 600,
+  "oracle_violations": 0,
+  "oracle_errors": 0,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 4,
+  "hidden_violations": 0,
+  "transcript_hash": "6739b0d799ae36a769a9b69282ddc1a7597e2836251040c9bc5a2e0c79c9b284",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "mulligan:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": false,
+  "failure_message": "",
+  "terminal": false,
+  "outcomes": [
+    {
+      "seat": 0,
+      "life": 37,
+      "won": false,
+      "lost": false,
+      "left": false
+    },
+    {
+      "seat": 1,
+      "life": 40,
+      "won": false,
+      "lost": false,
+      "left": false
+    },
+    {
+      "seat": 2,
+      "life": 40,
+      "won": false,
+      "lost": false,
+      "left": false
+    },
+    {
+      "seat": 3,
+      "life": 40,
+      "won": false,
+      "lost": false,
+      "left": false
+    }
+  ]
+}

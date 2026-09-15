@@ -1,0 +1,13 @@
+{
+ "distinct_defenders": {
+  "4": 4,
+  "5": 5
+ },
+ "fixtures": [
+  "WS05-MP-COMBAT-4",
+  "WS05-MP-COMBAT-5",
+  "WS05-MP-BLOCK-4"
+ ],
+ "schema_version": "ws215-multiplayer-combat-1.0.0",
+ "verdict": "PASS"
+}

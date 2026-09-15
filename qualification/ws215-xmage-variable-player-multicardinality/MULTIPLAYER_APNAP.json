@@ -1,0 +1,9 @@
+{
+ "cause": "no simultaneous multi-player trigger frame in bounded windows",
+ "fixtures": [
+  "WS05-MP-TRIG-3",
+  "WS05-MP-TRIG-5"
+ ],
+ "schema_version": "ws215-multiplayer-apnap-1.0.0",
+ "verdict": "UNKNOWN"
+}

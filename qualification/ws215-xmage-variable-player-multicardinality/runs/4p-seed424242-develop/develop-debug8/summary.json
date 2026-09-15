@@ -1,0 +1,127 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 4,
+  "seed": 424242,
+  "mode": "develop",
+  "budget": 600,
+  "player_count": 4,
+  "starting_player_seat": 2,
+  "expected_starting_seat": 2,
+  "decisions": 152,
+  "decision_classes": [
+    "choice",
+    "choose_object",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+  ],
+  "decision_class_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 139,
+    "mana_payment": 6,
+    "target": 1,
+    "choice": 1
+  },
+  "distinct_actors": [
+    "120e3631-3994-4805-b201-32332fda97ab",
+    "2f79aa1a-a518-49ad-a49e-fde0e30ad71f",
+    "ccd45b75-8aaf-4bc0-8b3d-7681290dbfc7",
+    "e1199f14-2025-485b-89a3-2269b09e8799"
+  ],
+  "priority_actors": [
+    "120e3631-3994-4805-b201-32332fda97ab",
+    "2f79aa1a-a518-49ad-a49e-fde0e30ad71f",
+    "ccd45b75-8aaf-4bc0-8b3d-7681290dbfc7",
+    "e1199f14-2025-485b-89a3-2269b09e8799"
+  ],
+  "distinct_defenders": [],
+  "defender_attack_frames": {},
+  "mana_debug": [
+    {
+      "offset": 21,
+      "unpaid": "{U}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Island — {T}: Add {U}."
+      ]
+    },
+    {
+      "offset": 22,
+      "unpaid": "{U}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend blue mana from pool"
+      ]
+    },
+    {
+      "offset": 67,
+      "unpaid": "{1}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Adarkar Wastes — {T}: Add {W}. {this} deals 1 damage to you.",
+        "mana_ability:Adarkar Wastes — {T}: Add {U}. {this} deals 1 damage to you.",
+        "mana_ability:Adarkar Wastes — {T}: Add {C}."
+      ]
+    },
+    {
+      "offset": 68,
+      "unpaid": "{1}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend colorless mana from pool"
+      ]
+    },
+    {
+      "offset": 150,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Exotic Orchard — {T}: Add one mana of any color that a land an opponent controls could produce."
+      ]
+    },
+    {
+      "offset": 152,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend blue mana from pool"
+      ]
+    }
+  ],
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 4,
+  "max_turn": 4,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 388,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 4,
+  "hidden_violations": 0,
+  "transcript_hash": "c28333e0a770ab69e18798e43caaeabe756601e2461e0e5acf8a9892d0587b60",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "mulligan:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": true,
+  "failure_message": "{\"type\":\"decision_controller\",\"message\":\"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: fc4e5191c14ce89e3f04b4f0a997d402f096fa18b7b4f03cad8e58834306dd46\"}"
+}

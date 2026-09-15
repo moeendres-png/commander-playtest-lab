@@ -1,0 +1,143 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 4,
+  "seed": 424242,
+  "mode": "develop",
+  "budget": 600,
+  "player_count": 4,
+  "starting_player_seat": 2,
+  "expected_starting_seat": 2,
+  "decisions": 600,
+  "decision_classes": [
+    "choose_object",
+    "choose_use",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+  ],
+  "decision_class_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 544,
+    "mana_payment": 36,
+    "declare_attacker": 6,
+    "declare_blocker": 5,
+    "choose_use": 3,
+    "target": 1
+  },
+  "distinct_actors": [
+    "0e0452f0-e5d6-4c9f-875d-c038fc96a47c",
+    "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4",
+    "d3558f14-c578-4176-b62a-42588b2a7f9d",
+    "fc981538-b16e-4721-b682-2e4d5a415ff3"
+  ],
+  "priority_actors": [
+    "0e0452f0-e5d6-4c9f-875d-c038fc96a47c",
+    "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4",
+    "d3558f14-c578-4176-b62a-42588b2a7f9d",
+    "fc981538-b16e-4721-b682-2e4d5a415ff3"
+  ],
+  "distinct_defenders": [
+    "0e0452f0-e5d6-4c9f-875d-c038fc96a47c",
+    "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4",
+    "d3558f14-c578-4176-b62a-42588b2a7f9d",
+    "fc981538-b16e-4721-b682-2e4d5a415ff3"
+  ],
+  "defender_attack_frames": {
+    "0e0452f0-e5d6-4c9f-875d-c038fc96a47c": 5,
+    "c2d44cbe-7a1c-44c2-9b77-ff6a7ad3e3f4": 3,
+    "fc981538-b16e-4721-b682-2e4d5a415ff3": 5,
+    "d3558f14-c578-4176-b62a-42588b2a7f9d": 5
+  },
+  "mana_debug": [
+    {
+      "offset": 487,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 488,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 570,
+      "unpaid": "{W}{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 571,
+      "unpaid": "{W}{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 572,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 573,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    }
+  ],
+  "last_submission": "pass_priority:3057cb921939dd34fba781ee0f798ac83b2cbcc2f9ad4df49557055d9f810169:22cfb8442913fe2ba3da3ab2ad36ea7e441703609df1de934732e40a1c26211b",
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 4,
+  "max_turn": 13,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 392,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 4,
+  "hidden_violations": 0,
+  "transcript_hash": "713e9d963e9d0c117d047bb8eea468309c08e66ab9fdecca881e2df604fd46ac",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "mulligan:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": false,
+  "failure_message": ""
+}

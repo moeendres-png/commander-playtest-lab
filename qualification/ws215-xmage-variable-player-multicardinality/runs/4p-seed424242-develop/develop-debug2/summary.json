@@ -1,0 +1,75 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 4,
+  "seed": 424242,
+  "mode": "develop",
+  "budget": 600,
+  "player_count": 4,
+  "starting_player_seat": 2,
+  "expected_starting_seat": 2,
+  "decisions": 600,
+  "decision_classes": [
+    "choice",
+    "choose_object",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+  ],
+  "decision_class_counts": {
+    "choose_object": 1,
+    "mulligan": 4,
+    "priority": 139,
+    "mana_payment": 454,
+    "target": 1,
+    "choice": 1
+  },
+  "distinct_actors": [
+    "27a7ebe2-3bf3-4f9e-9745-ad6c97164ffb",
+    "5ac87703-937b-4310-ba13-ed13e23fc8bc",
+    "7092e59c-4385-47fc-9649-369bd2d3e9f4",
+    "d2c051a7-b31b-4971-91bb-6884e811bc4c"
+  ],
+  "priority_actors": [
+    "27a7ebe2-3bf3-4f9e-9745-ad6c97164ffb",
+    "5ac87703-937b-4310-ba13-ed13e23fc8bc",
+    "7092e59c-4385-47fc-9649-369bd2d3e9f4",
+    "d2c051a7-b31b-4971-91bb-6884e811bc4c"
+  ],
+  "distinct_defenders": [],
+  "defender_attack_frames": {},
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 4,
+  "max_turn": 4,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 388,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 4,
+  "hidden_violations": 0,
+  "transcript_hash": "2b9e1ea541378439f69c27028bed837df470312ef05beb6dadf5b66e517466ae",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "mulligan:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": false,
+  "failure_message": ""
+}

@@ -1,0 +1,3536 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 3,
+  "seed": 424242,
+  "mode": "neutral",
+  "budget": 150,
+  "player_count": 3,
+  "starting_player_seat": 0,
+  "expected_starting_seat": 0,
+  "decisions": 150,
+  "decision_classes": [
+    "choose_object",
+    "mulligan",
+    "priority"
+  ],
+  "decision_class_counts": {
+    "choose_object": 6,
+    "mulligan": 3,
+    "priority": 141
+  },
+  "distinct_actors": [
+    "38a5124a-870f-4baf-93a6-c7c816643315",
+    "51f965cc-2b4b-4f25-9224-19b09859f2f0",
+    "a11706b9-bf1a-4419-8a0d-a7a8c0fae61a"
+  ],
+  "priority_actors": [
+    "38a5124a-870f-4baf-93a6-c7c816643315",
+    "51f965cc-2b4b-4f25-9224-19b09859f2f0",
+    "a11706b9-bf1a-4419-8a0d-a7a8c0fae61a"
+  ],
+  "distinct_defenders": [],
+  "defender_attack_frames": {},
+  "block_assignments": {},
+  "mana_debug": [],
+  "last_submission": "pass_priority:d9e5f1f33d1a1cc62722c0f947778326c42fff50ab467e71d6df3b39d511c4ea:5c1a1de6f824d11110bf73b16bbd980536d76a81951897be803d7607ad33455c",
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 3,
+  "mulligans_taken": 0,
+  "london_bottom_frames": 0,
+  "mulligan_frames": [
+    {
+      "offset": 2,
+      "option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "min": 1,
+      "max": 1
+    },
+    {
+      "offset": 3,
+      "option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "min": 1,
+      "max": 1
+    },
+    {
+      "offset": 4,
+      "option_types": [
+        "keep",
+        "mulligan"
+      ],
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "max_turn": 6,
+  "hand_trace": [
+    {
+      "turn": 1,
+      "offset": 1,
+      "class": "choose_object",
+      "seat_0": {
+        "hand_count": 0,
+        "library_count": 98,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 0,
+        "library_count": 98,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 0,
+        "library_count": 98,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 2,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 3,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 4,
+      "class": "mulligan",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 5,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 6,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 7,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 8,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 9,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 10,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 11,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 12,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 13,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 14,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 15,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 16,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 17,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 18,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 19,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 20,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 21,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 22,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 23,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 24,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 25,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 26,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 27,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 28,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 1,
+      "offset": 29,
+      "class": "choose_object",
+      "seat_0": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 30,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 31,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 32,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 33,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 34,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 35,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 36,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 37,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 38,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 39,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 40,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 41,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 42,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 43,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 44,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 45,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 46,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 47,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 48,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 49,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 50,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 51,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 52,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 53,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "offset": 54,
+      "class": "choose_object",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "offset": 55,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "offset": 56,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "offset": 57,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 7,
+        "library_count": 91,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "offset": 58,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "offset": 59,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "seat_1": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "offset": 60,
+      "class": "priority",
+      "seat_0": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_1": {
+        "hand_count": 8,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": false
+      },
+      "seat_2": {
+        "hand_count": 7,
+        "library_count": 90,
+        "life": 40,
+        "is_actor": true
+      },
+      "starting_seat": 0,
+      "commander_status": [
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Rograkh, Son of Rohgahh",
+          "casts": "0",
+          "damage_dealt": 0
+        },
+        {
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "casts": "0",
+          "damage_dealt": 0
+        }
+      ]
+    }
+  ],
+  "command_zone_start": {
+    "seat_0": 2,
+    "seat_1": 2,
+    "seat_2": 2
+  },
+  "commander_casts": {
+    "Rograkh, Son of Rohgahh — Cast Rograkh, Son of Rohgahh": 12
+  },
+  "commander_damage_max": {
+    "Ishai, Ojutai Dragonspeaker": 0,
+    "Rograkh, Son of Rohgahh": 0
+  },
+  "commander_final": [
+    {
+      "name": "Ishai, Ojutai Dragonspeaker",
+      "casts": "0",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Rograkh, Son of Rohgahh",
+      "casts": "0",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Ishai, Ojutai Dragonspeaker",
+      "casts": "0",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Rograkh, Son of Rohgahh",
+      "casts": "0",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Rograkh, Son of Rohgahh",
+      "casts": "0",
+      "damage_dealt": 0
+    },
+    {
+      "name": "Ishai, Ojutai Dragonspeaker",
+      "casts": "0",
+      "damage_dealt": 0
+    }
+  ],
+  "command_zone_choice_frames": [],
+  "max_stack_observed": 0,
+  "oracle_frames_checked": 150,
+  "oracle_violations": 0,
+  "oracle_errors": 0,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 291,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 3,
+  "hidden_violations": 0,
+  "transcript_hash": "3af22b141f7e7333287a89b50c3cb8a0ab564016de275712b98683dc55fc419c",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "priority:5",
+    "priority:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": false,
+  "failure_message": "",
+  "terminal": false,
+  "outcomes": [
+    {
+      "seat": 0,
+      "life": 40,
+      "won": false,
+      "lost": false,
+      "left": false
+    },
+    {
+      "seat": 1,
+      "life": 40,
+      "won": false,
+      "lost": false,
+      "left": false
+    },
+    {
+      "seat": 2,
+      "life": 40,
+      "won": false,
+      "lost": false,
+      "left": false
+    }
+  ]
+}

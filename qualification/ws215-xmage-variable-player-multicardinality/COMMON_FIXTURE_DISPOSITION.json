@@ -1,0 +1,958 @@
+{
+ "counts": {
+  "BLOCKED": 0,
+  "RERUN_REQUIRED": 72,
+  "RETAINED_AFTER_IMPACT_ADJUDICATION": 47,
+  "UNKNOWN": 16
+ },
+ "manifest_digest": "e7f34ea4b2543132440e7e5fdb47c6cb4d4908f05fb49f6fa59f3e0592ca3bd4",
+ "manifest_total": 135,
+ "rows": [
+  {
+   "category": "player_count",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "PLAYER_COUNT_2P",
+   "outcome": "PASS"
+  },
+  {
+   "category": "player_count",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "PLAYER_COUNT_3P",
+   "outcome": "PASS"
+  },
+  {
+   "category": "player_count",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "PLAYER_COUNT_4P",
+   "outcome": "PASS"
+  },
+  {
+   "category": "player_count",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "PLAYER_COUNT_5P",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-PRIO-3",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-PRIO-5",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-MP-TRIG-3",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-MP-TRIG-5",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-MP-TURN-3",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-MP-TURN-5",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-MP-ELIM-5",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-TAX-2",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-TAX-4",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "UNKNOWN",
+   "evidence": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "outcome": "UNKNOWN"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-MULL-2",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-MULL-4",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-START-2",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-START-3",
+   "outcome": "PASS"
+  },
+  {
+   "category": "multiplayer_commander",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "WS215 fresh runtime (matrix lifecycles/twins + JUnit/probe observations)",
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_PRIORITY",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_TARGET",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_CHOOSE_OBJECT",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_TARGET_AMOUNT",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_MULLIGAN",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_CHOOSE_USE",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_CHOICE",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_PILE",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_MANA_PAYMENT",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_MULTI_AMOUNT",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_CHOOSE_ABILITY",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary_negative",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary_negative",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary_negative",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary_negative",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "NEGATIVE_INTERNAL_AI",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary_negative",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary_negative",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "outcome": "PASS"
+  },
+  {
+   "category": "pilot_boundary_negative",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_01",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_02",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_03",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_04",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_05",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_06",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_07",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_08",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_09",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_10",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_11",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_12",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_13",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_14",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_15",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_16",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_17",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_18",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_19",
+   "outcome": "PASS"
+  },
+  {
+   "category": "hidden_information",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "outcome": "PASS"
+  },
+  {
+   "category": "replay_rng",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "Replay v1 out of scope; PARTIAL retained; injection ban preserved",
+   "fixture_id": "RNG_RULES_TAPE",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "replay_rng",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "Replay v1 out of scope; PARTIAL retained; injection ban preserved",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "replay_rng",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "Replay v1 out of scope; PARTIAL retained; injection ban preserved",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "replay_rng",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "Replay v1 out of scope; PARTIAL retained; injection ban preserved",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "replay_rng",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "Replay v1 out of scope; PARTIAL retained; injection ban preserved",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "MICRO_COSTS",
+   "outcome": "PASS"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "MICRO_MANA_PAYMENT",
+   "outcome": "PASS"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "MICRO_PRIORITY",
+   "outcome": "PASS"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_STACK",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RERUN_REQUIRED",
+   "evidence": "rerun suites: engine-bridge 117/117, python variable-player 32/32, decision-matrix 26/26, oracle 9985/0",
+   "fixture_id": "MICRO_TARGETS",
+   "outcome": "PASS"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_MODES",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_TRIGGERS",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_PREVENTION",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_LAYERS",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_COPY",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_CONTROL",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_COMBAT",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "micro_rules",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine-owned semantics; Lab paths for these classes byte-identical; mana/target-adjacent siblings rerun",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_01",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_02",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_03",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_04",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_05",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_06",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_07",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_08",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_09",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_10",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_11",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_12",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_13",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_14",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_15",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_16",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_17",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_18",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_19",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_20",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_21",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_22",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_23",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_24",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_25",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_26",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_27",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_28",
+   "outcome": "RETAINED"
+  },
+  {
+   "category": "actual_card",
+   "disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+   "evidence": "engine pin unchanged; card implementations untouched; tiebreak-determinism caveat documented; zero behavior credit claimed",
+   "fixture_id": "CARD_29",
+   "outcome": "RETAINED"
+  }
+ ],
+ "schema_version": "ws215-common-fixture-disposition-1.0.0"
+}

@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,6 +70,223 @@ class XmageVariablePlayerLifecycleTest {
     @Test
     void fivePlayerConcessionEliminatesExactlyOnePrincipal() throws Exception {
         concessionContinues(5, LIFECYCLE_SEED);
+    }
+
+    @Test
+    void threePlayerEliminationCleansUpOwnedObjects() throws Exception {
+        eliminationCleansUp(3, LIFECYCLE_SEED);
+    }
+
+    @Test
+    void fivePlayerEliminationCleansUpOwnedObjects() throws Exception {
+        eliminationCleansUp(5, LIFECYCLE_SEED);
+    }
+
+    @Test
+    void fivePlayerConcedeActivePlayerTurnContinues() throws Exception {
+        XmageDeckImporter importer = new XmageDeckImporter();
+        List<String> handles = importCopies(importer, loadLionsTechnicalDeck(), 5);
+        XmageFullGameSession session = new XmageFullGameSession(
+                "ws215-active-leaves-5p", handles, (int) Math.floorMod(LIFECYCLE_SEED, 5),
+                40, LIFECYCLE_SEED, importer
+        );
+        session.start();
+        developSteps(session, 150);
+        JsonObject before = session.pendingDecisionPayload();
+        String active = before.getAsJsonObject("decision")
+                .getAsJsonObject("pilot_state").get("active_player_id").getAsString();
+        int turnBefore = before.get("turn_number").getAsInt();
+        assertTrue(session.concedeOfferPayload(active)
+                .get("concede_available").getAsBoolean());
+        JsonObject result = session.submitConcede(concedeProposal(active));
+        assertEquals(active, result.get("conceded_actor_id").getAsString());
+        assertTrue(outcomeLost(result, active));
+        int answered = developSteps(session, 60);
+        assertTrue(answered > 0, "turn must continue after the active player leaves");
+        JsonObject after = session.pendingDecisionPayload();
+        assertTrue(after.get("turn_number").getAsInt() >= turnBefore,
+                "native engine owns post-leave turn recomputation");
+        assertEquals(5, after.getAsJsonArray("outcomes").size());
+    }
+
+    @Test
+    void threePlayerConcedePendingActorRecomputesPriority() throws Exception {
+        XmageDeckImporter importer = new XmageDeckImporter();
+        List<String> handles = importCopies(importer, loadLionsTechnicalDeck(), 3);
+        XmageFullGameSession session = new XmageFullGameSession(
+                "ws215-prio-leaves-3p", handles, (int) Math.floorMod(LIFECYCLE_SEED, 3),
+                40, LIFECYCLE_SEED, importer
+        );
+        session.start();
+        developSteps(session, 60);
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        String holder = pending.get("actor_id").getAsString();
+        session.submitConcede(concedeProposal(holder));
+        // The priority holder left: the ring must recompute natively to a
+        // survivor (or reach terminal), never to the leaver.
+        for (int step = 0; step < 20; step++) {
+            JsonObject payload = session.pendingDecisionPayload();
+            if (payload.get("decision").isJsonNull()) {
+                break;
+            }
+            JsonObject next = payload.getAsJsonObject("decision");
+            assertTrue(!holder.equals(next.get("actor_id").getAsString())
+                            || !session.concedeOfferPayload(holder)
+                                    .get("concede_available").getAsBoolean(),
+                    "priority must not return to the eliminated holder");
+            answerNeutrally(session, next, "neutral");
+        }
+    }
+
+    private static void eliminationCleansUp(int players, long seed) throws Exception {
+        XmageDeckImporter importer = new XmageDeckImporter();
+        List<String> handles = importCopies(importer, loadLionsTechnicalDeck(), players);
+        XmageFullGameSession session = new XmageFullGameSession(
+                "ws215-elim-cleanup-" + players + "p", handles,
+                (int) Math.floorMod(seed, players), 40, seed, importer
+        );
+        session.start();
+        // Develop real boards so the leaver owns objects subject to CR 800.4a.
+        developSteps(session, 200);
+        RichestSeat richest = richestSeatPlayerId(session);
+        assertTrue(richest.score() > 0,
+                "leaver must own objects pre-concede or cleanup is vacuous");
+        String conceder = richest.playerId();
+        int stackBefore = pendingStackSize(session);
+        assertTrue(session.concedeOfferPayload(conceder)
+                .get("concede_available").getAsBoolean());
+        JsonObject result = session.submitConcede(concedeProposal(conceder));
+        assertTrue(outcomeLost(result, conceder));
+
+        // CR 800.4a (test oracle, never pilot input): the leaver's owned
+        // zones are cleaned natively — empty graveyard/hand and no controlled
+        // permanents remain.
+        assertEquals(0, nativeZoneSize(session, conceder, "getGraveyard"),
+                "leaver graveyard cleaned");
+        assertEquals(0, nativeZoneSize(session, conceder, "getHand"),
+                "leaver hand cleaned");
+        assertEquals(0, nativeControlledPermanents(session, conceder),
+                "leaver controlled permanents leave");
+        assertEquals(players, result.getAsJsonArray("outcomes").size(),
+                "seat/principal map stays exact");
+
+        // Survivors keep deciding through the recomputed ring.
+        int answered = developSteps(session, 40);
+        assertTrue(answered > 0, "surviving ring continues after cleanup");
+        assertTrue(pendingStackSize(session) <= Math.max(stackBefore, 1)
+                || session.pendingDecisionPayload().get("decision").isJsonNull(),
+                "no leaver-owned stack residue wedges the game");
+    }
+
+    private static int developSteps(XmageFullGameSession session, int budget) {
+        int answered = 0;
+        for (int step = 0; step < budget; step++) {
+            JsonObject payload = session.pendingDecisionPayload();
+            if (payload.get("decision").isJsonNull()
+                    || !payload.get("failure").isJsonNull()) {
+                break;
+            }
+            answerNeutrally(session, payload.getAsJsonObject("decision"), "develop");
+            answered++;
+        }
+        return answered;
+    }
+
+    private record RichestSeat(String playerId, int score) {
+    }
+
+    private static RichestSeat richestSeatPlayerId(XmageFullGameSession session) {
+        JsonObject payload = session.pendingDecisionPayload();
+        JsonArray outcomes = payload.getAsJsonArray("outcomes");
+        String richest = outcomes.get(0).getAsJsonObject().get("player_id").getAsString();
+        int best = -1;
+        for (JsonElement element : outcomes) {
+            String id = element.getAsJsonObject().get("player_id").getAsString();
+            int score = nativeZoneSize(session, id, "getGraveyard")
+                    + nativeZoneSize(session, id, "getHand")
+                    + nativeControlledPermanents(session, id);
+            if (score > best) {
+                best = score;
+                richest = id;
+            }
+        }
+        return new RichestSeat(richest, best);
+    }
+
+    private static int pendingStackSize(XmageFullGameSession session) {
+        JsonObject payload = session.pendingDecisionPayload();
+        if (payload.get("decision").isJsonNull()) {
+            return 0;
+        }
+        JsonObject state = payload.getAsJsonObject("decision").getAsJsonObject("pilot_state");
+        JsonElement stack = state.get("stack");
+        return stack != null && stack.isJsonArray() ? stack.getAsJsonArray().size() : 0;
+    }
+
+    private static Object nativeGame(XmageFullGameSession session) {
+        try {
+            java.lang.reflect.Field field =
+                    XmageFullGameSession.class.getDeclaredField("game");
+            field.setAccessible(true);
+            return field.get(session);
+        } catch (Exception exc) {
+            throw new IllegalStateException("test oracle cannot reach native game", exc);
+        }
+    }
+
+    private static Object nativePlayer(XmageFullGameSession session, String principalId) {
+        try {
+            Object game = nativeGame(session);
+            java.lang.reflect.Method getPlayer =
+                    game.getClass().getMethod("getPlayer", java.util.UUID.class);
+            return getPlayer.invoke(game, java.util.UUID.fromString(principalId));
+        } catch (Exception exc) {
+            throw new IllegalStateException("test oracle cannot reach native player", exc);
+        }
+    }
+
+    private static int nativeZoneSize(
+            XmageFullGameSession session, String principalId, String zoneMethod) {
+        try {
+            Object player = nativePlayer(session, principalId);
+            Object zone = player.getClass().getMethod(zoneMethod).invoke(player);
+            java.lang.reflect.Method size = zone.getClass().getMethod("size");
+            return (int) size.invoke(zone);
+        } catch (Exception exc) {
+            throw new IllegalStateException("test oracle cannot read native zone", exc);
+        }
+    }
+
+    private static int nativeControlledPermanents(
+            XmageFullGameSession session, String principalId) {
+        try {
+            Object game = nativeGame(session);
+            java.lang.reflect.Method getBattlefield = game.getClass().getMethod("getBattlefield");
+            Object battlefield = getBattlefield.invoke(game);
+            java.lang.reflect.Method getAll = null;
+            for (java.lang.reflect.Method method : battlefield.getClass().getMethods()) {
+                if (method.getName().equals("getAllPermanents")
+                        && method.getParameterCount() == 0) {
+                    getAll = method;
+                    break;
+                }
+            }
+            if (getAll == null) {
+                throw new IllegalStateException("no getAllPermanents()");
+            }
+            int controlled = 0;
+            java.util.UUID principal = java.util.UUID.fromString(principalId);
+            for (Object permanent : (Iterable<?>) getAll.invoke(battlefield)) {
+                java.lang.reflect.Method getController =
+                        permanent.getClass().getMethod("getControllerId");
+                if (principal.equals(getController.invoke(permanent))) {
+                    controlled++;
+                }
+            }
+            return controlled;
+        } catch (Exception exc) {
+            throw new IllegalStateException("test oracle cannot scan battlefield", exc);
+        }
     }
 
     @Test
@@ -349,45 +565,8 @@ class XmageVariablePlayerLifecycleTest {
                 }
             }
         }
-        if ("choose_object".equals(decisionClass) && isLondonBottom(pending)) {
-            int need = pending.has("minimum_selections")
-                    && !pending.get("minimum_selections").isJsonNull()
-                    ? pending.get("minimum_selections").getAsInt() : 0;
-            List<JsonObject> ranked = new ArrayList<>();
-            for (JsonElement element : actions) {
-                ranked.add(element.getAsJsonObject());
-            }
-            ranked.sort(Comparator.comparing(XmageVariablePlayerLifecycleTest::stableActionKey));
-            JsonArray selected = new JsonArray();
-            for (int index = 0; index < Math.min(need, ranked.size()); index++) {
-                JsonObject meta = ranked.get(index).getAsJsonObject("metadata");
-                if (meta != null && meta.has("option_id") && !meta.get("option_id").isJsonNull()) {
-                    selected.add(meta.get("option_id").getAsString());
-                }
-            }
-            JsonObject proposal = genericProposal("ws215-bottom", actor, "", "structural_decision");
-            if (selected.size() > 0) {
-                String wanted = selected.get(0).getAsString();
-                for (JsonObject candidate : ranked) {
-                    JsonObject meta = candidate.getAsJsonObject("metadata");
-                    if (meta != null && meta.has("option_id")
-                            && !meta.get("option_id").isJsonNull()
-                            && wanted.equals(meta.get("option_id").getAsString())) {
-                        proposal.addProperty(
-                                "legal_action_id", candidate.get("action_id").getAsString());
-                        proposal.addProperty(
-                                "action_type", candidate.get("action_type").getAsString());
-                        break;
-                    }
-                }
-            }
-            JsonObject choices = new JsonObject();
-            choices.add("ordering", new JsonArray());
-            choices.add("selected_option_ids", selected);
-            proposal.add("choices", choices);
-            session.submitAction(proposal);
-            return;
-        }
+        // London paid-mulligan bottoming arrives as hand-target choices and
+        // flows through the deterministic generic fallback below.
         if ("priority".equals(decisionClass)) {
             if ("develop".equals(mode)) {
                 JsonObject land = null;

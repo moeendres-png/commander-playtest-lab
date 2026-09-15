@@ -15,7 +15,6 @@ turn advancement with no silently skipped callback.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import subprocess
 import sys
@@ -62,9 +61,16 @@ def compile_probe() -> None:
 
 
 def run_probe(
-    players: int, seed: int, mode: str, budget: int, tag: str, deck: str = "rogshai"
+    players: int,
+    seed: int,
+    mode: str,
+    budget: int,
+    tag: str,
+    deck: str = "rogshai",
+    force_mulligan: bool = False,
 ) -> dict:
-    run_dir = WS215_ROOT / "runs" / f"{players}p-seed{seed}-{mode}-{deck}" / tag
+    suffix = f"{mode}-{deck}" + ("-mulligan" if force_mulligan else "")
+    run_dir = WS215_ROOT / "runs" / f"{players}p-seed{seed}-{suffix}" / tag
     run_dir.mkdir(parents=True, exist_ok=True)
     out_path = run_dir / "summary.json"
     if out_path.exists():
@@ -79,6 +85,7 @@ def run_probe(
         f"--budget={budget}",
         f"--mode={mode}",
         f"--deck={deck}",
+        f"--force_mulligan={str(force_mulligan).lower()}",
         f"--repoRoot={REPO_ROOT}",
         f"--out={out_path}",
     ]
@@ -150,8 +157,38 @@ def lifecycle_gates(record: dict) -> list[str]:
     return problems
 
 
+def run_observations(counts: list[int]) -> None:
+    """Single-run observation matrix (no twins): oracle scans, command-zone
+    snapshots, hand traces, commander casts, zone choices, stack depths."""
+    compile_probe()
+    observations: dict = {"runs": []}
+    for players in counts:
+        neutral = run_probe(players, LIFECYCLE_SEED, "neutral", NEUTRAL_BUDGET, "observe", "rogshai")
+        develop = run_probe(
+            players, LIFECYCLE_SEED, "develop", DEVELOP_BUDGET, "observe", "lions"
+        )
+        observations["runs"].extend([neutral, develop])
+    for players in (2, 4):
+        mulligan = run_probe(
+            players,
+            LIFECYCLE_SEED,
+            "develop",
+            DEVELOP_BUDGET,
+            "observe",
+            "lions",
+            True,
+        )
+        observations["runs"].append(mulligan)
+    out_path = WS215_ROOT / "runs" / "WS215_OBSERVATIONS.json"
+    out_path.write_text(json.dumps(observations, indent=1, sort_keys=True))
+    print(f"[WS215] observations written to {out_path}", flush=True)
+
+
 def main() -> None:
-    only = sys.argv[1:] or []
+    only = [arg for arg in sys.argv[1:] if arg != "observe"]
+    if "observe" in sys.argv[1:]:
+        run_observations([int(arg) for arg in only] or [2, 3, 4, 5])
+        return
     compile_probe()
     results: dict = {"runs": [], "twins": {}, "controls": {}}
     for players in (2, 3, 4, 5):

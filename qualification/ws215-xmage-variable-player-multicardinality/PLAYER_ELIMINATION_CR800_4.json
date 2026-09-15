@@ -1,0 +1,9 @@
+{
+ "active_player": "PASS",
+ "control_effects": "UNKNOWN",
+ "five_player_recomputation": "PASS",
+ "owned_objects": "PASS",
+ "priority_holder": "PASS",
+ "schema_version": "ws215-player-elimination-cr800-4-1.0.0",
+ "stack": "PASS-vacuous-documented"
+}

@@ -1,0 +1,144 @@
+{
+  "probe": "ws215-lifecycle-probe-1.0.0",
+  "players": 5,
+  "seed": 424242,
+  "mode": "develop",
+  "budget": 600,
+  "player_count": 5,
+  "starting_player_seat": 2,
+  "expected_starting_seat": 2,
+  "decisions": 600,
+  "decision_classes": [
+    "choose_object",
+    "choose_use",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "priority"
+  ],
+  "decision_class_counts": {
+    "choose_object": 1,
+    "mulligan": 5,
+    "priority": 559,
+    "mana_payment": 26,
+    "declare_attacker": 4,
+    "declare_blocker": 2,
+    "choose_use": 3
+  },
+  "distinct_actors": [
+    "07c42354-4294-4c81-9656-4cbc2926e60a",
+    "161221f4-2cde-4c8a-9275-6a43421cca05",
+    "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0",
+    "68733b7d-1ce2-4068-8e0f-6bb0e88bb806",
+    "88e45f2d-8015-4810-b4b1-0c60ad3a0f08"
+  ],
+  "priority_actors": [
+    "07c42354-4294-4c81-9656-4cbc2926e60a",
+    "161221f4-2cde-4c8a-9275-6a43421cca05",
+    "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0",
+    "68733b7d-1ce2-4068-8e0f-6bb0e88bb806",
+    "88e45f2d-8015-4810-b4b1-0c60ad3a0f08"
+  ],
+  "distinct_defenders": [
+    "07c42354-4294-4c81-9656-4cbc2926e60a",
+    "161221f4-2cde-4c8a-9275-6a43421cca05",
+    "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0",
+    "68733b7d-1ce2-4068-8e0f-6bb0e88bb806",
+    "88e45f2d-8015-4810-b4b1-0c60ad3a0f08"
+  ],
+  "defender_attack_frames": {
+    "161221f4-2cde-4c8a-9275-6a43421cca05": 3,
+    "239c91c8-99b3-4b4c-8ff7-d57f3957a7f0": 4,
+    "68733b7d-1ce2-4068-8e0f-6bb0e88bb806": 3,
+    "88e45f2d-8015-4810-b4b1-0c60ad3a0f08": 3,
+    "07c42354-4294-4c81-9656-4cbc2926e60a": 3
+  },
+  "mana_debug": [
+    {
+      "offset": 510,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 511,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool"
+      ]
+    },
+    {
+      "offset": 559,
+      "unpaid": "{W}{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 560,
+      "unpaid": "{W}{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 561,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    },
+    {
+      "offset": 562,
+      "unpaid": "{W}",
+      "offered": [
+        "cancel_mana_payment:Cancel mana payment",
+        "mana_pool:Spend white mana from pool",
+        "mana_ability:Plains — {T}: Add {W}."
+      ]
+    }
+  ],
+  "last_submission": "pass_priority:5467c5865b5fb928d7864d86048b2779f4c18c50e25d61b8085b179d6465b0bb:53d0ffcae20b404ce52daedb19fb17a4010d18fb11678208eee16d0093b571b1",
+  "trigger_order_seen": false,
+  "extra_turn_signal_seen": false,
+  "mulligans_answered": 5,
+  "max_turn": 12,
+  "rules_seed_binding": {
+    "explicit_seed": 424242,
+    "rules_seed": 424242,
+    "rules_seed_matches": true,
+    "rules_seed_explicit": true,
+    "require_explicit_seed": true,
+    "rules_random_calls": 490,
+    "seed_scope": "authoritative_per_game_rules_rng",
+    "binding_model": "EXPLICIT_RULES_SEED: game.setRulesSeed(seed) + game.setRequireExplicitSeed(true) after construction, before game.start/init",
+    "seed_supported": true
+  },
+  "outcome_count": 5,
+  "hidden_violations": 0,
+  "transcript_hash": "4b930a17aa8d2dece8f776026ccf7714992c344d0963b48dd0b0291e720b2591",
+  "first_decision_frames": [
+    "choose_object:1",
+    "mulligan:2",
+    "mulligan:3",
+    "mulligan:4",
+    "mulligan:5",
+    "mulligan:6",
+    "priority:7",
+    "priority:8",
+    "priority:9",
+    "priority:10",
+    "priority:11",
+    "priority:12"
+  ],
+  "failed": false,
+  "failure_message": ""
+}

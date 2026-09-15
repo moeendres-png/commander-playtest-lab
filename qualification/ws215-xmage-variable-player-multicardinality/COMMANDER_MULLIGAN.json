@@ -1,0 +1,8 @@
+{
+ "fixtures": [
+  "WS05-CMD-MULL-2",
+  "WS05-CMD-MULL-4"
+ ],
+ "schema_version": "ws215-commander-mulligan-1.0.0",
+ "verdict": "PASS"
+}
