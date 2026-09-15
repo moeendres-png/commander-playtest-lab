@@ -1,0 +1,404 @@
+{
+ "audit_base": "67db073367853da7295ae06642f38a73db464dba",
+ "backlog_schema": "ws220-backlog-1.0.0",
+ "hypotheses": [
+  {
+   "blast_radius": "all post-WS17 qualification reads",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "git log dates on aggregate/* vs ws213/ws215 seals",
+    "consumer path analysis (who reads aggregate/)"
+   ],
+   "id": "H-EVID-01",
+   "potential_failure_mode": "operators/Coordinator decide from 0-PASS aggregates or over-claim from ws215/ alone",
+   "priority": "P0-candidate",
+   "question": "Stale qualification/aggregate/* (WS17-era) contradicts per-workstream WS213/WS215 seals with no reconciling index",
+   "status": "closed-answered",
+   "why_it_matters": "canonical rollup layer disagrees with authoritative seals; false confidence or false despair depending on which layer is read",
+   "finding": "F-EVID-01"
+  },
+  {
+   "blast_radius": "47/135 fixtures incl. all 29 CARD_*",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "WS215 COMMON_FIXTURE_DISPOSITION.json per-row rationales",
+    "diff of touched paths between cfc36f44 and db134b97",
+    "bridge rewrite path coverage vs retained categories"
+   ],
+   "id": "H-EVID-02",
+   "potential_failure_mode": "retained rows silently invalid after repin+rewrite; behavior credit rests on incomplete impact argument",
+   "priority": "P0-candidate",
+   "question": "47 retained-by-adjudication rows ride on impact-argument completeness across engine repin + variable-player rewrite",
+   "status": "closed-answered",
+   "why_it_matters": "largest single evidence-integrity surface; retention without runtime is exactly the construction-masquerading-as-behavior hazard",
+   "finding": "F-EVID-04a/F-EVID-04b (strong form rejected J1)"
+  },
+  {
+   "blast_radius": "automation + cross-workstream comparison",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "AGENTS.md policy vocab vs evidence schemas vs seal prose term census",
+    "harness.py aggregate parser behavior on mixed terms"
+   ],
+   "id": "H-EVID-03",
+   "potential_failure_mode": "tooling misjoins verdicts; reviewers talk past each other",
+   "priority": "P1-candidate",
+   "question": "Three evidence vocabularies (policy 7-term, schema 5-term, seal prose mix) with no mapping",
+   "status": "closed-answered",
+   "why_it_matters": "evidence classification is the load-bearing contract; drift breaks machine checking",
+   "finding": "F-EVID-03"
+  },
+  {
+   "blast_radius": "Freeze eligibility reasoning",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "G00-G15 vs AF00-AF11 requirement text diff",
+    "fixture manifest requirement_id coverage of AF gates"
+   ],
+   "id": "H-QUAL-01",
+   "potential_failure_mode": "gates double-count, miss Full-Rules requirements, or compare candidates on different obligations",
+   "priority": "P1-candidate",
+   "question": "G00-G15 and AF00-AF11 overlap with no authoritative G<->AF<->fixture trace matrix; AF verdicts never sealed post-WS17",
+   "status": "closed-answered",
+   "why_it_matters": "Freeze requires all-AF-PASS but nobody seals AF verdicts; G/AF divergence can hide gaps or double-charge work",
+   "finding": "F-QUAL-01 (refined J3)"
+  },
+  {
+   "blast_radius": "G01 DOMAIN_FRESHNESS + all authority_ref rows",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "AUTHORITY_LOCK_v1.json contents",
+    "how WS213/WS215 seals reference authority for PASS rows",
+    "GATE_RESULTS G01=FAIL standing"
+   ],
+   "id": "H-QUAL-02",
+   "potential_failure_mode": "PASS rows anchored to UNKNOWN authority; G01 FAIL makes every behavior claim formally ungrounded",
+   "priority": "P0-candidate",
+   "question": "AUTHORITY_LOCK has null CR bytes / UNKNOWN Oracle yet fixtures citing it as authority_ref carry RUNTIME PASS",
+   "status": "closed-answered",
+   "why_it_matters": "authority anchor is the root of the evidence chain; UNKNOWN anchor poisons all descendants",
+   "finding": "F-QUAL-02 (refined J2)"
+  },
+  {
+   "blast_radius": "all runtime scope decisions",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "OPERATIONAL_SIMULATION_POLICY.md history (last touch 136afc8b)",
+    "lane doc :13 vs :6-9 internal contradiction",
+    "code MIN/MAX player count"
+   ],
+   "id": "H-SRC-01",
+   "potential_failure_mode": "operator or Muse follows 4P-only policy and refuses valid 2P/3P/5P work, or cites stale pin from closeout",
+   "priority": "P1-candidate",
+   "question": "Stale 4P-only operational policy + lane docs contradict mission + WS215 code; closeout cites superseded pin",
+   "status": "closed-answered",
+   "why_it_matters": "source-truth ambiguity causes wrong scope decisions; stale pins cause wrong repins",
+   "finding": "F-SRC-01 (downgraded J6)"
+  },
+  {
+   "blast_radius": "Rules correctness (priority #1)",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "decision-kind census vs DECISION_CLASS_INVENTORY.json",
+    "Java controller fail-closed path review",
+    "redactor vs PilotStateView field diff",
+    "negative tests submitting illegal/stale/duplicate actions"
+   ],
+   "id": "H-RULES-01",
+   "potential_failure_mode": "adapter reconstructs legality (second engine) or pilot sees hidden info; all downstream evidence invalid",
+   "priority": "P0-candidate",
+   "question": "Does the full-game lane actually keep all legality inside XMage (no adapter/pilot reconstruction)?",
+   "status": "closed-answered",
+   "why_it_matters": "Rules-authority separation is project priority #1 and #8; violation invalidates everything downstream",
+   "finding": "F-RULES-02/F-RULES-03"
+  },
+  {
+   "blast_radius": "hidden-info priority (#5)",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "transcript/log/error/cache field audit",
+    "honeycard negative coverage",
+    "provider XMage-vs-Forge redaction parity"
+   ],
+   "id": "H-HIDE-01",
+   "potential_failure_mode": "pilot exploits leaked info; qualification overstates pilot-relevant correctness; replay tapes leak",
+   "priority": "P1-candidate",
+   "question": "Hidden-information leaks across observations, transcripts, logs, errors, caches, replay evidence",
+   "status": "closed-answered",
+   "why_it_matters": "leakage is silent and compounds: it flatters pilot results and corrupts replay determinism claims",
+   "finding": "F-HIDE-02/F-HIDE-03"
+  },
+  {
+   "blast_radius": "WS218 contract + AF09",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "replay protocol definition",
+    "RNG attribution points (Rules seed, pilot RNG, UUID/tiebreak handling)",
+    "WS215 PARTIAL replay disposition"
+   ],
+   "id": "H-REPLAY-01",
+   "potential_failure_mode": "WS218 builds to a contract that normalizes real divergence or demands engine internals, failing provider-neutrality",
+   "priority": "P1-candidate",
+   "question": "Is the semantic-replay requirement (definition, RNG attribution, identity semantics) sound and provider-neutral?",
+   "status": "closed-answered",
+   "why_it_matters": "replay is the determinism backbone (priority #6); a flawed contract wastes WS218 and weakens AF09",
+   "finding": "F-REPLAY-01 (R1-R12)"
+  },
+  {
+   "blast_radius": "AF07 + deck-decision mission",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "ACTUAL_CARD_DOMAIN_v1.json corpus composition vs RogShai/real-deck mechanic distribution",
+    "CARD_01-29 mechanic coverage vs engine risk taxonomy"
+   ],
+   "id": "H-CARD-01",
+   "potential_failure_mode": "29-card corpus systematically misses high-risk mechanics; AF07 PASS would certify a blind spot",
+   "priority": "P1-candidate",
+   "question": "Does the frozen 29-card corpus cover real-deck mechanics and high-risk engine paths, or does it have blind spots?",
+   "status": "closed-answered",
+   "why_it_matters": "actual-card functionality is priority #2; denominator adequacy decides what AF07 PASS is worth",
+   "finding": "F-CARD-01"
+  },
+  {
+   "blast_radius": "FULL107 compute + decision value",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "what FULL107 denotes historically vs now",
+    "cost estimate of a run",
+    "which current uncertainties it would/would not remove"
+   ],
+   "id": "H-FULL107-01",
+   "potential_failure_mode": "huge suite run for ritual value, or neglected regression gate that should be decomposed",
+   "priority": "P2-candidate",
+   "question": "What is FULL107's current decision value: keep as unit, decompose, or impact-select?",
+   "status": "closed-answered",
+   "why_it_matters": "largest potential compute/token sink; must be justified before anyone runs it",
+   "finding": "retire-as-unit (F-EFF-01)"
+  },
+  {
+   "blast_radius": "CI signal integrity",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "pyproject ranges vs runtime.lock (6 pins, no transitive, no hashes)",
+    "per-run freeze artifacts",
+    "PYTHONHASHSEED coverage",
+    "fuzz seed discipline",
+    "recent env-failure reports"
+   ],
+   "id": "H-CI-01",
+   "potential_failure_mode": "green CI on one dep tree, red/failing on another; unreproducible qualification environment",
+   "priority": "P1-candidate",
+   "question": "Range-pinned deps + no transitive lock + floating images: is CI/local reproducible?",
+   "status": "closed-answered",
+   "why_it_matters": "unreproducible env makes every test verdict suspect and explains chronic environmental failures",
+   "finding": "F-CI-01"
+  },
+  {
+   "blast_radius": "6P decision + AF02/AF08 scope",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "mission 6P preference clause",
+    "WS215 6P NOT_SUPPORTED rationale",
+    "cost of 6P probe vs value"
+   ],
+   "id": "H-MP-01",
+   "potential_failure_mode": "demanding 6P wastes effort, or ignoring it misses architecture lock-in before Freeze",
+   "priority": "P2-candidate",
+   "question": "Do WS215's remaining multiplayer/Commander UNKNOWNs (incl. 6P) materially block Freeze?",
+   "status": "closed-answered",
+   "why_it_matters": "scopes AF02/AF08 completion and roadmap order",
+   "finding": "F-MP-01"
+  },
+  {
+   "blast_radius": "candidate selection fairness",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "xmage vs forge evidence-side-by-side (fixtures, isolation, remediation opportunity)",
+    "admission process for future candidates"
+   ],
+   "id": "H-CAND-01",
+   "potential_failure_mode": "incumbency bias for XMage; future candidates face a different bar",
+   "priority": "P2-candidate",
+   "question": "Are XMage and Forge compared on equal evidence standards, fixtures, isolation, and remediation opportunity?",
+   "status": "closed-answered",
+   "why_it_matters": "mission forbids incumbency bias; unfair comparison risks wrong provider",
+   "finding": "F-CAND-01"
+  },
+  {
+   "blast_radius": "test time + signal",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "construction-vs-behavior test census",
+    "overfit card-name fixtures",
+    "flaky/nondeterministic history",
+    "fresh-process vs shared-cache isolation",
+    "cost-per-test vs information"
+   ],
+   "id": "H-TEST-01",
+   "potential_failure_mode": "suite proves construction, restates implementation, or flakes environmentally while missing negative/trigger-rich cases",
+   "priority": "P1-candidate",
+   "question": "Does the test corpus prove behavior (incl. negatives) or mostly construction + implementation restatement?",
+   "status": "closed-answered",
+   "why_it_matters": "test strategy decides day-to-day correctness feedback; a poorly targeted corpus wastes the most engineering hours",
+   "finding": "F-TEST-01"
+  },
+  {
+   "blast_radius": "autonomous throughput",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "workstream graph: sizes, durations, serial chains, duplicate research",
+    "state-file sizes/fragility",
+    "coordinator round trips per workstream",
+    "terminal handoff unlock rate"
+   ],
+   "id": "H-WS-01",
+   "potential_failure_mode": "micro-fragmentation + serial chains + round trips throttle progress more than any technical blocker",
+   "priority": "P2-candidate",
+   "question": "Is workstream sizing/parallelism/integration optimal, or fragmented, serial where parallelizable, or risking contamination?",
+   "status": "closed-answered",
+   "why_it_matters": "process throughput bounds time-to-Freeze as hard as technical difficulty",
+   "finding": "F-WS-01/F-WS-02"
+  },
+  {
+   "blast_radius": "operator + Muse time",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "prompt sizes vs immutable doctrine restatement",
+    "decisions Muse made autonomously vs escalated",
+    "telemetry usefulness",
+    "resumption reliability"
+   ],
+   "id": "H-FOUNDRY-01",
+   "potential_failure_mode": "heavy prompts + unnecessary gates burn budget; or over-delegation risks authority",
+   "priority": "P2-candidate",
+   "question": "Where does Foundry/OpenCode machinery add safety vs overhead; what can be safely autonomized?",
+   "status": "closed-answered",
+   "why_it_matters": "token/time economics decide how many qualification rounds the project can afford",
+   "finding": "F-FOUNDRY-01/F-EFF-01"
+  },
+  {
+   "blast_radius": "compute + attention",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "repeated full Maven/XMage builds",
+    "duplicated fixtures",
+    "broad runs vs impact-selected runs",
+    "evidence queryability"
+   ],
+   "id": "H-EFF-01",
+   "potential_failure_mode": "repeated expensive builds/runs without value; research rediscovered; manual steps that could be automated",
+   "priority": "P3-candidate",
+   "question": "Where is compute/attention wasted without correctness benefit (and where would 'optimization' risk correctness)?",
+   "status": "closed-answered",
+   "why_it_matters": "subordinate to correctness but compounds over dozens of workstreams",
+   "finding": "F-EFF-01"
+  },
+  {
+   "blast_radius": "roadmap order + Freeze distance",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "systemic->pilot->requal->compare->freeze dependency analysis",
+    "WS218/WS219 outputs as predecessors"
+   ],
+   "id": "H-ROAD-01",
+   "potential_failure_mode": "wrong order serializes independent work or qualifies the wrong thing first",
+   "priority": "P1-candidate",
+   "question": "Is systemic->pilot->requal->compare->Freeze still the optimal order, and how far is a defensible Freeze?",
+   "status": "closed-answered",
+   "why_it_matters": "roadmap order decides what unblocks what; wrong order costs months",
+   "finding": "F-ROAD-01"
+  },
+  {
+   "blast_radius": "unknown",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "metric analysis: what current numbers optimize",
+    "unstated assumptions list",
+    "failure modes with no gate"
+   ],
+   "id": "H-EXPL-01",
+   "potential_failure_mode": "project optimizes the wrong metric while blind spots grow",
+   "priority": "P1-candidate",
+   "question": "Exploratory: unknown unknowns, unstated assumptions, untested failure modes, unnoticed opportunities",
+   "status": "closed-answered",
+   "why_it_matters": "checklist audits miss what no gate tests; reserved phase for genuine discovery",
+   "finding": "assumptions+modes recorded (C13)"
+  },
+  {
+   "blast_radius": "merge gate + operator red-tolerance",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "refresh WS17_SHA256SUMS at WS213/215 merge or reconcile test",
+    "check whether CI runs this test on the workstream line"
+   ],
+   "id": "H-CI-02",
+   "potential_failure_mode": "red integrity gate ignored; real tampering later missed; or merge blocked",
+   "priority": "P1-candidate",
+   "question": "Artifact-integrity gate RED on WS215 line (stale root hash manifest after legitimate WS213 edit)",
+   "status": "closed-promoted",
+   "why_it_matters": "tamper-evidence gate must be green to mean anything",
+   "finding": "F-CI-02"
+  },
+  {
+   "blast_radius": "2P/3P/5P regressions escape to merge",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "extend conformance script cardinality or add lane triggers",
+    "check test_xmage_variable_player.py JVM needs"
+   ],
+   "id": "H-CI-03",
+   "potential_failure_mode": "variable-player regressions merge green; WS215 capability erodes silently",
+   "priority": "P1-candidate",
+   "question": "CI conformance lane is 4P-only post-WS215; variable-player test file not a trigger",
+   "status": "closed-promoted",
+   "why_it_matters": "headline WS215 capability has no CI gate",
+   "finding": "F-CI-03"
+  },
+  {
+   "blast_radius": "numeric decisions (X spells, distributed amounts, modal counts)",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "per-class live observation of announce_x/amount/multi_amount",
+    "disposition: expand domain or justify 3-value collapse"
+   ],
+   "id": "H-RULES-02",
+   "potential_failure_mode": "pilot never offered legal interior values; behavior evidence understates choice space",
+   "priority": "P1-candidate",
+   "question": "Numeric-domain narrowing (span>16 -> {min,mid,max}) withholds engine-authorized values from pilot",
+   "status": "closed-promoted",
+   "why_it_matters": "only observed engine-domain narrowing; touches X-spells and payment amounts",
+   "finding": "F-RULES-02"
+  },
+  {
+   "blast_radius": "hidden-info assurance wording",
+   "estimated_cost": "S",
+   "evidence_needed": [
+    "canary card-name negative in hidden-info suite",
+    "re-scan historical primary.json artifacts"
+   ],
+   "id": "H-HIDE-02",
+   "potential_failure_mode": "name-only leak passes UUID oracle; historical artifacts leak on cross-principal read",
+   "priority": "P1-candidate",
+   "question": "No name-canary honeycard negative; UUID-oracle blind to name-only leaks",
+   "status": "closed-promoted",
+   "why_it_matters": "closes the alphabet gap in the strongest evidence number (8709/9985 rows)",
+   "finding": "F-HIDE-02"
+  },
+  {
+   "blast_radius": "all future retention claims",
+   "estimated_cost": "M",
+   "evidence_needed": [
+    "machine-checked retained-path predicate (diff-scoped)",
+    "N-scoped retention (4P vs 2/3/5P)",
+    "rerun of CARD_29/MICRO_13/N-variants per C10 order"
+   ],
+   "id": "H-EVID-04",
+   "potential_failure_mode": "prose retention rots; N!=4 coverage hole persists into comparison",
+   "priority": "P1-candidate",
+   "question": "Retention rationales as prose without machine predicates; 4P-shaped reasoning unscoped for N!=4",
+   "status": "closed-promoted",
+   "why_it_matters": "retention is the load-bearing mechanism for all future repins/rewrites",
+   "finding": "F-EVID-04a/F-EVID-04b"
+  }
+ ]
+}

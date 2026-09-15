@@ -5,11 +5,22 @@ import argparse
 import hashlib
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-VERDICTS = {"PASS", "FAIL", "UNKNOWN", "NOT_RUN", "PARTIAL", "UNSUPPORTED", "NOT_APPLICABLE"}
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from evidence_vocab_v1 import (
+    FAILURE_CLASSIFICATIONS,
+    VERDICTS,
+    UnmappedEvidenceTerm,
+    is_satisfying_evidence,
+    require_evidence_class,
+)
+
+VERDICTS = set(VERDICTS)
+FAILURE_CLASSIFICATIONS = set(FAILURE_CLASSIFICATIONS)
 SATISFYING = {"PASS"}
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -102,22 +113,65 @@ def execute(candidate, source_lock, manifest, command=None):
         verdict = payload.get("verdict", "UNKNOWN")
         if verdict not in VERDICTS:
             verdict = "UNKNOWN"
+        try:
+            evidence_class = require_evidence_class(payload.get("evidence_class"))
+        except UnmappedEvidenceTerm as exc:
+            # Fail closed: missing/malformed/unmapped evidence class is rejected,
+            # never defaulted and never upgraded. The provider's claimed verdict
+            # is not honored on a rejected row.
+            results.append(
+                {
+                    "fixture_id": fx["fixture_id"],
+                    "candidate": candidate,
+                    "source_lock": source_lock,
+                    "verdict": "UNKNOWN",
+                    "evidence_class": "UNKNOWN",
+                    "reason": f"evidence class rejected at machine join: {exc}",
+                    "classification": "RUNTIME_NOT_RUN",
+                    "artifact_hashes": {},
+                }
+            )
+            continue
+        if verdict == "PASS" and not is_satisfying_evidence(verdict, evidence_class):
+            # A PASS verdict without explicit RUNTIME_VERIFIED evidence is a
+            # silent-upgrade attempt (or a confused provider): demote to UNKNOWN
+            # while preserving the weak evidence claim for diagnosis.
+            results.append(
+                {
+                    "fixture_id": fx["fixture_id"],
+                    "candidate": candidate,
+                    "source_lock": source_lock,
+                    "verdict": "UNKNOWN",
+                    "evidence_class": evidence_class,
+                    "reason": (
+                        "PASS verdict rejected: provider evidence class "
+                        f"{evidence_class!r} is not RUNTIME_VERIFIED; "
+                        "CODE_DERIVED is not runtime verification."
+                    ),
+                    "classification": "RUNTIME_NOT_RUN",
+                    "artifact_hashes": payload.get("artifact_hashes", {}),
+                }
+            )
+            continue
+        if verdict == "PASS":
+            classification = "RUNTIME_PASS"
+        elif verdict in {"NOT_RUN", "UNKNOWN"}:
+            classification = "RUNTIME_NOT_RUN"
+        else:
+            classification = (
+                "DIRECT_RULES_FAIL"
+                if evidence_class in {"RUNTIME_VERIFIED", "DIRECT_CODE_FAIL"}
+                else "RUNTIME_NOT_RUN"
+            )
         results.append(
             {
                 "fixture_id": fx["fixture_id"],
                 "candidate": candidate,
                 "source_lock": source_lock,
                 "verdict": verdict,
-                "evidence_class": payload.get(
-                    "evidence_class",
-                    "RUNTIME_VERIFIED" if verdict in {"PASS", "FAIL"} else "NOT_RUN",
-                ),
+                "evidence_class": evidence_class,
                 "reason": payload.get("reason", "provider response"),
-                "classification": "RUNTIME_PASS"
-                if verdict == "PASS"
-                else (
-                    "RUNTIME_NOT_RUN" if verdict in {"NOT_RUN", "UNKNOWN"} else "DIRECT_RULES_FAIL"
-                ),
+                "classification": classification,
                 "artifact_hashes": payload.get("artifact_hashes", {}),
             }
         )

@@ -1,0 +1,954 @@
+{
+  "classifications": {
+    "EXPECTED_PRIVILEGED_ARTIFACT": 4,
+    "POTENTIAL_LEAK_ARTIFACT": 66
+  },
+  "primary_json_scanned": 66,
+  "rewrites": 0,
+  "rows": [
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-A03/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Swamp \u2014 Play Swamp"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-A04/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-B01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 4,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Forest \u2014 Play Forest",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 {T}: Add {G}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-C01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-C03/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-D06/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-E01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-E02/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 6,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-F01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-G02/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-G03/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-G04/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 10,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Forest \u2014 Play Forest",
+        "Island \u2014 {T}: Add {U}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-H01-CLONE_FIRST/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-H01-HUMILITY_FIRST/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 10,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Plains \u2014 Play Plains"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-H01-NO_HUMILITY/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-I01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Plains \u2014 Play Plains",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws205-xmage-ws90-first-wave/slots/RQ-C3-J02/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 10,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest",
+        "Mountain \u2014 Play Mountain",
+        "Forest \u2014 {T}: Add {G}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-A03/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 15,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Lightning Bolt \u2014 Cast Lightning Bolt",
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-A04/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 9,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Forest \u2014 Play Forest",
+        "Stonecoil Serpent \u2014 Cast Stonecoil Serpent",
+        "Forest \u2014 {T}: Add {G}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-B01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 7,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Plains \u2014 Play Plains",
+        "Forest \u2014 {T}: Add {G}.",
+        "Plains \u2014 {T}: Add {W}.",
+        "Essence Warden \u2014 Cast Essence Warden"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-C01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 9,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-C03/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 9,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-D06/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Swamp \u2014 Play Swamp"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-E01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 15,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-F01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 9,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Plains \u2014 Play Plains"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-G02/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Swamp \u2014 Play Swamp"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-G03/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-H01-CLONE_FIRST/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 14,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-H01-HUMILITY_FIRST/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 14,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-H01-NO_HUMILITY/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 14,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-I01/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws207-xmage-qualified-scenario-setup/slots/RQ-C3-J02/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 0,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 13,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain",
+        "Forest \u2014 Play Forest",
+        "Mountain \u2014 {T}: Add {R}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-A03/behavior-alt-seed/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-A03/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 16,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Lightning Bolt \u2014 Cast Lightning Bolt",
+        "Spend red mana from pool",
+        "Swamp \u2014 Play Swamp"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-A03/setup/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 15,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-B01/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 7,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Forest \u2014 Play Forest",
+        "Plains \u2014 {T}: Add {W}.",
+        "Essence Warden \u2014 Cast Essence Warden",
+        "Forest \u2014 {T}: Add {G}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-C01/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 87,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 10,
+      "offered_cardish_sample": [
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-C01/setup/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 9,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-C03/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 122,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 10,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-C03/setup/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 9,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-D06/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Swamp \u2014 Play Swamp",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-D06/setup/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/behavior-alt-seed/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 11,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 6,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/combat-scan-19108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 11,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/combat-scan-29108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 6,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/combat-scan-39108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 6,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/combat-scan-49108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 11,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Llanowar Elves \u2014 Cast Llanowar Elves"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/combat-scan-59108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 6,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/combat-scan-9108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 6,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/long-scan-19108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 3000,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 12,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/long-scan-29108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 3000,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 15,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/long-scan-9108/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 3000,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 6,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/xlong-6000/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 6000,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 15,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/xlong2-6000/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 4656,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 15,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-E02/xlong3-6000/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 5746,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 19,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-F01/behavior-alt-seed/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 8,
+      "offered_cardish_sample": [
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-F01/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 10,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-F01/setup/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 9,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-G04/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 10,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Swamp \u2014 Play Swamp",
+        "Swamp \u2014 {T}: Add {B}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-H01-CLONE_FIRST/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 16,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-H01-CLONE_FIRST/setup/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 14,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-H01-HUMILITY_FIRST/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 16,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-H01-NO_HUMILITY/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 16,
+      "offered_cardish_sample": [
+        "Forest \u2014 Play Forest",
+        "Forest \u2014 {T}: Add {G}.",
+        "Island \u2014 Play Island",
+        "Island \u2014 {T}: Add {U}.",
+        "Mountain \u2014 Play Mountain"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-H01-NO_HUMILITY/setup/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 13,
+      "offered_cardish_sample": [
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}.",
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest"
+      ]
+    },
+    {
+      "artifact": "qualification/ws213-xmage-consolidated-requalification/runs/RQ-C3-I01/behavior/primary.json",
+      "classification": "POTENTIAL_LEAK_ARTIFACT",
+      "hidden_info_rows_scanned": 500,
+      "hidden_info_violations": 0,
+      "offered_cardish_labels": 14,
+      "offered_cardish_sample": [
+        "Plains \u2014 Play Plains",
+        "Plains \u2014 {T}: Add {W}.",
+        "Forest \u2014 Play Forest",
+        "Mountain \u2014 Play Mountain",
+        "Mountain \u2014 {T}: Add {R}."
+      ]
+    },
+    {
+      "artifact": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-2p.json",
+      "classification": "EXPECTED_PRIVILEGED_ARTIFACT",
+      "note": "manifest decklists privileged-by-design (reconstruction); steps carry digests + entitled chosen labels only"
+    },
+    {
+      "artifact": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-3p.json",
+      "classification": "EXPECTED_PRIVILEGED_ARTIFACT",
+      "note": "manifest decklists privileged-by-design (reconstruction); steps carry digests + entitled chosen labels only"
+    },
+    {
+      "artifact": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json",
+      "classification": "EXPECTED_PRIVILEGED_ARTIFACT",
+      "note": "manifest decklists privileged-by-design (reconstruction); steps carry digests + entitled chosen labels only"
+    },
+    {
+      "artifact": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-5p.json",
+      "classification": "EXPECTED_PRIVILEGED_ARTIFACT",
+      "note": "manifest decklists privileged-by-design (reconstruction); steps carry digests + entitled chosen labels only"
+    }
+  ],
+  "tapes_scanned": 4
+}

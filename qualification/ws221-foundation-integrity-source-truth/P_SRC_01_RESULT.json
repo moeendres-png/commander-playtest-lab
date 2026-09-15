@@ -1,0 +1,1377 @@
+{
+ "probe": "P-SRC-01",
+ "name_traps": [
+  "artifacts/final_audit/FINAL_BLOCKER_REGISTER.json",
+  "artifacts/final_audit/FINAL_BUG_REGISTER.json",
+  "artifacts/final_audit/FINAL_EXTERNAL_ENGINE_STATUS.md",
+  "artifacts/final_audit/FINAL_FUNCTION_MATRIX.json",
+  "artifacts/final_audit/FINAL_FUNCTION_MATRIX.md",
+  "artifacts/final_audit/FINAL_PERFORMANCE_REPORT.md",
+  "artifacts/final_audit/FINAL_PROMPT_QUALITY_REPORT.md",
+  "artifacts/final_audit/FINAL_REAL_PLAYTEST_STATUS.md",
+  "artifacts/final_audit/FINAL_REPRODUCIBILITY_REPORT.json",
+  "artifacts/final_audit/FINAL_SECURITY_REPORT.md",
+  "artifacts/final_audit/FINAL_SYSTEM_AUDIT_REPORT.md",
+  "artifacts/final_audit/FINAL_SYSTEM_AUDIT_RESULT.json",
+  "artifacts/final_audit/FINAL_TEST_MATRIX.json",
+  "artifacts/final_audit/FINAL_TEST_RESULTS.txt",
+  "artifacts/final_audit/FINAL_TOOLSERVER_NEGATIVE_CASES.json",
+  "artifacts/final_audit/FINAL_WORKFLOW_SMOKE.json",
+  "artifacts/phase12_19/final_execution/FINAL_PERFORMANCE.json",
+  "artifacts/phase12_19/final_execution/FINAL_PERFORMANCE_REPORT.md",
+  "artifacts/phase12_19/final_execution/FINAL_SECURITY_REPORT.md",
+  "artifacts/phase12_19/final_execution/FINAL_STATIC_SECURITY_SCAN.json",
+  "artifacts/phase12_20/FINAL_COLLECT_ONLY.txt",
+  "artifacts/phase12_20/PHASE10_ACCEPTANCE_FINAL.txt",
+  "artifacts/phase12_20/POST_FINAL_CODE_TESTS.txt",
+  "artifacts/phase12_20/final_package/FINAL_BLOCKER_REGISTER.json",
+  "artifacts/phase12_20/final_package/FINAL_BUG_REGISTER.json",
+  "artifacts/phase12_20/final_package/FINAL_PERFORMANCE_REPORT.md",
+  "artifacts/phase12_20/final_package/FINAL_SECURITY_REPORT.md",
+  "artifacts/phase12_20/final_package/FINAL_TEST_RESULTS.txt",
+  "data/canonical_import/2026-08-11/rogshai_current_provisional.json",
+  "data/canonical_import/2026-08-15/rogshai_current_photo_verified.json",
+  "data/cards/FULL_PHYSICAL_CARD_KNOWLEDGE_MANIFEST_CURRENT.json",
+  "data/cards/rogshai_semantic_projection_current.zlib.b64",
+  "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
+  "data/collections/current/J_FINAL_ACTIVE_SCOPE.json",
+  "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
+  "data/collections/current/J_P5_CURRENT_OPTIMIZATION_AVAILABILITY.json",
+  "data/collections/current/J_P5_DECK_BUILD_CONSTRAINTS_CURRENT.json",
+  "data/collections/current/J_P5_POD_SCENARIOS_CURRENT.json",
+  "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
+  "data/collections/current/POD_SCENARIOS_CURRENT.json",
+  "data/collections/current/PROJECT_UPDATE_CURRENT.json",
+  "data/collections/current_deck_allocations.json",
+  "data/decision/DECISION_CONTRACT_CURRENT.json",
+  "data/decks/current_source_excerpt.md",
+  "data/decks/rogshai_current.json",
+  "data/decks/rogshai_current.txt",
+  "data/decks/rogshai_current_card_catalog_overrides.json",
+  "data/decks/rogshai_current_physical_printings.json",
+  "data/decks/rogshai_current_structural_overrides.json",
+  "data/diagnostics/MODEL_RESOLUTION_CURRENT.json",
+  "data/meta/manifests/latest.json",
+  "data/opponent_ensembles/cosmic-spiderman-ambiguity-current.json",
+  "data/opponent_ensembles/morcant-elves-ambiguity-current.json",
+  "data/opponents/current_structural_profiles.json",
+  "data/primer_rules/evals/latest_policy_eval.json",
+  "data/primer_rules/policies/korvold_current_policy-1.0.1.json",
+  "data/primer_rules/policies/korvold_current_policy.json",
+  "data/primer_rules/policies/latest.json",
+  "data/primer_rules/policies/rogshai_current_policy-1.0.1.json",
+  "data/primer_rules/policies/rogshai_current_policy.json",
+  "data/primer_rules/rules/korvold_current_rules.json",
+  "data/primer_rules/rules/rogshai_current_rules.json",
+  "data/provenance/kaervek_current_sync.json",
+  "data/rogshai_mvp/CURRENT_DRIVE_RUNTIME.json.gz.b64",
+  "data/runs/current/OFFICIAL_ROGSHAI_RUN_CURRENT.json",
+  "data/sync/current_sources.json",
+  "docs/CARD_COVERAGE_CURRENT.md",
+  "docs/CARD_KNOWLEDGE_POLICY_CURRENT.md",
+  "docs/FINAL_CONSOLIDATION_MANIFEST.json",
+  "docs/J_P4_CURRENT_MAIN_COMPATIBILITY.md",
+  "docs/J_P5_FROZEN_FINALISTS.json",
+  "docs/NEXT_STEP_HANDOFF_J_P6_TO_FINAL.md",
+  "docs/PROJECT_STRUCTURE_FINAL_AUDIT.md",
+  "docs/PROJECT_UPDATE_CURRENT_STATE.md",
+  "docs/decision-quality/CONCURRENT_WORK_RECONCILIATION.md",
+  "docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md",
+  "docs/decision_quality/SIMULATION_FIDELITY_124_CLOSEOUT_CURRENT.md",
+  "qualification/WS17_FINAL_HANDOFF.md",
+  "qualification/ws205-xmage-ws90-first-wave/FINAL_REPORT.md",
+  "qualification/ws207-xmage-qualified-scenario-setup/FINAL_REPORT.md",
+  "qualification/ws213-xmage-consolidated-requalification/FINAL_HANDOFF.md",
+  "qualification/ws215-xmage-variable-player-multicardinality/FINAL_HANDOFF.json",
+  "qualification/ws215-xmage-variable-player-multicardinality/FINAL_HANDOFF.md",
+  "qualification/ws79-h01-authority-remediation/FINAL_REPORT.md",
+  "qualification/ws80-xmage-callback-reachability/FINAL_REPORT.md",
+  "qualification/ws88-xmage-integrated-successor-promotion/FINAL_REPORT.md",
+  "qualification/ws90-rqc3-corrected-first-wave-reissue/FINAL_REPORT.md",
+  "research/architecture-closure/ws91-d1-current-main-integration/FINAL_REPORT.md",
+  "research/foundry/ws190-long-turn-resilience/FINAL_REPORT.md",
+  "research/foundry/ws58-state-persistence-hardening/WS58_FINAL_REPORT.md",
+  "research/foundry/ws61-safe-push-lineage-integration/ws57-provenance/WS57_FINAL_REPORT.md",
+  "scripts/run_j_final_acceptance.py",
+  "src/commander_lab/current_model_resolution.py",
+  "src/commander_lab/tools/current_candidates.py",
+  "src/commander_lab/whole_deck/search_finalize.py",
+  "tests/regressions/test_j_final_scope.py",
+  "tests/unit/test_current_model_resolution.py",
+  "tests/unit/test_current_opponent_repository.py",
+  "tests/unit/test_kaervek_current_sync.py",
+  "tests/unit/test_pre_campaign_governance_finalization.py",
+  "tests/unit/test_project_update_current.py",
+  "tests/unit/test_rules_coverage_current_sources.py"
+ ],
+ "name_trap_count": 102,
+ "four_p_claims": [
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 87,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 105,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 123,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 141,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 159,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 177,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 195,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 213,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 231,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 249,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 267,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 285,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 303,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 321,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 339,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 357,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 375,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 393,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 411,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 429,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 447,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 465,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 483,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 501,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 519,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 537,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 555,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 573,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 591,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 609,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 627,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 645,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 663,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 681,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 699,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 717,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 735,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 753,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 771,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 789,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 807,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 825,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 843,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 861,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 879,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 897,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 915,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 933,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 951,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 969,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 987,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1005,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1023,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1041,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1059,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1077,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1095,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1113,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1131,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1149,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1167,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1185,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1203,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1221,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1239,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1257,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1275,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1293,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1311,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1329,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1347,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1365,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1383,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1401,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1419,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1437,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1455,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1473,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1491,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1509,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1527,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1545,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1563,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1581,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1599,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1617,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1635,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1653,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1671,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1689,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1707,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1725,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1743,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1761,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1779,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1797,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1815,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1833,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1851,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1869,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1887,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1905,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1923,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1941,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1959,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1977,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 1995,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2013,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2031,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2049,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2067,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2085,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2103,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2121,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2139,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2157,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2175,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2193,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2211,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2229,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2247,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2265,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2283,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2301,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2319,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2337,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2355,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2373,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2391,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2409,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2427,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2445,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2463,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2481,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/evidence/candidates/xmage.json",
+   "line": 2499,
+   "text": "\"reason\": \"RSP 1.1 adapter is absent at this lock; current integration is 4P-only and observation completeness has direct gaps, so no common fixture may be credited without candidate remediation/requa"
+  },
+  {
+   "file": "qualification/ws213-xmage-consolidated-requalification/PLAYER_COUNT_IMPACT.md",
+   "line": 6,
+   "text": "`PLAYER_COUNT = 4`). This matches the mission's primary 4P benchmark; it is"
+  },
+  {
+   "file": "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.md",
+   "line": 24,
+   "text": "Before qualification was complete the lane still advertised 4P-only; the"
+  },
+  {
+   "file": "qualification/ws215-xmage-variable-player-multicardinality/CARDINALITY_IMPACT_MAP.md",
+   "line": 12,
+   "text": "| J1 | `xmage/XmageFullGameSession.java:39` | `PLAYER_COUNT = 4` constant | `MIN_PLAYERS=2`, `MAX_PLAYERS=5`, per-session `playerCount` |"
+  },
+  {
+   "file": "qualification/ws215-xmage-variable-player-multicardinality/FINAL_HANDOFF.md",
+   "line": 15,
+   "text": "1. Generalized the production full-game orchestration from exactly-4P to"
+  },
+  {
+   "file": "qualification/ws80-xmage-callback-reachability/ENTRYPOINT_REACHABILITY.json",
+   "line": 1,
+   "text": "{\"audit_base_sha\":\"90f95c117b190d6b21704ca7639198e3ac0a2dc2\",\"branch\":\"ws80/xmage-callback-reachability-20260912\",\"entrypoints\":[{\"advertised_capabilities\":{\"action_submission_supported\":false,\"event_"
+  },
+  {
+   "file": "scripts/run_external_full_game_conformance.py",
+   "line": 82,
+   "text": "player_count=4,"
+  },
+  {
+   "file": "src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py",
+   "line": 109,
+   "text": "raise ValueError(\"current decision runtime is 4-player only\")"
+  },
+  {
+   "file": "tests/unit/test_operational_4p_policy.py",
+   "line": 9,
+   "text": "assert PolicyTournamentConfig().pod_sizes == (4,)"
+  },
+  {
+   "file": "tests/unit/test_xmage_full_game.py",
+   "line": 161,
+   "text": "player_count=4,"
+  }
+ ],
+ "four_p_claim_files": [
+  "qualification/evidence/candidates/xmage.json",
+  "qualification/ws213-xmage-consolidated-requalification/PLAYER_COUNT_IMPACT.md",
+  "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.md",
+  "qualification/ws215-xmage-variable-player-multicardinality/CARDINALITY_IMPACT_MAP.md",
+  "qualification/ws215-xmage-variable-player-multicardinality/FINAL_HANDOFF.md",
+  "qualification/ws80-xmage-callback-reachability/ENTRYPOINT_REACHABILITY.json",
+  "scripts/run_external_full_game_conformance.py",
+  "src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py",
+  "tests/unit/test_operational_4p_policy.py",
+  "tests/unit/test_xmage_full_game.py"
+ ],
+ "superseded_pin_citations_total": 9397,
+ "superseded_pin_live_files": {
+  "XMAGE_FULL_GAME_CLOSEOUT.md": [
+   11
+  ],
+  "artifacts/engine_setup/engine_decision_matrix.md": [
+   7
+  ],
+  "artifacts/engine_setup/phase85_cli_output.json": [
+   136
+  ],
+  "artifacts/engine_setup/phase85_validation/phase85_validation_output.json": [
+   136
+  ],
+  "artifacts/external_engine/release_verification.json": [
+   4
+  ],
+  "artifacts/final_audit/CLI_AND_ENGINE_AUDIT.txt": [
+   390
+  ],
+  "artifacts/phase12_13/ENGINE_PROVIDER_MATRIX.json": [
+   10
+  ],
+  "artifacts/phase12_13/PHASE12_13_RESULT.json": [
+   45
+  ],
+  "artifacts/phase12_20/final_package/ENGINE_PROVIDER_MATRIX.json": [
+   8
+  ],
+  "config/rules_engines.json": [
+   47,
+   49,
+   58,
+   116,
+   116
+  ],
+  "docs/B4F_XMAGE_FIDELITY_CLOSEOUT.md": [
+   26
+  ],
+  "docs/J_P3_EXTERNAL_ENGINE_CONTRACT.md": [
+   28,
+   29,
+   43,
+   48,
+   84,
+   84
+  ],
+  "docs/J_P3_FORGE_RAW_EVIDENCE/README.md": [
+   3
+  ],
+  "docs/J_P3_FORGE_RAW_EVIDENCE/manifest.json": [
+   5
+  ],
+  "docs/J_P3_FORGE_SPIKE_REPORT.md": [
+   11,
+   44,
+   45
+  ],
+  "docs/J_P3_FORGE_SPIKE_RUNBOOK.md": [
+   13
+  ],
+  "docs/J_P3_PROVIDER_DECISION.json": [
+   14,
+   15
+  ],
+  "docs/J_P3_PROVIDER_DECISION.md": [
+   21,
+   22
+  ],
+  "docs/J_P3_PROVIDER_MATRIX_COMPLETE.json": [
+   11,
+   54
+  ],
+  "docs/J_P3_PROVIDER_MATRIX_EMPTY.json": [
+   30,
+   65
+  ],
+  "docs/J_P3_PROVIDER_MATRIX_PARTIAL.json": [
+   10
+  ],
+  "docs/J_P3_XMAGE_RAW_EVIDENCE/README.md": [
+   12
+  ],
+  "docs/J_P3_XMAGE_RAW_EVIDENCE/manifest.json": [
+   5
+  ],
+  "docs/J_P3_XMAGE_SPIKE_REPORT.md": [
+   11,
+   35,
+   36
+  ],
+  "docs/J_P3_XMAGE_SPIKE_RUNBOOK.md": [
+   13
+  ],
+  "docs/NEXT_STEP_HANDOFF_J_P3B_TO_P3C.md": [
+   21
+  ],
+  "docs/NEXT_STEP_HANDOFF_J_P3C_TO_P3D.md": [
+   34,
+   46
+  ],
+  "docs/RETENTION_AND_LIFECYCLE_POLICY.md": [
+   162,
+   163,
+   163,
+   186,
+   186,
+   189
+  ],
+  "docs/WS_A1D_PIN_CONSUMER_AUDIT.md": [
+   7,
+   9,
+   68,
+   73,
+   96,
+   156,
+   163
+  ],
+  "docs/archive/legacy_phase_artifacts/PHASE85_REPORT.md": [
+   52
+  ],
+  "docs/xmage/BRIDGE_ARCHITECTURE_B0.md": [
+   17
+  ],
+  "qualification/evidence/candidates/xmage.json": [
+   89,
+   107,
+   125,
+   143,
+   161,
+   179,
+   197,
+   215,
+   233,
+   251,
+   269,
+   287,
+   305,
+   323,
+   341,
+   359,
+   377,
+   395,
+   413,
+   431,
+   449,
+   467,
+   485,
+   503,
+   521,
+   539,
+   557,
+   575,
+   593,
+   611,
+   629,
+   647,
+   665,
+   683,
+   701,
+   719,
+   737,
+   755,
+   773,
+   791,
+   809,
+   827,
+   845,
+   863,
+   881,
+   899,
+   917,
+   935,
+   953,
+   971,
+   989,
+   1007,
+   1025,
+   1043,
+   1061,
+   1079,
+   1097,
+   1115,
+   1133,
+   1151,
+   1169,
+   1187,
+   1205,
+   1223,
+   1241,
+   1259,
+   1277,
+   1295,
+   1313,
+   1331,
+   1349,
+   1367,
+   1385,
+   1403,
+   1421,
+   1439,
+   1457,
+   1475,
+   1493,
+   1511,
+   1529,
+   1547,
+   1565,
+   1583,
+   1601,
+   1619,
+   1637,
+   1655,
+   1673,
+   1691,
+   1709,
+   1727,
+   1745,
+   1763,
+   1781,
+   1799,
+   1817,
+   1835,
+   1853,
+   1871,
+   1889,
+   1907,
+   1925,
+   1943,
+   1961,
+   1979,
+   1997,
+   2015,
+   2033,
+   2051,
+   2069,
+   2087,
+   2105,
+   2123,
+   2141,
+   2159,
+   2177,
+   2195,
+   2213,
+   2231,
+   2249,
+   2267,
+   2285,
+   2303,
+   2321,
+   2339,
+   2357,
+   2375,
+   2393,
+   2411,
+   2429,
+   2447,
+   2465,
+   2483,
+   2501,
+   2514
+  ],
+  "research/architecture-closure/ws91-d1-current-main-integration/HISTORICAL-WS-A1D-H4-archived-root-state.yaml": [
+   54,
+   55
+  ],
+  "research/architecture-closure/ws91-d1-current-main-integration/SOURCE_LOCK.md": [
+   30
+  ],
+  "research/architecture-closure/ws91-d1-current-main-integration/VALIDATION.json": [
+   1,
+   1
+  ],
+  "scripts/bootstrap_engine_linux.sh": [
+   17
+  ],
+  "scripts/bootstrap_engine_windows.ps1": [
+   9
+  ],
+  "src/commander_lab/engine/rules/phase85.py": [
+   299
+  ],
+  "tests/integration/test_forge_bridge_h4f_live.py": [
+   59
+  ],
+  "tests/unit/test_ws_a1d_docker_pin_authority.py": [
+   28,
+   32
+  ],
+  "tests/unit/test_ws_a1r_pin_authority.py": [
+   7,
+   28
+  ],
+  "tests/unit/test_ws_arclose_d1_authority_drift.py": [
+   24,
+   25,
+   88
+  ]
+ },
+ "superseded_pin_provenance_files": 9156,
+ "aggregate_layer_citations": [
+  {
+   "file": ".github/workflows/production-qualification.yml",
+   "line": 67,
+   "text": "mkdir -p qualification/evidence/runtime qualification/aggregate/runtime"
+  },
+  {
+   "file": ".github/workflows/production-qualification.yml",
+   "line": 84,
+   "text": "--output qualification/aggregate/runtime/PRODUCTION_ADMISSION.json \\"
+  },
+  {
+   "file": ".github/workflows/production-qualification.yml",
+   "line": 85,
+   "text": "--md-output qualification/aggregate/runtime/PRODUCTION_ADMISSION.md"
+  },
+  {
+   "file": ".github/workflows/production-qualification.yml",
+   "line": 93,
+   "text": "p=json.loads(Path('qualification/aggregate/runtime/PRODUCTION_ADMISSION.json').read_text())"
+  },
+  {
+   "file": ".github/workflows/production-qualification.yml",
+   "line": 100,
+   "text": "p=json.loads(Path('qualification/aggregate/runtime/PRODUCTION_ADMISSION.json').read_text())"
+  },
+  {
+   "file": ".github/workflows/production-qualification.yml",
+   "line": 107,
+   "text": "find qualification/evidence/runtime qualification/aggregate/runtime -type f ! -path 'qualification/aggregate/runtime/SHA256SUMS' -print0 | sort -z | xargs -0 sh"
+  },
+  {
+   "file": ".github/workflows/production-qualification.yml",
+   "line": 113,
+   "text": "qualification/aggregate/runtime/"
+  },
+  {
+   "file": "WS17_SHA256SUMS",
+   "line": 11,
+   "text": "0e696eacb657d16a60676d810fe316ec38b569e3fbeb9f725a8716de4d03b67b  qualification/aggregate/COVERAGE_MANIFEST.json"
+  },
+  {
+   "file": "WS17_SHA256SUMS",
+   "line": 12,
+   "text": "3dc88f4f484d34e54caf9f63dd17ae5cd86ae194ffc21286c54903d6c2addbcb  qualification/aggregate/CROSS_CANDIDATE_EVIDENCE_MATRIX.json"
+  },
+  {
+   "file": "WS17_SHA256SUMS",
+   "line": 13,
+   "text": "da64daca35f8056ba37912adee672269197ce2ff70f360ab430c4da84186a89b  qualification/aggregate/GATE_RESULTS.json"
+  },
+  {
+   "file": "WS17_SHA256SUMS",
+   "line": 14,
+   "text": "2df763758ba8560224d91c0f79d5dc8162ada707d15c5852a492070fb69dc9ad  qualification/aggregate/PRODUCTION_ADMISSION.json"
+  },
+  {
+   "file": "WS17_SHA256SUMS",
+   "line": 15,
+   "text": "d3f58beaaada00aa3a6359008dd0f2e9d95486c9d1ea800282697f62ff5115cb  qualification/aggregate/PRODUCTION_ADMISSION.md"
+  },
+  {
+   "file": "WS17_SHA256SUMS",
+   "line": 16,
+   "text": "a4d26c6ee92befd6644a1cd934f9f7304ed184f8d9fe81c9c14df63e502b8fc1  qualification/evidence/BASELINE_COMMON_RESULTS.json"
+  },
+  {
+   "file": "qualification/SHA256SUMS",
+   "line": 8,
+   "text": "3dc88f4f484d34e54caf9f63dd17ae5cd86ae194ffc21286c54903d6c2addbcb  aggregate/CROSS_CANDIDATE_EVIDENCE_MATRIX.json"
+  },
+  {
+   "file": "qualification/SHA256SUMS",
+   "line": 9,
+   "text": "da64daca35f8056ba37912adee672269197ce2ff70f360ab430c4da84186a89b  aggregate/GATE_RESULTS.json"
+  },
+  {
+   "file": "qualification/SHA256SUMS",
+   "line": 10,
+   "text": "2df763758ba8560224d91c0f79d5dc8162ada707d15c5852a492070fb69dc9ad  aggregate/PRODUCTION_ADMISSION.json"
+  },
+  {
+   "file": "qualification/SHA256SUMS",
+   "line": 11,
+   "text": "d3f58beaaada00aa3a6359008dd0f2e9d95486c9d1ea800282697f62ff5115cb  aggregate/PRODUCTION_ADMISSION.md"
+  },
+  {
+   "file": "qualification/SHA256SUMS",
+   "line": 12,
+   "text": "a4d26c6ee92befd6644a1cd934f9f7304ed184f8d9fe81c9c14df63e502b8fc1  evidence/BASELINE_COMMON_RESULTS.json"
+  },
+  {
+   "file": "qualification/WS17_ARTIFACT_INDEX.json",
+   "line": 13,
+   "text": "\"qualification/aggregate/COVERAGE_MANIFEST.json\","
+  },
+  {
+   "file": "qualification/WS17_ARTIFACT_INDEX.json",
+   "line": 14,
+   "text": "\"qualification/aggregate/CROSS_CANDIDATE_EVIDENCE_MATRIX.json\","
+  },
+  {
+   "file": "qualification/WS17_ARTIFACT_INDEX.json",
+   "line": 15,
+   "text": "\"qualification/aggregate/GATE_RESULTS.json\","
+  },
+  {
+   "file": "qualification/WS17_ARTIFACT_INDEX.json",
+   "line": 16,
+   "text": "\"qualification/aggregate/PRODUCTION_ADMISSION.json\","
+  },
+  {
+   "file": "qualification/WS17_ARTIFACT_INDEX.json",
+   "line": 17,
+   "text": "\"qualification/aggregate/PRODUCTION_ADMISSION.md\","
+  },
+  {
+   "file": "qualification/WS17_ARTIFACT_INDEX.json",
+   "line": 18,
+   "text": "\"qualification/evidence/BASELINE_COMMON_RESULTS.json\","
+  },
+  {
+   "file": "qualification/WS17_FINAL_HANDOFF.md",
+   "line": 125,
+   "text": "Machine-readable matrix: `qualification/aggregate/CROSS_CANDIDATE_EVIDENCE_MATRIX.json`."
+  },
+  {
+   "file": "qualification/WS17_FINAL_HANDOFF.md",
+   "line": 194,
+   "text": "- `PRODUCTION_ADMISSION = FAIL`"
+  },
+  {
+   "file": "qualification/WS17_FINAL_HANDOFF.md",
+   "line": 229,
+   "text": "- `qualification/aggregate/CROSS_CANDIDATE_EVIDENCE_MATRIX.json`"
+  },
+  {
+   "file": "qualification/aggregate/PRODUCTION_ADMISSION.md",
+   "line": 10,
+   "text": "> This file is generated from `PRODUCTION_ADMISSION.json`; do not maintain it independently."
+  },
+  {
+   "file": "qualification/harness.py",
+   "line": 212,
+   "text": "\"> This file is generated from `PRODUCTION_ADMISSION.json`; do not maintain it independently.\","
+  },
+  {
+   "file": "qualification/ws79-h01-authority-remediation/FINAL_REPORT.md",
+   "line": 62,
+   "text": "(`CROSS_CANDIDATE_EVIDENCE_MATRIX.json`: all candidates `RUNTIME_NOT_RUN`,"
+  },
+  {
+   "file": "qualification/ws79-h01-authority-remediation/H01_IMPACT_LEDGER.json",
+   "line": 1,
+   "text": "{\"dispositions_used\":[\"INVALIDATED_BY_ORACLE_CHANGE\",\"REQUALIFICATION_REQUIRED\",\"HISTORICAL_PROVENANCE_ONLY\",\"UNAFFECTED\",\"UNKNOWN\"],\"entries\":[{\"artifact\":{\"bl"
+  },
+  {
+   "file": "tests/qualification/test_ws17_qualification.py",
+   "line": 104,
+   "text": "str(ROOT / \"qualification/evidence/BASELINE_COMMON_RESULTS.json\"),"
+  },
+  {
+   "file": "tests/qualification/test_ws17_qualification.py",
+   "line": 129,
+   "text": "\"generated from `PRODUCTION_ADMISSION.json`\""
+  },
+  {
+   "file": "tests/qualification/test_ws17_qualification.py",
+   "line": 130,
+   "text": "in (ROOT / \"qualification/aggregate/PRODUCTION_ADMISSION.md\").read_text()"
+  },
+  {
+   "file": "tests/qualification/test_ws17_qualification.py",
+   "line": 245,
+   "text": "expected = mod.render_md(ROOT / \"qualification/aggregate/PRODUCTION_ADMISSION.json\")"
+  },
+  {
+   "file": "tests/qualification/test_ws17_qualification.py",
+   "line": 246,
+   "text": "assert (ROOT / \"qualification/aggregate/PRODUCTION_ADMISSION.md\").read_text("
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 43,
+   "text": "aggregate_dir = tmp_path / \"qualification/aggregate/runtime\""
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 48,
+   "text": "production_json = aggregate_dir / \"PRODUCTION_ADMISSION.json\""
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 49,
+   "text": "production_md = aggregate_dir / \"PRODUCTION_ADMISSION.md\""
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 114,
+   "text": "assert \"qualification/aggregate/runtime/SHA256SUMS\" not in recorded"
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 117,
+   "text": "\"qualification/aggregate/runtime/PRODUCTION_ADMISSION.json\","
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 118,
+   "text": "\"qualification/aggregate/runtime/PRODUCTION_ADMISSION.md\","
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 128,
+   "text": "assert \"! -path 'qualification/aggregate/runtime/SHA256SUMS'\" in hash_step"
+  },
+  {
+   "file": "tests/qualification/test_ws17r_exact_main_runtime.py",
+   "line": 129,
+   "text": "assert \"xargs -0 sha256sum > qualification/aggregate/runtime/SHA256SUMS\" in hash_step"
+  }
+ ],
+ "aggregate_citing_files": [
+  ".github/workflows/production-qualification.yml",
+  "WS17_SHA256SUMS",
+  "qualification/SHA256SUMS",
+  "qualification/WS17_ARTIFACT_INDEX.json",
+  "qualification/WS17_FINAL_HANDOFF.md",
+  "qualification/aggregate/PRODUCTION_ADMISSION.md",
+  "qualification/harness.py",
+  "qualification/ws79-h01-authority-remediation/FINAL_REPORT.md",
+  "qualification/ws79-h01-authority-remediation/H01_IMPACT_LEDGER.json",
+  "tests/qualification/test_ws17_qualification.py",
+  "tests/qualification/test_ws17r_exact_main_runtime.py"
+ ]
+}

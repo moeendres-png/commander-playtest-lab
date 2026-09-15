@@ -1,0 +1,26 @@
+{
+ "map_schema": "ws220-source-truth-1.0.0",
+ "audit_base": "67db073367853da7295ae06642f38a73db464dba",
+ "living_authority": [
+  "config/rules_engines.json",
+  "docs/PROJECT_MISSION.md",
+  "src/commander_lab/engine/rules/full_game.py + engine-bridge full-game lane",
+  "qualification/ws213-*/ws215-* seals (scoped claims only)"
+ ],
+ "frozen_provenance": [
+  "ARCHITECTURE/XMAGE migration + closeout reports",
+  "docs/J_P3_* contracts/spikes/runbooks",
+  "Phase-8.5 templates + B0 bridge doc",
+  "qualification/aggregate/* + evidence/candidates/* + BASELINE_COMMON_RESULTS.json",
+  "XMAGE_FULL_GAME_CLOSEOUT.md:11 pin"
+ ],
+ "stale_but_reachable": [
+  "docs/OPERATIONAL_SIMULATION_POLICY.md",
+  "docs/architecture/deckbuilding-simulation-separation.md:247",
+  "src/commander_lab/robustness.py 4P error text",
+  "tests/unit/test_operational_4p_policy.py",
+  "scripts/run_external_full_game_conformance.py:82"
+ ],
+ "filename_traps_total": 102,
+ "probe": "research/project-audit/ws220/probes/stale_source_scan.py (P-SRC-01)"
+}

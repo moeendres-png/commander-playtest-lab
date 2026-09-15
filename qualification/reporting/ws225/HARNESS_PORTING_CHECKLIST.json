@@ -1,0 +1,66 @@
+{
+  "checklist": [
+    {
+      "answers": "Named adapter command + protocol version + schema digests; handshake transcript location; truthful capability advertisement and how misadvertisement fails closed.",
+      "id": "H01",
+      "item": "RSP interfaces that must exist"
+    },
+    {
+      "answers": "Seat/actor projection function; per-principal redaction rules; metadata channels enumerated as leakage boundary; honeycard sentinel placement.",
+      "id": "H02",
+      "item": "Projections needing mapping"
+    },
+    {
+      "answers": "Full discretionary-family inventory (priority/target/choose-object/target-amount/mulligan/choose-use/choice/pile/mana-payment/announce-x/multi-amount/replacement-effect/trigger-order/choose-mode/choose-ability/declare-attacker/declare-blocker/concede or engine equivalents) with engine seam per family; seven prohibited shortcuts proven unsatisfying.",
+      "id": "H03",
+      "item": "Decision families requiring inventory"
+    },
+    {
+      "answers": "Engine commit/tree/version + adapter commit/tree + license SPDX + blob digests + card-DB/Oracle snapshot identity; single SOURCE_LOCK record; rebuild procedure.",
+      "id": "H04",
+      "item": "Source/build identity binding"
+    },
+    {
+      "answers": "Named RNG algorithms; root-seed input; Rules-vs-pilot attribution log (RulesRngTape shape); deterministic seed-derivation rule; explicit-seed fail-closed behavior.",
+      "id": "H05",
+      "item": "Rules RNG exposure"
+    },
+    {
+      "answers": "Actor-scoped observation proof per hidden zone (hand/library/face-down/manifest); reveal/look audience logs; transcript redaction check; honeycard negative runs.",
+      "id": "H06",
+      "item": "Hidden-info scoping proof"
+    },
+    {
+      "answers": "One game per clean process; fresh-JVM (or equivalent) procedure; no shared mutable state across games; atomic artifact writes; process-identity exclusion from semantic hashes.",
+      "id": "H07",
+      "item": "Process isolation mechanics"
+    },
+    {
+      "answers": "Decision tape + event tape + RNG tape schemas; checkpoint/restore points; clean-process replay consumer; divergence taxonomy; tamper matrix (minimum: dropped/reordered/mutated/forged tape actions fail closed and leak-free).",
+      "id": "H08",
+      "item": "Replay hook mapping"
+    },
+    {
+      "answers": "Fixture driver: RUN_FIXTURE request/response mapping per category (player-count, WS05-*, pilot, negatives, hidden, replay/RNG, micro, actual-card); seed policy (frozen 424242 + distinct-seed twins); actor/viewer binding; artifact-hash capture.",
+      "id": "H09",
+      "item": "Common-fixture driving"
+    },
+    {
+      "answers": "Unknown/unsupported decision => explicit fail-closed error (never default/skip/random); stale-revision rejection; malformed-request rejection; >scope shapes (e.g. oversized targets) fail closed with named errors.",
+      "id": "H10",
+      "item": "Unsupported-path fail-closed wiring"
+    },
+    {
+      "answers": "Sealed per-fixture rows (verdict + evidence_class + reason + artifact_hashes) under evidence-vocab-v1; legacy prose only via versioned map; manifest-hash refresh in the same commit as any seal-covered edit.",
+      "id": "H11",
+      "item": "Evidence sealing procedure"
+    },
+    {
+      "answers": "No XMage Java API names, no Forge controller class names, no UUID-format mandates, no single-engine RNG method, no single-engine callback taxonomy in the adapter contract. Deviations listed as mapping-layer notes, never as standard changes.",
+      "id": "H12",
+      "item": "De-XMage-shaping review"
+    }
+  ],
+  "note": "H01-H12 are semantic requirements. A new engine answers each with its own mechanism; reviewers check the answers against the admission stage contract, never against an incumbent implementation.",
+  "schema_version": "ws225-harness-porting-checklist/1.0.0"
+}

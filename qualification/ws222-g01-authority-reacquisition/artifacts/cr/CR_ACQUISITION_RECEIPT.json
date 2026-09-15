@@ -1,0 +1,32 @@
+{
+  "allowlist": [
+    "magic.wizards.com",
+    "media.wizards.com"
+  ],
+  "artifact_content_length_header": "977822",
+  "artifact_content_type": "text/plain",
+  "artifact_etag": "\"fb8bffb15798ecff075d383589c2f263:1787170217.794465\"",
+  "artifact_file": "MagicCompRules_20260819.txt",
+  "artifact_final_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
+  "artifact_last_modified": "Wed, 19 Aug 2026 20:07:32 GMT",
+  "artifact_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+  "artifact_size": 977822,
+  "effective_date_text": "These rules are effective as of August 7, 2026.",
+  "landing_bytes": 150428,
+  "landing_docx_links": [
+    "https://media.wizards.com/2026/downloads/MagicCompRules 20260807.docx"
+  ],
+  "landing_final_url": "https://magic.wizards.com/en/rules",
+  "landing_page_url": "https://magic.wizards.com/en/rules",
+  "landing_pdf_links": [
+    "https://media.wizards.com/2026/downloads/MagicCompRules 20260807.pdf"
+  ],
+  "landing_sha256": "51aa239447a0706fa036a416284086afee62ddb703e7af11afe9375d67eba938",
+  "landing_txt_links": [
+    "https://media.wizards.com/2026/downloads/MagicCompRules 20260819.txt"
+  ],
+  "normalization": "NONE",
+  "resolved_artifact_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
+  "retrieved_at": "2026-09-15T04:00:48.024903+00:00",
+  "schema_version": "ws222-cr-receipt/1.0.0"
+}

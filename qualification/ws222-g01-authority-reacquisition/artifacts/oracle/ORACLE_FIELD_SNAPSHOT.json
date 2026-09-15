@@ -1,0 +1,1591 @@
+{
+  "authority": "Wizards Gatherer (official card database); snapshot is a deterministic projection of official page bytes",
+  "denominator_count": 29,
+  "page_count": 30,
+  "records": [
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=680808&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "669",
+        "scryfall_faces": [],
+        "scryfall_set": "fdn"
+      },
+      "denominator_identity": "Basilisk Collar",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/FDN/en-us/669/basilisk-collar",
+      "official_fields": {
+        "card_number": "669",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1"
+        ],
+        "oracle_names_observed": [
+          "Basilisk Collar"
+        ],
+        "oracle_texts_distinct": [
+          "Equipped creature has deathtouch and lifelink. <i>(Any amount of damage it deals to a creature is enough to destroy it. Damage dealt by this creature also causes you to gain that much life.)</i>\nEquip {2} <i>({2}: Attach to target creature you control. Equip only as a sorcery.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Artifact – Equipment"
+        ],
+        "rulings": [],
+        "set_code": "FDN",
+        "set_name": "Magic: The Gathering Foundations"
+      },
+      "page_file": "pages/gatherer_basilisk-collar.html",
+      "page_sha256": "f0e8fed755bef664d6e9feaf86bf589d731a833427d54f9ca133c03e26d20c5f",
+      "retrieved_at": "2026-09-15T04:04:58.370277+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=680758&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "619",
+        "scryfall_faces": [],
+        "scryfall_set": "fdn"
+      },
+      "denominator_identity": "Bolt Bend",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/FDN/en-us/619/bolt-bend",
+      "official_fields": {
+        "card_number": "619",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "3R"
+        ],
+        "oracle_names_observed": [
+          "Bolt Bend"
+        ],
+        "oracle_texts_distinct": [
+          "This spell costs {3} less to cast if you control a creature with power 4 or greater.\nChange the target of target spell or ability with a single target."
+        ],
+        "oracle_type_lines": [
+          "Instant"
+        ],
+        "rulings": [
+          {
+            "date": "2024-11-08T00:00:00Z",
+            "statement": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying, add any cost increases, then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+          },
+          {
+            "date": "2024-11-08T00:00:00Z",
+            "statement": "Once you announce that you're casting Bolt Bend, no player may take actions until the spell has been paid for. Notably, opponents can't try to change whether you control a creature with power 4 or greater."
+          },
+          {
+            "date": "2024-11-08T00:00:00Z",
+            "statement": "Once you've cast Bolt Bend, losing control of all creatures with power 4 or greater won't affect the spell or cause you to pay more mana."
+          },
+          {
+            "date": "2024-11-08T00:00:00Z",
+            "statement": "The single target that the target spell or ability targets doesn't have to be a creature you control with power 4 or greater."
+          },
+          {
+            "date": "2024-11-08T00:00:00Z",
+            "statement": "You don't choose the new target for the spell or ability until Bolt Bend resolves. You must change the target if possible. However, you can't change the target to an illegal target. If there are no legal targets to choose from, the target isn't changed. It doesn't matter if the original target has somehow become illegal itself."
+          },
+          {
+            "date": "2024-11-08T00:00:00Z",
+            "statement": "If a spell or ability targets multiple things, you can't target it with Bolt Bend, even if all but one of those targets have become illegal."
+          },
+          {
+            "date": "2024-11-08T00:00:00Z",
+            "statement": "If a spell or ability targets the same player or object multiple times, you can't target it with Bolt Bend."
+          }
+        ],
+        "set_code": "FDN",
+        "set_name": "Magic: The Gathering Foundations"
+      },
+      "page_file": "pages/gatherer_bolt-bend.html",
+      "page_sha256": "12bc8b761fe869a3efd4de6c209496bc7fc72f8aa2b569b23e9aa269fa3502a9",
+      "retrieved_at": "2026-09-15T04:04:47.623208+00:00"
+    },
+    {
+      "bridge": {
+        "front_canonical_url": "https://gatherer.wizards.com/NEO/en-us/177/boseiju-reaches-skyward",
+        "role": "derived_from_official_front_page_compositeCard"
+      },
+      "denominator_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "face": "back:Branch of Boseiju",
+      "official_canonical_url": "https://gatherer.wizards.com/NEO/en-us/177/branch-of-boseiju",
+      "official_fields": {
+        "card_number": "177",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [],
+        "oracle_names_observed": [
+          "Boseiju Reaches Skyward",
+          "Branch of Boseiju"
+        ],
+        "oracle_texts_distinct": [
+          "Reach\nThis creature gets +1/+1 for each land you control."
+        ],
+        "oracle_type_lines": [
+          "Enchantment Creature – Plant"
+        ],
+        "rulings": [],
+        "set_code": "NEO",
+        "set_name": "Kamigawa: Neon Dynasty"
+      },
+      "page_file": "pages/gatherer_boseiju-reaches-skyward-branch-of-boseiju__back-branch-of-boseiju.html",
+      "page_sha256": "7c7578858de89e88c8827c3006d90182a1dd517a02b0a51583a6443614c7259b",
+      "retrieved_at": "2026-09-15T04:15:46.429482+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=548483&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "177",
+        "scryfall_faces": [
+          "Boseiju Reaches Skyward",
+          "Branch of Boseiju"
+        ],
+        "scryfall_set": "neo"
+      },
+      "denominator_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/NEO/en-us/177/boseiju-reaches-skyward",
+      "official_fields": {
+        "card_number": "177",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "3G"
+        ],
+        "oracle_names_observed": [
+          "Boseiju Reaches Skyward",
+          "Branch of Boseiju"
+        ],
+        "oracle_texts_distinct": [
+          "<i>(As this Saga enters and after your draw step, add a lore counter.)</i>\nI - Search your library for up to two basic Forest cards, reveal them, put them into your hand, then shuffle.\nII - Put up to one target land card from your graveyard on top of your library.\nIII - Exile this Saga, then return it to the battlefield transformed under your control."
+        ],
+        "oracle_type_lines": [
+          "Enchantment – Saga"
+        ],
+        "rulings": [
+          {
+            "date": "2022-02-18T00:00:00Z",
+            "statement": "Each face of a nonmodal double-faced card has its own set of characteristics: name, types, subtypes, abilities, and so on. While a nonmodal double-faced permanent is on the battlefield, consider only the characteristics of the face that's currently up. The other set of characteristics is ignored."
+          },
+          {
+            "date": "2022-02-18T00:00:00Z",
+            "statement": "Each nonmodal double-faced card in this set is cast face up. In every zone other than the battlefield, consider only the characteristics of its front face. If it is on the battlefield, consider only the characteristics of the face that's up; the other face's characteristics are ignored."
+          },
+          {
+            "date": "2022-02-18T00:00:00Z",
+            "statement": "The mana value of a nonmodal double-faced card is the mana value of its front face, no matter which face is up."
+          },
+          {
+            "date": "2022-02-18T00:00:00Z",
+            "statement": "The back face of a nonmodal double-faced card usually has a color indicator that defines its color."
+          },
+          {
+            "date": "2022-02-18T00:00:00Z",
+            "statement": "A nonmodal double-faced card enters the battlefield with its front face up by default, unless a spell or ability instructs you to put it onto the battlefield transformed or you cast it transformed, in which case it enters with its back face up."
+          },
+          {
+            "date": "2022-02-18T00:00:00Z",
+            "statement": "If you are instructed to put a card that isn't a double-faced card onto the battlefield transformed, it will not enter the battlefield at all. In that case, it stays in the zone it was previously in. For example, if a single-faced card is a copy of Azusa's Many Journeys, the chapter III ability will cause it to be exiled and then remain in exile."
+          }
+        ],
+        "set_code": "NEO",
+        "set_name": "Kamigawa: Neon Dynasty"
+      },
+      "page_file": "pages/gatherer_boseiju-reaches-skyward-branch-of-boseiju.html",
+      "page_sha256": "de5e5549b829bff310d5ff0242ec608957615823d2a47a912d3ba4e7cabea1dc",
+      "retrieved_at": "2026-09-15T04:05:13.083048+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=534907&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "131",
+        "scryfall_faces": [],
+        "scryfall_set": "mid"
+      },
+      "denominator_identity": "Burn Down the House",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/MID/en-us/131/burn-down-the-house",
+      "official_fields": {
+        "card_number": "131",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "3RR"
+        ],
+        "oracle_names_observed": [
+          "Burn Down the House"
+        ],
+        "oracle_texts_distinct": [
+          "Choose one -\n* Burn Down the House deals 5 damage to each creature and each planeswalker.\n* Create three 1/1 red Devil creature tokens with \"When this token dies, it deals 1 damage to any target.\" They gain haste until end of turn."
+        ],
+        "oracle_type_lines": [
+          "Sorcery"
+        ],
+        "rulings": [],
+        "set_code": "MID",
+        "set_name": "Innistrad: Midnight Hunt"
+      },
+      "page_file": "pages/gatherer_burn-down-the-house.html",
+      "page_sha256": "244478e38d7706dd3b3b69eef0f24143364a1f3f877e34c4158ffc767249e3a0",
+      "retrieved_at": "2026-09-15T04:05:02.075763+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=640483&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "187",
+        "scryfall_faces": [],
+        "scryfall_set": "lcc"
+      },
+      "denominator_identity": "Butcher of Malakir",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/LCC/en-us/187/butcher-of-malakir",
+      "official_fields": {
+        "card_number": "187",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "5BB"
+        ],
+        "oracle_names_observed": [
+          "Butcher of Malakir"
+        ],
+        "oracle_texts_distinct": [
+          "Flying\nWhenever this creature or another creature you control dies, each opponent sacrifices a creature of their choice."
+        ],
+        "oracle_type_lines": [
+          "Creature – Vampire Warrior"
+        ],
+        "rulings": [
+          {
+            "date": "2010-03-01T00:00:00Z",
+            "statement": "When the triggered ability resolves, first the player whose turn it is (if that player is an opponent) chooses which creature they will sacrifice, then each other opponent in turn order does the same, then all chosen creatures are sacrificed at the same time."
+          },
+          {
+            "date": "2010-03-01T00:00:00Z",
+            "statement": "If multiple creatures you control (possibly including Butcher of Malakir itself) are put into their owners' graveyards at the same time, Butcher of Malakir's triggered ability will trigger that many times."
+          },
+          {
+            "date": "2010-03-01T00:00:00Z",
+            "statement": "If you control more than one Butcher of Malakir and a creature you control is put into a graveyard, each of those Butchers' abilities will trigger. Each opponent will sacrifice a creature each time one of those abilities resolves."
+          },
+          {
+            "date": "2010-03-01T00:00:00Z",
+            "statement": "If you and an opponent each control a Butcher of Malakir and a creature is put into a graveyard, a chain reaction happens. First the ability of one player's Butcher will trigger, causing each opponent to sacrifice a creature. That sacrifice causes the ability of the other player's Butcher to trigger, and so on."
+          }
+        ],
+        "set_code": "LCC",
+        "set_name": "The Lost Caverns of Ixalan Commander"
+      },
+      "page_file": "pages/gatherer_butcher-of-malakir.html",
+      "page_sha256": "fda1984b60908b6568471d0c09cd4105f6b8dfe6ccc4b2bb9c9a5fab6cc10ebb",
+      "retrieved_at": "2026-09-15T04:04:35.109539+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=675988&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "115",
+        "scryfall_faces": [],
+        "scryfall_set": "dsc"
+      },
+      "denominator_identity": "Dig Through Time",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/DSC/en-us/115/dig-through-time",
+      "official_fields": {
+        "card_number": "115",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "6UU"
+        ],
+        "oracle_names_observed": [
+          "Dig Through Time"
+        ],
+        "oracle_texts_distinct": [
+          "Delve <i>(Each card you exile from your graveyard while casting this spell pays for {1}.)</i>\nLook at the top seven cards of your library. Put two of them into your hand and the rest on the bottom of your library in any order."
+        ],
+        "oracle_type_lines": [
+          "Instant"
+        ],
+        "rulings": [
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "Delve doesn't change a spell's mana cost or mana value. For example, Treasure Cruise's mana value is 8 even if you exiled three cards to cast it."
+          },
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "You can exile cards to pay only for generic mana, and you can't exile more cards than the generic mana requirement of a spell with delve. For example, you can't exile more than seven cards from your graveyard to cast Treasure Cruise unless an effect has increased its cost."
+          },
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "Because delve isn't an alternative cost, it can be used in conjunction with alternative costs, such as flashback. It can also be used to pay for additional costs that include generic mana."
+          }
+        ],
+        "set_code": "DSC",
+        "set_name": "Duskmourn: House of Horror Commander"
+      },
+      "page_file": "pages/gatherer_dig-through-time.html",
+      "page_sha256": "bf1ea10e5b5905bbfe9f75d2904cd665af2da388b718ff850f5a89ad29b6ce20",
+      "retrieved_at": "2026-09-15T04:04:03.692760+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=497587&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "67",
+        "scryfall_faces": [],
+        "scryfall_set": "cmr"
+      },
+      "denominator_identity": "Esior, Wardwing Familiar",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/CMR/en-us/67/esior-wardwing-familiar",
+      "official_fields": {
+        "card_number": "67",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1U"
+        ],
+        "oracle_names_observed": [
+          "Esior, Wardwing Familiar"
+        ],
+        "oracle_texts_distinct": [
+          "Flying\nSpells your opponents cast that target one or more commanders you control cost {3} more to cast.\nPartner <i>(You can have two commanders if both have partner.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Legendary Creature – Bird"
+        ],
+        "rulings": [
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "To determine the total cost of an opponent's spell that targets a commander you control, start with the mana cost or alternative cost that player is paying, add any cost increases (such as that of Esior's middle ability), then apply any cost reductions. The mana value of the spell is determined only by its mana cost, no matter what the total cost to cast the spell was."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "Spells that target more than one commander you control cost only {3} more to cast."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional {2} the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes."
+          }
+        ],
+        "set_code": "CMR",
+        "set_name": "Commander Legends"
+      },
+      "page_file": "pages/gatherer_esior-wardwing-familiar.html",
+      "page_sha256": "0a23611eadbbbbea8ab6e3327f4c95024633eb03966898c5181c5c20c304c7a8",
+      "retrieved_at": "2026-09-15T04:03:27.974734+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=680728&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "589",
+        "scryfall_faces": [],
+        "scryfall_set": "fdn"
+      },
+      "denominator_identity": "Finale of Revelation",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/FDN/en-us/589/finale-of-revelation",
+      "official_fields": {
+        "card_number": "589",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "XUU"
+        ],
+        "oracle_names_observed": [
+          "Finale of Revelation"
+        ],
+        "oracle_texts_distinct": [
+          "Draw X cards. If X is 10 or more, instead shuffle your graveyard into your library, draw X cards, untap up to five lands, and you have no maximum hand size for the rest of the game.\nExile Finale of Revelation."
+        ],
+        "oracle_type_lines": [
+          "Sorcery"
+        ],
+        "rulings": [],
+        "set_code": "FDN",
+        "set_name": "Magic: The Gathering Foundations"
+      },
+      "page_file": "pages/gatherer_finale-of-revelation.html",
+      "page_sha256": "608f743815b3a0dbe8fa33b060ecd175128b9c68e156f444e3e2f922b3d3f977",
+      "retrieved_at": "2026-09-15T04:04:18.100903+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=643252&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "245",
+        "scryfall_faces": [
+          "Find",
+          "Finality"
+        ],
+        "scryfall_set": "rvr"
+      },
+      "denominator_identity": "Find // Finality",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/RVR/en-us/245/find",
+      "official_fields": {
+        "card_number": "245",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "(B/G)(B/G)"
+        ],
+        "oracle_names_observed": [
+          "Finality",
+          "Find"
+        ],
+        "oracle_texts_distinct": [
+          "Return up to two target creature cards from your graveyard to your hand.\n//\nYou may put two +1/+1 counters on a creature you control. Then all creatures get -4/-4 until end of turn."
+        ],
+        "oracle_type_lines": [
+          "Sorcery"
+        ],
+        "rulings": [],
+        "set_code": "RVR",
+        "set_name": "Ravnica Remastered"
+      },
+      "page_file": "pages/gatherer_find-finality.html",
+      "page_sha256": "f00093af4ab74840a61bc472924f126191c628b94d96ec1524240695d51e2ca6",
+      "retrieved_at": "2026-09-15T04:05:09.990876+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=662271&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "119",
+        "scryfall_faces": [],
+        "scryfall_set": "mh3"
+      },
+      "denominator_identity": "Flare of Duplication",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/MH3/en-us/119/flare-of-duplication",
+      "official_fields": {
+        "card_number": "119",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1RR"
+        ],
+        "oracle_names_observed": [
+          "Flare of Duplication"
+        ],
+        "oracle_texts_distinct": [
+          "You may sacrifice a nontoken red creature rather than pay this spell's mana cost.\nCopy target instant or sorcery spell. You may choose new targets for the copy."
+        ],
+        "oracle_type_lines": [
+          "Instant"
+        ],
+        "rulings": [
+          {
+            "date": "2024-06-07T00:00:00Z",
+            "statement": "The copy is created on the stack, so it's not \"cast.\" Abilities that trigger when a player casts a spell won't trigger."
+          },
+          {
+            "date": "2024-06-07T00:00:00Z",
+            "statement": "The copy will have the same targets as the spell it's copying unless you choose new ones. You may change any number of the targets, including all of them or none of them. If, for one of the targets, you can't choose a new legal target, then it remains unchanged (even if the current target is illegal)."
+          },
+          {
+            "date": "2024-06-07T00:00:00Z",
+            "statement": "If the spell that's copied is modal (that is, it says \"Choose one —\" or the like), the copy will have the same mode. A different mode can't be chosen."
+          },
+          {
+            "date": "2024-06-07T00:00:00Z",
+            "statement": "If the spell that's copied has an X whose value was determined as it was cast (like Kozilek's Command does), the copy will have the same value of X."
+          },
+          {
+            "date": "2024-06-07T00:00:00Z",
+            "statement": "If the spell has damage divided as it was cast, the division can't be changed (although the targets receiving that damage still can). The same is true of spells that distribute counters."
+          },
+          {
+            "date": "2024-06-07T00:00:00Z",
+            "statement": "The controller of a copy can't choose to pay any alternative or additional costs for the copy. However, effects based on any alternative or additional costs that were paid for the original spell are copied as though those same costs were paid for the copy."
+          },
+          {
+            "date": "2024-06-07T00:00:00Z",
+            "statement": "If you copy a spell, you control the copy. It will resolve before the original spell does."
+          }
+        ],
+        "set_code": "MH3",
+        "set_name": "Modern Horizons 3"
+      },
+      "page_file": "pages/gatherer_flare-of-duplication.html",
+      "page_sha256": "7c435c19c0fa2fa65265e64492c92f6db7502ea8aacabb16ab6879ba51a51e37",
+      "retrieved_at": "2026-09-15T04:04:08.689893+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=680854&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "715",
+        "scryfall_faces": [],
+        "scryfall_set": "fdn"
+      },
+      "denominator_identity": "Gratuitous Violence",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/FDN/en-us/715/gratuitous-violence",
+      "official_fields": {
+        "card_number": "715",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "2RRR"
+        ],
+        "oracle_names_observed": [
+          "Gratuitous Violence"
+        ],
+        "oracle_texts_distinct": [
+          "If a creature you control would deal damage to a permanent or player, it deals double that damage instead."
+        ],
+        "oracle_type_lines": [
+          "Enchantment"
+        ],
+        "rulings": [],
+        "set_code": "FDN",
+        "set_name": "Magic: The Gathering Foundations"
+      },
+      "page_file": "pages/gatherer_gratuitous-violence.html",
+      "page_sha256": "f3f7063d2c76588d5dec7c3808c826f2af620ebd36d11ab8c89d7ec022ffc7f6",
+      "retrieved_at": "2026-09-15T04:04:43.997117+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=526720&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "352",
+        "scryfall_faces": [],
+        "scryfall_set": "mh2"
+      },
+      "denominator_identity": "Harmonic Prodigy",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/MH2/en-us/352/harmonic-prodigy",
+      "official_fields": {
+        "card_number": "352",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1R"
+        ],
+        "oracle_names_observed": [
+          "Harmonic Prodigy"
+        ],
+        "oracle_texts_distinct": [
+          "Prowess <i>(Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn.)</i>\nIf a triggered ability of a Shaman or another Wizard you control triggers, that ability triggers an additional time."
+        ],
+        "oracle_type_lines": [
+          "Creature - Human Wizard",
+          "Creature – Human Wizard"
+        ],
+        "rulings": [],
+        "set_code": "MH2",
+        "set_name": "Modern Horizons 2"
+      },
+      "page_file": "pages/gatherer_harmonic-prodigy.html",
+      "page_sha256": "34f6a07e7e243df3d350bc6a371396a8e570acea8d2c7f879d89b9a38f10b6dc",
+      "retrieved_at": "2026-09-15T04:03:39.952044+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=446748&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "12",
+        "scryfall_faces": [],
+        "scryfall_set": "cm2"
+      },
+      "denominator_identity": "Ishai, Ojutai Dragonspeaker",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/CM2/en-us/12/ishai-ojutai-dragonspeaker",
+      "official_fields": {
+        "card_number": "12",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "2WU"
+        ],
+        "oracle_names_observed": [
+          "Ishai, Ojutai Dragonspeaker"
+        ],
+        "oracle_texts_distinct": [
+          "Flying\nWhenever an opponent casts a spell, put a +1/+1 counter on Ishai.\nPartner <i>(You can have two commanders if both have partner.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Legendary Creature - Bird Monk",
+          "Legendary Creature – Bird Monk"
+        ],
+        "rulings": [
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "An ability that triggers when a player casts a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional {2} the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes."
+          }
+        ],
+        "set_code": "CM2",
+        "set_name": "Commander Anthology 2018"
+      },
+      "page_file": "pages/gatherer_ishai-ojutai-dragonspeaker.html",
+      "page_sha256": "0266a8eb30d4e3ba664f9739961855b045b3014f53f1389d23fc75574b1a20f9",
+      "retrieved_at": "2026-09-15T04:03:20.394392+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=497706&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "186",
+        "scryfall_faces": [],
+        "scryfall_set": "cmr"
+      },
+      "denominator_identity": "Jeska, Thrice Reborn",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/CMR/en-us/186/jeska-thrice-reborn",
+      "official_fields": {
+        "card_number": "186",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "2R"
+        ],
+        "oracle_names_observed": [
+          "Jeska, Thrice Reborn"
+        ],
+        "oracle_texts_distinct": [
+          "Jeska enters with a loyalty counter on her for each time you've cast a commander from the command zone this game.\n0: Choose target creature. Until your next turn, if that creature would deal combat damage to one of your opponents, it deals triple that damage to that player instead.\n−X: Jeska deals X damage to each of up to three targets.\nJeska, Thrice Reborn can be your commander.\nPartner"
+        ],
+        "oracle_type_lines": [
+          "Legendary Planeswalker – Jeska"
+        ],
+        "rulings": [
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "If you cast Jeska, Thrice Reborn and she is your commander, that casting counts for her first ability."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "For a creature affected by Jeska's second ability, if that creature has trample, only the damage dealt to the defending player is tripled (as long as that player is one of your opponents). For example, say you activate that ability targeting a 5/5 creature with trample, attack one of your opponents with that creature, and that creature is blocked by a 3/3 creature. You could assign 3 damage to the blocking creature and 2 damage to the defending player. If you did, your attacker would deal 3 damage to the blocking creature and 6 damage (2 damage tripled) to the defending player. All of the damage remains combat damage."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "If a creature is targeted by Jeska's second ability twice, combat damage it would deal one of your opponents is multiplied by nine. Three abilities multiply the damage by twenty-seven, and so on."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional {2} the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes."
+          }
+        ],
+        "set_code": "CMR",
+        "set_name": "Commander Legends"
+      },
+      "page_file": "pages/gatherer_jeska-thrice-reborn.html",
+      "page_sha256": "c0f105c7bf5491b20561825774d012e043cb2957ea9dc828d0abccb8edf507f2",
+      "retrieved_at": "2026-09-15T04:03:48.162828+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=676095&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "222",
+        "scryfall_faces": [],
+        "scryfall_set": "dsc"
+      },
+      "denominator_identity": "Kaervek the Merciless",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/DSC/en-us/222/kaervek-the-merciless",
+      "official_fields": {
+        "card_number": "222",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "5BR"
+        ],
+        "oracle_names_observed": [
+          "Kaervek the Merciless"
+        ],
+        "oracle_texts_distinct": [
+          "Whenever an opponent casts a spell, Kaervek deals damage equal to that spell's mana value to any target."
+        ],
+        "oracle_type_lines": [
+          "Legendary Creature – Human Shaman"
+        ],
+        "rulings": [
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "An ability that triggers when a player casts a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+          },
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "Alternative costs, additional costs, and cost reductions don't change a spell's mana value. Its mana value is still based on its mana cost."
+          },
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "For spells with {X} in their mana costs, use the value chosen for X to determine the spell's mana value."
+          }
+        ],
+        "set_code": "DSC",
+        "set_name": "Duskmourn: House of Horror Commander"
+      },
+      "page_file": "pages/gatherer_kaervek-the-merciless.html",
+      "page_sha256": "39a8cae35982b642f5895c603fcf9cdfc4ed3a776849f6b2ed8a867e74f41e28",
+      "retrieved_at": "2026-09-15T04:04:26.783905+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=497708&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "188",
+        "scryfall_faces": [],
+        "scryfall_set": "cmr"
+      },
+      "denominator_identity": "Kediss, Emberclaw Familiar",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/CMR/en-us/188/kediss-emberclaw-familiar",
+      "official_fields": {
+        "card_number": "188",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1R"
+        ],
+        "oracle_names_observed": [
+          "Kediss, Emberclaw Familiar"
+        ],
+        "oracle_texts_distinct": [
+          "Whenever a commander you control deals combat damage to an opponent, it deals that much damage to each other opponent.\nPartner <i>(You can have two commanders if both have partner.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Legendary Creature – Elemental Lizard"
+        ],
+        "rulings": [
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "The damage the commander deals as a result of Kediss's triggered ability isn't combat damage. It isn't tracked with combat damage dealt by commanders and won't cause Kediss's ability to trigger again."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "Kediss's triggered ability will trigger if any commander you control deals combat damage to an opponent, not just your commander."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "Kediss's triggered ability won't trigger if a commander you control deals combat damage to a planeswalker."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional {2} the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes."
+          }
+        ],
+        "set_code": "CMR",
+        "set_name": "Commander Legends"
+      },
+      "page_file": "pages/gatherer_kediss-emberclaw-familiar.html",
+      "page_sha256": "d06d8e20bceccbe96559d716694942b43a708a1665b9889388aaf551ccadd85e",
+      "retrieved_at": "2026-09-15T04:03:31.453587+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=696452&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "296",
+        "scryfall_faces": [],
+        "scryfall_set": "tdc"
+      },
+      "denominator_identity": "Magma Opus",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/TDC/en-us/296/magma-opus",
+      "official_fields": {
+        "card_number": "296",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "6UR"
+        ],
+        "oracle_names_observed": [
+          "Magma Opus"
+        ],
+        "oracle_texts_distinct": [
+          "Magma Opus deals 4 damage divided as you choose among any number of targets. Tap two target permanents. Create a 4/4 blue and red Elemental creature token. Draw two cards.\n{(u/r)(u/r)}, Discard this card: Create a Treasure token."
+        ],
+        "oracle_type_lines": [
+          "Instant"
+        ],
+        "rulings": [
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "You choose all targets for Magma Opus as you cast the spell. This includes up to four targets for the first effect and two target permanents for the second effect."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "You also choose how the 4 damage will be divided among the first group of targets as you cast Magma Opus. You must have at least 1 damage dealt to each of those targets."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "You must choose two different target permanents for the second effect. You may choose permanents that are already tapped."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "The same permanent can be chosen as a target for each of the two instances of \"target.\" That is, you can have Magma Opus both deal damage to a creature or planeswalker and then tap it. (We're having a hard time imagining why you would, but you're the brilliant student.)"
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "If somehow all of Magma Opus's targets are illegal as it tries to resolve, none of its effects happen. You will not create an Elemental token or draw two cards."
+          }
+        ],
+        "set_code": "TDC",
+        "set_name": "Tarkir: Dragonstorm Commander"
+      },
+      "page_file": "pages/gatherer_magma-opus.html",
+      "page_sha256": "95560efceb7b92ef305a75631d02b5baafc5a339d967b9bc602acc1ee187d664",
+      "retrieved_at": "2026-09-15T04:03:52.327745+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=220569&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "20",
+        "scryfall_faces": [],
+        "scryfall_set": "arc"
+      },
+      "denominator_identity": "Makeshift Mannequin",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/ARC/en-us/20/makeshift-mannequin",
+      "official_fields": {
+        "card_number": "20",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "3B"
+        ],
+        "oracle_names_observed": [
+          "Makeshift Mannequin"
+        ],
+        "oracle_texts_distinct": [
+          "Return target creature card from your graveyard to the battlefield with a mannequin counter on it. For as long as that creature has a mannequin counter on it, it has \"When this creature becomes the target of a spell or ability, sacrifice it.\""
+        ],
+        "oracle_type_lines": [
+          "Instant"
+        ],
+        "rulings": [],
+        "set_code": "ARC",
+        "set_name": "Archenemy"
+      },
+      "page_file": "pages/gatherer_makeshift-mannequin.html",
+      "page_sha256": "26ec59aa5c5a3d8cffb98a358804cba754640e631aec6f988622a025eeb62800",
+      "retrieved_at": "2026-09-15T04:04:51.295237+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=625258&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "853",
+        "scryfall_faces": [],
+        "scryfall_set": "cmm"
+      },
+      "denominator_identity": "Narset, Parter of Veils",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/CMM/en-us/853/narset-parter-of-veils",
+      "official_fields": {
+        "card_number": "853",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1UU"
+        ],
+        "oracle_names_observed": [
+          "Narset, Parter of Veils"
+        ],
+        "oracle_texts_distinct": [
+          "Each opponent can't draw more than one card each turn.\n−2: Look at the top four cards of your library. You may reveal a noncreature, nonland card from among them and put it into your hand. Put the rest on the bottom of your library in a random order."
+        ],
+        "oracle_type_lines": [
+          "Legendary Planeswalker – Narset"
+        ],
+        "rulings": [
+          {
+            "date": "2019-05-03T00:00:00Z",
+            "statement": "Your opponents can each draw a maximum of one card each on each player's turn. Subsequent card draws during that turn are ignored."
+          },
+          {
+            "date": "2019-05-03T00:00:00Z",
+            "statement": "If an opponent hasn't drawn any cards in a turn and a spell or ability instructs that player to draw multiple cards, that player will just draw one card. However, if the draws are optional, the player can't choose to draw, even if they could draw one card this way."
+          },
+          {
+            "date": "2019-05-03T00:00:00Z",
+            "statement": "Narset will \"see\" cards drawn by opponents earlier in the turn she entered the battlefield, although Narset can't affect cards drawn before she entered the battlefield. For example, if an opponent draws two cards, then Narset enters the battlefield, that opponent can't draw more cards that turn, but the two drawn cards are unaffected."
+          },
+          {
+            "date": "2019-05-03T00:00:00Z",
+            "statement": "Replacement effects (such as that of Underrealm Lich or the first ability of Jace, Wielder of Mysteries) can't be used to replace draws that Narset disallows. However, if an opponent's first draw is replaced (by Underrealm Lich's ability, for example), that draw didn't happen and Narset won't stop the next draw (which may also be replaced by Underrealm Lich's ability)."
+          }
+        ],
+        "set_code": "CMM",
+        "set_name": "Commander Masters"
+      },
+      "page_file": "pages/gatherer_narset-parter-of-veils.html",
+      "page_sha256": "41f24ec9cdf239dfbbad6d925a2b310f50ba82f149197635e2f8c3062267ea94",
+      "retrieved_at": "2026-09-15T04:03:44.607184+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=696538&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "382",
+        "scryfall_faces": [],
+        "scryfall_set": "tdc"
+      },
+      "denominator_identity": "Path of Ancestry",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/TDC/en-us/382/path-of-ancestry",
+      "official_fields": {
+        "card_number": "382",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [],
+        "oracle_names_observed": [
+          "Path of Ancestry"
+        ],
+        "oracle_texts_distinct": [
+          "This land enters tapped.\n{T}: Add one mana of any color in your commander's color identity. When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. <i>(Look at the top card of your library. You may put that card on the bottom.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Land"
+        ],
+        "rulings": [
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "If your commander is a card that has no colors in its color identity, Path of Ancestry's ability produces no mana. It doesn't produce {C}."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "If you don't have a commander, Path of Ancestry's ability produces no mana."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "If you cast your commander with mana from Path of Ancestry, and your commander hasn't somehow lost all of its creature types while on the stack, you'll scry 1."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "If your commander has no creature types, it can't share a creature type with any spell that you cast."
+          },
+          {
+            "date": "2020-11-10T00:00:00Z",
+            "statement": "If Path of Ancestry's last ability produces two mana (most likely due to Mana Reflection), spending those two mana to cast creature spells that share a creature type with your commander will cause two abilities to trigger. Each of those abilities will cause you to scry 1. You won't scry 2. This is true whether you spend the mana on one creature spell or two."
+          },
+          {
+            "date": "2023-07-28T00:00:00Z",
+            "statement": "If you have two commanders, the last ability adds one mana of any color in their combined color identities. When you spend that mana on a creature spell that shares a creature type with either of your commanders, you'll scry 1."
+          },
+          {
+            "date": "2023-07-28T00:00:00Z",
+            "statement": "Your commander's creature types are checked immediately after you cast a creature spell spending mana from Path of Ancestry's last ability. They aren't set before the game begins, and they may not be the same types your commander had when you activated that ability."
+          }
+        ],
+        "set_code": "TDC",
+        "set_name": "Tarkir: Dragonstorm Commander"
+      },
+      "page_file": "pages/gatherer_path-of-ancestry.html",
+      "page_sha256": "256577cd7119bc3f33d05079b426efe0407a13f829aa09454bee2757e6e93b4d",
+      "retrieved_at": "2026-09-15T04:05:05.466917+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=650328&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "234",
+        "scryfall_faces": [],
+        "scryfall_set": "mkc"
+      },
+      "denominator_identity": "Psychosis Crawler",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/MKC/en-us/234/psychosis-crawler",
+      "official_fields": {
+        "card_number": "234",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "5"
+        ],
+        "oracle_names_observed": [
+          "Psychosis Crawler"
+        ],
+        "oracle_texts_distinct": [
+          "Psychosis Crawler's power and toughness are each equal to the number of cards in your hand.\nWhenever you draw a card, each opponent loses 1 life."
+        ],
+        "oracle_type_lines": [
+          "Artifact Creature – Phyrexian Horror"
+        ],
+        "rulings": [
+          {
+            "date": "2011-06-01T00:00:00Z",
+            "statement": "If an effect causes you to draw multiple cards, Psychosis Crawler will trigger that many times."
+          }
+        ],
+        "set_code": "MKC",
+        "set_name": "Murders at Karlov Manor Commander"
+      },
+      "page_file": "pages/gatherer_psychosis-crawler.html",
+      "page_sha256": "55379badfa19dafdb278886368e72478f02354319aa2e608bdfab3d324a5fd19",
+      "retrieved_at": "2026-09-15T04:04:22.219359+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=497717&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "197",
+        "scryfall_faces": [],
+        "scryfall_set": "cmr"
+      },
+      "denominator_identity": "Rograkh, Son of Rohgahh",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/CMR/en-us/197/rograkh-son-of-rohgahh",
+      "official_fields": {
+        "card_number": "197",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "0"
+        ],
+        "oracle_names_observed": [
+          "Rograkh, Son of Rohgahh"
+        ],
+        "oracle_texts_distinct": [
+          "First strike, menace, trample\nPartner <i>(You can have two commanders if both have partner.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Legendary Creature – Kobold Warrior"
+        ],
+        "rulings": [
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional {2} the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+          },
+          {
+            "date": "2025-06-06T00:00:00Z",
+            "statement": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes."
+          }
+        ],
+        "set_code": "CMR",
+        "set_name": "Commander Legends"
+      },
+      "page_file": "pages/gatherer_rograkh-son-of-rohgahh.html",
+      "page_sha256": "defb52a379fbacba2cc6de42a2023c832414478434e7bf0aa5fd3f52f48f79ba",
+      "retrieved_at": "2026-09-15T04:03:24.004719+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=650233&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "139",
+        "scryfall_faces": [],
+        "scryfall_set": "mkc"
+      },
+      "denominator_identity": "Shriekmaw",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/MKC/en-us/139/shriekmaw",
+      "official_fields": {
+        "card_number": "139",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "4B"
+        ],
+        "oracle_names_observed": [
+          "Shriekmaw"
+        ],
+        "oracle_texts_distinct": [
+          "Fear <i>(This creature can't be blocked except by artifact creatures and/or black creatures.)</i>\nWhen this creature enters, destroy target nonartifact, nonblack creature.\nEvoke {1B} <i>(You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Creature - Elemental",
+          "Creature – Elemental"
+        ],
+        "rulings": [
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as an evoke cost), add any cost increases, then apply any cost reductions. The mana value of the spell is determined by only its mana cost, no matter what the total cost to cast that spell was."
+          },
+          {
+            "date": "2021-03-19T00:00:00Z",
+            "statement": "If you pay the evoke cost, you can have Shriekmaw's own triggered ability resolve before the evoke triggered ability. You can cast spells after that ability resolves but before you have to sacrifice Shriekmaw."
+          }
+        ],
+        "set_code": "MKC",
+        "set_name": "Murders at Karlov Manor Commander"
+      },
+      "page_file": "pages/gatherer_shriekmaw.html",
+      "page_sha256": "bcb424219736b3d122c6b626ebe3408ef470966ebff3bb2e2d56ba608f4b57ef",
+      "retrieved_at": "2026-09-15T04:04:31.040635+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=665620&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "206",
+        "scryfall_faces": [],
+        "scryfall_set": "m3c"
+      },
+      "denominator_identity": "Syphon Mind",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/M3C/en-us/206/syphon-mind",
+      "official_fields": {
+        "card_number": "206",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "3B"
+        ],
+        "oracle_names_observed": [
+          "Syphon Mind"
+        ],
+        "oracle_texts_distinct": [
+          "Each other player discards a card. You draw a card for each card discarded this way."
+        ],
+        "oracle_type_lines": [
+          "Sorcery"
+        ],
+        "rulings": [],
+        "set_code": "M3C",
+        "set_name": "Modern Horizons 3 Commander"
+      },
+      "page_file": "pages/gatherer_syphon-mind.html",
+      "page_sha256": "c7789dbac32eea2de4cfea716c7e60db8c3aa7bf1b2d08281637ab4c58f7426e",
+      "retrieved_at": "2026-09-15T04:04:39.679374+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=658627&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "183",
+        "scryfall_faces": [],
+        "scryfall_set": "otc"
+      },
+      "denominator_identity": "Vandalblast",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/OTC/en-us/183/vandalblast",
+      "official_fields": {
+        "card_number": "183",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "R"
+        ],
+        "oracle_names_observed": [
+          "Vandalblast"
+        ],
+        "oracle_texts_distinct": [
+          "Destroy target artifact you don't control.\nOverload {4R} <i>(You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")</i>"
+        ],
+        "oracle_type_lines": [
+          "Sorcery"
+        ],
+        "rulings": [
+          {
+            "date": "2024-01-12T00:00:00Z",
+            "statement": "If you don't pay the overload cost of a spell with overload, that spell will have a single target. If you pay the overload cost, the spell won't have any targets."
+          },
+          {
+            "date": "2024-01-12T00:00:00Z",
+            "statement": "Because a spell with overload doesn't target when its overload cost is paid, it may affect permanents with hexproof or with protection from the appropriate color."
+          },
+          {
+            "date": "2024-01-12T00:00:00Z",
+            "statement": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as an overload cost), add any cost increases, then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+          },
+          {
+            "date": "2024-01-12T00:00:00Z",
+            "statement": "If you are instructed to cast a spell with overload \"without paying its mana cost,\" you can't choose to pay its overload cost instead."
+          }
+        ],
+        "set_code": "OTC",
+        "set_name": "Outlaws of Thunder Junction Commander"
+      },
+      "page_file": "pages/gatherer_vandalblast.html",
+      "page_sha256": "7f7e1968939243cd6851225aa0fba37f7c25213832b37aa2d9b4fe8792cdeab2",
+      "retrieved_at": "2026-09-15T04:04:13.033878+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": true,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=696466&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "310",
+        "scryfall_faces": [],
+        "scryfall_set": "tdc"
+      },
+      "denominator_identity": "Veyran, Voice of Duality",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/TDC/en-us/310/veyran-voice-of-duality",
+      "official_fields": {
+        "card_number": "310",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1UR"
+        ],
+        "oracle_names_observed": [
+          "Veyran, Voice of Duality"
+        ],
+        "oracle_texts_distinct": [
+          "<i>Magecraft</i> - Whenever you cast or copy an instant or sorcery spell, Veyran gets +1/+1 until end of turn.\nIf you casting or copying an instant or sorcery spell causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time."
+        ],
+        "oracle_type_lines": [
+          "Legendary Creature - Efreet Wizard",
+          "Legendary Creature – Efreet Wizard"
+        ],
+        "rulings": [
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "Veyran, Voice of Duality's last ability causes each of your magecraft abilities, including Veyran's own, to trigger an additional time."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "Veyran's effect doesn't copy the triggered ability; it just causes the ability to trigger again. Any choices you make as you put the ability on the stack, such as modes and targets, are made separately for each instance of the ability. Any choices made on resolution are also made individually."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "If you somehow control two Veyrans (which would be poetic), you casting an instant or sorcery spell causes abilities to trigger three times. A third Veyran (less poetic) causes abilities to trigger four times, and so on."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "Each magecraft ability has a different effect, although they all have the same trigger condition, whenever you cast or copy an instant or sorcery spell."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "If an effect creates a copy of an instant or sorcery spell, this will also cause the magecraft ability to trigger."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "If an effect creates multiple copies of an instant or sorcery spell, magecraft abilities trigger once for each copy created by the effect."
+          },
+          {
+            "date": "2021-04-16T00:00:00Z",
+            "statement": "Some effects instruct you to copy an instant or sorcery card in a zone other than the stack. These copies do not cause magecraft abilities to trigger. However, most effects that do this also allow you to cast the copy, and casting the copy will cause magecraft abilities to trigger."
+          }
+        ],
+        "set_code": "TDC",
+        "set_name": "Tarkir: Dragonstorm Commander"
+      },
+      "page_file": "pages/gatherer_veyran-voice-of-duality.html",
+      "page_sha256": "04056c4e6b0daf4e74521a0b1522152100efdb07c20a7a6d1cb2aff223f0045a",
+      "retrieved_at": "2026-09-15T04:03:35.379406+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=567632&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "815",
+        "scryfall_faces": [],
+        "scryfall_set": "clb"
+      },
+      "denominator_identity": "Warstorm Surge",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/CLB/en-us/815/warstorm-surge",
+      "official_fields": {
+        "card_number": "815",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "5R"
+        ],
+        "oracle_names_observed": [
+          "Warstorm Surge"
+        ],
+        "oracle_texts_distinct": [
+          "Whenever a creature you control enters, it deals damage equal to its power to any target."
+        ],
+        "oracle_type_lines": [
+          "Enchantment"
+        ],
+        "rulings": [
+          {
+            "date": "2011-09-22T00:00:00Z",
+            "statement": "The creature that entered deals damage equal to its current power to the targeted permanent or player. If it's no longer on the battlefield, its last known existence on the battlefield is checked to determine its power."
+          },
+          {
+            "date": "2011-09-22T00:00:00Z",
+            "statement": "Warstorm Surge is the source of the ability, but the creature is the source of the damage. The ability couldn't target a creature with protection from red, for example. It could target a creature with protection from creatures, but all the damage would be prevented. Since damage is dealt by the creature, abilities like lifelink, deathtouch and infect are taken into account, even if the creature has left the battlefield by the time it deals damage."
+          }
+        ],
+        "set_code": "CLB",
+        "set_name": "Commander Legends: Battle for Baldur's Gate"
+      },
+      "page_file": "pages/gatherer_warstorm-surge.html",
+      "page_sha256": "3471881483f7180715b77195ce50ba71d969ca0d387fdaa151c239869927cd49",
+      "retrieved_at": "2026-09-15T04:04:54.621520+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=540931&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "87",
+        "scryfall_faces": [],
+        "scryfall_set": "vow"
+      },
+      "denominator_identity": "Wash Away",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/VOW/en-us/87/wash-away",
+      "official_fields": {
+        "card_number": "87",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "U"
+        ],
+        "oracle_names_observed": [
+          "Wash Away"
+        ],
+        "oracle_texts_distinct": [
+          "Cleave {1UU} <i>(You may cast this spell for its cleave cost. If you do, remove the words in square brackets.)</i>\nCounter target spell [that wasn't cast from its owner's hand]."
+        ],
+        "oracle_type_lines": [
+          "Instant"
+        ],
+        "rulings": [
+          {
+            "date": "2021-11-19T00:00:00Z",
+            "statement": "Copies of spells are never cast from a player's hand, so Wash Away can counter copies of spells even if its cleave cost wasn't paid, regardless of whether the original spell being copied was cast from a player's hand."
+          },
+          {
+            "date": "2021-11-19T00:00:00Z",
+            "statement": "If you cast a spell for its cleave cost, that spell doesn't have any of the text in square brackets while it's on the stack."
+          },
+          {
+            "date": "2021-11-19T00:00:00Z",
+            "statement": "A cleave cost is an alternative cost that's paid instead of the spell's mana cost. Casting a spell for its cleave cost doesn't change the spell's mana value."
+          },
+          {
+            "date": "2021-11-19T00:00:00Z",
+            "statement": "You can't cast a spell for both its cleave cost and another alternative cost. For example, if an effect gives an Alchemist's Retrieval in your graveyard a flashback cost of {U}, you can't cast it from your graveyard for its cleave cost."
+          },
+          {
+            "date": "2021-11-19T00:00:00Z",
+            "statement": "If an effect allows you to \"cast a spell without paying its mana cost,\" you can't cast that spell for its cleave cost."
+          }
+        ],
+        "set_code": "VOW",
+        "set_name": "Innistrad: Crimson Vow"
+      },
+      "page_file": "pages/gatherer_wash-away.html",
+      "page_sha256": "b2c7b7e216ee0bfec16a4f795c02632669090025aa1b54752dc08c82f7505ef5",
+      "retrieved_at": "2026-09-15T04:03:56.741882+00:00"
+    },
+    {
+      "bridge": {
+        "bridge_fallback_to_older_printing": false,
+        "gatherer_pointer": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=612591&printed=false",
+        "role": "discovery_pointer_only",
+        "scryfall_collector_number": "343",
+        "scryfall_faces": [
+          "Wear",
+          "Tear"
+        ],
+        "scryfall_set": "moc"
+      },
+      "denominator_identity": "Wear // Tear",
+      "face": "front",
+      "official_canonical_url": "https://gatherer.wizards.com/MOC/en-us/343/wear",
+      "official_fields": {
+        "card_number": "343",
+        "commander_legality": "Legal",
+        "main_multiverse_id": null,
+        "main_resource_id": null,
+        "oracle_mana_texts": [
+          "1R"
+        ],
+        "oracle_names_observed": [
+          "Tear",
+          "Wear"
+        ],
+        "oracle_texts_distinct": [
+          "Destroy target artifact.\n//\nDestroy target enchantment.\n//\nFuse <i>(You may cast one or both halves of this card from your hand.)</i>"
+        ],
+        "oracle_type_lines": [
+          "Instant"
+        ],
+        "rulings": [],
+        "set_code": "MOC",
+        "set_name": "March of the Machine Commander"
+      },
+      "page_file": "pages/gatherer_wear-tear.html",
+      "page_sha256": "2ffadb3dc86337db91592025d9d287e01f851a9652a9f5ad40fa20229f0249b7",
+      "retrieved_at": "2026-09-15T04:04:00.066747+00:00"
+    }
+  ],
+  "schema_version": "ws222-oracle-field-snapshot/1.0.0"
+}

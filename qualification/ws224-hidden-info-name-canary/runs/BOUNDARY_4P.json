@@ -1,0 +1,24 @@
+{
+  "actor_seats_observed": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "canary_frames": 24,
+  "elapsed_seconds": 6.1,
+  "error_probes": [
+    "stale_decision",
+    "unknown_action",
+    "wrong_actor"
+  ],
+  "fresh_jvm": true,
+  "grant_frames": 0,
+  "other_principals_per_actor": 3,
+  "players": 4,
+  "production_lane": "xmage_full_game_external_pilots JSONL",
+  "scanned_decisions": 24,
+  "seed": 424242,
+  "starting_seat": 2,
+  "stderr_lines_observed": 3
+}

@@ -1,0 +1,12 @@
+{
+  "current": true,
+  "evidence": [
+    "qualification/aggregate/GATE_RESULTS.json@189dcfc09e74",
+    "research/project-audit/ws220/FINDINGS.json@189dcfc09e74"
+  ],
+  "gate": "G01",
+  "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+  "schema_version": "ws225-g01-status/1.0.0",
+  "verdict": "FAIL",
+  "ws222_note": "WS222 may be active. No unpublished WS222 state was consumed. G01 retains its sealed status on the WS225 source lock; recompute cheaply after integration by rerunning standing_generator.py."
+}

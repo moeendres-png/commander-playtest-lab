@@ -1,0 +1,16 @@
+{
+  "record": "PASS",
+  "record_seconds": 5.7,
+  "replay": "PASS",
+  "replay_seconds": 5.6,
+  "steps_verified": 35,
+  "tamper": "ACTOR_MISMATCH",
+  "tamper_diagnostic_leak": false,
+  "tape": "qualification/ws224-hidden-info-name-canary/runs/ws224-tape-4p.json",
+  "verdict_keys": [
+    "pass",
+    "tape_id",
+    "steps_verified",
+    "terminal"
+  ]
+}
