@@ -1,0 +1,22 @@
+{
+ "audit_base": "67db073367853da7295ae06642f38a73db464dba",
+ "branch": "ws218/semantic-replay-tape-v1-20260915",
+ "sealed_source_lock": {
+  "adapter_identity": "xmage-engine-bridge full-game lane",
+  "commander_authority_identity": "xmage-commander-ffa",
+  "decision_protocol_version": "xmage-external-decision-protocol-1.0.0",
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_repository": "xmage-engine (pinned via XmageProvider)",
+  "engine_tree": null,
+  "engine_version": "1.4.61",
+  "lab_commit": "67db073367853da7295ae06642f38a73db464dba",
+  "lab_repository": "moeendres-png/commander-playtest-lab",
+  "lab_tree": "a41ad3959caee03db59ffa15bdd44413d58ca766",
+  "oracle_snapshot_identity": "xmage-db134b9737e951367d65ef5806ad986319cc73ab:card-db-live",
+  "protocol_schema_digest": "765622de6d2696c592174d4e95fa4afc21c35d263014aebb9bad783a6bc69694",
+  "protocol_version": "2.0.0",
+  "provider_identity": "xmage",
+  "rules_authority_identity": "xmage",
+  "rulings_snapshot_identity": null
+ }
+}
