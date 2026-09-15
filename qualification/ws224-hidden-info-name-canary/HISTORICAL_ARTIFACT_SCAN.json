@@ -1,0 +1,10 @@
+{
+  "artifact": "runs/HISTORICAL_ARTIFACT_SCAN.json",
+  "classifications": {
+    "EXPECTED_PRIVILEGED_ARTIFACT": 4,
+    "POTENTIAL_LEAK_ARTIFACT": 66
+  },
+  "primary_json_scanned": 66,
+  "rewrites": 0,
+  "tapes_scanned": 4
+}
