@@ -1,0 +1,788 @@
+{
+  "probe": "ws228-numeric-boundary",
+  "codebase_head_note": "locked WS223 audit base; production code unmodified",
+  "evidence_class": "SYNTHETIC research probe of Lab transformation semantics",
+  "cases": [
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 0,
+      "numeric_max": 0,
+      "span": 0,
+      "authorized_count": 1,
+      "offered_values": [
+        0
+      ],
+      "offered_count": 1,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 0
+    },
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 0,
+      "numeric_max": 5,
+      "span": 5,
+      "authorized_count": 6,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 6,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 1,
+      "numeric_max": 5,
+      "span": 4,
+      "authorized_count": 5,
+      "offered_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 5,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 0,
+      "numeric_max": 16,
+      "span": 16,
+      "authorized_count": 17,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "offered_count": 17,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 16
+    },
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 0,
+      "numeric_max": 17,
+      "span": 17,
+      "authorized_count": 18,
+      "offered_values": [
+        0,
+        8,
+        17
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 15,
+      "narrowed": true,
+      "submitted_numeric_choice": 17
+    },
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 0,
+      "numeric_max": 100,
+      "span": 100,
+      "authorized_count": 101,
+      "offered_values": [
+        0,
+        50,
+        100
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "missing_count": 98,
+      "narrowed": true,
+      "submitted_numeric_choice": 100
+    },
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 1,
+      "numeric_max": 40,
+      "span": 39,
+      "authorized_count": 40,
+      "offered_values": [
+        1,
+        20,
+        40
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 37,
+      "narrowed": true,
+      "submitted_numeric_choice": 40
+    },
+    {
+      "decision_class": "announce_x",
+      "numeric_min": 0,
+      "numeric_max": 1000000,
+      "span": 1000000,
+      "authorized_count": 1000001,
+      "offered_values": [
+        0,
+        500000,
+        1000000
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        250000,
+        500001,
+        999999
+      ],
+      "missing_count": 999998,
+      "narrowed": true,
+      "submitted_numeric_choice": 1000000
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 0,
+      "numeric_max": 0,
+      "span": 0,
+      "authorized_count": 1,
+      "offered_values": [
+        0
+      ],
+      "offered_count": 1,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 0
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 0,
+      "numeric_max": 5,
+      "span": 5,
+      "authorized_count": 6,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 6,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 1,
+      "numeric_max": 5,
+      "span": 4,
+      "authorized_count": 5,
+      "offered_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 5,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 0,
+      "numeric_max": 16,
+      "span": 16,
+      "authorized_count": 17,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "offered_count": 17,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 16
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 0,
+      "numeric_max": 17,
+      "span": 17,
+      "authorized_count": 18,
+      "offered_values": [
+        0,
+        8,
+        17
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 15,
+      "narrowed": true,
+      "submitted_numeric_choice": 17
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 0,
+      "numeric_max": 100,
+      "span": 100,
+      "authorized_count": 101,
+      "offered_values": [
+        0,
+        50,
+        100
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "missing_count": 98,
+      "narrowed": true,
+      "submitted_numeric_choice": 100
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 1,
+      "numeric_max": 40,
+      "span": 39,
+      "authorized_count": 40,
+      "offered_values": [
+        1,
+        20,
+        40
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 37,
+      "narrowed": true,
+      "submitted_numeric_choice": 40
+    },
+    {
+      "decision_class": "amount",
+      "numeric_min": 0,
+      "numeric_max": 1000000,
+      "span": 1000000,
+      "authorized_count": 1000001,
+      "offered_values": [
+        0,
+        500000,
+        1000000
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        250000,
+        500001,
+        999999
+      ],
+      "missing_count": 999998,
+      "narrowed": true,
+      "submitted_numeric_choice": 1000000
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 0,
+      "numeric_max": 0,
+      "span": 0,
+      "authorized_count": 1,
+      "offered_values": [
+        0
+      ],
+      "offered_count": 1,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 0
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 0,
+      "numeric_max": 5,
+      "span": 5,
+      "authorized_count": 6,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 6,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 1,
+      "numeric_max": 5,
+      "span": 4,
+      "authorized_count": 5,
+      "offered_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 5,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 0,
+      "numeric_max": 16,
+      "span": 16,
+      "authorized_count": 17,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "offered_count": 17,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 16
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 0,
+      "numeric_max": 17,
+      "span": 17,
+      "authorized_count": 18,
+      "offered_values": [
+        0,
+        8,
+        17
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 15,
+      "narrowed": true,
+      "submitted_numeric_choice": 17
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 0,
+      "numeric_max": 100,
+      "span": 100,
+      "authorized_count": 101,
+      "offered_values": [
+        0,
+        50,
+        100
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "missing_count": 98,
+      "narrowed": true,
+      "submitted_numeric_choice": 100
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 1,
+      "numeric_max": 40,
+      "span": 39,
+      "authorized_count": 40,
+      "offered_values": [
+        1,
+        20,
+        40
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 37,
+      "narrowed": true,
+      "submitted_numeric_choice": 40
+    },
+    {
+      "decision_class": "multi_amount",
+      "numeric_min": 0,
+      "numeric_max": 1000000,
+      "span": 1000000,
+      "authorized_count": 1000001,
+      "offered_values": [
+        0,
+        500000,
+        1000000
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        250000,
+        500001,
+        999999
+      ],
+      "missing_count": 999998,
+      "narrowed": true,
+      "submitted_numeric_choice": 1000000
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 0,
+      "numeric_max": 0,
+      "span": 0,
+      "authorized_count": 1,
+      "offered_values": [
+        0
+      ],
+      "offered_count": 1,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 0
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 0,
+      "numeric_max": 5,
+      "span": 5,
+      "authorized_count": 6,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 6,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 1,
+      "numeric_max": 5,
+      "span": 4,
+      "authorized_count": 5,
+      "offered_values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offered_count": 5,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 5
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 0,
+      "numeric_max": 16,
+      "span": 16,
+      "authorized_count": 17,
+      "offered_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "offered_count": 17,
+      "missing_sample": [],
+      "missing_count": 0,
+      "narrowed": false,
+      "submitted_numeric_choice": 16
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 0,
+      "numeric_max": 17,
+      "span": 17,
+      "authorized_count": 18,
+      "offered_values": [
+        0,
+        8,
+        17
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 15,
+      "narrowed": true,
+      "submitted_numeric_choice": 17
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 0,
+      "numeric_max": 100,
+      "span": 100,
+      "authorized_count": 101,
+      "offered_values": [
+        0,
+        50,
+        100
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "missing_count": 98,
+      "narrowed": true,
+      "submitted_numeric_choice": 100
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 1,
+      "numeric_max": 40,
+      "span": 39,
+      "authorized_count": 40,
+      "offered_values": [
+        1,
+        20,
+        40
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "missing_count": 37,
+      "narrowed": true,
+      "submitted_numeric_choice": 40
+    },
+    {
+      "decision_class": "target_amount",
+      "numeric_min": 0,
+      "numeric_max": 1000000,
+      "span": 1000000,
+      "authorized_count": 1000001,
+      "offered_values": [
+        0,
+        500000,
+        1000000
+      ],
+      "offered_count": 3,
+      "missing_sample": [
+        1,
+        250000,
+        500001,
+        999999
+      ],
+      "missing_count": 999998,
+      "narrowed": true,
+      "submitted_numeric_choice": 1000000
+    }
+  ],
+  "verdicts": {
+    "small_domain_full": true,
+    "boundary_16_full": true,
+    "boundary_17_narrowed": true,
+    "large_domain_narrowed": true,
+    "large_domain_offered_is_min_mid_max": true
+  },
+  "f_rules_02_reproduced": true,
+  "run_metadata": {
+    "head": "48885e8e3c16ccdfd388a4378a5a05b6e81bb293",
+    "tree": "d02d6c0eb54b009c481cd79d642929011e9ce483",
+    "command": "python3 research/numeric-boundary/ws228/probes/numeric_boundary_probe.py",
+    "date_utc": "2026-09-15",
+    "exit_code": 0,
+    "production_code_modified": false,
+    "note": "regenerated after evidence-size fix (missing_values list capped to sample+count for huge spans); verdicts unchanged"
+  }
+}
