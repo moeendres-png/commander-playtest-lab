@@ -1,0 +1,215 @@
+{
+  "artifacts": [
+    {
+      "name": "AMOUNT_LIVE.md",
+      "path": "research/numeric-boundary/ws229/AMOUNT_LIVE.md",
+      "run": "WS229",
+      "sha256": "a3c4e23936393fe3a6b408d76f99a10c7a75a200ae738deaa4f0a219d1a33839",
+      "size": 1171,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "ANNOUNCE_X_LIVE.md",
+      "path": "research/numeric-boundary/ws229/ANNOUNCE_X_LIVE.md",
+      "run": "WS229",
+      "sha256": "c22e8eec9edf423eedcff44a6ed5212b448e1dd2998de41b4a03e594d4e747ec",
+      "size": 1840,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "CARDINALITY_IMPACT.md",
+      "path": "research/numeric-boundary/ws229/CARDINALITY_IMPACT.md",
+      "run": "WS229",
+      "sha256": "f70dc1e4bd42381a0e46519eb5ebdbae0955c7c393435e32c96083a505c1be8b",
+      "size": 1291,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "DECISION_CLASS_MATRIX_FINAL.json",
+      "path": "research/numeric-boundary/ws229/DECISION_CLASS_MATRIX_FINAL.json",
+      "run": "WS229",
+      "sha256": "3a3c0a1d6e7be8ab3c492b7ee023e08e22c1bd4c600539c52aaea138d204c194",
+      "size": 2098,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "FINAL_HANDOFF.md",
+      "path": "research/numeric-boundary/ws229/FINAL_HANDOFF.md",
+      "run": "WS229",
+      "sha256": "b57e2f73b9f350a5147455d237958833c2b55f4e8bf797b039ebd510c623d32b",
+      "size": 7580,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "F_RULES_02B_ADJUDICATION.md",
+      "path": "research/numeric-boundary/ws229/F_RULES_02B_ADJUDICATION.md",
+      "run": "WS229",
+      "sha256": "b7dfc36489736c3bf89d869e80ef28706d0c4497465fc34e17d6efca61c2e8b6",
+      "size": 1037,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "F_RULES_02_ADJUDICATION.md",
+      "path": "research/numeric-boundary/ws229/F_RULES_02_ADJUDICATION.md",
+      "run": "WS229",
+      "sha256": "b07acf0e80056c8c9e65c67e57df6c6540937eb460b4a307dac5409efd3b26cc",
+      "size": 1327,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "F_RULES_03_DISPOSITIONS.md",
+      "path": "research/numeric-boundary/ws229/F_RULES_03_DISPOSITIONS.md",
+      "run": "WS229",
+      "sha256": "9990ea66dffdf974febdca6efc19b63056fefc07135b588a774aaa19ed539a2e",
+      "size": 2937,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "HIDDEN_INFO_IMPACT.md",
+      "path": "research/numeric-boundary/ws229/HIDDEN_INFO_IMPACT.md",
+      "run": "WS229",
+      "sha256": "c16b73839910cc0b3314c6cc239d0f45ad3226a01d83ee07a28894cc24b64695",
+      "size": 1207,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "INPUT_AUTHORITY_MATRIX.json",
+      "path": "research/numeric-boundary/ws229/INPUT_AUTHORITY_MATRIX.json",
+      "run": "WS229",
+      "sha256": "23535f9e876c303ddeebb2fb3e3d175df7dd8828b2a21e652ee01edac282281d",
+      "size": 1376,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "JOINT_MULTI_AMOUNT_IMPLEMENTATION.md",
+      "path": "research/numeric-boundary/ws229/JOINT_MULTI_AMOUNT_IMPLEMENTATION.md",
+      "run": "WS229",
+      "sha256": "eac7c621a7f1ad159610da0d0e4c37ce8f17894ced54b44db8b678f59eea7b10",
+      "size": 2842,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "LARGE_DOMAIN_PERFORMANCE.json",
+      "path": "research/numeric-boundary/ws229/LARGE_DOMAIN_PERFORMANCE.json",
+      "run": "WS229",
+      "sha256": "defef949fd5551546e7bc1c44621ac027d3415b47dd59b96b893829a1d0e9fd9",
+      "size": 797,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "LIVE_FRAME_CAPTURES.json",
+      "path": "research/numeric-boundary/ws229/LIVE_FRAME_CAPTURES.json",
+      "run": "WS229",
+      "sha256": "99546443d131b5940eadba282970c23ee9b1897d9b289a7b31a1ed8d9239db12",
+      "size": 945,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "MANIFEST_INTEGRITY.md",
+      "path": "research/numeric-boundary/ws229/MANIFEST_INTEGRITY.md",
+      "run": "WS229",
+      "sha256": "a9f6dfefe73166aa2129c2e2066ef7f9e616c00cc7273d3ad404dab876e43f3e",
+      "size": 1344,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "MULTI_AMOUNT_LIVE.md",
+      "path": "research/numeric-boundary/ws229/MULTI_AMOUNT_LIVE.md",
+      "run": "WS229",
+      "sha256": "4c887d152dbd5807e20d98696c2d3121f14989743545719c8bb6db4ec8599739",
+      "size": 1366,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "NEGATIVE_MATRIX_RESULTS.json",
+      "path": "research/numeric-boundary/ws229/NEGATIVE_MATRIX_RESULTS.json",
+      "run": "WS229",
+      "sha256": "d6064f062f6e686aaea21a1502d89bb8e1506d8c2a6fa9341b0a76b02a903f1c",
+      "size": 5253,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "NUMERIC_DOMAIN_CONTRACT.json",
+      "path": "research/numeric-boundary/ws229/NUMERIC_DOMAIN_CONTRACT.json",
+      "run": "WS229",
+      "sha256": "1fd91cf7dbf1c444e6c0bf9ae7a68dd40611068e3d492b3470ae8a4203cfba7e",
+      "size": 2017,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "POSITIVE_MATRIX_RESULTS.json",
+      "path": "research/numeric-boundary/ws229/POSITIVE_MATRIX_RESULTS.json",
+      "run": "WS229",
+      "sha256": "aae820eba33d89ec8193490bb11c013ec1698306eb4ae6d201a372e18602b50e",
+      "size": 2040,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "REPLAY_IMPACT.md",
+      "path": "research/numeric-boundary/ws229/REPLAY_IMPACT.md",
+      "run": "WS229",
+      "sha256": "330aa09d4d6aeef2705d41a1654df263d7c0c29ac20175117b20d376ccfd6e7c",
+      "size": 2671,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "S6_ENTRY_GATE.json",
+      "path": "research/numeric-boundary/ws229/S6_ENTRY_GATE.json",
+      "run": "WS229",
+      "sha256": "cfd60960517bb11b9e333deabe5c48c63d6accb0d4f583237bd59533cfca3689",
+      "size": 1896,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "SCALAR_IMPLEMENTATION.md",
+      "path": "research/numeric-boundary/ws229/SCALAR_IMPLEMENTATION.md",
+      "run": "WS229",
+      "sha256": "38561e95492d8397502e852ab1082b8bf2b6c019c3bafedbf37f58593c84a553",
+      "size": 2377,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "SOURCE_LOCK.md",
+      "path": "research/numeric-boundary/ws229/SOURCE_LOCK.md",
+      "run": "WS229",
+      "sha256": "ef5c0ab8b20912f431d38c304805648dd4c6fd8e6b52c10fc70e248acb0a1146",
+      "size": 844,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "STANDING_IMPACT.md",
+      "path": "research/numeric-boundary/ws229/STANDING_IMPACT.md",
+      "run": "WS229",
+      "sha256": "132dca2dc228d23f124c0777dc7c1b1f799f1c21c4d7b5f79879a23e3cfc1e12",
+      "size": 701,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "TARGET_AMOUNT_LIVE.md",
+      "path": "research/numeric-boundary/ws229/TARGET_AMOUNT_LIVE.md",
+      "run": "WS229",
+      "sha256": "e628fa54d49ae3016b9d51dd4cb5bf4bbae3dfe1e60b1d6ce910935622ba2924",
+      "size": 1397,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "U4_SPIKE.md",
+      "path": "research/numeric-boundary/ws229/U4_SPIKE.md",
+      "run": "WS229",
+      "sha256": "17c24e579217dc63d40719768ce08ef18339539310ee7bf710c3efe4b0ede4ec",
+      "size": 2251,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    },
+    {
+      "name": "VALIDATION.md",
+      "path": "research/numeric-boundary/ws229/VALIDATION.md",
+      "run": "WS229",
+      "sha256": "d46fb4d31d24840f1af5a3cafb1bb28623cc8ac679030c345ecf95bb3f6c6958",
+      "size": 3039,
+      "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+    }
+  ],
+  "generated_utc": "2026-09-15T15:21:10+00:00",
+  "run": "WS229",
+  "source_sha": "ba84c9bfdfc5cf5cdd3f78eb4294f722f008f270"
+}
