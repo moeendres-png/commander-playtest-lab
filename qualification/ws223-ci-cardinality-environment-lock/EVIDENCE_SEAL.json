@@ -1,0 +1,232 @@
+{
+  "artifacts": [
+    {
+      "bytes": 1268,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CACHE_IDENTITY_CONTRACT.md",
+      "sha256": "94eac23532a22b3347d9c0fafc16c6a762e2be758a8b220741677d8ddb377ed1"
+    },
+    {
+      "bytes": 725,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CARDINALITY_2P.json",
+      "sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f"
+    },
+    {
+      "bytes": 705,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CARDINALITY_3P.json",
+      "sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b"
+    },
+    {
+      "bytes": 725,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CARDINALITY_4P_REPLAY_GATE.json",
+      "sha256": "9a9684ece59056c427cceddd339e433298ea29df330e3571283269a92c04b693"
+    },
+    {
+      "bytes": 705,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CARDINALITY_5P.json",
+      "sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22"
+    },
+    {
+      "bytes": 164,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CARDINALITY_6P_FAIL_CLOSED.json",
+      "sha256": "45f1506e1897ef5b91b8700eb763ddf5fb4e2ded5055e2ea6f7f341ba133124b"
+    },
+    {
+      "bytes": 1439,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CARDINALITY_CI_CONTRACT.md",
+      "sha256": "30d6e09c56c5188a3c89226e2511122c471542ae55880f5dda27a8fee2ac669a"
+    },
+    {
+      "bytes": 1763,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CARDINALITY_LIVE_SMOKE.md",
+      "sha256": "cb708553ebc33a37ee78bc42e369a190095e759f865356353d314aef8f951dbe"
+    },
+    {
+      "bytes": 641,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CI_IMPACT_MAP.json",
+      "sha256": "abd0e8549f8d6b326b3870ab0cb2a544eefbb115a7931fb45609e678371e8c56"
+    },
+    {
+      "bytes": 2999,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CI_IMPACT_MAP.md",
+      "sha256": "ff41a18fe15e9e7495c0c76860aec94930d49fc1af9d679cf25100a0a25759ce"
+    },
+    {
+      "bytes": 1677,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CI_TRIGGER_MATRIX.md",
+      "sha256": "2dd2dc37423df9102edffbcfed04a71a22f53d972da3e5a96d0b81d6661a890d"
+    },
+    {
+      "bytes": 2092,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CLEAN_RESOLUTION_A.freeze.txt",
+      "sha256": "051a301ef0daaf1a4b1c9aa7c1ed241cd44ce5a96c06d018b7f3f96755d79a02"
+    },
+    {
+      "bytes": 2092,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CLEAN_RESOLUTION_B.freeze.txt",
+      "sha256": "051a301ef0daaf1a4b1c9aa7c1ed241cd44ce5a96c06d018b7f3f96755d79a02"
+    },
+    {
+      "bytes": 1147,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CLEAN_RESOLUTION_COMPARISON.json",
+      "sha256": "0cea70ba5c01155d28134884bd695181be35afccb658d1dee41f4b862651ee88"
+    },
+    {
+      "bytes": 1340,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/CONTAINER_IDENTITY.md",
+      "sha256": "56628a2ac0100cb363d9cf88fb61219aa9efbb71db1fdc95182f93c6dc97ec8d"
+    },
+    {
+      "bytes": 1939,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/DEPENDENCY_LOCK_CONTRACT.md",
+      "sha256": "96fa197ea0eca74df4e0f74fe9eb17b29de836181cc3ca7eea941d0aac728f94"
+    },
+    {
+      "bytes": 65,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/DEPENDENCY_LOCK_DIGEST",
+      "sha256": "b25dbe3a86e281d9e31d9ab8795800b5f47bd68b8e4c35d14fa5034b5440158f"
+    },
+    {
+      "bytes": 607,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/DESIGN_OPTIONS.json",
+      "sha256": "6e594b861b8dfee076432f27ae6298df9805ffeaa6644195987aa4ea11a152e4"
+    },
+    {
+      "bytes": 5335,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/DESIGN_OPTIONS.md",
+      "sha256": "2aa7a290089cc7f9eff3af35e96b84301aaf681d3f81d8c591ccc6b818e018fe"
+    },
+    {
+      "bytes": 720,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/ENVIRONMENT_IDENTITY_INVENTORY.json",
+      "sha256": "eb8f81a99375e4feb7b31b322314a0b9682fceef4ef4bc20c4049b7fa547967b"
+    },
+    {
+      "bytes": 2745,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/ENVIRONMENT_IDENTITY_INVENTORY.md",
+      "sha256": "3dd4d38ef148807df5f37326b0d7ae4d16911fa5bbb1d75f478284f9d6f6b8e6"
+    },
+    {
+      "bytes": 1741,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/ENVIRONMENT_RECEIPT_CONTRACT.md",
+      "sha256": "e9da73e3400415045b7cdf4fd33423008ba752adc1b66d7e02aa3a076c8e2747"
+    },
+    {
+      "bytes": 801,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/INPUT_AUTHORITY_MATRIX.json",
+      "sha256": "7145ff707c993c4afe032b465413981355ae6ae43e80600e095a2a0ea9ea9c35"
+    },
+    {
+      "bytes": 3895,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/INPUT_AUTHORITY_MATRIX.md",
+      "sha256": "3c90c0d281dd607f580d119c517bd793b77686d98008738a2d2671698ee1f28c"
+    },
+    {
+      "bytes": 1366,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/JDK_CONTRACT.md",
+      "sha256": "0a62fe90765472dfa22f6e70b6a218da4a10baa5f4cfb66d1fda8a3daf4f80d8"
+    },
+    {
+      "bytes": 728,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/PYTHONHASHSEED_POLICY.md",
+      "sha256": "2e079f614a1af3997fcbea8057b0f2e6aaf14b61e9e1e44548c494b5bd12da91"
+    },
+    {
+      "bytes": 844,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/SOURCE_LOCK.json",
+      "sha256": "abdb3f4272cd6efdc131028bc1ccb298f39fb391a4e9699f12c7f67264f3a256"
+    },
+    {
+      "bytes": 2812,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/SOURCE_LOCK.md",
+      "sha256": "6d57866949ab38c51acff4c8319e229e1137c35a7a1fd6087e088de58a116762"
+    },
+    {
+      "bytes": 4452,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/VALIDATION.md",
+      "sha256": "b8ac94730fbd50c1a44b361f6c912408cc2254e53e8ddb4a96453afc56e24e6c"
+    }
+  ],
+  "audit_base": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+  "branch": "ws223/ci-cardinality-environment-lock-20260915",
+  "engine_runtime": "1.4.61",
+  "invalidated": [],
+  "notes": "Seal describes reality; adjudication belongs to the Coordinator. No CODE_DERIVED promotion beyond executed runs.",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "runs": [
+    {
+      "detail": "112 targeted; 871 full tests/unit on clean tree",
+      "name": "unit batteries (ws223 + impacted guards)",
+      "result": "PASS"
+    },
+    {
+      "detail": "14 PASS, 1 base-red F-CI-02 gate (proven red at HEAD)",
+      "name": "tests/qualification",
+      "result": "PARTIAL"
+    },
+    {
+      "detail": "local-equivalent JDK17, engine 1.4.61",
+      "name": "live 2P/3P/5P bounded smoke",
+      "result": "PASS"
+    },
+    {
+      "detail": "3105 decisions, semantic replay match",
+      "name": "live 4P full gate",
+      "result": "PASS"
+    },
+    {
+      "detail": "no engine launched",
+      "name": "live 6P fail-closed",
+      "result": "PASS"
+    },
+    {
+      "detail": "digest 200159e3",
+      "name": "lock verify offline + network",
+      "result": "PASS"
+    },
+    {
+      "detail": "identical 114-package identity, b6ec216c",
+      "name": "clean resolution A vs B",
+      "result": "PASS"
+    },
+    {
+      "detail": "explicit failure, no substitution",
+      "name": "offline install semantics",
+      "result": "PASS"
+    },
+    {
+      "detail": "identical 115 compiler pins",
+      "name": "lock regeneration",
+      "result": "PASS"
+    },
+    {
+      "detail": "8 files",
+      "name": "ruff check/format changed files",
+      "result": "PASS"
+    },
+    {
+      "detail": "0 errors; 9 pre-existing in semantic_replay",
+      "name": "mypy full_game.py",
+      "result": "PASS"
+    },
+    {
+      "detail": "no impact finding requires it",
+      "name": "FULL107",
+      "result": "NOT_RUN"
+    },
+    {
+      "detail": "pending merge; local-equivalent evidence sealed",
+      "name": "remote CI lanes",
+      "result": "NOT_RUN"
+    },
+    {
+      "detail": "per coordinator ruling",
+      "name": "longitudinal availability recheck",
+      "result": "FUTURE_ADVISORY"
+    }
+  ],
+  "schema_version": "ws223-evidence-seal-1.0.0",
+  "source_head": "3e6d170f2e67a4480355c732c6853bf1bf314668",
+  "source_tree": "7a4f951027f423faa1960fc8e0b629f1bfffc44e",
+  "workstream": "WS223",
+  "xmage_authority": "db134b9737e951367d65ef5806ad986319cc73ab"
+}

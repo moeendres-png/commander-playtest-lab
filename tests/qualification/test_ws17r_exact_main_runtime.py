@@ -28,11 +28,18 @@ def test_exact_main_job_installs_declared_runtime_before_harness_import():
 
     text = WORKFLOW.read_text(encoding="utf-8")
     exact_main = text.split("\n  exact-main-admission:\n", 1)[1]
-    install = "python -m pip install -e '.[dev]'"
+    # WS223: the declared runtime installs from the transitive hash-pinned
+    # lock (plus an offline editable project install) before any harness
+    # import. Both markers must precede the first harness call.
+    install_markers = (
+        "python -m pip install --require-hashes -r requirements/lock.txt",
+        "python -m pip install --no-deps --no-build-isolation -e .",
+    )
     first_harness_call = "python qualification/harness.py"
 
-    assert install in exact_main
-    assert exact_main.index(install) < exact_main.index(first_harness_call)
+    for marker in install_markers:
+        assert marker in exact_main
+    assert exact_main.index(install_markers[0]) < exact_main.index(first_harness_call)
     assert "Verify qualification runtime imports" in exact_main
     assert "from jsonschema import Draft202012Validator" in exact_main
     assert 'runpy.run_path("qualification/harness.py"' in exact_main
