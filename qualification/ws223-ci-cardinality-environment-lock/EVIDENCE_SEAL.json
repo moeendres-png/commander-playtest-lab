@@ -111,6 +111,11 @@
       "sha256": "e9da73e3400415045b7cdf4fd33423008ba752adc1b66d7e02aa3a076c8e2747"
     },
     {
+      "bytes": 6493,
+      "path": "qualification/ws223-ci-cardinality-environment-lock/FINAL_HANDOFF.md",
+      "sha256": "470db6923cca001c94441e00915a5ea5252d7c7ec9786e6e3614a600ceea1de1"
+    },
+    {
       "bytes": 801,
       "path": "qualification/ws223-ci-cardinality-environment-lock/INPUT_AUTHORITY_MATRIX.json",
       "sha256": "7145ff707c993c4afe032b465413981355ae6ae43e80600e095a2a0ea9ea9c35"
@@ -225,8 +230,8 @@
     }
   ],
   "schema_version": "ws223-evidence-seal-1.0.0",
-  "source_head": "3e6d170f2e67a4480355c732c6853bf1bf314668",
-  "source_tree": "7a4f951027f423faa1960fc8e0b629f1bfffc44e",
+  "source_head": "dfe1c77e711015223c074d088bf54a3232cd6a88",
+  "source_tree": "5b0f3a087076c61398dd20170e56c78e36d1fd50",
   "workstream": "WS223",
   "xmage_authority": "db134b9737e951367d65ef5806ad986319cc73ab"
 }
