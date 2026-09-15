@@ -427,6 +427,26 @@ class XmageNumericDomainWs229Test {
         assertTrue(failure.getMessage().contains("BRIDGE_PROTOCOL_ERROR"));
     }
 
+    // P-T1 live-callback status: UNKNOWN with exact blocker (pinned here).
+    // possibleTargets for range-gated targets requires a STARTED game
+    // ("game is not started, but you call hasPlayerInRange"); the minimal
+    // callback fixture cannot start one without the full session machinery,
+    // and card-driven target_amount fire is U5 scenario-engineering scope.
+    // Companion-path qualification rests on projection/controller/Lab
+    // evidence (DIRECTLY_VERIFIED) until a card-driven live fire exists.
+    @Test
+    void targetAmountLiveCallbackBlockedOnUnstartedGame() {
+        Fixture fixture = liveFixture();
+        mage.target.common.TargetAnyTargetAmount target =
+                new mage.target.common.TargetAnyTargetAmount(1, 1, 1);
+        IllegalStateException blocked = assertThrows(
+                IllegalStateException.class,
+                () -> fixture.player.chooseTargetAmount(
+                        Outcome.Benefit, target, null, fixture.game));
+        assertTrue(blocked.getMessage() != null
+                && blocked.getMessage().contains("game is not started"));
+    }
+
     private static void assertRejectsJoint(JsonObject pending, String vectorJson, String fragment) {
         JsonObject proposal = baseJointProposal(pending);
         JsonArray vector = new JsonArray();
