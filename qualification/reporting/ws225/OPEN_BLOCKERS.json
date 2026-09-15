@@ -1,0 +1,936 @@
+{
+  "blockers": [
+    {
+      "blocked": true,
+      "candidate": "xmage",
+      "evidence": [
+        "qualification/aggregate/GATE_RESULTS.json@189dcfc09e74",
+        "research/project-audit/ws220/FINDINGS.json@189dcfc09e74"
+      ],
+      "gate": "G01",
+      "id": "XMAGE-G01",
+      "kind": "TERMINAL",
+      "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": true,
+      "candidate": "xmage",
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.json@189dcfc09e74"
+      ],
+      "gate": "G10",
+      "id": "XMAGE-G10",
+      "kind": "TERMINAL",
+      "reason": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "xmage",
+      "evidence": [],
+      "gate": "G12",
+      "id": "XMAGE-G12",
+      "kind": "TERMINAL",
+      "reason": "Actual integration/distribution topology unselected; interop for the real model unproven.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "xmage",
+      "evidence": [],
+      "gate": "G13",
+      "id": "XMAGE-G13",
+      "kind": "CONSEQUENCE",
+      "reason": "Computed rollup: not all G00-G12 PASS; admission blocked.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": false,
+      "candidate": "xmage",
+      "evidence": [],
+      "gate": "AF01",
+      "id": "XMAGE-AF01",
+      "kind": "TERMINAL",
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "xmage",
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json@189dcfc09e74",
+        "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.json@189dcfc09e74"
+      ],
+      "gate": "AF08",
+      "id": "XMAGE-AF08",
+      "kind": "TERMINAL",
+      "reason": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "xmage",
+      "evidence": [
+        "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.json@189dcfc09e74"
+      ],
+      "gate": "AF11",
+      "id": "XMAGE-AF11",
+      "kind": "TERMINAL",
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/aggregate/GATE_RESULTS.json@189dcfc09e74",
+        "research/project-audit/ws220/FINDINGS.json@189dcfc09e74"
+      ],
+      "gate": "G01",
+      "id": "FORGE-G01",
+      "kind": "TERMINAL",
+      "reason": "No sealed domain-freshness artifact. Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G02",
+      "id": "FORGE-G02",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G03",
+      "id": "FORGE-G03",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G04",
+      "id": "FORGE-G04",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G05",
+      "id": "FORGE-G05",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G06",
+      "id": "FORGE-G06",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G07",
+      "id": "FORGE-G07",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G08",
+      "id": "FORGE-G08",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G09",
+      "id": "FORGE-G09",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G10",
+      "id": "FORGE-G10",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": false,
+      "candidate": "forge",
+      "evidence": [],
+      "gate": "G11",
+      "id": "FORGE-G11",
+      "kind": "TERMINAL",
+      "reason": "No Lab-side runs at current Forge pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "G12",
+      "id": "FORGE-G12",
+      "kind": "TERMINAL",
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [],
+      "gate": "G13",
+      "id": "FORGE-G13",
+      "kind": "CONSEQUENCE",
+      "reason": "Computed rollup: not all G00-G12 PASS; admission blocked.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": false,
+      "candidate": "forge",
+      "evidence": [],
+      "gate": "AF01",
+      "id": "FORGE-AF01",
+      "kind": "TERMINAL",
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "AF02",
+      "id": "FORGE-AF02",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "gate": "AF03",
+      "id": "FORGE-AF03",
+      "kind": "TERMINAL",
+      "reason": "Seam-scoped authority proof is supporting, not satisfying, for the whole-engine gate.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74",
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "gate": "AF04",
+      "id": "FORGE-AF04",
+      "kind": "TERMINAL",
+      "reason": "Preserved direct failure: stock remote path contains prohibited defaults and is not a compliant external-pilot authority boundary (WS17 seal). WS217 divided seam is seam-scoped progress, not whole-boundary remediation.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "AF05",
+      "id": "FORGE-AF05",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "AF06",
+      "id": "FORGE-AF06",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "AF07",
+      "id": "FORGE-AF07",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "AF08",
+      "id": "FORGE-AF08",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "qualification/evidence/candidates/forge.json@189dcfc09e74"
+      ],
+      "gate": "AF09",
+      "id": "FORGE-AF09",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": false,
+      "candidate": "forge",
+      "evidence": [
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "gate": "AF10",
+      "id": "FORGE-AF10",
+      "kind": "TERMINAL",
+      "reason": "No Lab-side runs at current Forge pin; denominator accounting absent.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "forge",
+      "evidence": [
+        "forge-protocol2-bridge/ws217-evidence-seal.json@e152688a33bf"
+      ],
+      "gate": "AF11",
+      "id": "FORGE-AF11",
+      "kind": "TERMINAL",
+      "reason": "Separate-process boundary preserved as positive; gate needs declared production topology (same bar as XMage).",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/aggregate/GATE_RESULTS.json@189dcfc09e74",
+        "research/project-audit/ws220/FINDINGS.json@189dcfc09e74"
+      ],
+      "gate": "G01",
+      "id": "QUORUNE-G01",
+      "kind": "TERMINAL",
+      "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G02",
+      "id": "QUORUNE-G02",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G03",
+      "id": "QUORUNE-G03",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G04",
+      "id": "QUORUNE-G04",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G05",
+      "id": "QUORUNE-G05",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G06",
+      "id": "QUORUNE-G06",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G07",
+      "id": "QUORUNE-G07",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G08",
+      "id": "QUORUNE-G08",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G09",
+      "id": "QUORUNE-G09",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "G10",
+      "id": "QUORUNE-G10",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": false,
+      "candidate": "quorune",
+      "evidence": [],
+      "gate": "G11",
+      "id": "QUORUNE-G11",
+      "kind": "TERMINAL",
+      "reason": "No runs at this pin; reliability unobserved.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [],
+      "gate": "G12",
+      "id": "QUORUNE-G12",
+      "kind": "TERMINAL",
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [],
+      "gate": "G13",
+      "id": "QUORUNE-G13",
+      "kind": "CONSEQUENCE",
+      "reason": "Computed rollup: not all G00-G12 PASS; admission blocked.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": false,
+      "candidate": "quorune",
+      "evidence": [],
+      "gate": "AF01",
+      "id": "QUORUNE-AF01",
+      "kind": "TERMINAL",
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "AF02",
+      "id": "QUORUNE-AF02",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "research/candidate-freshness/ws219/QUORUNE_ADMISSION.md@077c836d27dd"
+      ],
+      "gate": "AF03",
+      "id": "QUORUNE-AF03",
+      "kind": "TERMINAL",
+      "reason": "Authority design credible but runtime authority unproven; fail closed.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "AF04",
+      "id": "QUORUNE-AF04",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "AF05",
+      "id": "QUORUNE-AF05",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "AF06",
+      "id": "QUORUNE-AF06",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "AF07",
+      "id": "QUORUNE-AF07",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "AF08",
+      "id": "QUORUNE-AF08",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "qualification/evidence/BASELINE_COMMON_RESULTS.json@189dcfc09e74"
+      ],
+      "gate": "AF09",
+      "id": "QUORUNE-AF09",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": false,
+      "candidate": "quorune",
+      "evidence": [],
+      "gate": "AF10",
+      "id": "QUORUNE-AF10",
+      "kind": "TERMINAL",
+      "reason": "No runs at this pin (0/175 by early-stop design); no accounting to verify.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "quorune",
+      "evidence": [
+        "research/candidate-freshness/ws219/QUORUNE_ADMISSION.md@077c836d27dd"
+      ],
+      "gate": "AF11",
+      "id": "QUORUNE-AF11",
+      "kind": "TERMINAL",
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/aggregate/GATE_RESULTS.json@189dcfc09e74",
+        "research/project-audit/ws220/FINDINGS.json@189dcfc09e74"
+      ],
+      "gate": "G01",
+      "id": "ARGENTUM-G01",
+      "kind": "TERMINAL",
+      "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G02",
+      "id": "ARGENTUM-G02",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G03",
+      "id": "ARGENTUM-G03",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G04",
+      "id": "ARGENTUM-G04",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G05",
+      "id": "ARGENTUM-G05",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G06",
+      "id": "ARGENTUM-G06",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G07",
+      "id": "ARGENTUM-G07",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G08",
+      "id": "ARGENTUM-G08",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G09",
+      "id": "ARGENTUM-G09",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "G10",
+      "id": "ARGENTUM-G10",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": false,
+      "candidate": "argentum",
+      "evidence": [],
+      "gate": "G11",
+      "id": "ARGENTUM-G11",
+      "kind": "TERMINAL",
+      "reason": "No runs at this pin; reliability unobserved.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [],
+      "gate": "G12",
+      "id": "ARGENTUM-G12",
+      "kind": "TERMINAL",
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [],
+      "gate": "G13",
+      "id": "ARGENTUM-G13",
+      "kind": "CONSEQUENCE",
+      "reason": "Computed rollup: not all G00-G12 PASS; admission blocked.",
+      "verdict": "FAIL"
+    },
+    {
+      "blocked": false,
+      "candidate": "argentum",
+      "evidence": [],
+      "gate": "AF01",
+      "id": "ARGENTUM-AF01",
+      "kind": "TERMINAL",
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "AF02",
+      "id": "ARGENTUM-AF02",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md@077c836d27dd"
+      ],
+      "gate": "AF03",
+      "id": "ARGENTUM-AF03",
+      "kind": "TERMINAL",
+      "reason": "Authority design credible but runtime authority unproven; fail closed.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "AF04",
+      "id": "ARGENTUM-AF04",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "AF05",
+      "id": "ARGENTUM-AF05",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "AF06",
+      "id": "ARGENTUM-AF06",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "AF07",
+      "id": "ARGENTUM-AF07",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "AF08",
+      "id": "ARGENTUM-AF08",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "qualification/evidence/candidates/argentum.json@189dcfc09e74"
+      ],
+      "gate": "AF09",
+      "id": "ARGENTUM-AF09",
+      "kind": "TERMINAL",
+      "reason": "Required runtime not executed at candidate pin.",
+      "verdict": "NOT_RUN"
+    },
+    {
+      "blocked": false,
+      "candidate": "argentum",
+      "evidence": [],
+      "gate": "AF10",
+      "id": "ARGENTUM-AF10",
+      "kind": "TERMINAL",
+      "reason": "No runs at this pin (0/175 by early-stop design); no accounting to verify.",
+      "verdict": "UNKNOWN"
+    },
+    {
+      "blocked": true,
+      "candidate": "argentum",
+      "evidence": [
+        "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md@077c836d27dd"
+      ],
+      "gate": "AF11",
+      "id": "ARGENTUM-AF11",
+      "kind": "TERMINAL",
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    }
+  ],
+  "schema_version": "ws225-open-blockers/1.0.0"
+}

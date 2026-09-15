@@ -1,0 +1,2730 @@
+{
+  "argentum": {},
+  "derivation": "Built from qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json (sha16 e35f041c9de6d419) + WS218 seal pointers; every row carries provenance + impact disposition + WS225 retention predicate. Generator-owned mapping layer: auditable, recomputable, never hand-edited PASS truth.",
+  "forge": {},
+  "quorune": {},
+  "retention_predicates": {
+    "WS225_RETAIN_XMAGE_WS215": "Engine pin db134b9737e951367d65ef5806ad986319cc73ab unchanged; engine-bridge/ zero diff 67db0733..189dcfc0; sole src change is robustness.py lane message text (no Rules/pilot behavior); WS221 governance-only (VALIDATION: behavior_credit 0, ws218/s5 surfaces unmodified)."
+  },
+  "schema_version": "ws225-evidence-overrides/1.0.0",
+  "xmage": {
+    "CARD_01": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_02": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_03": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_04": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_05": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_06": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_07": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_08": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_09": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_10": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_11": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_12": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_13": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_14": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_15": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_16": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_17": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_18": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_19": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_20": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_21": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_22": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_23": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_24": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_25": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_26": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_27": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_28": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "CARD_29": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Caveat (non-demoting): target-tiebreak determinism repair TD01 may alter exact-score tie selections; full behavior requalification belongs to a behavior successor.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine pin unchanged, implementations untouched",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_01": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_02": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_03": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_04": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_05": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_06": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_07": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_08": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_09": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_10": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_11": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_12": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_13": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_14": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_15": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_16": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_17": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_18": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_19": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "HIDDEN_HONEYCARD_SENTINEL": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "F-HIDE-02 oracle hardening recorded as improvement note; sealed rows stand.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/HIDDEN_INFO_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 hidden-info suite rerun PASS",
+          "sha16": "1bc94ee79cc48cc3"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_COMBAT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_CONTINUOUS_EFFECTS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_CONTROL": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_COPY": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_COSTS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Fresh WS215 suite rerun.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row (mana/target-adjacent suite rerun)",
+          "sha16": "e35f041c9de6d419"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "bridge 121/121 PASS",
+          "sha16": "22b36d134bd6cd2d"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_LAYERS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_MANA_PAYMENT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Fresh WS215 suite rerun.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row (mana/target-adjacent suite rerun)",
+          "sha16": "e35f041c9de6d419"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "bridge 121/121 PASS",
+          "sha16": "22b36d134bd6cd2d"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_MODES": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_PREVENTION": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_PRIORITY": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Fresh WS215 suite rerun.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row (mana/target-adjacent suite rerun)",
+          "sha16": "e35f041c9de6d419"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "bridge 121/121 PASS",
+          "sha16": "22b36d134bd6cd2d"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_REPLACEMENT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_RULES_RANDOMNESS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_STACK": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_STATE_BASED_ACTIONS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_TARGETS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Fresh WS215 suite rerun.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row (mana/target-adjacent suite rerun)",
+          "sha16": "e35f041c9de6d419"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/VALIDATION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "bridge 121/121 PASS",
+          "sha16": "22b36d134bd6cd2d"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_TRIGGERS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "MICRO_ZONE_CHANGES": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Historical PASS retained via WS215 impact adjudication + WS225 predicate.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RETAINED row: engine-owned semantics, byte-identical Lab paths",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "NEGATIVE_DEFAULT_YES_NO": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "NEGATIVE_FIRST_OPTION": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "NEGATIVE_GUI_DEFAULT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "NEGATIVE_INTERNAL_AI": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "NEGATIVE_PARENT_CLASS_FALLBACK": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "NEGATIVE_RANDOM_OPTION": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "NEGATIVE_SILENT_SKIP": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_ANNOUNCE_X": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_CHOICE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_CHOOSE_ABILITY": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_CHOOSE_MODE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_CHOOSE_OBJECT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_CHOOSE_USE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_DECLARE_ATTACKER": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_DECLARE_BLOCKER": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_MANA_PAYMENT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_MULLIGAN": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_MULTI_AMOUNT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_PILE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_PRIORITY": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_REPLACEMENT_EFFECT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_TARGET": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_TARGET_AMOUNT": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PILOT_TRIGGER_ORDER": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Discretionary family uses provider legal options, fail closed.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "engine-bridge 117/117 + variable-player 32/32 + decision-matrix 26/26",
+          "sha16": "c1ebb5574eeed434"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PLAYER_COUNT_2P": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Technical cardinality PASS consumed per WS225 source lock.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_2P.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 lifecycle + twin PASS",
+          "sha16": "7ba6705b99d55e7a"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PLAYER_COUNT_3P": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Technical cardinality PASS consumed per WS225 source lock.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_3P.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 lifecycle + twin PASS",
+          "sha16": "a501b22ccfc8f118"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PLAYER_COUNT_4P": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Technical cardinality PASS consumed per WS225 source lock.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_4P.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 lifecycle + twin PASS",
+          "sha16": "c96a20c33c1d9597"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "PLAYER_COUNT_5P": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Technical cardinality PASS consumed per WS225 source lock.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_COUNT_5P.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 lifecycle + twin PASS",
+          "sha16": "a64187b3257b0234"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "REPLAY_CLEAN_PROCESS": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "provenance": [
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "WS218 seal: dual B+C replay PASS all counts; 19/19 tamper fail-closed (cross-branch sealed pointer)",
+          "sha16": "a51f7dc5b0dce6fe"
+        },
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "tape-lane scope: Lions production-lane sessions 2P-5P; 5P combat/commander absent in window (honest bound)",
+          "sha16": "c55d1de30fc799ca"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "REPLAY_DECISION_TAPE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "provenance": [
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "WS218 seal: dual B+C replay PASS all counts; 19/19 tamper fail-closed (cross-branch sealed pointer)",
+          "sha16": "a51f7dc5b0dce6fe"
+        },
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "tape-lane scope: Lions production-lane sessions 2P-5P; 5P combat/commander absent in window (honest bound)",
+          "sha16": "c55d1de30fc799ca"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "REPLAY_EVENT_TAPE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "provenance": [
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "WS218 seal: dual B+C replay PASS all counts; 19/19 tamper fail-closed (cross-branch sealed pointer)",
+          "sha16": "a51f7dc5b0dce6fe"
+        },
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "tape-lane scope: Lions production-lane sessions 2P-5P; 5P combat/commander absent in window (honest bound)",
+          "sha16": "c55d1de30fc799ca"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "REPLAY_STATE_HASHES": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "provenance": [
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "WS218 seal: dual B+C replay PASS all counts; 19/19 tamper fail-closed (cross-branch sealed pointer)",
+          "sha16": "a51f7dc5b0dce6fe"
+        },
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "tape-lane scope: Lions production-lane sessions 2P-5P; 5P combat/commander absent in window (honest bound)",
+          "sha16": "c55d1de30fc799ca"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "RNG_RULES_TAPE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "Tape-lane proof; campaign-scale replay stays with G14 (NOT_APPLICABLE).",
+      "provenance": [
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/VALIDATION.json",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "WS218 seal: dual B+C replay PASS all counts; 19/19 tamper fail-closed (cross-branch sealed pointer)",
+          "sha16": "a51f7dc5b0dce6fe"
+        },
+        {
+          "artifact": "qualification/ws218-semantic-replay-tape-v1/POSITIVE_REPLAY.md",
+          "commit": "3cdade1dfb16c820465690680b0b0be8af7007ef",
+          "note": "tape-lane scope: Lions production-lane sessions 2P-5P; 5P combat/commander absent in window (honest bound)",
+          "sha16": "c55d1de30fc799ca"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-DMG-CONTROL": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "e4bdd8fa7d36a6bd"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-DMG-SAME-21": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "e4bdd8fa7d36a6bd"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-DMG-SPLIT": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_DAMAGE.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "e4bdd8fa7d36a6bd"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-ELIM-4": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "c4732b36f53dec30"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-MULL-2": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_MULLIGAN.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "b6c06668644238ba"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-MULL-4": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_MULLIGAN.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "b6c06668644238ba"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-PARTNER-DMG": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_PARTNER.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "6e78d3aef5434e34"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-PARTNER-TAX": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_PARTNER.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "6e78d3aef5434e34"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-PARTNER-ZONE": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_PARTNER.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "6e78d3aef5434e34"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-START-2": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_START_DRAW.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "4e15471835e97852"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-START-3": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_START_DRAW.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "4e15471835e97852"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-TAX-2": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_TAX.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "a149818e4790bf7c"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-TAX-4": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_TAX.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "a149818e4790bf7c"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-ZONE-EXILE-NO": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-ZONE-EXILE-YES": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-ZONE-GY-NO": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-ZONE-GY-YES": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-CMD-ZONE-HAND-NO": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-ZONE-HAND-YES": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-ZONE-LIB-NO": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-CMD-ZONE-LIB-YES": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMANDER_ZONE_CHOICES.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "951c99245d37f4c1"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-MP-BLOCK-4": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_COMBAT.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "a9123df484b6113e"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-COMBAT-4": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_COMBAT.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "a9123df484b6113e"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-COMBAT-5": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_COMBAT.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "a9123df484b6113e"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-ELIM-5": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "c4732b36f53dec30"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-ELIM-CONTROL-3": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "c4732b36f53dec30"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-MP-ELIM-OWNED-3": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "c4732b36f53dec30"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-ELIM-PRIO-3": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "c4732b36f53dec30"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-ELIM-STACK-3": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "c4732b36f53dec30"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-ELIM-TURN-3": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PLAYER_ELIMINATION_CR800_4.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "c4732b36f53dec30"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-PRIO-3": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_PRIORITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "37f40de912d0c570"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-PRIO-5": {
+      "current": true,
+      "evidence_class": "RUNTIME_VERIFIED",
+      "impact_disposition": "RETAINED_AFTER_IMPACT_ADJUDICATION",
+      "note": "WS05 MUST row observed in bounded WS215 windows.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_PRIORITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 family runtime PASS",
+          "sha16": "37f40de912d0c570"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "RERUN_REQUIRED PASS row",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "PASS"
+    },
+    "WS05-MP-TRIG-3": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "8e386ef2105a8f40"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-MP-TRIG-5": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_APNAP.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "8e386ef2105a8f40"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-MP-TURN-3": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "776455031ede8a15"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    },
+    "WS05-MP-TURN-5": {
+      "current": true,
+      "evidence_class": "UNKNOWN",
+      "impact_disposition": "UNKNOWN_PRESERVED",
+      "note": "Preserved UNKNOWN blocks G10/AF08 by fail-closed rollup.",
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/MULTIPLAYER_EXTRA_TURNS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "WS215 per-family exact cause",
+          "sha16": "776455031ede8a15"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "UNKNOWN row: not observed in bounded windows; mechanism engine-owned",
+          "sha16": "e35f041c9de6d419"
+        }
+      ],
+      "retention_predicate": "WS225_RETAIN_XMAGE_WS215",
+      "verdict": "UNKNOWN"
+    }
+  }
+}

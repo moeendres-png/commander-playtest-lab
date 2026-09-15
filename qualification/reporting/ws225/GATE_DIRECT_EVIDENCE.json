@@ -1,0 +1,596 @@
+{
+  "argentum": {
+    "AF00": {
+      "current": true,
+      "evidence_classes": [
+        "DIRECTLY_VERIFIED"
+      ],
+      "provenance": [
+        {
+          "artifact": "research/candidate-freshness/ws219/SOURCE_LOCK.json",
+          "commit": "077c836d27dd22f359c217d65dc6f300c41b65dc",
+          "note": "argentum 3f46367d / tree 2adf51ca, MIT license blob 95b0f7d5 (cross-branch sealed pointer)"
+        }
+      ],
+      "reason": "Exact source/build/license identity reproduced in WS219 seal.",
+      "verdict": "PASS"
+    },
+    "AF01": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    "AF03": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md",
+          "commit": "077c836d27dd22f359c217d65dc6f300c41b65dc",
+          "note": "Sole ActionProcessor authority credible as DESIGN (CODE_DERIVED); insufficient for runtime authority gate."
+        }
+      ],
+      "reason": "Authority design credible but runtime authority unproven; fail closed.",
+      "verdict": "UNKNOWN"
+    },
+    "AF10": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No runs at this pin (0/175 by early-stop design); no accounting to verify.",
+      "verdict": "UNKNOWN"
+    },
+    "AF11": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "research/candidate-freshness/ws219/ARGENTUM_ADMISSION.md",
+          "commit": "077c836d27dd22f359c217d65dc6f300c41b65dc",
+          "note": "Permissive MIT + service topology credible as design; production topology unselected."
+        }
+      ],
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    },
+    "G00": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/reporting/ws225/SOURCE_LOCK.json",
+          "commit": "LOCAL",
+          "note": "Lab audit base 189dcfc0 exact (this workstream)."
+        }
+      ],
+      "reason": "Lab-side identity exact on WS225 source lock.",
+      "verdict": "PASS"
+    },
+    "G01": {
+      "blocked": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "qualification/aggregate/GATE_RESULTS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Historical G01=FAIL row (provenance only, not credit)."
+        },
+        {
+          "artifact": "research/project-audit/ws220/FINDINGS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "F-QUAL-02: no sealed domain-freshness artifact; re-confirms the FAIL is still true."
+        }
+      ],
+      "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    "G11": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No runs at this pin; reliability unobserved.",
+      "verdict": "NOT_RUN"
+    },
+    "G12": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    "G13": {
+      "computed": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "Computed: not all G00-G12 PASS.",
+      "verdict": "FAIL"
+    },
+    "G14": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "No frozen campaign contract active.",
+      "verdict": "NOT_APPLICABLE"
+    },
+    "G15": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "Holdout disabled (no campaign contract).",
+      "verdict": "NOT_APPLICABLE"
+    }
+  },
+  "forge": {
+    "AF00": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED",
+        "DIRECTLY_VERIFIED"
+      ],
+      "provenance": [
+        {
+          "artifact": "forge-protocol2-bridge/ws217-lab-successor-spec.json",
+          "commit": "e152688a33bf69a840b74ae86149d881e64538ec",
+          "note": "candidate_head ba3a7f0d, divided core c4d67145/tree 09585e30 (external reference pointer)"
+        }
+      ],
+      "reason": "Exact Forge source identities reproduced in WS217 seal.",
+      "verdict": "PASS"
+    },
+    "AF01": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    "AF03": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "forge-protocol2-bridge/ws217-evidence-seal.json",
+          "commit": "e152688a33bf69a840b74ae86149d881e64538ec",
+          "note": "no_bridge_legality + no_ai_authority PASS is seam-scoped (divided allocation only); whole-engine authority not requalified at WS217 pin."
+        }
+      ],
+      "reason": "Seam-scoped authority proof is supporting, not satisfying, for the whole-engine gate.",
+      "verdict": "UNKNOWN"
+    },
+    "AF04": {
+      "current": true,
+      "evidence_classes": [
+        "DIRECT_CODE_FAIL"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/evidence/candidates/forge.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "direct_failures + AF04 FAIL (diagnostic pointer, failure preserved)"
+        },
+        {
+          "artifact": "forge-protocol2-bridge/ws217-evidence-seal.json",
+          "commit": "e152688a33bf69a840b74ae86149d881e64538ec",
+          "note": "divided seam PASS is seam-scoped; stock path unremediated (external reference pointer)"
+        }
+      ],
+      "reason": "Preserved direct failure: stock remote path contains prohibited defaults and is not a compliant external-pilot authority boundary (WS17 seal). WS217 divided seam is seam-scoped progress, not whole-boundary remediation.",
+      "verdict": "FAIL"
+    },
+    "AF10": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "forge-protocol2-bridge/ws217-evidence-seal.json",
+          "commit": "e152688a33bf69a840b74ae86149d881e64538ec",
+          "note": "WS217 module tests ran clean but seam-scoped; no Lab-side denominator accounting at new pin."
+        }
+      ],
+      "reason": "No Lab-side runs at current Forge pin; denominator accounting absent.",
+      "verdict": "UNKNOWN"
+    },
+    "AF11": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "forge-protocol2-bridge/ws217-evidence-seal.json",
+          "commit": "e152688a33bf69a840b74ae86149d881e64538ec",
+          "note": "WS217SeparateProcessTest: genuine separate-process boundary proven for the divided seam (supporting, not satisfying: production topology unselected)."
+        }
+      ],
+      "reason": "Separate-process boundary preserved as positive; gate needs declared production topology (same bar as XMage).",
+      "verdict": "UNKNOWN"
+    },
+    "G00": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/reporting/ws225/SOURCE_LOCK.json",
+          "commit": "LOCAL",
+          "note": "Lab audit base 189dcfc0 exact (this workstream)."
+        }
+      ],
+      "reason": "Lab-side identity exact on WS225 source lock.",
+      "verdict": "PASS"
+    },
+    "G01": {
+      "blocked": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "qualification/aggregate/GATE_RESULTS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Historical G01=FAIL row (provenance only)."
+        },
+        {
+          "artifact": "research/project-audit/ws220/FINDINGS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "F-QUAL-02 re-confirms absence."
+        }
+      ],
+      "reason": "No sealed domain-freshness artifact. Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    "G11": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No Lab-side runs at current Forge pin.",
+      "verdict": "NOT_RUN"
+    },
+    "G12": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "qualification/evidence/candidates/forge.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Preserved direct failure: stock remote path prohibited defaults; no compliant provider (diagnostic pointer)."
+        }
+      ],
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    "G13": {
+      "computed": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "Computed: not all G00-G12 PASS.",
+      "verdict": "FAIL"
+    },
+    "G14": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "No frozen campaign contract active.",
+      "verdict": "NOT_APPLICABLE"
+    },
+    "G15": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "Holdout disabled (no campaign contract).",
+      "verdict": "NOT_APPLICABLE"
+    }
+  },
+  "quorune": {
+    "AF00": {
+      "current": true,
+      "evidence_classes": [
+        "DIRECTLY_VERIFIED"
+      ],
+      "provenance": [
+        {
+          "artifact": "research/candidate-freshness/ws219/SOURCE_LOCK.json",
+          "commit": "077c836d27dd22f359c217d65dc6f300c41b65dc",
+          "note": "quorune 64ef6569 / tree 3dbb9619, Apache-2.0 blob 9e6da557 (cross-branch sealed pointer)"
+        }
+      ],
+      "reason": "Exact source/build/license identity reproduced in WS219 seal.",
+      "verdict": "PASS"
+    },
+    "AF01": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    "AF03": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "research/candidate-freshness/ws219/QUORUNE_ADMISSION.md",
+          "commit": "077c836d27dd22f359c217d65dc6f300c41b65dc",
+          "note": "Sole Rules authority + fail-closed preflight credible as DESIGN (CODE_DERIVED); insufficient for runtime authority gate."
+        }
+      ],
+      "reason": "Authority design credible but runtime authority unproven; fail closed.",
+      "verdict": "UNKNOWN"
+    },
+    "AF10": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No runs at this pin (0/175 by early-stop design); no accounting to verify.",
+      "verdict": "UNKNOWN"
+    },
+    "AF11": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "research/candidate-freshness/ws219/QUORUNE_ADMISSION.md",
+          "commit": "077c836d27dd22f359c217d65dc6f300c41b65dc",
+          "note": "Permissive Apache-2.0 + service topology credible as design; production topology unselected."
+        }
+      ],
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    },
+    "G00": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/reporting/ws225/SOURCE_LOCK.json",
+          "commit": "LOCAL",
+          "note": "Lab audit base 189dcfc0 exact (this workstream)."
+        }
+      ],
+      "reason": "Lab-side identity exact on WS225 source lock.",
+      "verdict": "PASS"
+    },
+    "G01": {
+      "blocked": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "qualification/aggregate/GATE_RESULTS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Historical G01=FAIL row (provenance only, not credit)."
+        },
+        {
+          "artifact": "research/project-audit/ws220/FINDINGS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "F-QUAL-02: no sealed domain-freshness artifact; re-confirms the FAIL is still true."
+        }
+      ],
+      "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    "G11": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No runs at this pin; reliability unobserved.",
+      "verdict": "NOT_RUN"
+    },
+    "G12": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No compliant provider; actual topology unselected.",
+      "verdict": "UNKNOWN"
+    },
+    "G13": {
+      "computed": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "Computed: not all G00-G12 PASS.",
+      "verdict": "FAIL"
+    },
+    "G14": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "No frozen campaign contract active.",
+      "verdict": "NOT_APPLICABLE"
+    },
+    "G15": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "Holdout disabled (no campaign contract).",
+      "verdict": "NOT_APPLICABLE"
+    }
+  },
+  "schema_version": "ws225-gate-direct-evidence/1.0.0",
+  "xmage": {
+    "AF00": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED",
+        "DIRECTLY_VERIFIED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/SOURCE_LOCK.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "XMage production pin db134b97 v1.4.61"
+        },
+        {
+          "artifact": "qualification/evidence/candidates/xmage.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "MIT license blob 3575e469 (diagnostic pointer; identity reproduced)"
+        }
+      ],
+      "reason": "Exact provider source/build/license identity reproducible at pinned engine.",
+      "verdict": "PASS"
+    },
+    "AF01": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "No RSP 1.1 handshake runtime exists at this lock.",
+      "verdict": "UNKNOWN"
+    },
+    "AF03": {
+      "current": true,
+      "evidence_classes": [
+        "TECHNICALLY_CONFORMANT",
+        "RUNTIME_VERIFIED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/ws213-xmage-consolidated-requalification/D1_D5.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "D1-D5 decision-row authority PASS (TECHNICALLY_CONFORMANT binding)"
+        },
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/PILOT_BOUNDARY_CARDINALITY.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "17 discretionary families + 7 negatives: provider legal options only, fail closed (RUNTIME_VERIFIED)"
+        }
+      ],
+      "reason": "Rules Core sole authority demonstrated behaviorally on the XMage lane.",
+      "verdict": "PASS"
+    },
+    "AF10": {
+      "current": true,
+      "evidence_classes": [
+        "RUNTIME_VERIFIED",
+        "DIRECTLY_VERIFIED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Denominator-complete accounting 135/135; matrix lifecycles + twins ran clean (no crash/hang/timeout/desync)"
+        },
+        {
+          "artifact": "qualification/ws221-foundation-integrity-source-truth/VALIDATION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Integrity validation: hash coverage EXACT, mismatch rejected"
+        }
+      ],
+      "reason": "Clean runs plus complete accounting plus integrity validation.",
+      "verdict": "PASS"
+    },
+    "AF11": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/CAPABILITY_TRUTH.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "In-process full-game lane capability record (supporting only: production topology unselected)."
+        }
+      ],
+      "reason": "Production topology unselected; same bar as every candidate.",
+      "verdict": "UNKNOWN"
+    },
+    "G00": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/reporting/ws225/SOURCE_LOCK.json",
+          "commit": "LOCAL",
+          "note": "Lab audit base 189dcfc0 exact (this workstream)."
+        }
+      ],
+      "reason": "Lab-side identity exact on WS225 source lock.",
+      "verdict": "PASS"
+    },
+    "G01": {
+      "blocked": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [
+        {
+          "artifact": "qualification/aggregate/GATE_RESULTS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Historical G01=FAIL row (provenance only, not credit)."
+        },
+        {
+          "artifact": "research/project-audit/ws220/FINDINGS.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "F-QUAL-02: no sealed domain-freshness artifact; re-confirms the FAIL is still true."
+        }
+      ],
+      "reason": "No sealed domain-freshness artifact (current CR/Oracle/Commander-B&R + legality + provenance). Owned by WS222.",
+      "verdict": "FAIL"
+    },
+    "G11": {
+      "current": true,
+      "evidence_classes": [
+        "RUNTIME_VERIFIED"
+      ],
+      "provenance": [
+        {
+          "artifact": "qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json",
+          "commit": "189dcfc09e74bebbf22172e709b459428b25d583",
+          "note": "Matrix lifecycles + fresh-JVM twins ran clean under frozen policy (no crash/hang/timeout/desync/corruption)."
+        }
+      ],
+      "reason": "Clean runtime record on the XMage lane.",
+      "verdict": "PASS"
+    },
+    "G12": {
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "Actual integration/distribution topology unselected; interop for the real model unproven.",
+      "verdict": "UNKNOWN"
+    },
+    "G13": {
+      "computed": true,
+      "current": true,
+      "evidence_classes": [],
+      "provenance": [],
+      "reason": "Computed: not all G00-G12 PASS.",
+      "verdict": "FAIL"
+    },
+    "G14": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "No frozen campaign contract active.",
+      "verdict": "NOT_APPLICABLE"
+    },
+    "G15": {
+      "current": true,
+      "evidence_classes": [
+        "SOURCE_DERIVED"
+      ],
+      "provenance": [],
+      "reason": "Holdout disabled (no campaign contract).",
+      "verdict": "NOT_APPLICABLE"
+    }
+  }
+}

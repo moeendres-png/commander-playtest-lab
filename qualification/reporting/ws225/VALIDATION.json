@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "check": "135-fixture denominator intact and all mandatory",
+      "status": "PASS"
+    },
+    {
+      "check": "fixture rows use controlled 7-term verdicts only",
+      "status": "PASS"
+    },
+    {
+      "check": "gate verdicts use controlled 7-term verdicts only (BLOCKED is a flag, not a verdict)",
+      "status": "PASS"
+    },
+    {
+      "check": "every G/AF gate has >=1 mandatory joined item",
+      "status": "PASS"
+    },
+    {
+      "check": "no generated freeze eligibility (all false)",
+      "status": "PASS"
+    },
+    {
+      "check": "WS219 dry-run rejects both current pins",
+      "status": "PASS"
+    },
+    {
+      "check": "generator determinism digest recorded",
+      "status": "PASS"
+    }
+  ],
+  "generator_digest": "fe70f6e7f9ea5f5774257f5e7269fc864f3f434df2cd4854815d2f042020f2b4",
+  "outputs_digest": "cd9a36407830a1b9aae7b70cf163f2127902a63e4563d43a8df35d2cbe2eebd1",
+  "row_count": 652,
+  "schema_version": "ws225-validation/1.0.0"
+}
