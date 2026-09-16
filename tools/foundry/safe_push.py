@@ -9,7 +9,14 @@ Fail-closed preconditions, in order:
 1. state file parses and validates (schema 2.0 required);
 2. expected branch is not protected (main/master/HEAD) and is ref-format clean
    (rejects `-`, `:`, whitespace, `..`, `~^:?*[` injection shapes);
-3. remote identity contains the expected slug (raw URLs never printed);
+3. remote identity (WS241): the configured fetch URL AND the effective
+   push URL (Git-expanded via ``git remote get-url --push --all``) must each
+   be exactly one record designating exactly the expected owner/repo. Any
+   ``remote.<name>.pushurl`` divergence, ``url.*.pushInsteadOf`` /
+   ``url.*.insteadOf`` rewrite (any scope, including environment), zero or
+   multiple fetch/push URL records, or non-exact slug match fails closed.
+   Substring matching is never used; raw URLs, credentials, and remote
+   command output never enter diagnostics;
 4. current branch triple-matches (live == expected == state), no detached HEAD;
 5. exactly one worktree owns the branch and it is this worktree;
 6. writer lock is currently HELD (flock probe must fail) by a recorded holder
@@ -26,10 +33,16 @@ Fail-closed preconditions, in order:
     refs/heads/<name> on the already-validated expected remote); present ->
     fast-forward only (remote SHA must be a strict ancestor of HEAD);
     equal -> UP_TO_DATE no-op success;
-11. push exactly ``HEAD:refs/heads/<branch>`` to the named remote.
+11. re-verify the effective push target immediately before the write,
+    then push exactly ``HEAD:refs/heads/<branch>`` to the named remote.
+    (Residual threat, stated accurately: configuration could still change in
+    the instant between the final re-check and the push exec; the window is
+    narrowed to that instant, never to the earlier dry-run.)
 
 Exit codes: 0 PUSHED / UP_TO_DATE / DRY_RUN_OK; 2 PUSH_REJECT with reason.
-Nothing credential-bearing is ever printed (remote URLs redacted, env untouched).
+Nothing credential-bearing is ever printed (no raw URLs, no userinfo, no
+remote command output, env untouched; rewrite/multiplicity diagnostics carry
+counts only).
 """
 
 from __future__ import annotations
@@ -45,6 +58,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import fcntl
 
+import source_lock as source_lock_mod
 import state as state_mod
 import writer_lock as writer_lock_mod
 
@@ -62,6 +76,168 @@ def _run(args: list[str], cwd: str) -> str:
 def _redact_url(url: str) -> str:
     """Strip userinfo (credentials) for any diagnostic output."""
     return re.sub(r"^(https?://)[^/@]+@", r"\1<redacted>@", url)
+
+
+def _config_records(workdir: str, key: str) -> list[str]:
+    """Return every value record for an exact git config key (possibly empty).
+
+    NUL-delimited read so blank or whitespace-only records survive as
+    distinct entries. An unset key yields ``[]``; unreadable configuration,
+    undecodable bytes, or a key outside the ``remote.<name>.url|pushurl``
+    allowlist raises. Never echoes values: callers report counts only.
+    """
+    if not re.fullmatch(r"remote\.[A-Za-z0-9][A-Za-z0-9._-]*\.(url|pushurl)", key):
+        raise RuntimeError("config key outside the remote url/pushurl allowlist")
+    try:
+        proc = subprocess.run(
+            ["git", "config", "--null", "--get-all", key],
+            cwd=workdir,
+            capture_output=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError("Git evidence unavailable") from exc
+    if proc.returncode == 1 and not proc.stdout:
+        return []
+    if proc.returncode != 0:
+        raise RuntimeError("Git evidence command failed")
+    parts = proc.stdout.split(b"\x00")
+    if parts and parts[-1] == b"":
+        parts = parts[:-1]
+    try:
+        return [part.decode("utf-8") for part in parts]
+    except UnicodeDecodeError as exc:
+        raise RuntimeError("Git evidence unavailable") from exc
+
+
+def _no_push_rewrites(workdir: str, env: dict[str, str]) -> bool:
+    """True only when no url.*.insteadOf/pushInsteadOf rewrite exists.
+
+    Inspects rewrite presence across all scopes (local, global, system, and
+    ``GIT_CONFIG_*`` environment overrides) without reading config values or
+    credential-bearing keys. Present-or-unreadable fails closed at the call
+    site. Mirrors the source-lock P1 rewrite guard, extended to the
+    push-only ``pushInsteadOf`` variant that ``git push`` (but not
+    ``git fetch``) honors.
+    """
+    proc = subprocess.run(
+        ["git", "config", "--name-only", "--get-regexp", r"^url\..*\.(insteadof|pushinsteadof)$"],
+        cwd=workdir,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+        timeout=30,
+    )
+    return proc.returncode == 1  # 0 means a rewrite exists; other failures are unknown.
+
+
+def _is_expected_target(url: str, expected_slug: str) -> bool:
+    """Exact owner/repo identity for one push/fetch URL (no substring match).
+
+    GitHub HTTPS and standard git-user SSH forms delegate to the canonical
+    ``source_lock.is_canonical_remote`` exact identity, so CPL and Forge
+    slugs share one identity semantic. Local ``file://`` / plain-path URLs
+    (hermetic fixtures) match only when the path, stripped of one trailing
+    ``.git`` and trailing slashes, equals the slug or ends at a ``/``
+    boundary with the slug — so ``.../fixture-repo-evil(.git)`` never matches
+    ``test-host/fixture-repo``. Any other scheme never matches.
+    """
+    if not re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+", expected_slug):
+        return False
+    if any(p in {".", ".."} for p in expected_slug.split("/")):
+        return False
+    if not url or any(ord(c) <= 32 or ord(c) == 127 for c in url):
+        return False
+    if source_lock_mod.is_canonical_remote(url, expected_slug):
+        return True
+    if url.startswith("file://"):
+        path = url[len("file://") :]
+    elif "://" in url:
+        return False
+    else:
+        path = url
+    path = path.rstrip("/")
+    if path.endswith(".git"):
+        path = path[: -len(".git")].rstrip("/")
+    return path == expected_slug or path.endswith("/" + expected_slug)
+
+
+def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | None:
+    """None when the effective push destination is exactly the expected slug.
+
+    Checks, in order: remote-name shape; exactly one configured fetch URL
+    record with exact slug identity; no active insteadOf/pushInsteadOf
+    rewrite in any scope; at most one pushurl record; exactly one
+    Git-expanded effective push URL (``git remote get-url --push --all``,
+    which honors pushurl and both rewrite kinds) with exact slug identity,
+    bracketed by a rewrite re-check. Returns a fail-closed reason carrying
+    counts and static text only — never URLs, userinfo, or command output.
+    """
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", remote):
+        return f"invalid remote name {remote!r}"
+    try:
+        fetch_records = source_lock_mod.remote_url_records(workdir, remote)
+    except RuntimeError:
+        return f"remote {remote!r} has no readable URL identity (want exactly one URL)"
+    if len(fetch_records) != 1:
+        return (
+            f"ambiguous remote identity: remote {remote!r} has "
+            f"{len(fetch_records)} URL records (want exactly 1)"
+        )
+    if not _is_expected_target(fetch_records[0], expected_slug):
+        return f"WRONG_REMOTE: remote {remote!r} fetch identity is not the expected slug"
+    env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
+    try:
+        rewrites_clean = _no_push_rewrites(workdir, env)
+    except (OSError, subprocess.TimeoutExpired):
+        rewrites_clean = False
+    if not rewrites_clean:
+        return (
+            "EFFECTIVE_URL_REWRITE: Git URL rewrite configuration present or "
+            "unreadable; effective push target cannot PASS"
+        )
+    try:
+        pushurl_records = _config_records(workdir, f"remote.{remote}.pushurl")
+    except RuntimeError:
+        return f"remote {remote!r} push identity unreadable (refusing)"
+    if len(pushurl_records) > 1:
+        return (
+            f"ambiguous push identity: remote {remote!r} has "
+            f"{len(pushurl_records)} pushurl records (want at most 1)"
+        )
+    try:
+        proc = subprocess.run(
+            ["git", "remote", "get-url", "--push", "--all", remote],
+            cwd=workdir,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return f"remote {remote!r} effective push target unreadable (refusing)"
+    if proc.returncode != 0:
+        return f"remote {remote!r} has no effective push URL (refusing)"
+    effective = [line for line in proc.stdout.splitlines() if line.strip()]
+    try:
+        rewrites_still_clean = _no_push_rewrites(workdir, env)
+    except (OSError, subprocess.TimeoutExpired):
+        rewrites_still_clean = False
+    if not rewrites_still_clean:
+        return (
+            "EFFECTIVE_URL_REWRITE: Git URL rewrite configuration changed or "
+            "unreadable during verification (refusing)"
+        )
+    if len(effective) != 1:
+        return (
+            f"ambiguous effective push target: remote {remote!r} expands to "
+            f"{len(effective)} push URLs (want exactly 1)"
+        )
+    if not _is_expected_target(effective[0], expected_slug):
+        return f"WRONG_REMOTE: remote {remote!r} effective push target is not the expected slug"
+    return None
 
 
 class _PushReject(Exception):
@@ -171,7 +347,10 @@ def _resolve_expected_remote_base(
     try:
         out = _run(["git", "ls-remote", remote, want], canonical)
     except RuntimeError as exc:
-        raise _PushReject(f"cannot resolve source ref {source_ref!r}: {exc}") from exc
+        raise _PushReject(
+            f"cannot resolve source ref {source_ref!r} on the validated remote "
+            "(remote output withheld)"
+        ) from exc
     lines = [line for line in out.splitlines() if line.strip()]
     if len(lines) != 1:
         raise _PushReject(
@@ -305,15 +484,10 @@ def _decide_push(
     if bad:
         raise _PushReject(bad)
 
-    # 3. remote identity.
-    try:
-        url = _run(["git", "config", "--get", f"remote.{remote}.url"], canonical)
-    except RuntimeError:
-        raise _PushReject(f"remote {remote!r} has no URL") from None
-    if expected_slug not in url:
-        raise _PushReject(
-            f"WRONG_REMOTE: remote {remote!r} identity {_redact_url(url)!r} lacks expected slug"
-        )
+    # 3. remote identity: configured fetch URL AND effective push URL.
+    push_problem = _verify_push_target(canonical, remote, expected_slug)
+    if push_problem:
+        raise _PushReject(push_problem)
 
     # 4. triple match + no detached HEAD.
     try:
@@ -386,7 +560,9 @@ def _decide_push(
     try:
         ls = _run(["git", "ls-remote", remote, f"refs/heads/{expected_branch}"], canonical)
     except RuntimeError as exc:
-        raise _PushReject(f"cannot read remote ref state: {exc}") from exc
+        raise _PushReject(
+            "cannot read remote ref state on the validated remote (remote output withheld)"
+        ) from exc
     remote_sha = ls.split()[0] if ls else None
     if remote_sha == live_head:
         return f"UP_TO_DATE {expected_branch}@{live_head[:12]}"
@@ -419,7 +595,8 @@ def _decide_push(
                     out = _run(["git", "ls-remote", remote, candidate], canonical)
                 except RuntimeError as exc:
                     raise _PushReject(
-                        f"cannot resolve remote HEAD for creation gate: {exc}"
+                        "cannot resolve remote HEAD for creation gate "
+                        "on the validated remote (remote output withheld)"
                     ) from exc
                 if out:
                     remote_main = out.split()[0]
@@ -440,9 +617,14 @@ def _decide_push(
                     "branch creation refused: audit base is outside the remote history"
                 )
 
-    # 11. the single authorized write: exact refspec, no flags by construction.
+    # 11. the single authorized write: re-verify the effective push target
+    # immediately before the write (so a config mutation after the dry-run
+    # or after gate 3 cannot redirect this push), then the exact refspec.
     if dry_run:
         return f"DRY_RUN_OK {expected_branch}@{live_head[:12]}"
+    push_problem = _verify_push_target(canonical, remote, expected_slug)
+    if push_problem:
+        raise _PushReject(push_problem)
     push_env = dict(os.environ)
     push_env["FOUNDRY_SAFE_PUSH"] = "1"  # launcher-installed pre-push hook marker
     proc = subprocess.run(
@@ -454,7 +636,10 @@ def _decide_push(
         check=False,
     )
     if proc.returncode != 0:
-        raise _PushReject(f"git push refused: {(proc.stderr.strip() or proc.stdout.strip())[:300]}")
+        raise _PushReject(
+            f"git push refused (exit {proc.returncode}; remote output withheld "
+            "to avoid URL/credential disclosure)"
+        )
     return f"PUSHED {expected_branch}@{live_head[:12]}"
 
 
@@ -500,7 +685,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--expected-slug",
         default="moeendres-png/commander-playtest-lab",
-        help="Trust root for the remote URL (substring match).",
+        help="Exact expected owner/repo identity for the fetch AND effective push URL.",
     )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--metrics", default=None, help="Append AUTOCAPTURED push record here.")

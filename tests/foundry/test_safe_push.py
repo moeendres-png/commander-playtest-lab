@@ -56,9 +56,10 @@ def rig(tmp_path: Path) -> dict:
     locks = tmp_path / "locks"
     locks.mkdir()
     env = _git_env()
-    # Remote path embeds the trust slug so the remote-identity check exercises
-    # its accept path on file:// URLs (mismatch path covered separately).
-    remote = tmp_path / "test-host" / "fixture-repo" / "remote.git"
+    # Remote path ends exactly with the trust slug (plus .git) so the
+    # exact-identity check exercises its accept path on file:// URLs
+    # (mismatch path covered separately).
+    remote = tmp_path / "test-host" / "fixture-repo.git"
     remote.parent.mkdir(parents=True)
     _git(["init", "--bare", "-b", "main", str(remote)], tmp_path, env)
     seed = tmp_path / "seed"
@@ -356,7 +357,7 @@ def lineage_rig(tmp_path: Path) -> dict:
     locks = tmp_path / "locks"
     locks.mkdir()
     env = _git_env()
-    remote = tmp_path / "test-host" / "fixture-repo" / "remote.git"
+    remote = tmp_path / "test-host" / "fixture-repo.git"
     remote.parent.mkdir(parents=True)
     _git(["init", "--bare", "-b", "main", str(remote)], tmp_path, env)
     seed = tmp_path / "seed"

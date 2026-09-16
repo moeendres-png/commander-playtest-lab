@@ -379,7 +379,10 @@ def test_suppressed_routing_gates_engine_stale_target(
 
 def test_hook_blocks_raw_push_but_allows_safe_push(target: dict, canon: Path) -> None:
     env = _lock_env(target)
-    remote = target["wt"].parent / "hook-remote.git"
+    # Slug-anchored remote path: WS241 exact push-target identity requires a
+    # full owner/repo slug (bare fragments no longer match).
+    remote = target["wt"].parent / "test-host" / "hook-remote.git"
+    remote.parent.mkdir(parents=True, exist_ok=True)
     _git(["init", "--bare", "-b", "main", str(remote)], target["wt"].parent, target["env"])
     _git(["remote", "add", "origin2", str(remote)], target["wt"], target["env"])
     _git(["push", "origin2", "main:refs/heads/main"], target["wt"], target["env"])
@@ -411,7 +414,7 @@ def test_hook_blocks_raw_push_but_allows_safe_push(target: dict, canon: Path) ->
         f"p = subprocess.run([sys.executable, {str(TOOLS / 'safe_push.py')!r}, "
         "'--worktree', sys.argv[1], '--expected-branch', 'project/test', "
         "'--state', sys.argv[2], '--remote', 'origin2', "
-        "'--expected-slug', 'hook-remote'], capture_output=True, text=True); "
+        "'--expected-slug', 'test-host/hook-remote'], capture_output=True, text=True); "
         "sys.stdout.write(p.stdout); sys.stderr.write(p.stderr); "
         "lock.release(); sys.exit(p.returncode)"
     )

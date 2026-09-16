@@ -538,7 +538,7 @@ def test_safe_push_succeeds_under_ancestor_lock(tmp_path: Path) -> None:
     locks.mkdir()
     env = _env()
     env["HOME"] = "/nonexistent-fake-home"
-    remote = tmp_path / "test-host" / "fixture-repo" / "remote.git"
+    remote = tmp_path / "test-host" / "fixture-repo.git"
     remote.parent.mkdir(parents=True)
     _git(["init", "--bare", "-b", "main", str(remote)], tmp_path, env)
     seed = tmp_path / "seed"
