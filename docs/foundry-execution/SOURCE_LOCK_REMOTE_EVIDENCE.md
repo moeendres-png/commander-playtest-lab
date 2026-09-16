@@ -8,6 +8,12 @@ publication checker is introduced.
   git@github.com scp-style SSH, and ssh://git@github.com URLs are supported, with
   optional .git suffix and default ports. Credentials in HTTPS URLs, nondefault
   hosts/ports, dot segments, lookalikes and ambiguous multi-URL configurations fail.
+- Identity reads are record-preserving: `remote.origin.url` is fetched with
+  NUL-delimited `git config --null --get-all` and exactly one record is
+  required. A canonical URL plus a blank, whitespace-only, duplicate, or
+  divergent second record (local, global, or environment-provided) fails
+  closed instead of collapsing through string stripping. The text-mode Git
+  helper is unchanged for its single-value callers.
 - The legacy `--repo commander-playtest-lab` means the full canonical CPL slug.
   Other abbreviated repository fragments are no longer accepted.
 - Primary `verify()` (and therefore the `bootstrap.py` source-lock gate, which

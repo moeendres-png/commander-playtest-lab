@@ -123,7 +123,9 @@ def test_rewrite_guard_does_not_read_values(monkeypatch):
 
 
 def test_configuration_change_after_probe_is_unknown(monkeypatch):
-    monkeypatch.setattr(lock, "_git", lambda *a: f"https://github.com/{SLUG}.git")
+    # WS240: see test_response_contract in test_remote_ref_freshness —
+    # stub the record-preserving seam (assertions unchanged from the port).
+    monkeypatch.setattr(lock, "remote_url_records", lambda *a: [f"https://github.com/{SLUG}.git"])
     checks = iter([True, False])
     monkeypatch.setattr(lock, "_no_url_rewrites", lambda *a: next(checks))
     monkeypatch.setattr(
@@ -155,7 +157,9 @@ def test_final_head_failure_is_controlled(monkeypatch, capsys):
     "output", ["a" * 40 + " refs/heads/topic\n", "0" * 40 + "\trefs/heads/topic\n"]
 )
 def test_strict_wire_shape_and_nonzero_oid(monkeypatch, output):
-    monkeypatch.setattr(lock, "_git", lambda *a: f"https://github.com/{SLUG}.git")
+    # WS240: see test_response_contract in test_remote_ref_freshness —
+    # stub the record-preserving seam (assertions unchanged from the port).
+    monkeypatch.setattr(lock, "remote_url_records", lambda *a: [f"https://github.com/{SLUG}.git"])
     monkeypatch.setattr(lock, "_no_url_rewrites", lambda *a: True)
     monkeypatch.setattr(
         lock.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0, output, "")
@@ -166,7 +170,9 @@ def test_strict_wire_shape_and_nonzero_oid(monkeypatch, output):
 def test_auth_environment_preserved(monkeypatch):
     monkeypatch.setenv("SSH_AUTH_SOCK", "/fixture/agent")
     monkeypatch.setenv("GIT_ASKPASS", "/fixture/askpass")
-    monkeypatch.setattr(lock, "_git", lambda *a: f"https://github.com/{SLUG}.git")
+    # WS240: see test_response_contract in test_remote_ref_freshness —
+    # stub the record-preserving seam (assertions unchanged from the port).
+    monkeypatch.setattr(lock, "remote_url_records", lambda *a: [f"https://github.com/{SLUG}.git"])
     monkeypatch.setattr(lock, "_no_url_rewrites", lambda *a: True)
 
     def response(*args, **kw):

@@ -8,6 +8,11 @@ Error taxonomy (distinct, never conflated):
 - WRONG_LOCAL_REPOSITORY: the local checkout's ``remote.origin.url`` is not
   the canonical ``moeendres-png/commander-playtest-lab`` slug. Stop here;
   never infer canonical-remote ref state from this checkout.
+- Ambiguous identity (zero or two-or-more ``remote.origin.url`` records,
+  including blank or whitespace-only extras) fails closed: ``verify()``
+  reports the lock unreadable and ``check_canonical_ref()`` reports
+  ``REMOTE_REF_UNKNOWN``. Record parsing is NUL-delimited so no second
+  record can hide behind string stripping.
 - EFFECTIVE_URL_REWRITE: an active ``url.*.insteadOf`` rewrite (local,
   global, or environment-provided) — or unreadable rewrite configuration —
   means the effective transport target may differ from the literal
@@ -48,9 +53,63 @@ def _git(args: list[str], cwd: str) -> str:
     return proc.stdout.strip()
 
 
+def _git_raw(args: list[str], cwd: str) -> bytes:
+    """Raw Git stdout bytes: no decoding, no stripping, no record collapse.
+
+    Identity reads must observe every ``remote.*.url`` record (including
+    empty or whitespace-only ones). The text-mode ``_git`` helper strips
+    outer whitespace, which collapses a trailing blank record back onto the
+    canonical URL; it stays untouched for its single-value callers.
+    """
+    try:
+        proc = subprocess.run(
+            ["git", *args],
+            cwd=cwd,
+            capture_output=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, UnicodeError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError("Git evidence unavailable") from exc
+    if proc.returncode != 0:
+        raise RuntimeError("Git evidence command failed")
+    return proc.stdout
+
+
+def remote_url_records(workdir: str, remote: str = "origin") -> list[str]:
+    """Return every ``remote.<name>.url`` record, order- and emptiness-preserving.
+
+    Uses NUL-delimited ``git config --null --get-all`` so blank,
+    whitespace-only, or newline-bearing records survive as distinct entries.
+    Raises on missing/unreadable configuration, undecodable bytes, or an
+    invalid remote name. Never echoes values: diagnostics carry counts only.
+    """
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", remote):
+        raise RuntimeError("invalid remote name")
+    raw = _git_raw(["config", "--null", "--get-all", f"remote.{remote}.url"], workdir)
+    parts = raw.split(b"\x00")
+    if parts and parts[-1] == b"":
+        parts = parts[:-1]
+    try:
+        return [part.decode("utf-8") for part in parts]
+    except UnicodeDecodeError as exc:
+        raise RuntimeError("Git evidence unavailable") from exc
+
+
 def remote_identity(workdir: str) -> str:
-    """Return the full ``remote.origin.url`` or raise."""
-    return _git(["config", "--get-all", "remote.origin.url"], workdir)
+    """Return the single ``remote.origin.url`` record or raise.
+
+    Anything other than exactly one record (zero, or two-or-more including
+    blank/whitespace-only extras) is ambiguous identity and raises; callers
+    fail closed. A single empty record is returned and rejected downstream
+    by ``is_canonical_remote``.
+    """
+    records = remote_url_records(workdir, "origin")
+    if len(records) != 1:
+        raise RuntimeError(
+            "ambiguous remote identity: expected exactly one remote.origin.url record"
+        )
+    return records[0]
 
 
 def is_canonical_remote(remote_url: str, expected_slug: str = CANONICAL_SLUG) -> bool:
@@ -125,7 +184,10 @@ def check_canonical_ref(ref: str, workdir: str, remote: str = "origin") -> tuple
         return False, "REMOTE_REF_UNKNOWN: invalid exact branch/tag ref or remote name"
     try:
         env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
-        url = _git(["config", "--get-all", f"remote.{remote}.url"], workdir)
+        urls = remote_url_records(workdir, remote)
+        if len(urls) != 1:
+            return False, "REMOTE_REF_UNKNOWN: ambiguous remote identity; refusing ref check"
+        url = urls[0]
         if not is_canonical_remote(url):
             return False, "REMOTE_REF_UNKNOWN: remote identity is not canonical"
         if not _no_url_rewrites(workdir, env):

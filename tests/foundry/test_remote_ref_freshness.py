@@ -83,8 +83,13 @@ def test_stale_tracking_ref_after_transport_failure(tmp_path, monkeypatch, capsy
     ],
 )
 def test_response_contract(monkeypatch, code, output, expected):
+    # WS240: identity is read through the record-preserving seam; _git no
+    # longer carries remote URLs, so stub remote_url_records (assertions
+    # unchanged from the WS237/WS239 port).
     monkeypatch.setattr(
-        lock, "_git", lambda *a: "https://github.com/" + lock.CANONICAL_SLUG + ".git"
+        lock,
+        "remote_url_records",
+        lambda *a: ["https://github.com/" + lock.CANONICAL_SLUG + ".git"],
     )
     monkeypatch.setattr(lock, "_no_url_rewrites", lambda *a: True)
     monkeypatch.setattr(
@@ -174,8 +179,11 @@ def test_prior_lock_failure_does_not_query_remote(monkeypatch):
 
 
 def test_explicit_tag_and_command_contract(monkeypatch):
+    # WS240: see test_response_contract — stub the record-preserving seam.
     monkeypatch.setattr(
-        lock, "_git", lambda *a: "https://github.com/" + lock.CANONICAL_SLUG + ".git"
+        lock,
+        "remote_url_records",
+        lambda *a: ["https://github.com/" + lock.CANONICAL_SLUG + ".git"],
     )
     monkeypatch.setattr(lock, "_no_url_rewrites", lambda *a: True)
 
