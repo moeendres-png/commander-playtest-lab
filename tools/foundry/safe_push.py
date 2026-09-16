@@ -9,14 +9,21 @@ Fail-closed preconditions, in order:
 1. state file parses and validates (schema 2.0 required);
 2. expected branch is not protected (main/master/HEAD) and is ref-format clean
    (rejects `-`, `:`, whitespace, `..`, `~^:?*[` injection shapes);
-3. remote identity (WS241): the configured fetch URL AND the effective
-   push URL (Git-expanded via ``git remote get-url --push --all``) must each
-   be exactly one record designating exactly the expected owner/repo. Any
-   ``remote.<name>.pushurl`` divergence, ``url.*.pushInsteadOf`` /
-   ``url.*.insteadOf`` rewrite (any scope, including environment), zero or
-   multiple fetch/push URL records, or non-exact slug match fails closed.
-   Substring matching is never used; raw URLs, credentials, and remote
-   command output never enter diagnostics;
+3. remote identity (WS241-C): exactly one configured fetch URL record
+   designating exactly the expected owner/repo, with NO
+   ``remote.<name>.pushurl`` record of any kind (single, blank, multivalue,
+   or environment-injected push URLs are never accepted), NO
+   ``remote.<name>.mirror`` / ``remote.<name>.receivepack`` record (mirror
+   widens/breaks the authorized single refspec — verified: ``--mirror can't
+   be combined with refspecs``; receivepack substitutes the remote helper —
+   verified executed), and NO ``url.*.pushInsteadOf`` / ``url.*.insteadOf``
+   rewrite in any scope (local, global, system, environment). The
+   Git-expanded effective push URL (``git remote get-url --push --all``)
+   must then be exactly one record BYTE-EQUAL to the validated fetch
+   record, with exact slug identity. Zero/multiple records, unreadable or
+   ambiguous values, or any non-exact slug match fails closed. Substring
+   matching is never used; raw URLs, credentials, and remote command
+   output never enter diagnostics;
 4. current branch triple-matches (live == expected == state), no detached HEAD;
 5. exactly one worktree owns the branch and it is this worktree;
 6. writer lock is currently HELD (flock probe must fail) by a recorded holder
@@ -83,11 +90,14 @@ def _config_records(workdir: str, key: str) -> list[str]:
 
     NUL-delimited read so blank or whitespace-only records survive as
     distinct entries. An unset key yields ``[]``; unreadable configuration,
-    undecodable bytes, or a key outside the ``remote.<name>.url|pushurl``
-    allowlist raises. Never echoes values: callers report counts only.
+    undecodable bytes, or a key outside the
+    ``remote.<name>.{url,pushurl,mirror,receivepack}`` allowlist raises.
+    Never echoes values: callers report counts only.
     """
-    if not re.fullmatch(r"remote\.[A-Za-z0-9][A-Za-z0-9._-]*\.(url|pushurl)", key):
-        raise RuntimeError("config key outside the remote url/pushurl allowlist")
+    if not re.fullmatch(
+        r"remote\.[A-Za-z0-9][A-Za-z0-9._-]*\.(url|pushurl|mirror|receivepack)", key
+    ):
+        raise RuntimeError("config key outside the remote url/pushurl/mirror/receivepack allowlist")
     try:
         proc = subprocess.run(
             ["git", "config", "--null", "--get-all", key],
@@ -119,17 +129,28 @@ def _no_push_rewrites(workdir: str, env: dict[str, str]) -> bool:
     credential-bearing keys. Present-or-unreadable fails closed at the call
     site. Mirrors the source-lock P1 rewrite guard, extended to the
     push-only ``pushInsteadOf`` variant that ``git push`` (but not
-    ``git fetch``) honors.
+    ``git fetch``) honors. Any inspection failure (subprocess, timeout, or
+    unexpected error) returns False so callers fail closed without emitting
+    raw diagnostic data.
     """
-    proc = subprocess.run(
-        ["git", "config", "--name-only", "--get-regexp", r"^url\..*\.(insteadof|pushinsteadof)$"],
-        cwd=workdir,
-        env=env,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        check=False,
-        timeout=30,
-    )
+    try:
+        proc = subprocess.run(
+            [
+                "git",
+                "config",
+                "--name-only",
+                "--get-regexp",
+                r"^url\..*\.(insteadof|pushinsteadof)$",
+            ],
+            cwd=workdir,
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=30,
+        )
+    except Exception:
+        return False
     return proc.returncode == 1  # 0 means a rewrite exists; other failures are unknown.
 
 
@@ -164,16 +185,23 @@ def _is_expected_target(url: str, expected_slug: str) -> bool:
     return path == expected_slug or path.endswith("/" + expected_slug)
 
 
+def _push_matches_fetch(fetch_record: str, effective_record: str) -> bool:
+    """Byte equality between the validated fetch record and the effective push record."""
+    return bool(fetch_record) and fetch_record == effective_record
+
+
 def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | None:
     """None when the effective push destination is exactly the expected slug.
 
     Checks, in order: remote-name shape; exactly one configured fetch URL
     record with exact slug identity; no active insteadOf/pushInsteadOf
-    rewrite in any scope; at most one pushurl record; exactly one
-    Git-expanded effective push URL (``git remote get-url --push --all``,
-    which honors pushurl and both rewrite kinds) with exact slug identity,
-    bracketed by a rewrite re-check. Returns a fail-closed reason carrying
-    counts and static text only — never URLs, userinfo, or command output.
+    rewrite in any scope; NO pushurl record of any kind; NO mirror or
+    receivepack record of any kind (unreadable values fail closed); exactly
+    one Git-expanded effective push URL (``git remote get-url --push
+    --all``) that is byte-equal to the validated fetch record with exact
+    slug identity, bracketed by a rewrite re-check. Returns a fail-closed
+    reason carrying counts and static text only — never URLs, userinfo, or
+    command output.
     """
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", remote):
         return f"invalid remote name {remote!r}"
@@ -189,11 +217,7 @@ def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | 
     if not _is_expected_target(fetch_records[0], expected_slug):
         return f"WRONG_REMOTE: remote {remote!r} fetch identity is not the expected slug"
     env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
-    try:
-        rewrites_clean = _no_push_rewrites(workdir, env)
-    except (OSError, subprocess.TimeoutExpired):
-        rewrites_clean = False
-    if not rewrites_clean:
+    if not _no_push_rewrites(workdir, env):
         return (
             "EFFECTIVE_URL_REWRITE: Git URL rewrite configuration present or "
             "unreadable; effective push target cannot PASS"
@@ -202,11 +226,25 @@ def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | 
         pushurl_records = _config_records(workdir, f"remote.{remote}.pushurl")
     except RuntimeError:
         return f"remote {remote!r} push identity unreadable (refusing)"
-    if len(pushurl_records) > 1:
+    if pushurl_records:
         return (
-            f"ambiguous push identity: remote {remote!r} has "
-            f"{len(pushurl_records)} pushurl records (want at most 1)"
+            f"explicit pushurl configuration: remote {remote!r} sets "
+            f"{len(pushurl_records)} pushurl record(s); explicit push URLs "
+            "are never accepted (refusing)"
         )
+    for key, kind in (
+        (f"remote.{remote}.mirror", "broadening mirror"),
+        (f"remote.{remote}.receivepack", "redirecting receivepack"),
+    ):
+        try:
+            records = _config_records(workdir, key)
+        except RuntimeError:
+            return f"remote {remote!r} {kind} configuration unreadable (refusing)"
+        if records:
+            return (
+                f"broadening push configuration: remote {remote!r} sets "
+                f"{len(records)} {kind} record(s) (refusing)"
+            )
     try:
         proc = subprocess.run(
             ["git", "remote", "get-url", "--push", "--all", remote],
@@ -221,11 +259,7 @@ def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | 
     if proc.returncode != 0:
         return f"remote {remote!r} has no effective push URL (refusing)"
     effective = [line for line in proc.stdout.splitlines() if line.strip()]
-    try:
-        rewrites_still_clean = _no_push_rewrites(workdir, env)
-    except (OSError, subprocess.TimeoutExpired):
-        rewrites_still_clean = False
-    if not rewrites_still_clean:
+    if not _no_push_rewrites(workdir, env):
         return (
             "EFFECTIVE_URL_REWRITE: Git URL rewrite configuration changed or "
             "unreadable during verification (refusing)"
@@ -234,6 +268,11 @@ def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | 
         return (
             f"ambiguous effective push target: remote {remote!r} expands to "
             f"{len(effective)} push URLs (want exactly 1)"
+        )
+    if not _push_matches_fetch(fetch_records[0], effective[0]):
+        return (
+            f"WRONG_REMOTE: remote {remote!r} effective push target differs "
+            "from the validated fetch identity (refusing)"
         )
     if not _is_expected_target(effective[0], expected_slug):
         return f"WRONG_REMOTE: remote {remote!r} effective push target is not the expected slug"
