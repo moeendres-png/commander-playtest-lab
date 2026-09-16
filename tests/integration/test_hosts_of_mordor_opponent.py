@@ -35,10 +35,7 @@ def test_hosts_of_mordor_is_registered_without_touching_kaervek_hash() -> None:
         (ROOT / "data/opponents/opponent_registry.json").read_text(encoding="utf-8")
     )
 
-    assert (
-        registry["current"]["hosts_of_mordor/precon"]
-        == "opponent/hosts-of-mordor-precon"
-    )
+    assert registry["current"]["hosts_of_mordor/precon"] == "opponent/hosts-of-mordor-precon"
     assert (
         registry["kaervek_deck_hash"]
         == "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a"
