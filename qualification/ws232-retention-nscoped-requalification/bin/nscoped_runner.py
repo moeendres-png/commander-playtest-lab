@@ -237,6 +237,25 @@ def _public_snapshot(pilot_state: dict) -> dict:
             return dict(sorted(Counter(
                 str(it.get("name", "?")) for it in items if isinstance(it, dict)
             ).items()))
+
+        def details():
+            # Board-public physical characteristics (power/toughness/counters)
+            # for continuous-effect/layers evidence. Absent fields stay absent.
+            items = raw.get("battlefield")
+            if not isinstance(items, list):
+                return {}
+            out = {}
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                nm = str(it.get("name", "?"))
+                pt = (it.get("power"), it.get("toughness"))
+                key = nm
+                out.setdefault(key, []).append(
+                    {"power": pt[0], "toughness": pt[1],
+                     "tapped": it.get("tapped", "absent"),
+                     "counters": it.get("counters", "absent")})
+            return out
         players.append({
             "seat": raw.get("seat"),
             "life": raw.get("life"),
@@ -247,6 +266,7 @@ def _public_snapshot(pilot_state: dict) -> dict:
             "has_lost": bool(raw.get("has_lost")),
             "has_won": bool(raw.get("has_won")),
             "battlefield": names("battlefield"),
+            "battlefield_detail": details(),
             "graveyard": names("graveyard"),
             "command": names("command"),
         })
@@ -323,6 +343,7 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
     final_outcomes: list = []
     final_turn = None
     rules_calls_last = None
+    rules_calls_first = None
 
     def text_in_option(opt: dict) -> str:
         parts = [str(opt.get("label") or "")]
@@ -417,6 +438,8 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
                     rsb = status.get("rules_seed_binding")
                     if isinstance(rsb, dict) and rsb.get("rules_random_calls") is not None:
                         rules_calls_last = rsb.get("rules_random_calls")
+                        if rules_calls_first is None:
+                            rules_calls_first = rsb.get("rules_random_calls")
                     continue
                 if bool(status.get("terminal")):
                     terminal = True
@@ -452,6 +475,7 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
         "observed_classes": classes,
         "final_outcomes": final_outcomes,
         "final_turn": final_turn,
+        "rules_random_calls_first": rules_calls_first,
         "rules_random_calls_last": rules_calls_last,
         "log": [l.__dict__ for l in logs],
     }

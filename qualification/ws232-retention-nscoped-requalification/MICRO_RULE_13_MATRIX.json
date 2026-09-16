@@ -1,0 +1,888 @@
+{
+ "cells": [
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_COMBAT",
+   "player_count": 2,
+   "rationale": "attacker declarations [71, 318] + combat life drops [323, 324, 325, 326] in MICRO_LIONS_2P_seed777001",
+   "run_pointer": "MICRO_LIONS_2P_seed777001"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_COMBAT",
+   "player_count": 3,
+   "rationale": "attacker declarations [131, 195, 286, 380] + combat life drops [202, 203, 204, 205] in MICRO_LIONS_3P_seed424242",
+   "run_pointer": "MICRO_LIONS_3P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_COMBAT",
+   "player_count": 5,
+   "rationale": "attacker declarations [312, 369, 423, 534] + combat life drops [380, 381, 382, 383] in MICRO_LIONS_5P_seed424242",
+   "run_pointer": "MICRO_LIONS_5P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "player_count": 2,
+   "rationale": "anthem Captain of the Watch@338 then pt elevation in MICRO_LIONS_ANTHEM_2P_seed777003: [(339, 'Elite Inquisitor', (2, 2), (3, 3)), (340, 'Elite Inquisitor', (2, 2), (3, 3)), (341, 'Elite Inquisitor', (2, 2), (3, 3)), (342, 'Elite Inquisitor', (2, 2), (3, 3))]",
+   "run_pointer": "MICRO_LIONS_ANTHEM_2P_seed777003"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "player_count": 3,
+   "rationale": "anthem Gideon Jura@482 then pt elevation in MICRO_LIONS_ANTHEM_3P_seed777007: [(486, 'Gideon Jura', (0, 0), (6, 6)), (487, 'Gideon Jura', (0, 0), (6, 6)), (488, 'Gideon Jura', (0, 0), (6, 6)), (489, 'Gideon Jura', (0, 0), (6, 6))]",
+   "run_pointer": "MICRO_LIONS_ANTHEM_3P_seed777007"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "player_count": 5,
+   "rationale": "Imposing Sovereign static ETB-tapped effect in MICRO_LIONS_STATIC_5P_seed777002: [(421, 'Champion of the Parish')]",
+   "run_pointer": "MICRO_LIONS_STATIC_5P_seed777002"
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_CONTROL",
+   "player_count": 2,
+   "rationale": "no control-change source in Lions or card fixtures",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_CONTROL",
+   "player_count": 3,
+   "rationale": "no control-change source in Lions or card fixtures",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_CONTROL",
+   "player_count": 5,
+   "rationale": "no control-change source in Lions or card fixtures",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_COPY",
+   "player_count": 2,
+   "rationale": "no copy source in Lions or card fixtures; S9 decks not built",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_COPY",
+   "player_count": 3,
+   "rationale": "no copy source in Lions or card fixtures; S9 decks not built",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_COPY",
+   "player_count": 5,
+   "rationale": "no copy source in Lions or card fixtures; S9 decks not built",
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_LAYERS",
+   "player_count": 2,
+   "rationale": "no Elesh-driven non-combat departure in bounded window",
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_LAYERS",
+   "player_count": 3,
+   "rationale": "no Elesh-driven non-combat departure in bounded window",
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_LAYERS",
+   "player_count": 5,
+   "rationale": "no Elesh-driven non-combat departure in bounded window",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_MODES",
+   "player_count": 2,
+   "rationale": "engine-offered modal choice answered (Burn Down the House mode)",
+   "run_pointer": "CARD_26_2P_seed424242"
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_MODES",
+   "player_count": 3,
+   "rationale": "engine-offered modal choice answered (Burn Down the House mode)",
+   "run_pointer": "CARD_26_3P_seed777001"
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_MODES",
+   "player_count": 5,
+   "rationale": "engine-offered modal choice answered (Burn Down the House mode)",
+   "run_pointer": "CARD_26_5P_seed424242"
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_PREVENTION",
+   "player_count": 2,
+   "rationale": "no prevention source/target pair in symmetric Lions",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_PREVENTION",
+   "player_count": 3,
+   "rationale": "no prevention source/target pair in symmetric Lions",
+   "run_pointer": null
+  },
+  {
+   "attempts": [],
+   "cell_verdict": "UNKNOWN",
+   "fixture_id": "MICRO_PREVENTION",
+   "player_count": 5,
+   "rationale": "no prevention source/target pair in symmetric Lions",
+   "run_pointer": null
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "player_count": 2,
+   "rationale": "command-zone replacement choice + move in MICRO_LIONS_2P_seed424242: use@77 -> [(78, 0, 'Isamaru, Hound of Konda'), (79, 1, 'Isamaru, Hound of Konda')]",
+   "run_pointer": "MICRO_LIONS_2P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "player_count": 3,
+   "rationale": "command-zone replacement choice + move in MICRO_LIONS_3P_seed424242: use@139 -> [(140, 0, 'Isamaru, Hound of Konda'), (141, 2, 'Isamaru, Hound of Konda')]",
+   "run_pointer": "MICRO_LIONS_3P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "player_count": 5,
+   "rationale": "command-zone replacement choice + move in MICRO_LIONS_5P_seed424242: use@324 -> [(325, 2, 'Isamaru, Hound of Konda'), (326, 4, 'Isamaru, Hound of Konda')]",
+   "run_pointer": "MICRO_LIONS_5P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "player_count": 2,
+   "rationale": "Rules-Core RNG consumption growth: [('MICRO_LIONS_2P_seed424242', 196, 784), ('MICRO_LIONS_2P_seed777001', 196, 784), ('MICRO_LIONS_ANTHEM_2P_seed424242', 196, 784), ('MICRO_LIONS_ANTHEM_2P_seed777001', 196, 784), ('MICRO_LIONS_ANTHEM_2P_seed777002', 196, 588), ('MICRO_LIONS_ANTHEM_2P_seed777003', 196, 784), ('MICRO_LIONS_ANTHEM_2P_seed777004', 196, 490), ('MICRO_LIONS_ANTHEM_2P_seed777005', 196, 588), ('MICRO_LIONS_ANTHEM_2P_seed777006', 196, 784), ('MICRO_LIONS_ANTHEM_2P_seed777007', 196, 490), ('MICRO_LIONS_ANTHEM_2P_seed777008', 196, 490), ('MICRO_LIONS_ANTHEM_2P_seed777009', 196, 588), ('MICRO_LIONS_STATIC_2P_seed424242', 196, 588), ('MICRO_LIONS_STATIC_2P_seed777001', 196, 686), ('MICRO_LIONS_STATIC_2P_seed777002', 196, 588)]",
+   "run_pointer": "MICRO_LIONS_2P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "player_count": 3,
+   "rationale": "Rules-Core RNG consumption growth: [('MICRO_LIONS_3P_seed424242', 294, 1176), ('MICRO_LIONS_3P_seed777001', 294, 1176), ('MICRO_LIONS_ANTHEM_3P_seed424242', 294, 1176), ('MICRO_LIONS_ANTHEM_3P_seed777001', 294, 980), ('MICRO_LIONS_ANTHEM_3P_seed777002', 294, 1176), ('MICRO_LIONS_ANTHEM_3P_seed777003', 294, 1176), ('MICRO_LIONS_ANTHEM_3P_seed777004', 294, 882), ('MICRO_LIONS_ANTHEM_3P_seed777005', 294, 980), ('MICRO_LIONS_ANTHEM_3P_seed777006', 294, 1176), ('MICRO_LIONS_ANTHEM_3P_seed777007', 294, 882), ('MICRO_LIONS_ANTHEM_3P_seed777008', 294, 882), ('MICRO_LIONS_ANTHEM_3P_seed777009', 294, 1176), ('MICRO_LIONS_STATIC_3P_seed424242', 294, 1078), ('MICRO_LIONS_STATIC_3P_seed777001', 294, 980), ('MICRO_LIONS_STATIC_3P_seed777002', 294, 1176)]",
+   "run_pointer": "MICRO_LIONS_3P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "player_count": 5,
+   "rationale": "Rules-Core RNG consumption growth: [('MICRO_LIONS_5P_seed424242', 490, 1960), ('MICRO_LIONS_5P_seed777001', 490, 1960), ('MICRO_LIONS_ANTHEM_5P_seed424242', 490, 1764), ('MICRO_LIONS_ANTHEM_5P_seed777001', 490, 1862), ('MICRO_LIONS_ANTHEM_5P_seed777002', 490, 1764), ('MICRO_LIONS_ANTHEM_5P_seed777003', 490, 1666), ('MICRO_LIONS_ANTHEM_5P_seed777004', 490, 1666), ('MICRO_LIONS_ANTHEM_5P_seed777005', 490, 1764), ('MICRO_LIONS_ANTHEM_5P_seed777006', 490, 1764), ('MICRO_LIONS_ANTHEM_5P_seed777007', 490, 1372), ('MICRO_LIONS_ANTHEM_5P_seed777008', 490, 1568), ('MICRO_LIONS_ANTHEM_5P_seed777009', 490, 1862), ('MICRO_LIONS_STATIC_5P_seed424242', 490, 1764), ('MICRO_LIONS_STATIC_5P_seed777001', 490, 1470), ('MICRO_LIONS_STATIC_5P_seed777002', 490, 1764)]",
+   "run_pointer": "MICRO_LIONS_5P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_STACK",
+   "player_count": 2,
+   "rationale": "non-commander cast resolved via stack in MICRO_LIONS_2P_seed777001: (267, 0, 'Elite Vanguard')",
+   "run_pointer": "MICRO_LIONS_2P_seed777001"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_STACK",
+   "player_count": 3,
+   "rationale": "non-commander cast resolved via stack in MICRO_LIONS_3P_seed777001: (201, 2, 'Champion of the Parish')",
+   "run_pointer": "MICRO_LIONS_3P_seed777001"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_STACK",
+   "player_count": 5,
+   "rationale": "non-commander cast resolved via stack in MICRO_LIONS_5P_seed424242: (302, 2, 'Champion of the Parish')",
+   "run_pointer": "MICRO_LIONS_5P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "player_count": 2,
+   "rationale": "post-combat destroy chain (battlefield->graveyard via SBA) in MICRO_LIONS_2P_seed424242: [(77, 0, 'Isamaru, Hound of Konda'), (77, 1, 'Isamaru, Hound of Konda')]",
+   "run_pointer": "MICRO_LIONS_2P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "player_count": 3,
+   "rationale": "post-combat destroy chain (battlefield->graveyard via SBA) in MICRO_LIONS_3P_seed424242: [(139, 0, 'Isamaru, Hound of Konda'), (139, 2, 'Isamaru, Hound of Konda')]",
+   "run_pointer": "MICRO_LIONS_3P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "player_count": 5,
+   "rationale": "post-combat destroy chain (battlefield->graveyard via SBA) in MICRO_LIONS_5P_seed424242: [(324, 2, 'Isamaru, Hound of Konda'), (324, 4, 'Isamaru, Hound of Konda'), (546, 4, 'Champion of the Parish')]",
+   "run_pointer": "MICRO_LIONS_5P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_TRIGGERS",
+   "player_count": 2,
+   "rationale": "trigger evidence in MICRO_LIONS_ANTHEM_2P_seed424242: order=[] tokens=[] etb-targets=[(317, 'Gideon Jura', [318])]",
+   "run_pointer": "MICRO_LIONS_ANTHEM_2P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_TRIGGERS",
+   "player_count": 3,
+   "rationale": "trigger evidence in MICRO_LIONS_ANTHEM_3P_seed424242: order=[] tokens=[(585, 0, 'Soldier Token')] etb-targets=[]",
+   "run_pointer": "MICRO_LIONS_ANTHEM_3P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_TRIGGERS",
+   "player_count": 5,
+   "rationale": "trigger evidence in MICRO_LIONS_ANTHEM_5P_seed424242: order=[] tokens=[(618, 2, 'Soldier Token')] etb-targets=[]",
+   "run_pointer": "MICRO_LIONS_ANTHEM_5P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_2P_seed424242",
+      "MICRO_LIONS_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed424242",
+      "MICRO_LIONS_ANTHEM_2P_seed777001",
+      "MICRO_LIONS_ANTHEM_2P_seed777002",
+      "MICRO_LIONS_ANTHEM_2P_seed777003",
+      "MICRO_LIONS_ANTHEM_2P_seed777004",
+      "MICRO_LIONS_ANTHEM_2P_seed777005",
+      "MICRO_LIONS_ANTHEM_2P_seed777006",
+      "MICRO_LIONS_ANTHEM_2P_seed777007",
+      "MICRO_LIONS_ANTHEM_2P_seed777008",
+      "MICRO_LIONS_ANTHEM_2P_seed777009",
+      "MICRO_LIONS_STATIC_2P_seed424242",
+      "MICRO_LIONS_STATIC_2P_seed777001",
+      "MICRO_LIONS_STATIC_2P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "player_count": 2,
+   "rationale": "distinct public zone movements: ['cast-arrival', 'command-entry', 'command-exit', 'draw', 'graveyard']",
+   "run_pointer": "MICRO_LIONS_2P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_3P_seed424242",
+      "MICRO_LIONS_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed424242",
+      "MICRO_LIONS_ANTHEM_3P_seed777001",
+      "MICRO_LIONS_ANTHEM_3P_seed777002",
+      "MICRO_LIONS_ANTHEM_3P_seed777003",
+      "MICRO_LIONS_ANTHEM_3P_seed777004",
+      "MICRO_LIONS_ANTHEM_3P_seed777005",
+      "MICRO_LIONS_ANTHEM_3P_seed777006",
+      "MICRO_LIONS_ANTHEM_3P_seed777007",
+      "MICRO_LIONS_ANTHEM_3P_seed777008",
+      "MICRO_LIONS_ANTHEM_3P_seed777009",
+      "MICRO_LIONS_STATIC_3P_seed424242",
+      "MICRO_LIONS_STATIC_3P_seed777001",
+      "MICRO_LIONS_STATIC_3P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "player_count": 3,
+   "rationale": "distinct public zone movements: ['cast-arrival', 'command-entry', 'command-exit', 'draw', 'graveyard']",
+   "run_pointer": "MICRO_LIONS_3P_seed424242"
+  },
+  {
+   "attempts": [
+    {
+     "note": "evaluated over runs",
+     "runs": [
+      "MICRO_LIONS_5P_seed424242",
+      "MICRO_LIONS_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed424242",
+      "MICRO_LIONS_ANTHEM_5P_seed777001",
+      "MICRO_LIONS_ANTHEM_5P_seed777002",
+      "MICRO_LIONS_ANTHEM_5P_seed777003",
+      "MICRO_LIONS_ANTHEM_5P_seed777004",
+      "MICRO_LIONS_ANTHEM_5P_seed777005",
+      "MICRO_LIONS_ANTHEM_5P_seed777006",
+      "MICRO_LIONS_ANTHEM_5P_seed777007",
+      "MICRO_LIONS_ANTHEM_5P_seed777008",
+      "MICRO_LIONS_ANTHEM_5P_seed777009",
+      "MICRO_LIONS_STATIC_5P_seed424242",
+      "MICRO_LIONS_STATIC_5P_seed777001",
+      "MICRO_LIONS_STATIC_5P_seed777002"
+     ]
+    }
+   ],
+   "cell_verdict": "PASS",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "player_count": 5,
+   "rationale": "distinct public zone movements: ['cast-arrival', 'command-entry', 'command-exit', 'draw', 'graveyard']",
+   "run_pointer": "MICRO_LIONS_5P_seed424242"
+  }
+ ],
+ "schema_version": "ws232-micro-rule-13-matrix-1.0.0",
+ "summary": {
+  "PASS": 27,
+  "UNKNOWN": 12
+ }
+}
