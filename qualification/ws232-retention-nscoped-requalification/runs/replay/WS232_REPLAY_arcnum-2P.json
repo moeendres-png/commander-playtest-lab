@@ -1,0 +1,32 @@
+{
+ "decision_classes": {
+  "choose_object": 1,
+  "choose_use": 2,
+  "concede": 1,
+  "declare_attacker": 15,
+  "declare_blocker": 2,
+  "mana_payment": 14,
+  "mulligan": 8,
+  "priority": 451,
+  "target": 6,
+  "target_amount": 2
+ },
+ "numeric_classes": [
+  "target_amount"
+ ],
+ "players": 2,
+ "record_seconds": 6.5,
+ "replay_b": "PASS",
+ "replay_b_seconds": 6.1,
+ "replay_b_steps": 502,
+ "replay_c": "PASS",
+ "replay_c_seconds": 6.1,
+ "replay_c_steps": 502,
+ "rng_initial": 196,
+ "rng_terminal": 784,
+ "seed": 424242,
+ "steps": 502,
+ "tag": "arcnum",
+ "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-arcnum-2p.json",
+ "tape_id": "d73d1693ee3a6de2f530717d87a2df5df6d07e539991fefc3a1b96b7de2875ec"
+}

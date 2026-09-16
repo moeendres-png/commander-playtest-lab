@@ -1,0 +1,29 @@
+{
+ "decision_classes": {
+  "choose_object": 1,
+  "choose_use": 2,
+  "concede": 1,
+  "declare_attacker": 1,
+  "declare_blocker": 1,
+  "mana_payment": 4,
+  "mulligan": 8,
+  "priority": 336,
+  "target": 6
+ },
+ "numeric_classes": [],
+ "players": 2,
+ "record_seconds": 6.7,
+ "replay_b": "PASS",
+ "replay_b_seconds": 6.3,
+ "replay_b_steps": 360,
+ "replay_c": "PASS",
+ "replay_c_seconds": 6.0,
+ "replay_c_steps": 360,
+ "rng_initial": 196,
+ "rng_terminal": 784,
+ "seed": 424242,
+ "steps": 360,
+ "tag": "lions",
+ "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-2p.json",
+ "tape_id": "01750555ee93949d9db001286a1256cb0c7134fe367f2e50b9bc5b003d00ed54"
+}

@@ -1,0 +1,280 @@
+{
+ "cells": [
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "RNG_RULES_TAPE",
+   "player_count": 2,
+   "rationale": "current record + dual independent fresh-process replay at 2P",
+   "run_pointer": "WS232_REPLAY_lions-2P",
+   "steps": 360,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-2p.json",
+   "tape_id": "01750555ee93949d9db001286a1256cb0c7134fe367f2e50b9bc5b003d00ed54"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "RNG_RULES_TAPE",
+   "player_count": 3,
+   "rationale": "current record + dual independent fresh-process replay at 3P",
+   "run_pointer": "WS232_REPLAY_lions-3P",
+   "steps": 403,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-3p.json",
+   "tape_id": "c5a6f5eb7e600d167f30340bd8dc47c99284eb282cce09426e5c0f9979ed770f"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "RNG_RULES_TAPE",
+   "player_count": 5,
+   "rationale": "current record + dual independent fresh-process replay at 5P",
+   "run_pointer": "WS232_REPLAY_lions-5P",
+   "steps": 507,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-5p.json",
+   "tape_id": "92150424045bc5e64e63c8ecc7adf2ffb9d6201c0b8830405b838fcd5752a684"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "player_count": 2,
+   "rationale": "current record + dual independent fresh-process replay at 2P",
+   "run_pointer": "WS232_REPLAY_lions-2P",
+   "steps": 360,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-2p.json",
+   "tape_id": "01750555ee93949d9db001286a1256cb0c7134fe367f2e50b9bc5b003d00ed54"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "player_count": 3,
+   "rationale": "current record + dual independent fresh-process replay at 3P",
+   "run_pointer": "WS232_REPLAY_lions-3P",
+   "steps": 403,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-3p.json",
+   "tape_id": "c5a6f5eb7e600d167f30340bd8dc47c99284eb282cce09426e5c0f9979ed770f"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "player_count": 5,
+   "rationale": "current record + dual independent fresh-process replay at 5P",
+   "run_pointer": "WS232_REPLAY_lions-5P",
+   "steps": 507,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-5p.json",
+   "tape_id": "92150424045bc5e64e63c8ecc7adf2ffb9d6201c0b8830405b838fcd5752a684"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "player_count": 2,
+   "rationale": "current record + dual independent fresh-process replay at 2P",
+   "run_pointer": "WS232_REPLAY_lions-2P",
+   "steps": 360,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-2p.json",
+   "tape_id": "01750555ee93949d9db001286a1256cb0c7134fe367f2e50b9bc5b003d00ed54"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "player_count": 3,
+   "rationale": "current record + dual independent fresh-process replay at 3P",
+   "run_pointer": "WS232_REPLAY_lions-3P",
+   "steps": 403,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-3p.json",
+   "tape_id": "c5a6f5eb7e600d167f30340bd8dc47c99284eb282cce09426e5c0f9979ed770f"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "player_count": 5,
+   "rationale": "current record + dual independent fresh-process replay at 5P",
+   "run_pointer": "WS232_REPLAY_lions-5P",
+   "steps": 507,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-5p.json",
+   "tape_id": "92150424045bc5e64e63c8ecc7adf2ffb9d6201c0b8830405b838fcd5752a684"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "player_count": 2,
+   "rationale": "current record + dual independent fresh-process replay at 2P",
+   "run_pointer": "WS232_REPLAY_lions-2P",
+   "steps": 360,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-2p.json",
+   "tape_id": "01750555ee93949d9db001286a1256cb0c7134fe367f2e50b9bc5b003d00ed54"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "player_count": 3,
+   "rationale": "current record + dual independent fresh-process replay at 3P",
+   "run_pointer": "WS232_REPLAY_lions-3P",
+   "steps": 403,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-3p.json",
+   "tape_id": "c5a6f5eb7e600d167f30340bd8dc47c99284eb282cce09426e5c0f9979ed770f"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "player_count": 5,
+   "rationale": "current record + dual independent fresh-process replay at 5P",
+   "run_pointer": "WS232_REPLAY_lions-5P",
+   "steps": 507,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-5p.json",
+   "tape_id": "92150424045bc5e64e63c8ecc7adf2ffb9d6201c0b8830405b838fcd5752a684"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "player_count": 2,
+   "rationale": "current record + dual independent fresh-process replay at 2P",
+   "run_pointer": "WS232_REPLAY_lions-2P",
+   "steps": 360,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-2p.json",
+   "tape_id": "01750555ee93949d9db001286a1256cb0c7134fe367f2e50b9bc5b003d00ed54"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "player_count": 3,
+   "rationale": "current record + dual independent fresh-process replay at 3P",
+   "run_pointer": "WS232_REPLAY_lions-3P",
+   "steps": 403,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-3p.json",
+   "tape_id": "c5a6f5eb7e600d167f30340bd8dc47c99284eb282cce09426e5c0f9979ed770f"
+  },
+  {
+   "cell_verdict": "PASS",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "player_count": 5,
+   "rationale": "current record + dual independent fresh-process replay at 5P",
+   "run_pointer": "WS232_REPLAY_lions-5P",
+   "steps": 507,
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-5p.json",
+   "tape_id": "92150424045bc5e64e63c8ecc7adf2ffb9d6201c0b8830405b838fcd5752a684"
+  }
+ ],
+ "records": {
+  "lions-2p": {
+   "decision_classes": {
+    "choose_object": 1,
+    "choose_use": 2,
+    "concede": 1,
+    "declare_attacker": 1,
+    "declare_blocker": 1,
+    "mana_payment": 4,
+    "mulligan": 8,
+    "priority": 336,
+    "target": 6
+   },
+   "numeric_classes": [],
+   "players": 2,
+   "record_seconds": 6.7,
+   "replay_b": "PASS",
+   "replay_b_seconds": 6.3,
+   "replay_b_steps": 360,
+   "replay_c": "PASS",
+   "replay_c_seconds": 6.0,
+   "replay_c_steps": 360,
+   "rng_initial": 196,
+   "rng_terminal": 784,
+   "seed": 424242,
+   "steps": 360,
+   "tag": "lions",
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-2p.json",
+   "tape_id": "01750555ee93949d9db001286a1256cb0c7134fe367f2e50b9bc5b003d00ed54"
+  },
+  "lions-3p": {
+   "decision_classes": {
+    "choose_object": 1,
+    "choose_use": 2,
+    "concede": 2,
+    "declare_attacker": 4,
+    "declare_blocker": 1,
+    "mana_payment": 6,
+    "mulligan": 12,
+    "priority": 366,
+    "target": 9
+   },
+   "numeric_classes": [],
+   "players": 3,
+   "record_seconds": 6.6,
+   "replay_b": "PASS",
+   "replay_b_seconds": 6.0,
+   "replay_b_steps": 403,
+   "replay_c": "PASS",
+   "replay_c_seconds": 6.0,
+   "replay_c_steps": 403,
+   "rng_initial": 294,
+   "rng_terminal": 1176,
+   "seed": 424242,
+   "steps": 403,
+   "tag": "lions",
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-3p.json",
+   "tape_id": "c5a6f5eb7e600d167f30340bd8dc47c99284eb282cce09426e5c0f9979ed770f"
+  },
+  "lions-5p": {
+   "decision_classes": {
+    "choose_object": 1,
+    "choose_use": 2,
+    "concede": 4,
+    "declare_attacker": 3,
+    "declare_blocker": 1,
+    "mana_payment": 14,
+    "mulligan": 20,
+    "priority": 447,
+    "target": 15
+   },
+   "numeric_classes": [],
+   "players": 5,
+   "record_seconds": 6.8,
+   "replay_b": "PASS",
+   "replay_b_seconds": 6.5,
+   "replay_b_steps": 507,
+   "replay_c": "PASS",
+   "replay_c_seconds": 6.5,
+   "replay_c_steps": 507,
+   "rng_initial": 490,
+   "rng_terminal": 1960,
+   "seed": 424242,
+   "steps": 507,
+   "tag": "lions",
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-lions-5p.json",
+   "tape_id": "92150424045bc5e64e63c8ecc7adf2ffb9d6201c0b8830405b838fcd5752a684"
+  },
+  "numeric": {
+   "decision_classes": {
+    "choose_object": 1,
+    "choose_use": 2,
+    "concede": 1,
+    "declare_attacker": 15,
+    "declare_blocker": 2,
+    "mana_payment": 14,
+    "mulligan": 8,
+    "priority": 451,
+    "target": 6,
+    "target_amount": 2
+   },
+   "numeric_classes": [
+    "target_amount"
+   ],
+   "players": 2,
+   "record_seconds": 6.5,
+   "replay_b": "PASS",
+   "replay_b_seconds": 6.1,
+   "replay_b_steps": 502,
+   "replay_c": "PASS",
+   "replay_c_seconds": 6.1,
+   "replay_c_steps": 502,
+   "rng_initial": 196,
+   "rng_terminal": 784,
+   "seed": 424242,
+   "steps": 502,
+   "tag": "arcnum",
+   "tape": "qualification/ws232-retention-nscoped-requalification/tapes/ws232-tape-arcnum-2p.json",
+   "tape_id": "d73d1693ee3a6de2f530717d87a2df5df6d07e539991fefc3a1b96b7de2875ec"
+  }
+ },
+ "schema_version": "ws232-replay-rng-5-matrix-1.0.0",
+ "summary": {
+  "PASS": 15,
+  "UNKNOWN": 0
+ }
+}
