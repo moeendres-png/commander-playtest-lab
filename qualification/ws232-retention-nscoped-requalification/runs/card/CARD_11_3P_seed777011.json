@@ -899,58 +899,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1195,60 +1143,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1492,60 +1386,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1792,62 +1632,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -2094,63 +1878,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -2398,63 +2125,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -2704,65 +2374,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -3013,66 +2624,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -3323,66 +2874,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Plains": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3636,65 +3127,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3942,66 +3374,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -4248,66 +3620,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -4558,66 +3870,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -4865,68 +4117,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -5170,68 +4360,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -5476,68 +4604,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -5787,67 +4853,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -6089,68 +5094,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -6391,68 +5334,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -6695,68 +5576,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -7002,68 +5821,6 @@
     "selected_types": [
      "declare_attacker"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -7308,68 +6065,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -7613,68 +6308,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -7922,68 +6555,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -8231,68 +6802,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -8541,68 +7050,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -8854,68 +7301,6 @@
     "selected_types": [
      "declare_attacker"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 2,
-        "Ornithopter": 1,
-        "Plains": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Akiri, Line-Slinger": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Ornithopter": 1,
-        "Wear // Tear": 1
-       },
-       "graveyard_count": 2,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Akiri, Line-Slinger": 1,
-        "Mountain": 1,
-        "Plains": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },

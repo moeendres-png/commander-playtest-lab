@@ -292,58 +292,6 @@
     "selected_types": [
      "target"
     ],
-    "snapshot": {
-     "phase": null,
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": null,
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -587,60 +535,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -884,60 +778,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1181,60 +1021,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 8,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -1482,62 +1268,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -1784,62 +1514,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -2088,64 +1762,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -2396,64 +2012,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -2704,64 +2262,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3014,62 +2514,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3317,63 +2761,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3621,63 +3008,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -3929,61 +3259,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -4228,62 +3503,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -4527,62 +3746,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 1
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -4830,62 +3993,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Island": 2
-       },
-       "command": {
-        "Esior, Wardwing Familiar": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -5131,61 +4238,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -5426,61 +4478,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -5723,61 +4720,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -6024,61 +4966,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -6322,61 +5209,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -6620,61 +5452,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -7203,61 +5980,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -7781,62 +6503,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3,
-        "Narset, Parter of Veils": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -8081,62 +6747,6 @@
     "selected_types": [
      "declare_blocker"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3,
-        "Narset, Parter of Veils": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -8380,62 +6990,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3,
-        "Narset, Parter of Veils": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -8682,62 +7236,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3,
-        "Narset, Parter of Veils": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 8,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -9270,62 +7768,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3,
-        "Narset, Parter of Veils": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Esior, Wardwing Familiar": 1,
-        "Island": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },

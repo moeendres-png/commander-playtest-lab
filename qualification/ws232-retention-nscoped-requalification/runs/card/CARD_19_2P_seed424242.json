@@ -273,43 +273,6 @@
     "selected_types": [
      "target"
     ],
-    "snapshot": {
-     "phase": null,
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": null,
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -543,43 +506,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -815,45 +741,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1091,47 +978,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -1372,47 +1218,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -1654,47 +1459,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 2
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -1935,47 +1699,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 2
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "draw",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -2217,47 +1940,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 2
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 2
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -2500,45 +2182,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 2
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -2778,46 +2421,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 2
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -3054,46 +2657,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 2
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -3336,44 +2899,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -3605,45 +3130,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -3878,45 +3364,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -4152,45 +3599,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 4,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 3,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -4425,47 +3833,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 3
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -4705,47 +4072,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -4986,47 +4312,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -5270,45 +4555,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -5550,46 +4796,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -5825,46 +5031,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 4
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -6106,44 +5272,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -6384,45 +5512,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -6653,45 +5742,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -6928,45 +5978,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 6,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -7202,45 +6213,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 6,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 5,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -7475,47 +6447,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 5
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -7757,47 +6688,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 12
-    },
     "stack_nonempty": false,
     "turn": 12
    },
@@ -8038,47 +6928,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "draw",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -8324,45 +7173,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 7
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -8604,46 +7414,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 7,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -8879,46 +7649,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 7,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 6
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -9360,46 +8090,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 7,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 7
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -9645,46 +8335,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 7,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 7
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -9916,47 +8566,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 7,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 7
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -10191,47 +8800,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 7,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 7
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -10907,48 +9475,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 8
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 7
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -11191,46 +9717,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 8
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 8
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -11476,46 +9962,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 8
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 8
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -12202,47 +10648,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 8
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 8,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -12487,45 +10892,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 9
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 8,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -12771,45 +11137,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 9
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 8,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -13048,46 +11375,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 9,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 8,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -13323,46 +11610,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 9,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 8,
-        "Toshiro Umezawa": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -14034,48 +12281,6 @@
     "selected_types": [
      "boolean"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 9
-       },
-       "command": {
-        "Toshiro Umezawa": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 30,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Butcher of Malakir": 1,
-        "Swamp": 9
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Toshiro Umezawa": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    }

@@ -272,43 +272,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -545,44 +508,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -817,44 +742,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -1095,45 +982,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -1374,45 +1222,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -1654,45 +1463,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -1932,45 +1702,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -2212,45 +1943,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -2491,45 +2183,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "first_combat_damage",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -2770,45 +2423,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -3050,45 +2664,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -3329,45 +2904,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -3609,45 +3145,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -3888,45 +3385,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -4167,45 +3625,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "draw",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -4447,45 +3866,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -4726,45 +4106,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -5006,45 +4347,6 @@
     "selected_types": [
      "declare_attacker"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -5285,45 +4587,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -5565,45 +4828,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -5844,45 +5068,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "first_combat_damage",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -6123,45 +5308,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -6602,45 +5748,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -6879,46 +5986,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -7154,46 +6221,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -7431,46 +6458,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -8141,46 +7128,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -8862,46 +7809,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 33,
-       "seat": 1
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 12
-    },
     "stack_nonempty": false,
     "turn": 12
    },
@@ -9142,46 +8049,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 33,
-       "seat": 1
-      }
-     ],
-     "step": "draw",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -9423,46 +8290,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 33,
-       "seat": 1
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -9703,46 +8530,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 33,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -9984,46 +8771,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 32,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -10464,46 +9211,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 32,
-       "seat": 1
-      }
-     ],
-     "step": "first_combat_damage",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -10744,46 +9451,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 26,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -11025,46 +9692,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 26,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -11305,46 +9932,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 26,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -11586,46 +10173,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 25,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -12066,46 +10613,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 25,
-       "seat": 1
-      }
-     ],
-     "step": "first_combat_damage",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -12346,46 +10853,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 19,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -12627,46 +11094,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 19,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -12907,46 +11334,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 19,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -13188,46 +11575,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 18,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -13668,46 +12015,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 18,
-       "seat": 1
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -13948,46 +12255,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 12,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -14229,46 +12496,6 @@
     "selected_types": [
      "declare_attacker"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 10,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 12,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -14509,46 +12736,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Psychosis Crawler": 1,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 10,
-        "Rograkh, Son of Rohgahh": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 12,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    }

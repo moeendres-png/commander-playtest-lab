@@ -47,7 +47,9 @@ def budget_for(fid: str, n: int) -> int:
 
 
 def compact_run(run: dict) -> dict:
-    keep_offsets = set()
+    # Evidence-offset snapshots only (offers/selects +-2 plus the first
+    # decision); per-decision classes/life/numerics stay for every offset.
+    keep_offsets = {1}
     for e in run["log"]:
         if e["focus_offered"] or e["focus_selected"]:
             for k in range(e["offset"] - 2, e["offset"] + 3):
@@ -55,7 +57,7 @@ def compact_run(run: dict) -> dict:
     out_log = []
     for e in run["log"]:
         item = dict(e)
-        if e["offset"] not in keep_offsets and e["offset"] % 10 != 0:
+        if e["offset"] not in keep_offsets:
             item.pop("snapshot", None)
         out_log.append(item)
     run = dict(run)

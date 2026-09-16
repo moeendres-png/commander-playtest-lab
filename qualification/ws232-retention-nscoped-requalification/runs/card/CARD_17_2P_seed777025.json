@@ -273,43 +273,6 @@
     "selected_types": [
      "target"
     ],
-    "snapshot": {
-     "phase": null,
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": null,
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -543,43 +506,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -815,45 +741,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1091,47 +978,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -1372,47 +1218,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -1654,47 +1459,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -1935,47 +1699,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "draw",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -2217,47 +1940,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -2499,47 +2181,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -2780,47 +2421,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 2
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -3062,47 +2662,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -3343,47 +2902,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "draw",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -3625,47 +3143,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -3907,47 +3384,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -4188,47 +3624,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -4470,47 +3865,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -4751,47 +4105,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -5033,47 +4346,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -5315,47 +4587,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -5596,48 +4827,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 5
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -5879,48 +5068,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 12
-    },
     "stack_nonempty": false,
     "turn": 12
    },
@@ -6161,48 +5308,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 5,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -6653,46 +5758,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -6936,46 +6001,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 6,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -7211,47 +6236,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 6
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 6,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -7489,47 +6473,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 6,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -7765,47 +6708,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 6,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -8492,47 +7394,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -9225,46 +8086,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -9704,48 +8525,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -9986,48 +8765,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -10478,46 +9215,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -10764,46 +9461,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -11241,47 +9898,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -11517,48 +10133,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -12250,46 +10824,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -12728,47 +11262,6 @@
     "selected_types": [
      "boolean"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Kaervek the Merciless": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -12999,48 +11492,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 8,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 2
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -13276,48 +11727,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 8,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -13553,48 +11962,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 8,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 40,
-       "seat": 1
-      }
-     ],
-     "step": "end_turn",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -14285,48 +12652,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 3
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 20
-    },
     "stack_nonempty": false,
     "turn": 20
    },
@@ -15023,46 +13348,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 21
-    },
     "stack_nonempty": false,
     "turn": 21
    },
@@ -15742,48 +14027,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 21
-    },
     "stack_nonempty": false,
     "turn": 21
    },
@@ -16020,48 +14263,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Swamp": 1
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 84,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "upkeep",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -16511,46 +14712,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -16796,46 +14957,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 7,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -17506,48 +15627,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -17782,48 +15861,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 7,
-        "Swamp": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 82,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 23
-    },
     "stack_nonempty": false,
     "turn": 23
    },
@@ -18059,48 +16096,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 83,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Swamp": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 82,
-       "life": 35,
-       "seat": 1
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 23
-    },
     "stack_nonempty": false,
     "turn": 23
    },
@@ -18791,48 +16786,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 82,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Swamp": 4
-       },
-       "command": {
-        "Kaervek the Merciless": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 82,
-       "life": 30,
-       "seat": 1
-      }
-     ],
-     "step": "end_combat",
-     "turn": 24
-    },
     "stack_nonempty": false,
     "turn": 24
    },
@@ -19529,46 +17482,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 82,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 81,
-       "life": 30,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },
@@ -19815,46 +17728,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Kaervek the Merciless": 1,
-        "Mountain": 9,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 82,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 81,
-       "life": 30,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },
@@ -20294,47 +18167,6 @@
     "selected_types": [
      "boolean"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Mountain": 9,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Kaervek the Merciless": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 82,
-       "life": 35,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Mountain": 8,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 81,
-       "life": 30,
-       "seat": 1
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },

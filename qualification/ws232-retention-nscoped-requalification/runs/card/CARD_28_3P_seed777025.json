@@ -292,58 +292,6 @@
     "selected_types": [
      "target"
     ],
-    "snapshot": {
-     "phase": null,
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 7,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": null,
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -588,58 +536,6 @@
     "selected_types": [
      "keep"
     ],
-    "snapshot": {
-     "phase": null,
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": null,
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -884,60 +780,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1181,60 +1023,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 1
-    },
     "stack_nonempty": false,
     "turn": 1
    },
@@ -1478,60 +1266,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -1778,62 +1512,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -2081,62 +1759,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {},
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 94,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 2
-    },
     "stack_nonempty": false,
     "turn": 2
    },
@@ -2384,64 +2006,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -2692,64 +2256,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 3
-    },
     "stack_nonempty": false,
     "turn": 3
    },
@@ -3000,64 +2506,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3310,63 +2758,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3614,64 +3005,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -3919,64 +3252,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 4
-    },
     "stack_nonempty": false,
     "turn": 4
    },
@@ -4762,64 +4037,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -5063,64 +4280,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 93,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 5
-    },
     "stack_nonempty": false,
     "turn": 5
    },
@@ -5903,66 +5062,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -6203,66 +5302,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 6
-    },
     "stack_nonempty": false,
     "turn": 6
    },
@@ -6505,66 +5544,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 6,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -6810,66 +5789,6 @@
     "selected_types": [
      "declare_attacker"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -7113,66 +6032,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 38,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -7416,66 +6275,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 38,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 7
-    },
     "stack_nonempty": false,
     "turn": 7
    },
@@ -8334,68 +7133,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 38,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -8643,68 +7380,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 38,
-       "seat": 2
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -8951,68 +7626,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 8
-    },
     "stack_nonempty": false,
     "turn": 8
    },
@@ -9260,68 +7873,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 92,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -9576,67 +8127,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -9887,68 +8377,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -10199,68 +8627,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {},
-       "graveyard_count": 0,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 9
-    },
     "stack_nonempty": false,
     "turn": 9
    },
@@ -11137,70 +9503,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -11450,70 +9752,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -11762,72 +10000,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 10
-    },
     "stack_nonempty": false,
     "turn": 10
    },
@@ -12078,72 +10250,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -12395,72 +10501,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 36,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -12709,72 +10749,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -13025,72 +10999,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 91,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 11
-    },
     "stack_nonempty": false,
     "turn": 11
    },
@@ -13343,70 +11251,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 12
-    },
     "stack_nonempty": false,
     "turn": 12
    },
@@ -13660,70 +11504,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 12
-    },
     "stack_nonempty": false,
     "turn": 12
    },
@@ -13970,71 +11750,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 12
-    },
     "stack_nonempty": false,
     "turn": 12
    },
@@ -14283,71 +11998,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 1
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -14600,69 +12250,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -14913,70 +12500,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -15224,70 +12747,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 13
-    },
     "stack_nonempty": false,
     "turn": 13
    },
@@ -15534,70 +12993,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 1,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -15847,70 +13242,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -16155,72 +13486,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 3
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -16474,70 +13739,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -16789,71 +13990,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 90,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 14
-    },
     "stack_nonempty": false,
     "turn": 14
    },
@@ -17104,71 +14240,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -17419,71 +14490,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 15
-    },
     "stack_nonempty": false,
     "turn": 15
    },
@@ -17734,71 +14740,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 1
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -18050,71 +14991,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 34,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -18364,71 +15240,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 32,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -18678,71 +15489,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 32,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 16
-    },
     "stack_nonempty": false,
     "turn": 16
    },
@@ -18993,71 +15739,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 32,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -19309,71 +15990,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 32,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -19622,71 +16238,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -19937,71 +16488,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 89,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 17
-    },
     "stack_nonempty": false,
     "turn": 17
    },
@@ -20254,69 +16740,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -20573,69 +16996,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -20883,70 +17243,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -21193,70 +17489,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 18
-    },
     "stack_nonempty": false,
     "turn": 18
    },
@@ -21506,70 +17738,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -21816,70 +17984,6 @@
     "selected_types": [
      "declare_blocker"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -22126,72 +18230,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 3
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "end_combat",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -22448,70 +18486,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -22762,71 +18736,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 19
-    },
     "stack_nonempty": false,
     "turn": 19
    },
@@ -23075,71 +18984,6 @@
     "selected_types": [
      "activated_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 20
-    },
     "stack_nonempty": false,
     "turn": 20
    },
@@ -23387,71 +19231,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 30,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 20
-    },
     "stack_nonempty": false,
     "turn": 20
    },
@@ -23697,71 +19476,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 28,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 20
-    },
     "stack_nonempty": false,
     "turn": 20
    },
@@ -24009,71 +19723,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 88,
-       "life": 28,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 20
-    },
     "stack_nonempty": false,
     "turn": 20
    },
@@ -24325,71 +19974,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 28,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 21
-    },
     "stack_nonempty": false,
     "turn": 21
    },
@@ -24640,71 +20224,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 28,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 21
-    },
     "stack_nonempty": false,
     "turn": 21
    },
@@ -24955,71 +20474,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 3
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 28,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -25271,71 +20725,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 28,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -25584,71 +20973,6 @@
     "selected_types": [
      "boolean"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 26,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -25899,71 +21223,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "end",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 2,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 26,
-       "seat": 2
-      }
-     ],
-     "step": "end_turn",
-     "turn": 22
-    },
     "stack_nonempty": false,
     "turn": 22
    },
@@ -26215,71 +21474,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 26,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 23
-    },
     "stack_nonempty": false,
     "turn": 23
    },
@@ -26530,71 +21724,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 26,
-       "seat": 2
-      }
-     ],
-     "step": "declare_blockers",
-     "turn": 23
-    },
     "stack_nonempty": false,
     "turn": 23
    },
@@ -26843,71 +21972,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 23
-    },
     "stack_nonempty": false,
     "turn": 23
    },
@@ -27158,71 +22222,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 5,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 87,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "upkeep",
-     "turn": 24
-    },
     "stack_nonempty": false,
     "turn": 24
    },
@@ -27476,69 +22475,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 24
-    },
     "stack_nonempty": false,
     "turn": 24
    },
@@ -27795,69 +22731,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "precombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "precombat_main",
-     "turn": 24
-    },
     "stack_nonempty": false,
     "turn": 24
    },
@@ -28106,70 +22979,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "begin_combat",
-     "turn": 24
-    },
     "stack_nonempty": false,
     "turn": 24
    },
@@ -28417,70 +23226,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 24
-    },
     "stack_nonempty": false,
     "turn": 24
    },
@@ -28728,70 +23473,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "beginning",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 4
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 5,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "draw",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },
@@ -29041,70 +23722,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 2
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "declare_attackers",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },
@@ -29349,72 +23966,6 @@
     "selected_types": [
      "pass_priority"
     ],
-    "snapshot": {
-     "phase": "combat",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 5
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "combat_damage",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },
@@ -29669,70 +24220,6 @@
     "selected_types": [
      "mana_ability"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },
@@ -29991,70 +24478,6 @@
     "selected_types": [
      "mana_pool"
     ],
-    "snapshot": {
-     "phase": "postcombat_main",
-     "players": [
-      {
-       "battlefield": {
-        "Forest": 3,
-        "Hapatra, Vizier of Poisons": 1,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 40,
-       "seat": 0
-      },
-      {
-       "battlefield": {
-        "Forest": 4,
-        "Swamp": 5
-       },
-       "command": {},
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 85,
-       "life": 40,
-       "seat": 1
-      },
-      {
-       "battlefield": {
-        "Forest": 6,
-        "Swamp": 2
-       },
-       "command": {
-        "Hapatra, Vizier of Poisons": 1
-       },
-       "exile_count": 0,
-       "graveyard": {
-        "Find // Finality": 1
-       },
-       "graveyard_count": 1,
-       "hand_count": 4,
-       "has_lost": false,
-       "has_won": false,
-       "library_count": 86,
-       "life": 24,
-       "seat": 2
-      }
-     ],
-     "step": "postcombat_main",
-     "turn": 25
-    },
     "stack_nonempty": false,
     "turn": 25
    },
