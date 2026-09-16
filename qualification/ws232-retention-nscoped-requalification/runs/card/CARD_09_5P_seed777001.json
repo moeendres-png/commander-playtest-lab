@@ -1,0 +1,87 @@
+{
+ "card": "Magma Opus",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_09",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 532,
+  "deck_digests": [
+   "f275c63383a7a74535d992d7cdcf01cefe36cbf554d23675b5f3bbd264e9ec24",
+   "12088af12d88e8389e1643860a249cc090f0ef4df57825c31a1ca09c03bb1d39",
+   "c65696f89bcaddfe4c59aa1d03cbc1ba40b30085f23db75469f63712f9b048d2",
+   "e1aa78a544a60ea9957e3a210d6986c505d08b5a6aedebe8c6839442ea215138",
+   "11801b46921b7e4331cf4a9409e2ec18aaa38bb83ce0ca2195c1e843099d4bda"
+  ],
+  "deck_ids": [
+   "ws232-CARD_09-5p-s777001-1",
+   "ws232-CARD_09-5p-s777001-2",
+   "ws232-CARD_09-5p-s777001-3",
+   "ws232-CARD_09-5p-s777001-4",
+   "ws232-CARD_09-5p-s777001-5"
+  ],
+  "elapsed_seconds": 7.9,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": "{\"message\": \"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: 2edfe925058968fcd5ba535387c1e611d763e0ae899df37c56033dbd509e62d9\", \"type\": \"decision_controller\"}",
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 12,
+  "focus_names": [
+   "Magma Opus"
+  ],
+  "observed_classes": {
+   "choice": 1,
+   "choose_object": 1,
+   "mana_payment": 20,
+   "mulligan": 17,
+   "priority": 481,
+   "target": 12
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1666,
+  "scenario_id": "ws232-CARD_09-5p",
+  "seed": 777001,
+  "terminal": false
+ },
+ "run_id": "CARD_09_5P_seed777001",
+ "seed": 777001,
+ "verdict": "UNKNOWN"
+}

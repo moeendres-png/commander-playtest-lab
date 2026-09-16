@@ -3,10 +3,10 @@
  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
  "fixture_id": "CARD_15",
  "player_count": 2,
- "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "rationale": "X-spell cast with engine numeric frame consumed; spell did not resolve (MAX payment dynamics, see note); post-evidence engine failure noted: {\"message\": \"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: b4e0b04e6ff1cf922269077e7c49fcee6e20ff416e5d2bf97a0b87eb7de389dc\", \"type\": \"decision_controller\"}",
  "run": {
-  "budget_exhausted": true,
-  "decisions": 192,
+  "budget_exhausted": false,
+  "decisions": 85,
   "deck_digests": [
    "40bbbaf6a3cc70b7bb7f114cf70338bccba1eac30319da0754043de271076a27",
    "85169e89299a61dbcccb13ee8d24a07fc357664277f5f163b79badd02edbb881"
@@ -15,10 +15,10 @@
    "ws232-CARD_15-2p-s424242-1",
    "ws232-CARD_15-2p-s424242-2"
   ],
-  "elapsed_seconds": 6.7,
+  "elapsed_seconds": 5.3,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
-  "failure": null,
+  "failure": "{\"message\": \"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: b4e0b04e6ff1cf922269077e7c49fcee6e20ff416e5d2bf97a0b87eb7de389dc\", \"type\": \"decision_controller\"}",
   "final_outcomes": [
    {
     "left": false,
@@ -35,14 +35,2504 @@
     "won": false
    }
   ],
-  "final_turn": 9,
+  "final_turn": 4,
   "focus_names": [
    "Finale of Revelation"
   ],
+  "log": [
+   {
+    "decision_class": "choose_object",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 1,
+    "option_types": {
+     "choice": 2
+    },
+    "seat": 1,
+    "selected_types": [
+     "choice"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 2,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 3,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 4,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 5,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 6,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 1,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 7,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 2,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 8,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 9,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mulligan"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 10,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 1,
+    "selected_types": [
+     "target"
+    ],
+    "snapshot": {
+     "phase": null,
+     "players": [
+      {
+       "battlefield": {},
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 7,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {},
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": null,
+     "turn": 1
+    },
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 6,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 11,
+    "option_types": {
+     "target": 6
+    },
+    "seat": 1,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 12,
+    "option_types": {
+     "target": 7
+    },
+    "seat": 2,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "target",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 6,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 13,
+    "option_types": {
+     "target": 6
+    },
+    "seat": 2,
+    "selected_types": [
+     "target"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 14,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "keep"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "mulligan",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 15,
+    "option_types": {
+     "keep": 1,
+     "mulligan": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "keep"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 16,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 17,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 18,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 19,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 20,
+    "option_types": {
+     "activated_ability": 6,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {},
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {},
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 94,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 1
+    },
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 21,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 22,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 23,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 24,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 25,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 26,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 27,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 28,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 29,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 30,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "postcombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {},
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 94,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "postcombat_main",
+     "turn": 1
+    },
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 31,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 32,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 1
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 33,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 34,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 35,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 36,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 6,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 37,
+    "option_types": {
+     "activated_ability": 5,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 38,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 39,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 40,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "combat",
+     "players": [
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "begin_combat",
+     "turn": 2
+    },
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 41,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 42,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 43,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 44,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 45,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 46,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 47,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 48,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 49,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 2
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 50,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "beginning",
+     "players": [
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "upkeep",
+     "turn": 3
+    },
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 51,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 52,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 53,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 8,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 54,
+    "option_types": {
+     "activated_ability": 6,
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 3,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 55,
+    "option_types": {
+     "activated_ability": 1,
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 56,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_ability": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 3,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 57,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_ability": 1,
+     "mana_pool": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_pool"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 58,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_ability": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 59,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_pool": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "mana_pool"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 60,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Island": 2
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 3
+    },
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 61,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 62,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 63,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 64,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 65,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 66,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 67,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 68,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 69,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 70,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "postcombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Esior, Wardwing Familiar": 1,
+        "Island": 2
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 93,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "postcombat_main",
+     "turn": 3
+    },
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 71,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 72,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 73,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 3
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 74,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 75,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 76,
+    "option_types": {
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 77,
+    "option_types": {
+     "pass_priority": 1
+    },
+    "seat": 1,
+    "selected_types": [
+     "pass_priority"
+    ],
+    "snapshot": {
+     "phase": "beginning",
+     "players": [
+      {
+       "battlefield": {
+        "Esior, Wardwing Familiar": 1,
+        "Island": 2
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "draw",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 7,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 78,
+    "option_types": {
+     "activated_ability": 5,
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Esior, Wardwing Familiar": 1,
+        "Island": 2
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 1
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 6,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "priority",
+    "focus_offered": true,
+    "focus_selected": true,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 4,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 79,
+    "option_types": {
+     "activated_ability": 2,
+     "mana_ability": 1,
+     "pass_priority": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "activated_ability"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Esior, Wardwing Familiar": 1,
+        "Island": 2
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 2
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "announce_x",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 0,
+    "numeric_choice": 2147483647,
+    "numeric_max": 2147483647,
+    "numeric_min": 0,
+    "offset": 80,
+    "option_types": {},
+    "seat": 2,
+    "selected_types": [],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Esior, Wardwing Familiar": 1,
+        "Island": 2
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 2
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 4,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 81,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_ability": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "snapshot": {
+     "phase": "precombat_main",
+     "players": [
+      {
+       "battlefield": {
+        "Esior, Wardwing Familiar": 1,
+        "Island": 2
+       },
+       "command": {},
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 5,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 0
+      },
+      {
+       "battlefield": {
+        "Island": 2
+       },
+       "command": {
+        "Esior, Wardwing Familiar": 1
+       },
+       "exile_count": 0,
+       "graveyard": {},
+       "graveyard_count": 0,
+       "hand_count": 4,
+       "has_lost": false,
+       "has_won": false,
+       "library_count": 92,
+       "life": 40,
+       "seat": 1
+      }
+     ],
+     "step": "precombat_main",
+     "turn": 4
+    },
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 3,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 82,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_ability": 1,
+     "mana_pool": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_pool"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 83,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_ability": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_ability"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 2,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 84,
+    "option_types": {
+     "cancel_mana_payment": 1,
+     "mana_pool": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "mana_pool"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   },
+   {
+    "decision_class": "mana_payment",
+    "focus_offered": false,
+    "focus_selected": false,
+    "life": [
+     40,
+     40
+    ],
+    "n_options": 1,
+    "numeric_choice": null,
+    "numeric_max": null,
+    "numeric_min": null,
+    "offset": 85,
+    "option_types": {
+     "cancel_mana_payment": 1
+    },
+    "seat": 2,
+    "selected_types": [
+     "cancel_mana_payment"
+    ],
+    "stack_nonempty": false,
+    "turn": 4
+   }
+  ],
   "observed_classes": {
+   "announce_x": 1,
    "choose_object": 1,
+   "mana_payment": 9,
    "mulligan": 8,
-   "priority": 177,
+   "priority": 60,
    "target": 6
   },
   "player_count": 2,
@@ -54,5 +2544,5 @@
  },
  "run_id": "CARD_15_2P_seed424242",
  "seed": 424242,
- "verdict": "UNKNOWN"
+ "verdict": "PASS"
 }

@@ -1,0 +1,86 @@
+{
+ "card": "Finale of Revelation",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_15",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "145ebef3c3cd2660597e3ab00af6ac8763914e23e79153b38098ceda02a4ca41",
+   "d36b2d48c0d333d7d7772dc4ec76bb96889e351d617fdc989359b97c35ec0b70",
+   "4b32939041e722984a4f43f61d77ca967ae7c42aeab73764206934e638c925c7",
+   "ca63ea8d36c0d5ff84d8d34479bcd2475e0d7daaa7cfae8fd96cbe37626ef37a",
+   "84265b968d12a317adceb5ee88c688d23ce2643ef56fe04d6a4da6f19ace12a1"
+  ],
+  "deck_ids": [
+   "ws232-CARD_15-5p-s777007-1",
+   "ws232-CARD_15-5p-s777007-2",
+   "ws232-CARD_15-5p-s777007-3",
+   "ws232-CARD_15-5p-s777007-4",
+   "ws232-CARD_15-5p-s777007-5"
+  ],
+  "elapsed_seconds": 6.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 10,
+  "focus_names": [
+   "Finale of Revelation"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "mana_payment": 20,
+   "mulligan": 20,
+   "priority": 424,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_15-5p",
+  "seed": 777007,
+  "terminal": false
+ },
+ "run_id": "CARD_15_5P_seed777007",
+ "seed": 777007,
+ "verdict": "UNKNOWN"
+}

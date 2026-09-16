@@ -1,0 +1,89 @@
+{
+ "card": "Basilisk Collar",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_25",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "17463ab95a48d6af29547054d9732a5f6dffa8865a490c843c1dff3e371a5082",
+   "58c2866e186616bc62a1bd2a49922939a1a0f7a2f2e29c9a477021190525d3e2",
+   "f32ba2efdce1c1cec7ced2411618f24abc58664bf8b1ce0cbc8800561bb0f75b",
+   "bfeb79245d756a4c9eacbb386cc4fa6064dfbfee965ea7d3cbc3a8b3f745aeac",
+   "f7184796d3a1b630324e29577fb67b1856d9ab406c06ce6955d0de97681a7289"
+  ],
+  "deck_ids": [
+   "ws232-CARD_25-5p-s777015-1",
+   "ws232-CARD_25-5p-s777015-2",
+   "ws232-CARD_25-5p-s777015-3",
+   "ws232-CARD_25-5p-s777015-4",
+   "ws232-CARD_25-5p-s777015-5"
+  ],
+  "elapsed_seconds": 6.0,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 36,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Basilisk Collar"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 3,
+   "declare_blocker": 1,
+   "mana_payment": 10,
+   "mulligan": 20,
+   "priority": 428,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_25-5p",
+  "seed": 777015,
+  "terminal": false
+ },
+ "run_id": "CARD_25_5P_seed777015",
+ "seed": 777015,
+ "verdict": "UNKNOWN"
+}

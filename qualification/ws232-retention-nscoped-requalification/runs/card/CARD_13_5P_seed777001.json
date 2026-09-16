@@ -1,0 +1,87 @@
+{
+ "card": "Flare of Duplication",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_13",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "3583c52163e9f05f1da790c7d34e6873f0b5fe7d2913e9e7e1eff37c43db4aed",
+   "ab4ac1b4366d6934479a39e8c42938c814b637f396d4a516bdbed2e30ee29ae0",
+   "24bbadaccbafd252fe8f7efc0cc1cb86ee8906af1d692151a9241b4e6c046405",
+   "aa1b0fa6579f598e4732c59357682b8d7d976af35dc00abeebb037dab141ac5d",
+   "e2d8741b49d6e2360d37c2d33019320abc31bbc2fd1af74b39059aaa421dab65"
+  ],
+  "deck_ids": [
+   "ws232-CARD_13-5p-s777001-1",
+   "ws232-CARD_13-5p-s777001-2",
+   "ws232-CARD_13-5p-s777001-3",
+   "ws232-CARD_13-5p-s777001-4",
+   "ws232-CARD_13-5p-s777001-5"
+  ],
+  "elapsed_seconds": 5.9,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Flare of Duplication"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 4,
+   "declare_blocker": 3,
+   "mulligan": 20,
+   "priority": 437,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_13-5p",
+  "seed": 777001,
+  "terminal": false
+ },
+ "run_id": "CARD_13_5P_seed777001",
+ "seed": 777001,
+ "verdict": "UNKNOWN"
+}

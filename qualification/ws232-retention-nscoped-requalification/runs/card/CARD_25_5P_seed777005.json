@@ -1,0 +1,89 @@
+{
+ "card": "Basilisk Collar",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_25",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "990db24807ffba2105b3e58416a593c61016126901ff083d01fbe30cebb4cee5",
+   "38d96616eb57915f8d86af1549d273147b60bd201ee5f939bd321e01f14f4210",
+   "8e49f034a562c15da137664d5439ef46cdf9731a257b985ac895cc833e8f33a7",
+   "29c180c8187baabe2efd6f353a1122153240a6782a06cefa3f0b68013b495f8b",
+   "189ce71ca263b0d32e3bbc7ca084b808dcedaf02107f32d6eb4af4ac1e8effea"
+  ],
+  "deck_ids": [
+   "ws232-CARD_25-5p-s777005-1",
+   "ws232-CARD_25-5p-s777005-2",
+   "ws232-CARD_25-5p-s777005-3",
+   "ws232-CARD_25-5p-s777005-4",
+   "ws232-CARD_25-5p-s777005-5"
+  ],
+  "elapsed_seconds": 6.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 10,
+  "focus_names": [
+   "Basilisk Collar"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 2,
+   "declare_blocker": 1,
+   "mana_payment": 12,
+   "mulligan": 19,
+   "priority": 430,
+   "target": 13
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1862,
+  "scenario_id": "ws232-CARD_25-5p",
+  "seed": 777005,
+  "terminal": false
+ },
+ "run_id": "CARD_25_5P_seed777005",
+ "seed": 777005,
+ "verdict": "UNKNOWN"
+}

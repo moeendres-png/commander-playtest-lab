@@ -1,0 +1,89 @@
+{
+ "card": "Magma Opus",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_09",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 840,
+  "deck_digests": [
+   "fe666744e869c22af6584abc7272e05448a7aa9c97987f79a2a7f43ae6e87c9f",
+   "33dc1cbddfcc2f1c07813f35a09160e331ec17249ea5b19b759148ffd02d2269",
+   "6c4a2f85645a8f9fe6b2ccad8dee3cb246917110030685af4729e593c56fe788",
+   "36abed76a3a8a5656baaa73994eb01d23bf19c08d11a9c3979d1a052444b0400",
+   "1cbae06b8c1addefad5bc4c8388a83d8a77906b009b726bd046d85837d0277d5"
+  ],
+  "deck_ids": [
+   "ws232-CARD_09-5p-s777007-1",
+   "ws232-CARD_09-5p-s777007-2",
+   "ws232-CARD_09-5p-s777007-3",
+   "ws232-CARD_09-5p-s777007-4",
+   "ws232-CARD_09-5p-s777007-5"
+  ],
+  "elapsed_seconds": 8.9,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 19,
+  "focus_names": [
+   "Magma Opus"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 1,
+   "declare_blocker": 1,
+   "mana_payment": 18,
+   "mulligan": 20,
+   "priority": 782,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_09-5p",
+  "seed": 777007,
+  "terminal": false
+ },
+ "run_id": "CARD_09_5P_seed777007",
+ "seed": 777007,
+ "verdict": "UNKNOWN"
+}

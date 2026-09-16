@@ -15,21 +15,21 @@
    "ws232-CARD_15-2p-s777003-1",
    "ws232-CARD_15-2p-s777003-2"
   ],
-  "elapsed_seconds": 6.4,
+  "elapsed_seconds": 5.2,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
   "final_outcomes": [
    {
     "left": false,
-    "life": 40,
+    "life": 39,
     "lost": false,
     "seat": 0,
     "won": false
    },
    {
     "left": false,
-    "life": 40,
+    "life": 38,
     "lost": false,
     "seat": 1,
     "won": false
@@ -41,8 +41,11 @@
   ],
   "observed_classes": {
    "choose_object": 1,
+   "declare_attacker": 4,
+   "declare_blocker": 1,
+   "mana_payment": 8,
    "mulligan": 8,
-   "priority": 177,
+   "priority": 164,
    "target": 6
   },
   "player_count": 2,

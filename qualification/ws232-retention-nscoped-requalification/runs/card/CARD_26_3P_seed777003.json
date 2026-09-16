@@ -17,7 +17,7 @@
    "ws232-CARD_26-3p-s777003-2",
    "ws232-CARD_26-3p-s777003-3"
   ],
-  "elapsed_seconds": 7.2,
+  "elapsed_seconds": 6.1,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
@@ -44,7 +44,7 @@
     "won": false
    }
   ],
-  "final_turn": 8,
+  "final_turn": 9,
   "focus_names": [
    "Burn Down the House"
   ],

@@ -6,7 +6,7 @@
  "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
  "run": {
   "budget_exhausted": true,
-  "decisions": 480,
+  "decisions": 720,
   "deck_digests": [
    "4a2b870120d35ae078a6c3d324deb018b8e913eb0780e63237a3cc6eb80db752",
    "8446329fa3f641a002fb2a5cf3a3b5dd0910f2d9e034c8574a231a67c36c6869",
@@ -21,7 +21,7 @@
    "ws232-CARD_26-5p-s777002-4",
    "ws232-CARD_26-5p-s777002-5"
   ],
-  "elapsed_seconds": 7.6,
+  "elapsed_seconds": 7.2,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
@@ -62,21 +62,21 @@
     "won": false
    }
   ],
-  "final_turn": 9,
+  "final_turn": 14,
   "focus_names": [
    "Burn Down the House"
   ],
   "observed_classes": {
    "choose_object": 1,
-   "declare_attacker": 4,
-   "declare_blocker": 3,
-   "mulligan": 20,
-   "priority": 437,
-   "target": 15
+   "declare_attacker": 8,
+   "declare_blocker": 4,
+   "mulligan": 14,
+   "priority": 686,
+   "target": 7
   },
   "player_count": 5,
   "protocol_version": "2.0.0",
-  "rules_random_calls_last": 1960,
+  "rules_random_calls_last": 1372,
   "scenario_id": "ws232-CARD_26-5p",
   "seed": 777002,
   "terminal": false

@@ -68,26 +68,45 @@ class SpotlightPilot(GenericCommanderPilot):
 
     pilot_name = "WS232SpotlightPilot"
 
-    def __init__(self, config, focus_names: tuple[str, ...]):
+    def __init__(self, config, focus_names: tuple[str, ...],
+                 focus_is_commander: bool = False,
+                 focus_halves: tuple[str, ...] = ()):
         super().__init__(config)
         self._focus = tuple(n.casefold() for n in focus_names)
+        import re as _re
+        self._half_pats = tuple(
+            _re.compile(r"\b" + _re.escape(h.casefold()) + r"\b") for h in focus_halves)
+        # When the focus IS the commander it never appears in hands; skip
+        # hand-shaping (mulligan/bottom) and only prefer its casts.
+        self._focus_is_commander = focus_is_commander
 
     def _is_focus_view(self, card_name: str | None) -> bool:
-        return bool(card_name) and any(
-            f in card_name.casefold() for f in self._focus)
+        if not card_name:
+            return False
+        low = card_name.casefold()
+        if any(f in low for f in self._focus):
+            return True
+        return any(p.search(low) for p in self._half_pats)
 
     def should_keep_opening_hand(self, cards, *, mulligans, free_first,
                                  commander_names, rng):
         # Themed-table mulligan: keep the focus card (with at least one land
         # so the keep can develop); otherwise look for it while the cap
         # allows. The engine cap (forced keep at 3) still binds.
+        # Commander-focus: the focus is never in hand; delegate entirely.
+        if self._focus_is_commander:
+            return super().should_keep_opening_hand(
+                cards, mulligans=mulligans, free_first=free_first,
+                commander_names=commander_names, rng=rng)
         if mulligans < 3 and self._focus:
             names = [getattr(c, "card_name", "") or "" for c in cards]
             has_focus = any(self._is_focus_view(n) for n in names)
             lands = sum(1 for c in cards if (c.metadata or {}).get("is_land"))
-            if has_focus and lands >= 1:
+            # Keep focus hands that can develop (2+ lands); mulligan slow
+            # focus hands and focus-less hands while the cap allows.
+            if has_focus and lands >= 2:
                 return True, 9.9
-            if not has_focus:
+            if not has_focus or lands < 2:
                 return False, 0.0
         return super().should_keep_opening_hand(
             cards, mulligans=mulligans, free_first=free_first,
@@ -95,6 +114,10 @@ class SpotlightPilot(GenericCommanderPilot):
 
     def choose_bottom_cards(self, cards, count, *, commander_names):
         # Never bottom the focus card while any other bottom candidate exists.
+        # Commander-focus: delegate entirely (focus never in hand).
+        if self._focus_is_commander:
+            return super().choose_bottom_cards(
+                cards, count, commander_names=commander_names)
         if count > 0 and self._focus:
             ordered = sorted(
                 list(cards),
@@ -257,7 +280,8 @@ class DecisionLog:
 
 
 def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
-               max_decisions=150, request_timeout=120.0) -> dict:
+               focus_halves=(), focus_is_commander=False, max_decisions=150,
+               request_timeout=120.0) -> dict:
     """Drive one fresh-process game. Returns the public run record.
 
     focus_seats defaults to ALL seats (symmetric themed table) when
@@ -275,11 +299,21 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
     for binding in sorted(pilots, key=lambda b: b.seat):
         pilot = build_pilot(binding.config, strategy=binding.strategy)
         if binding.seat in focus_seats and focus_names:
-            pilot = SpotlightPilot(binding.config, tuple(focus_names))
+            pilot = SpotlightPilot(binding.config, tuple(focus_names),
+                                   focus_is_commander=focus_is_commander,
+                                   focus_halves=tuple(focus_halves))
         runtimes.append(_RuntimePilot(binding=binding, pilot=pilot))
     policy = ExternalPilotDecisionPolicy(tuple(runtimes), scenario.seed)
 
     focus_cf = tuple(n.casefold() for n in focus_names)
+    focus_whole = tuple(n.casefold() for n in focus_halves)
+    import re as _re
+    whole_pats = tuple(_re.compile(r"\b" + _re.escape(h) + r"\b") for h in focus_whole)
+
+    def _matches(blob_cf: str) -> bool:
+        if focus_cf and any(f in blob_cf for f in focus_cf):
+            return True
+        return any(p.search(blob_cf) for p in whole_pats)
     t0 = time.monotonic()
     logs: list[DecisionLog] = []
     provider: dict = {}
@@ -332,11 +366,16 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
                         for o in options:
                             if not isinstance(o, dict):
                                 continue
-                            if str(o.get("option_type")) not in (
-                                    "activated_ability", "cast", "play"):
+                            # Any priority offer naming the focus except
+                            # passes and mana taps: cast offers arrive as
+                            # activated_ability/cast/play/cast_ability/choice
+                            # depending on the card/zone path; the engine's
+                            # act of offering IS the legality proof.
+                            if str(o.get("option_type")) in (
+                                    "pass_priority", "mana_ability"):
                                 continue
                             blob = text_in_option(o).casefold()
-                            if any(f in blob for f in focus_cf):
+                            if _matches(blob):
                                 offered = True
                                 offered_priority = True
                                 break
@@ -347,8 +386,7 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
                     for o in options:
                         if isinstance(o, dict) and str(o.get("option_id")) in sel_ids:
                             sel_types.append(str(o.get("option_type", "?")))
-                            if focus_cf and any(
-                                    f in text_in_option(o).casefold() for f in focus_cf):
+                            if _matches(text_in_option(o).casefold()):
                                 selected_focus = True
                     stack_flag = False
                     try:

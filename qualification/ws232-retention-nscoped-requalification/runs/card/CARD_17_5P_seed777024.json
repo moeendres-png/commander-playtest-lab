@@ -1,0 +1,88 @@
+{
+ "card": "Kaervek the Merciless",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_17",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 1800,
+  "deck_digests": [
+   "084ededbc8b6076ec5a71ad91ede82722487543c745661894bbb3b5703839275",
+   "149c4cd00acc9ff3143c4e5c22f3b222ed6f380a822955e89f843e451b1c9a9e",
+   "e59ad2f241912eb7cbd23bbcd8801dc1a21c98374190067adaaa976200742b75",
+   "50fd71c4bdc0029343a0730fd212f6b50bf23b69f55ca5255b4e9b8775d60fdd",
+   "7b718f2c678b7f67634de1885cd7f7827078b228e312b081dc1c623d491979ed"
+  ],
+  "deck_ids": [
+   "ws232-CARD_17-5p-s777024-1",
+   "ws232-CARD_17-5p-s777024-2",
+   "ws232-CARD_17-5p-s777024-3",
+   "ws232-CARD_17-5p-s777024-4",
+   "ws232-CARD_17-5p-s777024-5"
+  ],
+  "elapsed_seconds": 9.2,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 35,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 41,
+  "focus_names": [
+   "Kaervek the Merciless"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 3,
+   "declare_attacker": 1,
+   "mana_payment": 56,
+   "mulligan": 20,
+   "priority": 1701,
+   "target": 18
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_17-5p",
+  "seed": 777024,
+  "terminal": false
+ },
+ "run_id": "CARD_17_5P_seed777024",
+ "seed": 777024,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,87 @@
+{
+ "card": "Burn Down the House",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_26",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "8af2a1480d0ee796eed96d0dbde4450b96d2f4dce04b21ce020b376df8b39043",
+   "0adf71fb24a2209c4ab8ade65ac329b5ba121d7a270202fadf1929f9285d1440",
+   "2be95b9ea9e196b0c04598e17f23b492ebd73b946909dea271107f5f7be6a3a3",
+   "91476124cbce27fa33b9062003896ea0a85ba034075e1adb36595e805d66fdf1",
+   "d293d0b7b6e2e619174f1c88fd0a31552fdb2200a3c9e2f269ac0a7ecb6ee1ce"
+  ],
+  "deck_ids": [
+   "ws232-CARD_26-5p-s777009-1",
+   "ws232-CARD_26-5p-s777009-2",
+   "ws232-CARD_26-5p-s777009-3",
+   "ws232-CARD_26-5p-s777009-4",
+   "ws232-CARD_26-5p-s777009-5"
+  ],
+  "elapsed_seconds": 7.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Burn Down the House"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 1,
+   "mulligan": 19,
+   "priority": 678,
+   "target": 13
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1862,
+  "scenario_id": "ws232-CARD_26-5p",
+  "seed": 777009,
+  "terminal": false
+ },
+ "run_id": "CARD_26_5P_seed777009",
+ "seed": 777009,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,88 @@
+{
+ "card": "Wear // Tear",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_11",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 960,
+  "deck_digests": [
+   "798e06674978766913a06d01e1ebb15665fcc1e17e45fc4f003b93e42dc49fc8",
+   "5091c0d8be955b431f16538e8cbc006c267247d4697e359dcd0eb6b8bf371fbf",
+   "6c38b2ff0dbbc325f62a4f7820045ef072de0ddc0025a39a222a494cad3f258c",
+   "a5943e23db3329a1e50afb44875862a37bc0d25d61ab49abb4b711038c201131",
+   "3031f9a1c35b76b502e45e91553274c0404defb2982c022eccb815390a2da892"
+  ],
+  "deck_ids": [
+   "ws232-CARD_11-5p-s777006-1",
+   "ws232-CARD_11-5p-s777006-2",
+   "ws232-CARD_11-5p-s777006-3",
+   "ws232-CARD_11-5p-s777006-4",
+   "ws232-CARD_11-5p-s777006-5"
+  ],
+  "elapsed_seconds": 7.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 19,
+  "focus_names": [
+   "Wear // Tear"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 4,
+   "mana_payment": 13,
+   "mulligan": 20,
+   "priority": 899,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_11-5p",
+  "seed": 777006,
+  "terminal": false
+ },
+ "run_id": "CARD_11_5P_seed777006",
+ "seed": 777006,
+ "verdict": "UNKNOWN"
+}

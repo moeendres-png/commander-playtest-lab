@@ -1,0 +1,70 @@
+{
+ "card": "Wash Away",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_10",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "0bedc4fe54e14aafdcb0136ac799b2250e38515a9bbf0df40709e4937fbf8b2f",
+   "a0a4e5125e8a32b5782e83e50b2e56a2f911e1e9a225889b92b3baa247b3b9bc",
+   "a486d6cc5a8e40f6eede5aa5177955adea985a1be45c597b9fa58f74d50b92a9"
+  ],
+  "deck_ids": [
+   "ws232-CARD_10-3p-s424242-1",
+   "ws232-CARD_10-3p-s424242-2",
+   "ws232-CARD_10-3p-s424242-3"
+  ],
+  "elapsed_seconds": 6.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 39,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Wash Away"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 3,
+   "declare_blocker": 2,
+   "mana_payment": 12,
+   "mulligan": 12,
+   "priority": 249,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_10-3p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_10_3P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

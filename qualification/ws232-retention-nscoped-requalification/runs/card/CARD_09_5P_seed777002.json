@@ -1,0 +1,90 @@
+{
+ "card": "Magma Opus",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_09",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 840,
+  "deck_digests": [
+   "2bbd914e47521389ba24dce708a2077f4e218df9b365ede91f775f27555f3e10",
+   "ebf5e8bd151df35407d67329c68bba9da4082cb12a1c6e45c729fdffca3df339",
+   "f971e74134a5ec6f00d0c0b2778ef6daf0000a0043feae7a631ee300e2e79f6b",
+   "0d51ec6099b5655a47f615302a3519199316a6697e4386c1ca458881aba6d692",
+   "c461299351b51e66de5ad6693a36204f553f9fee4026506c001160bf75b2d189"
+  ],
+  "deck_ids": [
+   "ws232-CARD_09-5p-s777002-1",
+   "ws232-CARD_09-5p-s777002-2",
+   "ws232-CARD_09-5p-s777002-3",
+   "ws232-CARD_09-5p-s777002-4",
+   "ws232-CARD_09-5p-s777002-5"
+  ],
+  "elapsed_seconds": 9.0,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 18,
+  "focus_names": [
+   "Magma Opus"
+  ],
+  "observed_classes": {
+   "choice": 4,
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 1,
+   "declare_blocker": 1,
+   "mana_payment": 48,
+   "mulligan": 14,
+   "priority": 762,
+   "target": 7
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1372,
+  "scenario_id": "ws232-CARD_09-5p",
+  "seed": 777002,
+  "terminal": false
+ },
+ "run_id": "CARD_09_5P_seed777002",
+ "seed": 777002,
+ "verdict": "UNKNOWN"
+}

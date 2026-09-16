@@ -1,0 +1,61 @@
+{
+ "card": "Dig Through Time",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_12",
+ "player_count": 2,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 359,
+  "deck_digests": [
+   "21a53887bbdb470f440e73362cbd127441a752a5eb8d89657147149fd5b8aa76",
+   "d4be94b60e17fc74eff051dba68c759dacfd9f8750cebde6f39e21beac6fe6db"
+  ],
+  "deck_ids": [
+   "ws232-CARD_12-2p-s777001-1",
+   "ws232-CARD_12-2p-s777001-2"
+  ],
+  "elapsed_seconds": 6.2,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": "FullGameProtocolError: pilot bottom-card selection is not XMage-legal",
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 35,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 35,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 16,
+  "focus_names": [
+   "Dig Through Time"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 11,
+   "declare_blocker": 1,
+   "mana_payment": 24,
+   "mulligan": 5,
+   "priority": 313,
+   "target": 4
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 491,
+  "scenario_id": "ws232-CARD_12-2p",
+  "seed": 777001,
+  "terminal": false
+ },
+ "run_id": "CARD_12_2P_seed777001",
+ "seed": 777001,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,87 @@
+{
+ "card": "Warstorm Surge",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_24",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 1440,
+  "deck_digests": [
+   "fc3ec25e4de8a063bfc7aae77c9fd989d16901f4297028d94c5ce8c00ffec3b9",
+   "ce043365ab09d4d7f4405801359742ed8afc0f615c1883f9ba84819c2d474703",
+   "98ffe5df3e6254363d928ca04432f5696045f14aa3c0860d81c8944f4c73584c",
+   "5309d1a65725fa88dcbaae020e2f58614a437f7a1a0e2c86497a08abdd3279db",
+   "1f293b80ea1f1d39758c7072602bf7fa5e3e28ebd190142b414e9601269a3aa5"
+  ],
+  "deck_ids": [
+   "ws232-CARD_24-5p-s777023-1",
+   "ws232-CARD_24-5p-s777023-2",
+   "ws232-CARD_24-5p-s777023-3",
+   "ws232-CARD_24-5p-s777023-4",
+   "ws232-CARD_24-5p-s777023-5"
+  ],
+  "elapsed_seconds": 8.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 26,
+  "focus_names": [
+   "Warstorm Surge"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 21,
+   "declare_blocker": 4,
+   "mulligan": 18,
+   "priority": 1384,
+   "target": 12
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1764,
+  "scenario_id": "ws232-CARD_24-5p",
+  "seed": 777023,
+  "terminal": false
+ },
+ "run_id": "CARD_24_5P_seed777023",
+ "seed": 777023,
+ "verdict": "UNKNOWN"
+}

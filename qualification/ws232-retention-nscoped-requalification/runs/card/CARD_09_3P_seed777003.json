@@ -1,0 +1,72 @@
+{
+ "card": "Magma Opus",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_09",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 383,
+  "deck_digests": [
+   "86c9fa394c49f0b5e6fe5929efa11f873366b6d3f28c07a9b7014243ed9d51be",
+   "acce812959c2dfbc104feeee1d77f23f63bfea1519d2a1d59f500494f8703335",
+   "15b4a76ef73ca9ad12fa1ee17799e180245b4db4eec1deb47a5454db643d09e0"
+  ],
+  "deck_ids": [
+   "ws232-CARD_09-3p-s777003-1",
+   "ws232-CARD_09-3p-s777003-2",
+   "ws232-CARD_09-3p-s777003-3"
+  ],
+  "elapsed_seconds": 7.2,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": "{\"message\": \"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: 6c9d9235a6830295a2ea50d3b16afdd6925464170095659d79453f4d300b81ac\", \"type\": \"decision_controller\"}",
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Magma Opus"
+  ],
+  "observed_classes": {
+   "choice": 1,
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 1,
+   "declare_blocker": 1,
+   "mana_payment": 26,
+   "mulligan": 12,
+   "priority": 330,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_09-3p",
+  "seed": 777003,
+  "terminal": false
+ },
+ "run_id": "CARD_09_3P_seed777003",
+ "seed": 777003,
+ "verdict": "UNKNOWN"
+}

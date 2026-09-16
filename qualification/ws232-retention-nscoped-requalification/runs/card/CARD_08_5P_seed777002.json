@@ -1,0 +1,90 @@
+{
+ "card": "Jeska, Thrice Reborn",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_08",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "15fe2235bfc855c1b5814af27609450bcd10f12517ea263548ff9502573348df",
+   "9bcfb1fffd6e04020fe771b90f29a56205b444f2b11eff99be8acc7f4e5db62f",
+   "7111ef244fc6746f1874fdab95d36f170cc588694e2da23140ab1adde9ba99e9",
+   "9434229a6ca2bc77e5f0d9333ed73e24c23b7e770ab2e21a144b8ba629305858",
+   "831b06c3cc12d954f1b234ac202a6ed5f275038f72f8ca6f470bbe20f63c6070"
+  ],
+  "deck_ids": [
+   "ws232-CARD_08-5p-s777002-1",
+   "ws232-CARD_08-5p-s777002-2",
+   "ws232-CARD_08-5p-s777002-3",
+   "ws232-CARD_08-5p-s777002-4",
+   "ws232-CARD_08-5p-s777002-5"
+  ],
+  "elapsed_seconds": 7.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 39,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 39,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Jeska, Thrice Reborn"
+  ],
+  "observed_classes": {
+   "announce_x": 2,
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 6,
+   "declare_blocker": 4,
+   "mana_payment": 12,
+   "mulligan": 14,
+   "priority": 666,
+   "target": 13
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1372,
+  "scenario_id": "ws232-CARD_08-5p",
+  "seed": 777002,
+  "terminal": false
+ },
+ "run_id": "CARD_08_5P_seed777002",
+ "seed": 777002,
+ "verdict": "UNKNOWN"
+}

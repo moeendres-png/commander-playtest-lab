@@ -1,0 +1,69 @@
+{
+ "card": "Gratuitous Violence",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_21",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "987f5b08ae36c52fc75415277e745252f339ddf43dd93a6b910070f724d41972",
+   "8a33fc2c79ab48ced0e0196600878ac7781bc1b614e85035dd293e988b55227b",
+   "67f2ee3337e06cdddb8dc6b190cc6ea67c4bf765e3fdd1db1e34287aa0c7902e"
+  ],
+  "deck_ids": [
+   "ws232-CARD_21-3p-s777023-1",
+   "ws232-CARD_21-3p-s777023-2",
+   "ws232-CARD_21-3p-s777023-3"
+  ],
+  "elapsed_seconds": 7.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Gratuitous Violence"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 5,
+   "declare_blocker": 1,
+   "mulligan": 12,
+   "priority": 260,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_21-3p",
+  "seed": 777023,
+  "terminal": false
+ },
+ "run_id": "CARD_21_3P_seed777023",
+ "seed": 777023,
+ "verdict": "UNKNOWN"
+}

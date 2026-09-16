@@ -1,0 +1,70 @@
+{
+ "card": "Warstorm Surge",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_24",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "085f319368d751e1c53c2be1c8f5cd61281ff321b99939a5a559ee19f6e481de",
+   "42c6dee73f3a5bc40e05b23eaff7a465a9c86ec27798877b36f918256c0e0fd3",
+   "ed2299564fff252fed99528dcbc6797d10aeb322fdde74483474f20e178667ba"
+  ],
+  "deck_ids": [
+   "ws232-CARD_24-3p-s777003-1",
+   "ws232-CARD_24-3p-s777003-2",
+   "ws232-CARD_24-3p-s777003-3"
+  ],
+  "elapsed_seconds": 6.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 20,
+  "focus_names": [
+   "Warstorm Surge"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 17,
+   "declare_blocker": 2,
+   "mana_payment": 24,
+   "mulligan": 12,
+   "priority": 655,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_24-3p",
+  "seed": 777003,
+  "terminal": false
+ },
+ "run_id": "CARD_24_3P_seed777003",
+ "seed": 777003,
+ "verdict": "UNKNOWN"
+}

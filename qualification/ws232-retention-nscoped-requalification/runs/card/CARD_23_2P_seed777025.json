@@ -1,0 +1,62 @@
+{
+ "card": "Makeshift Mannequin",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_23",
+ "player_count": 2,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "177080518bb9bdfbc5842334d3a992c679eb9d4a1321284ca4b19681715fb836",
+   "e617505e577a24c426e37d6dbe1ede8cf70bda5702eeb2eb13c9f672076efea3"
+  ],
+  "deck_ids": [
+   "ws232-CARD_23-2p-s777025-1",
+   "ws232-CARD_23-2p-s777025-2"
+  ],
+  "elapsed_seconds": 5.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Makeshift Mannequin"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 4,
+   "declare_attacker": 2,
+   "declare_blocker": 2,
+   "mana_payment": 32,
+   "mulligan": 8,
+   "priority": 233,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_23-2p",
+  "seed": 777025,
+  "terminal": false
+ },
+ "run_id": "CARD_23_2P_seed777025",
+ "seed": 777025,
+ "verdict": "UNKNOWN"
+}

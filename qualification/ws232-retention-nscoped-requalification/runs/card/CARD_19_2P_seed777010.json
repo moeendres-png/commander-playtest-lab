@@ -1,0 +1,62 @@
+{
+ "card": "Butcher of Malakir",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_19",
+ "player_count": 2,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 336,
+  "deck_digests": [
+   "d38c3669b9db5ba76b914b88c034ae23790fe9132faefe9c8b52f50d58ce6fef",
+   "1ba11c1d64cfc5445b7681cb1bbe66d8d73b36f227c65b6c57991665746c127d"
+  ],
+  "deck_ids": [
+   "ws232-CARD_19-2p-s777010-1",
+   "ws232-CARD_19-2p-s777010-2"
+  ],
+  "elapsed_seconds": 6.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 14,
+  "focus_names": [
+   "Butcher of Malakir"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 4,
+   "declare_attacker": 2,
+   "declare_blocker": 2,
+   "mana_payment": 58,
+   "mulligan": 7,
+   "priority": 258,
+   "target": 4
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 686,
+  "scenario_id": "ws232-CARD_19-2p",
+  "seed": 777010,
+  "terminal": false
+ },
+ "run_id": "CARD_19_2P_seed777010",
+ "seed": 777010,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,90 @@
+{
+ "card": "Makeshift Mannequin",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_23",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 960,
+  "deck_digests": [
+   "50cb7e801ed288d98c04bd3a4e64405e709154264f96ab178382f73119273a2f",
+   "b0f349334e299b7f02f2d64193c8a3f75adf213cd509853255f2d1eaefb8fb80",
+   "7167111b48acdcce79b12b8ce178859205c81d4a986f33227616b8ada8c8bddf",
+   "a8e34f914331bb8b13f866a40ea086024aaa90bca76a2468255f920e841e607d",
+   "db3d5208f70e8126ed08af51e3fe414187bf769d02476cde9412c76737b63203"
+  ],
+  "deck_ids": [
+   "ws232-CARD_23-5p-s777013-1",
+   "ws232-CARD_23-5p-s777013-2",
+   "ws232-CARD_23-5p-s777013-3",
+   "ws232-CARD_23-5p-s777013-4",
+   "ws232-CARD_23-5p-s777013-5"
+  ],
+  "elapsed_seconds": 7.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 34,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 20,
+  "focus_names": [
+   "Makeshift Mannequin"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 4,
+   "declare_blocker": 1,
+   "mana_payment": 30,
+   "mulligan": 20,
+   "priority": 884,
+   "target": 15,
+   "trigger_order": 3
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_23-5p",
+  "seed": 777013,
+  "terminal": false
+ },
+ "run_id": "CARD_23_5P_seed777013",
+ "seed": 777013,
+ "verdict": "UNKNOWN"
+}

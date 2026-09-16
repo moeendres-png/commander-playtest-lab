@@ -1,0 +1,85 @@
+{
+ "card": "Ishai, Ojutai Dragonspeaker",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_01",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "49531c4dc399dbe010b74292e22b127b55d8bbe484b8c23af43d0c794c9f6c98",
+   "82eb8794e0226761b3f9b71a5359b630c8576a5ea382d03762c96ea0c8f85df6",
+   "d7fa7a5858f514575e2beab6b046f73edb3c5426cc65330f0bb88facdb5cfc8b",
+   "3d408f1ccd527d7101041ecd1e6b9ba5a85f16ea4afe5be19a00aab1f3ac0f3c",
+   "2510f3973f92f06e31ed2e20bb7e36cf0bbc2dfd7aec1698b8fd979599d08949"
+  ],
+  "deck_ids": [
+   "ws232-CARD_01-5p-s777005-1",
+   "ws232-CARD_01-5p-s777005-2",
+   "ws232-CARD_01-5p-s777005-3",
+   "ws232-CARD_01-5p-s777005-4",
+   "ws232-CARD_01-5p-s777005-5"
+  ],
+  "elapsed_seconds": 6.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 11,
+  "focus_names": [
+   "Ishai, Ojutai Dragonspeaker"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "mulligan": 20,
+   "priority": 444,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_01-5p",
+  "seed": 777005,
+  "terminal": false
+ },
+ "run_id": "CARD_01_5P_seed777005",
+ "seed": 777005,
+ "verdict": "UNKNOWN"
+}

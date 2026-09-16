@@ -1,0 +1,71 @@
+{
+ "card": "Magma Opus",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_09",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 504,
+  "deck_digests": [
+   "90fc00337bc01058b86d342c6a0aa8e789feb3c5cae66813047c63901db40299",
+   "c4daae082a812777c1d47c6b55c5193a8a70e362990a8903dd9e88d06b24066b",
+   "42e17f18875c7471ab5a0fc59bf5f893c7b17f5524030810894af30395a96eea"
+  ],
+  "deck_ids": [
+   "ws232-CARD_09-3p-s777006-1",
+   "ws232-CARD_09-3p-s777006-2",
+   "ws232-CARD_09-3p-s777006-3"
+  ],
+  "elapsed_seconds": 7.2,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 16,
+  "focus_names": [
+   "Magma Opus"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 4,
+   "declare_attacker": 3,
+   "declare_blocker": 2,
+   "mana_payment": 40,
+   "mulligan": 12,
+   "priority": 433,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_09-3p",
+  "seed": 777006,
+  "terminal": false
+ },
+ "run_id": "CARD_09_3P_seed777006",
+ "seed": 777006,
+ "verdict": "UNKNOWN"
+}

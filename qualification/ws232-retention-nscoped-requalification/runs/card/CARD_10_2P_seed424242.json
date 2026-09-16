@@ -1,0 +1,61 @@
+{
+ "card": "Wash Away",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_10",
+ "player_count": 2,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 192,
+  "deck_digests": [
+   "7902b3d58565c52b77edf106d0778fee5a436829098e3f3cdef2338a84abcfc5",
+   "d1c1c2edb389394764f68d31866892127f6703de4743a9283cf697ed8ba75e10"
+  ],
+  "deck_ids": [
+   "ws232-CARD_10-2p-s424242-1",
+   "ws232-CARD_10-2p-s424242-2"
+  ],
+  "elapsed_seconds": 6.2,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 39,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Wash Away"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 4,
+   "declare_blocker": 1,
+   "mana_payment": 8,
+   "mulligan": 8,
+   "priority": 164,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_10-2p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_10_2P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,69 @@
+{
+ "card": "Vandalblast",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_14",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "6592c02fe36756ee15db9acb64cd2c38f11da6c6ed50b47945f7ff0e159eec32",
+   "7b2a2ce129e958d810d696c9e551abcdcfc24be25959b7d8c0999fab3b76ff93",
+   "0464dfbb11762f72a5490f28cdd152bd969848d1a8330423737c90d073a555d9"
+  ],
+  "deck_ids": [
+   "ws232-CARD_14-3p-s777004-1",
+   "ws232-CARD_14-3p-s777004-2",
+   "ws232-CARD_14-3p-s777004-3"
+  ],
+  "elapsed_seconds": 5.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Vandalblast"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 5,
+   "declare_blocker": 2,
+   "mulligan": 10,
+   "priority": 264,
+   "target": 6
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 980,
+  "scenario_id": "ws232-CARD_14-3p",
+  "seed": 777004,
+  "terminal": false
+ },
+ "run_id": "CARD_14_3P_seed777004",
+ "seed": 777004,
+ "verdict": "UNKNOWN"
+}

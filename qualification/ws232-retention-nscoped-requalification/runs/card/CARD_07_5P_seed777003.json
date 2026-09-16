@@ -1,0 +1,86 @@
+{
+ "card": "Narset, Parter of Veils",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_07",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "7951a4fee0ab6318d87b76dc3058481cecf4dea9c011b82f54b9ae3d40e27f97",
+   "a26568210535e765a5b58619309a91ebb09f22b34017e137c9ae76d351f44101",
+   "d29d5af52ea64620028f791bdfcf4c8c8533a5663af733d1c3dccd3f7e4ab4af",
+   "e689aaf46bdc0c48c7292f79de82e622103ee8fe21db01d5787ac70c7312c082",
+   "852b61bdc467f5895d97b75a02c4155391f0043b9f39ed5999d3b2ed73f3f5df"
+  ],
+  "deck_ids": [
+   "ws232-CARD_07-5p-s777003-1",
+   "ws232-CARD_07-5p-s777003-2",
+   "ws232-CARD_07-5p-s777003-3",
+   "ws232-CARD_07-5p-s777003-4",
+   "ws232-CARD_07-5p-s777003-5"
+  ],
+  "elapsed_seconds": 6.6,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 10,
+  "focus_names": [
+   "Narset, Parter of Veils"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "mana_payment": 20,
+   "mulligan": 18,
+   "priority": 429,
+   "target": 12
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1764,
+  "scenario_id": "ws232-CARD_07-5p",
+  "seed": 777003,
+  "terminal": false
+ },
+ "run_id": "CARD_07_5P_seed777003",
+ "seed": 777003,
+ "verdict": "UNKNOWN"
+}

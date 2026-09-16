@@ -1,0 +1,91 @@
+{
+ "card": "Shriekmaw",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_18",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 960,
+  "deck_digests": [
+   "d6e4fc73427b34488d5db9313a5b99d2281545c2ab331395a286e736db2f1581",
+   "f81f2a967883589283a4c141e517e8f184fd0a742942d4700ecb4fe35a1ba796",
+   "151a1339de9313b94b4d50ef2be1d0990afa76a0ff7628d4a03783e71d221d73",
+   "5f0bd34a767912101822ba0722c631fe61f90d0da07f842031d5b3582e890973",
+   "a105afbf4af1537802e6f168b2284121d1ffb4e41e07b4a8719ff538fa14f658"
+  ],
+  "deck_ids": [
+   "ws232-CARD_18-5p-s424242-1",
+   "ws232-CARD_18-5p-s424242-2",
+   "ws232-CARD_18-5p-s424242-3",
+   "ws232-CARD_18-5p-s424242-4",
+   "ws232-CARD_18-5p-s424242-5"
+  ],
+  "elapsed_seconds": 7.6,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 36,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 20,
+  "focus_names": [
+   "Shriekmaw"
+  ],
+  "observed_classes": {
+   "choice": 1,
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 4,
+   "declare_blocker": 1,
+   "mana_payment": 34,
+   "mulligan": 17,
+   "priority": 884,
+   "target": 12,
+   "trigger_order": 4
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1666,
+  "scenario_id": "ws232-CARD_18-5p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_18_5P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

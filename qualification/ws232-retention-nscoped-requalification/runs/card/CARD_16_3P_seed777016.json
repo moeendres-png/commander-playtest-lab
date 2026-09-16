@@ -1,0 +1,69 @@
+{
+ "card": "Psychosis Crawler",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_16",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "4749f1f71d20ad670b7bcb5648f1e13d974841824e878fb04d042cc767337131",
+   "e206023f7ba3adc5abb7ebcf2dccfc92a3e2fdda02974d2e737ec59b65bcb934",
+   "dbd6af33466ffbfea0c7e21ff6c0c09734445888384c1aa1c34589d2fdec815f"
+  ],
+  "deck_ids": [
+   "ws232-CARD_16-3p-s777016-1",
+   "ws232-CARD_16-3p-s777016-2",
+   "ws232-CARD_16-3p-s777016-3"
+  ],
+  "elapsed_seconds": 5.7,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Psychosis Crawler"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 5,
+   "declare_blocker": 2,
+   "mulligan": 12,
+   "priority": 259,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_16-3p",
+  "seed": 777016,
+  "terminal": false
+ },
+ "run_id": "CARD_16_3P_seed777016",
+ "seed": 777016,
+ "verdict": "UNKNOWN"
+}

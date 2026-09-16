@@ -1,0 +1,70 @@
+{
+ "card": "Warstorm Surge",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_24",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "2e2214bfacdf37569e65632e0a21625681466a768ba190ab90ac0e303a0746cb",
+   "e71434722c3e42f71bb990cfbed77b456e74670da2fbb838b347dcc21da2cc0e",
+   "f06e488422ec1886b121200124fb8e858132af2ceeca68984de072a10d54e9b9"
+  ],
+  "deck_ids": [
+   "ws232-CARD_24-3p-s777004-1",
+   "ws232-CARD_24-3p-s777004-2",
+   "ws232-CARD_24-3p-s777004-3"
+  ],
+  "elapsed_seconds": 6.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 21,
+  "focus_names": [
+   "Warstorm Surge"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 17,
+   "declare_blocker": 2,
+   "mana_payment": 12,
+   "mulligan": 10,
+   "priority": 672,
+   "target": 6
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 980,
+  "scenario_id": "ws232-CARD_24-3p",
+  "seed": 777004,
+  "terminal": false
+ },
+ "run_id": "CARD_24_3P_seed777004",
+ "seed": 777004,
+ "verdict": "UNKNOWN"
+}

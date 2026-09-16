@@ -3,7 +3,7 @@
  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
  "fixture_id": "CARD_25",
  "player_count": 5,
- "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "rationale": "signature not observed in bounded window",
  "run": {
   "budget_exhausted": true,
   "decisions": 480,
@@ -21,7 +21,7 @@
    "ws232-CARD_25-5p-s777003-4",
    "ws232-CARD_25-5p-s777003-5"
   ],
-  "elapsed_seconds": 6.7,
+  "elapsed_seconds": 6.1,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
@@ -56,7 +56,7 @@
    },
    {
     "left": false,
-    "life": 34,
+    "life": 36,
     "lost": false,
     "seat": 4,
     "won": false
@@ -69,16 +69,16 @@
   "observed_classes": {
    "choose_object": 1,
    "choose_use": 2,
-   "declare_attacker": 4,
+   "declare_attacker": 3,
    "declare_blocker": 1,
-   "mana_payment": 5,
-   "mulligan": 20,
-   "priority": 432,
-   "target": 15
+   "mana_payment": 12,
+   "mulligan": 18,
+   "priority": 431,
+   "target": 12
   },
   "player_count": 5,
   "protocol_version": "2.0.0",
-  "rules_random_calls_last": 1960,
+  "rules_random_calls_last": 1764,
   "scenario_id": "ws232-CARD_25-5p",
   "seed": 777003,
   "terminal": false

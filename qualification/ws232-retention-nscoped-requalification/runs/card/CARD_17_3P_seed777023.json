@@ -1,0 +1,70 @@
+{
+ "card": "Kaervek the Merciless",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_17",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "321a1ff2c7662256be6bf9629fe64459ffa1d97df5f6c6e327c61cee2fa2d1d3",
+   "e2e0dc673610e6d070c3c02f924893f17c7b56b33b8d3fb7bbfc8f5c5a540840",
+   "3f9d3ac62ab84875d6659b23a6e6ee72a1ae3ddde562cedba80ab9a8e09ba30d"
+  ],
+  "deck_ids": [
+   "ws232-CARD_17-3p-s777023-1",
+   "ws232-CARD_17-3p-s777023-2",
+   "ws232-CARD_17-3p-s777023-3"
+  ],
+  "elapsed_seconds": 6.8,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 35,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 25,
+  "focus_names": [
+   "Kaervek the Merciless"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 1,
+   "mana_payment": 60,
+   "mulligan": 12,
+   "priority": 632,
+   "target": 12
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_17-3p",
+  "seed": 777023,
+  "terminal": false
+ },
+ "run_id": "CARD_17_3P_seed777023",
+ "seed": 777023,
+ "verdict": "UNKNOWN"
+}

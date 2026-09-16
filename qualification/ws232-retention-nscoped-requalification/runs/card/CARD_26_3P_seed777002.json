@@ -17,7 +17,7 @@
    "ws232-CARD_26-3p-s777002-2",
    "ws232-CARD_26-3p-s777002-3"
   ],
-  "elapsed_seconds": 6.4,
+  "elapsed_seconds": 6.0,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
@@ -44,7 +44,7 @@
     "won": false
    }
   ],
-  "final_turn": 8,
+  "final_turn": 9,
   "focus_names": [
    "Burn Down the House"
   ],
@@ -52,13 +52,13 @@
    "choose_object": 1,
    "declare_attacker": 5,
    "declare_blocker": 1,
-   "mulligan": 12,
-   "priority": 260,
-   "target": 9
+   "mulligan": 9,
+   "priority": 266,
+   "target": 6
   },
   "player_count": 3,
   "protocol_version": "2.0.0",
-  "rules_random_calls_last": 1176,
+  "rules_random_calls_last": 882,
   "scenario_id": "ws232-CARD_26-3p",
   "seed": 777002,
   "terminal": false

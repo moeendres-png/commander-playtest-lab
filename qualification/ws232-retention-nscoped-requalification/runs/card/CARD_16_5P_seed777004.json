@@ -1,0 +1,87 @@
+{
+ "card": "Psychosis Crawler",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_16",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "d0c62f719464245167b9d00d162614b764a5534dc31b8fcfe92de38b972993f7",
+   "0103ed0df4dcd681ce966750362cf665c18ed05810e1c97fe009a6d34d1d23da",
+   "d1b342eba7fc58592fdd1514254ec8290815ba04e0c521ed026fb5cee8271585",
+   "affe3605e2c9a72ca885f21d1dcf0c76b698a1a729780d84b81ac3adb56c7a39",
+   "b0e0b6e971b6e7cc7b172c6e013e9d7a204f2f78c6215655a21e5bc747b48f7b"
+  ],
+  "deck_ids": [
+   "ws232-CARD_16-5p-s777004-1",
+   "ws232-CARD_16-5p-s777004-2",
+   "ws232-CARD_16-5p-s777004-3",
+   "ws232-CARD_16-5p-s777004-4",
+   "ws232-CARD_16-5p-s777004-5"
+  ],
+  "elapsed_seconds": 6.9,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 14,
+  "focus_names": [
+   "Psychosis Crawler"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 1,
+   "mulligan": 15,
+   "priority": 686,
+   "target": 9
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1470,
+  "scenario_id": "ws232-CARD_16-5p",
+  "seed": 777004,
+  "terminal": false
+ },
+ "run_id": "CARD_16_5P_seed777004",
+ "seed": 777004,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,90 @@
+{
+ "card": "Shriekmaw",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_18",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 960,
+  "deck_digests": [
+   "8ce3b7afc4f37b49f4cb281e9149814534f4b343125b2142526051be7e85c4ad",
+   "fdb9bd75c1a85d1c4c46b5158331de949319294f65732e26bbd26fa13cc49e07",
+   "10bfdbf8065dee7ce2b7462f3cad63254b460cda9e1c8487f42020537adec522",
+   "b5b4e453be00bf30b6e0bf2920d96d301162b65a83e7accfeac3471f423fd29f",
+   "38b2168116cc21ab6021df8f21f8470ee33ed45d56fa4d14dcaa2b28625d6ad7"
+  ],
+  "deck_ids": [
+   "ws232-CARD_18-5p-s777022-1",
+   "ws232-CARD_18-5p-s777022-2",
+   "ws232-CARD_18-5p-s777022-3",
+   "ws232-CARD_18-5p-s777022-4",
+   "ws232-CARD_18-5p-s777022-5"
+  ],
+  "elapsed_seconds": 7.7,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 34,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 20,
+  "focus_names": [
+   "Shriekmaw"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 4,
+   "declare_blocker": 1,
+   "mana_payment": 30,
+   "mulligan": 20,
+   "priority": 884,
+   "target": 15,
+   "trigger_order": 3
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_18-5p",
+  "seed": 777022,
+  "terminal": false
+ },
+ "run_id": "CARD_18_5P_seed777022",
+ "seed": 777022,
+ "verdict": "UNKNOWN"
+}

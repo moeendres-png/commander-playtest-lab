@@ -1,0 +1,72 @@
+{
+ "card": "Shriekmaw",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_18",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 432,
+  "deck_digests": [
+   "2b75286b4c64e75451540e6983875023961c4f081e6051aa2d59e6fd13fb8167",
+   "d1d0da2a04fe8a4f5c279455554ac4d07198cd1a2b6c8c81ce39ffa7c320de67",
+   "f79c1d0222c5a7a0c6a5e07f72011ef1bfec812fd8e588bf80d99eb665875222"
+  ],
+  "deck_ids": [
+   "ws232-CARD_18-3p-s777008-1",
+   "ws232-CARD_18-3p-s777008-2",
+   "ws232-CARD_18-3p-s777008-3"
+  ],
+  "elapsed_seconds": 5.8,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 14,
+  "focus_names": [
+   "Shriekmaw"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 2,
+   "declare_blocker": 1,
+   "mana_payment": 37,
+   "mulligan": 12,
+   "priority": 367,
+   "target": 9,
+   "trigger_order": 1
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_18-3p",
+  "seed": 777008,
+  "terminal": false
+ },
+ "run_id": "CARD_18_3P_seed777008",
+ "seed": 777008,
+ "verdict": "UNKNOWN"
+}

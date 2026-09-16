@@ -1,0 +1,44 @@
+{
+ "card": "Esior, Wardwing Familiar",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_03",
+ "player_count": 5,
+ "rationale": "run failure: FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Esior, Wardwing Familiar,card=Esior, Wardwing Familiar,message=Too many: 2",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 0,
+  "deck_digests": [
+   "4884685e8714c7ac50cbfc0a7ac3fae2de40e13eaf72e909588de7a2d6334017",
+   "0e5621a11c01b60a18aa131b26571c43c2ffba84807f0d526624b9fde3040fc1",
+   "31d12e3490d1e5973e954752a5eb81a4d9b7c2d702c512d6e1844429cb151aaf",
+   "94755b82ce66dcd932b12de388763abe15fa1bc03654abf8fb09105947df28f6",
+   "478b439fcff854dde5c859ad37ed9abf4d78943c18f0263f56c9ccad999f100f"
+  ],
+  "deck_ids": [
+   "ws232-CARD_03-5p-s777006-1",
+   "ws232-CARD_03-5p-s777006-2",
+   "ws232-CARD_03-5p-s777006-3",
+   "ws232-CARD_03-5p-s777006-4",
+   "ws232-CARD_03-5p-s777006-5"
+  ],
+  "elapsed_seconds": 6.0,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "unknown",
+  "failure": "FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Esior, Wardwing Familiar,card=Esior, Wardwing Familiar,message=Too many: 2",
+  "final_outcomes": [],
+  "final_turn": null,
+  "focus_names": [
+   "Esior, Wardwing Familiar"
+  ],
+  "observed_classes": {},
+  "player_count": 5,
+  "protocol_version": "unknown",
+  "rules_random_calls_last": null,
+  "scenario_id": "ws232-CARD_03-5p",
+  "seed": 777006,
+  "terminal": false
+ },
+ "run_id": "CARD_03_5P_seed777006",
+ "seed": 777006,
+ "verdict": "ERROR"
+}

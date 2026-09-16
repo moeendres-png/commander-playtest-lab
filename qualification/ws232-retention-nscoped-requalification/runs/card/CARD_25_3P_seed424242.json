@@ -17,7 +17,7 @@
    "ws232-CARD_25-3p-s424242-2",
    "ws232-CARD_25-3p-s424242-3"
   ],
-  "elapsed_seconds": 6.3,
+  "elapsed_seconds": 5.6,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
@@ -51,11 +51,11 @@
   "observed_classes": {
    "choose_object": 1,
    "choose_use": 2,
-   "declare_attacker": 3,
+   "declare_attacker": 2,
    "declare_blocker": 1,
-   "mana_payment": 3,
+   "mana_payment": 18,
    "mulligan": 12,
-   "priority": 257,
+   "priority": 243,
    "target": 9
   },
   "player_count": 3,

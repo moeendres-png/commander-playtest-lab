@@ -1,0 +1,70 @@
+{
+ "card": "Wear // Tear",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_11",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 432,
+  "deck_digests": [
+   "d54dd38e343374779fef77ca49424745e2bd1e22dd0fb90b1d0c6e8c1bbbbb0d",
+   "7377d51a68859201e657541c84982e6586b5d8cddb42daeaf25a58eab6a835a8",
+   "d6ddf57138abfe0911b75d1a1e8458bbc54eeaca7b1ddaa3777f26e4670329bd"
+  ],
+  "deck_ids": [
+   "ws232-CARD_11-3p-s777013-1",
+   "ws232-CARD_11-3p-s777013-2",
+   "ws232-CARD_11-3p-s777013-3"
+  ],
+  "elapsed_seconds": 5.8,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Wear // Tear"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 7,
+   "declare_blocker": 1,
+   "mana_payment": 12,
+   "mulligan": 12,
+   "priority": 390,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_11-3p",
+  "seed": 777013,
+  "terminal": false
+ },
+ "run_id": "CARD_11_3P_seed777013",
+ "seed": 777013,
+ "verdict": "UNKNOWN"
+}

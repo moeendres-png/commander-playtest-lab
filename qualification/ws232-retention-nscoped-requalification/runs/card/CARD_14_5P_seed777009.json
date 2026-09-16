@@ -1,0 +1,87 @@
+{
+ "card": "Vandalblast",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_14",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "59ee6c20661a2db91f0807e402c9483185c9b614a2950ec1fd99f968dc72de48",
+   "d60db129f8c791a03e989780e49243115b630747f7d645b8b6b009eaafa8eea9",
+   "4870cec69cdf8112f7d74d36fb724ab421626aadf96027c2411c9be08902ff0c",
+   "11099e4e8cc5d3223e7a52cdc2c882de96dfd9096ed6355992d8fb893121e6e9",
+   "f08a4ec80fc53c1c844124210bd6ce606a29cb61e1a4a56353b9888fe5e55f09"
+  ],
+  "deck_ids": [
+   "ws232-CARD_14-5p-s777009-1",
+   "ws232-CARD_14-5p-s777009-2",
+   "ws232-CARD_14-5p-s777009-3",
+   "ws232-CARD_14-5p-s777009-4",
+   "ws232-CARD_14-5p-s777009-5"
+  ],
+  "elapsed_seconds": 6.6,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Vandalblast"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 1,
+   "mulligan": 20,
+   "priority": 675,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_14-5p",
+  "seed": 777009,
+  "terminal": false
+ },
+ "run_id": "CARD_14_5P_seed777009",
+ "seed": 777009,
+ "verdict": "UNKNOWN"
+}

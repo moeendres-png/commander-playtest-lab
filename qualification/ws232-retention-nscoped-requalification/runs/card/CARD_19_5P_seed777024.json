@@ -1,0 +1,90 @@
+{
+ "card": "Butcher of Malakir",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_19",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 1800,
+  "deck_digests": [
+   "a526d0779f02a2b17b55c0f593b1cb34399910cbc1f3a3c111770f052d7ad8f8",
+   "a26c2f5ee57300938f5725ac7385cd8bd0c61f2f0d3f20bd7379777d739363e6",
+   "fb2bf8d7e881c20e9dc6eec7fa7ad47683af92b162e5d8a36206f869e41fa2ec",
+   "ddbaaa950e2492a66ed3068558b21e0ee339ae9d2c3ca154be9c7a6c37074102",
+   "c791a60795c9c5798153db54b6b4be99dcca21af3c4b5e7a202eefd7faa2a58c"
+  ],
+  "deck_ids": [
+   "ws232-CARD_19-5p-s777024-1",
+   "ws232-CARD_19-5p-s777024-2",
+   "ws232-CARD_19-5p-s777024-3",
+   "ws232-CARD_19-5p-s777024-4",
+   "ws232-CARD_19-5p-s777024-5"
+  ],
+  "elapsed_seconds": 9.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 18,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 35,
+  "focus_names": [
+   "Butcher of Malakir"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 6,
+   "declare_attacker": 14,
+   "declare_blocker": 3,
+   "mana_payment": 96,
+   "mulligan": 20,
+   "priority": 1636,
+   "target": 15,
+   "trigger_order": 9
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_19-5p",
+  "seed": 777024,
+  "terminal": false
+ },
+ "run_id": "CARD_19_5P_seed777024",
+ "seed": 777024,
+ "verdict": "UNKNOWN"
+}

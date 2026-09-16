@@ -1,0 +1,62 @@
+{
+ "card": "Bolt Bend",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_22",
+ "player_count": 2,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "ef48bca342d5c18829cbbfb5678b8f1ac326b14883d57bdac02c1fe89455cb00",
+   "e61442ccde59e9d5239272f442a2a9b8bdf4410c16b73bb3aba640c0c110c0d8"
+  ],
+  "deck_ids": [
+   "ws232-CARD_22-2p-s424242-1",
+   "ws232-CARD_22-2p-s424242-2"
+  ],
+  "elapsed_seconds": 5.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 12,
+  "focus_names": [
+   "Bolt Bend"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 2,
+   "mana_payment": 8,
+   "mulligan": 8,
+   "priority": 253,
+   "target": 7
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_22-2p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_22_2P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

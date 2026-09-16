@@ -1,0 +1,88 @@
+{
+ "card": "Warstorm Surge",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_24",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 1440,
+  "deck_digests": [
+   "7070e6bb0eb8a9493b23d7b2b27b4f45bf3a8da104465069f09d6d7d7a4fc25f",
+   "37f0c35ab5eb95b23af0c32d40e482959365d5645946936940d7ab382d561898",
+   "df3538c30f28263dad4f5f5185e25ad3e87c031681edc22c2471ae2f63ec38b0",
+   "b5360f74141ecb4d0c6aae37b268821be9f8973f5e39c700d0585577b7d6393a",
+   "a4e5d187bf95160b236add2fb0692e344eba2e609532477e23cf1863c5607f3c"
+  ],
+  "deck_ids": [
+   "ws232-CARD_24-5p-s777004-1",
+   "ws232-CARD_24-5p-s777004-2",
+   "ws232-CARD_24-5p-s777004-3",
+   "ws232-CARD_24-5p-s777004-4",
+   "ws232-CARD_24-5p-s777004-5"
+  ],
+  "elapsed_seconds": 8.2,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 26,
+  "focus_names": [
+   "Warstorm Surge"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 20,
+   "declare_blocker": 1,
+   "mana_payment": 12,
+   "mulligan": 15,
+   "priority": 1382,
+   "target": 9
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1470,
+  "scenario_id": "ws232-CARD_24-5p",
+  "seed": 777004,
+  "terminal": false
+ },
+ "run_id": "CARD_24_5P_seed777004",
+ "seed": 777004,
+ "verdict": "UNKNOWN"
+}

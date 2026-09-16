@@ -1,0 +1,71 @@
+{
+ "card": "Find // Finality",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_28",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "da1b6df22b40b86cbd5f7b8742905bb7f2574b593865ea48f4953e03af0ebdb7",
+   "650d8ba72e2a4da98247ea2ecf6ea9f0435a0e8b87fd3be06da535cecf358491",
+   "9aa7ecf16afdef5725ed5d0f88a19c0d636548b83191936b841615c2f292f86c"
+  ],
+  "deck_ids": [
+   "ws232-CARD_28-3p-s777021-1",
+   "ws232-CARD_28-3p-s777021-2",
+   "ws232-CARD_28-3p-s777021-3"
+  ],
+  "elapsed_seconds": 6.6,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 23,
+  "focus_names": [
+   "Find // Finality"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 6,
+   "declare_attacker": 3,
+   "declare_blocker": 3,
+   "mana_payment": 68,
+   "mulligan": 11,
+   "priority": 621,
+   "target": 7
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1078,
+  "scenario_id": "ws232-CARD_28-3p",
+  "seed": 777021,
+  "terminal": false
+ },
+ "run_id": "CARD_28_3P_seed777021",
+ "seed": 777021,
+ "verdict": "UNKNOWN"
+}

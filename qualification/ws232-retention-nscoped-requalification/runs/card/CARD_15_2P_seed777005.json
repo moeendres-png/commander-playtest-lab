@@ -1,0 +1,61 @@
+{
+ "card": "Finale of Revelation",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_15",
+ "player_count": 2,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 192,
+  "deck_digests": [
+   "b31b87d4e8e0f5a674ff8d7fef881f608c1e044663a24c53eeda4364a5429962",
+   "72498a5ad202ad4c12a343b8da2240403883c820939ea9958e20d4f3878e9bd8"
+  ],
+  "deck_ids": [
+   "ws232-CARD_15-2p-s777005-1",
+   "ws232-CARD_15-2p-s777005-2"
+  ],
+  "elapsed_seconds": 5.2,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 39,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Finale of Revelation"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 4,
+   "declare_blocker": 1,
+   "mana_payment": 8,
+   "mulligan": 8,
+   "priority": 164,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_15-2p",
+  "seed": 777005,
+  "terminal": false
+ },
+ "run_id": "CARD_15_2P_seed777005",
+ "seed": 777005,
+ "verdict": "UNKNOWN"
+}

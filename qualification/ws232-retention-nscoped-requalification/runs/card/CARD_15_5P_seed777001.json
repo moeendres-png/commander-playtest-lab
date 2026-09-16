@@ -3,10 +3,10 @@
  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
  "fixture_id": "CARD_15",
  "player_count": 5,
- "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "rationale": "signature not observed in bounded window",
  "run": {
-  "budget_exhausted": true,
-  "decisions": 480,
+  "budget_exhausted": false,
+  "decisions": 253,
   "deck_digests": [
    "b1f1f6489cd49db13286bb56e6d67c8e97603f4ff9d7c6af61679ed7e9071aac",
    "d0e7d9d5aa09ddc8517dcf917a46fa4d188290cbfef65c627f573e570dfba648",
@@ -21,10 +21,10 @@
    "ws232-CARD_15-5p-s777001-4",
    "ws232-CARD_15-5p-s777001-5"
   ],
-  "elapsed_seconds": 7.3,
+  "elapsed_seconds": 5.7,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
-  "failure": null,
+  "failure": "{\"message\": \"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: 521d548a8b74d6829c70d46a4b6bec2828c2ceeb5c22408c9f03cccd3a46eeb3\", \"type\": \"decision_controller\"}",
   "final_outcomes": [
    {
     "left": false,
@@ -62,19 +62,21 @@
     "won": false
    }
   ],
-  "final_turn": 11,
+  "final_turn": 6,
   "focus_names": [
    "Finale of Revelation"
   ],
   "observed_classes": {
+   "announce_x": 1,
    "choose_object": 1,
-   "mulligan": 20,
-   "priority": 444,
-   "target": 15
+   "mana_payment": 5,
+   "mulligan": 17,
+   "priority": 217,
+   "target": 12
   },
   "player_count": 5,
   "protocol_version": "2.0.0",
-  "rules_random_calls_last": 1960,
+  "rules_random_calls_last": 1666,
   "scenario_id": "ws232-CARD_15-5p",
   "seed": 777001,
   "terminal": false

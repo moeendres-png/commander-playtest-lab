@@ -17,7 +17,7 @@
    "ws232-CARD_15-3p-s424242-2",
    "ws232-CARD_15-3p-s424242-3"
   ],
-  "elapsed_seconds": 6.8,
+  "elapsed_seconds": 5.8,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
@@ -38,20 +38,23 @@
    },
    {
     "left": false,
-    "life": 40,
+    "life": 39,
     "lost": false,
     "seat": 2,
     "won": false
    }
   ],
-  "final_turn": 10,
+  "final_turn": 9,
   "focus_names": [
    "Finale of Revelation"
   ],
   "observed_classes": {
    "choose_object": 1,
+   "declare_attacker": 3,
+   "declare_blocker": 2,
+   "mana_payment": 12,
    "mulligan": 12,
-   "priority": 266,
+   "priority": 249,
    "target": 9
   },
   "player_count": 3,

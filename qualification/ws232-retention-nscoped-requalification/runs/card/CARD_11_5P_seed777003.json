@@ -1,0 +1,86 @@
+{
+ "card": "Wear // Tear",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_11",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "786ea2929993f0d2781f5cd815196ea57d59cbe658f3956b20e130fbe84ba509",
+   "61528ba14e7eda9998a4170729d1f926620c7becc4df4c8ecc769340e85716e8",
+   "30357e8916e7f0a43f5b8669d346295800044103d1b2aa22bc078fb04e6f9745",
+   "8cbf3d618506fef3307044aa02489d4a5737e64e2e02febd21fac62d9a64fb15",
+   "0f2c6278f6b883a4ff8d90e0df4e6a32dfcda4b8e6a63ac33d285f8dbd00a7c7"
+  ],
+  "deck_ids": [
+   "ws232-CARD_11-5p-s777003-1",
+   "ws232-CARD_11-5p-s777003-2",
+   "ws232-CARD_11-5p-s777003-3",
+   "ws232-CARD_11-5p-s777003-4",
+   "ws232-CARD_11-5p-s777003-5"
+  ],
+  "elapsed_seconds": 6.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 10,
+  "focus_names": [
+   "Wear // Tear"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "mana_payment": 16,
+   "mulligan": 20,
+   "priority": 428,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_11-5p",
+  "seed": 777003,
+  "terminal": false
+ },
+ "run_id": "CARD_11_5P_seed777003",
+ "seed": 777003,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,60 @@
+{
+ "card": "Flare of Duplication",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_13",
+ "player_count": 2,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 192,
+  "deck_digests": [
+   "bdce5f3831c492318017694560a4abd1c79f0ad31b137bb4bccb2f7bbb7c55ae",
+   "e91da7d6239de120b110bf789ce37aa3df887a9aeb05876f99ae6e53e4f84505"
+  ],
+  "deck_ids": [
+   "ws232-CARD_13-2p-s777010-1",
+   "ws232-CARD_13-2p-s777010-2"
+  ],
+  "elapsed_seconds": 5.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 8,
+  "focus_names": [
+   "Flare of Duplication"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 6,
+   "declare_blocker": 1,
+   "mulligan": 8,
+   "priority": 170,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_13-2p",
+  "seed": 777010,
+  "terminal": false
+ },
+ "run_id": "CARD_13_2P_seed777010",
+ "seed": 777010,
+ "verdict": "UNKNOWN"
+}

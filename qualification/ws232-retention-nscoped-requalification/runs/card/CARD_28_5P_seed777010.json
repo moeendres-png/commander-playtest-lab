@@ -1,0 +1,89 @@
+{
+ "card": "Find // Finality",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_28",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 1440,
+  "deck_digests": [
+   "af59f8b3619c4e73d91ab3e289bd21ddc91c3db5baf279ac0632f31660adf297",
+   "d0ea9ea8ce48951d26f24d76ddd76b6a6bcde9f742aaf9c225fd72af959bceb8",
+   "5f817b92c2c40f65ffc944903a3e85ba59f9f001de385b73bf7ba3c30fbcce56",
+   "df8ca0d0ad44882ca970c13254ca93586b4a67c803820363048d101e6ebf800f",
+   "ac95d75ee1cbca571cc6887e89cd9adcc13dceac32c4aba048b385b03112ed0d"
+  ],
+  "deck_ids": [
+   "ws232-CARD_28-5p-s777010-1",
+   "ws232-CARD_28-5p-s777010-2",
+   "ws232-CARD_28-5p-s777010-3",
+   "ws232-CARD_28-5p-s777010-4",
+   "ws232-CARD_28-5p-s777010-5"
+  ],
+  "elapsed_seconds": 8.5,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 30,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 29,
+  "focus_names": [
+   "Find // Finality"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 11,
+   "declare_attacker": 8,
+   "declare_blocker": 3,
+   "mana_payment": 64,
+   "mulligan": 20,
+   "priority": 1313,
+   "target": 20
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_28-5p",
+  "seed": 777010,
+  "terminal": false
+ },
+ "run_id": "CARD_28_5P_seed777010",
+ "seed": 777010,
+ "verdict": "UNKNOWN"
+}

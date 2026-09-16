@@ -3,7 +3,7 @@
  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
  "fixture_id": "CARD_25",
  "player_count": 2,
- "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "rationale": "signature not observed in bounded window",
  "run": {
   "budget_exhausted": true,
   "decisions": 192,
@@ -15,14 +15,14 @@
    "ws232-CARD_25-2p-s777001-1",
    "ws232-CARD_25-2p-s777001-2"
   ],
-  "elapsed_seconds": 6.0,
+  "elapsed_seconds": 5.2,
   "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
   "engine_version": "1.4.61",
   "failure": null,
   "final_outcomes": [
    {
     "left": false,
-    "life": 40,
+    "life": 38,
     "lost": false,
     "seat": 0,
     "won": false
@@ -35,23 +35,23 @@
     "won": false
    }
   ],
-  "final_turn": 9,
+  "final_turn": 8,
   "focus_names": [
    "Basilisk Collar"
   ],
   "observed_classes": {
    "choose_object": 1,
-   "choose_use": 2,
-   "declare_attacker": 1,
-   "declare_blocker": 1,
-   "mana_payment": 2,
-   "mulligan": 8,
-   "priority": 171,
-   "target": 6
+   "choose_use": 4,
+   "declare_attacker": 3,
+   "declare_blocker": 2,
+   "mana_payment": 18,
+   "mulligan": 5,
+   "priority": 156,
+   "target": 3
   },
   "player_count": 2,
   "protocol_version": "2.0.0",
-  "rules_random_calls_last": 784,
+  "rules_random_calls_last": 490,
   "scenario_id": "ws232-CARD_25-2p",
   "seed": 777001,
   "terminal": false

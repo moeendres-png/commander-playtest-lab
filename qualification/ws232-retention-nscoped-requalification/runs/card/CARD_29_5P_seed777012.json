@@ -1,0 +1,86 @@
+{
+ "card": "Boseiju Reaches Skyward // Branch of Boseiju",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_29",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "6b43bb4af324e338ae32f3826a16211117d4f30e15c78005d88f11c9e47e87dc",
+   "e698ceb8aeccea0c1f1d78b6d973fed8030e5ad23ad378778e4e8413f22cba44",
+   "efaab29ea4087742283eca36843d40a204424fe6bb9766d2b4835db9c3788e59",
+   "48a912d2931fa48a1f7ed09fdb8d91f411035faab892a4de93759a3aaad72847",
+   "07e872a642bcde208cf68f4113e03dacc0fdce639e9b8e5fc37e740571c2d406"
+  ],
+  "deck_ids": [
+   "ws232-CARD_29-5p-s777012-1",
+   "ws232-CARD_29-5p-s777012-2",
+   "ws232-CARD_29-5p-s777012-3",
+   "ws232-CARD_29-5p-s777012-4",
+   "ws232-CARD_29-5p-s777012-5"
+  ],
+  "elapsed_seconds": 6.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 11,
+  "focus_names": [
+   "Boseiju Reaches Skyward"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "mana_payment": 6,
+   "mulligan": 20,
+   "priority": 438,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_29-5p",
+  "seed": 777012,
+  "terminal": false
+ },
+ "run_id": "CARD_29_5P_seed777012",
+ "seed": 777012,
+ "verdict": "UNKNOWN"
+}

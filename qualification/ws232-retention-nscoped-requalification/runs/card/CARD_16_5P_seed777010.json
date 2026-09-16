@@ -1,0 +1,87 @@
+{
+ "card": "Psychosis Crawler",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_16",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "8360f8b39b89b846c031a336e24a82e715bf237deda07dd06e568bdf6ee5d6ed",
+   "28159495e4d0a5998751453c2cfbb2dbc7e481dc1e243bb6ae4336bf6fa5b386",
+   "6534094e85614cdfbfd38a7cfec1707234b7843951a291463ca98f6a7060c9e2",
+   "ca73b198c4a6ac1eb3f736d88f5a733d263bae265db48c89ce54b34e1c9a7a31",
+   "68fc9f4692d4eaa32e11608261c62e9647af17f380da0b1d64b9afc107a015da"
+  ],
+  "deck_ids": [
+   "ws232-CARD_16-5p-s777010-1",
+   "ws232-CARD_16-5p-s777010-2",
+   "ws232-CARD_16-5p-s777010-3",
+   "ws232-CARD_16-5p-s777010-4",
+   "ws232-CARD_16-5p-s777010-5"
+  ],
+  "elapsed_seconds": 7.0,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Psychosis Crawler"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 2,
+   "mulligan": 20,
+   "priority": 674,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_16-5p",
+  "seed": 777010,
+  "terminal": false
+ },
+ "run_id": "CARD_16_5P_seed777010",
+ "seed": 777010,
+ "verdict": "UNKNOWN"
+}

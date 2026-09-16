@@ -1,0 +1,60 @@
+{
+ "card": "Vandalblast",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_14",
+ "player_count": 2,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 192,
+  "deck_digests": [
+   "faeb7cd3fceb003e1dbce64886bff50300476434ebcda5c3ade4c497bad21297",
+   "302744aeb68a5ef1b1a6277da5a43a24334d38277f82c7df90dda4ef948ed357"
+  ],
+  "deck_ids": [
+   "ws232-CARD_14-2p-s777021-1",
+   "ws232-CARD_14-2p-s777021-2"
+  ],
+  "elapsed_seconds": 5.6,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 8,
+  "focus_names": [
+   "Vandalblast"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 6,
+   "declare_blocker": 1,
+   "mulligan": 8,
+   "priority": 170,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_14-2p",
+  "seed": 777021,
+  "terminal": false
+ },
+ "run_id": "CARD_14_2P_seed777021",
+ "seed": 777021,
+ "verdict": "UNKNOWN"
+}

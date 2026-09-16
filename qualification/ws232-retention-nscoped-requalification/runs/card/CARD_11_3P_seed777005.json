@@ -1,0 +1,69 @@
+{
+ "card": "Wear // Tear",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_11",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "3eb9c0554c385a1f2c952e417e27eb3272bbbcc860eb21edc957aa7a6abaa91c",
+   "e53ef7115c16e5a00a2b6902d32453dde5a7b656c2c86e0ba2018c8bd68fc9ec",
+   "463be9f4dee3f16868fbe6486f2838e8a55ad84f33c57005dfff83e91671c3e1"
+  ],
+  "deck_ids": [
+   "ws232-CARD_11-3p-s777005-1",
+   "ws232-CARD_11-3p-s777005-2",
+   "ws232-CARD_11-3p-s777005-3"
+  ],
+  "elapsed_seconds": 6.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 10,
+  "focus_names": [
+   "Wear // Tear"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 2,
+   "mana_payment": 8,
+   "mulligan": 6,
+   "priority": 268,
+   "target": 3
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 588,
+  "scenario_id": "ws232-CARD_11-3p",
+  "seed": 777005,
+  "terminal": false
+ },
+ "run_id": "CARD_11_3P_seed777005",
+ "seed": 777005,
+ "verdict": "UNKNOWN"
+}

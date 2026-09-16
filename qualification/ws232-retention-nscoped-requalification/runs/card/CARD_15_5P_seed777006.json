@@ -1,0 +1,87 @@
+{
+ "card": "Finale of Revelation",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_15",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 406,
+  "deck_digests": [
+   "13066182f2eb020dd9b356ef222d52725c5c82816fb8b5072abf0104d5a60d06",
+   "5793dbcc68ed93da79fcffbbf9a53c6dbcfb9b4d0253ec6a9826af3473ce58b3",
+   "19292b71fe463986573457d946265be8894ff40fd89594814e6a917659ba712c",
+   "ed6083c5d47e5c51c8fe7b415a6c3cbe609cdc4d2fed8fcac6ece9ec66029548",
+   "6c4b332bf3433d30abc81ba4ff89bf806a7a046e0219db969d5427c2b34f0d01"
+  ],
+  "deck_ids": [
+   "ws232-CARD_15-5p-s777006-1",
+   "ws232-CARD_15-5p-s777006-2",
+   "ws232-CARD_15-5p-s777006-3",
+   "ws232-CARD_15-5p-s777006-4",
+   "ws232-CARD_15-5p-s777006-5"
+  ],
+  "elapsed_seconds": 6.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": "{\"message\": \"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: d8a1c0e85092659bffe65fbcf309e854ae5661bbdd279177788daa71739a7f62\", \"type\": \"decision_controller\"}",
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Finale of Revelation"
+  ],
+  "observed_classes": {
+   "announce_x": 1,
+   "choose_object": 1,
+   "mana_payment": 17,
+   "mulligan": 17,
+   "priority": 358,
+   "target": 12
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1666,
+  "scenario_id": "ws232-CARD_15-5p",
+  "seed": 777006,
+  "terminal": false
+ },
+ "run_id": "CARD_15_5P_seed777006",
+ "seed": 777006,
+ "verdict": "UNKNOWN"
+}

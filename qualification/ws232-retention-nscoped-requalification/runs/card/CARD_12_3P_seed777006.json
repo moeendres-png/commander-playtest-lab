@@ -1,0 +1,70 @@
+{
+ "card": "Dig Through Time",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_12",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "12c0e42216af547778d5c3677a9b1669382b473e63bb48c3b9a44d6f71b45e03",
+   "d8d46521eb0f34c6a6ce5ed9718f85639a870316349347f7f434f0ed59f1b962",
+   "c5ca76c8a5c726f5c39650b75cfb0cf3c651d42cbc8785be1e36600503bb61b4"
+  ],
+  "deck_ids": [
+   "ws232-CARD_12-3p-s777006-1",
+   "ws232-CARD_12-3p-s777006-2",
+   "ws232-CARD_12-3p-s777006-3"
+  ],
+  "elapsed_seconds": 7.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 36,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 30,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 23,
+  "focus_names": [
+   "Dig Through Time"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 16,
+   "declare_blocker": 2,
+   "mana_payment": 12,
+   "mulligan": 12,
+   "priority": 668,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_12-3p",
+  "seed": 777006,
+  "terminal": false
+ },
+ "run_id": "CARD_12_3P_seed777006",
+ "seed": 777006,
+ "verdict": "UNKNOWN"
+}

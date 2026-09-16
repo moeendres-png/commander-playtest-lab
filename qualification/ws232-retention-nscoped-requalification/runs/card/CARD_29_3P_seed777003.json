@@ -1,0 +1,68 @@
+{
+ "card": "Boseiju Reaches Skyward // Branch of Boseiju",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_29",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "553b342a3df26ade1cdc4cf3f056ca2d2c9bcbf955c044c304c857d85d805a12",
+   "b02500b4c8bf524f3847e1f063fc1730c09a70108e4e00e911d010fefe4354f4",
+   "a51f8a06235fca2663bb15a881b876a28268c295bcbb70304be958c2963931d7"
+  ],
+  "deck_ids": [
+   "ws232-CARD_29-3p-s777003-1",
+   "ws232-CARD_29-3p-s777003-2",
+   "ws232-CARD_29-3p-s777003-3"
+  ],
+  "elapsed_seconds": 5.5,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 10,
+  "focus_names": [
+   "Boseiju Reaches Skyward"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "mana_payment": 18,
+   "mulligan": 12,
+   "priority": 248,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_29-3p",
+  "seed": 777003,
+  "terminal": false
+ },
+ "run_id": "CARD_29_3P_seed777003",
+ "seed": 777003,
+ "verdict": "UNKNOWN"
+}

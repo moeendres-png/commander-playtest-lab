@@ -1,0 +1,60 @@
+{
+ "card": "Warstorm Surge",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_24",
+ "player_count": 2,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "54098beebd69175a961da85ce30d229d7a040de28b94ee209e53d5d996f536b7",
+   "5a04d101ef3f06053c48f694b10bdeb39c732f1e4342197b655d4ed32b4e1868"
+  ],
+  "deck_ids": [
+   "ws232-CARD_24-2p-s777012-1",
+   "ws232-CARD_24-2p-s777012-2"
+  ],
+  "elapsed_seconds": 5.8,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 20,
+  "focus_names": [
+   "Warstorm Surge"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 18,
+   "declare_blocker": 1,
+   "mulligan": 8,
+   "priority": 446,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_24-2p",
+  "seed": 777012,
+  "terminal": false
+ },
+ "run_id": "CARD_24_2P_seed777012",
+ "seed": 777012,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,87 @@
+{
+ "card": "Vandalblast",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_14",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "6c54c85abd8373c4c5b5caba98b1a63c34270a402462cfa4cf754a12cc84e8cb",
+   "b5bef2d3db3f734269404a9d0ecc5f74025bb8492aa6034f7fcd33817643fa4a",
+   "11e3fe90ebe495bbbc6b867a4a6891c9fb7869f0d0c8d5bbfa41c6f75a7a209a",
+   "cd0cf426dcb6638f47df4339f1b869d0400f34e27552fb180d392ef775a98b88",
+   "e7ce038d838d8f4acb7f6b0c9848efa85e109db9c4e33125e98b796f29c9ff59"
+  ],
+  "deck_ids": [
+   "ws232-CARD_14-5p-s777021-1",
+   "ws232-CARD_14-5p-s777021-2",
+   "ws232-CARD_14-5p-s777021-3",
+   "ws232-CARD_14-5p-s777021-4",
+   "ws232-CARD_14-5p-s777021-5"
+  ],
+  "elapsed_seconds": 7.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 14,
+  "focus_names": [
+   "Vandalblast"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 3,
+   "mulligan": 13,
+   "priority": 689,
+   "target": 6
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1274,
+  "scenario_id": "ws232-CARD_14-5p",
+  "seed": 777021,
+  "terminal": false
+ },
+ "run_id": "CARD_14_5P_seed777021",
+ "seed": 777021,
+ "verdict": "UNKNOWN"
+}

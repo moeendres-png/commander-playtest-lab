@@ -1,0 +1,40 @@
+{
+ "card": "Rograkh, Son of Rohgahh",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_02",
+ "player_count": 3,
+ "rationale": "run failure: FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Rograkh, Son of Rohgahh,card=Rograkh, Son of Rohgahh,message=Too many: 2",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 0,
+  "deck_digests": [
+   "1bebabc0ca1a0d88df1b12f2e3e49793725a3bd5e319300da0376839a7a9564f",
+   "242ec06686ff6b51213c278a98a6f2ad2c38d0e9413a0d9ccfab1c27c22c2c7c",
+   "754534ef3f0b8a6657dd9a70142f37bbb5bf6ca09d6fb9cc5692eafdb4bd35e0"
+  ],
+  "deck_ids": [
+   "ws232-CARD_02-3p-s777007-1",
+   "ws232-CARD_02-3p-s777007-2",
+   "ws232-CARD_02-3p-s777007-3"
+  ],
+  "elapsed_seconds": 5.0,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "unknown",
+  "failure": "FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Rograkh, Son of Rohgahh,card=Rograkh, Son of Rohgahh,message=Too many: 2",
+  "final_outcomes": [],
+  "final_turn": null,
+  "focus_names": [
+   "Rograkh, Son of Rohgahh"
+  ],
+  "observed_classes": {},
+  "player_count": 3,
+  "protocol_version": "unknown",
+  "rules_random_calls_last": null,
+  "scenario_id": "ws232-CARD_02-3p",
+  "seed": 777007,
+  "terminal": false
+ },
+ "run_id": "CARD_02_3P_seed777007",
+ "seed": 777007,
+ "verdict": "ERROR"
+}

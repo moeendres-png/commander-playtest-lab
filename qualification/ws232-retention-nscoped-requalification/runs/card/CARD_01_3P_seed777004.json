@@ -1,0 +1,40 @@
+{
+ "card": "Ishai, Ojutai Dragonspeaker",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_01",
+ "player_count": 3,
+ "rationale": "run failure: FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Ishai, Ojutai Dragonspeaker,card=Ishai, Ojutai Dragonspeaker,message=Too many: 2",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 0,
+  "deck_digests": [
+   "49942447ee5e2c87469448043647a1541177932fe270cda2063a17da16fa7c73",
+   "423b1523851336b413fc7bf9940af5ce47cc815118be34f9adda880d12a95395",
+   "95b04f3f99efdbe68aff60330324963e7708ec15bc28970bb1954b87084ba2e9"
+  ],
+  "deck_ids": [
+   "ws232-CARD_01-3p-s777004-1",
+   "ws232-CARD_01-3p-s777004-2",
+   "ws232-CARD_01-3p-s777004-3"
+  ],
+  "elapsed_seconds": 5.6,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "unknown",
+  "failure": "FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Ishai, Ojutai Dragonspeaker,card=Ishai, Ojutai Dragonspeaker,message=Too many: 2",
+  "final_outcomes": [],
+  "final_turn": null,
+  "focus_names": [
+   "Ishai, Ojutai Dragonspeaker"
+  ],
+  "observed_classes": {},
+  "player_count": 3,
+  "protocol_version": "unknown",
+  "rules_random_calls_last": null,
+  "scenario_id": "ws232-CARD_01-3p",
+  "seed": 777004,
+  "terminal": false
+ },
+ "run_id": "CARD_01_3P_seed777004",
+ "seed": 777004,
+ "verdict": "ERROR"
+}

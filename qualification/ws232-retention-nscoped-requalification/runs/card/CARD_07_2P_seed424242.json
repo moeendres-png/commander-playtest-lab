@@ -1,0 +1,61 @@
+{
+ "card": "Narset, Parter of Veils",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_07",
+ "player_count": 2,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 192,
+  "deck_digests": [
+   "4a9c9fac8ead56b6196d5422868317dc231db93aec4f7949f37646dad1caf6d0",
+   "a4079a8ee4bc038a9856eab81e19d4ab17593068acad3c9ad4b28715657ee9d7"
+  ],
+  "deck_ids": [
+   "ws232-CARD_07-2p-s424242-1",
+   "ws232-CARD_07-2p-s424242-2"
+  ],
+  "elapsed_seconds": 6.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 39,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Narset, Parter of Veils"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 4,
+   "declare_blocker": 1,
+   "mana_payment": 8,
+   "mulligan": 8,
+   "priority": 164,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_07-2p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_07_2P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

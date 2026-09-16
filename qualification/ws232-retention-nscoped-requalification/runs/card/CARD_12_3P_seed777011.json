@@ -1,0 +1,70 @@
+{
+ "card": "Dig Through Time",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_12",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "2efd0051c406a9edfcd1f63178e64b21d4081d333c6e38d89ddc67089dc0f12a",
+   "0963fabe979cd353e6074d911ec1c772c6c029fd321fe5c8c22e6195b7ee0342",
+   "8c11ec8038390c8574136cbfed223db112ba3f4b3ee65b5afe23cb4345197e73"
+  ],
+  "deck_ids": [
+   "ws232-CARD_12-3p-s777011-1",
+   "ws232-CARD_12-3p-s777011-2",
+   "ws232-CARD_12-3p-s777011-3"
+  ],
+  "elapsed_seconds": 7.7,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 35,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 30,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 23,
+  "focus_names": [
+   "Dig Through Time"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 16,
+   "declare_blocker": 1,
+   "mana_payment": 27,
+   "mulligan": 6,
+   "priority": 666,
+   "target": 3
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 588,
+  "scenario_id": "ws232-CARD_12-3p",
+  "seed": 777011,
+  "terminal": false
+ },
+ "run_id": "CARD_12_3P_seed777011",
+ "seed": 777011,
+ "verdict": "UNKNOWN"
+}

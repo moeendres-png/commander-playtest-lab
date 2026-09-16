@@ -1,0 +1,89 @@
+{
+ "card": "Bolt Bend",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_22",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 960,
+  "deck_digests": [
+   "434710c00740647e478a0ad81fd330159767635f7b0f38d84a11c3703ac7d86e",
+   "aa083cd00f186b408447b83e775aa7520c0b6ec824271d2f616851741409bf9b",
+   "19b5be692b1658a64d8bf6667b81ec93310411586cb414061f840ea8ef1f3f97",
+   "beb517fbe8b1396e71d9fdfcd2809cf4bed8c14a8abfe80ccfa7927f6822c707",
+   "b3887258660ba85481c2fe2f8efecb32d3c1afdf29ae8b64fd2ad9b8c6f56329"
+  ],
+  "deck_ids": [
+   "ws232-CARD_22-5p-s777004-1",
+   "ws232-CARD_22-5p-s777004-2",
+   "ws232-CARD_22-5p-s777004-3",
+   "ws232-CARD_22-5p-s777004-4",
+   "ws232-CARD_22-5p-s777004-5"
+  ],
+  "elapsed_seconds": 7.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 17,
+  "focus_names": [
+   "Bolt Bend"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 10,
+   "declare_blocker": 5,
+   "mana_payment": 16,
+   "mulligan": 17,
+   "priority": 895,
+   "target": 14
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1666,
+  "scenario_id": "ws232-CARD_22-5p",
+  "seed": 777004,
+  "terminal": false
+ },
+ "run_id": "CARD_22_5P_seed777004",
+ "seed": 777004,
+ "verdict": "UNKNOWN"
+}

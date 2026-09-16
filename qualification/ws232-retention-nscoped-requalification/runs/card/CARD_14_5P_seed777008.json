@@ -1,0 +1,87 @@
+{
+ "card": "Vandalblast",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_14",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 720,
+  "deck_digests": [
+   "b5f68cf8eaeda4d700c4a8342dba1c38da622301c83f6e8d90233f022113096a",
+   "d6dc3ee9aa425e13aed93c787d5f464f22c29defdc5396f67a20fc6beb658efc",
+   "43c21a27fc28b88286d42e0991f55b381891e29a9bc08d96e4b5b357e7293785",
+   "7d68658a29f39e575f0e0741e64d203f3237767306623f2afc5e86c0c707478d",
+   "e556ffe864ffeb479566c7a2f7f2494c2ec3b2d1ce550ce98981b134a2df851c"
+  ],
+  "deck_ids": [
+   "ws232-CARD_14-5p-s777008-1",
+   "ws232-CARD_14-5p-s777008-2",
+   "ws232-CARD_14-5p-s777008-3",
+   "ws232-CARD_14-5p-s777008-4",
+   "ws232-CARD_14-5p-s777008-5"
+  ],
+  "elapsed_seconds": 6.7,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 13,
+  "focus_names": [
+   "Vandalblast"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 8,
+   "declare_blocker": 4,
+   "mulligan": 20,
+   "priority": 672,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_14-5p",
+  "seed": 777008,
+  "terminal": false
+ },
+ "run_id": "CARD_14_5P_seed777008",
+ "seed": 777008,
+ "verdict": "UNKNOWN"
+}

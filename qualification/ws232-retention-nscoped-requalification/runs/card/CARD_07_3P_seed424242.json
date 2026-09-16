@@ -1,0 +1,70 @@
+{
+ "card": "Narset, Parter of Veils",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_07",
+ "player_count": 3,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "49d1fb18b127f9eaae9b4a00dcb6ad25810272b6e516e7509bde95a6b6e9658c",
+   "933595d8dd5cf1b832e526e972fa260ee4118c41ea0a39da5508a654cf66cc67",
+   "12b1e189e0bd1505f23fdc97a1bfda72e5047194b701e12d0d0c8c6179147d58"
+  ],
+  "deck_ids": [
+   "ws232-CARD_07-3p-s424242-1",
+   "ws232-CARD_07-3p-s424242-2",
+   "ws232-CARD_07-3p-s424242-3"
+  ],
+  "elapsed_seconds": 6.9,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 39,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Narset, Parter of Veils"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 3,
+   "declare_blocker": 2,
+   "mana_payment": 12,
+   "mulligan": 12,
+   "priority": 249,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_07-3p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_07_3P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

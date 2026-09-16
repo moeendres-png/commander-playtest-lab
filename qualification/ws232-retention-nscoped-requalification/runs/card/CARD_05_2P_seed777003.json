@@ -1,0 +1,38 @@
+{
+ "card": "Veyran, Voice of Duality",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_05",
+ "player_count": 2,
+ "rationale": "run failure: FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Veyran, Voice of Duality,card=Veyran, Voice of Duality,message=Too many: 2",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 0,
+  "deck_digests": [
+   "c3764197bb65f55c4cd143e9337a10df18302936623ed2af1f3fc7008fe8ca6e",
+   "082643aad58e65bba71f2946471d32ea74b97de201b2758444b1cc48b5433e32"
+  ],
+  "deck_ids": [
+   "ws232-CARD_05-2p-s777003-1",
+   "ws232-CARD_05-2p-s777003-2"
+  ],
+  "elapsed_seconds": 4.8,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "unknown",
+  "failure": "FullGameProtocolError: import_deck failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Veyran, Voice of Duality,card=Veyran, Voice of Duality,message=Too many: 2",
+  "final_outcomes": [],
+  "final_turn": null,
+  "focus_names": [
+   "Veyran, Voice of Duality"
+  ],
+  "observed_classes": {},
+  "player_count": 2,
+  "protocol_version": "unknown",
+  "rules_random_calls_last": null,
+  "scenario_id": "ws232-CARD_05-2p",
+  "seed": 777003,
+  "terminal": false
+ },
+ "run_id": "CARD_05_2P_seed777003",
+ "seed": 777003,
+ "verdict": "ERROR"
+}

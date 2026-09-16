@@ -1,0 +1,90 @@
+{
+ "card": "Butcher of Malakir",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_19",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 1440,
+  "deck_digests": [
+   "ea829943435691b110b8f17aa03d7b249a24949aa1da81d3252a9e159f0bb766",
+   "79cacdfc82da1ba73ead319b38cd1e40f3e0592073f1ae8b841e018ebea3bde4",
+   "d98471143c1eea88efeb2b52f998c5a7db3b7c516acbcd2ed933369a7670f5f3",
+   "bf0f88077f0abf843c7c9423b872136bb9eb5f1e6068ead1dfd31ad95459be2e",
+   "75917b18789917fc390863b8c27a93ea7bd1f62f79d65f48f20f466f7caa0cf6"
+  ],
+  "deck_ids": [
+   "ws232-CARD_19-5p-s777002-1",
+   "ws232-CARD_19-5p-s777002-2",
+   "ws232-CARD_19-5p-s777002-3",
+   "ws232-CARD_19-5p-s777002-4",
+   "ws232-CARD_19-5p-s777002-5"
+  ],
+  "elapsed_seconds": 8.5,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 24,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 29,
+  "focus_names": [
+   "Butcher of Malakir"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "choose_use": 4,
+   "declare_attacker": 10,
+   "declare_blocker": 2,
+   "mana_payment": 60,
+   "mulligan": 14,
+   "priority": 1336,
+   "target": 7,
+   "trigger_order": 6
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1372,
+  "scenario_id": "ws232-CARD_19-5p",
+  "seed": 777002,
+  "terminal": false
+ },
+ "run_id": "CARD_19_5P_seed777002",
+ "seed": 777002,
+ "verdict": "UNKNOWN"
+}

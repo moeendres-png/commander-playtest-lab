@@ -1,0 +1,88 @@
+{
+ "card": "Dig Through Time",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_12",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 1440,
+  "deck_digests": [
+   "cf6bc42bc15e7a2b9f93fc5ad0e675747fa80e2c1b584afc410ceb544f753a73",
+   "fbbe026a5314679f430eeeac8704807f9d4fa12b52b031f4b14c645c1a40d716",
+   "a68236df1a779a8373b118466eb1fa270fb6f5dc58740247ea35f4c03474040f",
+   "2b59a2bee3e3b5f30a71f5b3cd4c9bde727480564c868bf2e02ce5ccb3946dfa",
+   "45aa3f9261db1fc647b45177d1c9670804cab9868117cb4543a47c02df36af1d"
+  ],
+  "deck_ids": [
+   "ws232-CARD_12-5p-s777007-1",
+   "ws232-CARD_12-5p-s777007-2",
+   "ws232-CARD_12-5p-s777007-3",
+   "ws232-CARD_12-5p-s777007-4",
+   "ws232-CARD_12-5p-s777007-5"
+  ],
+  "elapsed_seconds": 10.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 28,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 29,
+  "focus_names": [
+   "Dig Through Time"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 18,
+   "declare_blocker": 4,
+   "mana_payment": 20,
+   "mulligan": 20,
+   "priority": 1362,
+   "target": 15
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1960,
+  "scenario_id": "ws232-CARD_12-5p",
+  "seed": 777007,
+  "terminal": false
+ },
+ "run_id": "CARD_12_5P_seed777007",
+ "seed": 777007,
+ "verdict": "UNKNOWN"
+}

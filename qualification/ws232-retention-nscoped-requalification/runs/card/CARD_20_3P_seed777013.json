@@ -1,0 +1,68 @@
+{
+ "card": "Syphon Mind",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_20",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 288,
+  "deck_digests": [
+   "53a42793380ffdcb4ccf0670172fc59c179ff71f1a99ec0efd567bcff6a201e2",
+   "c0c757a225a30272c5cbbd71556349f59d6194430b4d5ac728e4e82ade2b3ddf",
+   "a26600a1e41555d671693f34c0cc46196bcfa7270fc6f718817415c046f5b817"
+  ],
+  "deck_ids": [
+   "ws232-CARD_20-3p-s777013-1",
+   "ws232-CARD_20-3p-s777013-2",
+   "ws232-CARD_20-3p-s777013-3"
+  ],
+  "elapsed_seconds": 6.8,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 10,
+  "focus_names": [
+   "Syphon Mind"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "mana_payment": 18,
+   "mulligan": 12,
+   "priority": 248,
+   "target": 9
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1176,
+  "scenario_id": "ws232-CARD_20-3p",
+  "seed": 777013,
+  "terminal": false
+ },
+ "run_id": "CARD_20_3P_seed777013",
+ "seed": 777013,
+ "verdict": "UNKNOWN"
+}

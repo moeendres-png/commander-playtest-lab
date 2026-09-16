@@ -1,0 +1,90 @@
+{
+ "card": "Magma Opus",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_09",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 840,
+  "deck_digests": [
+   "dcb205d895c1a99c50a9d84e9d0770ed75264efd23f445d59dfa335a8db0f27e",
+   "d0ef63bc483e6cf37bc5e1574a7eca454858451d9439cd499f1f77baca64062c",
+   "2fb91826b4e3f5c25b427c2da92a096648e4a3358f8a0ae710e46f3408842b99",
+   "d8d3c847349b9f9d1de55b00fa94f4a5e7d56e8c5bbe640683afb2bb36b02c83",
+   "05425d1e95385d3b99ba3334d694a06f31a055be771a148af06767ed3626573c"
+  ],
+  "deck_ids": [
+   "ws232-CARD_09-5p-s777006-1",
+   "ws232-CARD_09-5p-s777006-2",
+   "ws232-CARD_09-5p-s777006-3",
+   "ws232-CARD_09-5p-s777006-4",
+   "ws232-CARD_09-5p-s777006-5"
+  ],
+  "elapsed_seconds": 9.0,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 18,
+  "focus_names": [
+   "Magma Opus"
+  ],
+  "observed_classes": {
+   "choice": 1,
+   "choose_object": 1,
+   "choose_use": 2,
+   "declare_attacker": 2,
+   "declare_blocker": 1,
+   "mana_payment": 28,
+   "mulligan": 17,
+   "priority": 776,
+   "target": 12
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1666,
+  "scenario_id": "ws232-CARD_09-5p",
+  "seed": 777006,
+  "terminal": false
+ },
+ "run_id": "CARD_09_5P_seed777006",
+ "seed": 777006,
+ "verdict": "UNKNOWN"
+}

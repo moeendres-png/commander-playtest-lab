@@ -1,0 +1,60 @@
+{
+ "card": "Path of Ancestry",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_27",
+ "player_count": 2,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 192,
+  "deck_digests": [
+   "47d1ce93d2c756311da95fd750543ec15ff0d3310cca794987ebbb7b78797ed3",
+   "12f59404921498066014ace646056cebef0daabaa1abeb73fe655008b1d617f6"
+  ],
+  "deck_ids": [
+   "ws232-CARD_27-2p-s424242-1",
+   "ws232-CARD_27-2p-s424242-2"
+  ],
+  "elapsed_seconds": 5.1,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   }
+  ],
+  "final_turn": 8,
+  "focus_names": [
+   "Path of Ancestry"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 6,
+   "declare_blocker": 1,
+   "mulligan": 8,
+   "priority": 170,
+   "target": 6
+  },
+  "player_count": 2,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 784,
+  "scenario_id": "ws232-CARD_27-2p",
+  "seed": 424242,
+  "terminal": false
+ },
+ "run_id": "CARD_27_2P_seed424242",
+ "seed": 424242,
+ "verdict": "UNKNOWN"
+}

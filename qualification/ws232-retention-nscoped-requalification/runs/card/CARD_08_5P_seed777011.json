@@ -1,0 +1,87 @@
+{
+ "card": "Jeska, Thrice Reborn",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_08",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "c445711ab0cdec4db9c3765a8e16b5621a58e330c4a33e801914cb52870ea7db",
+   "2f8be6a687494d239c6717a0e0d20146d4996a53beedd8c7e763abefe7debf53",
+   "1d6b9beab7700f79583371a8ecf51ae60594cb694a6d6b2409bb6b2e0b880102",
+   "bf19b0ff085f3d9c9a28648dbc6423f99f851980f945c2a9b352a35605dfe919",
+   "b7f8cfdddb80ddfc8188d9b94a2bed24fef1ecfdf2e20b1c482cae502f05a70a"
+  ],
+  "deck_ids": [
+   "ws232-CARD_08-5p-s777011-1",
+   "ws232-CARD_08-5p-s777011-2",
+   "ws232-CARD_08-5p-s777011-3",
+   "ws232-CARD_08-5p-s777011-4",
+   "ws232-CARD_08-5p-s777011-5"
+  ],
+  "elapsed_seconds": 6.4,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Jeska, Thrice Reborn"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 4,
+   "declare_blocker": 3,
+   "mulligan": 14,
+   "priority": 449,
+   "target": 9
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1372,
+  "scenario_id": "ws232-CARD_08-5p",
+  "seed": 777011,
+  "terminal": false
+ },
+ "run_id": "CARD_08_5P_seed777011",
+ "seed": 777011,
+ "verdict": "UNKNOWN"
+}

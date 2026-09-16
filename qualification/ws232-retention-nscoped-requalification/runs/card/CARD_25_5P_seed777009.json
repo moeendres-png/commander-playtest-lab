@@ -1,0 +1,87 @@
+{
+ "card": "Basilisk Collar",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_25",
+ "player_count": 5,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 480,
+  "deck_digests": [
+   "7533db86d50a1738d36a9383024b3c5fdca1f5f2be059a96b84652345c344a8c",
+   "80fe26cdc0c7d66faeca5eda620a73115839cee11919faae09f8c0e284839c77",
+   "91529fe056f1bccf050113e9bae91c11c3572253d443fe0fed5ff2fcf26ebf60",
+   "2717b5b1a5b7ea0e8f2f1c3e84d08020332d8491a654c37364b3ad9e6c6a71a2",
+   "1441519c3f08bae7d6afa509cfdf210d43db38e8abd9dc8c535e39cc048678b7"
+  ],
+  "deck_ids": [
+   "ws232-CARD_25-5p-s777009-1",
+   "ws232-CARD_25-5p-s777009-2",
+   "ws232-CARD_25-5p-s777009-3",
+   "ws232-CARD_25-5p-s777009-4",
+   "ws232-CARD_25-5p-s777009-5"
+  ],
+  "elapsed_seconds": 5.9,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 38,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 36,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 9,
+  "focus_names": [
+   "Basilisk Collar"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 3,
+   "mana_payment": 12,
+   "mulligan": 19,
+   "priority": 432,
+   "target": 13
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 1862,
+  "scenario_id": "ws232-CARD_25-5p",
+  "seed": 777009,
+  "terminal": false
+ },
+ "run_id": "CARD_25_5P_seed777009",
+ "seed": 777009,
+ "verdict": "UNKNOWN"
+}

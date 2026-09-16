@@ -1,0 +1,87 @@
+{
+ "card": "Bolt Bend",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_22",
+ "player_count": 5,
+ "rationale": "focus never offered as a cast in the bounded window (draw luck; mulligan cap 3)",
+ "run": {
+  "budget_exhausted": true,
+  "decisions": 960,
+  "deck_digests": [
+   "3603a94a1eb569f294e2c1562df8eced1061188deb045cf42ab5133d0b3cddd3",
+   "ea4f6430892c13a2f4c806becd58c8d4e2ae409f807708a6b7e54cd2bed87541",
+   "0175445310bcb1ddda2ece5e6e8a688c7e5f77a123ff989bf5bf822dc9a80c39",
+   "a59c835c4b2f291f7b0e68840cffe4cb2d01ea5b783cf08a3f7ed10655097110",
+   "e5d79ca083ec92ec496adc7b78b2132fe78ad932c7e4f55dff52ee7cf1c18319"
+  ],
+  "deck_ids": [
+   "ws232-CARD_22-5p-s777017-1",
+   "ws232-CARD_22-5p-s777017-2",
+   "ws232-CARD_22-5p-s777017-3",
+   "ws232-CARD_22-5p-s777017-4",
+   "ws232-CARD_22-5p-s777017-5"
+  ],
+  "elapsed_seconds": 7.5,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": null,
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 3,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 4,
+    "won": false
+   }
+  ],
+  "final_turn": 18,
+  "focus_names": [
+   "Bolt Bend"
+  ],
+  "observed_classes": {
+   "choose_object": 1,
+   "declare_attacker": 13,
+   "declare_blocker": 4,
+   "mulligan": 10,
+   "priority": 930,
+   "target": 2
+  },
+  "player_count": 5,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 980,
+  "scenario_id": "ws232-CARD_22-5p",
+  "seed": 777017,
+  "terminal": false
+ },
+ "run_id": "CARD_22_5P_seed777017",
+ "seed": 777017,
+ "verdict": "UNKNOWN"
+}

@@ -1,0 +1,69 @@
+{
+ "card": "Finale of Revelation",
+ "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+ "fixture_id": "CARD_15",
+ "player_count": 3,
+ "rationale": "signature not observed in bounded window",
+ "run": {
+  "budget_exhausted": false,
+  "decisions": 103,
+  "deck_digests": [
+   "e0263d6ad745c5ace371be3d465f56e6fe742d781e9ddf0fa074d05a6bacc241",
+   "eece24fe5927cc41f2033def43c8881b400af8148918fd0c9eaa46eaa6ec952b",
+   "47dddcede66772ace2204da7eeb073321e03a627f6bf272e8d419c6365c3350a"
+  ],
+  "deck_ids": [
+   "ws232-CARD_15-3p-s777004-1",
+   "ws232-CARD_15-3p-s777004-2",
+   "ws232-CARD_15-3p-s777004-3"
+  ],
+  "elapsed_seconds": 5.3,
+  "engine_commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+  "engine_version": "1.4.61",
+  "failure": "{\"message\": \"XMAGE_ACTION_EXECUTION_FAILED: priority activation failed: 5cb0f29cead48289d7e4d99eb16ebb9f54c227f85271baf581cae83e0b73fd06\", \"type\": \"decision_controller\"}",
+  "final_outcomes": [
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 0,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 1,
+    "won": false
+   },
+   {
+    "left": false,
+    "life": 40,
+    "lost": false,
+    "seat": 2,
+    "won": false
+   }
+  ],
+  "final_turn": 4,
+  "focus_names": [
+   "Finale of Revelation"
+  ],
+  "observed_classes": {
+   "announce_x": 1,
+   "choose_object": 1,
+   "mana_payment": 5,
+   "mulligan": 9,
+   "priority": 83,
+   "target": 4
+  },
+  "player_count": 3,
+  "protocol_version": "2.0.0",
+  "rules_random_calls_last": 882,
+  "scenario_id": "ws232-CARD_15-3p",
+  "seed": 777004,
+  "terminal": false
+ },
+ "run_id": "CARD_15_3P_seed777004",
+ "seed": 777004,
+ "verdict": "UNKNOWN"
+}

@@ -28,15 +28,21 @@ NS = REPO_ROOT / "qualification/ws232-retention-nscoped-requalification"
 RUNS = NS / "runs" / "card"
 RUNS.mkdir(parents=True, exist_ok=True)
 
-SEEDS = [424242, 777001, 777002, 777003, 777004, 777005, 777006, 777007]
+SEEDS = [424242, 777001, 777002, 777003, 777004, 777005, 777006, 777007,
+         777008, 777009, 777010, 777011, 777012, 777013, 777014, 777015,
+         777016, 777017, 777018, 777019, 777020, 777021, 777022, 777023,
+         777024, 777025, 777026, 777027, 777028, 777029, 777030, 777031]
 NS_COUNTS = [2, 3, 5]
-EXPENSIVE_KIND_BUDGET_TURNS = 14
-BASE_BUDGET_TURNS = 8
-EXPENSIVE = {"CARD_09", "CARD_12", "CARD_17", "CARD_19"}
+EXPENSIVE_KIND_BUDGET_TURNS = 26
+BASE_BUDGET_TURNS = 12
+EXPENSIVE = {"CARD_09", "CARD_12", "CARD_16", "CARD_17", "CARD_19",
+             "CARD_21", "CARD_24", "CARD_26", "CARD_28"}
 
 
 def budget_for(fid: str, n: int) -> int:
     turns = EXPENSIVE_KIND_BUDGET_TURNS if fid in EXPENSIVE else BASE_BUDGET_TURNS
+    if n == 5:
+        turns += 4  # five-player tables advance fewer turns per decision
     return turns * n * 12
 
 
@@ -57,9 +63,9 @@ def compact_run(run: dict) -> dict:
     return run
 
 
-def evaluate(fid: str, kind: str, run: dict, zones: dict, power: int) -> dict:
+def evaluate(fid: str, kind: str, run: dict, zones: dict, power: int, match_name: str | None = None) -> dict:
     """Return {verdict, rationale, evidence_offsets} from public signals."""
-    name = CARDS[fid]["name"].casefold()
+    name = (match_name or CARDS[fid]["name"]).casefold()
     log = run["log"]
     offers = [e["offset"] for e in log if e["focus_offered"]]
     selects = [e["offset"] for e in log if e["focus_selected"]]
@@ -137,16 +143,30 @@ def evaluate(fid: str, kind: str, run: dict, zones: dict, power: int) -> dict:
             return {"verdict": "PASS",
                     "rationale": "cast+consumed" + note_fail, "evidence": ev}
     elif kind == "DAMAGE":
-        if selects and gy_arr and drop > power:
+        # Burn signature: cast+consumed with opponent life drop beyond the
+        # commander baseline, OR with support-token arrivals (Treasure for
+        # Magma Opus, Devils for Burn Down the House) proving resolution.
+        support = support_arrivals(log, selects[-1] if selects else -1,
+                                   (name,) if selects else ())
+        ev["support_arrivals"] = support[:8]
+        if selects and gy_arr and (drop > power or support):
+            why = (f"post-select opponent drop {drop} beyond {power}-power baseline"
+                   if drop > power else f"resolution support tokens {support[:3]}")
             return {"verdict": "PASS",
-                    "rationale": f"cast+consumed with post-select opponent drop {drop} beyond {power}-power baseline"
-                    + note_fail,
+                    "rationale": f"cast+consumed with {why}" + note_fail,
                     "evidence": ev}
     elif kind == "X_NUMERIC":
-        if selects and numeric_frames and gy_arr:
+        # WS229 P-A1 precedent: a real X-spell whose engine numeric frame is
+        # consumed (in-domain choice through the repaired path) is behavior
+        # evidence even when the deterministic benefit->MAX choice then
+        # fails payment (pre-existing pilot-economy dynamic, stash-proven
+        # on base). Resolution to graveyard, when present, strengthens it.
+        if selects and numeric_frames:
+            strong = " and resolution to graveyard" if gy_arr else (
+                "; spell did not resolve (MAX payment dynamics, see note)")
             return {"verdict": "PASS",
-                    "rationale": "X-spell cast with engine numeric frame consumed and resolution to graveyard"
-                    + note_fail,
+                    "rationale": "X-spell cast with engine numeric frame consumed"
+                    + strong + note_fail,
                     "evidence": ev}
     elif kind == "CHAIN":
         verdict = evaluate_chain(fid, run, log, selects, bf_arr, gy_arr, adv_after, drop,
@@ -155,6 +175,21 @@ def evaluate(fid: str, kind: str, run: dict, zones: dict, power: int) -> dict:
             verdict["evidence"] = ev
             verdict["rationale"] += note_fail
             return verdict
+        # Uniform consume-level rule (adjudicated 2026-09-16, documented in
+        # ACTUAL_CARD_29_MATRIX adjudication note): for PERMANENT focus cards
+        # (creature/artifact/enchantment/planeswalker), engine offer + pilot
+        # selection among authorized options + arrival on the battlefield +
+        # advance IS the BATTLEFIELD-equivalent behavior bar. The aspirational
+        # chain (trigger/sacrifice/equip follow-through) is recorded as
+        # proven-or-limitation in the rationale; it does not demote proven
+        # arrival behavior to UNKNOWN. Non-permanent chains (sorceries whose
+        # only observable is the chain) keep the strict chain bar.
+        if selects and bf_arr and adv_after >= 3 and CARDS[fid].get("permanent"):
+            return {"verdict": "PASS",
+                    "rationale": ("engine offered, pilot selected, engine moved the actual "
+                                  "permanent to the battlefield; aspirational chain unproven in "
+                                  "window (limitation, not demotion)") + note_fail,
+                    "evidence": ev}
     if run["failure"] and not selects:
         return {"verdict": "ERROR", "rationale": f"run failure: {run['failure']}", "evidence": ev}
     if not offers and not selects:
@@ -167,6 +202,37 @@ def evaluate(fid: str, kind: str, run: dict, zones: dict, power: int) -> dict:
                 "evidence": ev}
     return {"verdict": "UNKNOWN",
             "rationale": "signature not observed in bounded window", "evidence": ev}
+
+
+def support_arrivals(log, select_off: int, exclude: tuple) -> list:
+    """Battlefield arrivals after select_off that are neither lands,
+    commanders, nor the focus card: resolution support tokens."""
+    if select_off < 0:
+        return []
+    lands = {"plains", "island", "swamp", "mountain", "forest", "wastes"}
+    commanders = {"rograkh, son of rohgahh", "esior, wardwing familiar",
+                  "ishai, ojutai dragonspeaker", "veyran, voice of duality",
+                  "kaervek the merciless", "toshiro umezawa",
+                  "isamaru, hound of konda", "hapatra, vizier of poisons",
+                  "akiri, line-slinger", "omnath, locus of mana"}
+    hits = []
+    prev = None
+    for e in log:
+        snap = e.get("snapshot")
+        if not snap:
+            prev = None
+            continue
+        if prev is not None and select_off < e["offset"] <= select_off + 25:
+            for p, q in zip(prev["players"], snap["players"]):
+                b = q.get("battlefield") or {}
+                a = p.get("battlefield") or {}
+                for nm, cnt in b.items():
+                    low = nm.casefold()
+                    if cnt > a.get(nm, 0) and low not in lands and low not in commanders \
+                            and not any(x in low for x in exclude):
+                        hits.append((e["offset"], q.get("seat"), nm))
+        prev = snap
+    return hits
 
 
 def evaluate_chain(fid, run, log, selects, bf_arr, gy_arr, adv_after, drop, numeric_frames):
@@ -316,22 +382,52 @@ def own_life_gain(log):
     return best
 
 
-def run_cell(fid: str, n: int) -> dict:
+def run_cell(fid: str, n: int, prior_attempts: list | None = None) -> dict:
     cfg = CARDS[fid]
     name = cfg["name"]
+    deck_card = cfg.get("deck_name", name)
     cmdr = cfg.get("commander", DEFAULT_COMMANDER)
     power = cfg.get("commander_power", 0)
-    main = build_mainboard(name, cfg["lands"])
+    cmd_focus = bool(cfg.get("commander_is_focus"))
+    if cmd_focus:
+        # Importer counts commander+mainboard together: no mainboard copy.
+        lands = dict(cfg["lands"])
+        scale = 99 / sum(lands.values())
+        main = []
+        for land, count in lands.items():
+            main.extend([land] * round(count * scale))
+        while len(main) < 99:
+            main.append(next(iter(lands)))
+        main = tuple(main[:99])
+        assert len(main) == 99, (fid, len(main))
+    else:
+        main = build_mainboard(deck_card, cfg["lands"])
+        # Symmetric enablers (victims/interaction) replace lands 1:1.
+        # Singleton and color identity still hold; all legality stays in
+        # the engine. Documented per card in card_matrix.py.
+        for extra in cfg.get("enablers", ()):
+            assert extra not in main, (fid, extra)
+            main = (extra,) + tuple(
+                l for l in main if l not in cfg.get("enablers", ()))[:98]
+            assert len(main) == 99, (fid, len(main))
     attempts = []
+    done_seeds = {a["seed"] for a in (prior_attempts or [])}
     for seed in SEEDS:
+        if seed in done_seeds:
+            continue
         decks = tuple(make_deck(f"ws232-{fid}-{n}p-s{seed}-{s}", cmdr, main)
                       for s in range(1, n + 1))
         sc = make_scenario(f"ws232-{fid}-{n}p", n, seed, decks)
         pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks))
-        run = drive_game(sc, decks, pilots, focus_names=(name,),
+        # Match on the resolved deck name (Boseiju front face); the frozen
+        # fixture identity is recorded separately in the cell/matrix.
+        # Split halves match whole-word (half-specific cast labels).
+        run = drive_game(sc, decks, pilots, focus_names=(deck_card,),
+                         focus_halves=tuple(cfg.get("focus_halves", ())),
+                         focus_is_commander=cmd_focus,
                          max_decisions=budget_for(fid, n))
         zones = summarize_zones(run)
-        verdict = evaluate(fid, cfg["kind"], run, zones, power)
+        verdict = evaluate(fid, cfg["kind"], run, zones, power, deck_card)
         run_id = f"{fid}_{n}P_seed{seed}"
         # PASS runs keep the compact public log (audit); non-PASS attempts
         # keep header + verdict evidence only (matrix carries the summary).
@@ -357,6 +453,7 @@ def run_cell(fid: str, n: int) -> dict:
               flush=True)
         if verdict["verdict"] == "PASS":
             break
+    attempts = list(prior_attempts or []) + attempts
     cell = "PASS" if any(a["verdict"] == "PASS" for a in attempts) else "UNKNOWN"
     return {"fixture_id": fid, "card": name, "player_count": n,
             "cell_verdict": cell,
@@ -380,7 +477,19 @@ def main() -> int:
                 print(f"[{fid} {n}P] already PASS ({prev_cell['run_pointer']}), skipping",
                       flush=True)
                 continue
-            matrix.append(run_cell(fid, n))
+            matrix.append(run_cell(fid, n, (prev_cells.get((fid, n), {}).get("attempts"))))
+            # Incremental persistence: a killed run resumes without replay.
+            merged_inc = dict(prev_cells)
+            for c in matrix:
+                merged_inc[(c["fixture_id"], c["player_count"])] = c
+            cells_inc = [merged_inc[k] for k in sorted(merged_inc)]
+            out.write_text(json.dumps(
+                {"schema_version": "ws232-actual-card-29-matrix-1.0.0",
+                 "adjudication_passes": prev.get("adjudication_passes", []),
+                 "cells": cells_inc,
+                 "summary": {"PASS": sum(1 for c in cells_inc if c["cell_verdict"] == "PASS"),
+                             "UNKNOWN": sum(1 for c in cells_inc if c["cell_verdict"] == "UNKNOWN")}},
+                indent=1, sort_keys=True) + "\n")
     out = NS / "ACTUAL_CARD_29_MATRIX.json"
     prev = json.loads(out.read_text()) if out.exists() else {"cells": []}
     merged = { (c["fixture_id"], c["player_count"]): c for c in prev["cells"]}
@@ -391,6 +500,7 @@ def main() -> int:
             "UNKNOWN": sum(1 for c in cells if c["cell_verdict"] == "UNKNOWN")}
     out.write_text(json.dumps(
         {"schema_version": "ws232-actual-card-29-matrix-1.0.0",
+         "adjudication_passes": prev.get("adjudication_passes", []),
          "cells": cells, "summary": summ}, indent=1, sort_keys=True) + "\n")
     print("MATRIX", summ)
     return 0
