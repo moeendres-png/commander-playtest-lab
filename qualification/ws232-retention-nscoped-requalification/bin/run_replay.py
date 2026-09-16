@@ -20,15 +20,19 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from nscoped_runner import BRIDGE_VERSION, POLICY_VERSION, XMAGE_COMMIT  # noqa: E402
+
 from commander_lab.candidates.models import FutureXmageScenario  # noqa: E402
 from commander_lab.engine.rules.full_game import FullGamePilotBinding  # noqa: E402
 from commander_lab.models import (  # noqa: E402
-    PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput)
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    RulesDeckInput,
+)
 from commander_lab.semantic_replay.consumer import replay_tape  # noqa: E402
 from commander_lab.semantic_replay.recorder import record_tape  # noqa: E402
 from commander_lab.semantic_replay.tape_helpers import deck_content_digest  # noqa: E402
-from nscoped_runner import (  # noqa: E402
-    BRIDGE_VERSION, POLICY_VERSION, XMAGE_COMMIT, make_binding)
 
 NS = REPO_ROOT / "qualification/ws232-retention-nscoped-requalification"
 BIN = NS / "bin"
@@ -72,7 +76,7 @@ def arc_decks(n, tag, seed):
 
 def bindings(decks):
     out = []
-    for s, d in zip(range(1, len(decks) + 1), decks):
+    for s, d in zip(range(1, len(decks) + 1), decks, strict=True):
         cfg = PilotConfig(pilot_name="auto", strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC,
                           mode=PilotDecisionMode.DETERMINISTIC)
         out.append(FullGamePilotBinding(

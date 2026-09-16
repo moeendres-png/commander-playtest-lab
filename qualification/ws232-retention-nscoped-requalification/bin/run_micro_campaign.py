@@ -26,7 +26,10 @@ from pathlib import Path
 BIN = Path(__file__).resolve().parent
 sys.path.insert(0, str(BIN))
 from nscoped_runner import (  # noqa: E402
-    drive_game, make_binding, make_deck, make_scenario,
+    drive_game,
+    make_binding,
+    make_deck,
+    make_scenario,
 )
 
 REPO_ROOT = BIN.parent.parent.parent
@@ -66,7 +69,7 @@ def arrivals(log, zone, match=None, after=0, before=10**9):
             prev = None
             continue
         if prev is not None and after < e["offset"] <= before:
-            for p, q in zip(prev["players"], snap["players"]):
+            for p, q in zip(prev["players"], snap["players"], strict=True):
                 b = q.get(zone) or {}
                 a = p.get(zone) or {}
                 for nm, cnt in b.items():
@@ -85,7 +88,7 @@ def departures(log, zone, match=None, after=0, before=10**9):
             prev = None
             continue
         if prev is not None and after < e["offset"] <= before:
-            for p, q in zip(prev["players"], snap["players"]):
+            for p, q in zip(prev["players"], snap["players"], strict=True):
                 b = q.get(zone) or {}
                 a = p.get(zone) or {}
                 for nm, cnt in a.items():
@@ -125,10 +128,14 @@ def evaluate_micro(mid: str, runs: list, deck_names: set, commander: str) -> dic
     elif mid == "MICRO_ZONE_CHANGES":
         kinds = set()
         for r in runs:
-            if arrivals(r["log"], "battlefield"): kinds.add("cast-arrival")
-            if arrivals(r["log"], "graveyard"): kinds.add("graveyard")
-            if departures(r["log"], "command"): kinds.add("command-exit")
-            if arrivals(r["log"], "command"): kinds.add("command-entry")
+            if arrivals(r["log"], "battlefield"):
+                kinds.add("cast-arrival")
+            if arrivals(r["log"], "graveyard"):
+                kinds.add("graveyard")
+            if departures(r["log"], "command"):
+                kinds.add("command-exit")
+            if arrivals(r["log"], "command"):
+                kinds.add("command-entry")
             # draws: hand_count up + library down across consecutive snapshots
             prev = None
             for e in r["log"]:
@@ -137,7 +144,7 @@ def evaluate_micro(mid: str, runs: list, deck_names: set, commander: str) -> dic
                     prev = None
                     continue
                 if prev is not None:
-                    for p, q in zip(prev["players"], snap["players"]):
+                    for p, q in zip(prev["players"], snap["players"], strict=True):
                         if (q.get("hand_count") or 0) > (p.get("hand_count") or 0) \
                                 and (q.get("library_count") or 0) < (p.get("library_count") or 0):
                             kinds.add("draw")
@@ -373,7 +380,7 @@ def main() -> int:
                 decks = tuple(make_deck(f"ws232-micro-lions-{n}p-s{seed}-{s}", cmdr, main)
                               for s in range(1, n + 1))
                 sc = make_scenario(f"ws232-micro-lions-{n}p", n, seed, decks)
-                pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks))
+                pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks, strict=True))
                 run = drive_game(sc, decks, pilots, max_decisions=BUDGETS[n])
                 store_run(run_id, n, seed, run)
                 print(f"[lions {n}P seed={seed}] dec={run['decisions']} fail={str(run['failure'])[:80]} "
@@ -392,7 +399,7 @@ def main() -> int:
                 decks = tuple(make_deck(f"ws232-micro-anthem-{n}p-s{seed}-{s}", cmdr, main)
                               for s in range(1, n + 1))
                 sc = make_scenario(f"ws232-micro-anthem-{n}p", n, seed, decks)
-                pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks))
+                pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks, strict=True))
                 run = drive_game(sc, decks, pilots, focus_names=ANTHEM_FOCUS,
                                  max_decisions=ANTHEM_BUDGETS[n])
                 store_run(run_id, n, seed, run)
@@ -414,7 +421,7 @@ def main() -> int:
                 decks = tuple(make_deck(f"ws232-micro-static-{n}p-s{seed}-{s}", cmdr, main)
                               for s in range(1, n + 1))
                 sc = make_scenario(f"ws232-micro-static-{n}p", n, seed, decks)
-                pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks))
+                pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks, strict=True))
                 run = drive_game(sc, decks, pilots, focus_names=ANTHEM_FOCUS,
                                  max_decisions=ANTHEM_BUDGETS[n])
                 store_run(run_id, n, seed, run)

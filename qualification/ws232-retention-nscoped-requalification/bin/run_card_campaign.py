@@ -20,7 +20,11 @@ BIN = Path(__file__).resolve().parent
 sys.path.insert(0, str(BIN))
 from card_matrix import CARDS, DEFAULT_COMMANDER, build_mainboard  # noqa: E402
 from nscoped_runner import (  # noqa: E402
-    drive_game, make_binding, make_deck, make_scenario, summarize_zones,
+    drive_game,
+    make_binding,
+    make_deck,
+    make_scenario,
+    summarize_zones,
 )
 
 REPO_ROOT = BIN.parent.parent.parent
@@ -95,7 +99,7 @@ def evaluate(fid: str, kind: str, run: dict, zones: dict, power: int, match_name
                 prev = None
                 continue
             if prev is not None:
-                for p, q in zip(prev["players"], snap["players"]):
+                for p, q in zip(prev["players"], snap["players"], strict=True):
                     b = q.get(zone) or {}
                     a = p.get(zone) or {}
                     for nm, cnt in b.items():
@@ -225,7 +229,7 @@ def support_arrivals(log, select_off: int, exclude: tuple) -> list:
             prev = None
             continue
         if prev is not None and select_off < e["offset"] <= select_off + 25:
-            for p, q in zip(prev["players"], snap["players"]):
+            for p, q in zip(prev["players"], snap["players"], strict=True):
                 b = q.get("battlefield") or {}
                 a = p.get("battlefield") or {}
                 for nm, cnt in b.items():
@@ -238,7 +242,6 @@ def support_arrivals(log, select_off: int, exclude: tuple) -> list:
 
 
 def evaluate_chain(fid, run, log, selects, bf_arr, gy_arr, adv_after, drop, numeric_frames):
-    name = CARDS[fid]["name"].casefold()
 
     def opp_hand_drop(window=25):
         if not selects:
@@ -255,8 +258,8 @@ def evaluate_chain(fid, run, log, selects, bf_arr, gy_arr, adv_after, drop, nume
             snap = e.get("snapshot") or {}
             if selects[-1] < e["offset"] <= selects[-1] + window and snap:
                 for p in snap["players"]:
-                    if p.get("seat") != 0 and p.get("seat") in base:
-                        if isinstance(p.get("hand_count"), int):
+                    if p.get("seat") != 0 and p.get("seat") in base and isinstance(
+                        p.get("hand_count"), int):
                             best = max(best, base[p["seat"]] - p["hand_count"])
         return best
 
@@ -288,9 +291,9 @@ def evaluate_chain(fid, run, log, selects, bf_arr, gy_arr, adv_after, drop, nume
                 prev = None
                 continue
             if prev is not None and selects[-1] < e["offset"] <= selects[-1] + window_after_select:
-                for p, q in zip(prev["players"], snap["players"]):
+                for p, q in zip(prev["players"], snap["players"], strict=True):
                     if exclude_seat is not None and q.get("seat") == exclude_seat:
-                        continue
+                        continue  # placeholder
                     b = q.get("battlefield") or {}
                     a = p.get("battlefield") or {}
                     for nm, cnt in a.items():
@@ -338,19 +341,16 @@ def evaluate_chain(fid, run, log, selects, bf_arr, gy_arr, adv_after, drop, nume
                 return {"verdict": "PASS",
                         "rationale": "Surge arrived; later own ETB + trigger target decisions observed"}
     elif fid == "CARD_25":  # Collar equip + lifelink
-        if bf_arr:
-            gain = own_life_gain(log)
-            if gain >= 2:
-                return {"verdict": "PASS",
-                        "rationale": f"Collar arrived; post-arrival own lifegain +{gain} (lifelink chain)"}
-    elif fid == "CARD_28":  # Find // Finality
-        if selects and gy_arr:
-            wipes = departures(("toshiro", "hapatra", "rograkh", "isamaru", "esior",
-                                "ishai", "veyran", "kaervek", "akiri", "omnath"))
-            if len(wipes) >= 2:
-                return {"verdict": "PASS", "rationale": f"Finality wipe departures: {wipes[:4]}"}
+        if bf_arr and own_life_gain(log) >= 2:
             return {"verdict": "PASS",
-                    "rationale": "Find/Finality half consumed through the engine (cast+resolve)"}
+                    "rationale": f"Collar arrived; post-arrival own lifegain +{own_life_gain(log)} (lifelink chain)"}
+    elif fid == "CARD_28" and selects and gy_arr:  # Find // Finality
+        wipes = departures(("toshiro", "hapatra", "rograkh", "isamaru", "esior",
+                            "ishai", "veyran", "kaervek", "akiri", "omnath"))
+        if len(wipes) >= 2:
+            return {"verdict": "PASS", "rationale": f"Finality wipe departures: {wipes[:4]}"}
+        return {"verdict": "PASS",
+                "rationale": "Find/Finality half consumed through the engine (cast+resolve)"}
     return None
 
 
@@ -363,7 +363,7 @@ def zone_arrivals_all(log, zone):
             prev = None
             continue
         if prev is not None:
-            for p, q in zip(prev["players"], snap["players"]):
+            for p, q in zip(prev["players"], snap["players"], strict=True):
                 b = q.get(zone) or {}
                 a = p.get(zone) or {}
                 for nm, cnt in b.items():
@@ -409,8 +409,8 @@ def run_cell(fid: str, n: int, prior_attempts: list | None = None) -> dict:
         # the engine. Documented per card in card_matrix.py.
         for extra in cfg.get("enablers", ()):
             assert extra not in main, (fid, extra)
-            main = (extra,) + tuple(
-                l for l in main if l not in cfg.get("enablers", ()))[:98]
+            others = [c for c in main if c not in cfg.get("enablers", ())]
+            main = (extra, *others[:98])
             assert len(main) == 99, (fid, len(main))
     attempts = []
     done_seeds = {a["seed"] for a in (prior_attempts or [])}
@@ -420,7 +420,7 @@ def run_cell(fid: str, n: int, prior_attempts: list | None = None) -> dict:
         decks = tuple(make_deck(f"ws232-{fid}-{n}p-s{seed}-{s}", cmdr, main)
                       for s in range(1, n + 1))
         sc = make_scenario(f"ws232-{fid}-{n}p", n, seed, decks)
-        pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks))
+        pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks, strict=True))
         # Match on the resolved deck name (Boseiju front face); the frozen
         # fixture identity is recorded separately in the cell/matrix.
         # Split halves match whole-word (half-specific cast labels).

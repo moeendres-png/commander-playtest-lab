@@ -1,0 +1,121 @@
+{
+ "note": "S9 Commander/multiplayer rows: neither upgraded nor lost by WS232",
+ "rows": [
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-MP-TRIG-3",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-MP-TRIG-5",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-MP-TURN-3",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  },
+  {
+   "category": "multiplayer_commander",
+   "fixture_id": "WS05-MP-TURN-5",
+   "historical_rationale": "not observed in bounded windows; mechanism engine-owned; exact cause in per-family WS215 file",
+   "s8_target": false,
+   "successor": "S9"
+  }
+ ],
+ "s8_target": false,
+ "schema_version": "ws232-unknown-16-preservation-1.0.0",
+ "successor": "S9",
+ "unknown_total": 16
+}

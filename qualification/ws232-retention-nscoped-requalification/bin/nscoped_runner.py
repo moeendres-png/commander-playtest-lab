@@ -20,7 +20,6 @@ legality stays entirely in the engine; outcomes are never injected.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import sys
 import time
@@ -32,7 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from commander_lab.agents import GenericCommanderPilot  # noqa: E402
-from commander_lab.agents.pilots import PilotActionView, PilotDecision, PilotStateView  # noqa: E402
+from commander_lab.agents.pilots import PilotDecision, PilotStateView  # noqa: E402
 from commander_lab.candidates.models import FutureXmageScenario  # noqa: E402
 from commander_lab.engine.rules.full_game import (  # noqa: E402
     ExternalPilotDecisionPolicy,
@@ -264,6 +263,31 @@ def make_scenario(scenario_id: str, player_count: int, seed: int, decks) -> Futu
         decision_policy_version=POLICY_VERSION)
 
 
+def _zone_names(items) -> dict:
+    if not isinstance(items, list):
+        return {}
+    return dict(sorted(Counter(
+        str(it.get("name", "?")) for it in items if isinstance(it, dict)
+    ).items()))
+
+
+def _battlefield_details(items) -> dict:
+    # Board-public physical characteristics (power/toughness/tapped/counters)
+    # for continuous-effect/layers evidence. Absent fields stay absent.
+    if not isinstance(items, list):
+        return {}
+    out = {}
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        nm = str(it.get("name", "?"))
+        out.setdefault(nm, []).append(
+            {"power": it.get("power"), "toughness": it.get("toughness"),
+             "tapped": it.get("tapped", "absent"),
+             "counters": it.get("counters", "absent")})
+    return out
+
+
 def _public_snapshot(pilot_state: dict) -> dict:
     """Board-public projection of one actor-scoped state. No hands, no libraries,
     no UUIDs, no labels. Battlefield/graveyard/command names are public zones."""
@@ -271,32 +295,6 @@ def _public_snapshot(pilot_state: dict) -> dict:
     for raw in (pilot_state.get("players") or []):
         if not isinstance(raw, dict):
             continue
-        def names(zone):
-            items = raw.get(zone)
-            if not isinstance(items, list):
-                return {}
-            return dict(sorted(Counter(
-                str(it.get("name", "?")) for it in items if isinstance(it, dict)
-            ).items()))
-
-        def details():
-            # Board-public physical characteristics (power/toughness/counters)
-            # for continuous-effect/layers evidence. Absent fields stay absent.
-            items = raw.get("battlefield")
-            if not isinstance(items, list):
-                return {}
-            out = {}
-            for it in items:
-                if not isinstance(it, dict):
-                    continue
-                nm = str(it.get("name", "?"))
-                pt = (it.get("power"), it.get("toughness"))
-                key = nm
-                out.setdefault(key, []).append(
-                    {"power": pt[0], "toughness": pt[1],
-                     "tapped": it.get("tapped", "absent"),
-                     "counters": it.get("counters", "absent")})
-            return out
         players.append({
             "seat": raw.get("seat"),
             "life": raw.get("life"),
@@ -306,10 +304,10 @@ def _public_snapshot(pilot_state: dict) -> dict:
             "exile_count": raw.get("exile_count"),
             "has_lost": bool(raw.get("has_lost")),
             "has_won": bool(raw.get("has_won")),
-            "battlefield": names("battlefield"),
-            "battlefield_detail": details(),
-            "graveyard": names("graveyard"),
-            "command": names("command"),
+            "battlefield": _zone_names(raw.get("battlefield")),
+            "battlefield_detail": _battlefield_details(raw.get("battlefield")),
+            "graveyard": _zone_names(raw.get("graveyard")),
+            "command": _zone_names(raw.get("command")),
         })
     return {
         "turn": pilot_state.get("turn_number"),
@@ -426,7 +424,6 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
                     snap = _public_snapshot(pstate)
                     life = [p.get("life") for p in snap["players"]]
                     offered = False
-                    offered_priority = False
                     if focus_cf and dclass == "priority":
                         for o in options:
                             if not isinstance(o, dict):
@@ -442,7 +439,6 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
                             blob = text_in_option(o).casefold()
                             if _matches(blob):
                                 offered = True
-                                offered_priority = True
                                 break
                     response = policy.decide(decision)
                     sel_ids = set(response.get("selected_option_ids") or [])
@@ -514,7 +510,7 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
         failure = f"{type(exc).__name__}: {exc}"[:800]
 
     elapsed = round(time.monotonic() - t0, 1)
-    classes = dict(sorted(Counter(l.decision_class for l in logs).items()))
+    classes = dict(sorted(Counter(entry.decision_class for entry in logs).items()))
     return {
         "engine_version": str(provider.get("engine_version", "unknown")),
         "engine_commit": str(provider.get("engine_commit", XMAGE_COMMIT)),
@@ -535,7 +531,7 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
         "final_turn": final_turn,
         "rules_random_calls_first": rules_calls_first,
         "rules_random_calls_last": rules_calls_last,
-        "log": [l.__dict__ for l in logs],
+        "log": [entry.__dict__ for entry in logs],
     }
 
 
@@ -546,7 +542,7 @@ def summarize_zones(run: dict) -> dict:
     for entry in run["log"]:
         snap = entry["snapshot"]
         if prev is not None:
-            for p, q in zip(prev["players"], snap["players"]):
+            for p, q in zip(prev["players"], snap["players"], strict=True):
                 seat = str(q.get("seat"))
                 for zone in ("battlefield", "graveyard", "command"):
                     before = Counter(p.get(zone) or {})

@@ -1,0 +1,1 @@
+{"behavior_credit_change": "NONE", "evidence_class": "CODE_DERIVED", "generator": "qualification/reporting/ws225/standing_generator.py", "generator_run": {"outputs_digest": "cd9a36407830a1b9", "trace_rows": 652}, "schema_version": "ws232-standing-impact-1.0.0", "standing_impact": "NO_CHANGE"}

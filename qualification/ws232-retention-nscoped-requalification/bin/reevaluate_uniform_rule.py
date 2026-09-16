@@ -56,11 +56,12 @@ def main() -> int:
                 upgraded.append((cell["fixture_id"], cell["player_count"],
                                  attempt["run_id"]))
                 break
-    matrix["adjudication_passes"] = matrix.get("adjudication_passes", []) + [{
+    prior_passes = matrix.get("adjudication_passes", [])
+    prior_passes.append({
         "rule": RULE_ID,
-        "upgraded": [{"fixture_id": f, "player_count": n, "run": r}
-                     for f, n, r in upgraded],
-    }]
+        "upgraded": [{"fixture_id": f, "player_count": n, "run": r} for f, n, r in upgraded],
+    })
+    matrix["adjudication_passes"] = prior_passes
     matrix["summary"] = {
         "PASS": sum(1 for c in matrix["cells"] if c["cell_verdict"] == "PASS"),
         "UNKNOWN": sum(1 for c in matrix["cells"] if c["cell_verdict"] == "UNKNOWN"),

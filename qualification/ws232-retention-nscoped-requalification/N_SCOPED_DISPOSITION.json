@@ -1,0 +1,1434 @@
+{
+ "cells": [
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_01",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_01",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_01_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_01",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_01",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_01_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_01",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_01",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_01_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_02",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_02",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_02_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_02",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_02",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_02_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_02",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_02",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_02_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_03",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_03",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_03_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_03",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_03",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_03_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_03",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_03",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_03_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_04",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_04",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_04_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_04",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_04",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_04_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_04",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_04",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_04_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_05",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_05",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_05_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_05",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_05",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_05_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_05",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_05",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_05_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_06",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_06",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_06_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_06",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_06",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_06_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_06",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_06",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_06_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_07",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_07",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_07_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_07",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_07",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_07_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_07",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_07",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_07_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_08",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_08",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_08_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_08",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_08",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_08_3P_seed777002",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_08",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_08",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_08_5P_seed777003",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_09",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_09",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_09_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_09",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_09",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_09_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_09",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_09",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_09_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_10",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_10",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_10_2P_seed777002",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_10",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_10",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_10_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_10",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_10",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_10_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_11",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_11",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_11_2P_seed777030",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_11",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_11",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_11_3P_seed777011",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_11",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_11",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_11_5P_seed777004",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_12",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_12",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_12",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_12",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_12",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_12",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_13",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_13",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_13_2P_seed777011",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_13",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_13",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_13_3P_seed777011",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_13",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_13",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_13_5P_seed777004",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_14",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_14",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_14_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_14",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_14",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_14_3P_seed777017",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_14",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_14",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_14_5P_seed777023",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_15",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_15",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_15_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_15",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_15",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_15_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_15",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_15",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_15_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_16",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_16",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_16_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_16",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_16",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_16_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_16",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_16",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_16_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_17",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_17",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_17_2P_seed777024",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_17",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_17",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_17_3P_seed777024",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_17",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_17",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_17_5P_seed777025",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_18",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_18",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_18_2P_seed777004",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_18",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_18",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_18_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_18",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_18",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_18_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_19",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_19",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_19_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_19",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_19",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_19_3P_seed777025",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_19",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_19",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_19_5P_seed777025",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_20",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_20",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_20_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_20",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_20",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_20_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_20",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_20",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_20_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_21",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_21",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_21_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_21",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_21",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_21_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_21",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_21",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_21_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_22",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_22",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_22",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_22",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_22",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_22",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_22_5P_seed777021",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_23",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_23",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_23",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_23",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_23",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_23",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "see attempts"
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_24",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_24",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_24_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_24",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_24",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_24_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_24",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_24",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_24_5P_seed777003",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_25",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_25",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_25_2P_seed777002",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_25",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_25",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_25_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_25",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_25",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_25_5P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_26",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_26",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_26_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_26",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_26",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_26_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_26",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_26",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_26_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_27",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_27",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_27_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_27",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_27",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_27_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_27",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_27",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_27_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_28",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_28",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_28_2P_seed777024",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_28",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_28",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_28_3P_seed777025",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_28",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_28",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_28_5P_seed777024",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_29",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-CARD_29",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_29_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_29",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-CARD_29",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_29_3P_seed777014",
+   "unknown_cause": null
+  },
+  {
+   "category": "actual_card",
+   "fixture_id": "CARD_29",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-CARD_29",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_29_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_COMBAT",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_COMBAT",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_COMBAT",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_COMBAT",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_COMBAT",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_COMBAT",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_CONTINUOUS_EFFECTS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_ANTHEM_2P_seed777003",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_CONTINUOUS_EFFECTS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_ANTHEM_3P_seed777007",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_CONTINUOUS_EFFECTS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_STATIC_5P_seed777002",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_CONTROL",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_CONTROL",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no control-change source in Lions or card fixtures"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_CONTROL",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_CONTROL",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no control-change source in Lions or card fixtures"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_CONTROL",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_CONTROL",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no control-change source in Lions or card fixtures"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_COPY",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_COPY",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no copy source in Lions or card fixtures; S9 decks not built"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_COPY",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_COPY",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no copy source in Lions or card fixtures; S9 decks not built"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_COPY",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_COPY",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no copy source in Lions or card fixtures; S9 decks not built"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_LAYERS",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_LAYERS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no Elesh-driven non-combat departure in bounded window"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_LAYERS",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_LAYERS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no Elesh-driven non-combat departure in bounded window"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_LAYERS",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_LAYERS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no Elesh-driven non-combat departure in bounded window"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_MODES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_MODES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_26_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_MODES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_MODES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_26_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_MODES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_MODES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "CARD_26_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_PREVENTION",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_PREVENTION",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no prevention source/target pair in symmetric Lions"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_PREVENTION",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_PREVENTION",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no prevention source/target pair in symmetric Lions"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_PREVENTION",
+   "n_scoped_verdict": "UNKNOWN",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_PREVENTION",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": null,
+   "unknown_cause": "no prevention source/target pair in symmetric Lions"
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_REPLACEMENT",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_REPLACEMENT",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_REPLACEMENT",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_REPLACEMENT",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_RULES_RANDOMNESS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_RULES_RANDOMNESS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_RULES_RANDOMNESS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_STACK",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_STACK",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_2P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_STACK",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_STACK",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_3P_seed777001",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_STACK",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_STACK",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_STATE_BASED_ACTIONS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_STATE_BASED_ACTIONS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_STATE_BASED_ACTIONS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_TRIGGERS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_TRIGGERS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_ANTHEM_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_TRIGGERS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_TRIGGERS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_ANTHEM_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_TRIGGERS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_TRIGGERS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_ANTHEM_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-MICRO_ZONE_CHANGES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_2P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-MICRO_ZONE_CHANGES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_3P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "micro_rules",
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-MICRO_ZONE_CHANGES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "MICRO_LIONS_5P_seed424242",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-REPLAY_CLEAN_PROCESS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-2P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-REPLAY_CLEAN_PROCESS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-3P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-REPLAY_CLEAN_PROCESS",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-5P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-REPLAY_DECISION_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-2P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-REPLAY_DECISION_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-3P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-REPLAY_DECISION_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-5P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-REPLAY_EVENT_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-2P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-REPLAY_EVENT_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-3P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-REPLAY_EVENT_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-5P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-REPLAY_STATE_HASHES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-2P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-REPLAY_STATE_HASHES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-3P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-REPLAY_STATE_HASHES",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-5P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "RNG_RULES_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 2,
+   "predicate_id": "PRED-RNG_RULES_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-2P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "RNG_RULES_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 3,
+   "predicate_id": "PRED-RNG_RULES_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-3P",
+   "unknown_cause": null
+  },
+  {
+   "category": "replay_rng",
+   "fixture_id": "RNG_RULES_TAPE",
+   "n_scoped_verdict": "PASS",
+   "player_count": 5,
+   "predicate_id": "PRED-RNG_RULES_TAPE",
+   "predicate_static": "STATIC_PASS",
+   "rerun_pointer": "WS232_REPLAY_lions-5P",
+   "unknown_cause": null
+  }
+ ],
+ "retained_total": 47,
+ "schema_version": "ws232-n-scoped-disposition-1.0.0",
+ "summary": {
+  "PASS": 121,
+  "UNKNOWN": 20,
+  "by_count": {
+   "2": {
+    "PASS": 40,
+    "UNKNOWN": 7
+   },
+   "3": {
+    "PASS": 40,
+    "UNKNOWN": 7
+   },
+   "5": {
+    "PASS": 41,
+    "UNKNOWN": 6
+   }
+  }
+ }
+}

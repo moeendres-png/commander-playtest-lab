@@ -22,17 +22,12 @@ sys.path.insert(0, str(BIN))
 sys.path.insert(0, str(BIN.parent.parent.parent / "src"))
 
 from nscoped_runner import (  # noqa: E402
-    CMD, POLICY_VERSION, XMAGE_COMMIT, drive_game, make_binding,
-    make_deck, make_scenario, summarize_zones,
+    drive_game,
+    make_binding,
+    make_deck,
+    make_scenario,
 )
 from run_card_campaign import compact_run  # noqa: E402
-from commander_lab.models import PilotDecisionMode  # noqa: E402
-from commander_lab.semantic_replay.consumer import replay_tape  # noqa: E402
-from commander_lab.semantic_replay.recorder import record_tape  # noqa: E402
-from commander_lab.semantic_replay.tape_helpers import deck_content_digest  # noqa: E402
-from commander_lab.candidates.models import FutureXmageScenario  # noqa: E402
-from commander_lab.engine.rules.full_game import FullGamePilotBinding  # noqa: E402
-from commander_lab.models import PilotConfig, PilotStrength, RulesDeckInput  # noqa: E402
 
 REPO_ROOT = BIN.parent.parent.parent
 NS = REPO_ROOT / "qualification/ws232-retention-nscoped-requalification"
@@ -49,7 +44,7 @@ def sym_deck(tag, commander, main):
 def run_and_store(run_id, card, commander, main, n, seed, budget, focus=None):
     decks = tuple(make_deck(f"{run_id}-{s}", commander, main) for s in range(1, n + 1))
     sc = make_scenario(run_id, n, seed, decks)
-    pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks))
+    pilots = tuple(make_binding(s, d) for s, d in zip(range(1, n + 1), decks, strict=True))
     run = drive_game(sc, decks, pilots, focus_names=(focus or card,),
                      max_decisions=budget)
     (RUNS_U5 / f"{run_id}.json").write_text(json.dumps(
@@ -100,17 +95,17 @@ def main() -> int:
         ]
         hits = []
         for card, cmdr, landtypes in cands:
-            nlands: dict = {l: 0 for l in landtypes}
+            nlands: dict = {land: 0 for land in landtypes}
             for i in range(98):
                 nlands[landtypes[i % len(landtypes)]] += 1
             main_m = [card]
-            for l, c in nlands.items():
-                main_m.extend([l] * c)
+            for land, count in nlands.items():
+                main_m.extend([land] * count)
             for seed in (424242, 777001, 777002, 777003):
                 decks = tuple(make_deck(f"ws232-u5multi-{card[:4]}-{seed}-{s}", cmdr, tuple(main_m))
                               for s in (1, 2))
                 sc = make_scenario(f"ws232-u5multi-{card[:4]}-{seed}", 2, seed, decks)
-                pilots = tuple(make_binding(s, d) for s, d in zip((1, 2), decks))
+                pilots = tuple(make_binding(s, d) for s, d in zip((1, 2), decks, strict=True))
                 run = drive_game(sc, decks, pilots, focus_names=(card,), max_decisions=500)
                 multis = [(e["offset"], e["decision_class"]) for e in run["log"]
                           if e["decision_class"] == "multi_amount"]
