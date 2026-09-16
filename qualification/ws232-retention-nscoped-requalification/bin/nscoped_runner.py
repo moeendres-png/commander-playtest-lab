@@ -143,6 +143,46 @@ class SpotlightPilot(GenericCommanderPilot):
         meta = view.metadata or {}
         return meta.get("xmage_option_type") == "mana_ability"
 
+    # Resolution-bounded X discipline (WS232 U5): paid-X choices (announce
+    # for X-spells, divide companions) must remain payable in test mana
+    # bases or the engine correctly refuses activation and the effect never
+    # resolves. Capping lawful choices at a small affordable constant is
+    # ordinary pilot discretion (the mirror of the deterministic benefit
+    # extreme): the VALUE is pilot input, the divide/damage/draw mechanics
+    # and their resolution are engine output. Cap 4 exercises multi-point
+    # divides and X>=1 resolutions while staying payable. Unpaid numeric
+    # paths (pure amount choices like Damnations) are unaffected in
+    # practice (any in-domain value resolves). Always in-domain, never
+    # clamped outside [min, max].
+    RESOLUTION_X_CAP = 4
+
+    def choose_number(self, state, domain, rng):
+        try:
+            lo = int(domain.get("min"))
+            hi = int(domain.get("max"))
+        except (TypeError, ValueError):
+            return super().choose_number(state, domain, rng)
+        if hi - lo > self.RESOLUTION_X_CAP:
+            return max(lo, min(hi, lo + self.RESOLUTION_X_CAP))
+        return super().choose_number(state, domain, rng)
+
+    def choose_numbers(self, state, domain, rng):
+        try:
+            legs = list(domain.get("legs") or [])
+        except TypeError:
+            return super().choose_numbers(state, domain, rng)
+        if not legs:
+            return super().choose_numbers(state, domain, rng)
+        out = []
+        for leg in legs:
+            try:
+                lo = int(leg.get("min"))
+                hi = int(leg.get("max"))
+            except (TypeError, ValueError):
+                return super().choose_numbers(state, domain, rng)
+            out.append(max(lo, min(hi, lo + self.RESOLUTION_X_CAP)))
+        return out
+
     def choose_action(self, state: PilotStateView, actions, rng) -> PilotDecision:
         offered = list(actions)
 
@@ -196,9 +236,10 @@ class SpotlightPilot(GenericCommanderPilot):
         return super().choose_action(state, candidates, rng)
 
 
-def make_binding(seat: int, deck: RulesDeckInput) -> FullGamePilotBinding:
+def make_binding(seat: int, deck: RulesDeckInput,
+                 mode: PilotDecisionMode = PilotDecisionMode.DETERMINISTIC) -> FullGamePilotBinding:
     cfg = PilotConfig(pilot_name="auto", strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC,
-                      mode=PilotDecisionMode.DETERMINISTIC)
+                      mode=mode)
     return FullGamePilotBinding(
         seat=seat, deck_id=deck.deck_id, strategy="generic",
         commander_names=tuple(deck.commander_names), config=cfg,
@@ -289,6 +330,9 @@ class DecisionLog:
     numeric_min: object = None
     numeric_max: object = None
     numeric_choice: object = None
+    numeric_choices: object = None
+    joint_legs: object = None
+    joint_total: object = None
     stack_nonempty: bool = False
     turn: object = None
     life: list = field(default_factory=list)
@@ -415,6 +459,14 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
                         stack_flag = bool(actor.get("stack"))
                     except Exception:
                         stack_flag = False
+                    # Joint legs persist as min/max only: leg prompts embed
+                    # per-process UUIDs and card text (never persisted).
+                    raw_legs = ctx.get("numeric_legs")
+                    clean_legs = None
+                    if isinstance(raw_legs, list):
+                        clean_legs = [
+                            {"min": leg.get("min"), "max": leg.get("max")}
+                            for leg in raw_legs if isinstance(leg, dict)]
                     logs.append(DecisionLog(
                         offset=count, decision_class=dclass, seat=seat,
                         n_options=len(options), option_types=type_census,
@@ -422,6 +474,12 @@ def drive_game(scenario, decks, pilots, *, focus_names=(), focus_seats=None,
                         numeric_min=ctx.get("numeric_min"), numeric_max=ctx.get("numeric_max"),
                         numeric_choice=(response.get("numeric_choice")
                                         if "numeric_choice" in response else None),
+                        numeric_choices=(list(response.get("numeric_choices"))
+                                         if isinstance(response.get("numeric_choices"), list)
+                                         else None),
+                        joint_legs=clean_legs,
+                        joint_total=(ctx.get("numeric_total_min"),
+                                     ctx.get("numeric_total_max")),
                         stack_nonempty=stack_flag, turn=snap["turn"], life=life,
                         focus_offered=offered, focus_selected=selected_focus,
                         snapshot=snap))
