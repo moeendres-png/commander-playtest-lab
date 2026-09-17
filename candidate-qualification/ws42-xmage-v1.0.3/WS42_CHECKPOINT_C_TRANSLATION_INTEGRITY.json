@@ -1,0 +1,74 @@
+{
+  "schema_version": "commander-lab.ws42-checkpoint-c/1.0.0",
+  "workstream": "WS-42",
+  "checkpoint": "C_TRANSLATION_INTEGRITY",
+  "status": "PASS_TRANSLATION_ONLY",
+  "source_lock": {
+    "materialization_version": "commander-lab.semantic-fixture-materialization/1.0.3",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "canonical_bundle_digest": "545afdeda53a11a2ebb32f534aa1b3186f434aa90bec2c8f2f232851e1abd31b",
+    "materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5"
+  },
+  "provider_source": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "ws42/xmage-v1.0.3-successor-qualification",
+    "translation_evidence_commit": "c3a41ccc814066a277761285530834f7ac73c2fb",
+    "branch_head_before_checkpoint": "d60aa41dbaf5ac4336285b3635ae9488ed0c2783"
+  },
+  "workflow_evidence": {
+    "workflow": "WS42 Contract Surface",
+    "run_id": 33877185565,
+    "run_number": 8,
+    "conclusion": "success",
+    "artifact_id": 9938338067,
+    "artifact_name": "ws42-contract-surface-c3a41ccc814066a277761285530834f7ac73c2fb",
+    "artifact_zip_sha256": "5e87a3681ab093c8932def9bea312ae8200cf01dfe6caaf2fd75ebbf550737eb",
+    "translation_integrity_json_sha256": "2b00cf9684175241ed38626a332d4f7c77702dd8b29fdce13b106a2274ab31a1",
+    "contract_surface_json_sha256": "60f3b60d9be751514291ac40e9922c914721d93017936d20c23e42d2c2b20f16",
+    "artifact_sha256s_manifest_sha256": "00281b6c66d49597594eb5fb655e2e3914a9ceb5640ef8e8cc366bef36e2f635"
+  },
+  "translation_results": {
+    "denominator": 107,
+    "record_count": 107,
+    "unique_fixture_ids": 107,
+    "requested_state_digests_exact": "107/107",
+    "all_request_digests_exact": true,
+    "all_rules_seed_bindings_exact": true,
+    "seed_binding_counts": {
+      "CONTRACT_FIXED_RULES_SEED": 100,
+      "CONTRACT_SCENARIO_SEED_BINDING": 7
+    },
+    "fixed_rules_seed_values": [424242],
+    "scenario_seed_bound_fixture_ids": [
+      "RNG_RULES_TAPE",
+      "REPLAY_DECISION_TAPE",
+      "REPLAY_EVENT_TAPE",
+      "REPLAY_CLEAN_PROCESS",
+      "REPLAY_STATE_HASHES",
+      "WS05-CMD-MULL-2",
+      "WS05-CMD-MULL-4"
+    ],
+    "historical_runtime_pass_imported": false
+  },
+  "credit": {
+    "translation_integrity": "PASS",
+    "construction_credit_granted": false,
+    "construction_pass": "0/107",
+    "behavior_runtime_credit_granted": false,
+    "behavior_runtime_pass": "0/107",
+    "af04": "NOT_GRANTED",
+    "af05": "NOT_GRANTED",
+    "af06": "NOT_GRANTED",
+    "af08": "NOT_GRANTED",
+    "af09": "NOT_GRANTED",
+    "card_02": "NOT_GRANTED",
+    "xmage_successor_provider_qualified": false,
+    "architecture_freeze": false
+  },
+  "source_truth_correction": {
+    "finding": "Fresh immutable-v1.0.3 translation evidence shows the seven SCENARIO_SEED-bound records are five replay/RNG records plus WS05-CMD-MULL-2 and WS05-CMD-MULL-4.",
+    "supersedes_prior_unverified_assumption": true
+  },
+  "next_gate": "Fresh d60aa41 non-echo native construction diagnostic; independent normalized construction remains required before any construction credit."
+}

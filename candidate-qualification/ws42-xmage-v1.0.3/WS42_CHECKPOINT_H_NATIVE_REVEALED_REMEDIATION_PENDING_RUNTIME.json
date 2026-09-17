@@ -1,0 +1,53 @@
+{
+  "schema_version": "commander-lab.ws42-checkpoint/1.0.1",
+  "workstream": "WS-42",
+  "checkpoint": "H_NATIVE_REVEALED_REMEDIATION_PENDING_RUNTIME",
+  "recorded_date": "2026-09-05",
+  "source_lock": {
+    "provider_repository": "moeendres-png/commander-playtest-lab",
+    "provider_branch": "ws42/xmage-v1.0.3-successor-qualification",
+    "implementation_commit_under_test": "8ec6c0dc766594832741d79a447986f1362ca1be",
+    "implementation_tree": "3448967df1056089147d93cc8e494031457afd50",
+    "ws41_freeze_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_freeze_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "ws41_materialization_sha256": "8f6e3778e96079dbb501b9f5d72f007da0549e26b836011a855c0dbd2c6237c5",
+    "xmage_commit": "7bde812727817723616c575759f39bfc4cda4607",
+    "xmage_tree": "a44f32e9d34109ac3f272494f0e8eb9ea3e6280c"
+  },
+  "remediation": {
+    "dimension": "zone:revealed",
+    "fixture_known_blocked": "PILOT_PILE",
+    "blocker_classification_before": "PRE_ADMISSION_UNSUPPORTED_DIMENSION",
+    "native_xmage_surface": "GameState.getRevealed / mage.game.Revealed",
+    "physical_zone_revealed_fabricated": false,
+    "translator_storage_zone": "library",
+    "semantic_revealed_normalization_requires_native_registry_readback": true,
+    "files": [
+      "engine-bridge/src/main/java/org/commanderlab/xmage/XmageWs42RevealedState.java",
+      "candidate-qualification/ws42-xmage-v1.0.3/apply_ws42_native_state_extension_overlay.py",
+      "candidate-qualification/ws42-xmage-v1.0.3/canonical_v103.py",
+      "candidate-qualification/ws42-xmage-v1.0.3/normalize_construction_v103_enriched.py",
+      "candidate-qualification/ws42-xmage-v1.0.3/run_full107_construction_probe_v103_enriched.py"
+    ]
+  },
+  "fresh_run": {
+    "workflow_run_id": 33936778538,
+    "status_at_checkpoint": "queued",
+    "head_sha": "8ec6c0dc766594832741d79a447986f1362ca1be",
+    "job_id": null,
+    "artifact_id": null,
+    "artifact_name": null,
+    "artifact_digest": null
+  },
+  "credit": {
+    "construction_credit_for_zone_revealed": false,
+    "fresh_behavior_runtime_credit": 0,
+    "af05_granted": false,
+    "af07_granted": false,
+    "architecture_freeze_granted": false,
+    "xmage_successor_provider_qualified": false
+  },
+  "remaining_blocker": "Fresh source-bound workflow must compile, execute PILOT_PILE, independently read back native Revealed membership, and pass independent requested-vs-constructed normalization before zone:revealed receives construction credit.",
+  "next_exact_action": "Inspect the first completed source-bound WS42 run containing this remediation; if it fails, classify and repair the exact runtime/compiler/normalizer defect. In parallel, remediate identity-derived hidden physical references before AF05 execution.",
+  "stop_condition": "NOT_MET_REMEDIATION_REQUIRES_RUNTIME_QUALIFICATION"
+}
