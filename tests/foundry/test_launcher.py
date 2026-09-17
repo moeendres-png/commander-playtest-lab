@@ -414,7 +414,8 @@ def test_hook_blocks_raw_push_but_allows_safe_push(target: dict, canon: Path) ->
         f"p = subprocess.run([sys.executable, {str(TOOLS / 'safe_push.py')!r}, "
         "'--worktree', sys.argv[1], '--expected-branch', 'project/test', "
         "'--state', sys.argv[2], '--remote', 'origin2', "
-        "'--expected-slug', 'test-host/hook-remote'], capture_output=True, text=True); "
+        "'--expected-slug', 'test-host/hook-remote', "
+        "'--allow-local-path-target'], capture_output=True, text=True); "
         "sys.stdout.write(p.stdout); sys.stderr.write(p.stderr); "
         "lock.release(); sys.exit(p.returncode)"
     )

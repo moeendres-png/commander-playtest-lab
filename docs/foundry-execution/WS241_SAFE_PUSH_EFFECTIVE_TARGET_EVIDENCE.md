@@ -171,3 +171,77 @@ closure (this seal), policy authorization, active launcher ancestor writer
 lock, verified effective push destination, and independent approver/review
 under the project contract. None of the latter are satisfied here — STOP.
 Exact next action is in the FINAL HANDOFF.
+
+## 9. Closure: production-slug local targets + tag widening (G1/G3, DIRECTLY_VERIFIED)
+
+Independent C/D review left one decisive unknown: whether
+``_is_expected_target``'s local-path branch admits a production-slug local
+destination. Reproduced with the real CLI on exact C bytes
+(``bfbac978...c25cbd``), ordinary gate path, disposable `/tmp` fixtures, no
+network, no writes: attacker bare repo at a path ending
+``/moeendres-png/commander-playtest-lab.git`` with
+``--expected-slug moeendres-png/commander-playtest-lab`` returned
+``DRY_RUN_OK`` for BOTH plain-path and ``file://`` forms, while the
+lookalike control (``fixture-repo-evil``) was correctly rejected at the
+fetch-identity gate — proving acceptance by the investigated predicate, not
+an unrelated gate. Root cause: ``safe_push.py`` local-path branch accepted
+any schemeless/``file://`` path ending at a ``/`` boundary with the expected
+slug, for any slug including production.
+
+A second stable-config bypass was confirmed the same way: with
+``push.followTags=true`` in local config, an actual push to a disposable
+bare remote propagated the annotated tag (remote ``refs/tags/*`` went 0 ->
+2 lines: tag + deref), violating the "no tags" construction claim.
+
+Minimal fix (one central predicate + one restrictive push flag, no
+second identity core, ``source_lock.py`` untouched):
+- ``_is_expected_target(..., allow_local_path_target=False)``: local paths
+  rejected by default; accepted only with the explicit fixture-only
+  ``--allow-local-path-target`` CLI flag. GitHub HTTPS/SSH semantics
+  unchanged (still delegated to ``source_lock.is_canonical_remote``).
+- Authorized push argv gains restrictive-only ``--no-follow-tags``.
+- All C corrections preserved: reject-any-pushurl, fetch==push byte
+  equality, mirror/receivepack guards, fail-closed rewrite inspection,
+  counts-only diagnostics, metric/text tokens unchanged
+  (``PUSHED/UP_TO_DATE/DRY_RUN_OK branch@sha12``, raw ``task_id``).
+
+Fix-after on the fixed bytes (``91369804...`` working tree, real CLI):
+attacker plain/file prod-slug paths -> ``PUSH_REJECT ... fetch identity``
+dry AND actual, no writes; benign fixture without flag -> reject (safe
+default); benign fixture with flag -> ``DRY_RUN_OK``; ``followTags=true``
+actual push -> ``PUSHED`` with zero remote tags.
+
+Validation on fixed bytes (DIRECTLY_VERIFIED): security suite 57/57 (53
+retained + 4 new: prod-slug plain/file, safe-default, followTags);
+existing safe_push 30/30; full 14-file impacted set **429 passed, 1
+skipped** (same pre-existing environmental skip ``test_telemetry.py:104``);
+``ruff check`` / ``ruff format --check`` PASS; ``py_compile`` PASS;
+``mypy`` NOT_RUN (binary absent — environmental). One diagnostic failure
+during migration (``test_push_failure_withholds_remote_output`` called the
+in-process API without the fixture flag) was classified as a harness gap,
+repaired in the test (flag added; assertion meaning unchanged), and is
+green. Consumer fixtures migrated without security-meaning change
+(``test_safe_push.py`` ×2 helpers, ``test_launcher.py`` hook test,
+``test_ws75_tooling_hardening.py``, ``test_telemetry.py``).
+
+Transport-boundary adjudication (G2): MITIGATED with runtime proof —
+pushurl/pushInsteadOf/insteadOf/multivalue/lookalike/fetch==push (retained
+53-suite), prod-slug local paths plain+file (new), followTags (new),
+credential/trace redaction (retained marker/secret/metric tests; `_run`
+stderr-prefix audit: no URL-bearing call site emits raw values).
+CODE_DERIVED-equivalent, no PoC required — mirror/receivepack static
+guards, HTTPS/SSH canonical forms, Forge slug delegation, FF-only,
+creation anchor, no-force/delete, single refspec. UNKNOWN residuals with
+explicit trust boundaries (no atomicity claim): config mutation in the
+final instant between re-check and exec (window as documented); HEAD
+advance by a concurrent local writer (single-writer launcher invariant);
+alias-steered gate-10 reads under transient config (final write still
+gate-11-bound); HTTP redirect/SSH-command/proxy/helper behavior
+(transport stack trusted); submodules (none in tree; key inert).
+OUT_OF_SCOPE: Rules/Core/Forge/XMage behavior, FULL107, live GitHub/Forge
+transport (no network exercised).
+
+C-vs-D: D remains archived, not adopted — D regresses the reject-any-pushurl
+and mirror/receivepack corrections, breaks metric/text compatibility, and
+never executed against C bytes. This closure answers D's decisive unknown
+against C, natively, without importing D.

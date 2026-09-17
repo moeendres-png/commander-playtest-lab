@@ -208,6 +208,7 @@ def test_safe_push_emits_metrics(tmp_path: Path) -> None:
         f"p = subprocess.run([sys.executable, {str(ROOT / 'tools' / 'foundry' / 'safe_push.py')!r}, "
         "'--worktree', sys.argv[1], '--expected-branch', 'project/m', "
         "'--state', sys.argv[2], '--expected-slug', 'slug-here/r', "
+        "'--allow-local-path-target', "
         "'--dry-run', '--metrics', sys.argv[3]], capture_output=True, text=True); "
         "sys.stdout.write(p.stdout); sys.stderr.write(p.stderr); "
         "lock.release(); sys.exit(p.returncode)"

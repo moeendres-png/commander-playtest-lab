@@ -3,6 +3,8 @@
 The ONLY authorized remote-write path for Foundry workstreams. Narrow API by
 construction: the caller supplies identities, never git flags or refspecs. No
 force, no delete, no tags, no multi-ref, no caller-supplied bypass flags exist.
+The single authorized push additionally passes ``--no-follow-tags`` so a local
+``push.followTags`` configuration cannot widen the write beyond the one refspec.
 
 Fail-closed preconditions, in order:
 
@@ -17,7 +19,12 @@ Fail-closed preconditions, in order:
    widens/breaks the authorized single refspec — verified: ``--mirror can't
    be combined with refspecs``; receivepack substitutes the remote helper —
    verified executed), and NO ``url.*.pushInsteadOf`` / ``url.*.insteadOf``
-   rewrite in any scope (local, global, system, environment). The
+   rewrite in any scope (local, global, system, environment). The expected
+   slug must designate a GitHub HTTPS/SSH identity: local ``file://`` /
+   plain-path URLs are NEVER accepted unless the caller passes the explicit
+   fixture-only ``--allow-local-path-target`` flag (hermetic tests only;
+   production invocations omit it, so a slug-suffixed local path can never
+   satisfy a production slug). The
    Git-expanded effective push URL (``git remote get-url --push --all``)
    must then be exactly one record BYTE-EQUAL to the validated fetch
    record, with exact slug identity. Zero/multiple records, unreadable or
@@ -154,16 +161,21 @@ def _no_push_rewrites(workdir: str, env: dict[str, str]) -> bool:
     return proc.returncode == 1  # 0 means a rewrite exists; other failures are unknown.
 
 
-def _is_expected_target(url: str, expected_slug: str) -> bool:
+def _is_expected_target(
+    url: str, expected_slug: str, *, allow_local_path_target: bool = False
+) -> bool:
     """Exact owner/repo identity for one push/fetch URL (no substring match).
 
     GitHub HTTPS and standard git-user SSH forms delegate to the canonical
     ``source_lock.is_canonical_remote`` exact identity, so CPL and Forge
     slugs share one identity semantic. Local ``file://`` / plain-path URLs
-    (hermetic fixtures) match only when the path, stripped of one trailing
+    (hermetic fixtures) match only when the caller explicitly opts in with
+    ``allow_local_path_target`` AND the path, stripped of one trailing
     ``.git`` and trailing slashes, equals the slug or ends at a ``/``
     boundary with the slug — so ``.../fixture-repo-evil(.git)`` never matches
-    ``test-host/fixture-repo``. Any other scheme never matches.
+    ``test-host/fixture-repo``. The default (production) rejects every local
+    path, so a slug-suffixed attacker path can never satisfy a production
+    slug. Any other scheme never matches.
     """
     if not re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+", expected_slug):
         return False
@@ -173,6 +185,8 @@ def _is_expected_target(url: str, expected_slug: str) -> bool:
         return False
     if source_lock_mod.is_canonical_remote(url, expected_slug):
         return True
+    if not allow_local_path_target:
+        return False
     if url.startswith("file://"):
         path = url[len("file://") :]
     elif "://" in url:
@@ -190,7 +204,13 @@ def _push_matches_fetch(fetch_record: str, effective_record: str) -> bool:
     return bool(fetch_record) and fetch_record == effective_record
 
 
-def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | None:
+def _verify_push_target(
+    workdir: str,
+    remote: str,
+    expected_slug: str,
+    *,
+    allow_local_path_target: bool = False,
+) -> str | None:
     """None when the effective push destination is exactly the expected slug.
 
     Checks, in order: remote-name shape; exactly one configured fetch URL
@@ -214,7 +234,9 @@ def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | 
             f"ambiguous remote identity: remote {remote!r} has "
             f"{len(fetch_records)} URL records (want exactly 1)"
         )
-    if not _is_expected_target(fetch_records[0], expected_slug):
+    if not _is_expected_target(
+        fetch_records[0], expected_slug, allow_local_path_target=allow_local_path_target
+    ):
         return f"WRONG_REMOTE: remote {remote!r} fetch identity is not the expected slug"
     env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
     if not _no_push_rewrites(workdir, env):
@@ -274,7 +296,9 @@ def _verify_push_target(workdir: str, remote: str, expected_slug: str) -> str | 
             f"WRONG_REMOTE: remote {remote!r} effective push target differs "
             "from the validated fetch identity (refusing)"
         )
-    if not _is_expected_target(effective[0], expected_slug):
+    if not _is_expected_target(
+        effective[0], expected_slug, allow_local_path_target=allow_local_path_target
+    ):
         return f"WRONG_REMOTE: remote {remote!r} effective push target is not the expected slug"
     return None
 
@@ -498,6 +522,7 @@ def _decide_push(
     dry_run: bool,
     ctx: dict,
     expected_audit_base_ref: str | None = None,
+    allow_local_path_target: bool = False,
 ) -> str:
     """Run all gates; perform the push. Returns 'RESULT branch@sha'; raises _PushReject."""
     canonical = os.path.realpath(os.path.abspath(worktree))
@@ -524,7 +549,9 @@ def _decide_push(
         raise _PushReject(bad)
 
     # 3. remote identity: configured fetch URL AND effective push URL.
-    push_problem = _verify_push_target(canonical, remote, expected_slug)
+    push_problem = _verify_push_target(
+        canonical, remote, expected_slug, allow_local_path_target=allow_local_path_target
+    )
     if push_problem:
         raise _PushReject(push_problem)
 
@@ -661,13 +688,15 @@ def _decide_push(
     # or after gate 3 cannot redirect this push), then the exact refspec.
     if dry_run:
         return f"DRY_RUN_OK {expected_branch}@{live_head[:12]}"
-    push_problem = _verify_push_target(canonical, remote, expected_slug)
+    push_problem = _verify_push_target(
+        canonical, remote, expected_slug, allow_local_path_target=allow_local_path_target
+    )
     if push_problem:
         raise _PushReject(push_problem)
     push_env = dict(os.environ)
     push_env["FOUNDRY_SAFE_PUSH"] = "1"  # launcher-installed pre-push hook marker
     proc = subprocess.run(
-        ["git", "push", remote, f"HEAD:refs/heads/{expected_branch}"],
+        ["git", "push", "--no-follow-tags", remote, f"HEAD:refs/heads/{expected_branch}"],
         cwd=canonical,
         env=push_env,
         capture_output=True,
@@ -691,6 +720,7 @@ def safe_push(
     dry_run: bool = False,
     metrics_path: str | None = None,
     expected_audit_base_ref: str | None = None,
+    allow_local_path_target: bool = False,
 ) -> int:
     """Narrow safe checkpoint push with fail-closed gates and metric emission."""
     ctx: dict = {"task_id": "UNKNOWN", "source_sha": None}
@@ -704,6 +734,7 @@ def safe_push(
             dry_run,
             ctx,
             expected_audit_base_ref,
+            allow_local_path_target,
         )
     except _PushReject as rej:
         reason = str(rej)
@@ -729,6 +760,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--metrics", default=None, help="Append AUTOCAPTURED push record here.")
     parser.add_argument(
+        "--allow-local-path-target",
+        action="store_true",
+        help=(
+            "Fixture-only: accept a file:// or plain-path remote whose path "
+            "ends at a boundary with the expected slug. Production "
+            "invocations must omit this flag, so slug-suffixed local paths "
+            "can never satisfy a production slug."
+        ),
+    )
+    parser.add_argument(
         "--expected-audit-base-ref",
         default=None,
         help=(
@@ -751,6 +792,7 @@ def main(argv: list[str] | None = None) -> int:
         args.dry_run,
         args.metrics,
         args.expected_audit_base_ref,
+        args.allow_local_path_target,
     )
 
 

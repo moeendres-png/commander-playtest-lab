@@ -129,6 +129,7 @@ def _run_push(
         str(rig["state"]),
         "--expected-slug",
         SLUG,
+        "--allow-local-path-target",
         *extra,
     ]
     env = dict(rig["env"])
@@ -445,6 +446,7 @@ def _run_lineage_push(
         str(rig["state"]),
         "--expected-slug",
         SLUG,
+        "--allow-local-path-target",
         *extra,
     ]
     env = dict(rig["env"])

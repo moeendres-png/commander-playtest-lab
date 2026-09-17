@@ -15,6 +15,16 @@ insteadOf/pushInsteadOf in any scope; the single Git-expanded effective
 push URL must be byte-equal to the validated fetch record; pre-write
 re-check; no URL/credential/command-output echoes.
 
+Closure fix (production-slug local paths + tag widening), DIRECTLY_VERIFIED
+with hermetic local fixtures: ``file://`` / plain-path remotes are rejected
+by default even when the path ends at a ``/`` boundary with the expected
+slug (slug-suffixed attacker path + production slug -> PUSH_REJECT at the
+fetch-identity gate, dry AND actual, no write); hermetic fixtures keep
+working only through the explicit fixture-only
+``--allow-local-path-target`` flag; ``push.followTags=true`` no longer
+widens the authorized push (``--no-follow-tags`` on the single refspec;
+PUSHED with zero remote tags).
+
 No network. Real local git repos (file:// bare remotes A/B); pushes that
 must not happen are verified absent. The lock path runs safe_push as a
 genuine child of a lock-holding parent.
@@ -40,6 +50,7 @@ from foundry import safe_push as safe_push_mod  # noqa: E402
 
 SLUG = "test-host/fixture-repo"
 FORGE_SLUG = "moeendres-png/forge"
+PROD_SLUG = "moeendres-png/commander-playtest-lab"
 MARKER = "leak-marker-ws241.invalid"
 SECRET = "s3cret-ws241"
 
@@ -160,7 +171,7 @@ def rig(tmp_path: Path, hermetic_env) -> dict:
 
 
 def _run_push(
-    rig: dict, *extra: str, dry: bool = False, via_holder: bool = True
+    rig: dict, *extra: str, dry: bool = False, via_holder: bool = True, local_path: bool = True
 ) -> subprocess.CompletedProcess:
     cmd = [
         sys.executable,
@@ -175,6 +186,10 @@ def _run_push(
         rig["slug"],
         *extra,
     ]
+    if local_path:
+        # Hermetic fixtures use local-path remotes; production invocations
+        # omit the fixture-only flag (safe default rejects local targets).
+        cmd.append("--allow-local-path-target")
     if dry:
         cmd.append("--dry-run")
     env = dict(rig["env"])
@@ -304,17 +319,30 @@ def test_expected_target_identity_units(url: str, slug: str, want: bool) -> None
 
 
 def test_expected_target_file_identity_units(tmp_path: Path) -> None:
+    allow = {"allow_local_path_target": True}
     canon = str(tmp_path / "test-host" / "fixture-repo.git")
-    assert safe_push_mod._is_expected_target(canon, SLUG) is True
-    assert safe_push_mod._is_expected_target("file://" + canon, SLUG) is True
-    assert safe_push_mod._is_expected_target(canon.removesuffix(".git"), SLUG) is True
+    # Fixture-only flag preserves the hermetic local-path semantics.
+    assert safe_push_mod._is_expected_target(canon, SLUG, **allow) is True
+    assert safe_push_mod._is_expected_target("file://" + canon, SLUG, **allow) is True
+    assert safe_push_mod._is_expected_target(canon.removesuffix(".git"), SLUG, **allow) is True
     evil = str(tmp_path / "test-host" / "fixture-repo-evil.git")
-    assert safe_push_mod._is_expected_target(evil, SLUG) is False
-    assert safe_push_mod._is_expected_target("file://" + evil, SLUG) is False
+    assert safe_push_mod._is_expected_target(evil, SLUG, **allow) is False
+    assert safe_push_mod._is_expected_target("file://" + evil, SLUG, **allow) is False
     nested = str(tmp_path / "test-host" / "fixture-repo" / "remote.git")
-    assert safe_push_mod._is_expected_target(nested, SLUG) is False
-    assert safe_push_mod._is_expected_target("", SLUG) is False
-    assert safe_push_mod._is_expected_target(canon, "bad slug!!") is False
+    assert safe_push_mod._is_expected_target(nested, SLUG, **allow) is False
+    assert safe_push_mod._is_expected_target("", SLUG, **allow) is False
+    assert safe_push_mod._is_expected_target(canon, "bad slug!!", **allow) is False
+    # Safe default: every local path is rejected without the fixture flag,
+    # even a slug-exact one (production slugs can never match locally).
+    assert safe_push_mod._is_expected_target(canon, SLUG) is False
+    assert safe_push_mod._is_expected_target("file://" + canon, SLUG) is False
+    prod = str(tmp_path / "moeendres-png" / "commander-playtest-lab.git")
+    assert safe_push_mod._is_expected_target(prod, PROD_SLUG) is False
+    assert safe_push_mod._is_expected_target("file://" + prod, PROD_SLUG) is False
+    assert (
+        safe_push_mod._is_expected_target("file://localhost/" + prod.lstrip("/"), PROD_SLUG)
+        is False
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -425,6 +453,60 @@ def test_lookalike_fetch_slug_rejected(tmp_path: Path, hermetic_env) -> None:
     push = _run_push(look_rig)
     assert push.returncode == 2
     assert _git(["ls-remote", str(evil), "refs/heads/test/ws"], tmp_path, _raw_env()) == ""
+
+
+# ---------------------------------------------------------------------------
+# Closure: production-slug local targets rejected by default (G1 defect).
+# ---------------------------------------------------------------------------
+
+
+def _prod_slug_rig(tmp_path: Path, url_form: str = "plain") -> tuple[dict, Path]:
+    """Attacker-style rig: local bare path ending with the production slug."""
+    atk = _make_bare(tmp_path, "atk", "moeendres-png", "commander-playtest-lab.git")
+    _seed(atk, tmp_path)
+    atk_rig = _worktree(tmp_path, str(atk), slug=PROD_SLUG)
+    if url_form == "file":
+        _git(["remote", "set-url", "origin", atk.as_uri()], atk_rig["wt"], _raw_env())
+    return atk_rig, atk
+
+
+def test_production_slug_plain_attacker_path_rejected(tmp_path: Path, hermetic_env) -> None:
+    """G1: slug-suffixed local path must not satisfy the production slug."""
+    atk_rig, atk = _prod_slug_rig(tmp_path)
+    for dry in (True, False):
+        proc = _run_push(atk_rig, dry=dry, local_path=False)
+        assert proc.returncode == 2, dry
+        assert "WRONG_REMOTE" in proc.stderr, proc.stderr
+        assert "fetch identity" in proc.stderr, proc.stderr
+    assert _git(["ls-remote", str(atk), "refs/heads/test/ws"], tmp_path, _raw_env()) == ""
+
+
+def test_production_slug_file_attacker_path_rejected(tmp_path: Path, hermetic_env) -> None:
+    atk_rig, atk = _prod_slug_rig(tmp_path, url_form="file")
+    for dry in (True, False):
+        proc = _run_push(atk_rig, dry=dry, local_path=False)
+        assert proc.returncode == 2, dry
+        assert "WRONG_REMOTE" in proc.stderr, proc.stderr
+    assert _git(["ls-remote", str(atk), "refs/heads/test/ws"], tmp_path, _raw_env()) == ""
+
+
+def test_fixture_local_path_rejected_without_flag(rig: dict) -> None:
+    """Safe default: even legitimate fixture paths need the explicit flag."""
+    proc = _run_push(rig, dry=True, local_path=False)
+    assert proc.returncode == 2
+    assert "WRONG_REMOTE" in proc.stderr
+    assert not _remote_has(rig["remote_a"], rig["wt"], "refs/heads/test/ws")
+
+
+def test_followtags_config_does_not_push_tags(rig: dict) -> None:
+    """Local push.followTags must not widen the single-refspec write."""
+    _git(["tag", "-a", "v9.9", "-m", "annotated tag on pushed history"], rig["wt"], _raw_env())
+    _git(["config", "push.followTags", "true"], rig["wt"], _raw_env())
+    push = _run_push(rig)
+    assert push.returncode == 0, push.stderr
+    assert "PUSHED" in push.stdout
+    assert _remote_has(rig["remote_a"], rig["wt"], "refs/heads/test/ws")
+    assert _git(["ls-remote", str(rig["remote_a"]), "refs/tags/*"], rig["wt"], _raw_env()) == ""
 
 
 def test_noncanonical_https_slug_rejected_before_network(rig: dict) -> None:
@@ -617,7 +699,13 @@ def test_push_failure_withholds_remote_output(rig: dict, monkeypatch, capsys) ->
     monkeypatch.setattr(sp, "run", fake_run)
     monkeypatch.setattr(safe_push_mod, "_lock_held_by_ancestor", lambda *a: None)
     rc = safe_push_mod.safe_push(
-        str(rig["wt"]), "test/ws", str(rig["state"]), "origin", SLUG, dry_run=False
+        str(rig["wt"]),
+        "test/ws",
+        str(rig["state"]),
+        "origin",
+        SLUG,
+        dry_run=False,
+        allow_local_path_target=True,  # hermetic fixture remote; exercises the push-failure path
     )
     out_err = capsys.readouterr()
     assert rc == 2
