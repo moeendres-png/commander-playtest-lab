@@ -1,0 +1,69 @@
+{
+  "artifact_version": "commander-lab.ws42-checkpoint-b/1.0.0",
+  "status": "PASS_FRESH_CENSUS_DIAGNOSTIC__CONSTRUCTION_CREDIT_WITHHELD",
+  "source": {
+    "workflow_run_id": 33856619916,
+    "workflow_job_id": 100971310855,
+    "provider_head": "c9eb4ed16e871a20712192e20bf218013a326c1e",
+    "artifact_id": 9930970538,
+    "artifact_name": "ws42-v103-construction-c9eb4ed16e871a20712192e20bf218013a326c1e",
+    "artifact_sha256": "118412b50d8b0724afa58c5c22b63f328ce22c79b6db6e01ac2c7a15ac3aebc5",
+    "construction_probe_sha256": "8a3d6b3fa14b63a0b1b461f30fa20b69545b467565eec7f8cd451ba69fb3d82e",
+    "ws41_commit": "24152acf36b5a560c23ccacfed3f31d3039537eb",
+    "ws41_tree": "428bbe58b2ea7b869200521092a8768108029b47",
+    "xmage_commit": "7bde812727817723616c575759f39bfc4cda4607",
+    "xmage_tree": "a44f32e9d34109ac3f272494f0e8eb9ea3e6280c"
+  },
+  "fresh_denominator": {
+    "count": 107,
+    "unique_fixture_ids": 107,
+    "requested_state_digests_recomputed_equal": true,
+    "published_ws41_denominator_consumed_as_source": false,
+    "historical_successor_pass_imported": false
+  },
+  "diagnostic_construction": {
+    "native_setup_pass_no_runtime_credit": 53,
+    "deferred_to_fresh_natural_executor": 7,
+    "fail_closed_unsupported_native_dimension": 47,
+    "native_construction_failures": 0,
+    "pilot_choice_v103_native_setup_failure": false,
+    "pilot_choice_contract_repair_effect": "the sole WS39 native-construction failure is removed by v1.0.3"
+  },
+  "unsupported_dimension_counts": {
+    "attachments": 2,
+    "combat_state": 12,
+    "commander_damage_matrix": 5,
+    "counters": 2,
+    "elimination_trigger": 6,
+    "extra_turn_creation": 2,
+    "knowledge_grants": 11,
+    "nonpositive_life": 6,
+    "owner_controller_split": 3,
+    "temporal:beginning/draw": 2,
+    "temporal:beginning/upkeep": 1,
+    "temporal:combat/combat_damage": 1,
+    "temporal:combat/declare_attackers": 5,
+    "temporal:combat/declare_blockers": 2,
+    "temporal:postcombat_main/main": 2,
+    "zone:revealed": 1,
+    "zone_move_event": 8
+  },
+  "construction_proof_defect": {
+    "id": "WS42-PROVIDER-CONSTRUCTION-PROOF-001",
+    "classification": "PROVIDER_QUALIFICATION_PROOF_DEFECT",
+    "status": "CONFIRMED",
+    "inherited_source": "candidate-qualification/ws34-xmage-successor/apply_ws34_successor_overlay.py",
+    "defect": "after partial native validation, addSuccessorConstructionProof returns configuredScenario.successor_requested_state.deepCopy() as normalized_constructed_state",
+    "why_disallowed": "WS42 requires independently normalized native constructed state and explicitly forbids echoing the requested state as construction proof",
+    "effect": "all 53 diagnostic NATIVE_SETUP_PASS rows remain zero construction credit until native readback normalization replaces the inherited echo proof",
+    "remediation": "WS42 provider overlay must construct normalized state from XMage native readback, include per-dimension proof provenance, and the harness must reject the inherited proof marker"
+  },
+  "credit": {
+    "fresh_v103_behavior_runtime_pass": 0,
+    "fresh_v103_construction_credit": 0,
+    "af07": false,
+    "architecture_freeze": false,
+    "xmage_successor_provider_qualified": false
+  },
+  "next_gate": "replace inherited echo construction proof with independent native readback normalization while extending exact missing native setup dimensions"
+}
