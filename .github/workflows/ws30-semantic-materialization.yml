@@ -1,0 +1,100 @@
+name: WS30 Semantic Materialization
+
+on:
+  push:
+    branches: [ws30/canonical-semantic-fixture-materialization]
+    paths:
+      - 'qualification/materialization/**'
+      - 'scripts/build_ws30_materialization.py'
+      - 'scripts/validate_ws30_materialization.py'
+      - 'tests/qualification/test_ws30_semantic_materialization.py'
+      - '.github/workflows/ws30-semantic-materialization.yml'
+  pull_request:
+    branches: [ws29/canonical-authority-closure]
+    paths:
+      - 'qualification/materialization/**'
+      - 'scripts/build_ws30_materialization.py'
+      - 'scripts/validate_ws30_materialization.py'
+      - 'tests/qualification/test_ws30_semantic_materialization.py'
+      - '.github/workflows/ws30-semantic-materialization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Push normalization is intentionally idempotent; canonical outputs are committed only after quality gates pass.
+# Final WS-30 verification must be triggered by a user-authored branch update.
+jobs:
+  materialize-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12'
+      - name: Install validation runtime
+        run: python -m pip install 'jsonschema>=4.23,<5' 'pytest>=8.4,<9' 'ruff>=0.9,<1'
+      - name: Normalize WS-30 Python quality on branch pushes
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          files=(
+            scripts/build_ws30_materialization.py
+            scripts/validate_ws30_materialization.py
+            tests/qualification/test_ws30_semantic_materialization.py
+          )
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/build_ws30_materialization.py')
+          path.write_text(path.read_text(encoding='utf-8').replace('’', "'"), encoding='utf-8')
+          PY
+          ruff format "${files[@]}"
+          ruff check --fix --unsafe-fixes "${files[@]}" || true
+          ruff format "${files[@]}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "${files[@]}"
+          if git diff --cached --quiet; then
+            echo 'WS-30 Python sources already satisfy formatter output.'
+          else
+            git commit -m 'style(ws30): normalize materialization Python'
+            git push
+          fi
+      - name: Enforce WS-30 Python quality
+        shell: bash
+        run: |
+          files=(
+            scripts/build_ws30_materialization.py
+            scripts/validate_ws30_materialization.py
+            tests/qualification/test_ws30_semantic_materialization.py
+          )
+          ruff check "${files[@]}"
+          ruff format --check "${files[@]}"
+      - name: Rebuild canonical semantic fixture corpus
+        run: python scripts/build_ws30_materialization.py
+      - name: Validate against frozen repository sources
+        run: python scripts/validate_ws30_materialization.py --repo-root .
+      - name: Run WS-30 qualification tests
+        run: pytest -q --confcutdir=tests/qualification tests/qualification/test_ws30_semantic_materialization.py
+      - name: Verify materialization checksums
+        working-directory: qualification/materialization
+        run: sha256sum -c SHA256SUMS
+      - name: Commit generated machine outputs on WS-30 push
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qualification/materialization scripts/build_ws30_materialization.py
+          if [[ -d scripts/ws30_bootstrap_chunks ]]; then
+            git add -A scripts/ws30_bootstrap_chunks
+          fi
+          if git diff --cached --quiet; then
+            echo 'Generated machine outputs already match committed bytes.'
+          else
+            git commit -m 'materialize(ws30): freeze canonical 135-fixture semantic corpus'
+            git push
+          fi
