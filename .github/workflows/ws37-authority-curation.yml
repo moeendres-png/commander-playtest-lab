@@ -1,0 +1,179 @@
+name: WS37 Authority Curation
+
+on:
+  push:
+    branches:
+      - ws37/actual-card-authority-curation
+    paths:
+      - '.github/workflows/ws37-authority-curation.yml'
+      - 'qualification/ws37/input/**'
+      - 'qualification/ws37/tooling/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  authority-curation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout WS37 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Decode immutable WS37 inputs and tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ws37/input /tmp/ws37/evidence /tmp/ws37/tools
+          base64 -d qualification/ws37/input/WS37_HEURISTIC_110_INPUT_MANIFEST.json.gz.b64 | gzip -dc > /tmp/ws37/input/WS37_HEURISTIC_110_INPUT_MANIFEST.json
+          base64 -d qualification/ws37/input/WS37_PARENT_335_INDEX.json.gz.b64 | gzip -dc > /tmp/ws37/input/WS37_PARENT_335_INDEX.json
+          cat qualification/ws37/input/decision_chunks/part-*.b64 | tr -d '\n' | base64 -d | gzip -dc > /tmp/ws37/input/WS37_CURATED_DECISION_SEEDS.json
+          cat qualification/ws37/tooling/ws37_materialize.py/part-*.b64 | tr -d '\n' | base64 -d | gzip -dc > /tmp/ws37/tools/ws37_materialize.py
+          cat qualification/ws37/tooling/ws37_compare_authority.py/part-*.b64 | tr -d '\n' | base64 -d | gzip -dc > /tmp/ws37/tools/ws37_compare_authority.py
+          cat qualification/ws37/tooling/ws37_fetch_current_rules.py/part-*.b64 | tr -d '\n' | base64 -d | gzip -dc > /tmp/ws37/tools/ws37_fetch_current_rules.py
+          chmod +x /tmp/ws37/tools/ws37_*.py
+          python -m py_compile /tmp/ws37/tools/ws37_*.py
+          python - <<'PY'
+          import hashlib, json
+          p='/tmp/ws37/input/WS37_HEURISTIC_110_INPUT_MANIFEST.json'
+          x=json.load(open(p,encoding='utf-8'))
+          assert x['identity_count']==29 and x['parent_heuristic_count']==110 and len(x['records'])==110
+          d=json.load(open('/tmp/ws37/input/WS37_CURATED_DECISION_SEEDS.json',encoding='utf-8'))
+          assert d['parent_count']==110 and len(d['records'])==110 and d['retained_child_count']==101
+          records=[]
+          for name in x['identities']:
+              sid='ws37:authority-probe:'+hashlib.sha256(name.encode()).hexdigest()
+              records.append({'semantic_identity':sid,'project_card_identity':name})
+          out={'schema_version':'commander-lab.ws37.authority-request/1.0.0','record_count':len(records),'records':records}
+          with open('/tmp/ws37/input/WS37_AUTHORITY_29_REQUEST.json','w',encoding='utf-8') as f:
+              json.dump(out,f,ensure_ascii=False,indent=2,sort_keys=True); f.write('\n')
+          assert len(records)==29
+          PY
+
+      - name: Acquire current official Comprehensive Rules
+        run: python /tmp/ws37/tools/ws37_fetch_current_rules.py --output /tmp/ws37/evidence/WS37_CURRENT_CR_ACQUISITION.json
+
+      - name: Lock exact validated WS31 authority code
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin ws31/full-actual-card-oracle-domain
+          git cat-file -e 1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e^{commit}
+          git worktree add --detach /tmp/ws31 1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e
+          test "$(git -C /tmp/ws31 rev-parse HEAD)" = "1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e"
+          test -f /tmp/ws31/scripts/ws31_acquire_gatherer_v6.py
+          test -f /tmp/ws31/qualification/ws31/generated/KNOWN_ACTUAL_CARD_ORACLE_1385.json
+
+      - name: Fresh exact-29 official Gatherer acquisition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python /tmp/ws31/scripts/ws31_acquire_gatherer_v6.py \
+            --manifest /tmp/ws37/input/WS37_AUTHORITY_29_REQUEST.json \
+            --output /tmp/ws37/evidence/WS37_CURRENT_GATHERER_29_RAW.json \
+            --checkpoint /tmp/ws37/evidence/WS37_CURRENT_GATHERER_29_CHECKPOINT.json \
+            --shard-index 0 --shard-count 1 --delay 0.12
+
+      - name: Prove current Oracle and rulings still match curated baseline
+        run: |
+          python /tmp/ws37/tools/ws37_compare_authority.py \
+            --fresh /tmp/ws37/evidence/WS37_CURRENT_GATHERER_29_RAW.json \
+            --baseline /tmp/ws31/qualification/ws31/generated/KNOWN_ACTUAL_CARD_ORACLE_1385.json \
+            --output /tmp/ws37/evidence/WS37_CURRENT_GATHERER_29_VERIFIED.json
+
+      - name: Deterministic materialization A and B
+        shell: bash
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$(git rev-parse HEAD)"
+          for out in /tmp/ws37/out-a /tmp/ws37/out-b; do
+            python /tmp/ws37/tools/ws37_materialize.py \
+              --input-manifest /tmp/ws37/input/WS37_HEURISTIC_110_INPUT_MANIFEST.json \
+              --parent-index /tmp/ws37/input/WS37_PARENT_335_INDEX.json \
+              --decisions /tmp/ws37/input/WS37_CURATED_DECISION_SEEDS.json \
+              --authority29 /tmp/ws37/evidence/WS37_CURRENT_GATHERER_29_VERIFIED.json \
+              --current-cr /tmp/ws37/evidence/WS37_CURRENT_CR_ACQUISITION.json \
+              --outdir "$out" \
+              --source-head "$HEAD_SHA"
+          done
+          diff -ru /tmp/ws37/out-a /tmp/ws37/out-b
+          python /tmp/ws37/tools/ws37_materialize.py --validate-dir /tmp/ws37/out-a
+
+      - name: Build CI evidence envelope
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, pathlib, shutil
+          q=pathlib.Path('/tmp/ws37/out-a')
+          e=pathlib.Path('/tmp/ws37/evidence')
+          v=json.loads((q/'WS37_VALIDATION.json').read_text())
+          idx=json.loads((q/'WS37_EVIDENCE_INDEX.json').read_text())
+          cr=json.loads((e/'WS37_CURRENT_CR_ACQUISITION.json').read_text())
+          ga=json.loads((e/'WS37_CURRENT_GATHERER_29_VERIFIED.json').read_text())
+          assert v['status']=='PASS'
+          assert len(v['gates'])==12 and all(g['status']=='PASS' for g in v['gates'].values())
+          assert v['final_obligation_count']==326 and v['successor_scenario_count']==283
+          assert v['runtime_pass']==0 and v['af07_granted'] is False and v['architecture_freeze_granted'] is False
+          assert len(ga['records'])==29 and sum(r.get('acquisition_status')=='PASS' for r in ga['records'])==29
+          assert ga['ws37_baseline_comparison']['status']=='PASS' and ga['ws37_baseline_comparison']['semantic_match_count']==29
+          cr_sem=cr['relevant_rule_semantic_validation']
+          assert cr_sem['status']=='PASS' and cr_sem['comparison_count']==29 and cr_sem['match_count']==29
+          result={
+            'schema_version':'commander-lab.ws37.ci-evidence/1.0.0',
+            'commit':os.popen('git rev-parse HEAD').read().strip(),
+            'status':'PASS',
+            'validation_status':v['status'],
+            'canonical_materialization_digest':idx['canonical_materialization_digest'],
+            'current_cr_sha256':cr['current_cr']['sha256'],
+            'current_cr_effective_date':cr['effective_date_text'],
+            'current_cr_semantic_validation_status':cr_sem['status'],
+            'current_cr_relevant_rule_ref_count':cr_sem['comparison_count'],
+            'current_cr_relevant_rule_match_count':cr_sem['match_count'],
+            'fresh_gatherer_count':len(ga['records']),
+            'fresh_gatherer_pass_count':sum(r.get('acquisition_status')=='PASS' for r in ga['records']),
+            'baseline_semantic_match_count':ga['ws37_baseline_comparison']['semantic_match_count'],
+            'final_obligations':v['final_obligation_count'],
+            'successor_scenarios':v['successor_scenario_count'],
+            'runtime_pass':v['runtime_pass'],
+            'af07_granted':v['af07_granted'],
+            'architecture_freeze_granted':v['architecture_freeze_granted'],
+          }
+          (e/'WS37_CI_EVIDENCE.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          shutil.copytree(q,e/'canonical',dirs_exist_ok=True)
+          PY
+
+      - name: Upload WS37 closure evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws37-authority-curation-${{ github.sha }}
+          path: |
+            /tmp/ws37/evidence/WS37_CI_EVIDENCE.json
+            /tmp/ws37/evidence/WS37_CURRENT_CR_ACQUISITION.json
+            /tmp/ws37/evidence/WS37_CURRENT_GATHERER_29_VERIFIED.json
+            /tmp/ws37/evidence/canonical/**
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Seal canonical WS37 outputs on branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/ws37 handoffs/ws37 scripts
+          rm -f qualification/ws37/WS37_*.json qualification/ws37/WS37_SHA256SUMS qualification/ws37/WS37_FINAL_HANDOFF.md
+          cp /tmp/ws37/out-a/WS37_* qualification/ws37/
+          cp /tmp/ws37/out-a/WS37_FINAL_HANDOFF.md handoffs/ws37/WS37_FINAL_HANDOFF.md
+          cp /tmp/ws37/tools/ws37_*.py scripts/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qualification/ws37/WS37_* handoffs/ws37/WS37_FINAL_HANDOFF.md scripts/ws37_*.py
+          git commit -m "ws37: seal authority-complete curated contract"
+          git push origin HEAD:ws37/actual-card-authority-curation
