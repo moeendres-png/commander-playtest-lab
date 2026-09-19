@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import logging
 import os
 import queue
 import random
@@ -36,6 +37,11 @@ FULL_GAME_LANE = "xmage_full_game_external_pilots"
 FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"
 XMAGE_FULL_GAME_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 
+# WS229 forced-move audit channel. Forced moves (no pilot discretion) are
+# auto-submitted only with a structured log record; discretionary actions
+# are never hidden from the pilot.
+_LOG = logging.getLogger(__name__)
+
 
 class FullGameProtocolError(RuntimeError):
     """Fail-closed full-game bridge or external-pilot protocol error."""
@@ -50,7 +56,7 @@ class _StrictModel(BaseModel):
 
 
 class FullGamePilotBinding(_StrictModel):
-    seat: int = Field(ge=1, le=4)
+    seat: int = Field(ge=1, le=5)
     deck_id: str = Field(min_length=1)
     strategy: str = Field(min_length=1)
     commander_names: tuple[str, ...]
@@ -94,6 +100,41 @@ class FullGameConformanceResult(_StrictModel):
     hidden_information_actor_scoped: Literal[True] = True
     fallback_used: Literal[False] = False
     bit_exact_replay_validated: Literal[False] = False
+
+
+class FullGameSmokeResult(_StrictModel):
+    """Bounded cardinality smoke outcome (WS223).
+
+    Proves live production startup and authoritative decision progression up
+    to a calibrated decision target (or earlier terminal) with clean bounded
+    shutdown. This is a lifecycle smoke, not a game-over conformance claim:
+    terminal/outcome-shape evidence stays with :class:`FullGameConformanceResult`
+    (live 4P gate) and the per-count unit outcome guards.
+    """
+
+    schema_version: Literal["xmage-full-game-smoke-result-1.0.0"] = (
+        "xmage-full-game-smoke-result-1.0.0"
+    )
+    scenario_id: str
+    player_count: int = Field(ge=2, le=5)
+    seed: int = Field(ge=0)
+    engine_version: str
+    xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
+    decision_protocol_version: str
+    decision_count: int = Field(ge=1)
+    smoke_decision_target: int = Field(ge=1)
+    bounded_criterion_met: Literal[True]
+    terminal_reached: bool
+    seed_preserved: Literal[True]
+    player_count_preserved: Literal[True]
+    observed_decision_classes: tuple[str, ...]
+    unsupported_callback_seen: Literal[False] = False
+    clean_shutdown: Literal[True] = True
+    evidence_class: Literal["technical_conformance_only"] = FULL_GAME_EVIDENCE_CLASS
+    consumed_gameplay_evidence: Literal[False] = False
+    holdout_consumed: Literal[False] = False
+    official_campaign_eligible: Literal[False] = False
+    fallback_used: Literal[False] = False
 
 
 class FullGameReplayGate(_StrictModel):
@@ -306,14 +347,17 @@ class ExternalPilotDecisionPolicy:
     )
 
     def __init__(self, runtime_pilots: tuple[_RuntimePilot, ...], scenario_seed: int) -> None:
-        if len(runtime_pilots) != 4:
-            raise ValueError("full-game policy requires exactly four pilot bindings")
+        if len(runtime_pilots) < 2 or len(runtime_pilots) > 5:
+            raise ValueError("full-game policy requires two to five pilot bindings")
         seats = {item.binding.seat for item in runtime_pilots}
-        if seats != {1, 2, 3, 4}:
-            raise ValueError("full-game pilot bindings must cover seats 1..4 exactly")
+        if seats != set(range(1, len(runtime_pilots) + 1)):
+            raise ValueError("full-game pilot bindings must cover seats 1..N exactly")
         self._pilots = {item.binding.seat: item for item in runtime_pilots}
+        self._player_count = len(runtime_pilots)
         self.scenario_seed = scenario_seed
-        self._mulligan_count: dict[int, int] = {seat: 0 for seat in range(1, 5)}
+        self._mulligan_count: dict[int, int] = {
+            seat: 0 for seat in range(1, len(runtime_pilots) + 1)
+        }
 
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
@@ -339,11 +383,24 @@ class ExternalPilotDecisionPolicy:
 
         selected: list[str] = []
         numeric_choice: int | None = None
+        numeric_choices: list[int] | None = None
+        prompt = str(request.get("prompt", ""))
 
         if decision_class == "mulligan":
             selected = [self._decide_mulligan(runtime, pilot_state, options, rng)]
-        elif decision_class in {"announce_x", "amount", "multi_amount"}:
-            numeric_choice = self._decide_numeric(runtime, pilot_state, context, rng)
+        elif decision_class in {"announce_x", "amount"}:
+            numeric_choice = self._decide_numeric(
+                runtime,
+                pilot_state,
+                context,
+                rng,
+                decision_class=decision_class,
+                prompt=prompt,
+            )
+        elif decision_class == "multi_amount":
+            numeric_choices = self._decide_multi_amount(
+                runtime, pilot_state, context, rng, prompt=prompt
+            )
         elif decision_class == "mana_payment":
             selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
         elif decision_class == "choose_use":
@@ -365,7 +422,14 @@ class ExternalPilotDecisionPolicy:
                 rng,
             )
             if decision_class == "target_amount":
-                numeric_choice = self._decide_numeric(runtime, pilot_state, context, rng)
+                numeric_choice = self._decide_numeric(
+                    runtime,
+                    pilot_state,
+                    context,
+                    rng,
+                    decision_class=decision_class,
+                    prompt=prompt,
+                )
         elif decision_class == "declare_attacker":
             selected = [self._decide_attack(runtime, pilot_state, options, rng)]
         elif decision_class == "declare_blocker":
@@ -394,6 +458,8 @@ class ExternalPilotDecisionPolicy:
         }
         if numeric_choice is not None:
             response["numeric_choice"] = numeric_choice
+        if numeric_choices is not None:
+            response["numeric_choices"] = list(numeric_choices)
         return response
 
     def _decide_mulligan(
@@ -417,6 +483,14 @@ class ExternalPilotDecisionPolicy:
             rng=rng,
         )
         if self._mulligan_count[seat] >= 3:
+            # WS229 F-RULES-03 disposition: the cap overrides pilot discretion,
+            # so the forced keep is a logged forced-move record, never silent.
+            if not keep:
+                _LOG.info(
+                    "forced mulligan keep: seat=%s mulligans=%s pilot_wanted_mulligan=true",
+                    seat,
+                    self._mulligan_count[seat],
+                )
             keep = True
         desired = "keep" if keep else "mulligan"
         chosen = self._option_by_type(options, desired)
@@ -432,19 +506,29 @@ class ExternalPilotDecisionPolicy:
         rng: random.Random,
     ) -> str:
         pass_option = self._option_by_type(options, "pass_priority")
+        pass_id = self._required_text(pass_option, "option_id")
         non_mana = [
             option
             for option in options
             if self._required_text(option, "option_type") not in {"pass_priority", "mana_ability"}
         ]
-        if not non_mana:
-            return self._required_text(pass_option, "option_id")
+        # WS229 F-RULES-03 disposition: Core-authorized mana abilities were
+        # withheld from the pilot. Mana abilities are discretionary actions,
+        # so they are offered to the pilot with explicit mana metadata
+        # instead of being hidden. Only a lone pass (no discretion) is
+        # auto-submitted, with a forced-move record.
+        mana_views = [
+            self._priority_mana_action(option, state)
+            for option in options
+            if self._required_text(option, "option_type") == "mana_ability"
+        ]
 
         pilot_state = self._pilot_state(runtime, state)
         action_views = [self._priority_action(option, state) for option in non_mana]
+        action_views.extend(mana_views)
         action_views.append(
             PilotActionView(
-                action_id=self._required_text(pass_option, "option_id"),
+                action_id=pass_id,
                 action_kind="pass",
                 card_name="Pass priority",
                 floor_value=0.15,
@@ -452,10 +536,36 @@ class ExternalPilotDecisionPolicy:
                 metadata={"flexible_interaction": bool(state.get("stack"))},
             )
         )
+        if len(action_views) == 1:
+            _LOG.info("forced priority pass: no discretionary action offered")
+            return pass_id
         decision = runtime.pilot.choose_action(pilot_state, action_views, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no priority action")
+        offered = {view.action_id for view in action_views}
+        if decision.selected_action_id not in offered:
+            raise FullGameProtocolError("pilot returned unknown priority action")
         return decision.selected_action_id
+
+    def _priority_mana_action(
+        self, option: dict[str, Any], state: dict[str, Any]
+    ) -> PilotActionView:
+        metadata = option.get("metadata")
+        meta = metadata if isinstance(metadata, dict) else {}
+        source_name = str(meta.get("source_name") or option.get("label") or "Mana ability")
+        return PilotActionView(
+            action_id=self._required_text(option, "option_id"),
+            action_kind="card",
+            card_name=source_name,
+            mana_cost=0.0,
+            floor_value=0.5,
+            immediate_impact=0.35,
+            remaining_mana=self._actor_mana(self._actor(state)),
+            metadata={
+                "xmage_option_type": "mana_ability",
+                "is_mana_ability": True,
+            },
+        )
 
     def _decide_targets(
         self,
@@ -467,8 +577,14 @@ class ExternalPilotDecisionPolicy:
         max_selections: int,
         rng: random.Random,
     ) -> list[str]:
-        prompt = str(request.get("prompt", "")).casefold()
-        if "bottom" in prompt and "library" in prompt:
+        context = request.get("context")
+        structured_context = context if isinstance(context, dict) else {}
+        # WS229 F-RULES-03 disposition: London-bottom routing is driven by
+        # the bridge-supplied structured flag
+        # (context.bottom_of_library_selection), never by prompt-text
+        # heuristics. The flag is set only inside the native
+        # putCardsOnBottomOfLibrary selection path.
+        if structured_context.get("bottom_of_library_selection") is True:
             actor = self._actor(state)
             hand = actor.get("hand")
             if not isinstance(hand, list):
@@ -489,24 +605,29 @@ class ExternalPilotDecisionPolicy:
             return []
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
-        ranked: list[tuple[float, str]] = []
+        ranked: list[tuple[float, str, str]] = []
         for option in options:
             action = self._target_action(option, state, outcome)
             breakdown = runtime.pilot.evaluate_action(pilot_state, action)
             score = breakdown.total_utility + self._target_alignment(action, state, outcome)
-            ranked.append((score, action.action_id))
-        ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+            # Tiebreak by stable Rules-visible content (card label), never by
+            # native identity alone: raw option ids embed per-process engine
+            # UUIDs, so a UUID-order tiebreak would make credited same-seed
+            # twins diverge. The residual UUID element only orders options
+            # whose labels are also identical (indistinguishable targets).
+            ranked.append((score, action.card_name, action.action_id))
+        ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
 
         if max_selections <= 0:
             return []
         if outcome in {"benefit", "benefit_to_controller"}:
             take = max_selections
         elif min_selections == 0:
-            take = 0 if all(score < 0.0 for score, _ in ranked) else 1
+            take = 0 if all(score < 0.0 for score, _label, _oid in ranked) else 1
         else:
             take = min_selections
         take = max(min_selections, min(max_selections, take))
-        return [option_id for _score, option_id in ranked[:take]]
+        return [option_id for _score, _label, option_id in ranked[:take]]
 
     def _decide_semantic_option(
         self,
@@ -522,7 +643,7 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(pilot_state, actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no semantic option")
-        return decision.selected_action_id
+        return self._require_offered(decision.selected_action_id, options, "semantic option")
 
     def _decide_boolean(
         self,
@@ -557,7 +678,7 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no boolean decision")
-        return decision.selected_action_id
+        return self._require_offered(decision.selected_action_id, options, "boolean decision")
 
     def _decide_pile(
         self,
@@ -592,7 +713,7 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no pile decision")
-        return decision.selected_action_id
+        return self._require_offered(decision.selected_action_id, options, "pile decision")
 
     def _decide_mana(
         self,
@@ -613,22 +734,95 @@ class ExternalPilotDecisionPolicy:
         if pool_options:
             unpaid = str(context.get("unpaid_mana", "")).casefold()
 
-            def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
+            def pool_symbol(option: dict[str, Any]) -> str:
                 metadata = option.get("metadata")
                 meta = metadata if isinstance(metadata, dict) else {}
                 mana_type = str(meta.get("mana_type", "")).casefold()
-                symbol = {
+                return {
                     "white": "w",
                     "blue": "u",
                     "black": "b",
                     "red": "r",
                     "green": "g",
                     "colorless": "c",
-                }.get(mana_type)
+                }.get(mana_type, "")
+
+            def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
+                metadata = option.get("metadata")
+                meta = metadata if isinstance(metadata, dict) else {}
+                mana_type = str(meta.get("mana_type", "")).casefold()
+                symbol = pool_symbol(option)
                 exact_required = 1 if symbol and f"{{{symbol}}}" in unpaid else 0
                 return exact_required, mana_type, str(option.get("label", "")).casefold()
 
-            return self._required_text(max(pool_options, key=pool_key), "option_id")
+            # Liveness guard (WS215): pool mana that matches no unpaid colored
+            # requirement can never satisfy the payment; spending it loops the
+            # native payment request forever (budget-burning livelock). Generic-
+            # only costs accept any pool mana; colored costs take an exact
+            # match; otherwise the decision falls through to mana abilities
+            # (tap a source of the required color) or cancel (fizzle cleanly).
+            #
+            # WS229 F-RULES-03 disposition: pool-first routing is kept, but
+            # auto-submit is gated to the no-discretion case. A lone pool
+            # candidate is a forced move (logged); several candidates hide
+            # real discretion (which color to spend), so the pilot chooses.
+            colored_symbols = {"w", "u", "b", "r", "g"}
+            unpaid_colored = {s for s in colored_symbols if f"{{{s}}}" in unpaid}
+            pool_symbols = {pool_symbol(option) for option in pool_options}
+            candidates: list[dict[str, Any]] = []
+            if not unpaid_colored:
+                candidates = list(pool_options)
+            elif unpaid_colored & pool_symbols:
+                candidates = [
+                    option for option in pool_options if pool_symbol(option) in unpaid_colored
+                ]
+            if len(candidates) == 1:
+                chosen_pool = self._required_text(candidates[0], "option_id")
+                _LOG.info(
+                    "forced mana-pool spend: single productive pool candidate %s",
+                    chosen_pool,
+                )
+                return chosen_pool
+            if candidates:
+                ordered = sorted(candidates, key=pool_key, reverse=True)
+                pool_views: list[PilotActionView] = []
+                raw_by_pool_view: dict[str, str] = {}
+                for rank, option in enumerate(ordered):
+                    view_id = f"mana:pool:{rank}"
+                    raw_by_pool_view[view_id] = self._required_text(option, "option_id")
+                    pool_views.append(
+                        PilotActionView(
+                            action_id=view_id,
+                            action_kind="card",
+                            card_name=str(option.get("label", "Spend pool mana")),
+                            floor_value=max(0.05, 0.75 - 0.01 * rank),
+                            immediate_impact=0.55,
+                            metadata={"xmage_option_type": "mana_pool"},
+                        )
+                    )
+                pool_decision = runtime.pilot.choose_action(
+                    self._pilot_state(runtime, state), pool_views, rng
+                )
+                if pool_decision.selected_action_id is None:
+                    raise FullGameProtocolError("Commander Lab pilot returned no mana decision")
+                try:
+                    return raw_by_pool_view[pool_decision.selected_action_id]
+                except KeyError as exc:
+                    raise FullGameProtocolError(
+                        "pilot returned unknown stable pool-mana action"
+                    ) from exc
+
+        non_pool = [
+            option
+            for option in options
+            if self._required_text(option, "option_type") != "mana_pool"
+        ]
+        if not non_pool:
+            raise FullGameProtocolError(
+                "mana decision has no productive option: pool cannot satisfy "
+                "the colored requirement and no ability or cancel is offered"
+            )
+        options = non_pool
 
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
@@ -659,45 +853,139 @@ class ExternalPilotDecisionPolicy:
         except KeyError as exc:
             raise FullGameProtocolError("pilot returned unknown stable mana action") from exc
 
+    @staticmethod
+    def _required_bound(mapping: dict[str, Any], key: str) -> int:
+        """Authoritative integer bound from Core-supplied context (fail closed).
+
+        Strict: missing, boolean, or non-integer bounds raise. No coercion,
+        no default, no clamp — the Lab never invents domain content.
+        """
+        if not isinstance(mapping, dict) or key not in mapping:
+            raise FullGameProtocolError(f"numeric decision missing explicit bound: {key}")
+        raw = mapping[key]
+        if isinstance(raw, bool) or not isinstance(raw, int):
+            raise FullGameProtocolError(f"numeric decision bound is not an integer: {key}")
+        return raw
+
     def _decide_numeric(
         self,
         runtime: _RuntimePilot,
         state: dict[str, Any],
         context: dict[str, Any],
         rng: random.Random,
+        *,
+        decision_class: str,
+        prompt: str = "",
     ) -> int:
-        if "numeric_min" not in context or "numeric_max" not in context:
-            raise FullGameProtocolError("numeric decision missing explicit bounds")
-        minimum = int(context["numeric_min"])
-        maximum = int(context["numeric_max"])
+        """Range-native scalar decision (WS229 Design B).
+
+        The Core-supplied [min, max] is projected losslessly into a domain
+        descriptor; the pilot chooses strategy inside it; the Lab validates
+        exact membership before submission. No enumeration, no sampling, no
+        {min,mid,max} collapse, no clamp, no nearest-value mapping, no
+        default, no fallback. Malformed, non-integer, and out-of-domain
+        pilot returns fail closed.
+        """
+        minimum = self._required_bound(context, "numeric_min")
+        maximum = self._required_bound(context, "numeric_max")
         if maximum < minimum:
             raise FullGameProtocolError("numeric decision has reversed bounds")
         outcome = str(context.get("outcome", "benefit")).casefold()
-        if maximum - minimum <= 16:
-            values = list(range(minimum, maximum + 1))
-        else:
-            midpoint = minimum + (maximum - minimum) // 2
-            values = sorted({minimum, midpoint, maximum})
-        benefit = outcome not in {"detriment", "detriment_to_controller"}
-        span = max(1, maximum - minimum)
-        actions = [
-            PilotActionView(
-                action_id=f"numeric:{value}",
-                action_kind="card",
-                card_name=f"Choose {value}",
-                floor_value=(value - minimum) / span if benefit else (maximum - value) / span,
-                immediate_impact=0.5,
-                metadata={"numeric_value": value, "decision_outcome": outcome},
+        domain: dict[str, Any] = {
+            "kind": "contiguous_inclusive_int",
+            "min": minimum,
+            "max": maximum,
+            "outcome": outcome,
+            "prompt": prompt,
+        }
+        chosen = runtime.pilot.choose_number(self._pilot_state(runtime, state), domain, rng)
+        if isinstance(chosen, bool) or not isinstance(chosen, int):
+            raise FullGameProtocolError(
+                f"pilot returned non-integer numeric decision for {decision_class}"
             )
-            for value in values
-        ]
-        decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
-        if decision.selected_action_id is None:
-            raise FullGameProtocolError("Commander Lab pilot returned no numeric decision")
-        try:
-            return int(decision.selected_action_id.split(":", 1)[1])
-        except (IndexError, ValueError) as exc:
-            raise FullGameProtocolError("pilot returned malformed numeric decision") from exc
+        if not minimum <= chosen <= maximum:
+            raise FullGameProtocolError(
+                f"pilot numeric decision {chosen} outside authoritative domain "
+                f"{minimum}..{maximum} for {decision_class}"
+            )
+        return chosen
+
+    def _decide_multi_amount(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        context: dict[str, Any],
+        rng: random.Random,
+        *,
+        prompt: str = "",
+    ) -> list[int]:
+        """Joint bounded integer-vector decision (WS229 Design B).
+
+        One pilot-facing decision with per-leg [min, max] plus the total
+        band — the exact isGoodValues predicate projected, not invented.
+        Per-leg frames are never separate pilot strategic choices.
+        """
+        raw_legs = context.get("numeric_legs")
+        if not isinstance(raw_legs, list) or not raw_legs:
+            raise FullGameProtocolError(
+                "multi_amount requires a joint vector context (numeric_legs)"
+            )
+        legs: list[dict[str, Any]] = []
+        for index, raw in enumerate(raw_legs):
+            if not isinstance(raw, dict):
+                raise FullGameProtocolError(
+                    f"multi_amount leg {index} is not a bounds object"
+                )
+            leg_min = self._required_bound(raw, "min")
+            leg_max = self._required_bound(raw, "max")
+            if leg_max < leg_min:
+                raise FullGameProtocolError(f"multi_amount leg {index} has reversed bounds")
+            legs.append(
+                {"min": leg_min, "max": leg_max, "prompt": str(raw.get("prompt", ""))}
+            )
+        total_min = self._required_bound(context, "numeric_total_min")
+        total_max = self._required_bound(context, "numeric_total_max")
+        if total_max < total_min:
+            raise FullGameProtocolError("multi_amount has a reversed total band")
+        if sum(leg["min"] for leg in legs) > total_max or sum(
+            leg["max"] for leg in legs
+        ) < total_min:
+            raise FullGameProtocolError("multi_amount joint domain is empty")
+        outcome = str(context.get("outcome", "benefit")).casefold()
+        domain: dict[str, Any] = {
+            "kind": "joint_bounded_int_vector",
+            "legs": legs,
+            "total_min": total_min,
+            "total_max": total_max,
+            "outcome": outcome,
+            "prompt": prompt,
+        }
+        chosen = runtime.pilot.choose_numbers(
+            self._pilot_state(runtime, state), domain, rng
+        )
+        if not isinstance(chosen, (list, tuple)) or len(chosen) != len(legs):
+            raise FullGameProtocolError(
+                "pilot joint numeric decision has the wrong vector length"
+            )
+        values: list[int] = []
+        for element in chosen:
+            if isinstance(element, bool) or not isinstance(element, int):
+                raise FullGameProtocolError(
+                    "pilot joint numeric decision has a non-integer element"
+                )
+            values.append(element)
+        for index, (value, leg) in enumerate(zip(values, legs, strict=True)):
+            if not leg["min"] <= value <= leg["max"]:
+                raise FullGameProtocolError(
+                    f"pilot joint numeric leg {index} value {value} outside "
+                    f"authoritative domain {leg['min']}..{leg['max']}"
+                )
+        if not total_min <= sum(values) <= total_max:
+            raise FullGameProtocolError(
+                f"pilot joint numeric total {sum(values)} outside authoritative band "
+                f"{total_min}..{total_max}"
+            )
+        return values
 
     def _decide_attack(
         self,
@@ -829,7 +1117,7 @@ class ExternalPilotDecisionPolicy:
             deck_id=runtime.binding.deck_id,
             strategy=runtime.binding.strategy,
             turn=max(1, int(state.get("turn_number", 1))),
-            pod_size=4,
+            pod_size=self._player_count,
             seat_position=runtime.binding.seat,
             life=float(actor.get("life", 40)),
             hand_size=int(actor.get("hand_count", len(hand_items))),
@@ -861,7 +1149,7 @@ class ExternalPilotDecisionPolicy:
             hidden_information_uncertainty=1.0,
             opponent_intent_uncertainty=1.0,
             unknown_opponent_fraction=1.0,
-            opponents_to_act_before_next_turn=3,
+            opponents_to_act_before_next_turn=self._player_count - 1,
         )
 
     def _priority_action(self, option: dict[str, Any], state: dict[str, Any]) -> PilotActionView:
@@ -1088,6 +1376,14 @@ class ExternalPilotDecisionPolicy:
         return matches[0]
 
     @staticmethod
+    def _require_offered(selected_id: str, options: list[dict[str, Any]], kind: str) -> str:
+        """Fail closed when the pilot returns an unoffered option id."""
+        offered = {str(option.get("option_id")) for option in options if isinstance(option, dict)}
+        if selected_id not in offered:
+            raise FullGameProtocolError(f"pilot returned unknown {kind}")
+        return selected_id
+
+    @staticmethod
     def _required_text(value: dict[str, Any], key: str) -> str:
         raw = value.get(key)
         text = "" if raw is None else str(raw).strip()
@@ -1104,7 +1400,10 @@ class ExternalPilotDecisionPolicy:
 
 
 class XmageFullGameRunner:
-    """Run one isolated four-player XMage game with Commander Lab pilot policy."""
+    """Run one isolated 2..5-player XMage Commander game with Commander Lab pilot policy."""
+
+    MIN_PLAYERS = 2
+    MAX_PLAYERS = 5
 
     def __init__(
         self,
@@ -1130,19 +1429,91 @@ class XmageFullGameRunner:
         self,
         *,
         scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput],
-        pilots: tuple[
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-        ],
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
     ) -> FullGameConformanceResult:
         command = self.command
         if command is None:
             raise FullGameConformanceError(
                 f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
             )
+        policy = self._validated_policy(scenario, decks, pilots)
+
+        with _RawFullGameClient(
+            command,
+            cwd=self.cwd,
+            request_timeout_seconds=self.request_timeout_seconds,
+        ) as client:
+            provider = self._open_game(client, scenario, decks)
+            _decision_count, _, terminal = self._drive(client, policy, stop_after=None)
+            assert terminal is True
+            result = client.request("get_full_game_result")
+
+        return self._build_result(scenario, provider, result)
+
+    def run_smoke(
+        self,
+        *,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
+        smoke_decision_target: int = 25,
+    ) -> FullGameSmokeResult:
+        """Drive a bounded live lifecycle smoke for one supported cardinality.
+
+        Reuses the exact fail-closed validation, handshake, seed/count binding,
+        and authoritative pilot policy of :meth:`run`, but stops after
+        ``smoke_decision_target`` answered decisions (or earlier terminal) and
+        shuts the engine down cleanly instead of requiring game over. Any
+        unsupported engine callback surfaces as ``FullGameProtocolError`` /
+        ``FullGameConformanceError`` from the shared drive loop, failing the
+        smoke closed.
+        """
+        if smoke_decision_target < 1:
+            raise ValueError("smoke_decision_target must be positive")
+        command = self.command
+        if command is None:
+            raise FullGameConformanceError(
+                f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
+            )
+        policy = self._validated_policy(scenario, decks, pilots)
+
+        with _RawFullGameClient(
+            command,
+            cwd=self.cwd,
+            request_timeout_seconds=self.request_timeout_seconds,
+        ) as client:
+            provider = self._open_game(client, scenario, decks)
+            decision_count, observed, terminal = self._drive(
+                client, policy, stop_after=smoke_decision_target
+            )
+        if decision_count == 0:
+            raise FullGameConformanceError(
+                "bounded smoke observed no authoritative decisions before terminal"
+            )
+
+        return FullGameSmokeResult(
+            scenario_id=scenario.scenario_id,
+            player_count=scenario.player_count,
+            seed=scenario.seed,
+            engine_version=str(provider.get("engine_version", "unknown")),
+            xmage_commit=scenario.xmage_commit,
+            decision_protocol_version=FULL_GAME_DECISION_PROTOCOL_VERSION,
+            decision_count=decision_count,
+            smoke_decision_target=smoke_decision_target,
+            bounded_criterion_met=True,
+            terminal_reached=terminal,
+            seed_preserved=True,
+            player_count_preserved=True,
+            observed_decision_classes=tuple(observed),
+        )
+
+    def _validated_policy(
+        self,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
+    ) -> ExternalPilotDecisionPolicy:
         self._validate_inputs(scenario, decks, pilots)
         runtime_pilots = tuple(
             _RuntimePilot(
@@ -1151,91 +1522,105 @@ class XmageFullGameRunner:
             )
             for binding in sorted(pilots, key=lambda item: item.seat)
         )
-        policy = ExternalPilotDecisionPolicy(runtime_pilots, scenario.seed)
+        return ExternalPilotDecisionPolicy(runtime_pilots, scenario.seed)
 
-        with _RawFullGameClient(
-            command,
-            cwd=self.cwd,
-            request_timeout_seconds=self.request_timeout_seconds,
-        ) as client:
-            started = client.request("start_engine")
-            if started.get("lane") != FULL_GAME_LANE:
-                raise FullGameConformanceError("bridge did not enter explicit full-game lane")
-            provider = client.request("get_provider_version")
-            capabilities = client.request("get_capabilities")
-            self._validate_handshake(scenario, provider, capabilities)
+    def _open_game(
+        self,
+        client: _RawFullGameClient,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+    ) -> dict[str, Any]:
+        started = client.request("start_engine")
+        if started.get("lane") != FULL_GAME_LANE:
+            raise FullGameConformanceError("bridge did not enter explicit full-game lane")
+        provider = client.request("get_provider_version")
+        capabilities = client.request("get_capabilities")
+        self._validate_handshake(scenario, provider, capabilities)
 
-            handles: list[str] = []
-            for deck in decks:
-                imported = client.request("import_deck", {"deck": self._deck_payload(deck)})
-                handle = imported.get("deck_handle")
-                if not isinstance(handle, dict):
-                    raise FullGameConformanceError("IMPORT_DECK returned no deck_handle")
-                handle_id = str(handle.get("handle_id", "")).strip()
-                if not handle_id:
-                    raise FullGameConformanceError("IMPORT_DECK returned blank handle_id")
-                handles.append(handle_id)
+        handles: list[str] = []
+        for deck in decks:
+            imported = client.request("import_deck", {"deck": self._deck_payload(deck)})
+            handle = imported.get("deck_handle")
+            if not isinstance(handle, dict):
+                raise FullGameConformanceError("IMPORT_DECK returned no deck_handle")
+            handle_id = str(handle.get("handle_id", "")).strip()
+            if not handle_id:
+                raise FullGameConformanceError("IMPORT_DECK returned blank handle_id")
+            handles.append(handle_id)
 
-            game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
-            created = client.request(
-                "create_full_game",
-                {
-                    "game_id": game_id,
-                    "deck_handles": handles,
-                    "seed": scenario.seed,
-                    "starting_player_seat": scenario.seed % 4,
-                    "starting_life": 40,
-                },
+        game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
+        player_count = scenario.player_count
+        created = client.request(
+            "create_full_game",
+            {
+                "game_id": game_id,
+                "deck_handles": handles,
+                "seed": scenario.seed,
+                "starting_player_seat": scenario.seed % player_count,
+                "starting_life": 40,
+            },
+        )
+        if created.get("player_count") != player_count or created.get("seed") != scenario.seed:
+            raise FullGameConformanceError(
+                "full-game creation did not preserve player-count/seed contract"
             )
-            if created.get("player_count") != 4 or created.get("seed") != scenario.seed:
+        if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
+            raise FullGameConformanceError("full-game creation returned unsafe evidence class")
+        if created.get("holdout_consumed") is not False:
+            raise FullGameConformanceError("technical conformance must not consume holdout")
+        return provider
+
+    def _drive(
+        self,
+        client: _RawFullGameClient,
+        policy: ExternalPilotDecisionPolicy,
+        *,
+        stop_after: int | None,
+    ) -> tuple[int, list[str], bool]:
+        """Drive authoritative decisions until terminal (or ``stop_after`` answers).
+
+        Returns ``(decision_count, observed_decision_classes, terminal)``.
+        Shared verbatim by :meth:`run` (``stop_after=None``) and
+        :meth:`run_smoke` so smoke progression and full-game progression
+        cannot diverge.
+        """
+        status = client.request("start_full_game")
+        decision_count = 0
+        observed: list[str] = []
+        while True:
+            failure = status.get("failure")
+            if isinstance(failure, dict):
                 raise FullGameConformanceError(
-                    "full-game creation did not preserve 4p/seed contract"
+                    "XMage full-game engine failed: " + json.dumps(failure, sort_keys=True)
                 )
-            if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
-                raise FullGameConformanceError("full-game creation returned unsafe evidence class")
-            if created.get("holdout_consumed") is not False:
-                raise FullGameConformanceError("technical conformance must not consume holdout")
-
-            status = client.request("start_full_game")
-            decision_count = 0
-            while True:
-                failure = status.get("failure")
-                if isinstance(failure, dict):
+            decision = status.get("decision")
+            if isinstance(decision, dict):
+                decision_count += 1
+                if decision_count > self.max_decisions:
                     raise FullGameConformanceError(
-                        "XMage full-game engine failed: " + json.dumps(failure, sort_keys=True)
+                        f"full-game exceeded max_decisions={self.max_decisions}"
                     )
-                decision = status.get("decision")
-                if isinstance(decision, dict):
-                    decision_count += 1
-                    if decision_count > self.max_decisions:
-                        raise FullGameConformanceError(
-                            f"full-game exceeded max_decisions={self.max_decisions}"
-                        )
-                    response = policy.decide(decision)
-                    status = client.request(
-                        "submit_full_game_decision",
-                        {"response": response},
-                    )
-                    continue
-                if bool(status.get("terminal")):
-                    break
-                status = client.request("get_full_game_decision")
-
-            result = client.request("get_full_game_result")
-
-        return self._build_result(scenario, provider, result)
+                decision_class = decision.get("decision_class")
+                if isinstance(decision_class, str) and decision_class not in observed:
+                    observed.append(decision_class)
+                response = policy.decide(decision)
+                status = client.request(
+                    "submit_full_game_decision",
+                    {"response": response},
+                )
+                if stop_after is not None and decision_count >= stop_after:
+                    return decision_count, observed, False
+                continue
+            if bool(status.get("terminal")):
+                return decision_count, observed, True
+            status = client.request("get_full_game_decision")
 
     def run_replay_gate(
         self,
         *,
         scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput],
-        pilots: tuple[
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-        ],
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
     ) -> FullGameReplayGate:
         first = self.run(scenario=scenario, decks=decks, pilots=pilots)
         second = self.run(scenario=scenario, decks=decks, pilots=pilots)
@@ -1256,20 +1641,23 @@ class XmageFullGameRunner:
     @staticmethod
     def _validate_inputs(
         scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput],
-        pilots: tuple[
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-            FullGamePilotBinding,
-        ],
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
     ) -> None:
-        if scenario.player_count != 4 or len(decks) != 4 or len(pilots) != 4:
-            raise FullGameConformanceError("operational full-game scope is exactly four players")
-        if len({deck.deck_id for deck in decks}) != 4:
-            raise FullGameConformanceError("full-game requires four distinct deck identities")
-        if {pilot.seat for pilot in pilots} != {1, 2, 3, 4}:
-            raise FullGameConformanceError("pilot bindings must cover seats 1..4 exactly")
+        player_count = scenario.player_count
+        if (
+            player_count < XmageFullGameRunner.MIN_PLAYERS
+            or player_count > XmageFullGameRunner.MAX_PLAYERS
+        ):
+            raise FullGameConformanceError("operational full-game scope is two to five players")
+        if len(decks) != player_count or len(pilots) != player_count:
+            raise FullGameConformanceError(
+                "deck/pilot cardinality must equal the scenario player count"
+            )
+        if len({deck.deck_id for deck in decks}) != player_count:
+            raise FullGameConformanceError("full-game requires distinct deck identities per seat")
+        if {pilot.seat for pilot in pilots} != set(range(1, player_count + 1)):
+            raise FullGameConformanceError("pilot bindings must cover seats 1..N exactly")
         for index, (deck, pilot) in enumerate(
             zip(decks, sorted(pilots, key=lambda item: item.seat), strict=True),
             start=1,
@@ -1325,8 +1713,18 @@ class XmageFullGameRunner:
             raise FullGameConformanceError("full-game lane identity mismatch")
         if lane.get("decision_protocol_version") != FULL_GAME_DECISION_PROTOCOL_VERSION:
             raise FullGameConformanceError("full-game decision protocol mismatch")
-        if lane.get("operational_pod_size") != 4:
-            raise FullGameConformanceError("full-game capability pod size is not 4")
+        lane_min = lane.get("min_players")
+        lane_max = lane.get("max_players")
+        if (
+            not isinstance(lane_min, int)
+            or not isinstance(lane_max, int)
+            or lane_min != XmageFullGameRunner.MIN_PLAYERS
+            or lane_max != XmageFullGameRunner.MAX_PLAYERS
+            or not lane_min <= scenario.player_count <= lane_max
+        ):
+            raise FullGameConformanceError(
+                "full-game capability player-count range does not cover the scenario"
+            )
         if lane.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
             raise FullGameConformanceError("full-game capability evidence class is unsafe")
         if lane.get("generic_capability_promotion") is not False:
@@ -1393,8 +1791,10 @@ class XmageFullGameRunner:
             raise FullGameConformanceError("XMage full-game did not terminate")
 
         outcomes = result.get("outcomes")
-        if not isinstance(outcomes, list) or len(outcomes) != 4:
-            raise FullGameConformanceError("full-game result must contain four seat outcomes")
+        if not isinstance(outcomes, list) or len(outcomes) != scenario.player_count:
+            raise FullGameConformanceError(
+                "full-game result must contain one seat outcome per player"
+            )
         winner_seats = tuple(
             int(item.get("seat", -1)) + 1
             for item in outcomes
