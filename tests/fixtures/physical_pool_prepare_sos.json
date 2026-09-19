@@ -1,0 +1,516 @@
+{
+ "cards": [
+  {
+   "card_id": "card:project:31def545-83da-5924-98d4-5982265957bb",
+   "color_identity": [],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": null,
+   "fixture_role": "enabler_modal_prepare_unprepare",
+   "mana_cost": "{4}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Biblioplex Tomekeeper",
+   "oracle_text": "When this creature enters, choose up to one \u2014\n\u2022 Target creature becomes prepared. (Only creatures with prepare spells can become prepared.)\n\u2022 Target creature becomes unprepared.",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": true,
+   "type_line": "Artifact Creature \u2014 Construct",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:0379cb8d-435a-5eea-be69-4685bc545d58",
+   "color_identity": [
+    "R"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "mana_cost": "{2}{R}",
+     "mana_value": 3.0,
+     "name": "Blazing Firesinger",
+     "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+     "power": "2",
+     "scryfall_id": "3ba971e7-0b7a-4750-896f-7cf063e66b2a",
+     "toughness": "3",
+     "type_line": "Creature \u2014 Dwarf Bard"
+    },
+    {
+     "mana_cost": "{2}{R}",
+     "mana_value": 3.0,
+     "name": "Seething Song",
+     "oracle_text": "Add {R}{R}{R}{R}{R}.",
+     "power": null,
+     "scryfall_id": "3ba971e7-0b7a-4750-896f-7cf063e66b2a",
+     "toughness": null,
+     "type_line": "Instant"
+    }
+   ],
+   "fixture_role": "enters_prepared_creature_with_spell_copy",
+   "mana_cost": "{2}{R}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Blazing Firesinger // Seething Song",
+   "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Creature \u2014 Dwarf Bard",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:db7a6346-46ce-5ad2-a84f-3d6147f80049",
+   "color_identity": [
+    "B"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "mana_cost": "{3}{B}",
+     "mana_value": 4.0,
+     "name": "Cheerful Osteomancer",
+     "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+     "power": "4",
+     "scryfall_id": "3c34660c-25e3-4ff5-9b2b-5554ded2bcc3",
+     "toughness": "2",
+     "type_line": "Creature \u2014 Orc Warlock"
+    },
+    {
+     "mana_cost": "{B}",
+     "mana_value": 1.0,
+     "name": "Raise Dead",
+     "oracle_text": "Return target creature card from your graveyard to your hand.",
+     "power": null,
+     "scryfall_id": "3c34660c-25e3-4ff5-9b2b-5554ded2bcc3",
+     "toughness": null,
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "enters_prepared_creature_with_spell_copy",
+   "mana_cost": "{3}{B}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Cheerful Osteomancer // Raise Dead",
+   "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Creature \u2014 Orc Warlock",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:c8a74bda-a30c-5b00-bc2b-2c4c3c3d4aa4",
+   "color_identity": [
+    "U"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "face_role": "base",
+     "mana_cost": "{2}{U}",
+     "name": "Dirgur Focusmage",
+     "oracle_text": "Instant and sorcery spells you cast cost {1} less to cast.\nWhenever you cast an instant or sorcery spell with mana value 5 or greater from your hand, this creature becomes prepared.",
+     "type_line": "Creature \u2014 Djinn Monk"
+    },
+    {
+     "face_role": "prepare_spell",
+     "mana_cost": "{X}{U}{U}",
+     "name": "Braingeyser",
+     "oracle_text": "Target player draws X cards.",
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "conditional_become_prepared_on_big_spell",
+   "mana_cost": "{2}{U} // {X}{U}{U}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "official_oracle_uuid_not_present_in_canonical_inventory; not inferred",
+   "oracle_name": "Dirgur Focusmage // Braingeyser",
+   "oracle_text": "Instant and sorcery spells you cast cost {1} less to cast.\nWhenever you cast an instant or sorcery spell with mana value 5 or greater from your hand, this creature becomes prepared.\n//\nTarget player draws X cards.",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Creature \u2014 Djinn Monk // Sorcery",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:8b2112a7-c72b-5511-8551-1bd9f2a2efc4",
+   "color_identity": [
+    "R"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "mana_cost": "{1}{R}",
+     "mana_value": 2.0,
+     "name": "Goblin Glasswright",
+     "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+     "power": "2",
+     "scryfall_id": "c85c5f06-dd31-4e2c-97be-2f64d65069ea",
+     "toughness": "2",
+     "type_line": "Creature \u2014 Goblin Sorcerer"
+    },
+    {
+     "mana_cost": "{R}",
+     "mana_value": 1.0,
+     "name": "Craft with Pride",
+     "oracle_text": "Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+     "power": null,
+     "scryfall_id": "c85c5f06-dd31-4e2c-97be-2f64d65069ea",
+     "toughness": null,
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "enters_prepared_creature_with_spell_copy",
+   "mana_cost": "{1}{R}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Goblin Glasswright // Craft with Pride",
+   "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Creature \u2014 Goblin Sorcerer",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:fb027682-f8fc-5ea9-8404-a109f7aeb75d",
+   "color_identity": [
+    "U",
+    "R"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "face_role": "base",
+     "mana_cost": "{U}{R}",
+     "name": "Inspired Skypainter",
+     "oracle_text": "Flying\nWhen this creature enters and whenever one or more creature tokens you control deal combat damage to a player, this creature becomes prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+     "type_line": "Creature \u2014 Lizard Wizard"
+    },
+    {
+     "face_role": "prepare_spell",
+     "mana_cost": "{3}{U}{R}",
+     "name": "Maestro's Gift",
+     "oracle_text": "Create a token that's a copy of target creature you control. That token gains haste until end of turn.",
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "conditional_become_prepared_on_token_damage",
+   "mana_cost": "{U}{R} // {3}{U}{R}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "official_oracle_uuid_not_present_in_canonical_inventory; not inferred",
+   "oracle_name": "Inspired Skypainter // Maestro's Gift",
+   "oracle_text": "Flying\nWhen this creature enters and whenever one or more creature tokens you control deal combat damage to a player, this creature becomes prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\n//\nCreate a token that's a copy of target creature you control. That token gains haste until end of turn.",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Creature \u2014 Lizard Wizard // Sorcery",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:05b49e25-dc99-5ea5-9520-59d186844d86",
+   "color_identity": [
+    "U",
+    "R"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "mana_cost": "{U}{R}",
+     "mana_value": 2.0,
+     "name": "Sanar, Unfinished Genius",
+     "oracle_text": "Sanar enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\n{T}: Create a Treasure token. Activate only if you've cast an instant or sorcery spell this turn.",
+     "power": "0",
+     "scryfall_id": "173157aa-712d-44f2-89ba-dd2511a07f26",
+     "toughness": "4",
+     "type_line": "Legendary Creature \u2014 Goblin Sorcerer"
+    },
+    {
+     "mana_cost": "{3}{U}{R}",
+     "mana_value": 5.0,
+     "name": "Wild Idea",
+     "oracle_text": "Search your library for an instant or sorcery card, reveal it, put it into your hand, then shuffle.",
+     "power": null,
+     "scryfall_id": "173157aa-712d-44f2-89ba-dd2511a07f26",
+     "toughness": null,
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "enters_prepared_creature_with_spell_copy",
+   "mana_cost": "{U}{R}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Sanar, Unfinished Genius // Wild Idea",
+   "oracle_text": "Sanar enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)\n{T}: Create a Treasure token. Activate only if you've cast an instant or sorcery spell this turn.",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Legendary Creature \u2014 Goblin Sorcerer",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:6d0f3886-549a-5224-8942-c50cdeea1110",
+   "color_identity": [],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": null,
+   "fixture_role": "enabler_activated_prepare",
+   "mana_cost": null,
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Skycoach Waypoint",
+   "oracle_text": "{T}: Add {C}.\n{3}, {T}: Target creature becomes prepared. (Only creatures with prepare spells can become prepared.)",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": true,
+   "type_line": "Land",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:4bc92c0c-cd8c-593a-ad5c-f32959874802",
+   "color_identity": [
+    "U"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "mana_cost": "{3}{U}",
+     "mana_value": 4.0,
+     "name": "Spellbook Seeker",
+     "oracle_text": "Flying\nThis creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+     "power": "3",
+     "scryfall_id": "cc44eaa4-59a4-419e-b1d1-d92f354ff588",
+     "toughness": "3",
+     "type_line": "Creature \u2014 Bird Wizard"
+    },
+    {
+     "mana_cost": "{U}",
+     "mana_value": 1.0,
+     "name": "Careful Study",
+     "oracle_text": "Draw two cards, then discard two cards.",
+     "power": null,
+     "scryfall_id": "cc44eaa4-59a4-419e-b1d1-d92f354ff588",
+     "toughness": null,
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "enters_prepared_creature_with_spell_copy",
+   "mana_cost": "{3}{U}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Spellbook Seeker // Careful Study",
+   "oracle_text": "Flying\nThis creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Creature \u2014 Bird Wizard",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:efc470be-47b4-56cc-92eb-a953151c01ec",
+   "color_identity": [
+    "G"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "mana_cost": "{G}",
+     "mana_value": 1.0,
+     "name": "Studious First-Year",
+     "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+     "power": "1",
+     "scryfall_id": "24f888dd-785c-4089-a89c-03f9080130ed",
+     "toughness": "1",
+     "type_line": "Creature \u2014 Bear Wizard"
+    },
+    {
+     "mana_cost": "{1}{G}",
+     "mana_value": 2.0,
+     "name": "Rampant Growth",
+     "oracle_text": "Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+     "power": null,
+     "scryfall_id": "24f888dd-785c-4089-a89c-03f9080130ed",
+     "toughness": null,
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "enters_prepared_creature_with_spell_copy",
+   "mana_cost": "{G}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Studious First-Year // Rampant Growth",
+   "oracle_text": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Creature \u2014 Bear Wizard",
+   "verdict": "UNKNOWN"
+  },
+  {
+   "card_id": "card:project:91b359a7-5749-5279-83b1-5c59472a54f7",
+   "color_identity": [
+    "U",
+    "G"
+   ],
+   "commander_legal": true,
+   "engine_pin": "xmage-1.4.61",
+   "faces": [
+    {
+     "mana_cost": "{2}{G}{U}",
+     "mana_value": 4.0,
+     "name": "Tam, Observant Sequencer",
+     "oracle_text": "Landfall \u2014 Whenever a land you control enters, Tam becomes prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+     "power": "4",
+     "scryfall_id": "7120e71b-2976-451b-89a7-a1665dc6fb6b",
+     "toughness": "3",
+     "type_line": "Legendary Creature \u2014 Gorgon Wizard"
+    },
+    {
+     "mana_cost": "{G}{U}",
+     "mana_value": 2.0,
+     "name": "Deep Sight",
+     "oracle_text": "You draw a card and gain 1 life.",
+     "power": null,
+     "scryfall_id": "7120e71b-2976-451b-89a7-a1665dc6fb6b",
+     "toughness": null,
+     "type_line": "Sorcery"
+    }
+   ],
+   "fixture_role": "conditional_become_prepared_landfall",
+   "mana_cost": "{2}{G}{U}",
+   "observed_output": "NOT_RUN",
+   "oracle_id_status": "MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID",
+   "oracle_name": "Tam, Observant Sequencer // Deep Sight",
+   "oracle_text": "Landfall \u2014 Whenever a land you control enters, Tam becomes prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+   "required_rule_paths": [
+    "prepared_status_zone_independence: prepare is a creature-card property in ALL zones",
+    "become_prepared_trigger: entering prepared / triggered become-prepared creates the linked spell copy in exile",
+    "copy_controller: only the current permanent controller may cast the exile copy",
+    "cast_unprepares: casting the copy unprepares the creature",
+    "cast_a_copy_vs_copy_a_spell: cast triggers (e.g. Ishai, spellslinger) see a CAST spell, not a copied spell",
+    "cost_vs_value: copy has mana cost {0} for cost purposes; resolution uses the back-face spell text",
+    "zone_change_reset: creature leaving the battlefield loses prepared status; exile copy orphaning",
+    "target_legality: back-face targets chosen on cast; fizzle rules apply normally",
+    "commander_tax_interaction: commander tax applies to commander spell copies cast from exile",
+    "apnap_ordering: simultaneous become-prepared triggers across 4 players order APNAP"
+   ],
+   "single_faced": false,
+   "type_line": "Legendary Creature \u2014 Gorgon Wizard",
+   "verdict": "UNKNOWN"
+  }
+ ],
+ "engine_pin": "xmage-1.4.61",
+ "production_provider": "NOT_SELECTED",
+ "purpose": "Patch-ready actual-card fixtures for SOS prepare-mechanic qualification on the pinned engine. True card objects; no mocked resolution; no pre-filled observed outputs.",
+ "rule_authority_note": "CR rule numbers and SOS Release Notes citations must be resolved from current official sources before any PASS claim; none are asserted here.",
+ "schema_version": 1,
+ "snapshot_date": "2026-09-19"
+}

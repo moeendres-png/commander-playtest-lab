@@ -1,0 +1,554 @@
+{
+ "counts": {
+  "candidates_rows": 1398,
+  "identity_rows": 1413,
+  "knowledge_rows": 1402,
+  "lots_rows": 1480,
+  "rogshai_context_rows": 829,
+  "semantics_rows": 1402,
+  "target_catalog_rows": 1057,
+  "target_identity_rows": 1056,
+  "target_physical_rows": 1123,
+  "target_scope_rows": 1123,
+  "target_semantics_rows": 1057
+ },
+ "defects": {
+  "manifest_outputs": {
+   "FULL_PHYSICAL_CARD_FUNCTIONAL_SEMANTICS_CURRENT.jsonl": {
+    "records": 1401,
+    "sha256": "8e97fde5c08780fc991dac456c17262d8c45339c169af57db57465831898de6a"
+   },
+   "FULL_PHYSICAL_CARD_KNOWLEDGE_BASE_CURRENT.jsonl": {
+    "records": 1401,
+    "sha256": "ffeabdcf16a0f12eea7c1beffd186bbcb2b3d02b7c2632342170b4de6bcd9a30"
+   },
+   "FULL_PHYSICAL_CARD_KNOWLEDGE_QUALITY_REPORT_CURRENT.json": {
+    "sha256": "7005bd05f2b8c6e8e91997bc23181ca5fa2a89bd787dcae77227dff233d1bb23"
+   },
+   "FULL_PHYSICAL_DECKBUILDING_CANDIDATES_CURRENT.jsonl": {
+    "derived_only": true,
+    "derived_roles_synced_to_full_semantics_2026_09_19": true,
+    "drive_id": "1twhKgLsZVb44NMD4PHst4NDgqBhXoApI",
+    "records": 1398,
+    "sha256": "df0409f6fcccfe401af3f7b9495518fb7289d68c42fd4281dbf2b0de1d21309c"
+   }
+  },
+  "pointer_sha_claim": {
+   "artifacts": {
+    "card_knowledge_policy": {
+     "drive_id": "1M9pHpWmY-jfKcGwjoHR-gT65fiyOrQKR",
+     "sha256": "97b6ac9b706cc94579fda53addfb528a1b68c5fa53547a5d58d3c50639e135cd"
+    },
+    "decision_contract": {
+     "drive_id": "1GQuKaa_mhPkXUABuOto8NR_SUOghbG1X",
+     "sha256": "c92765f7a9d997360251f25dfaea8d3445f1e2e0f49c344c69c37648fb0ca5a0"
+    },
+    "full_ckb": {
+     "drive_id": "1j_weheWz1yOyCaZZCuEqoTzzcV7e3LRu",
+     "records": 1401,
+     "sha256": "ffeabdcf16a0f12eea7c1beffd186bbcb2b3d02b7c2632342170b4de6bcd9a30"
+    },
+    "full_functional_semantics": {
+     "drive_id": "1eF4hdqMN3F9hNM-lYKogG9EI2oTkGopx",
+     "records": 1401,
+     "sha256": "8e97fde5c08780fc991dac456c17262d8c45339c169af57db57465831898de6a"
+    },
+    "full_physical_deckbuilding_candidates": {
+     "drive_id": "1twhKgLsZVb44NMD4PHst4NDgqBhXoApI",
+     "records": 1398,
+     "sha256": "df0409f6fcccfe401af3f7b9495518fb7289d68c42fd4281dbf2b0de1d21309c",
+     "source_type": "DERIVED_FROM_FULL_PHYSICAL_IDENTITY_PLUS_LOTS"
+    },
+    "manifest": {
+     "drive_id": "1jvYFGzNgVSfvCdUE0crFs0nDFeTV3iMo",
+     "sha256": "cc217e344f94718d8be2b55d9b97ccfedf3e486d6e2b6c17994de7b55f3f4334"
+    },
+    "model_precision_policy": {
+     "drive_id": "1obIyWqyGWDBwzA-w0sRm_pBBpHdg4u7Q",
+     "sha256": "7988526aad82b2b84063224eeea884994f0466699186039fa063977343845199"
+    },
+    "optimization_readiness_closeout": {
+     "drive_id": "1uVsrOAITC5DTn-PivKt4o2FIBmzVTGmv",
+     "sha256": "bf6e07b1192ab9299db5de665855696b342f30b6a05a01e7fafa1f67de6e5ac4"
+    },
+    "quality_report": {
+     "drive_id": "1ujaDh_OvmdG78s2Hff-4BWiCufULs3W_",
+     "sha256": "7005bd05f2b8c6e8e91997bc23181ca5fa2a89bd787dcae77227dff233d1bb23"
+    }
+   },
+   "drive_project_folder_id": "1muyGu8uQNLGvc_LBdkdRyhF406O2WWAC",
+   "effective_date": "2026-09-19",
+   "evidence_boundary": "FACT/PHYSICAL_INVENTORY_FACT/DERIVED_STRUCTURAL/DECK_CONTEXT_EVALUATION separated; no universal card power score.",
+   "governance": {
+    "allocation_changed": false,
+    "canonical_deck_changed": false,
+    "contextual_evaluation_recomputed_per_run": true,
+    "external_oracle_uuid_inferred": false,
+    "full_ckb_is_persistent_intrinsic_knowledge": true,
+    "inventory_quantity_changed": false,
+    "kaervek_changed": false,
+    "opponent_truth_changed": false,
+    "purchases_changed": false,
+    "rogshai_candidate_scope_widened": true
+   },
+   "oracle_enrichment_pending_count": 0,
+   "physical_identity_count": 1401,
+   "publication_receipt": {
+    "drive_id": "1wYl3VJlsMmFIF7byFIKyClVW_KMe1qvg",
+    "sha256": "42a218b1b706a4d54b6f97193efc9d6d9f8c640355d90eede43e067e479857ef"
+   },
+   "publication_status": "CANDIDATE_ROLE_SYNC_PROMOTED_AFTER_SHA256_READBACK_2026_09_19; pointer published last; final pointer SHA receipt separate",
+   "schema_version": "1.0",
+   "semantic_review": {
+    "evidence": "DERIVED_STRUCTURAL; not rules engine proof",
+    "identities_reviewed": 63,
+    "sha256": "2e584e4f0224fea2b6b4da29e0de6f81333586ca89821eaa7beffd30e5fabbda",
+    "source_file": "PHOTO63_ORACLE_ANCHORED_STRUCTURAL_ROLE_REVIEW.jsonl",
+    "source_snapshot": "MTGJSON 5.3.0+20260917 user PDFs",
+    "target_ai_catalog_drive_id": "1vx8CJaoppOFWHS1_G2iYWOoDe2lXjLmt",
+    "target_ai_catalog_sha256": "771870e65e622989229654edb9cb22306cee339558cc3500b89e63626d909989",
+    "target_semantics_drive_id": "1R3UdhdcN7vZ8kzf6zzXmH6aV7CDHfV3P",
+    "target_semantics_sha256": "79017bfb2eded87935dd44aef7d259ea34bb9eebdb68155ea1f49fe07cf973e9"
+   },
+   "semantic_review_pending_count": 0,
+   "status": "PHOTO63_ORACLE_ROLES_AND_DERIVED_CANDIDATE_ROLES_SYNCHRONIZED_2026_09_19; per_deck_context_not_rebuilt"
+  },
+  "quality_report": {
+   "commander_illegal_cards": [
+    "Crusade"
+   ],
+   "counts": {
+    "candidate_identity_records": 1398,
+    "commander_illegal": 1,
+    "commander_legal": 1400,
+    "extension_review_queue": 0,
+    "extension_role_bearing": 318,
+    "extension_roleless": 13,
+    "full_functional_semantic_rows": 1401,
+    "full_physical_extension_rows": 331,
+    "functionally_minimal_or_model_limited": 106,
+    "official_oracle_uuid_explicitly_unresolved": 1338,
+    "official_oracle_uuid_resolved": 63,
+    "photo_import_pending_oracle_identity_records": 0,
+    "photo_import_pending_semantic_verification": 0,
+    "photo_import_physical_copies": 71,
+    "physical_identity_records": 1401,
+    "physical_lot_records": 1480,
+    "rogshai_context_rows_referenced": 828,
+    "role_bearing_semantics": 1358,
+    "target_semantic_rows_reused_exactly": 1007
+   },
+   "explicit_limits": {
+    "complex_text": "Any nonempty extension card with no supported taxonomy role is retained in an explicit review/model-limit queue rather than assigned invented semantics.",
+    "legality_revalidation": "Canonical legality is verified 2026-08-10; Wizards 2026-08-10 B&R announcement made no Commander changes. Crusade remains the only current physically owned Commander-illegal identity in the canonical registry.",
+    "official_oracle_uuid": "63 newly photographed identities have source-verified Scryfall Oracle UUIDs (MTGJSON 2026-09-17 snapshot); older identities remain unresolved unless separately verified.",
+    "photo_import_2026_09_19": "63/63 Oracle facts plus individually Oracle-anchored descriptive roles reviewed from all spell faces. Deck-context, card power and rules-engine coverage remain unverified.",
+    "structural_semantics": "Derived structural functions are decision-support abstractions, not exhaustive Magic rules-engine equivalence or empirical card strength."
+   },
+   "extension_review_queue_cards": [],
+   "extension_roleless_cards": [
+    "Axebane Stag",
+    "Gigantosaurus",
+    "Grizzled Leotau",
+    "Grizzly Bears",
+    "Kindercatch",
+    "Leatherback Baloth",
+    "Moss Monster",
+    "Nettle Swine",
+    "Quakestrider Ceratops",
+    "Runeclaw Bear",
+    "Streetbreaker Wurm",
+    "Trained Armodon",
+    "Woolly Thoctar"
+   ],
+   "generated_at": "2026-09-19",
+   "hashes": {
+    "full_ckb_sha256": "ffeabdcf16a0f12eea7c1beffd186bbcb2b3d02b7c2632342170b4de6bcd9a30",
+    "full_functional_semantics_sha256": "8e97fde5c08780fc991dac456c17262d8c45339c169af57db57465831898de6a",
+    "source_identity_registry_sha256": "8d671c933d5132fbbb484db07bc7ca947aed0ab9ef21e2a0bc08173ee2e5a9dc",
+    "source_physical_registry_sha256": "4dcbdcb877a375ed3bddf2343adb02d366c0412c5328721de1913788d48cec0d",
+    "source_rogshai_context_sha256": "e208ea4f30dd89cc68528378b30fc468bc0b5d010a943775c943166d45f3faa3",
+    "source_target_semantics_sha256": "78877a493c9ee591e6ecba4ca678d4e85d551545acf64f2c8edc9f84f75fb981",
+    "source_taxonomy_sha256": "23bf37c32b4e556bd0c1e4368b30047c615c51340d0420bd01ce2e501e312466"
+   },
+   "invariants": {
+    "commander_illegal_identity_expected_only_crusade": true,
+    "exact_physical_identity_coverage_1338": false,
+    "full_semantics_count_matches_physical_identity_count": true,
+    "new_inventory_photo_coverage_71": true,
+    "no_nonowned_identity_in_ckb": true,
+    "off_target_extension_does_not_bypass_rogshai_legality": true,
+    "official_oracle_uuid_never_inferred": true,
+    "old_copies_other_boxes_unmodified": true,
+    "target_semantics_reused_object_exact": true,
+    "universal_power_score_absent_or_null": true
+   },
+   "publication_status": "SEMANTIC_REVIEW_RELEASE_CANDIDATE; verify pointer and separate remote readback receipt",
+   "schema_version": "1.0",
+   "status": "PHOTO63_63_ORACLE_AND_DESCRIPTIVE_STRUCTURAL_ROLE_REVIEW_COMPLETED_2026_09_19"
+  },
+  "unknown_card_id_count": 6,
+  "unknown_leak_candidates": 5,
+  "unknown_leak_rogshai_context": 3,
+  "unknown_leak_target_catalog": 4,
+  "unknown_leak_target_identity": 4,
+  "unknown_leak_target_physical": 4,
+  "unknown_leak_target_scope": 4,
+  "unknown_leak_target_semantics": 4
+ },
+ "joins": {
+  "candidates_id_field_sample": {
+   "'card:project:602a4d64-b090-5274-b80d-cacb8e88a94c'": 1,
+   "'card:project:8b95dfee-112c-5e9e-b892-23c49e232257'": 1,
+   "'card:project:8f7a0835-a03e-5a14-96cb-104b7fb6d3e4'": 1,
+   "'card:project:9611eacf-3aa7-5794-a6f9-fdfb430f2af0'": 1,
+   "'card:project:ec4a749e-1ee4-5f44-b175-00138faba8ed'": 1
+  },
+  "candidates_sample_keys": [
+   "available_total",
+   "card_id",
+   "color_identity",
+   "commander_legal",
+   "german_name",
+   "legal_chulane",
+   "legal_golgari",
+   "legal_koma",
+   "legal_rogshai",
+   "locations",
+   "oracle_enrichment_pending",
+   "oracle_name",
+   "roles",
+   "source_type"
+  ],
+  "candidates_unique_ids": 1398,
+  "identity_card_id_dupes": 0,
+  "identity_card_id_unique": 1413,
+  "identity_is_physical_dist": {
+   "None": 1413
+  },
+  "identity_nonphysical_dist": {
+   "None": 1413
+  },
+  "identity_physical_dist": {
+   "None": 1413
+  },
+  "identity_physical_status_dist": {
+   "None": 1413
+  },
+  "identity_record_type_dist": {
+   "None": 1413
+  },
+  "identity_sample_keys": [
+   "aliases",
+   "card_faces_if_relevant",
+   "card_id",
+   "card_id_scheme",
+   "color_identity",
+   "commander_legal",
+   "currently_available_for_own_decks",
+   "currently_physically_available",
+   "currently_physically_owned",
+   "english_name",
+   "evidence_type",
+   "freshness_class",
+   "german_name_if_known",
+   "identity_confidence",
+   "invalidation_trigger",
+   "layout",
+   "legality_status",
+   "mana_cost",
+   "mana_value",
+   "normalized_name",
+   "observed_quantity",
+   "oracle_id",
+   "oracle_id_status",
+   "oracle_name",
+   "oracle_text",
+   "physical_available_quantity",
+   "physical_owned_quantity_lower_bound",
+   "physical_quantity_semantics",
+   "reserved_for_opponents_quantity",
+   "retrieved_at",
+   "schema_version",
+   "source",
+   "source_type",
+   "type_line"
+  ],
+  "identity_status_dist": {
+   "None": 1413
+  },
+  "knowledge_ids_in_identity": 1401,
+  "knowledge_ids_total": 1402,
+  "knowledge_sample_keys": [
+   "generated_at",
+   "incremental_update_policy",
+   "layers",
+   "oracle_completeness",
+   "photo_import_incremental_rows",
+   "record_count",
+   "record_type",
+   "schema_name",
+   "schema_version",
+   "scope",
+   "universal_power_score"
+  ],
+  "location_like_fields": [
+   "location_id"
+  ],
+  "lots_available_dist": {
+   "None": 1480
+  },
+  "lots_box_dist": {
+   "None": 1480
+  },
+  "lots_by_location_id": {
+   "'location:alen_box'": 240,
+   "'location:leon_box'": 783,
+   "'location:moritz_box'": 451,
+   "'location:unknown'": 6
+  },
+  "lots_location_dist": {
+   "None": 1480
+  },
+  "lots_own_available_dist": {
+   "None": 1480
+  },
+  "lots_reservation_dist": {
+   "None": 1480
+  },
+  "lots_reserved_dist": {
+   "None": 1480
+  },
+  "lots_sample_keys": [
+   "available_for_own_decks_quantity_lower_bound",
+   "card_id",
+   "condition_if_known",
+   "currently_available_for_own_decks",
+   "currently_physically_owned",
+   "evidence_type",
+   "location_id",
+   "note",
+   "observed_quantity",
+   "oracle_id",
+   "oracle_name",
+   "physical_card_id",
+   "physical_lot_id",
+   "pool_status",
+   "printing_ref",
+   "quantity",
+   "quantity_exact",
+   "quantity_lower_bound",
+   "record_granularity",
+   "reservation_target_id",
+   "reserved_quantity",
+   "schema_version",
+   "source_id",
+   "source_inventory_drive_id",
+   "verified_at"
+  ],
+  "lots_sample_keys_all": [
+   "available_for_own_decks_quantity_lower_bound",
+   "card_id",
+   "condition_if_known",
+   "currently_available_for_own_decks",
+   "currently_physically_owned",
+   "evidence_type",
+   "location_id",
+   "note",
+   "observed_quantity",
+   "oracle_id",
+   "oracle_name",
+   "physical_card_id",
+   "physical_lot_id",
+   "pool_status",
+   "printing_ref",
+   "quantity",
+   "quantity_exact",
+   "quantity_lower_bound",
+   "record_granularity",
+   "reservation_target_id",
+   "reserved_quantity",
+   "schema_version",
+   "source_id",
+   "source_inventory_drive_id",
+   "verified_at"
+  ],
+  "lots_storage_location_dist": {
+   "None": 1480
+  },
+  "rog_ctx_ids_in_identity": 828,
+  "rog_ctx_ids_total": 829,
+  "rog_ctx_sample_keys": [
+   "authority",
+   "deck_id",
+   "evidence_type",
+   "generated_at",
+   "photo_provisional_context_count",
+   "record_count",
+   "record_type",
+   "schema_name",
+   "schema_version",
+   "universal_power_score"
+  ],
+  "semantics_ids_in_identity": 1401,
+  "semantics_ids_total": 1402,
+  "semantics_sample_keys": [
+   "authority",
+   "evidence_type",
+   "generated_at",
+   "new_full_physical_extension_rows",
+   "oracle_uuid_policy",
+   "photo_import_incremental_rows",
+   "record_count",
+   "record_type",
+   "schema_name",
+   "schema_version",
+   "scope",
+   "semantic_completeness",
+   "target_authority_rows_reused_exactly",
+   "taxonomy_file",
+   "universal_power_score"
+  ],
+  "unknown_lots_count": 6
+ },
+ "repo_baseline": {
+  "oracle_subset_len": 6,
+  "oracle_subset_type": "dict",
+  "tracked_files": {
+   "data/cards/FULL_PHYSICAL_CARD_KNOWLEDGE_MANIFEST_CURRENT.json": "6ae23fc4cd1e489f",
+   "data/cards/README.md": "089a32a1d2744ec0",
+   "data/cards/oracle_subset.json": "f6c22e14419a7983",
+   "data/sync/current_sources.json": "382928aeb78c8dd0",
+   "src/commander_lab/cli/app.py": "80f612ca79129ba6",
+   "src/commander_lab/data_sync.py": "95e27382c59b25af",
+   "src/commander_lab/decision_context.py": "b820e8fda4bc5614",
+   "src/commander_lab/engine/rules/validation.py": "ff5dbeb0c84b6843",
+   "src/commander_lab/engine/structural/profiles.py": "828ab53b558ec688",
+   "src/commander_lab/mana_analysis.py": "7cc5fcfe7073c2ef",
+   "src/commander_lab/playstyle.py": "807ec57a923762a7",
+   "src/commander_lab/project_context.py": "3816ab9cd847c019",
+   "src/commander_lab/tools/local_snapshots.py": "0e13071df6554cf6",
+   "src/commander_lab/tools/service.py": "2ed23ab6d50de51c",
+   "src/commander_lab/whole_deck/knowledge_quality.py": "40c1cd44e49eeedc",
+   "src/commander_lab/whole_deck/lab_context.py": "db97833924f44362",
+   "src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py": "0eb2522cd481822d"
+  }
+ },
+ "sha_all_ok": true,
+ "sha_check": [
+  {
+   "actual": "dabfddfff597402a978d7f6b1e04e8a9cc83e4f593ca5484c6e8902bbd5994ba",
+   "expected": "dabfddfff597402a978d7f6b1e04e8a9cc83e4f593ca5484c6e8902bbd5994ba",
+   "key": "xlsx",
+   "ok": true
+  },
+  {
+   "actual": "8d671c933d5132fbbb484db07bc7ca947aed0ab9ef21e2a0bc08173ee2e5a9dc",
+   "expected": "8d671c933d5132fbbb484db07bc7ca947aed0ab9ef21e2a0bc08173ee2e5a9dc",
+   "key": "identity",
+   "ok": true
+  },
+  {
+   "actual": "4dcbdcb877a375ed3bddf2343adb02d366c0412c5328721de1913788d48cec0d",
+   "expected": "4dcbdcb877a375ed3bddf2343adb02d366c0412c5328721de1913788d48cec0d",
+   "key": "lots",
+   "ok": true
+  },
+  {
+   "actual": "df0409f6fcccfe401af3f7b9495518fb7289d68c42fd4281dbf2b0de1d21309c",
+   "expected": "df0409f6fcccfe401af3f7b9495518fb7289d68c42fd4281dbf2b0de1d21309c",
+   "key": "candidates",
+   "ok": true
+  },
+  {
+   "actual": "ffeabdcf16a0f12eea7c1beffd186bbcb2b3d02b7c2632342170b4de6bcd9a30",
+   "expected": "ffeabdcf16a0f12eea7c1beffd186bbcb2b3d02b7c2632342170b4de6bcd9a30",
+   "key": "knowledge",
+   "ok": true
+  },
+  {
+   "actual": "8e97fde5c08780fc991dac456c17262d8c45339c169af57db57465831898de6a",
+   "expected": "8e97fde5c08780fc991dac456c17262d8c45339c169af57db57465831898de6a",
+   "key": "semantics",
+   "ok": true
+  },
+  {
+   "actual": "34a11d8a29805c4779dc2996fb5ad662260f51dd2afd836ec46b7c299d724a21",
+   "expected": "34a11d8a29805c4779dc2996fb5ad662260f51dd2afd836ec46b7c299d724a21",
+   "key": "target_identity",
+   "ok": true
+  },
+  {
+   "actual": "5267c9a93f96fc8462290b6d9ef1c9bd3e53b0b260434b50d328de7c9ad19caa",
+   "expected": "5267c9a93f96fc8462290b6d9ef1c9bd3e53b0b260434b50d328de7c9ad19caa",
+   "key": "target_scope",
+   "ok": true
+  },
+  {
+   "actual": "771870e65e622989229654edb9cb22306cee339558cc3500b89e63626d909989",
+   "expected": "771870e65e622989229654edb9cb22306cee339558cc3500b89e63626d909989",
+   "key": "target_catalog",
+   "ok": true
+  },
+  {
+   "actual": "79017bfb2eded87935dd44aef7d259ea34bb9eebdb68155ea1f49fe07cf973e9",
+   "expected": "79017bfb2eded87935dd44aef7d259ea34bb9eebdb68155ea1f49fe07cf973e9",
+   "key": "target_semantics",
+   "ok": true
+  },
+  {
+   "actual": "8e3b20663eb1357c8cb59b8ad3bf4d130587aded17b16879935d531961d9f8f4",
+   "expected": "8e3b20663eb1357c8cb59b8ad3bf4d130587aded17b16879935d531961d9f8f4",
+   "key": "rogshai_context",
+   "ok": true
+  },
+  {
+   "actual": "7005bd05f2b8c6e8e91997bc23181ca5fa2a89bd787dcae77227dff233d1bb23",
+   "expected": "7005bd05f2b8c6e8e91997bc23181ca5fa2a89bd787dcae77227dff233d1bb23",
+   "key": "quality",
+   "ok": true
+  },
+  {
+   "actual": "cc217e344f94718d8be2b55d9b97ccfedf3e486d6e2b6c17994de7b55f3f4334",
+   "expected": "cc217e344f94718d8be2b55d9b97ccfedf3e486d6e2b6c17994de7b55f3f4334",
+   "key": "manifest",
+   "ok": true
+  },
+  {
+   "actual": "ec84bfb277c8a09a51c1b166caf24a42e57bc4deb411890c0318b41e9a9a9a75",
+   "expected": "ec84bfb277c8a09a51c1b166caf24a42e57bc4deb411890c0318b41e9a9a9a75",
+   "key": "pointer",
+   "ok": true
+  },
+  {
+   "actual": "8e2154cf570720bfd6a9cf560724f2c6c37da36552b51c50bf4c220e875d9ffd",
+   "expected": "8e2154cf570720bfd6a9cf560724f2c6c37da36552b51c50bf4c220e875d9ffd",
+   "key": "photo_status",
+   "ok": true
+  },
+  {
+   "actual": "97b6ac9b706cc94579fda53addfb528a1b68c5fa53547a5d58d3c50639e135cd",
+   "expected": "97b6ac9b706cc94579fda53addfb528a1b68c5fa53547a5d58d3c50639e135cd",
+   "key": "policy",
+   "ok": true
+  },
+  {
+   "actual": "e97d34d8ab4fc21d8481102a6a4a3f2850f7c172e2ce7347b212a7996660a097",
+   "expected": "e97d34d8ab4fc21d8481102a6a4a3f2850f7c172e2ce7347b212a7996660a097",
+   "key": "readme",
+   "ok": true
+  },
+  {
+   "actual": "805fefc36be39d63a8da675bce836851bf68f332d6d0f98789778a0624151dc5",
+   "expected": "805fefc36be39d63a8da675bce836851bf68f332d6d0f98789778a0624151dc5",
+   "key": "index",
+   "ok": true
+  },
+  {
+   "actual": "ff9a1397405e07de8339f3f4173e3cdc0d6d813e813342d64a52f19e94817ad3",
+   "expected": "ff9a1397405e07de8339f3f4173e3cdc0d6d813e813342d64a52f19e94817ad3",
+   "key": "target_physical",
+   "ok": true
+  }
+ ]
+}

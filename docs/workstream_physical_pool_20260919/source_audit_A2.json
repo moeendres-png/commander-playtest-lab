@@ -1,0 +1,357 @@
+{
+ "available_lb_by_location": {
+  "location:alen_box": 284,
+  "location:leon_box": 1068,
+  "location:moritz_box": 489,
+  "location:unknown": 205
+ },
+ "candidates_commander_dist": {
+  "None": 1398
+ },
+ "candidates_keys": [
+  "available_total",
+  "card_id",
+  "color_identity",
+  "commander_legal",
+  "german_name",
+  "legal_chulane",
+  "legal_golgari",
+  "legal_koma",
+  "legal_rogshai",
+  "locations",
+  "oracle_enrichment_pending",
+  "oracle_name",
+  "roles",
+  "source_type"
+ ],
+ "candidates_unknown_rows": [
+  {
+   "card_id": "card:project:7dd5ce13-ee97-5a06-bd14-54d99f2d6318",
+   "color_identity": [
+    "G"
+   ],
+   "oracle_name": "Forest"
+  },
+  {
+   "card_id": "card:project:f54a27f1-5a05-5c58-a053-099ad42fa1ea",
+   "color_identity": [
+    "U"
+   ],
+   "oracle_name": "Island"
+  },
+  {
+   "card_id": "card:project:e5f6fc09-3201-5b0a-b536-2b0b40cf3dd9",
+   "color_identity": [
+    "R"
+   ],
+   "oracle_name": "Mountain"
+  },
+  {
+   "card_id": "card:project:bb7d8bb0-b9ec-5c9d-b4ae-b59d1dfa8671",
+   "color_identity": [
+    "W"
+   ],
+   "oracle_name": "Plains"
+  },
+  {
+   "card_id": "card:project:e2c6005a-834b-59c1-ab37-3d0d36d304ea",
+   "color_identity": [
+    "B"
+   ],
+   "oracle_name": "Swamp"
+  }
+ ],
+ "identity_commander_legal_dist": {
+  "False": 1,
+  "True": 1412
+ },
+ "identity_not_owned_count": 12,
+ "identity_not_owned_sample": [
+  [
+   "card:project:f08b0dbd-e251-5583-a4b2-3fcd5578e398",
+   "Arbiter of Woe",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:75832ad2-0399-541a-b6ea-868f2a76476c",
+   "Beast-Kin Ranger",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:6e49bb76-adda-5427-afdc-055a5f3a692e",
+   "Bite Down",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:c1b3f29e-7a4f-51f7-8312-ea76de05f812",
+   "Bushwhack",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:d2b00d4c-11b6-5ec2-bde3-945bde13a02c",
+   "Elfsworn Giant",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:d626dd97-c7ef-59db-876b-266fc8cb16fe",
+   "Elvish Regrower",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:1c0d28a6-d996-5437-a8ee-95e6b64bec76",
+   "Genesis Wave",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:3cc090a4-ec0a-559a-8b10-3f21e26648f7",
+   "Ravenous Amulet",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:67218b0c-9172-5ea7-9283-0f6b001098aa",
+   "Soulstone Sanctuary",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:d42d50f3-0833-5761-a95e-bb012962b3de",
+   "Stab",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:670ba38c-a3d3-5ee6-966e-78a807b45deb",
+   "Thornweald Archer",
+   "canonical_inventory_identity"
+  ],
+  [
+   "card:project:ea3ade27-859e-52aa-bc91-76814deea074",
+   "Undying Malice",
+   "canonical_inventory_identity"
+  ]
+ ],
+ "identity_oracle_id_status_dist": {
+  "'MTGJSON_VERIFIED_SCRYFALL_ORACLE_ID'": 63,
+  "'official_oracle_uuid_not_present_in_canonical_inventory; not inferred'": 1350
+ },
+ "identity_physical_flag_dists": {
+  "evidence_type": {
+   "'FACT'": 1413
+  },
+  "legality_status": {
+   "'banned'": 1,
+   "'legal'": 1412
+  },
+  "source_type": {
+   "'canonical_inventory_identity'": 1350,
+   "'photo_confirmed_canonical_inventory_identity'": 63
+  }
+ },
+ "lots_by_location": {
+  "location:alen_box": 240,
+  "location:leon_box": 783,
+  "location:moritz_box": 451,
+  "location:unknown": 6
+ },
+ "qty_lower_bound_by_location": {
+  "location:alen_box": 285,
+  "location:leon_box": 1068,
+  "location:moritz_box": 489,
+  "location:unknown": 206
+ },
+ "reserved_by_location": {
+  "location:alen_box": 1,
+  "location:leon_box": 0,
+  "location:moritz_box": 0,
+  "location:unknown": 1
+ },
+ "rog_ctx_commander_dist": {
+  "None": 829
+ },
+ "rog_ctx_keys": [
+  "authority",
+  "deck_id",
+  "evidence_type",
+  "generated_at",
+  "photo_provisional_context_count",
+  "record_count",
+  "record_type",
+  "schema_name",
+  "schema_version",
+  "universal_power_score"
+ ],
+ "t_phys_keys": [
+  "available_for_own_decks_quantity_lower_bound",
+  "card_id",
+  "condition_if_known",
+  "currently_available_for_own_decks",
+  "currently_physically_owned",
+  "evidence_type",
+  "location_id",
+  "note",
+  "observed_quantity",
+  "oracle_id",
+  "oracle_name",
+  "physical_card_id",
+  "physical_lot_id",
+  "pool_status",
+  "printing_ref",
+  "quantity",
+  "quantity_exact",
+  "quantity_lower_bound",
+  "record_granularity",
+  "reservation_target_id",
+  "reserved_quantity",
+  "schema_version",
+  "source_id",
+  "source_inventory_drive_id",
+  "verified_at"
+ ],
+ "t_phys_lotref_field": "[(('physical_lot_id', \"'lot:project:5b87d2dd-64d2-5ad6-9f3e-c1c029889707'\"), 1), (('physical_lot_id', \"'lot:project:eaab5ff5-8864-5b16-9644-3262505f3b71'\"), 1), (('physical_lot_id', \"'lot:project:300c98e0-0050-5480-bb27-ec53d57f17b2'\"), 1), (('physical_lot_id', \"'lot:project:82e8016a-1196-50cc-921f-36786b533e1e'\"), 1), (('physical_lot_id', \"'lot:project:06207abc-0f1a-5a28-8aa8-761940a8c614'\"), 1)]",
+ "t_phys_unknown_lot_hits": [
+  {
+   "'lot:project:31e0a58d-7b3c-5673-a5e4-588db6298597'": 1,
+   "'lot:project:5ca063c0-e755-5274-b88f-a9fc1e5756ac'": 1,
+   "'lot:project:6331e4bb-3cab-56c2-a806-82a8b7ba84df'": 1,
+   "'lot:project:e09d67c8-d7ce-5ca5-8f27-a24b1b6e5715'": 1
+  },
+  [
+   "'lot:project:e09d67c8-d7ce-5ca5-8f27-a24b1b6e5715'",
+   "'lot:project:31e0a58d-7b3c-5673-a5e4-588db6298597'",
+   "'lot:project:5ca063c0-e755-5274-b88f-a9fc1e5756ac'",
+   "'lot:project:6331e4bb-3cab-56c2-a806-82a8b7ba84df'"
+  ]
+ ],
+ "t_scope_keys": [
+  "basic_land_reserve_protected",
+  "card_id",
+  "classification_status",
+  "color_identity",
+  "commander_legal",
+  "eligible_dargo_tymna",
+  "eligible_rogshai",
+  "generated_at",
+  "legal_candidate_dargo_tymna",
+  "legal_candidate_rogshai",
+  "location_id",
+  "operational_ai_scope",
+  "oracle_name",
+  "physical_card_id",
+  "physical_lot_id",
+  "provenance",
+  "reason",
+  "research_excluded",
+  "sale_candidate",
+  "schema_version",
+  "source_instruction_date",
+  "theorycraft_excluded"
+ ],
+ "t_scope_lotref_field": "[(('physical_lot_id', \"'lot:project:5b87d2dd-64d2-5ad6-9f3e-c1c029889707'\"), 1), (('physical_lot_id', \"'lot:project:eaab5ff5-8864-5b16-9644-3262505f3b71'\"), 1), (('physical_lot_id', \"'lot:project:13f68819-9894-5efd-8115-32ef5446c9e3'\"), 1), (('physical_lot_id', \"'lot:project:48b99047-61f3-560c-88dd-418b3a0a10e2'\"), 1), (('physical_lot_id', \"'lot:project:925c4f65-9f85-5b3a-bed8-e58a0692c17c'\"), 1)]",
+ "t_scope_unknown_lot_hits": [
+  {
+   "'lot:project:31e0a58d-7b3c-5673-a5e4-588db6298597'": 1,
+   "'lot:project:5ca063c0-e755-5274-b88f-a9fc1e5756ac'": 1,
+   "'lot:project:6331e4bb-3cab-56c2-a806-82a8b7ba84df'": 1,
+   "'lot:project:e09d67c8-d7ce-5ca5-8f27-a24b1b6e5715'": 1
+  },
+  [
+   "'lot:project:e09d67c8-d7ce-5ca5-8f27-a24b1b6e5715'",
+   "'lot:project:31e0a58d-7b3c-5673-a5e4-588db6298597'",
+   "'lot:project:5ca063c0-e755-5274-b88f-a9fc1e5756ac'",
+   "'lot:project:6331e4bb-3cab-56c2-a806-82a8b7ba84df'"
+  ]
+ ],
+ "unknown_cards_box_presence": {
+  "'card:project:7dd5ce13-ee97-5a06-bd14-54d99f2d6318'": {
+   "location:moritz_box": 5,
+   "location:unknown": 1
+  },
+  "'card:project:bb7d8bb0-b9ec-5c9d-b4ae-b59d1dfa8671'": {
+   "location:moritz_box": 2,
+   "location:unknown": 1
+  },
+  "'card:project:deee3b5b-6096-596f-99f7-ff1026af5618'": {
+   "location:unknown": 1
+  },
+  "'card:project:e2c6005a-834b-59c1-ab37-3d0d36d304ea'": {
+   "location:moritz_box": 4,
+   "location:unknown": 1
+  },
+  "'card:project:e5f6fc09-3201-5b0a-b536-2b0b40cf3dd9'": {
+   "location:moritz_box": 5,
+   "location:unknown": 1
+  },
+  "'card:project:f54a27f1-5a05-5c58-a053-099ad42fa1ea'": {
+   "location:moritz_box": 5,
+   "location:unknown": 1
+  }
+ },
+ "unknown_lot_cards": [
+  [
+   "lot:project:226d9504-cb56-5536-b186-2baab9d373e1",
+   "card:project:7dd5ce13-ee97-5a06-bd14-54d99f2d6318",
+   "Forest",
+   37,
+   37,
+   true,
+   "own_available",
+   "Unresolved remainder required only to represent the direct-user guarantee of at least 50 total copies of this basic land"
+  ],
+  [
+   "lot:project:e09d67c8-d7ce-5ca5-8f27-a24b1b6e5715",
+   "card:project:f54a27f1-5a05-5c58-a053-099ad42fa1ea",
+   "Island",
+   36,
+   36,
+   true,
+   "own_available",
+   "Unresolved remainder required only to represent the direct-user guarantee of at least 50 total copies of this basic land"
+  ],
+  [
+   "lot:project:31e0a58d-7b3c-5673-a5e4-588db6298597",
+   "card:project:e5f6fc09-3201-5b0a-b536-2b0b40cf3dd9",
+   "Mountain",
+   40,
+   40,
+   true,
+   "own_available",
+   "Unresolved remainder required only to represent the direct-user guarantee of at least 50 total copies of this basic land"
+  ],
+  [
+   "lot:project:5ca063c0-e755-5274-b88f-a9fc1e5756ac",
+   "card:project:bb7d8bb0-b9ec-5c9d-b4ae-b59d1dfa8671",
+   "Plains",
+   47,
+   47,
+   true,
+   "own_available",
+   "Unresolved remainder required only to represent the direct-user guarantee of at least 50 total copies of this basic land"
+  ],
+  [
+   "lot:project:6331e4bb-3cab-56c2-a806-82a8b7ba84df",
+   "card:project:e2c6005a-834b-59c1-ab37-3d0d36d304ea",
+   "Swamp",
+   45,
+   45,
+   true,
+   "own_available",
+   "Unresolved remainder required only to represent the direct-user guarantee of at least 50 total copies of this basic land"
+  ],
+  [
+   "lot:project:7c0af62f-3124-5726-9a83-66a6db99f7ee",
+   "card:project:deee3b5b-6096-596f-99f7-ff1026af5618",
+   "Vernal Fen",
+   1,
+   0,
+   false,
+   "own_reserved_opponent",
+   "Newer direct user statement supersedes prior given_away classification; one owned copy is reserved for Alen's deck. Exac"
+  ]
+ ],
+ "unknown_lot_ids": [
+  "lot:project:226d9504-cb56-5536-b186-2baab9d373e1",
+  "lot:project:e09d67c8-d7ce-5ca5-8f27-a24b1b6e5715",
+  "lot:project:31e0a58d-7b3c-5673-a5e4-588db6298597",
+  "lot:project:5ca063c0-e755-5274-b88f-a9fc1e5756ac",
+  "lot:project:6331e4bb-3cab-56c2-a806-82a8b7ba84df",
+  "lot:project:7c0af62f-3124-5726-9a83-66a6db99f7ee"
+ ]
+}
