@@ -41,8 +41,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -153,8 +153,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -265,8 +265,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -377,8 +377,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -489,8 +489,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -601,8 +601,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -713,8 +713,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -825,8 +825,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -937,8 +937,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1049,8 +1049,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1161,8 +1161,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1273,8 +1273,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1385,8 +1385,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1497,8 +1497,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1609,8 +1609,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1721,8 +1721,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1833,8 +1833,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1945,8 +1945,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2057,8 +2057,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2169,8 +2169,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2281,8 +2281,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2393,8 +2393,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2505,8 +2505,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2617,8 +2617,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2729,8 +2729,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2841,8 +2841,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2953,8 +2953,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3065,8 +3065,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3177,8 +3177,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3289,8 +3289,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3380,8 +3380,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3471,8 +3471,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3562,8 +3562,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3653,8 +3653,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3744,8 +3744,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3835,8 +3835,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3926,8 +3926,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4017,8 +4017,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4108,8 +4108,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4199,8 +4199,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4290,8 +4290,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4381,8 +4381,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4472,8 +4472,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4605,8 +4605,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4738,8 +4738,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4871,8 +4871,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -5004,8 +5004,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "actual_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
-     "expected_sha256": "d551cf64b3ca32c002355b98acfd1f6c451492264c1a049e5d1c68d0ef40ad1b",
+     "actual_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"

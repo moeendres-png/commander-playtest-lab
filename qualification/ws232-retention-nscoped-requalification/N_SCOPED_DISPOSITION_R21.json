@@ -1,0 +1,1220 @@
+{
+ "counts": {
+  "predicates": 47,
+  "rerun_cells": 39,
+  "unknown_cells": 102
+ },
+ "derivation_input_note": "inputs.disposition path qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json does not resolve at this head (directory holds decks/ only; repo-wide search negative). Authoritative source used: embedded retained_rows in WORKLOAD_DERIVATION.json (sha256 ebdc266f972932f4b5a983a459193937059393fafed936cf1f0be6f1f16d388b).",
+ "dispositions": [
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_01",
+   "predicate_id": "PRED-CARD_01",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_02",
+   "predicate_id": "PRED-CARD_02",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_03",
+   "predicate_id": "PRED-CARD_03",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_04",
+   "predicate_id": "PRED-CARD_04",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_05",
+   "predicate_id": "PRED-CARD_05",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_06",
+   "predicate_id": "PRED-CARD_06",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_07",
+   "predicate_id": "PRED-CARD_07",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_08",
+   "predicate_id": "PRED-CARD_08",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_09",
+   "predicate_id": "PRED-CARD_09",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_10",
+   "predicate_id": "PRED-CARD_10",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_11",
+   "predicate_id": "PRED-CARD_11",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_12",
+   "predicate_id": "PRED-CARD_12",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_13",
+   "predicate_id": "PRED-CARD_13",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_14",
+   "predicate_id": "PRED-CARD_14",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_15",
+   "predicate_id": "PRED-CARD_15",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_16",
+   "predicate_id": "PRED-CARD_16",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_17",
+   "predicate_id": "PRED-CARD_17",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_18",
+   "predicate_id": "PRED-CARD_18",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_19",
+   "predicate_id": "PRED-CARD_19",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_20",
+   "predicate_id": "PRED-CARD_20",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_21",
+   "predicate_id": "PRED-CARD_21",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_22",
+   "predicate_id": "PRED-CARD_22",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_23",
+   "predicate_id": "PRED-CARD_23",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_24",
+   "predicate_id": "PRED-CARD_24",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_25",
+   "predicate_id": "PRED-CARD_25",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_26",
+   "predicate_id": "PRED-CARD_26",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_27",
+   "predicate_id": "PRED-CARD_27",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_28",
+   "predicate_id": "PRED-CARD_28",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "actual_card",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no per-card live rerun on current bytes; card implementations live in the unchanged engine (db134b97) and R19/R21 diffs touch only construction/projection/typing paths; supporting: STATIC_PASS + behavior-identical classification + per-cell lane gates (R19 sealed). Residual: N-scoped per-card rerun campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "CARD_29",
+   "predicate_id": "PRED-CARD_29",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_COMBAT",
+   "predicate_id": "PRED-MICRO_COMBAT",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "predicate_id": "PRED-MICRO_CONTINUOUS_EFFECTS",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_CONTROL",
+   "predicate_id": "PRED-MICRO_CONTROL",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_COPY",
+   "predicate_id": "PRED-MICRO_COPY",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_LAYERS",
+   "predicate_id": "PRED-MICRO_LAYERS",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_MODES",
+   "predicate_id": "PRED-MICRO_MODES",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_PREVENTION",
+   "predicate_id": "PRED-MICRO_PREVENTION",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_REPLACEMENT",
+   "predicate_id": "PRED-MICRO_REPLACEMENT",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "predicate_id": "PRED-MICRO_RULES_RANDOMNESS",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_STACK",
+   "predicate_id": "PRED-MICRO_STACK",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "predicate_id": "PRED-MICRO_STATE_BASED_ACTIONS",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_TRIGGERS",
+   "predicate_id": "PRED-MICRO_TRIGGERS",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "micro_rules",
+   "cells": {
+    "2": {
+     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
+     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
+     "status": "RERUN"
+    },
+    "3": {
+     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
+     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
+     "status": "RERUN"
+    },
+    "5": {
+     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
+     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
+     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
+     "status": "RERUN"
+    }
+   },
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "predicate_id": "PRED-MICRO_ZONE_CHANGES",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "replay_rng",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "predicate_id": "PRED-REPLAY_CLEAN_PROCESS",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "replay_rng",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "predicate_id": "PRED-REPLAY_DECISION_TAPE",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "replay_rng",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "predicate_id": "PRED-REPLAY_EVENT_TAPE",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "replay_rng",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "predicate_id": "PRED-REPLAY_STATE_HASHES",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  },
+  {
+   "category": "replay_rng",
+   "cells": {
+    "2": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "3": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    },
+    "5": {
+     "reason": "UNKNOWN: no 2/3/5-scoped replay-match rerun on current bytes; supporting: replay unit suites green on final bytes (1472-run) + CI 4P semantic replay MATCH (other cell, supporting only). Residual: N-scoped replay-match campaign.",
+     "status": "UNKNOWN"
+    }
+   },
+   "fixture_id": "RNG_RULES_TAPE",
+   "predicate_id": "PRED-RNG_RULES_TAPE",
+   "required_cells": [
+    2,
+    3,
+    5
+   ]
+  }
+ ],
+ "method": "Reuse sealed runs + 3 cheap bounded smokes on final bytes; no expensive per-card/per-cell suites repeated. STATIC_PASS is not claimed as behavioral PASS.",
+ "schema_version": "ws232-n-scoped-disposition-1.0.0",
+ "source_head": "e657000a9a97b8995d983d4ee0ea08b41d88d5ca + uncommitted R22 remediation (Finding A/B); final HEAD recorded at commit",
+ "source_tree": "fdba3b1787bf0f8a0f058f7cce118eabac31302c"
+}

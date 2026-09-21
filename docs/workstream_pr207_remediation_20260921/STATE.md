@@ -42,3 +42,14 @@ REMEDIATION" (XHIGH, autonomous to PR207_MERGE_READY / PR207_BLOCKED_EXACT_GATE)
 
 `ARCHITECTURE_FREEZE=NOT_CLAIMED` · `PRODUCTION_PROVIDER=NOT_SELECTED` ·
 merge by Coordinator adjudication only (no admin override).
+
+## R22 terminal round (Coordinator review findings A/B + hygiene)
+
+- Finding A: `submitAction` next-projection fail-closed (`next_actions_status`
+  + `nextActionsPayload` + 4-case negative regression); bridge 160/160.
+- Finding B: `N_SCOPED_DISPOSITION_R21.json` (39 RERUN micro cells via fresh
+  2/3/5 smokes on final bytes + 102 explicit UNKNOWN with reasons);
+  dangling derivation input path documented with embedded-source fallback.
+- Hygiene: FINAL_PACKET + manifest TRACKED; STATE.yaml → COMPLETE terminal.
+- Verdicts unchanged: `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·
+  `PRODUCTION_PROVIDER=NOT_SELECTED`. Merge by Coordinator adjudication only.

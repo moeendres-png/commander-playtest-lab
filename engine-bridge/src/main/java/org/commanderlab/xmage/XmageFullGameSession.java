@@ -1,6 +1,7 @@
 package org.commanderlab.xmage;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.cards.decks.Deck;
@@ -235,6 +236,12 @@ final class XmageFullGameSession {
      * WS204 B4-D generic submission: validates a generic proposal against the
      * exact current pending decision, translates only the selected authoritative
      * option into the native controller response, and lets XMage execute.
+     *
+     * <p>The {@code executed_*} facts describe the native action that already
+     * ran; nothing here rolls it back. A projection failure for the <em>next</em>
+     * decision is reported explicitly via {@code next_actions_status} (never a
+     * silent empty array): an unprojectable existing decision stays
+     * observationally distinct from no offered next actions.</p>
      */
     JsonObject submitAction(JsonObject proposal) {
         ensureStarted();
@@ -269,17 +276,44 @@ final class XmageFullGameSession {
         result.addProperty("executed_action_type", proposalType);
         result.addProperty("decision_scoped", true);
         result.addProperty("global_capability_promoted", false);
-        try {
-            JsonObject next = controller.pendingDecision();
-            if (next != null) {
-                result.add("next_actions", XmageFullGameActionProjection.project(next));
-            } else {
-                result.add("next_actions", new JsonArray());
+        JsonObject nextFragment = nextActionsPayload(controller.pendingDecision());
+        result.add("next_actions", nextFragment.getAsJsonArray("next_actions"));
+        for (java.util.Map.Entry<String, JsonElement> entry : nextFragment.entrySet()) {
+            if (!entry.getKey().equals("next_actions")) {
+                result.add(entry.getKey(), entry.getValue());
             }
-        } catch (XmageFullGameActionProjection.ProjectionException exc) {
-            result.add("next_actions", new JsonArray());
         }
         return result;
+    }
+
+    /**
+     * R21 fail-closed next-decision projection (Coordinator Finding A).
+     *
+     * <p>Projects one already-observed next pending decision into the
+     * {@code next_actions} array plus an explicit {@code next_actions_status}:
+     * {@code "projected"} (projection succeeded, array may legitimately be
+     * empty), {@code "no_pending_decision"} (terminal — nothing to project),
+     * or {@code "projection_failed"} with {@code next_actions_projection_error}
+     * (an existing decision could not be projected; the already-executed
+     * action is unaffected — no rollback implied). A projection failure is
+     * never reported as a silent empty success.</p>
+     */
+    static JsonObject nextActionsPayload(JsonObject next) {
+        JsonObject fragment = new JsonObject();
+        if (next == null) {
+            fragment.add("next_actions", new JsonArray());
+            fragment.addProperty("next_actions_status", "no_pending_decision");
+            return fragment;
+        }
+        try {
+            fragment.add("next_actions", XmageFullGameActionProjection.project(next));
+            fragment.addProperty("next_actions_status", "projected");
+        } catch (XmageFullGameActionProjection.ProjectionException exc) {
+            fragment.add("next_actions", new JsonArray());
+            fragment.addProperty("next_actions_status", "projection_failed");
+            fragment.addProperty("next_actions_projection_error", exc.getMessage());
+        }
+        return fragment;
     }
 
     /**
