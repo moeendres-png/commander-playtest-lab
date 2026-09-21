@@ -14,4 +14,8 @@
   - [x] Rebased on post-merge main (069762bc); frozen bytes imported 27/27 byte-identical
   - [x] Frozen contract verified (135 records, 107 denominator, integrity + executability PASS)
   - [x] Identity binding + denominator mapping (4 DIRECT / 9 SUPPORTING / 59 UNKNOWN / 35 NOT_RUN_BLOCKED)
-  - [ ] Validation + PR + handoff (Phase C execution is separate work)
+  - [x] Validation (mapping reproducible, frozen self-check, retention 47/47, ws17, ruff) + PR #211 (CI green, CLEAN/MERGEABLE)
+  - [x] Merge-ready packet + Phase C dependency handoff (injection capability + executor harness gates)
+- Phase C terminal assessment: execution NOT started — requires (a) bridge
+  NATIVE_STATE_LOAD capability (contract-locked false) and (b) a ~70-operation
+  native-procedure executor; both need separate authorization. No gate bypassed.
