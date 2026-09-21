@@ -65,15 +65,13 @@ PILOT_FAMILY_TO_OBSERVED = {
 
 
 def map_fixture(fixture_id: str, record: dict) -> dict:
-    family = record.get("fixture_family", "?")
     entry = record.get("execution_entry_mode", "?")
     if fixture_id.startswith("PLAYER_COUNT_"):
         count = int(fixture_id.rsplit("_", 1)[1].rstrip("P"))
         return {
             "status": "DIRECT",
             "pointer": (
-                "docs/workstream_successor_integration_20260919/"
-                f"gate-evidence/gate-{count}p.json"
+                f"docs/workstream_successor_integration_20260919/gate-evidence/gate-{count}p.json"
             ),
             "reason": (
                 f"sealed full gate at matching count {count}P "
@@ -160,17 +158,14 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
         return {
             "status": "UNKNOWN",
             "reason": (
-                "no WS05 scenario runner on current lineage; "
-                "residual: WS05 execution campaign"
+                "no WS05 scenario runner on current lineage; residual: WS05 execution campaign"
             ),
         }
     return {"status": "UNKNOWN", "reason": "unclassified family; residual: triage"}
 
 
 def main() -> int:
-    mat = json.loads(
-        (NS / "SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json").read_text()
-    )
+    mat = json.loads((NS / "SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json").read_text())
     den = json.loads((NS / "WS47_PROVIDER_DENOMINATOR_107.json").read_text())
     assert mat["record_count"] == 135 and len(mat["records"]) == 135
     assert den["provider_denominator_count"] == 107
@@ -179,9 +174,7 @@ def main() -> int:
     entries = []
     for fid in den["fixture_ids"]:
         assert fid in records, f"denominator fixture missing from materialization: {fid}"
-        entries.append(
-            {"fixture_id": fid, **map_fixture(fid, records[fid])}
-        )
+        entries.append({"fixture_id": fid, **map_fixture(fid, records[fid])})
     out = {
         "schema_version": "full107-denominator-mapping-1.0.0",
         "frozen_source": "origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46",
