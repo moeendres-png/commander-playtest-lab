@@ -108,3 +108,19 @@ mechanically enforces 47×3 coverage, status vocabulary, reason presence,
 and fixture/count correspondence for any future RERUN (negative-control
 proven with a bogus pointer). STATIC_PASS unchanged (47/47); no behavioral
 PASS manufactured; residual N-scoped fixture campaign stays explicit.
+
+## Addendum R23 — free-mulligan count + zone-counts projection (behavioral, fixture-driven)
+
+FULL107 WS05 execution exposed a genuine bridge defect: the full-game
+lane granted one free London mulligan at EVERY count
+(`MulliganType.LONDON.getMulligan(1)`), zeroing the 2P bottom count the
+WS05-CMD-MULL-2 fixture requires. Fix: free count follows CR 102.1
+multiplayer (3+ players) — 2P gets 0, 3..6P keep 1. Same change adds a
+read-only public-zone-counts projection (`zoneCountsPayload`: counts
+only, no card identities — no hidden-information exposure) used to
+verify bottom counts via library size. Behavior delta confined to 2P
+bottom counts (previously free, now 1) and the additive projection;
+3..6P paths identical. Rerun evidence on final bytes: WS05-CMD-MULL-2/4
+fixture-faithful live runs PASS (exact decks/procedure/assertions),
+full bridge suite green. 2P lane-gate supporting evidence now carries
+this delta note; N-scoped cells stay explicitly UNKNOWN.

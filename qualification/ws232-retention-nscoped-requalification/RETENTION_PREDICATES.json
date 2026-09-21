@@ -37,7 +37,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -139,7 +139,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -241,7 +241,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -343,7 +343,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -445,7 +445,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -547,7 +547,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -649,7 +649,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -751,7 +751,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -853,7 +853,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -955,7 +955,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1057,7 +1057,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1159,7 +1159,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1261,7 +1261,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1363,7 +1363,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1465,7 +1465,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1567,7 +1567,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1669,7 +1669,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1771,7 +1771,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1873,7 +1873,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -1975,7 +1975,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2077,7 +2077,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2179,7 +2179,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2281,7 +2281,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2383,7 +2383,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2485,7 +2485,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2587,7 +2587,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2689,7 +2689,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2791,7 +2791,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2893,7 +2893,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -2995,7 +2995,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3078,7 +3078,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3161,7 +3161,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3244,7 +3244,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3327,7 +3327,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3410,7 +3410,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3493,7 +3493,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3576,7 +3576,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3659,7 +3659,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3742,7 +3742,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3825,7 +3825,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3908,7 +3908,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -3991,7 +3991,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4074,7 +4074,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4195,7 +4195,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4316,7 +4316,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4437,7 +4437,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
@@ -4558,7 +4558,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#seed"
     },
     {
-     "expected_sha256": "6d75feb36d85beff85382744968732e6e40ca9148b9357307a3e2d130b654f61",
+     "expected_sha256": "ce3127d8d6af7fb34a21db09ddac63ea2e300c56bf313bb2d674d9bbf4a46a90",
      "kind": "path_blob_sha256",
      "owns_semantics": "N-scoped game construction (setNumPlayers, rules-seed binding, lifecycle)",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
