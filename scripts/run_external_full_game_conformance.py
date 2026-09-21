@@ -28,14 +28,16 @@ XMAGE_COMMIT = "db134b9737e951367d65ef5806ad986319cc73ab"
 # (layer 1: conformance table; layer 2: scenario model; layer 3: runner
 # validation; layer 4: pilot policy).
 FULL_GATE_PLAYER_COUNT = 4
-SMOKE_PLAYER_COUNTS = (2, 3, 5)
-SUPPORTED_PLAYER_COUNTS = (2, 3, 4, 5)
-CARDINALITY_SEEDS = {2: 20260825, 3: 20260826, 4: 20260824, 5: 20260827}
+SMOKE_PLAYER_COUNTS = (2, 3, 5, 6)
+SUPPORTED_PLAYER_COUNTS = (2, 3, 4, 5, 6)
+CARDINALITY_SEEDS = {2: 20260825, 3: 20260826, 4: 20260824, 5: 20260827, 6: 20260828}
 # Calibrated live 2026-09-15 (JDK 17 bridge, engine 1.4.61): 5 mulligans +
 # opening choices consume the early budget at 5P, with priority emerging
 # between decisions 26-40; 45 banks margin. Lowering any target below the
 # calibrated value regresses the required-class gate (proven for 5P@25).
-SMOKE_DECISION_TARGETS = {2: 25, 3: 25, 5: 45}
+# R19 calibration 2026-09-21: 6P needs 55 (6 mulligans + wider opening;
+# required classes mulligan+priority present at 55, plus target/choice).
+SMOKE_DECISION_TARGETS = {2: 25, 3: 25, 5: 45, 6: 55}
 SMOKE_REQUIRED_DECISION_CLASSES = ("mulligan", "priority")
 
 
@@ -87,7 +89,7 @@ def build_setup(
     Importable without a JVM so unit tests can prove construction,
     seat coverage, and per-count seed binding. Raises ``ValueError`` for
     cardinalities outside the conformance table (fail-closed layer 1);
-    the ``FutureXmageScenario`` model (``ge=2, le=5``) is the backstop
+    the ``FutureXmageScenario`` model (``ge=2, le=6``) is the backstop
     layer 2, ``_validate_inputs`` layer 3, the pilot policy layer 4.
     """
     if player_count not in CARDINALITY_SEEDS:

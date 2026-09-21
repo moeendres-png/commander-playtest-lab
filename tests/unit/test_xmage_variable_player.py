@@ -142,7 +142,7 @@ def _priority_pass_request(player_count: int) -> dict[str, Any]:
     }
 
 
-def _handshake_lane(min_players: int = 2, max_players: int = 5) -> dict[str, Any]:
+def _handshake_lane(min_players: int = 2, max_players: int = 6) -> dict[str, Any]:
     return {
         "full_game_lane": {
             "lane": "xmage_full_game_external_pilots",
@@ -169,7 +169,7 @@ def _handshake_lane(min_players: int = 2, max_players: int = 5) -> dict[str, Any
     }
 
 
-@pytest.mark.parametrize("player_count", [2, 3, 4, 5])
+@pytest.mark.parametrize("player_count", [2, 3, 4, 5, 6])
 def test_policy_accepts_every_supported_count(player_count: int) -> None:
     policy = _policy(player_count)
     response = policy.decide(_priority_pass_request(player_count))
@@ -177,11 +177,11 @@ def test_policy_accepts_every_supported_count(player_count: int) -> None:
     assert policy._player_count == player_count
 
 
-def test_policy_rejects_single_and_six_pilots() -> None:
+def test_policy_rejects_single_and_seven_pilots() -> None:
     with pytest.raises(ValueError):
         _policy(1)
     with pytest.raises(ValueError):
-        _policy(6)
+        _policy(7)
 
 
 def test_policy_rejects_seat_coverage_gap() -> None:
@@ -198,7 +198,7 @@ def test_policy_rejects_seat_coverage_gap() -> None:
 
 
 def test_pilot_state_scales_with_player_count() -> None:
-    for player_count in (2, 3, 4, 5):
+    for player_count in (2, 3, 4, 5, 6):
         policy = _policy(player_count)
         runtime = policy._pilots[1]
         view = policy._pilot_state(runtime, _actor_state(player_count))
@@ -208,10 +208,10 @@ def test_pilot_state_scales_with_player_count() -> None:
         assert view.opponents_to_act_before_next_turn == player_count - 1
 
 
-def test_binding_seat_five_accepted_six_rejected() -> None:
-    _binding(5, "fixture-5")
+def test_binding_seat_six_accepted_seven_rejected() -> None:
+    _binding(6, "fixture-6")
     with pytest.raises(ValidationError):
-        _binding(6, "fixture-6")
+        _binding(7, "fixture-7")
 
 
 def _mana_request(
@@ -288,7 +288,7 @@ def test_mana_decision_without_productive_option_fails_closed() -> None:
         policy.decide(request)
 
 
-@pytest.mark.parametrize("player_count", [2, 3, 4, 5])
+@pytest.mark.parametrize("player_count", [2, 3, 4, 5, 6])
 def test_validate_inputs_accepts_exact_coverage(player_count: int) -> None:
     scenario = _scenario(player_count)
     decks = tuple(_deck(seat) for seat in range(1, player_count + 1))
@@ -330,8 +330,8 @@ def test_validate_inputs_rejects_opponent_id_mismatch() -> None:
         XmageFullGameRunner._validate_inputs(scenario, decks, pilots)
 
 
-def test_handshake_accepts_two_to_five_lane() -> None:
-    for player_count in (2, 3, 4, 5):
+def test_handshake_accepts_two_to_six_lane() -> None:
+    for player_count in (2, 3, 4, 5, 6):
         scenario = _scenario(player_count)
         provider = {"engine": "xmage", "engine_commit": XMAGE_COMMIT}
         XmageFullGameRunner._validate_handshake(scenario, provider, _handshake_lane())
@@ -361,7 +361,7 @@ def test_handshake_rejects_scenario_outside_lane_range() -> None:
         XmageFullGameRunner._validate_handshake(scenario, provider, _handshake_lane(2, 4))
 
 
-@pytest.mark.parametrize("player_count", [2, 3, 4, 5])
+@pytest.mark.parametrize("player_count", [2, 3, 4, 5, 6])
 def test_build_result_requires_one_outcome_per_seat(player_count: int) -> None:
     scenario = _scenario(player_count)
     provider = {"engine_version": "1.4.61", "engine_commit": XMAGE_COMMIT}
@@ -392,7 +392,7 @@ def test_build_result_requires_one_outcome_per_seat(player_count: int) -> None:
         XmageFullGameRunner._build_result(scenario, provider, short)
 
 
-@pytest.mark.parametrize("player_count", [2, 3, 4, 5])
+@pytest.mark.parametrize("player_count", [2, 3, 4, 5, 6])
 def test_batch_case_accepts_exact_coverage(player_count: int) -> None:
     scenario = _scenario(player_count)
     decks = tuple(_deck(seat) for seat in range(1, player_count + 1))

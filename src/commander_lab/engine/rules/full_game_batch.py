@@ -42,8 +42,8 @@ class FullGameBatchCase(_StrictModel):
     @model_validator(mode="after")
     def case_matches_operational_scope(self) -> FullGameBatchCase:
         player_count = self.scenario.player_count
-        if player_count < 2 or player_count > 5:
-            raise ValueError("full-game batch cases require two to five players")
+        if player_count < 2 or player_count > 6:
+            raise ValueError("full-game batch cases require two to six players")
         if len(self.decks) != player_count or len(self.pilots) != player_count:
             raise ValueError("full-game batch deck/pilot cardinality must equal player count")
         if {pilot.seat for pilot in self.pilots} != set(range(1, player_count + 1)):

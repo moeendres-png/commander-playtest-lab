@@ -36,9 +36,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class XmageFullGameSession {
 
-    /** WS215 variable-player contract: Commander Free-for-All for 2..5 principals. */
+    /** WS215 variable-player contract, R19 widened: Commander Free-for-All for 2..6 principals. */
     static final int MIN_PLAYERS = 2;
-    static final int MAX_PLAYERS = 5;
+    static final int MAX_PLAYERS = 6;
     static final String EVIDENCE_CLASS = "technical_conformance_only";
 
     private final String protocolGameId;

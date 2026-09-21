@@ -221,8 +221,8 @@ class FutureXmageScenario(StrictModel):
     candidate_id: str = Field(min_length=1)
     deck_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     opponent_deck_ids: tuple[str, ...]
-    player_count: int = Field(ge=2, le=5)
-    seat: int = Field(ge=1, le=5)
+    player_count: int = Field(ge=2, le=6)
+    seat: int = Field(ge=1, le=6)
     scenario_id: str = Field(min_length=1)
     seed: int = Field(ge=0)
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")

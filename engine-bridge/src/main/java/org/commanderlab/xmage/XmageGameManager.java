@@ -193,9 +193,9 @@ final class XmageGameManager {
 
         List<String> deckHandles = new ArrayList<>(requestedDeckHandles);
 
-        if (deckHandles.size() < 2 || deckHandles.size() > 5) {
+        if (deckHandles.size() < 2 || deckHandles.size() > 6) {
             throw new GameException(
-                    "INVALID_PLAYER_COUNT: expected 2 to 5 players; observed "
+                    "INVALID_PLAYER_COUNT: expected 2 to 6 players; observed "
                             + deckHandles.size()
             );
         }

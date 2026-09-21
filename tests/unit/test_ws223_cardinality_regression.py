@@ -168,7 +168,7 @@ def _priority_pass_request(player_count: int, offset: int = 3) -> dict[str, Any]
     }
 
 
-def _handshake_lane(min_players: int = 2, max_players: int = 5) -> dict[str, Any]:
+def _handshake_lane(min_players: int = 2, max_players: int = 6) -> dict[str, Any]:
     return {
         "full_game_lane": {
             "lane": FULL_GAME_LANE,
@@ -281,28 +281,29 @@ def _runner_with_bridge(
 # --- Constant guards: MIN/MAX revert to 4-only must fail --------------------
 
 
-def test_supported_cardinality_constants_cover_two_to_five() -> None:
+def test_supported_cardinality_constants_cover_two_to_six() -> None:
     assert XmageFullGameRunner.MIN_PLAYERS == 2
-    assert XmageFullGameRunner.MAX_PLAYERS == 5
+    assert XmageFullGameRunner.MAX_PLAYERS == 6
 
 
-def test_conformance_script_covers_two_to_five_plus_fail_closed_six() -> None:
+def test_conformance_script_covers_two_to_six_plus_fail_closed_seven() -> None:
     module = _load_conformance_script()
-    assert module.SUPPORTED_PLAYER_COUNTS == (2, 3, 4, 5)
+    assert module.SUPPORTED_PLAYER_COUNTS == (2, 3, 4, 5, 6)
     assert module.FULL_GATE_PLAYER_COUNT == 4
-    assert set(module.SMOKE_PLAYER_COUNTS) == {2, 3, 5}
-    assert set(module.CARDINALITY_SEEDS) == {2, 3, 4, 5}
-    assert len(set(module.CARDINALITY_SEEDS.values())) == 4
+    assert set(module.SMOKE_PLAYER_COUNTS) == {2, 3, 5, 6}
+    assert set(module.CARDINALITY_SEEDS) == {2, 3, 4, 5, 6}
+    assert len(set(module.CARDINALITY_SEEDS.values())) == 5
 
 
 def test_smoke_decision_targets_are_calibrated_not_lowered() -> None:
-    """Live calibration 2026-09-15: 5P@25 misses priority; 5P needs 45."""
+    """Live calibration 2026-09-15: 5P@25 misses priority; 5P needs 45.
+    R19 calibration 2026-09-21: 6P needs 55 (live bounded-smoke PASS)."""
     module = _load_conformance_script()
-    assert module.SMOKE_DECISION_TARGETS == {2: 25, 3: 25, 5: 45}
+    assert module.SMOKE_DECISION_TARGETS == {2: 25, 3: 25, 5: 45, 6: 55}
     assert set(module.SMOKE_REQUIRED_DECISION_CLASSES) == {"mulligan", "priority"}
 
 
-@pytest.mark.parametrize("player_count", [2, 3, 4, 5])
+@pytest.mark.parametrize("player_count", [2, 3, 4, 5, 6])
 def test_conformance_setup_builds_exact_coverage(player_count: int) -> None:
     module = _load_conformance_script()
     scenario, decks, pilots = module.build_setup(player_count)
@@ -313,7 +314,7 @@ def test_conformance_setup_builds_exact_coverage(player_count: int) -> None:
     assert scenario.seed == module.CARDINALITY_SEEDS[player_count]
 
 
-@pytest.mark.parametrize("player_count", [0, 1, 6, 7])
+@pytest.mark.parametrize("player_count", [0, 1, 7])
 def test_conformance_setup_rejects_unsupported_cardinality(player_count: int) -> None:
     module = _load_conformance_script()
     with pytest.raises((ValueError, ValidationError)):
@@ -322,25 +323,25 @@ def test_conformance_setup_rejects_unsupported_cardinality(player_count: int) ->
 
 def test_fail_closed_probe_never_launches_engine(tmp_path: Path) -> None:
     module = _load_conformance_script()
-    summary = module.prove_fail_closed(6, out_dir=tmp_path)
+    summary = module.prove_fail_closed(7, out_dir=tmp_path)
     assert summary["status"] == "FAIL_CLOSED"
     assert summary["engine_launched"] is False
-    payload = json.loads((tmp_path / "XMAGE_FULL_GAME_FAIL_CLOSED_6P.json").read_text())
+    payload = json.loads((tmp_path / "XMAGE_FULL_GAME_FAIL_CLOSED_7P.json").read_text())
     assert payload["status"] == "FAIL_CLOSED"
 
 
 # --- Layered 6P rejection ----------------------------------------------------
 
 
-def test_scenario_model_rejects_six_players() -> None:
+def test_scenario_model_rejects_seven_players() -> None:
     with pytest.raises(ValidationError):
         FutureXmageScenario(
             candidate_id="fixture-1",
             deck_hash="a" * 64,
-            opponent_deck_ids=tuple(f"fixture-{seat}" for seat in range(2, 7)),
-            player_count=6,
+            opponent_deck_ids=tuple(f"fixture-{seat}" for seat in range(2, 8)),
+            player_count=7,
             seat=1,
-            scenario_id="ws223-six",
+            scenario_id="ws223-seven",
             seed=1,
             xmage_commit=XMAGE_COMMIT,
             bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
@@ -350,19 +351,19 @@ def test_scenario_model_rejects_six_players() -> None:
         )
 
 
-def test_runner_validation_rejects_smuggled_six_player_scenario() -> None:
-    scenario = _scenario(5).model_copy(update={"player_count": 6})
-    decks = tuple(_deck(seat) for seat in range(1, 6))
-    pilots = tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 6))
+def test_runner_validation_rejects_smuggled_seven_player_scenario() -> None:
+    scenario = _scenario(6).model_copy(update={"player_count": 7})
+    decks = tuple(_deck(seat) for seat in range(1, 7))
+    pilots = tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 7))
     with pytest.raises(FullGameConformanceError):
         XmageFullGameRunner._validate_inputs(scenario, decks, pilots)
 
 
-def test_binding_rejects_seat_zero_and_seat_six() -> None:
+def test_binding_rejects_seat_zero_and_seat_seven() -> None:
     with pytest.raises(ValidationError):
         _binding(0, "fixture-0")
     with pytest.raises(ValidationError):
-        _binding(6, "fixture-6")
+        _binding(7, "fixture-7")
 
 
 def test_legacy_four_only_lane_still_rejected() -> None:

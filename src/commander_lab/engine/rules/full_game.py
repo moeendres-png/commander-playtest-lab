@@ -56,7 +56,7 @@ class _StrictModel(BaseModel):
 
 
 class FullGamePilotBinding(_StrictModel):
-    seat: int = Field(ge=1, le=5)
+    seat: int = Field(ge=1, le=6)
     deck_id: str = Field(min_length=1)
     strategy: str = Field(min_length=1)
     commander_names: tuple[str, ...]
@@ -116,7 +116,7 @@ class FullGameSmokeResult(_StrictModel):
         "xmage-full-game-smoke-result-1.0.0"
     )
     scenario_id: str
-    player_count: int = Field(ge=2, le=5)
+    player_count: int = Field(ge=2, le=6)
     seed: int = Field(ge=0)
     engine_version: str
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
@@ -347,7 +347,7 @@ class ExternalPilotDecisionPolicy:
     )
 
     def __init__(self, runtime_pilots: tuple[_RuntimePilot, ...], scenario_seed: int) -> None:
-        if len(runtime_pilots) < 2 or len(runtime_pilots) > 5:
+        if len(runtime_pilots) < 2 or len(runtime_pilots) > 6:
             raise ValueError("full-game policy requires two to five pilot bindings")
         seats = {item.binding.seat for item in runtime_pilots}
         if seats != set(range(1, len(runtime_pilots) + 1)):
@@ -933,23 +933,20 @@ class ExternalPilotDecisionPolicy:
         legs: list[dict[str, Any]] = []
         for index, raw in enumerate(raw_legs):
             if not isinstance(raw, dict):
-                raise FullGameProtocolError(
-                    f"multi_amount leg {index} is not a bounds object"
-                )
+                raise FullGameProtocolError(f"multi_amount leg {index} is not a bounds object")
             leg_min = self._required_bound(raw, "min")
             leg_max = self._required_bound(raw, "max")
             if leg_max < leg_min:
                 raise FullGameProtocolError(f"multi_amount leg {index} has reversed bounds")
-            legs.append(
-                {"min": leg_min, "max": leg_max, "prompt": str(raw.get("prompt", ""))}
-            )
+            legs.append({"min": leg_min, "max": leg_max, "prompt": str(raw.get("prompt", ""))})
         total_min = self._required_bound(context, "numeric_total_min")
         total_max = self._required_bound(context, "numeric_total_max")
         if total_max < total_min:
             raise FullGameProtocolError("multi_amount has a reversed total band")
-        if sum(leg["min"] for leg in legs) > total_max or sum(
-            leg["max"] for leg in legs
-        ) < total_min:
+        if (
+            sum(leg["min"] for leg in legs) > total_max
+            or sum(leg["max"] for leg in legs) < total_min
+        ):
             raise FullGameProtocolError("multi_amount joint domain is empty")
         outcome = str(context.get("outcome", "benefit")).casefold()
         domain: dict[str, Any] = {
@@ -960,13 +957,9 @@ class ExternalPilotDecisionPolicy:
             "outcome": outcome,
             "prompt": prompt,
         }
-        chosen = runtime.pilot.choose_numbers(
-            self._pilot_state(runtime, state), domain, rng
-        )
+        chosen = runtime.pilot.choose_numbers(self._pilot_state(runtime, state), domain, rng)
         if not isinstance(chosen, (list, tuple)) or len(chosen) != len(legs):
-            raise FullGameProtocolError(
-                "pilot joint numeric decision has the wrong vector length"
-            )
+            raise FullGameProtocolError("pilot joint numeric decision has the wrong vector length")
         values: list[int] = []
         for element in chosen:
             if isinstance(element, bool) or not isinstance(element, int):
@@ -1400,10 +1393,10 @@ class ExternalPilotDecisionPolicy:
 
 
 class XmageFullGameRunner:
-    """Run one isolated 2..5-player XMage Commander game with Commander Lab pilot policy."""
+    """Run one isolated 2..6-player XMage Commander game with Commander Lab pilot policy."""
 
     MIN_PLAYERS = 2
-    MAX_PLAYERS = 5
+    MAX_PLAYERS = 6
 
     def __init__(
         self,
