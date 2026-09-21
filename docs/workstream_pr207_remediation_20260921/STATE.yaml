@@ -1,7 +1,7 @@
 audit_base_sha: 0526a798f7f1e9947426b8f199e3f7dc2aa112bd
 audit_base_tree: 656108c1d102699572369e17815951187d1857e3
 branch: cpl/ci-cardinality-lane-20260921
-exact_next_action: safe_push branch to origin (R21c batch)
+exact_next_action: request Coordinator merge adjudication (R22 terminal)
 in_scope:
 - repin
 - retention-requalification
@@ -16,7 +16,7 @@ out_of_scope:
 ownership: PR207-REMEDIATION-R21
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: 9c07bef9add9ba0707db6f9ed376219fb037e9e8
-status: ACTIVE
-validated_head: 9c07bef9add9ba0707db6f9ed376219fb037e9e8
+state_written_against_head: b7c4a14f0f3d2cc45858e2b4bc046d84c8cc69cd
+status: COMPLETE
+validated_head: b7c4a14f0f3d2cc45858e2b4bc046d84c8cc69cd
 worktree: /home/moeen/code/ws-ci-cardinality-lane-20260921

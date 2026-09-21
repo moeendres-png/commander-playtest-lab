@@ -15,8 +15,9 @@ adjudication. FULL107 qualification NOT started.)
 - Head: `e657000a9a97b8995d983d4ee0ea08b41d88d5ca`
   tree `ff691bef1fdff4ad677468aacb23aa194f390d44`
   (remote HEAD/TREE parity verified after safe_push).
-- Scope: 131 files, +61813/−414 vs base (R19 6P + R20 CI lane + R21
-  remediation). Full manifest: `PR207_CHANGED_FILES.txt` (this dir).
+- Scope: 138 files, +63501/−414 vs base (R19 6P + R20 CI lane + R21
+  remediation + R22 review follow-up). Full manifest:
+  `PR207_CHANGED_FILES.txt` (this dir).
 - PR: https://github.com/moeendres-png/commander-playtest-lab/pull/207 —
   `MERGEABLE`, `mergeStateStatus: CLEAN`.
 
@@ -109,7 +110,7 @@ Rollback: revert merge commit (campaign branches remain on remote).
   this head (dir holds `decks/` only, repo-wide search negative) — embedded
   `retained_rows` used as authoritative source (SHA recorded in the JSON).
   Session bind re-baselined to fixed bytes (rationale in record R21d).
-- Hygiene: this packet + 131-file manifest now TRACKED on the branch;
+- Hygiene: this packet + 138-file manifest now TRACKED on the branch;
   `STATE.yaml` published as terminal (`COMPLETE`) via the Foundry path;
   launcher provenance stays as disclosed (self-held session lock, not an
   independently verified launcher — see §9).

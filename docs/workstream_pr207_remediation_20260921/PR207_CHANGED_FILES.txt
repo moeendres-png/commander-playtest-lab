@@ -30,8 +30,13 @@ docs/workstream_lab_sixplayer_20260921/VALIDATION.md
 docs/workstream_lab_sixplayer_20260921/WORKSTREAM_CONTRACT.md
 docs/workstream_lab_sixplayer_20260921/gate-evidence/gate-6p-full.json
 docs/workstream_lab_sixplayer_20260921/gate-evidence/gate-6p-smoke.json
+docs/workstream_pr207_remediation_20260921/FINAL_PACKET.md
+docs/workstream_pr207_remediation_20260921/PR207_CHANGED_FILES.txt
 docs/workstream_pr207_remediation_20260921/STATE.md
 docs/workstream_pr207_remediation_20260921/STATE.yaml
+docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json
+docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json
+docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json
 docs/workstream_successor_integration_20260919/CAMPAIGN_CHECKPOINT.md
 docs/workstream_successor_integration_20260919/EVIDENCE_SEAL.json
 docs/workstream_successor_integration_20260919/FINAL_HANDOFF.md
@@ -68,6 +73,7 @@ engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameGenericActionSub
 engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameGenericBridgeTest.java
 engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameHiddenInformationTest.java
 engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameNameCanaryTest.java
+engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameNextActionsProjectionTest.java
 engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePlayerBoundaryTest.java
 engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePlayerCountTest.java
 engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameRulesSeedBindingTest.java
@@ -84,6 +90,7 @@ qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json
 qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-5p.json
 qualification/ws223-ci-cardinality-environment-lock/CONTAINER_IDENTITY.md
 qualification/ws223-ci-cardinality-environment-lock/DEPENDENCY_LOCK_DIGEST
+qualification/ws232-retention-nscoped-requalification/N_SCOPED_DISPOSITION_R21.json
 qualification/ws232-retention-nscoped-requalification/REQUALIFICATION_RECORD_R21.md
 qualification/ws232-retention-nscoped-requalification/RETENTION_PREDICATES.json
 qualification/ws232-retention-nscoped-requalification/RETENTION_PREDICATE_RESULTS.json

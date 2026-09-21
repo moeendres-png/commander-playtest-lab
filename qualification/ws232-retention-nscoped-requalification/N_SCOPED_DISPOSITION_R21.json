@@ -1215,6 +1215,6 @@
  ],
  "method": "Reuse sealed runs + 3 cheap bounded smokes on final bytes; no expensive per-card/per-cell suites repeated. STATIC_PASS is not claimed as behavioral PASS.",
  "schema_version": "ws232-n-scoped-disposition-1.0.0",
- "source_head": "e657000a9a97b8995d983d4ee0ea08b41d88d5ca + uncommitted R22 remediation (Finding A/B); final HEAD recorded at commit",
- "source_tree": "fdba3b1787bf0f8a0f058f7cce118eabac31302c"
+ "source_head": "b7c4a14f0f3d2cc45858e2b4bc046d84c8cc69cd + manifest-only follow-ups (no runtime bytes change)",
+ "source_tree": "ec005be8254b8785ca733fa1d921e9c855ba8b7e"
 }
