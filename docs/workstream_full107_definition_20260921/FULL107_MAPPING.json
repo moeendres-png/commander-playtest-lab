@@ -1,9 +1,9 @@
 {
  "counts": {
-  "DIRECT": 4,
+  "DIRECT": 6,
   "NOT_RUN_BLOCKED": 35,
   "SUPPORTING": 9,
-  "UNKNOWN": 59
+  "UNKNOWN": 57
  },
  "entries": [
   {
@@ -531,13 +531,15 @@
   },
   {
    "fixture_id": "WS05-CMD-MULL-2",
-   "reason": "unclassified family; residual: triage",
-   "status": "UNKNOWN"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #213 h4-xmage): exact Rograkh/Mountain decks, scripted mulligan_once, bottom counts verified (2P lib 93/hand 6, 4P lib 92/hand 7)",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-MULL-4",
-   "reason": "unclassified family; residual: triage",
-   "status": "UNKNOWN"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #213 h4-xmage): exact Rograkh/Mountain decks, scripted mulligan_once, bottom counts verified (2P lib 93/hand 6, 4P lib 92/hand 7)",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-START-2",

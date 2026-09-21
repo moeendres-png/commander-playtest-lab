@@ -146,6 +146,20 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
                 "supporting only: per-count lane gates"
             ),
         }
+    if fixture_id in ("WS05-CMD-MULL-2", "WS05-CMD-MULL-4"):
+        return {
+            "status": "DIRECT",
+            "pointer": (
+                "engine-bridge/src/test/java/org/commanderlab/xmage/"
+                "XmageFullGameWs05MulliganTest.java"
+            ),
+            "reason": (
+                "fixture-faithful live run PASS locally and on CI "
+                "(PR #213 h4-xmage): exact Rograkh/Mountain decks, "
+                "scripted mulligan_once, bottom counts verified "
+                "(2P lib 93/hand 6, 4P lib 92/hand 7)"
+            ),
+        }
     if entry == "NATIVE_STATE_LOAD":
         return {
             "status": "NOT_RUN_BLOCKED",
