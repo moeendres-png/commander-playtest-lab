@@ -122,6 +122,4 @@ def test_n_scoped_disposition_join_complete():
                 unknown += 1
     assert disp["counts"]["rerun_cells"] == rerun
     assert disp["counts"]["unknown_cells"] == unknown
-    assert rerun + unknown == sum(
-        len(p["n_scoped_rerun_required"]) for p in preds["predicates"]
-    )
+    assert rerun + unknown == sum(len(p["n_scoped_rerun_required"]) for p in preds["predicates"])
