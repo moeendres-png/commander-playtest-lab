@@ -13,5 +13,11 @@
     transport mapping assessed (feasible / partially open); pivot handoff
     written (Option 3 recommended: Coordinator adjudicates mock-deck
     extension vs real-deck equivalents)
-  - [ ] M2: BLOCKED on adjudication (no executor built — would execute the
-    wrong decks or violate real-cards-only design)
+  - [x] Transport spike GREEN (`XmageFullGameMulliganDriveTest`, self-contained):
+    live 4P RogShai game, seed 424242 — self-selected starting player +
+    4 scripted keeps via projected actions only (exact-one-match,
+    fail-closed), explicit `next_actions_status` on every submit,
+    game advanced mulligan → priority. Proves decision-script transport
+    on real cards; fixture-deck gate unchanged.
+  - [ ] M2: BLOCKED on adjudication (executor would need fixture decks or
+    approved real-deck equivalents)
