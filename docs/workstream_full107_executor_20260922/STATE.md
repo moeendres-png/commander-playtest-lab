@@ -19,5 +19,11 @@
     fail-closed), explicit `next_actions_status` on every submit,
     game advanced mulligan → priority. Proves decision-script transport
     on real cards; fixture-deck gate unchanged.
+  - [x] WS05-CMD-MULL-2/4 FIRST FIXTURE PASSES (real Rograkh/Mountain decks,
+    exact procedure): P1 mulligans once; 2P bottoms 1 (lib 93/hand 6),
+    4P bottoms 0 (lib 92/hand 7). Required systemic fix: free-mulligan
+    count now CR-102.1 multiplayer-gated (was blanket 1); new read-only
+    public-zone-counts projection (no hidden leak). Bridge 163/163,
+    retention 47/47 re-baselined (R23).
   - [ ] M2: BLOCKED on adjudication (executor would need fixture decks or
     approved real-deck equivalents)
