@@ -1,0 +1,562 @@
+{
+ "counts": {
+  "DIRECT": 4,
+  "NOT_RUN_BLOCKED": 35,
+  "SUPPORTING": 9,
+  "UNKNOWN": 59
+ },
+ "entries": [
+  {
+   "fixture_id": "PLAYER_COUNT_2P",
+   "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-2p.json",
+   "reason": "sealed full gate at matching count 2P (status PASS, replay MATCH, seed-bound)",
+   "status": "DIRECT"
+  },
+  {
+   "fixture_id": "PLAYER_COUNT_3P",
+   "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-3p.json",
+   "reason": "sealed full gate at matching count 3P (status PASS, replay MATCH, seed-bound)",
+   "status": "DIRECT"
+  },
+  {
+   "fixture_id": "PLAYER_COUNT_4P",
+   "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-4p.json",
+   "reason": "sealed full gate at matching count 4P (status PASS, replay MATCH, seed-bound)",
+   "status": "DIRECT"
+  },
+  {
+   "fixture_id": "PLAYER_COUNT_5P",
+   "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-5p.json",
+   "reason": "sealed full gate at matching count 5P (status PASS, replay MATCH, seed-bound)",
+   "status": "DIRECT"
+  },
+  {
+   "fixture_id": "PILOT_PRIORITY",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'priority' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_TARGET",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'target' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_OBJECT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'choose_object' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_TARGET_AMOUNT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'target' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_MULLIGAN",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'mulligan' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_USE",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'choose_use' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_CHOICE",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_PILE",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_MANA_PAYMENT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'mana_payment' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_MULTI_AMOUNT",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_ABILITY",
+   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'declare_attacker' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "reason": "projection unit coverage + live-observed class 'declare_blocker' in 2/3/4/5P gates; not a fixture rerun",
+   "status": "SUPPORTING"
+  },
+  {
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "reason": "fallback-prohibition behavior has no dedicated live fixture rerun; residual: negative-behavior campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "reason": "fallback-prohibition behavior has no dedicated live fixture rerun; residual: negative-behavior campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+   "reason": "fallback-prohibition behavior has no dedicated live fixture rerun; residual: negative-behavior campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "NEGATIVE_INTERNAL_AI",
+   "reason": "fallback-prohibition behavior has no dedicated live fixture rerun; residual: negative-behavior campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "reason": "fallback-prohibition behavior has no dedicated live fixture rerun; residual: negative-behavior campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "reason": "fallback-prohibition behavior has no dedicated live fixture rerun; residual: negative-behavior campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+   "reason": "fallback-prohibition behavior has no dedicated live fixture rerun; residual: negative-behavior campaign",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_01",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_02",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_03",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_04",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_05",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_06",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_07",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_08",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_09",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_10",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_11",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_12",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_13",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_14",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_15",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_16",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_17",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_18",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_19",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "reason": "no per-scenario hidden-information rerun; supporting only: HIDDEN_INFORMATION_BOUNDARY_REPORT + XmageFullGameHiddenInformationTest",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "RNG_RULES_TAPE",
+   "reason": "no N-scoped replay-match rerun for this fixture; supporting only: replay unit suites + per-count replay MATCH in sealed gates (other scope)",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "reason": "no N-scoped replay-match rerun for this fixture; supporting only: replay unit suites + per-count replay MATCH in sealed gates (other scope)",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "reason": "no N-scoped replay-match rerun for this fixture; supporting only: replay unit suites + per-count replay MATCH in sealed gates (other scope)",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "reason": "no N-scoped replay-match rerun for this fixture; supporting only: replay unit suites + per-count replay MATCH in sealed gates (other scope)",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "reason": "no N-scoped replay-match rerun for this fixture; supporting only: replay unit suites + per-count replay MATCH in sealed gates (other scope)",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_COSTS",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_MANA_PAYMENT",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_PRIORITY",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_STACK",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_TARGETS",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_MODES",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_TRIGGERS",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_REPLACEMENT",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_PREVENTION",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_LAYERS",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_COPY",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_CONTROL",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_COMBAT",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "CARD_02",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-PRIO-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-PRIO-5",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-TRIG-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-TRIG-5",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-TURN-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-TURN-5",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-5",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-TAX-2",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-TAX-4",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-MULL-2",
+   "reason": "unclassified family; residual: triage",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "WS05-CMD-MULL-4",
+   "reason": "unclassified family; residual: triage",
+   "status": "UNKNOWN"
+  },
+  {
+   "fixture_id": "WS05-CMD-START-2",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-START-3",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  },
+  {
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
+   "status": "NOT_RUN_BLOCKED"
+  }
+ ],
+ "frozen_source": "origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46",
+ "mapping_rule": "DIRECT requires a sealed fixture-corresponding run; mapping awards no PASS/FAIL (Phase C executes and classifies)",
+ "materialization": "commander-lab.semantic-fixture-materialization/1.0.5",
+ "schema_version": "full107-denominator-mapping-1.0.0"
+}
