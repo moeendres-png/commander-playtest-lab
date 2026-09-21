@@ -14,7 +14,7 @@ out_of_scope:
 ownership: FULL107-EXECUTOR-SLICE
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: 0b9ce141f02fb3a2afccd0e88d66dee3de2b821a
+state_written_against_head: 3fea79402589ed3fb00693c8277cf7324c7a4d98
 status: ACTIVE
-validated_head: 0b9ce141f02fb3a2afccd0e88d66dee3de2b821a
+validated_head: 3fea79402589ed3fb00693c8277cf7324c7a4d98
 worktree: /home/moeen/code/ws-full107-decision-executor-20260922
