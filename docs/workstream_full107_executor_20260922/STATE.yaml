@@ -1,0 +1,20 @@
+audit_base_sha: 51c224a021e0ce0a9362accc2cd41387ca4ba6ac
+audit_base_tree: 3571b33d4a082b3ed748101e406d900fab64c02c
+branch: cpl/full107-decision-executor-20260922
+exact_next_action: safe_push branch; then transport spike with real decks
+in_scope:
+- importability-verdict
+- transport-assessment
+- pivot-handoff
+objective: FULL107 decision-script executor slice (M1 investigation)
+out_of_scope:
+- executor-build
+- fixture-deviation
+- injection-capability
+ownership: FULL107-EXECUTOR-SLICE
+repository: moeendres-png/commander-playtest-lab
+schema_version: '2.0'
+state_written_against_head: 3fea79402589ed3fb00693c8277cf7324c7a4d98
+status: ACTIVE
+validated_head: 3fea79402589ed3fb00693c8277cf7324c7a4d98
+worktree: /home/moeen/code/ws-full107-decision-executor-20260922
