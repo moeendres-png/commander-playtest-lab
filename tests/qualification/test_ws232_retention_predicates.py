@@ -4,6 +4,7 @@ No prose-only retention: every retained fixture carries a predicate whose
 binds name the path owning the semantics. These tests fail closed on any
 drift (engine repin, fixture mutation, owning-blob change, schema change).
 """
+
 from __future__ import annotations
 
 import json
@@ -57,7 +58,10 @@ def test_predicates_are_semantic_not_existence():
 def test_predicate_static_evaluation_green():
     proc = subprocess.run(
         [sys.executable, str(NS / "bin/check_predicates.py")],
-        capture_output=True, text=True, cwd=str(REPO_ROOT))
+        capture_output=True,
+        text=True,
+        cwd=str(REPO_ROOT),
+    )
     assert proc.returncode == 0, proc.stdout + proc.stderr
     res = _load("RETENTION_PREDICATE_RESULTS.json")
     assert res["evaluated_predicates"] == 47
@@ -69,7 +73,9 @@ def test_engine_pin_stable():
     cfg = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
     assert cfg["primary_engine"]["commit"] == "db134b9737e951367d65ef5806ad986319cc73ab"
     assert cfg["protocol_version"] == "2.0.0"
-    provider = (REPO_ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java").read_text()
+    provider = (
+        REPO_ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageProvider.java"
+    ).read_text()
     compact = "".join(provider.split())
     assert 'ENGINE_VERSION="1.4.61"' in compact
     assert 'ENGINE_COMMIT="db134b9737e951367d65ef5806ad986319cc73ab"' in compact
@@ -77,6 +83,7 @@ def test_engine_pin_stable():
 
 def test_replay_schema_stable():
     import re
+
     src = (REPO_ROOT / "src/commander_lab/semantic_replay/tape.py").read_text()
-    m = re.search(r'TAPE_SCHEMA_VERSION\s*=\s*"([^"]+)"', src)
+    m = re.search(r'TAPE_SCHEMA_VERSION(?::\s*Final)?\s*=\s*"([^"]+)"', src)
     assert m and m.group(1) == "semantic-replay-tape/1.0.0"

@@ -33,12 +33,8 @@ from typing import Any
 
 CANONICALIZATION_VERSION = "semantic-canonical-1.0.0"
 
-_UUID_RE = re.compile(
-    r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b"
-)
-_OBJECT_ID_ATTR_RE = re.compile(
-    r"\s+object_id=(['\"])[^'\"]+\1", flags=re.IGNORECASE
-)
+_UUID_RE = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b")
+_OBJECT_ID_ATTR_RE = re.compile(r"\s+object_id=(['\"])[^'\"]+\1", flags=re.IGNORECASE)
 _SHORT_ID_SUFFIX_RE = re.compile(r"(</font>)\s*\[[0-9a-fA-F]{3,8}\]")
 _SHORT_ID_TAIL_RE = re.compile(r"\s*\[[0-9a-fA-F]{3,8}\](?=</div>|$)")
 _CHOICE_SHORT_ID_RE = re.compile(r" \[[0-9a-z]{1,8}\]")

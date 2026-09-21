@@ -100,15 +100,11 @@ def _public_permanent_key(item: dict[str, Any], mapping: dict[str, int]) -> dict
         for row in counters:
             if not isinstance(row, dict):
                 continue
-            counter_rows.append(
-                {"count": row.get("count"), "type": row.get("type")}
-            )
+            counter_rows.append({"count": row.get("count"), "type": row.get("type")})
     counter_rows.sort(key=lambda r: (str(r.get("type")), str(r.get("count"))))
     abilities = item.get("abilities")
     ability_list = sorted(
-        [str(a) for a in abilities if isinstance(a, str)]
-        if isinstance(abilities, list)
-        else []
+        [str(a) for a in abilities if isinstance(a, str)] if isinstance(abilities, list) else []
     )
     controller = item.get("controller_id")
     return {
@@ -167,9 +163,7 @@ def build_object_index(
                             "kind": "card",
                             "name": name,
                             "occurrence": occurrence,
-                            "owner": seat_of(
-                                mapping, entry.get("player_id")
-                            ),
+                            "owner": seat_of(mapping, entry.get("player_id")),
                             "zone": zone,
                         }
                     index[oid] = proj
@@ -262,7 +256,13 @@ def option_fingerprint(
         semantic["card_count"] = len(names)
     elif option_type == "mana_pool":
         semantic["mana_type"] = str(meta.get("mana_type", "")).lower()
-    elif option_type in {"mana_ability", "activated_ability", "cast_ability", "play_land_ability", "triggered_ability"}:
+    elif option_type in {
+        "mana_ability",
+        "activated_ability",
+        "cast_ability",
+        "play_land_ability",
+        "triggered_ability",
+    }:
         semantic["ability_type"] = str(meta.get("ability_type", "")).lower()
         semantic["source_name"] = redact_text(meta.get("source_name", ""))
         semantic["mana_ability"] = bool(meta.get("mana_ability", False))
@@ -316,9 +316,7 @@ def option_fingerprint(
     return canonical_hash(semantic)
 
 
-def _defender_name(
-    defender_id: object, pilot_state: dict[str, Any] | None
-) -> object:
+def _defender_name(defender_id: object, pilot_state: dict[str, Any] | None) -> object:
     if not isinstance(defender_id, str) or pilot_state is None:
         return defender_id
     players = pilot_state.get("players")
@@ -411,9 +409,7 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
             if isinstance(graveyard, list):
                 # Graveyard is ordered in paper; preserve order but drop ids.
                 row["graveyard"] = [
-                    {"name": item.get("name")}
-                    for item in graveyard
-                    if isinstance(item, dict)
+                    {"name": item.get("name")} for item in graveyard if isinstance(item, dict)
                 ]
             command = entry.get("command")
             if isinstance(command, list):
@@ -445,9 +441,7 @@ def canonical_actor_view(pilot_state: dict[str, Any]) -> dict[str, Any]:
     stack = pilot_state.get("stack")
     if isinstance(stack, list):
         # Stack order is semantic: preserve order, drop raw ids.
-        view["stack"] = [
-            {"name": item.get("name")} for item in stack if isinstance(item, dict)
-        ]
+        view["stack"] = [{"name": item.get("name")} for item in stack if isinstance(item, dict)]
     commander_status = pilot_state.get("commander_status")
     if isinstance(commander_status, list):
         rows: list[dict[str, Any]] = []

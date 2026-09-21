@@ -865,7 +865,7 @@ class ExternalPilotDecisionPolicy:
         raw = mapping[key]
         if isinstance(raw, bool) or not isinstance(raw, int):
             raise FullGameProtocolError(f"numeric decision bound is not an integer: {key}")
-        return raw
+        return cast(int, raw)
 
     def _decide_numeric(
         self,

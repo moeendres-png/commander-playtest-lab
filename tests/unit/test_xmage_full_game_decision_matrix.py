@@ -345,10 +345,7 @@ def test_every_supported_decision_class_returns_only_xmage_legal_output(
 
 def test_optional_neutral_target_with_multiple_options_does_not_crash() -> None:
     """WS218 long-run guard: min==0 neutral targets rank 3-tuples (score, label, id)."""
-    options = [
-        _option(f"target-{index}", "target", f"Target {index}")
-        for index in range(3)
-    ]
+    options = [_option(f"target-{index}", "target", f"Target {index}") for index in range(3)]
     response = _policy().decide(
         _request(
             "target",

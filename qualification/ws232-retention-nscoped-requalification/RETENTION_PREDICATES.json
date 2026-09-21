@@ -68,13 +68,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -170,13 +170,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -272,13 +272,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -374,13 +374,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -476,13 +476,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -578,13 +578,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -680,13 +680,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -782,13 +782,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -884,13 +884,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -986,13 +986,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1088,13 +1088,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1190,13 +1190,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1292,13 +1292,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1394,13 +1394,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1496,13 +1496,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1598,13 +1598,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1700,13 +1700,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1802,13 +1802,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1904,13 +1904,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2006,13 +2006,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2108,13 +2108,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2210,13 +2210,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2312,13 +2312,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2414,13 +2414,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2516,13 +2516,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2618,13 +2618,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2720,13 +2720,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2822,13 +2822,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2924,13 +2924,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "98d95b985429792cac0d7ba6a2aef57967939a2e2a0d6404ac356d3dbbd38f6f",
+     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -3013,7 +3013,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COMBAT"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3096,7 +3096,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTINUOUS_EFFECTS"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3179,7 +3179,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTROL"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3262,7 +3262,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COPY"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3345,7 +3345,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_LAYERS"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3428,7 +3428,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_MODES"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3511,7 +3511,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_PREVENTION"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3594,7 +3594,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_REPLACEMENT"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3677,7 +3677,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_RULES_RANDOMNESS"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3760,7 +3760,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STACK"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3843,7 +3843,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STATE_BASED_ACTIONS"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3926,7 +3926,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_TRIGGERS"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4009,7 +4009,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_ZONE_CHANGES"
     },
     {
-     "expected_sha256": "e748070f1e776f349de999c2eadb72fffb4c92c8eb548f996722bacfc47add52",
+     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4099,31 +4099,31 @@
      "path": "src/commander_lab/semantic_replay/tape.py#TAPE_SCHEMA_VERSION"
     },
     {
-     "expected_sha256": "c661e40047e1b749bbbf066c31266cd62af4b2233892c1e31b06c71a1a9ecf92",
+     "expected_sha256": "cb296b6f2e99bc5703eeb5e8f3ab80c95a298b07d44978709317388f1bb59dff",
      "kind": "path_blob_sha256",
      "owns_semantics": "tape model + numeric coherence validators",
      "path": "src/commander_lab/semantic_replay/tape.py"
     },
     {
-     "expected_sha256": "175290fc259cb750b39810b9d8d1732a66f042dc9290dafd7218ab590fa3e7ef",
+     "expected_sha256": "c9d60e496287c9cc49f48a365d26ec493d8041567cfb88a4fcb4b8a5877f0c4d",
      "kind": "path_blob_sha256",
      "owns_semantics": "record path: fresh-process production lane, atomic seal, no injection",
      "path": "src/commander_lab/semantic_replay/recorder.py"
     },
     {
-     "expected_sha256": "09b20453ece5a222cc6495b99950cb98d30783fd6a24e892756a8277f9ecdc1e",
+     "expected_sha256": "173b982c3f23f86c71d11a097223adfc5ab4cbd047b06f321137c276b0f5436d",
      "kind": "path_blob_sha256",
      "owns_semantics": "14-step replay algorithm: locks, exactly-one matching, divergence taxonomy",
      "path": "src/commander_lab/semantic_replay/consumer.py"
     },
     {
-     "expected_sha256": "c6e925dd9bd6efa3a5d53c031f638718ced5c76b579832b9d4e8f8323fa82788",
+     "expected_sha256": "b1ed63c8d628b0ee863e21aa99b4b265742ad9295ce842580dff9f4276bc954d",
      "kind": "path_blob_sha256",
      "owns_semantics": "semantic canonicalization contract",
      "path": "src/commander_lab/semantic_replay/canonicalization.py"
     },
     {
-     "expected_sha256": "eecd1e7dd7967fc93a47a16bfed5f89a6422bdb7f3d072c84faa632a7be3e592",
+     "expected_sha256": "b6f3b55dff53de53bacf46623436fa4602bd7c986df678f46be239ae85280b5f",
      "kind": "path_blob_sha256",
      "owns_semantics": "option/state digest identity incl numeric binding",
      "path": "src/commander_lab/semantic_replay/fingerprint.py"
@@ -4135,7 +4135,7 @@
      "path": "src/commander_lab/semantic_replay/source_lock.py"
     },
     {
-     "expected_sha256": "a307bbe81e17139c61f5b8f9f25c9bdb842d091af35d79192960abfdda408c4e",
+     "expected_sha256": "4cbc40eaa31cd0ce62d9ff521d3c02a810669466279821da6005533f301ee8ca",
      "kind": "path_blob_sha256",
      "owns_semantics": "capability truth (supported counts, tamper matrix)",
      "path": "src/commander_lab/semantic_replay/capability.py"
@@ -4220,31 +4220,31 @@
      "path": "src/commander_lab/semantic_replay/tape.py#TAPE_SCHEMA_VERSION"
     },
     {
-     "expected_sha256": "c661e40047e1b749bbbf066c31266cd62af4b2233892c1e31b06c71a1a9ecf92",
+     "expected_sha256": "cb296b6f2e99bc5703eeb5e8f3ab80c95a298b07d44978709317388f1bb59dff",
      "kind": "path_blob_sha256",
      "owns_semantics": "tape model + numeric coherence validators",
      "path": "src/commander_lab/semantic_replay/tape.py"
     },
     {
-     "expected_sha256": "175290fc259cb750b39810b9d8d1732a66f042dc9290dafd7218ab590fa3e7ef",
+     "expected_sha256": "c9d60e496287c9cc49f48a365d26ec493d8041567cfb88a4fcb4b8a5877f0c4d",
      "kind": "path_blob_sha256",
      "owns_semantics": "record path: fresh-process production lane, atomic seal, no injection",
      "path": "src/commander_lab/semantic_replay/recorder.py"
     },
     {
-     "expected_sha256": "09b20453ece5a222cc6495b99950cb98d30783fd6a24e892756a8277f9ecdc1e",
+     "expected_sha256": "173b982c3f23f86c71d11a097223adfc5ab4cbd047b06f321137c276b0f5436d",
      "kind": "path_blob_sha256",
      "owns_semantics": "14-step replay algorithm: locks, exactly-one matching, divergence taxonomy",
      "path": "src/commander_lab/semantic_replay/consumer.py"
     },
     {
-     "expected_sha256": "c6e925dd9bd6efa3a5d53c031f638718ced5c76b579832b9d4e8f8323fa82788",
+     "expected_sha256": "b1ed63c8d628b0ee863e21aa99b4b265742ad9295ce842580dff9f4276bc954d",
      "kind": "path_blob_sha256",
      "owns_semantics": "semantic canonicalization contract",
      "path": "src/commander_lab/semantic_replay/canonicalization.py"
     },
     {
-     "expected_sha256": "eecd1e7dd7967fc93a47a16bfed5f89a6422bdb7f3d072c84faa632a7be3e592",
+     "expected_sha256": "b6f3b55dff53de53bacf46623436fa4602bd7c986df678f46be239ae85280b5f",
      "kind": "path_blob_sha256",
      "owns_semantics": "option/state digest identity incl numeric binding",
      "path": "src/commander_lab/semantic_replay/fingerprint.py"
@@ -4256,7 +4256,7 @@
      "path": "src/commander_lab/semantic_replay/source_lock.py"
     },
     {
-     "expected_sha256": "a307bbe81e17139c61f5b8f9f25c9bdb842d091af35d79192960abfdda408c4e",
+     "expected_sha256": "4cbc40eaa31cd0ce62d9ff521d3c02a810669466279821da6005533f301ee8ca",
      "kind": "path_blob_sha256",
      "owns_semantics": "capability truth (supported counts, tamper matrix)",
      "path": "src/commander_lab/semantic_replay/capability.py"
@@ -4341,31 +4341,31 @@
      "path": "src/commander_lab/semantic_replay/tape.py#TAPE_SCHEMA_VERSION"
     },
     {
-     "expected_sha256": "c661e40047e1b749bbbf066c31266cd62af4b2233892c1e31b06c71a1a9ecf92",
+     "expected_sha256": "cb296b6f2e99bc5703eeb5e8f3ab80c95a298b07d44978709317388f1bb59dff",
      "kind": "path_blob_sha256",
      "owns_semantics": "tape model + numeric coherence validators",
      "path": "src/commander_lab/semantic_replay/tape.py"
     },
     {
-     "expected_sha256": "175290fc259cb750b39810b9d8d1732a66f042dc9290dafd7218ab590fa3e7ef",
+     "expected_sha256": "c9d60e496287c9cc49f48a365d26ec493d8041567cfb88a4fcb4b8a5877f0c4d",
      "kind": "path_blob_sha256",
      "owns_semantics": "record path: fresh-process production lane, atomic seal, no injection",
      "path": "src/commander_lab/semantic_replay/recorder.py"
     },
     {
-     "expected_sha256": "09b20453ece5a222cc6495b99950cb98d30783fd6a24e892756a8277f9ecdc1e",
+     "expected_sha256": "173b982c3f23f86c71d11a097223adfc5ab4cbd047b06f321137c276b0f5436d",
      "kind": "path_blob_sha256",
      "owns_semantics": "14-step replay algorithm: locks, exactly-one matching, divergence taxonomy",
      "path": "src/commander_lab/semantic_replay/consumer.py"
     },
     {
-     "expected_sha256": "c6e925dd9bd6efa3a5d53c031f638718ced5c76b579832b9d4e8f8323fa82788",
+     "expected_sha256": "b1ed63c8d628b0ee863e21aa99b4b265742ad9295ce842580dff9f4276bc954d",
      "kind": "path_blob_sha256",
      "owns_semantics": "semantic canonicalization contract",
      "path": "src/commander_lab/semantic_replay/canonicalization.py"
     },
     {
-     "expected_sha256": "eecd1e7dd7967fc93a47a16bfed5f89a6422bdb7f3d072c84faa632a7be3e592",
+     "expected_sha256": "b6f3b55dff53de53bacf46623436fa4602bd7c986df678f46be239ae85280b5f",
      "kind": "path_blob_sha256",
      "owns_semantics": "option/state digest identity incl numeric binding",
      "path": "src/commander_lab/semantic_replay/fingerprint.py"
@@ -4377,7 +4377,7 @@
      "path": "src/commander_lab/semantic_replay/source_lock.py"
     },
     {
-     "expected_sha256": "a307bbe81e17139c61f5b8f9f25c9bdb842d091af35d79192960abfdda408c4e",
+     "expected_sha256": "4cbc40eaa31cd0ce62d9ff521d3c02a810669466279821da6005533f301ee8ca",
      "kind": "path_blob_sha256",
      "owns_semantics": "capability truth (supported counts, tamper matrix)",
      "path": "src/commander_lab/semantic_replay/capability.py"
@@ -4462,31 +4462,31 @@
      "path": "src/commander_lab/semantic_replay/tape.py#TAPE_SCHEMA_VERSION"
     },
     {
-     "expected_sha256": "c661e40047e1b749bbbf066c31266cd62af4b2233892c1e31b06c71a1a9ecf92",
+     "expected_sha256": "cb296b6f2e99bc5703eeb5e8f3ab80c95a298b07d44978709317388f1bb59dff",
      "kind": "path_blob_sha256",
      "owns_semantics": "tape model + numeric coherence validators",
      "path": "src/commander_lab/semantic_replay/tape.py"
     },
     {
-     "expected_sha256": "175290fc259cb750b39810b9d8d1732a66f042dc9290dafd7218ab590fa3e7ef",
+     "expected_sha256": "c9d60e496287c9cc49f48a365d26ec493d8041567cfb88a4fcb4b8a5877f0c4d",
      "kind": "path_blob_sha256",
      "owns_semantics": "record path: fresh-process production lane, atomic seal, no injection",
      "path": "src/commander_lab/semantic_replay/recorder.py"
     },
     {
-     "expected_sha256": "09b20453ece5a222cc6495b99950cb98d30783fd6a24e892756a8277f9ecdc1e",
+     "expected_sha256": "173b982c3f23f86c71d11a097223adfc5ab4cbd047b06f321137c276b0f5436d",
      "kind": "path_blob_sha256",
      "owns_semantics": "14-step replay algorithm: locks, exactly-one matching, divergence taxonomy",
      "path": "src/commander_lab/semantic_replay/consumer.py"
     },
     {
-     "expected_sha256": "c6e925dd9bd6efa3a5d53c031f638718ced5c76b579832b9d4e8f8323fa82788",
+     "expected_sha256": "b1ed63c8d628b0ee863e21aa99b4b265742ad9295ce842580dff9f4276bc954d",
      "kind": "path_blob_sha256",
      "owns_semantics": "semantic canonicalization contract",
      "path": "src/commander_lab/semantic_replay/canonicalization.py"
     },
     {
-     "expected_sha256": "eecd1e7dd7967fc93a47a16bfed5f89a6422bdb7f3d072c84faa632a7be3e592",
+     "expected_sha256": "b6f3b55dff53de53bacf46623436fa4602bd7c986df678f46be239ae85280b5f",
      "kind": "path_blob_sha256",
      "owns_semantics": "option/state digest identity incl numeric binding",
      "path": "src/commander_lab/semantic_replay/fingerprint.py"
@@ -4498,7 +4498,7 @@
      "path": "src/commander_lab/semantic_replay/source_lock.py"
     },
     {
-     "expected_sha256": "a307bbe81e17139c61f5b8f9f25c9bdb842d091af35d79192960abfdda408c4e",
+     "expected_sha256": "4cbc40eaa31cd0ce62d9ff521d3c02a810669466279821da6005533f301ee8ca",
      "kind": "path_blob_sha256",
      "owns_semantics": "capability truth (supported counts, tamper matrix)",
      "path": "src/commander_lab/semantic_replay/capability.py"
@@ -4583,31 +4583,31 @@
      "path": "src/commander_lab/semantic_replay/tape.py#TAPE_SCHEMA_VERSION"
     },
     {
-     "expected_sha256": "c661e40047e1b749bbbf066c31266cd62af4b2233892c1e31b06c71a1a9ecf92",
+     "expected_sha256": "cb296b6f2e99bc5703eeb5e8f3ab80c95a298b07d44978709317388f1bb59dff",
      "kind": "path_blob_sha256",
      "owns_semantics": "tape model + numeric coherence validators",
      "path": "src/commander_lab/semantic_replay/tape.py"
     },
     {
-     "expected_sha256": "175290fc259cb750b39810b9d8d1732a66f042dc9290dafd7218ab590fa3e7ef",
+     "expected_sha256": "c9d60e496287c9cc49f48a365d26ec493d8041567cfb88a4fcb4b8a5877f0c4d",
      "kind": "path_blob_sha256",
      "owns_semantics": "record path: fresh-process production lane, atomic seal, no injection",
      "path": "src/commander_lab/semantic_replay/recorder.py"
     },
     {
-     "expected_sha256": "09b20453ece5a222cc6495b99950cb98d30783fd6a24e892756a8277f9ecdc1e",
+     "expected_sha256": "173b982c3f23f86c71d11a097223adfc5ab4cbd047b06f321137c276b0f5436d",
      "kind": "path_blob_sha256",
      "owns_semantics": "14-step replay algorithm: locks, exactly-one matching, divergence taxonomy",
      "path": "src/commander_lab/semantic_replay/consumer.py"
     },
     {
-     "expected_sha256": "c6e925dd9bd6efa3a5d53c031f638718ced5c76b579832b9d4e8f8323fa82788",
+     "expected_sha256": "b1ed63c8d628b0ee863e21aa99b4b265742ad9295ce842580dff9f4276bc954d",
      "kind": "path_blob_sha256",
      "owns_semantics": "semantic canonicalization contract",
      "path": "src/commander_lab/semantic_replay/canonicalization.py"
     },
     {
-     "expected_sha256": "eecd1e7dd7967fc93a47a16bfed5f89a6422bdb7f3d072c84faa632a7be3e592",
+     "expected_sha256": "b6f3b55dff53de53bacf46623436fa4602bd7c986df678f46be239ae85280b5f",
      "kind": "path_blob_sha256",
      "owns_semantics": "option/state digest identity incl numeric binding",
      "path": "src/commander_lab/semantic_replay/fingerprint.py"
@@ -4619,7 +4619,7 @@
      "path": "src/commander_lab/semantic_replay/source_lock.py"
     },
     {
-     "expected_sha256": "a307bbe81e17139c61f5b8f9f25c9bdb842d091af35d79192960abfdda408c4e",
+     "expected_sha256": "4cbc40eaa31cd0ce62d9ff521d3c02a810669466279821da6005533f301ee8ca",
      "kind": "path_blob_sha256",
      "owns_semantics": "capability truth (supported counts, tamper matrix)",
      "path": "src/commander_lab/semantic_replay/capability.py"

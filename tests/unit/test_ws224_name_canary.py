@@ -67,11 +67,14 @@ def _player(
             for index, name in enumerate(hand_names or ["Plains"])
         ]
         entry["mana_pool"] = {
-            "white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0,
+            "white": 0,
+            "blue": 0,
+            "black": 0,
+            "red": 0,
+            "green": 0,
+            "colorless": 0,
         }
-        entry["command"] = [
-            {"object_id": "cmd-1", "name": "Isamaru, Hound of Konda"}
-        ]
+        entry["command"] = [{"object_id": "cmd-1", "name": "Isamaru, Hound of Konda"}]
     if smuggled_opponent_hand is not None:
         # Simulates a buggy redactor: production must STILL drop it downstream.
         entry["hand"] = [
@@ -82,9 +85,7 @@ def _player(
 
 
 def _state(player_count: int, *, smuggle: bool = False) -> dict[str, Any]:
-    players = [
-        _player("actor", 0, actor=True, hand_names=["Plains", "Savannah Lions"])
-    ]
+    players = [_player("actor", 0, actor=True, hand_names=["Plains", "Savannah Lions"])]
     hidden = [BETA, GAMMA, DELTA, ALPHA]
     for seat in range(1, player_count):
         players.append(
@@ -170,9 +171,7 @@ def test_canonical_view_and_digests_carry_no_hidden_sentinels(player_count: int)
     encoded = json.dumps(view, ensure_ascii=False)
     assert "Plains" in encoded
     assert "Isamaru, Hound of Konda" in encoded
-    legal = [
-        {"label": "Pass", "metadata": {}, "option_id": "pass", "option_type": "pass_priority"}
-    ]
+    legal = [{"label": "Pass", "metadata": {}, "option_id": "pass", "option_type": "pass_priority"}]
     _assert_no_sentinels(principal_observation_digest(state), "observation digest")
     _assert_no_sentinels(public_state_digest(state), "public digest")
     _assert_no_sentinels(legal_set_digest(legal, state), "legal-set digest")

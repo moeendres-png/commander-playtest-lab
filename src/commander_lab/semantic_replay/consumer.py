@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
@@ -76,9 +76,7 @@ def _observed_domain(status: dict[str, Any], manifest: Any) -> dict[str, Any]:
         "commanders": sorted(manifest.commander_identities),
         "deck_hashes": sorted(d.deck_hash for d in manifest.decks),
         "player_count": manifest.player_count,
-        "seat_map": sorted(
-            (s.seat, s.deck_id) for s in manifest.seat_principals
-        ),
+        "seat_map": sorted((s.seat, s.deck_id) for s in manifest.seat_principals),
         "starting_life": manifest.starting_life,
         "starting_player_contract": manifest.starting_player_selection_contract,
     }
@@ -106,7 +104,7 @@ def replay_tape(
             engine_tree=None,
             decision_protocol_version=FULL_GAME_DECISION_PROTOCOL_VERSION,
             protocol_version=ENGINE_PROTOCOL_VERSION,
-            oracle_snapshot_identity=f"xmage-{provider.get('engine_commit','')}:card-db-live",
+            oracle_snapshot_identity=f"xmage-{provider.get('engine_commit', '')}:card-db-live",
             rulings_snapshot_identity=None,
             commander_authority_identity="xmage-commander-ffa",
         )
@@ -181,9 +179,7 @@ def replay_tape(
             raise ReplayDivergence(DivergenceClass.DOMAIN_LOCK_MISMATCH, "player count mismatch")
         if created.get("seed") != manifest.rules_seed:
             raise ReplayDivergence(DivergenceClass.RULES_RNG_RESULT_DRIFT, "seed mismatch")
-        verify_domain_lock(
-            _observed_domain(created, manifest), _observed_domain(created, manifest)
-        )
+        verify_domain_lock(_observed_domain(created, manifest), _observed_domain(created, manifest))
         status = client.request("start_full_game")
         if isinstance(status.get("failure"), dict):
             raise ReplayDivergence(
@@ -220,9 +216,7 @@ def replay_tape(
                 f"initial digest differs (calls={_calls(status)})",
             )
         if _calls(status) != tape.initial_checkpoint.rules_random_calls:
-            raise ReplayDivergence(
-                DivergenceClass.RULES_RNG_CALL_DRIFT, "initial RNG calls differ"
-            )
+            raise ReplayDivergence(DivergenceClass.RULES_RNG_CALL_DRIFT, "initial RNG calls differ")
 
         for step in tape.steps:
             if step.step_kind == "lifecycle_concede":
@@ -298,7 +292,10 @@ def replay_tape(
                     DivergenceClass.RULES_RNG_CALL_DRIFT,
                     f"step {step.sequence}: RNG calls before differ",
                 )
-            context = native.get("context") if isinstance(native.get("context"), dict) else {}
+            context: dict[str, Any] = cast(
+                dict[str, Any],
+                native.get("context") if isinstance(native.get("context"), dict) else {},
+            )
             # Numeric bounds must match authoritatively before use.
             if (step.numeric_min is not None or step.numeric_max is not None) and (
                 context.get("numeric_min") != step.numeric_min
@@ -323,12 +320,8 @@ def replay_tape(
                         DivergenceClass.DECISION_CLASS_MISMATCH,
                         f"step {step.sequence}: joint legs absent natively",
                     )
-                native_mins = tuple(
-                    leg.get("min") for leg in native_legs if isinstance(leg, dict)
-                )
-                native_maxs = tuple(
-                    leg.get("max") for leg in native_legs if isinstance(leg, dict)
-                )
+                native_mins = tuple(leg.get("min") for leg in native_legs if isinstance(leg, dict))
+                native_maxs = tuple(leg.get("max") for leg in native_legs if isinstance(leg, dict))
                 if (
                     len(native_mins) != len(native_legs)
                     or native_mins != step.numeric_legs_min
@@ -352,7 +345,9 @@ def replay_tape(
             if step.selected_fingerprints:
                 used: set[str] = set()
                 for recorded_print in step.selected_fingerprints:
-                    candidates = [oid for oid in native_prints.get(recorded_print, []) if oid not in used]
+                    candidates = [
+                        oid for oid in native_prints.get(recorded_print, []) if oid not in used
+                    ]
                     if not candidates:
                         # Distinguish missing vs ambiguous: any native with
                         # this print at all (even used) means ambiguity/exhaustion.
@@ -393,9 +388,7 @@ def replay_tape(
                 response["numeric_choice"] = step.numeric_choice
             if step.numeric_choices is not None:
                 response["numeric_choices"] = list(step.numeric_choices)
-            status_next = client.request(
-                "submit_full_game_decision", {"response": response}
-            )
+            status_next = client.request("submit_full_game_decision", {"response": response})
             if isinstance(status_next.get("failure"), dict):
                 raise ReplayDivergence(
                     DivergenceClass.EARLY_TERMINATION,
@@ -422,7 +415,10 @@ def replay_tape(
                         turn_number=int(status_next.get("turn_number", 1)),
                         decision_offset=int(next_native.get("decision_offset", 0)),
                     )
-                    if step.post_checkpoint_digest is not None and post != step.post_checkpoint_digest:
+                    if (
+                        step.post_checkpoint_digest is not None
+                        and post != step.post_checkpoint_digest
+                    ):
                         raise ReplayDivergence(
                             DivergenceClass.STATE_DIGEST_MISMATCH,
                             f"step {step.sequence}: post-state differs",

@@ -37,7 +37,9 @@ from commander_lab.semantic_replay.tape import TapeReplayStep
 from commander_lab.semantic_replay.tape_helpers import event_digest_for_step
 
 
-def _policy(mode: PilotDecisionMode = PilotDecisionMode.DETERMINISTIC) -> ExternalPilotDecisionPolicy:
+def _policy(
+    mode: PilotDecisionMode = PilotDecisionMode.DETERMINISTIC,
+) -> ExternalPilotDecisionPolicy:
     runtimes: list[_RuntimePilot] = []
     for seat in range(1, 5):
         config = PilotConfig(
@@ -277,12 +279,16 @@ def test_scalar_malformed_bounds_fail_closed(context: dict[str, Any]) -> None:
 
 
 class _OutOfDomainPilot(GenericCommanderPilot):
-    def choose_number(self, state: PilotStateView, domain: dict[str, Any], rng: random.Random) -> int:
+    def choose_number(
+        self, state: PilotStateView, domain: dict[str, Any], rng: random.Random
+    ) -> int:
         return int(domain["max"]) + 1
 
 
 class _NonIntegerPilot(GenericCommanderPilot):
-    def choose_number(self, state: PilotStateView, domain: dict[str, Any], rng: random.Random) -> int:
+    def choose_number(
+        self, state: PilotStateView, domain: dict[str, Any], rng: random.Random
+    ) -> int:
         return "max"  # type: ignore[return-value]
 
 
@@ -323,7 +329,9 @@ def _hostile_policy(pilot: GenericCommanderPilot) -> ExternalPilotDecisionPolicy
 def test_out_of_domain_pilot_return_fails_closed_without_fallback() -> None:
     # N-23: the new path has no clamp/midpoint/default arm.
     pilot = _OutOfDomainPilot(
-        PilotConfig(pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC)
+        PilotConfig(
+            pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC
+        )
     )
     with pytest.raises(FullGameProtocolError, match="outside authoritative domain"):
         _hostile_policy(pilot).decide(
@@ -339,7 +347,9 @@ def test_out_of_domain_pilot_return_fails_closed_without_fallback() -> None:
 
 def test_non_integer_pilot_return_fails_closed() -> None:
     pilot = _NonIntegerPilot(
-        PilotConfig(pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC)
+        PilotConfig(
+            pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC
+        )
     )
     with pytest.raises(FullGameProtocolError, match="non-integer"):
         _hostile_policy(pilot).decide(
@@ -416,7 +426,9 @@ class _BadVectorPilot(GenericCommanderPilot):
 )
 def test_joint_pilot_violations_fail_closed(vector: tuple[int, ...], match: str) -> None:
     pilot = _BadVectorPilot(
-        PilotConfig(pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC)
+        PilotConfig(
+            pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC
+        )
     )
     pilot.VECTOR = vector
     with pytest.raises(FullGameProtocolError, match=match):
@@ -433,7 +445,9 @@ def test_joint_non_integer_element_fails_closed() -> None:
             return [57, True]  # type: ignore[list-item]
 
     pilot = _MixedPilot(
-        PilotConfig(pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC)
+        PilotConfig(
+            pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC
+        )
     )
     with pytest.raises(FullGameProtocolError, match="non-integer element"):
         _hostile_policy(pilot).decide(
@@ -575,10 +589,10 @@ def test_pool_liveness_guard_still_avoids_wrong_color() -> None:
 
 
 def test_bottom_routing_uses_structured_flag_not_prompt_text() -> None:
-    bottom_prompt = "Select cards to put on the BOTTOM of your LIBRARY (last one chosen will be bottommost)"
-    options = [
-        _option(f"hand-{index}", "choice", "Plains") for index in range(3)
-    ]
+    bottom_prompt = (
+        "Select cards to put on the BOTTOM of your LIBRARY (last one chosen will be bottommost)"
+    )
+    options = [_option(f"hand-{index}", "choice", "Plains") for index in range(3)]
     # Prompt text alone must NOT trigger bottom routing (sniff is dead).
     generic = _policy().decide(
         _request(
@@ -635,7 +649,9 @@ def test_unoffered_pilot_selection_fails_closed() -> None:
             )
 
     pilot = _ForgingPilot(
-        PilotConfig(pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC)
+        PilotConfig(
+            pilot_name="auto", strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC
+        )
     )
     with pytest.raises(FullGameProtocolError, match="unknown"):
         _hostile_policy(pilot).decide(
@@ -814,7 +830,9 @@ def test_recorder_joint_absent_for_scalar() -> None:
 
 
 def test_recorder_joint_malformed_diverges() -> None:
-    decision = {"context": {"numeric_legs": [{"min": 0}], "numeric_total_min": 0, "numeric_total_max": 1}}
+    decision = {
+        "context": {"numeric_legs": [{"min": 0}], "numeric_total_min": 0, "numeric_total_max": 1}
+    }
     response = {"selected_option_ids": [], "numeric_choices": [0]}
     with pytest.raises(ReplayDivergence) as exc:
         _joint_numeric_of(decision, response)

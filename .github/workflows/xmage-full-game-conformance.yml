@@ -100,7 +100,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/run_external_full_game_conformance.py --expect-fail-closed --player-count 7
-          test -f artifacts/xmage-full-game/FAIL_CLOSED_7P.json
+          test -f artifacts/xmage-full-game/XMAGE_FULL_GAME_FAIL_CLOSED_7P.json
       - name: Verify technical-evidence boundary
         shell: bash
         run: |

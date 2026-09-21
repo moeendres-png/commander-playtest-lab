@@ -94,8 +94,7 @@ def _actor_state(player_count: int) -> dict[str, Any]:
             "graveyard": [],
             "command": [{"object_id": "commander", "name": "Isamaru, Hound of Konda"}],
             "hand": [{"object_id": f"card-{index}", "name": "Plains"} for index in range(7)],
-            "mana_pool": {"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0,
-                          "colorless": 0},
+            "mana_pool": {"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0},
         }
     ]
     for seat in range(1, player_count):
@@ -321,9 +320,7 @@ def test_validate_inputs_rejects_seat_gap() -> None:
 
 
 def test_validate_inputs_rejects_opponent_id_mismatch() -> None:
-    scenario = _scenario(2, seat=1).model_copy(
-        update={"opponent_deck_ids": ("wrong-opponent",)}
-    )
+    scenario = _scenario(2, seat=1).model_copy(update={"opponent_deck_ids": ("wrong-opponent",)})
     decks = tuple(_deck(seat) for seat in range(1, 3))
     pilots = tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 3))
     with pytest.raises(FullGameConformanceError):
@@ -377,8 +374,13 @@ def test_build_result_requires_one_outcome_per_seat(player_count: int) -> None:
         "terminal": True,
         "decision_count": 12,
         "outcomes": [
-            {"seat": index, "won": index == 0, "lost": index != 0, "left": False,
-             "life": 40 if index == 0 else 0}
+            {
+                "seat": index,
+                "won": index == 0,
+                "lost": index != 0,
+                "left": False,
+                "life": 40 if index == 0 else 0,
+            }
             for index in range(player_count)
         ],
         "transcript": [],

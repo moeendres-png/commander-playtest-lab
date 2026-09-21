@@ -93,7 +93,10 @@ def event_digest_for_step(
 
 
 def deck_content_digest(
-    *, deck_id: str, commander_names: tuple[str, ...] | list[str], mainboard: tuple[str, ...] | list[str]
+    *,
+    deck_id: str,
+    commander_names: tuple[str, ...] | list[str],
+    mainboard: tuple[str, ...] | list[str],
 ) -> str:
     """Tamper-evident domain digest over deck contents.
 

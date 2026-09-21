@@ -80,7 +80,14 @@ def _pilot_state() -> dict[str, Any]:
                 "land_plays_remaining": 1,
                 "library_count": 90,
                 "life": 40,
-                "mana_pool": {"black": 0, "blue": 0, "colorless": 0, "green": 0, "red": 0, "white": 1},
+                "mana_pool": {
+                    "black": 0,
+                    "blue": 0,
+                    "colorless": 0,
+                    "green": 0,
+                    "red": 0,
+                    "white": 1,
+                },
                 "player_id": "actor-uuid-1",
                 "poison_counters": 0,
                 "seat": 0,
@@ -115,12 +122,16 @@ def test_canonicalization_is_stable_and_versioned() -> None:
 
 
 def test_redaction_removes_uuids_but_keeps_rules_text() -> None:
-    prompt = "{W}<div><font object_id='64c42435-d2e2-4aa3-8ce7-7a77ecaecc00'>Isamaru</font> [64c]</div>"
+    prompt = (
+        "{W}<div><font object_id='64c42435-d2e2-4aa3-8ce7-7a77ecaecc00'>Isamaru</font> [64c]</div>"
+    )
     redacted = str(redact_text(prompt))
     assert "Isamaru" in redacted
     assert "object_id" not in redacted
     assert "64c42435" not in redacted
-    twin = "{W}<div><font object_id='07f0fab5-af4b-4f72-905b-bd7184dfc56a'>Isamaru</font> [07f]</div>"
+    twin = (
+        "{W}<div><font object_id='07f0fab5-af4b-4f72-905b-bd7184dfc56a'>Isamaru</font> [07f]</div>"
+    )
     assert redact_text(prompt) == redact_text(twin)
 
 
@@ -301,14 +312,17 @@ def test_internal_digest_binds_seed_calls_turn_offset() -> None:
         turn_number=3,
         decision_offset=9,
     )
-    assert internal_checkpoint_digest(
-        pilot_state=state,
-        legal_options=legal,
-        rules_seed=7,
-        rules_random_calls=11,
-        turn_number=3,
-        decision_offset=9,
-    ) != base
+    assert (
+        internal_checkpoint_digest(
+            pilot_state=state,
+            legal_options=legal,
+            rules_seed=7,
+            rules_random_calls=11,
+            turn_number=3,
+            decision_offset=9,
+        )
+        != base
+    )
 
 
 def _lock() -> TapeSourceLock:

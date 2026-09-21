@@ -8,11 +8,11 @@ or outcome injection fields exist anywhere in this schema.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-TAPE_SCHEMA_VERSION = "semantic-replay-tape/1.0.0"
+TAPE_SCHEMA_VERSION: Final = "semantic-replay-tape/1.0.0"
 
 
 class _Strict(BaseModel):

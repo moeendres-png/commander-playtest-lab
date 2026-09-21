@@ -14,7 +14,7 @@ import hashlib
 import json
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from commander_lab.agents import build_pilot
 from commander_lab.candidates.models import FutureXmageScenario
@@ -134,9 +134,7 @@ def _binding_seed(status: dict[str, Any]) -> int:
 def _verify_binding(status: dict[str, Any], seed: int) -> None:
     binding = status.get("rules_seed_binding")
     if not isinstance(binding, dict):
-        raise ReplayDivergence(
-            DivergenceClass.INITIAL_STATE_MISMATCH, "missing rules_seed_binding"
-        )
+        raise ReplayDivergence(DivergenceClass.INITIAL_STATE_MISMATCH, "missing rules_seed_binding")
     if int(binding.get("rules_seed", -1)) != seed:
         raise ReplayDivergence(DivergenceClass.RULES_RNG_RESULT_DRIFT, "rules_seed mismatch")
     if binding.get("rules_seed_matches") is not True:
@@ -423,7 +421,10 @@ def record_tape(
                 obs_digest = principal_observation_digest(state)
                 legal_digest = legal_set_digest(legal, state)
                 legal_size = len(legal)
-                context = decision.get("context") if isinstance(decision.get("context"), dict) else {}
+                context: dict[str, Any] = cast(
+                    dict[str, Any],
+                    decision.get("context") if isinstance(decision.get("context"), dict) else {},
+                )
                 numeric_min = context.get("numeric_min")
                 numeric_max = context.get("numeric_max")
                 response = policy.decide(decision)
@@ -434,9 +435,7 @@ def record_tape(
                     if selected_ids
                     else ((), ())
                 )
-                status_next = client.request(
-                    "submit_full_game_decision", {"response": response}
-                )
+                status_next = client.request("submit_full_game_decision", {"response": response})
                 if isinstance(status_next.get("failure"), dict):
                     raise ReplayDivergence(
                         DivergenceClass.EARLY_TERMINATION,
@@ -447,7 +446,7 @@ def record_tape(
                 next_decision = status_next.get("decision")
                 if isinstance(next_decision, dict):
                     offset_after = int(next_decision.get("decision_offset", revision))
-                    turn_after: int | None = int(status_next.get("turn_number", turn_before))
+                    turn_after: int = int(status_next.get("turn_number", turn_before))
                     next_state = _pilot_state_of(next_decision)
                     next_legal = _legal_options_of(next_decision)
                     post_digest: str | None = internal_checkpoint_digest(
@@ -543,7 +542,10 @@ def record_tape(
                     turn_b = int(current_status.get("turn_number", 1))
                     obs_d = principal_observation_digest(st)
                     legal_d = legal_set_digest(legal, st)
-                    ctx = dec.get("context") if isinstance(dec.get("context"), dict) else {}
+                    ctx: dict[str, Any] = cast(
+                        dict[str, Any],
+                        dec.get("context") if isinstance(dec.get("context"), dict) else {},
+                    )
                     nmin = ctx.get("numeric_min")
                     nmax = ctx.get("numeric_max")
                     resp = policy.decide(dec)
@@ -557,7 +559,7 @@ def record_tape(
                     nxt_dec = nxt.get("decision")
                     if isinstance(nxt_dec, dict):
                         off_a = int(nxt_dec.get("decision_offset", revision))
-                        turn_a: int | None = int(nxt.get("turn_number", turn_b))
+                        turn_a: int = int(nxt.get("turn_number", turn_b))
                         nst = _pilot_state_of(nxt_dec)
                         nlegal = _legal_options_of(nxt_dec)
                         post_d: str | None = internal_checkpoint_digest(
@@ -676,9 +678,7 @@ def record_tape(
                     sequence += 1
                     calls_before_c = _binding_calls(status)
                     turn_before_c = int(status.get("turn_number", 1))
-                    offer = client.request(
-                        "get_concede_offer", {"player_id": principal_uuid}
-                    )
+                    offer = client.request("get_concede_offer", {"player_id": principal_uuid})
                     if offer.get("concede_available") is not True:
                         raise ReplayDivergence(
                             DivergenceClass.EARLY_TERMINATION,
@@ -696,9 +696,7 @@ def record_tape(
                     calls_after_c = _binding_calls(status)
                     next_dec = status.get("decision")
                     offset_after_c = (
-                        int(next_dec.get("decision_offset", 0))
-                        if isinstance(next_dec, dict)
-                        else 0
+                        int(next_dec.get("decision_offset", 0)) if isinstance(next_dec, dict) else 0
                     )
                     turn_after_c: int | None = int(status.get("turn_number", turn_before_c))
                     event_digest_c = event_digest_for_step(
@@ -723,9 +721,7 @@ def record_tape(
                             decision_class="concede",
                             actor_principal=seat,
                             decision_revision=max(1, offset_after_c or 1),
-                            principal_observation_digest=canonical_hash(
-                                {"concede_actor": seat}
-                            ),
+                            principal_observation_digest=canonical_hash({"concede_actor": seat}),
                             legal_set_digest=canonical_hash({"concede_available": True}),
                             legal_set_size=1,
                             selected_fingerprints=(),
@@ -813,17 +809,13 @@ def record_tape(
                 semantic_state_digest=canonical_hash(
                     {"outcomes": outcomes, "turn": final_turn, "calls": final_calls}
                 ),
-                public_state_digest=canonical_hash(
-                    {"outcomes": outcomes, "turn": final_turn}
-                ),
+                public_state_digest=canonical_hash({"outcomes": outcomes, "turn": final_turn}),
             )
             tape_id = hashlib.sha256(
                 (
                     json.dumps(manifest.model_dump(mode="json"), sort_keys=True)
                     + json.dumps(initial_checkpoint.model_dump(mode="json"), sort_keys=True)
-                    + json.dumps(
-                        [s.model_dump(mode="json") for s in steps], sort_keys=True
-                    )
+                    + json.dumps([s.model_dump(mode="json") for s in steps], sort_keys=True)
                 ).encode("utf-8")
             ).hexdigest()
             tape = SemanticReplayTape(

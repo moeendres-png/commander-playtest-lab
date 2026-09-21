@@ -214,9 +214,7 @@ def deterministic_numbers(domain: Mapping[str, Any]) -> list[int]:
             values.append(leg_min)
         else:
             values.append(leg_min + (leg_max - leg_min) // 2)
-    return _repair_vector_to_band(
-        values, legs, int(domain["total_min"]), int(domain["total_max"])
-    )
+    return _repair_vector_to_band(values, legs, int(domain["total_min"]), int(domain["total_max"]))
 
 
 def stochastic_numbers(domain: Mapping[str, Any], rng: random.Random) -> list[int]:
@@ -224,9 +222,7 @@ def stochastic_numbers(domain: Mapping[str, Any], rng: random.Random) -> list[in
     raw_legs = domain["legs"]
     legs = list(raw_legs) if isinstance(raw_legs, list) else list(tuple(raw_legs))
     values = [rng.randint(int(leg["min"]), int(leg["max"])) for leg in legs]
-    return _repair_vector_to_band(
-        values, legs, int(domain["total_min"]), int(domain["total_max"])
-    )
+    return _repair_vector_to_band(values, legs, int(domain["total_min"]), int(domain["total_max"]))
 
 
 class _NumericStrategyMixin:
@@ -236,6 +232,8 @@ class _NumericStrategyMixin:
     chooses strategy inside the authoritative domain. BasePilot itself
     keeps fail-closed raising defaults and never reaches this code.
     """
+
+    config: PilotConfig  # provided by the concrete BasePilot subclass
 
     def choose_number(
         self,
@@ -483,9 +481,7 @@ class BasePilot:
         Concrete pilots implement strategy via _NumericStrategyMixin.
         """
         del state, domain, rng
-        raise NotImplementedError(
-            "BasePilot has no numeric strategy; use a concrete pilot"
-        )
+        raise NotImplementedError("BasePilot has no numeric strategy; use a concrete pilot")
 
     def choose_numbers(
         self,
@@ -499,9 +495,7 @@ class BasePilot:
         pilots implement strategy via _NumericStrategyMixin.
         """
         del state, domain, rng
-        raise NotImplementedError(
-            "BasePilot has no joint numeric strategy; use a concrete pilot"
-        )
+        raise NotImplementedError("BasePilot has no joint numeric strategy; use a concrete pilot")
 
     def specialist_bonus(
         self,
