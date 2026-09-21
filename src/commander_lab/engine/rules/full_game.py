@@ -348,7 +348,7 @@ class ExternalPilotDecisionPolicy:
 
     def __init__(self, runtime_pilots: tuple[_RuntimePilot, ...], scenario_seed: int) -> None:
         if len(runtime_pilots) < 2 or len(runtime_pilots) > 6:
-            raise ValueError("full-game policy requires two to five pilot bindings")
+            raise ValueError("full-game policy requires two to six pilot bindings")
         seats = {item.binding.seat for item in runtime_pilots}
         if seats != set(range(1, len(runtime_pilots) + 1)):
             raise ValueError("full-game pilot bindings must cover seats 1..N exactly")
@@ -1642,7 +1642,7 @@ class XmageFullGameRunner:
             player_count < XmageFullGameRunner.MIN_PLAYERS
             or player_count > XmageFullGameRunner.MAX_PLAYERS
         ):
-            raise FullGameConformanceError("operational full-game scope is two to five players")
+            raise FullGameConformanceError("operational full-game scope is two to six players")
         if len(decks) != player_count or len(pilots) != player_count:
             raise FullGameConformanceError(
                 "deck/pilot cardinality must equal the scenario player count"
