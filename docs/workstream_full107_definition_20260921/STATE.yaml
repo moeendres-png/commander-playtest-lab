@@ -1,7 +1,7 @@
 audit_base_sha: 069762bc074efa78153931ba637f392766d2cb44
 audit_base_tree: 5f3a9cdf3d632fe620bedc6dd4488a4771bb4fc3
 branch: cpl/full107-definition-import-20260921
-exact_next_action: safe_push branch to origin
+exact_next_action: 'Coordinator merge adjudication for PR #211'
 in_scope:
 - frozen-import
 - identity-binding
@@ -16,7 +16,7 @@ out_of_scope:
 ownership: FULL107-DEFINITION-IMPORT
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: 816bc3b3d8b71e7f6c24a0f5c17d496dc1e8f392
-status: ACTIVE
-validated_head: 816bc3b3d8b71e7f6c24a0f5c17d496dc1e8f392
+state_written_against_head: e77608390493ca64cbe1edd61d2e57f54b92e0d4
+status: COMPLETE
+validated_head: e77608390493ca64cbe1edd61d2e57f54b92e0d4
 worktree: /home/moeen/code/ws-full107-definition-import-20260921
