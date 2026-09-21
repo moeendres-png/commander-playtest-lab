@@ -569,10 +569,10 @@ def _workflow(repo_root: Path) -> dict[str, Any]:
     return yaml.safe_load(text)
 
 
-def test_cardinality_lane_covers_two_to_five(repo_root: Path) -> None:
+def test_cardinality_lane_covers_two_to_six(repo_root: Path) -> None:
     """The lane must invoke live execution per count, not merely name numbers."""
     text = (repo_root / WORKFLOW_REL).read_text(encoding="utf-8")
-    for count in ("2", "3", "5"):
+    for count in ("2", "3", "5", "6"):
         assert f"--player-count {count}" in text, (
             f"cardinality lane must run live smoke for {count}P, not just mention {count}"
         )
@@ -582,7 +582,7 @@ def test_cardinality_lane_covers_two_to_five(repo_root: Path) -> None:
 def test_cardinality_lane_has_fail_closed_step(repo_root: Path) -> None:
     text = (repo_root / WORKFLOW_REL).read_text(encoding="utf-8")
     assert "--expect-fail-closed" in text
-    assert "--player-count 6" in text or "--player-count=6" in text
+    assert "--player-count 7" in text or "--player-count=7" in text
 
 
 def test_cardinality_lane_uses_bounded_smoke(repo_root: Path) -> None:
@@ -591,6 +591,7 @@ def test_cardinality_lane_uses_bounded_smoke(repo_root: Path) -> None:
     assert "--player-count 2 --smoke-decisions 25" in text
     assert "--player-count 3 --smoke-decisions 25" in text
     assert "--player-count 5 --smoke-decisions 45" in text
+    assert "--player-count 6 --smoke-decisions 55" in text
 
 
 def test_cardinality_lane_triggers_variable_player_surfaces(repo_root: Path) -> None:
