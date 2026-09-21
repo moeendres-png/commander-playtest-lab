@@ -1,4 +1,6 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk@sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6
+# WS223 container-base identity: base image digest-pinned (domain split with
+# WS-A1D engine pins below, which remain REQUIRED build args with no defaults).
 # WS-A1D pin authority: ENGINE_REPOSITORY / ENGINE_COMMIT / ENGINE_PROTOCOL_VERSION
 # are REQUIRED build args resolved at build time from config/rules_engines.json
 # (the sole pin authority) via scripts/docker_build_engine.sh, which derives them
@@ -10,6 +12,8 @@ ARG ENGINE_REPOSITORY
 ARG ENGINE_COMMIT
 ARG ENGINE_PROTOCOL_VERSION
 LABEL org.commander-lab.engine-provider="xmage"
+LABEL org.commander-lab.base-image-digest="sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6"
+LABEL org.commander-lab.base-image-tag="eclipse-temurin:21-jdk"
 WORKDIR /opt
 RUN set -eu; \
   if [ -z "${ENGINE_REPOSITORY:-}" ]; then echo "ENGINE_REPOSITORY build arg is required (use scripts/docker_build_engine.sh xmage)" >&2; exit 1; fi; \

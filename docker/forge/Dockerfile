@@ -1,4 +1,7 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk@sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6
+# WS223 container-base identity: base image digest-pinned (domain split with
+# WS-A1D-H4F dual-identity pins below, which remain REQUIRED build args with
+# no defaults).
 # WS-A1D-H4F dual-identity authority: ENGINE_* identify the Rules-Core pin
 # (config/rules_engines.json secondary_engine), BRIDGE_* identify the exact
 # candidate materialization source actually cloned and built
@@ -15,6 +18,8 @@ ARG ENGINE_PROTOCOL_VERSION
 ARG BRIDGE_REPOSITORY
 ARG BRIDGE_COMMIT
 LABEL org.commander-lab.engine-provider="forge"
+LABEL org.commander-lab.base-image-digest="sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6"
+LABEL org.commander-lab.base-image-tag="eclipse-temurin:21-jdk"
 WORKDIR /opt
 RUN set -eu; \
   if [ -z "${ENGINE_REPOSITORY:-}" ]; then echo "ENGINE_REPOSITORY build arg is required (use scripts/docker_build_engine.sh forge)" >&2; exit 1; fi; \

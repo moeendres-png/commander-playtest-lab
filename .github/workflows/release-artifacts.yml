@@ -18,6 +18,9 @@ concurrency:
   group: release-artifacts-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+env:
+  PYTHONHASHSEED: "0"
+
 jobs:
   build-release:
     runs-on: ubuntu-latest
@@ -30,10 +33,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements/lock.txt
       - name: Install build runtime
         run: |
-          python -m pip install -e .
-          python -m pip install build
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Resolve package version
         id: meta
         run: |

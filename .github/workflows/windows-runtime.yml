@@ -22,7 +22,9 @@ concurrency:
   group: windows-runtime-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
-jobs:
+env:
+  PYTHONHASHSEED: "0"
+  # WS223 scope exception: the windows lane keeps pyproject.toml range installs (documented, exempt).
   windows-runtime:
     runs-on: windows-latest
     timeout-minutes: 25
@@ -34,6 +36,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+          cache-dependency-path: pyproject.toml
       - name: Install runtime and test tools
         shell: pwsh
         run: python -m pip install -e '.[dev,api]'
