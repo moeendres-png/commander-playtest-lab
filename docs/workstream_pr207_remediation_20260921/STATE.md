@@ -47,8 +47,9 @@ merge by Coordinator adjudication only (no admin override).
 
 - Finding A: `submitAction` next-projection fail-closed (`next_actions_status`
   + `nextActionsPayload` + 4-case negative regression); bridge 160/160.
-- Finding B: `N_SCOPED_DISPOSITION_R21.json` (39 RERUN micro cells via fresh
-  2/3/5 smokes on final bytes + 102 explicit UNKNOWN with reasons);
+- Finding B: `N_SCOPED_DISPOSITION_R21.json` (141 explicit UNKNOWN, 0 RERUN
+  after R22-follow-up retraction of 39 micro cells; smokes supporting-only) +
+  mechanical 47×3 join test (negative-control proven);
   dangling derivation input path documented with embedded-source fallback.
 - Hygiene: FINAL_PACKET + manifest TRACKED; STATE.yaml → COMPLETE terminal.
 - Verdicts unchanged: `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·

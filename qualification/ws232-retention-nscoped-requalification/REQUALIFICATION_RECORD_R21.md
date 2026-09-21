@@ -95,3 +95,16 @@ Rerun evidence on final bytes: new negative regression 4/4
 live generic-submission suite 4/4 (real engine, exercises the modified
 `submitAction` path end-to-end), full bridge suite 160/160 on final bytes.
 Session bind re-baselined to the fixed bytes.
+
+## Addendum R22 — micro RERUN retraction + disposition join (evidence integrity)
+
+Coordinator R22-follow-up: the 39 micro_rules cells first labeled RERUN
+pointed at generic cardinality smokes (25/25/45 decisions, broad decision
+classes only — no fixture_id, no per-micro-rule assertions for e.g.
+MICRO_LAYERS/MICRO_TRIGGERS/MICRO_STATE_BASED_ACTIONS). Retracted to
+UNKNOWN with the smokes cited as supporting cardinality evidence only.
+Disposition now 141 UNKNOWN / 0 RERUN. `test_n_scoped_disposition_join_complete`
+mechanically enforces 47×3 coverage, status vocabulary, reason presence,
+and fixture/count correspondence for any future RERUN (negative-control
+proven with a bogus pointer). STATIC_PASS unchanged (47/47); no behavioral
+PASS manufactured; residual N-scoped fixture campaign stays explicit.

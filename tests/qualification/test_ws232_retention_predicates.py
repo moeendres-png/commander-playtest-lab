@@ -87,3 +87,41 @@ def test_replay_schema_stable():
     src = (REPO_ROOT / "src/commander_lab/semantic_replay/tape.py").read_text()
     m = re.search(r'TAPE_SCHEMA_VERSION(?::\s*Final)?\s*=\s*"([^"]+)"', src)
     assert m and m.group(1) == "semantic-replay-tape/1.0.0"
+
+
+def test_n_scoped_disposition_join_complete():
+    """R22 evidence-integrity join: every predicate x every required N-cell
+    carries an explicit disposition. RERUN cells must point at an existing
+    artifact whose path or bytes name BOTH the fixture_id and the player
+    count (no generic smoke may discharge a fixture-specific cell); UNKNOWN
+    cells must carry a non-empty reason (honest UNKNOWN allowed, silent
+    gaps and manufactured PASS are not)."""
+    preds = _load("RETENTION_PREDICATES.json")
+    disp = _load("N_SCOPED_DISPOSITION_R21.json")
+    by_pred = {e["predicate_id"]: e for e in disp["dispositions"]}
+    assert len(by_pred) == preds["predicate_count"] == 47
+    rerun = unknown = 0
+    for p in preds["predicates"]:
+        entry = by_pred.get(p["predicate_id"])
+        assert entry is not None, p["predicate_id"]
+        assert entry["fixture_id"] == p["fixture_id"], p["predicate_id"]
+        required = [str(n) for n in p["n_scoped_rerun_required"]]
+        assert sorted(entry["cells"]) == sorted(required), p["predicate_id"]
+        for cell, body in entry["cells"].items():
+            status = body["status"]
+            assert status in ("RERUN", "UNKNOWN"), (p["predicate_id"], cell)
+            if status == "RERUN":
+                pointer = REPO_ROOT / body["pointer"]
+                assert pointer.is_file(), (p["predicate_id"], cell, body["pointer"])
+                haystack = body["pointer"] + "\n" + pointer.read_text(encoding="utf-8")
+                assert p["fixture_id"] in haystack, (p["predicate_id"], cell, "fixture")
+                assert cell in haystack, (p["predicate_id"], cell, "count")
+                rerun += 1
+            else:
+                assert body.get("reason", "").strip(), (p["predicate_id"], cell)
+                unknown += 1
+    assert disp["counts"]["rerun_cells"] == rerun
+    assert disp["counts"]["unknown_cells"] == unknown
+    assert rerun + unknown == sum(
+        len(p["n_scoped_rerun_required"]) for p in preds["predicates"]
+    )

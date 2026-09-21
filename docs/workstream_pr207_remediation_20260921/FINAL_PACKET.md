@@ -101,11 +101,15 @@ Rollback: revert merge commit (campaign branches remain on remote).
   4-case negative regression (no engine needed); `executed_*` facts preserved
   (no rollback implied). Bridge suite 160/160 on final bytes.
 - Finding B (N-scoped disposition): `N_SCOPED_DISPOSITION_R21.json` maps all
-  47 predicates × required 2/3/5 cells: 39 RERUN (13 micro_rules, fresh
-  bounded smokes 2@25/3@25/5@45 PASS on final bytes, engine db134b97,
-  evidence under `r21-smoke-evidence/`) + 102 UNKNOWN (29 card fixtures: no
-  per-card rerun on current bytes; 5 replay_rng: no 2/3/5 replay-match rerun;
-  reasons + supporting pointers recorded, no manufactured PASS). The
+  47 predicates × required 2/3/5 cells as **141 explicit UNKNOWN with reasons,
+  0 RERUN** (R22-follow-up correction: the 39 micro cells first labeled RERUN
+  pointed at generic cardinality smokes with no fixture-specific behavior
+  assertions, so they were retracted to UNKNOWN; the 2/3/5 bounded smokes
+  remain cited inside UNKNOWN reasons purely as supporting
+  cardinality/lifecycle evidence). A mechanical join test
+  (`test_n_scoped_disposition_join_complete`, negative-control proven)
+  enforces 47×3 coverage, valid statuses, reason presence, and — for any
+  future RERUN — pointer existence plus fixture/count correspondence. The
   `WORKLOAD_DERIVATION.json` external disposition path does not resolve at
   this head (dir holds `decks/` only, repo-wide search negative) — embedded
   `retained_rows` used as authoritative source (SHA recorded in the JSON).

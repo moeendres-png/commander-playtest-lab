@@ -1,8 +1,8 @@
 {
  "counts": {
   "predicates": 47,
-  "rerun_cells": 39,
-  "unknown_cells": 102
+  "rerun_cells": 0,
+  "unknown_cells": 141
  },
  "derivation_input_note": "inputs.disposition path qualification/ws215-xmage-variable-player-multicardinality/COMMON_FIXTURE_DISPOSITION.json does not resolve at this head (directory holds decks/ only; repo-wide search negative). Authoritative source used: embedded retained_rows in WORKLOAD_DERIVATION.json (sha256 ebdc266f972932f4b5a983a459193937059393fafed936cf1f0be6f1f16d388b).",
  "dispositions": [
@@ -706,22 +706,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_COMBAT",
@@ -736,22 +730,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
@@ -766,22 +754,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_CONTROL",
@@ -796,22 +778,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_COPY",
@@ -826,22 +802,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_LAYERS",
@@ -856,22 +826,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_MODES",
@@ -886,22 +850,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_PREVENTION",
@@ -916,22 +874,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_REPLACEMENT",
@@ -946,22 +898,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_RULES_RANDOMNESS",
@@ -976,22 +922,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_STACK",
@@ -1006,22 +946,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_STATE_BASED_ACTIONS",
@@ -1036,22 +970,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_TRIGGERS",
@@ -1066,22 +994,16 @@
    "category": "micro_rules",
    "cells": {
     "2": {
-     "artifact_sha256": "696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f",
-     "detail": "bounded live smoke 2P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260825; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 2P/25 decisions PASS, engine db134b97, seed 20260825, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_2P.json sha256 696deece3c693b477bb717f367033fee1081621ef0b64da53e96ed9893effe4f. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "3": {
-     "artifact_sha256": "16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b",
-     "detail": "bounded live smoke 3P/25 decisions PASS on R22 bytes, engine db134b97, seed 20260826; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 3P/25 decisions PASS, engine db134b97, seed 20260826, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_3P.json sha256 16e31d218f639ba34a660858a5fc7dec7f16489c0d8736a22b6ed2deded1523b. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     },
     "5": {
-     "artifact_sha256": "f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22",
-     "detail": "bounded live smoke 5P/45 decisions PASS on R22 bytes, engine db134b97, seed 20260827; bridge jar rebuilt from final sources",
-     "pointer": "docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json",
-     "status": "RERUN"
+     "reason": "UNKNOWN: no fixture-specific runtime rerun on current bytes for this micro-rule fixture at this count (no per-fixture behavior assertions exist for e.g. MICRO_LAYERS, MICRO_TRIGGERS, MICRO_STATE_BASED_ACTIONS). Supporting cardinality evidence only (not a behavioral rerun): bounded live smoke 5P/45 decisions PASS, engine db134b97, seed 20260827, artifact docs/workstream_pr207_remediation_20260921/r21-smoke-evidence/XMAGE_FULL_GAME_SMOKE_5P.json sha256 f80d9f3f7858f121f112259bdf530d73be9619218391f12de55fef59ed89ea22. Residual: fixture-specific N-scoped rerun campaign.",
+     "status": "UNKNOWN"
     }
    },
    "fixture_id": "MICRO_ZONE_CHANGES",
@@ -1213,7 +1135,7 @@
    ]
   }
  ],
- "method": "Reuse sealed runs + 3 cheap bounded smokes on final bytes; no expensive per-card/per-cell suites repeated. STATIC_PASS is not claimed as behavioral PASS.",
+ "method": "All 141 N-scoped cells UNKNOWN: no fixture-specific runtime reruns exist on current bytes for any predicate family. Bounded 2/3/5P smokes are retained purely as supporting cardinality/lifecycle evidence (cited inside UNKNOWN reasons), never as behavioral reruns. STATIC_PASS is not claimed as behavioral PASS.",
  "schema_version": "ws232-n-scoped-disposition-1.0.0",
  "source_head": "b7c4a14f0f3d2cc45858e2b4bc046d84c8cc69cd + manifest-only follow-ups (no runtime bytes change)",
  "source_tree": "ec005be8254b8785ca733fa1d921e9c855ba8b7e"
