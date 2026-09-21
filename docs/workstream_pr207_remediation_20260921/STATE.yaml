@@ -16,7 +16,7 @@ out_of_scope:
 ownership: PR207-REMEDIATION-R21
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: 0048bc153cacffdd344b1a8d2d0ee07194d0cd43
+state_written_against_head: 7cee4abf8544904ff1e93c483b31caf7c60f4505
 status: COMPLETE
-validated_head: 0048bc153cacffdd344b1a8d2d0ee07194d0cd43
+validated_head: 7cee4abf8544904ff1e93c483b31caf7c60f4505
 worktree: /home/moeen/code/ws-ci-cardinality-lane-20260921
