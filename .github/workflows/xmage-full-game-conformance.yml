@@ -11,6 +11,7 @@ on:
       - "src/commander_lab/candidates/models.py"
       - "artifacts/xmage-full-game/**"
       - "tests/unit/test_xmage_full_game.py"
+      - "tests/unit/test_xmage_variable_player.py"
       - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
       - ".github/workflows/xmage-full-game-conformance.yml"
@@ -20,8 +21,12 @@ on:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
       - "src/commander_lab/engine/rules/full_game_batch.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/models/pilots.py"
+      - "src/commander_lab/candidates/models.py"
       - "artifacts/xmage-full-game/**"
       - "tests/unit/test_xmage_full_game.py"
+      - "tests/unit/test_xmage_variable_player.py"
       - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
       - ".github/workflows/xmage-full-game-conformance.yml"
@@ -31,7 +36,7 @@ permissions:
   contents: read
 
 env:
-  XMAGE_COMMIT: cfc36f445f917f101fa2ed588770e043f53bc44c
+  XMAGE_COMMIT: db134b9737e951367d65ef5806ad986319cc73ab
   PYTHONHASHSEED: "0"
   COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
@@ -60,6 +65,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements/lock.txt
       - name: Verify immutable XMage pin
         working-directory: vendor/engine-source/xmage
         run: |
@@ -71,7 +77,9 @@ jobs:
           set -euo pipefail
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
       - name: Install lab
-        run: python -m pip install -e '.[dev,api]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Generate versioned full-game contracts
         run: python scripts/generate_full_game_contract_artifacts.py
       - name: Run focused Python full-game tests
@@ -81,6 +89,18 @@ jobs:
         run: mvn -B -ntp verify
       - name: Run real seeded 4P game-over and replay conformance
         run: python scripts/run_external_full_game_conformance.py
+      - name: Run bounded live smoke per supported player count (2/3/5/6)
+        run: |
+          set -euo pipefail
+          python scripts/run_external_full_game_conformance.py --player-count 2 --smoke-decisions 25
+          python scripts/run_external_full_game_conformance.py --player-count 3 --smoke-decisions 25
+          python scripts/run_external_full_game_conformance.py --player-count 5 --smoke-decisions 45
+          python scripts/run_external_full_game_conformance.py --player-count 6 --smoke-decisions 55
+      - name: Probe fail-closed boundary above supported range
+        run: |
+          set -euo pipefail
+          python scripts/run_external_full_game_conformance.py --expect-fail-closed --player-count 7
+          test -f artifacts/xmage-full-game/XMAGE_FULL_GAME_FAIL_CLOSED_7P.json
       - name: Verify technical-evidence boundary
         shell: bash
         run: |

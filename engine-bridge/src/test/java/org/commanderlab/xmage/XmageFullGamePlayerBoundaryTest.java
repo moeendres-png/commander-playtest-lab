@@ -82,6 +82,7 @@ class XmageFullGamePlayerBoundaryTest {
                         "actor",
                         List.of("target"),
                         List.of(),
+                        null,
                         null
                 );
 
@@ -110,7 +111,8 @@ class XmageFullGamePlayerBoundaryTest {
                         "actor",
                         List.of("target"),
                         List.of(),
-                        3
+                        3,
+                        null
                 );
 
         assertEquals(3, player.requireNumericChoice(response, "target_amount"));

@@ -31,13 +31,13 @@ on:
       xmage_commit:
         description: Verified full XMage commit SHA
         required: true
-        default: cfc36f445f917f101fa2ed588770e043f53bc44c
+        default: db134b9737e951367d65ef5806ad986319cc73ab
 
 permissions:
   contents: read
 
 env:
-  XMAGE_COMMIT: ${{ inputs.xmage_commit || 'cfc36f445f917f101fa2ed588770e043f53bc44c' }}
+  XMAGE_COMMIT: ${{ inputs.xmage_commit || 'db134b9737e951367d65ef5806ad986319cc73ab' }}
   ENGINE_PROVIDER: xmage
   ENGINE_MODE: external
   ALLOW_TACTICAL_ORACLE_FALLBACK: "false"
@@ -86,6 +86,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements/lock.txt
       - name: Verify XMage commit and metadata
         working-directory: vendor/engine-source/xmage
         run: |
@@ -100,7 +101,9 @@ jobs:
         run: |
           if test -x ./mvnw; then ./mvnw -B -ntp -DskipTests install; else mvn -B -ntp -DskipTests install; fi
       - name: Install lab
-        run: python -m pip install -e '.[dev,api]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Require provider-specific bridge
         run: |
           test -f engine-bridge/pom.xml || {

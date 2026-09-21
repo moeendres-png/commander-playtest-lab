@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
+
+from pydantic import ValidationError
 
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
@@ -16,7 +19,26 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "cfc36f445f917f101fa2ed588770e043f53bc44c"
+XMAGE_COMMIT = "db134b9737e951367d65ef5806ad986319cc73ab"
+
+# WS223 cardinality contract. 4P keeps the full game-over + replay gate
+# (continuity with WS213/WS215 evidence, same seed). 2P/3P/5P run the bounded
+# lifecycle smoke (live startup, seed/count binding, authoritative decision
+# progression, clean shutdown). 6P must fail closed before any engine launch
+# (layer 1: conformance table; layer 2: scenario model; layer 3: runner
+# validation; layer 4: pilot policy).
+FULL_GATE_PLAYER_COUNT = 4
+SMOKE_PLAYER_COUNTS = (2, 3, 5, 6)
+SUPPORTED_PLAYER_COUNTS = (2, 3, 4, 5, 6)
+CARDINALITY_SEEDS = {2: 20260825, 3: 20260826, 4: 20260824, 5: 20260827, 6: 20260828}
+# Calibrated live 2026-09-15 (JDK 17 bridge, engine 1.4.61): 5 mulligans +
+# opening choices consume the early budget at 5P, with priority emerging
+# between decisions 26-40; 45 banks margin. Lowering any target below the
+# calibrated value regresses the required-class gate (proven for 5P@25).
+# R19 calibration 2026-09-21: 6P needs 55 (6 mulligans + wider opening;
+# required classes mulligan+priority present at 55, plus target/choice).
+SMOKE_DECISION_TARGETS = {2: 25, 3: 25, 5: 45, 6: 55}
+SMOKE_REQUIRED_DECISION_CLASSES = ("mulligan", "priority")
 
 
 def _deck(seat: int) -> RulesDeckInput:
@@ -59,6 +81,40 @@ def _binding(seat: int, deck: RulesDeckInput) -> FullGamePilotBinding:
     )
 
 
+def build_setup(
+    player_count: int,
+) -> tuple[FutureXmageScenario, tuple[RulesDeckInput, ...], tuple[FullGamePilotBinding, ...]]:
+    """Build deck/pilot/scenario coverage for one supported cardinality.
+
+    Importable without a JVM so unit tests can prove construction,
+    seat coverage, and per-count seed binding. Raises ``ValueError`` for
+    cardinalities outside the conformance table (fail-closed layer 1);
+    the ``FutureXmageScenario`` model (``ge=2, le=6``) is the backstop
+    layer 2, ``_validate_inputs`` layer 3, the pilot policy layer 4.
+    """
+    if player_count not in CARDINALITY_SEEDS:
+        raise ValueError(f"unsupported conformance cardinality: {player_count}")
+    decks = tuple(_deck(seat) for seat in range(1, player_count + 1))
+    pilots = tuple(_binding(seat, decks[seat - 1]) for seat in range(1, player_count + 1))
+    own = decks[0]
+    assert own.deck_hash is not None
+    scenario = FutureXmageScenario(
+        candidate_id=own.deck_id,
+        deck_hash=own.deck_hash,
+        opponent_deck_ids=tuple(deck.deck_id for deck in decks[1:]),
+        player_count=player_count,
+        seat=1,
+        scenario_id=f"technical-isamaru-full-game-{player_count}p-v1",
+        seed=CARDINALITY_SEEDS[player_count],
+        xmage_commit=XMAGE_COMMIT,
+        bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
+        pilot_identity="GenericCommanderPilot",
+        pilot_version="1.0.0",
+        decision_policy_version="xmage-full-game-policy-1.0.0",
+    )
+    return scenario, decks, pilots
+
+
 def _contains_forbidden_private_state(value: Any) -> bool:
     if isinstance(value, dict):
         forbidden = {"pilot_state", "hand", "library", "private_hand", "library_order"}
@@ -70,26 +126,14 @@ def _contains_forbidden_private_state(value: Any) -> bool:
     return False
 
 
-def main() -> None:
-    decks = tuple(_deck(seat) for seat in range(1, 5))
-    pilots = tuple(_binding(seat, decks[seat - 1]) for seat in range(1, 5))
-    own = decks[0]
-    assert own.deck_hash is not None
-    scenario = FutureXmageScenario(
-        candidate_id=own.deck_id,
-        deck_hash=own.deck_hash,
-        opponent_deck_ids=(decks[1].deck_id, decks[2].deck_id, decks[3].deck_id),
-        player_count=4,
-        seat=1,
-        scenario_id="technical-isamaru-full-game-v1",
-        seed=20260824,
-        xmage_commit=XMAGE_COMMIT,
-        bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
-        pilot_identity="GenericCommanderPilot",
-        pilot_version="1.0.0",
-        decision_policy_version="xmage-full-game-policy-1.0.0",
-    )
+def _out_dir() -> Path:
+    out = ROOT / "artifacts/xmage-full-game"
+    out.mkdir(parents=True, exist_ok=True)
+    return out
 
+
+def run_full_gate(player_count: int = FULL_GATE_PLAYER_COUNT) -> dict[str, Any]:
+    scenario, decks, pilots = build_setup(player_count)
     runner = XmageFullGameRunner(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
     first = runner.run(scenario=scenario, decks=decks, pilots=pilots)
     second = runner.run(scenario=scenario, decks=decks, pilots=pilots)
@@ -134,8 +178,7 @@ def main() -> None:
             + repr(accepted_classes)
         )
 
-    out = ROOT / "artifacts/xmage-full-game"
-    out.mkdir(parents=True, exist_ok=True)
+    out = _out_dir()
     conformance = first.model_dump(mode="json")
     conformance["fixture_provenance"] = {
         "kind": "synthetic_technical_fixture",
@@ -173,22 +216,107 @@ def main() -> None:
         json.dumps(hidden, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(
-        json.dumps(
-            {
-                "status": "PASS",
-                "decision_count": first.decision_count,
-                "winner_seats": first.winner_seats,
-                "semantic_replay_match": semantic_match,
-                "raw_result_match": raw_match,
-                "observed_decision_classes": accepted_classes,
-                "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
-                "evidence_class": FULL_GAME_EVIDENCE_CLASS,
-            },
-            indent=2,
-            sort_keys=True,
-        )
+    summary = {
+        "status": "PASS",
+        "mode": "full_gate",
+        "player_count": player_count,
+        "decision_count": first.decision_count,
+        "winner_seats": first.winner_seats,
+        "semantic_replay_match": semantic_match,
+        "raw_result_match": raw_match,
+        "observed_decision_classes": accepted_classes,
+        "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
+        "evidence_class": FULL_GAME_EVIDENCE_CLASS,
+    }
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    return summary
+
+
+def run_bounded_smoke(
+    player_count: int, smoke_decision_target: int | None = None
+) -> dict[str, Any]:
+    if player_count not in SMOKE_PLAYER_COUNTS and player_count != FULL_GATE_PLAYER_COUNT:
+        raise SystemExit(f"bounded smoke supports {SUPPORTED_PLAYER_COUNTS}, got {player_count}")
+    if smoke_decision_target is None:
+        smoke_decision_target = SMOKE_DECISION_TARGETS[player_count]
+    scenario, decks, pilots = build_setup(player_count)
+    runner = XmageFullGameRunner(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
+    smoke = runner.run_smoke(
+        scenario=scenario, decks=decks, pilots=pilots, smoke_decision_target=smoke_decision_target
     )
+    observed = list(smoke.observed_decision_classes)
+    missing = [name for name in SMOKE_REQUIRED_DECISION_CLASSES if name not in observed]
+    if missing:
+        raise SystemExit(
+            f"{player_count}P bounded smoke did not exercise required decision classes; "
+            f"missing={missing} observed={observed}"
+        )
+    summary = {
+        "status": "PASS",
+        "mode": "bounded_smoke",
+        "player_count": player_count,
+        "seed": scenario.seed,
+        "scenario_id": scenario.scenario_id,
+        "decision_count": smoke.decision_count,
+        "smoke_decision_target": smoke.smoke_decision_target,
+        "bounded_criterion_met": smoke.bounded_criterion_met,
+        "terminal_reached": smoke.terminal_reached,
+        "seed_preserved": smoke.seed_preserved,
+        "player_count_preserved": smoke.player_count_preserved,
+        "observed_decision_classes": observed,
+        "unsupported_callback_seen": smoke.unsupported_callback_seen,
+        "clean_shutdown": smoke.clean_shutdown,
+        "engine_version": smoke.engine_version,
+        "xmage_commit": smoke.xmage_commit,
+        "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
+        "evidence_class": FULL_GAME_EVIDENCE_CLASS,
+    }
+    (_out_dir() / f"XMAGE_FULL_GAME_SMOKE_{player_count}P.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    return summary
+
+
+def prove_fail_closed(player_count: int, out_dir: Path | None = None) -> dict[str, Any]:
+    """Prove an unsupported cardinality fails closed before any engine launch."""
+    try:
+        build_setup(player_count)
+    except (ValidationError, ValueError) as exc:
+        summary = {
+            "status": "FAIL_CLOSED",
+            "player_count": player_count,
+            "fail_closed_layer": "conformance_cardinality_table",
+            "engine_launched": False,
+            "rejection": f"{type(exc).__name__}",
+        }
+        target = (out_dir or _out_dir()) / f"XMAGE_FULL_GAME_FAIL_CLOSED_{player_count}P.json"
+        target.write_text(
+            json.dumps(summary, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        print(json.dumps(summary, indent=2, sort_keys=True))
+        return summary
+    raise SystemExit(
+        f"CARDINALITY REGRESSION: player_count={player_count} was accepted without qualification"
+    )
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="XMage full-game cardinality conformance")
+    parser.add_argument("--player-count", type=int, default=FULL_GATE_PLAYER_COUNT)
+    parser.add_argument("--smoke-decisions", type=int, default=None)
+    parser.add_argument("--expect-fail-closed", action="store_true")
+    args = parser.parse_args(argv)
+
+    if args.expect_fail_closed:
+        prove_fail_closed(args.player_count)
+        return
+    if args.smoke_decisions is not None:
+        run_bounded_smoke(args.player_count, args.smoke_decisions)
+        return
+    run_full_gate(args.player_count)
 
 
 if __name__ == "__main__":

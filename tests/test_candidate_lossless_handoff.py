@@ -215,36 +215,56 @@ def test_structural_and_tactical_have_no_decision_authority() -> None:
     assert OUR_PILOT_TARGET_DECISION_POLICY is True
 
 
-def test_future_xmage_contract_is_strictly_four_player() -> None:
-    FutureXmageScenario(
-        candidate_id="candidate-a",
-        deck_hash="a" * 64,
-        opponent_deck_ids=("opp-1", "opp-2", "opp-3"),
-        seat=1,
-        scenario_id="scenario-a",
-        seed=1,
-        xmage_commit="b" * 40,
-        bridge_version="bridge-v1",
-        pilot_identity="our-pilot",
-        pilot_version="pilot-v1",
-        decision_policy_version="policy-v1",
-    )
+def test_future_xmage_contract_supports_two_to_five_players() -> None:
+    for player_count in (2, 3, 4, 5):
+        opponents = tuple(f"opp-{index}" for index in range(1, player_count))
+        scenario = FutureXmageScenario(
+            candidate_id="candidate-a",
+            deck_hash="a" * 64,
+            opponent_deck_ids=opponents,
+            player_count=player_count,
+            seat=player_count,
+            scenario_id="scenario-a",
+            seed=1,
+            xmage_commit="b" * 40,
+            bridge_version="bridge-v1",
+            pilot_identity="our-pilot",
+            pilot_version="pilot-v1",
+            decision_policy_version="policy-v1",
+        )
+        assert len(scenario.opponent_deck_ids) == player_count - 1
+    for bad_count in (0, 1, 6):
+        with pytest.raises(ValidationError):
+            FutureXmageScenario.model_validate(
+                {
+                    "candidate_id": "candidate-a",
+                    "deck_hash": "a" * 64,
+                    "opponent_deck_ids": ["opp-1", "opp-2", "opp-3"],
+                    "player_count": bad_count,
+                    "seat": 1,
+                    "scenario_id": "scenario-a",
+                    "seed": 1,
+                    "xmage_commit": "b" * 40,
+                    "bridge_version": "bridge-v1",
+                    "pilot_identity": "our-pilot",
+                    "pilot_version": "pilot-v1",
+                    "decision_policy_version": "policy-v1",
+                }
+            )
     with pytest.raises(ValidationError):
-        FutureXmageScenario.model_validate(
-            {
-                "candidate_id": "candidate-a",
-                "deck_hash": "a" * 64,
-                "opponent_deck_ids": ["opp-1", "opp-2", "opp-3"],
-                "player_count": 3,
-                "seat": 1,
-                "scenario_id": "scenario-a",
-                "seed": 1,
-                "xmage_commit": "b" * 40,
-                "bridge_version": "bridge-v1",
-                "pilot_identity": "our-pilot",
-                "pilot_version": "pilot-v1",
-                "decision_policy_version": "policy-v1",
-            }
+        FutureXmageScenario(
+            candidate_id="candidate-a",
+            deck_hash="a" * 64,
+            opponent_deck_ids=("opp-1", "opp-2", "opp-3"),
+            player_count=3,
+            seat=1,
+            scenario_id="scenario-a",
+            seed=1,
+            xmage_commit="b" * 40,
+            bridge_version="bridge-v1",
+            pilot_identity="our-pilot",
+            pilot_version="pilot-v1",
+            decision_policy_version="policy-v1",
         )
 
 

@@ -26,7 +26,8 @@ def test_manifest_declares_sole_pin_authority(repo_root: Path) -> None:
 def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     config = _manifest(repo_root)
     assert config["secondary_engine"]["commit"] == "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
-    assert config["primary_engine"]["commit"] == "cfc36f445f917f101fa2ed588770e043f53bc44c"
+    # WS213 authorized repin: WS212 production candidate (was cfc36f44).
+    assert config["primary_engine"]["commit"] == "db134b9737e951367d65ef5806ad986319cc73ab"
     assert config["provider_decision"] == "NO_PROVIDER_READY"
     assert config["current_runtime"]["provider_selected"] is False
     assert config["current_runtime"]["production_provider"] is None

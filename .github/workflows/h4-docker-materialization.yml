@@ -72,8 +72,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements/lock.txt
       - name: Install lab (test deps for the H4-adjacent unit batteries)
-        run: python -m pip install -e '.[dev,api]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Lane inputs exist (fail fast before heavy builds)
         shell: bash
         run: |
@@ -146,7 +149,9 @@ jobs:
           java-version: "17"
           cache: maven
       - name: Install lab (engine-verify consumer)
-        run: python -m pip install -e '.[dev,api]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Resolve canonical XMage pin from manifest authority
         shell: bash
         run: |

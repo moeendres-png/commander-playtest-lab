@@ -487,7 +487,7 @@ class XmageGameManagerTest {
         RuntimeDeck deck =
                 loadRogShaiRuntimeDeck();
 
-        for (int playerCount : List.of(1, 6)) {
+        for (int playerCount : List.of(1, 7)) {
             XmageDeckImporter importer =
                     new XmageDeckImporter();
 

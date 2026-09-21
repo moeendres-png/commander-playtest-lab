@@ -34,6 +34,9 @@ concurrency:
   group: candidate-lossless-handoff-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+env:
+  PYTHONHASHSEED: "0"
+
 jobs:
   conformance:
     runs-on: ubuntu-latest
@@ -46,8 +49,11 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+          cache-dependency-path: requirements/lock.txt
       - name: Install
-        run: python -m pip install -e '.[dev]'
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
       - name: Focused no-pre-filter tests
         run: pytest -q tests/test_candidate_lossless_handoff.py
       - name: Canonical read-only handoff conformance

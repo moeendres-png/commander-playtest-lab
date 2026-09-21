@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Headless XMage player whose discretionary decisions are supplied externally.
@@ -114,7 +115,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .sorted(Comparator.comparing(this::abilitySortKey))
                 .toList();
         if (legal.size() == 1) {
-            return legal.get(0);
+            // WS229 F-RULES-03 disposition: no discretion exists with one
+            // lawful ability, so the forced move auto-submits with a logged
+            // forced-move record instead of bypassing pilot+transcript silently.
+            SpellAbility only = legal.get(0);
+            decisionController.recordForcedMove(
+                    "choice",
+                    "Choose how to cast " + card.getName(),
+                    "single castable ability: " + abilityLabel(only, game)
+            );
+            return only;
         }
 
         JsonArray options = new JsonArray();
@@ -180,7 +190,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .sorted(Comparator.comparing(this::abilitySortKey))
                 .toList();
         if (legal.size() == 1) {
-            return legal.get(0);
+            // WS229 F-RULES-03 disposition: single lawful ability, logged
+            // forced move (see chooseAbilityForCast).
+            ActivatedAbility only = legal.get(0);
+            decisionController.recordForcedMove(
+                    "choice",
+                    "Choose land or spell ability for " + card.getName(),
+                    "single legal ability: " + abilityLabel(only, game)
+            );
+            return only;
         }
 
         JsonArray options = new JsonArray();
@@ -304,7 +322,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Ability source,
             Game game
     ) {
-        return chooseTargetInternal(outcome, false, target, source, game, cards, null);
+        JsonObject supplied = null;
+        // WS229 F-RULES-03 disposition: bottom-of-library selection is
+        // identified by the native putCardsOnBottomOfLibrary path (callback
+        // identity), never by prompt-text heuristics in the Lab.
+        if (BOTTOM_SELECTION.get()) {
+            supplied = new JsonObject();
+            supplied.addProperty("bottom_of_library_selection", true);
+        }
+        return chooseTargetInternal(outcome, false, target, source, game, cards, supplied);
     }
 
     @Override
@@ -428,11 +454,50 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean choose(Outcome outcome, Choice choice, Game game) {
+        // WS92-D4 key-mode Choice projection (systemic reacquisition).
+        // Alternative-cost and modal menus carry items in keyChoices while the
+        // plain choice set stays empty; projecting zero options would silently
+        // cancel the cast. Project key -> engine text and record the pick by
+        // key. The engine alone supplies the eligible set; the adapter never
+        // computes legality.
+        if (choice.isKeyChoice() && !choice.getKeyChoices().isEmpty()) {
+            List<String> keys = new ArrayList<>(choice.getKeyChoices().keySet());
+            keys.sort(String::compareTo);
+            JsonArray options = new JsonArray();
+            Map<String, String> byOption = new HashMap<>();
+            for (String key : keys) {
+                String text = choiceText(choice.getKeyChoices().get(key));
+                String optionId = optionId("choice-key", key);
+                JsonObject metadata = new JsonObject();
+                metadata.addProperty("choice_key", key);
+                metadata.addProperty("choice", text == null ? key : text);
+                options.add(XmageFullGameDecisionController.option(
+                        optionId, text == null ? key : text, "choice", metadata));
+                byOption.put(optionId, key);
+            }
+            String selected = requireSingle(request(
+                    game,
+                    "choice",
+                    choicePrompt(choice),
+                    1,
+                    1,
+                    options,
+                    outcomeContext(outcome),
+                    null
+            ));
+            String key = byOption.get(selected);
+            if (key == null) {
+                fail("ILLEGAL_ACTION", "choice option disappeared: " + selected);
+            }
+            choice.setChoiceByKey(key, false);
+            return true;
+        }
         List<String> values = new ArrayList<>(choice.getChoices());
         values.sort(String::compareTo);
         JsonArray options = new JsonArray();
         Map<String, String> choices = new HashMap<>();
-        for (String value : values) {
+        for (String raw : values) {
+            String value = choiceText(raw);
             String optionId = optionId("choice", value);
             JsonObject metadata = new JsonObject();
             metadata.addProperty("choice", value);
@@ -447,7 +512,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         String selected = requireSingle(request(
                 game,
                 "choice",
-                "Choose option",
+                choicePrompt(choice),
                 1,
                 1,
                 options,
@@ -460,6 +525,38 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         choice.setChoice(value);
         return true;
+    }
+
+    private static final java.util.regex.Pattern CHOICE_SHORT_ID =
+            java.util.regex.Pattern.compile(" \\[[0-9a-z]{1,8}\\]");
+
+    /**
+     * WS92-D4 twin-stable choice text (systemic reacquisition). Strips
+     * per-game identity from engine choice text (UUIDs plus GameLog short-id
+     * suffixes like "Force of Will [bd5]"); Rules content untouched.
+     */
+    private static String choiceText(String text) {
+        if (text == null) {
+            return null;
+        }
+        String redacted = XmageFullGameDecisionController.redactObjectIds(text);
+        return CHOICE_SHORT_ID.matcher(redacted).replaceAll(" [#]");
+    }
+
+    /** Engine choice message (with sub-message) or the legacy generic prompt. */
+    private static String choicePrompt(Choice choice) {
+        try {
+            String message = choice.getMessage();
+            String sub = choice.getSubMessage();
+            String combined = ((message == null ? "" : message)
+                    + " " + (sub == null ? "" : sub)).trim();
+            if (!combined.isEmpty()) {
+                return choiceText(combined);
+            }
+        } catch (RuntimeException ignored) {
+            // Fall through to the legacy prompt.
+        }
+        return "Choose option";
     }
 
     @Override
@@ -714,7 +811,10 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public void selectAttackers(Game game, UUID attackingPlayerId) {
         List<Permanent> attackers = new ArrayList<>(getAvailableAttackers(game));
-        attackers.sort(Comparator.comparing(permanent -> permanent.getId().toString()));
+        // WS92-D5 twin-stable frame sequence (systemic reacquisition): native
+        // UUIDs are random per game, so declaration order follows Rules-visible
+        // content (name, entry order, characteristics), never native identity.
+        attackers.sort(stablePermanentOrder(game));
         List<UUID> defenders = game.getCombat().getDefenders().stream()
                 .sorted(Comparator.comparing(UUID::toString))
                 .toList();
@@ -776,7 +876,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
             UUID defendingPlayerId
     ) {
         List<Permanent> blockers = new ArrayList<>(getAvailableBlockers(game));
-        blockers.sort(Comparator.comparing(permanent -> permanent.getId().toString()));
+        // WS92-D5 twin-stable frame sequence (see selectAttackers):
+        // declaration order among co-blockers carries no Rules content itself.
+        blockers.sort(stablePermanentOrder(game));
         List<UUID> attackers = game.getCombat().getAttackers().stream()
                 .sorted(Comparator.comparing(UUID::toString))
                 .toList();
@@ -824,6 +926,26 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
     }
 
+    /**
+     * WS92-D5 twin-stable permanent order over Rules-visible content
+     * (systemic reacquisition). Native UUIDs (and their string forms) are
+     * random per game and must never sequence decision frames; names, entry
+     * order (zone-change counter), and characteristics reproduce identically
+     * on twin re-execution. No Rules content: co-declaration order is a
+     * replay framing choice, never legality.
+     */
+    private static Comparator<Permanent> stablePermanentOrder(Game game) {
+        return Comparator
+                .comparing(
+                        (Permanent permanent) -> permanent.getName(),
+                        Comparator.nullsFirst(String::compareTo))
+                .thenComparingInt(permanent -> permanent.getZoneChangeCounter(game))
+                .thenComparingInt(permanent -> permanent.getPower().getValue())
+                .thenComparingInt(permanent -> permanent.getToughness().getValue())
+                .thenComparing(permanent -> permanent.isTapped())
+                .thenComparingInt(Permanent::getDamage);
+    }
+
     @Override
     public int getAmount(
             int min,
@@ -844,39 +966,94 @@ final class XmageFullGamePlayer extends PlayerImpl {
             MultiAmountType type,
             Game game
     ) {
+        // WS229 joint restoration (F-RULES-02b closed): ONE joint frame with
+        // the full legs+totals domain. The pilot makes a single strategic
+        // vector choice; per-leg sequential frames never reappear as pilot
+        // decisions. Validation is the exact isGoodValues projection.
         if (messages == null || messages.isEmpty()) {
             return List.of();
         }
-        List<Integer> result = new ArrayList<>(messages.size());
-        int allocated = 0;
-        for (int index = 0; index < messages.size(); index++) {
-            MultiAmountMessage current = messages.get(index);
-            int remainingMinAfter = 0;
-            int remainingMaxAfter = 0;
-            for (int future = index + 1; future < messages.size(); future++) {
-                remainingMinAfter += messages.get(future).min;
-                remainingMaxAfter += messages.get(future).max;
+        if (totalMax < totalMin) {
+            fail("BRIDGE_PROTOCOL_ERROR",
+                    "multi amount total band reversed: " + totalMin + ".." + totalMax);
+        }
+        long minSum = 0L;
+        long maxSum = 0L;
+        JsonArray legs = new JsonArray();
+        for (MultiAmountMessage message : messages) {
+            if (message == null) {
+                fail("BRIDGE_PROTOCOL_ERROR", "multi amount leg is missing");
             }
-            int min = Math.max(current.min, totalMin - allocated - remainingMaxAfter);
-            int max = Math.min(current.max, totalMax - allocated - remainingMinAfter);
-            int chosen = chooseNumber(
-                    "multi_amount",
-                    current.message,
-                    min,
-                    max,
-                    null,
-                    game
-            );
-            result.add(chosen);
-            allocated += chosen;
+            if (message.max < message.min) {
+                fail("BRIDGE_PROTOCOL_ERROR", "multi amount leg has reversed bounds");
+            }
+            minSum += message.min;
+            maxSum += message.max;
+            JsonObject leg = new JsonObject();
+            leg.addProperty("min", message.min);
+            leg.addProperty("max", message.max);
+            leg.addProperty("prompt", message.message == null ? "" : message.message);
+            legs.add(leg);
         }
-        if (allocated < totalMin || allocated > totalMax) {
-            fail(
-                    "PILOT_RESPONSE_INVALID",
-                    "multi amount total " + allocated + " outside " + totalMin + ".." + totalMax
-            );
+        if (minSum > totalMax || maxSum < totalMin) {
+            fail("PILOT_RESPONSE_INVALID",
+                    "multi amount domain infeasible: legs admit " + minSum + ".." + maxSum
+                            + " but total requires " + totalMin + ".." + totalMax);
         }
-        return List.copyOf(result);
+        JsonObject context = new JsonObject();
+        context.add("numeric_legs", legs);
+        context.addProperty("numeric_total_min", totalMin);
+        context.addProperty("numeric_total_max", totalMax);
+        context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
+        XmageFullGameDecisionController.DecisionResponse response = request(
+                game,
+                "multi_amount",
+                "Assign amounts (" + messages.size() + " legs)",
+                0,
+                0,
+                new JsonArray(),
+                context,
+                null
+        );
+        List<Integer> chosen = requireJointChoices(response, context, "multi_amount");
+        // Native authority gate: the engine's own isGoodValues predicate
+        // over the original messages must accept the projected vector.
+        // Any divergence between the Lab/controller projection and native
+        // semantics fails closed here, never silently.
+        if (!MultiAmountType.isGoodValues(chosen, messages, totalMin, totalMax)) {
+            fail("PILOT_RESPONSE_INVALID",
+                    "multi amount vector rejected by native isGoodValues gate");
+        }
+        return chosen;
+    }
+
+    /**
+     * WS229 joint isGoodValues projection: exact vector length, strict
+     * integer elements, per-leg inclusive membership, total band. Any
+     * violation fails closed; there is no clamp, default, or fallback.
+     */
+    List<Integer> requireJointChoices(
+            XmageFullGameDecisionController.DecisionResponse response,
+            JsonObject context,
+            String decisionClass
+    ) {
+        if (response == null || response.numericChoices() == null) {
+            fail("PILOT_RESPONSE_INVALID", "joint numeric choice required for " + decisionClass);
+        }
+        try {
+            XmageFullGameDecisionController.requireJointVector(response.numericChoices(), context);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            fail("PILOT_RESPONSE_INVALID", stripCode(exc.getMessage()));
+        }
+        return List.copyOf(response.numericChoices());
+    }
+
+    private static String stripCode(String message) {
+        if (message == null) {
+            return "joint numeric choice rejected";
+        }
+        int colon = message.indexOf(':');
+        return colon < 0 ? message : message.substring(colon + 1).trim();
     }
 
     @Override
@@ -892,6 +1069,38 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public void skip() {
         // GUI-only skip action. Priority decisions are handled explicitly by priority().
+    }
+
+    /**
+     * WS213 one-shot principal-bound concession authorizations. The set holds
+     * the exact native player UUIDs whose next synchronous {@code concede}
+     * call was authorized by {@link XmageFullGameSession#submitConcede} after
+     * a live {@code Game.canConcede} check. It is an authorization token, not
+     * a decision: availability and selection stay engine/pilot-owned.
+     */
+    private final Set<UUID> concessionArmed = ConcurrentHashMap.newKeySet();
+
+    void armConcession(UUID principal) {
+        if (principal == null || !principal.equals(getId())) {
+            fail("PILOT_RESPONSE_INVALID", "concession arming requires the exact principal");
+        }
+        concessionArmed.add(principal);
+    }
+
+    void disarmConcession(UUID principal) {
+        concessionArmed.remove(principal);
+    }
+
+    @Override
+    public void concede(Game game) {
+        // WS213: unattributed engine calls (idle timeout, inherited defaults)
+        // still fail closed. Only a submitConcede-authorized synchronous call
+        // for the exact principal reaches the native PlayerImpl path.
+        if (game != null && concessionArmed.remove(getId())) {
+            super.concede(game);
+            return;
+        }
+        fail("OUT_OF_SCOPE_DECISION", "concession is not part of Commander full-game conformance");
     }
 
     @Override
@@ -947,25 +1156,75 @@ final class XmageFullGamePlayer extends PlayerImpl {
         context.addProperty("target_name", target.getTargetName());
         context.addProperty("required", target.isRequired());
 
-        XmageFullGameDecisionController.DecisionResponse response = request(
-                game,
-                targeted ? "target" : "choose_object",
-                target.getMessage(game),
-                min,
-                max,
-                objectOptions(sorted, game, targeted ? "target" : "choice"),
-                context,
-                source
-        );
-        for (String selected : response.selectedOptionIds()) {
-            UUID id = UUID.fromString(selected);
-            if (targeted) {
-                target.addTarget(id, source, game);
-            } else {
-                target.add(id, game);
+        // WS92-D2 Rules-entitled hidden-zone look window (systemic
+        // reacquisition). The engine alone selected the eligible set; the
+        // adapter only projects identities the deciding principal is entitled
+        // to see while choosing (paper search/scry is a look), then closes
+        // the window. Creates no Rules semantics: no legality, target, cost,
+        // or outcome is computed or altered here.
+        Player lookOwner = lookOwnerFor(restrictedCards, game);
+        boolean lookGranted = false;
+        if (lookOwner != null) {
+            XmageFullGameStateRedactor.beginZoneFullLook(this, lookOwner, game);
+            lookGranted = true;
+        }
+        try {
+            XmageFullGameDecisionController.DecisionResponse response = request(
+                    game,
+                    targeted ? "target" : "choose_object",
+                    target.getMessage(game),
+                    min,
+                    max,
+                    objectOptions(sorted, game, targeted ? "target" : "choice"),
+                    context,
+                    source
+            );
+            for (String selected : response.selectedOptionIds()) {
+                UUID id = UUID.fromString(selected);
+                if (targeted) {
+                    target.addTarget(id, source, game);
+                } else {
+                    target.add(id, game);
+                }
+            }
+            return !response.selectedOptionIds().isEmpty();
+        } finally {
+            if (lookGranted) {
+                XmageFullGameStateRedactor.endZoneFullLook(this, lookOwner);
             }
         }
-        return !response.selectedOptionIds().isEmpty();
+    }
+
+    /**
+     * Owner of the first library-zone card in a restricted decision set, or
+     * null when the set involves no hidden library identities (hand,
+     * battlefield, graveyard, stack and exile projections need no grant).
+     */
+    private Player lookOwnerFor(Cards restrictedCards, Game game) {
+        if (restrictedCards == null || game == null) {
+            return null;
+        }
+        try {
+            for (Card card : restrictedCards.getCards(game)) {
+                if (card == null) {
+                    continue;
+                }
+                Card main = card.getMainCard();
+                Zone zone = game.getState().getZone(main.getId());
+                if (zone == null) {
+                    zone = game.getState().getZone(card.getId());
+                }
+                if (zone == Zone.LIBRARY && card.getOwnerId() != null) {
+                    Player owner = game.getPlayer(card.getOwnerId());
+                    if (owner != null) {
+                        return owner;
+                    }
+                }
+            }
+        } catch (RuntimeException ignored) {
+            return null;
+        }
+        return null;
     }
 
     private static JsonObject outcomeContext(Outcome outcome) {
@@ -1211,5 +1470,28 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private void fail(String code, String detail) {
         decisionController.failClosed(code, detail);
         throw new XmageFullGameDecisionController.DecisionException(code + ": " + detail);
+    }
+
+    /**
+     * WS229 F-RULES-03 disposition: marks the native
+     * putCardsOnBottomOfLibrary selection path (London mulligan bottom and
+     * other bottom-of-library orderings) so the Lab routes by structured
+     * context instead of prompt-text sniffing. Proven path: PlayerImpl
+     * funnels bottom selection through
+     * {@code choose(Outcome, Cards, TargetCard, Ability, Game)} (pinned
+     * 1.4.61 bytecode). Thread-local because the engine drives each player
+     * on its game thread; always cleared in {@code finally}.
+     */
+    private static final ThreadLocal<Boolean> BOTTOM_SELECTION =
+            ThreadLocal.withInitial(() -> Boolean.FALSE);
+
+    @Override
+    public boolean putCardsOnBottomOfLibrary(Cards cards, Game game, Ability source, boolean anyOrder) {
+        BOTTOM_SELECTION.set(Boolean.TRUE);
+        try {
+            return super.putCardsOnBottomOfLibrary(cards, game, source, anyOrder);
+        } finally {
+            BOTTOM_SELECTION.set(Boolean.FALSE);
+        }
     }
 }

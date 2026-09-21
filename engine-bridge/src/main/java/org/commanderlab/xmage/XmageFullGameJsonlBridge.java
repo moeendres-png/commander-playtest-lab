@@ -62,6 +62,10 @@ final class XmageFullGameJsonlBridge {
             case "get_full_game_decision" -> getDecision(requestId);
             case "submit_full_game_decision" -> submitDecision(requestId, request);
             case "get_full_game_result" -> getResult(requestId);
+            case "get_legal_actions" -> getLegalActions(requestId);
+            case "submit_action" -> submitAction(requestId, request);
+            case "get_concede_offer" -> getConcedeOffer(requestId, request);
+            case "submit_concede" -> submitConcede(requestId, request);
             case "shutdown_engine" -> success(requestId, shutdownPayload(), true);
             default -> error(
                     requestId,
@@ -151,11 +155,15 @@ final class XmageFullGameJsonlBridge {
             );
             String gameId = requiredText(payload, "game_id");
             List<String> deckHandles = requiredStringArray(payload, "deck_handles");
-            if (deckHandles.size() != XmageFullGameSession.PLAYER_COUNT) {
+            if (deckHandles.size() < XmageFullGameSession.MIN_PLAYERS
+                    || deckHandles.size() > XmageFullGameSession.MAX_PLAYERS) {
                 return error(
                         requestId,
                         "invalid_player_count",
-                        "Full-game conformance requires exactly four players; observed "
+                        "Full-game conformance supports "
+                                + XmageFullGameSession.MIN_PLAYERS + ".."
+                                + XmageFullGameSession.MAX_PLAYERS
+                                + " players; observed "
                                 + deckHandles.size(),
                         false
                 );
@@ -183,11 +191,14 @@ final class XmageFullGameJsonlBridge {
 
             JsonObject responsePayload = new JsonObject();
             responsePayload.addProperty("game_id", gameId);
-            responsePayload.addProperty("player_count", XmageFullGameSession.PLAYER_COUNT);
+            responsePayload.addProperty("player_count", session.playerCount());
             responsePayload.addProperty("starting_player_seat", startingPlayerSeat);
             responsePayload.addProperty("starting_life", startingLife);
             responsePayload.addProperty("seed", seed);
             responsePayload.addProperty("seed_controlled", true);
+            // WS213: binding proof is available immediately at creation: the
+            // explicit seed is bound in the session constructor, before start.
+            responsePayload.add("rules_seed_binding", session.rulesSeedBindingPayload());
             responsePayload.addProperty(
                     "seed_scope",
                     "single_isolated_jvm_process"
@@ -288,6 +299,72 @@ final class XmageFullGameJsonlBridge {
         }
     }
 
+    /**
+     * WS204 B4-D decision-scoped generic projection. Returns only the exact
+     * currently pending native decision as generic actions. Flags remain
+     * unpromoted: this is not a globally complete free-standing API.
+     */
+    private Result getLegalActions(String requestId) {
+        try {
+            return success(requestId, requireSession().legalActionsPayload(), false);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "external_pilot_decision_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "full_game_decision_failed",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    /**
+     * WS204 B4-D generic submission: validates a generic proposal against the
+     * exact current decision and routes only the selected authoritative option
+     * to the native controller.
+     */
+    private Result submitAction(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "SUBMIT_ACTION requires an object payload"
+            );
+            if (!payload.has("proposal") || !payload.get("proposal").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_full_game_decision",
+                        "SUBMIT_ACTION requires payload.proposal",
+                        false
+                );
+            }
+            return success(
+                    requestId,
+                    requireSession().submitAction(payload.getAsJsonObject("proposal")),
+                    false
+            );
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "external_pilot_decision_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_full_game_decision",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
     private XmageFullGameSession requireSession() {
         if (session == null) {
             throw new IllegalStateException("FULL_GAME_NOT_CREATED");
@@ -295,13 +372,91 @@ final class XmageFullGameJsonlBridge {
         return session;
     }
 
+    /**
+     * WS213 authoritative concession offer. Availability originates in native
+     * {@code Game.canConcede(exactPrincipal)}; the bridge never synthesizes
+     * availability. Requires payload.player_id (exact native player UUID).
+     */
+    private Result getConcedeOffer(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "GET_CONCEDE_OFFER requires an object payload"
+            );
+            String playerId = requiredText(payload, "player_id");
+            return success(requestId, requireSession().concedeOfferPayload(playerId), false);
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "external_pilot_decision_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "full_game_decision_failed",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
+    /**
+     * WS213 authoritative concession submission. Requires
+     * payload.proposal.{actor_id, player_id} with actor == subject == the
+     * exact native session player UUID. Execution is native
+     * {@code Game.concede} for that principal; stale/foreign proposals fail
+     * closed without touching game state.
+     */
+    private Result submitConcede(String requestId, JsonObject request) {
+        try {
+            JsonObject payload = requireObjectPayload(
+                    request,
+                    "SUBMIT_CONCEDE requires an object payload"
+            );
+            if (!payload.has("proposal") || !payload.get("proposal").isJsonObject()) {
+                return error(
+                        requestId,
+                        "invalid_full_game_decision",
+                        "SUBMIT_CONCEDE requires payload.proposal",
+                        false
+                );
+            }
+            return success(
+                    requestId,
+                    requireSession().submitConcede(payload.getAsJsonObject("proposal")),
+                    false
+            );
+        } catch (XmageFullGameDecisionController.DecisionException exc) {
+            return error(
+                    requestId,
+                    "external_pilot_decision_rejected",
+                    exc.getMessage(),
+                    false
+            );
+        } catch (Exception exc) {
+            return error(
+                    requestId,
+                    "invalid_full_game_decision",
+                    exceptionMessage(exc),
+                    false
+            );
+        }
+    }
+
     private static JsonObject capabilitiesPayload() {
         JsonObject capabilities = new JsonObject();
         capabilities.addProperty("commander_supported", true);
         capabilities.addProperty("partner_supported", true);
         capabilities.addProperty("multiplayer_supported", true);
-        capabilities.addProperty("max_players", XmageFullGameSession.PLAYER_COUNT);
+        capabilities.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
+        capabilities.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
         capabilities.addProperty("headless_supported", true);
+        // WS213: seed_supported is true only because every session binds the
+        // explicit orchestration seed to the native per-game Rules RNG
+        // (setRulesSeed + requireExplicitSeed before start) and every status
+        // payload carries the live binding proof (rules_seed_binding).
         capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
 
@@ -323,26 +478,33 @@ final class XmageFullGameJsonlBridge {
         capabilities.addProperty("mode_selection_supported", true);
         capabilities.addProperty("trigger_order_supported", true);
         capabilities.addProperty("mulligan_supported", true);
-        capabilities.addProperty("concede_supported", false);
+        // WS213: CONCEDE is an authoritative LegalAction on the WS212 pin.
+        // Availability is per-principal native Game.canConcede (no heuristic);
+        // offers via get_concede_offer, execution via submit_concede for the
+        // exact principal. Every status payload carries the live per-player
+        // can_concede vector as proof.
+        capabilities.addProperty("concede_supported", true);
         capabilities.addProperty("game_shutdown_supported", false);
         capabilities.addProperty("engine_shutdown_supported", true);
         capabilities.addProperty("runtime_kind", "external_rules_engine");
 
         JsonArray notes = new JsonArray();
         notes.add("Dedicated full-game lane; existing B3/B4 JsonlBridge capability truth is unchanged");
-        notes.add("Operational scope is exactly four-player Commander");
+        notes.add("Operational scope is 2..5-player Commander Free-for-All with one authoritative cardinality contract");
         notes.add("XMage is rules authority; Commander Lab external pilots are discretionary decision authority");
         notes.add("No Tactical, Structural, XMage-AI, random or default discretionary fallback is permitted");
-        notes.add("Rules randomness remains XMage-owned and uses an explicit per-process seed");
-        notes.add("One isolated JVM process is required per game because XMage RandomUtil is process-global");
+        notes.add("Rules randomness remains XMage-owned and uses the explicit per-game Rules seed bound before start (setRulesSeed + requireExplicitSeed; RandomUtil retired as authority)");
+        notes.add("One isolated JVM process is required per game as defense in depth for credited runs");
         notes.add("Full-game runs are technical conformance only and may not consume gameplay evidence or holdouts");
         notes.add("Bit-exact replay remains unclaimed until a duplicate-run gate proves it");
+        notes.add("WS204 B4-D decision-scoped get_legal_actions/submit_action project only the exact current pending native decision; global legal_actions/action_submission promotion remains false");
         capabilities.add("notes", notes);
 
         JsonObject lane = new JsonObject();
         lane.addProperty("lane", "xmage_full_game_external_pilots");
         lane.addProperty("decision_protocol_version", XmageFullGameDecisionController.PROTOCOL_VERSION);
-        lane.addProperty("operational_pod_size", XmageFullGameSession.PLAYER_COUNT);
+        lane.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
+        lane.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
         lane.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         lane.addProperty("generic_capability_promotion", false);
         lane.addProperty("one_game_per_process", true);
@@ -361,7 +523,8 @@ final class XmageFullGameJsonlBridge {
         payload.addProperty("started", true);
         payload.addProperty("lane", "xmage_full_game_external_pilots");
         payload.addProperty("one_game_per_process", true);
-        payload.addProperty("operational_pod_size", XmageFullGameSession.PLAYER_COUNT);
+        payload.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
+        payload.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
         payload.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         return payload;
     }
