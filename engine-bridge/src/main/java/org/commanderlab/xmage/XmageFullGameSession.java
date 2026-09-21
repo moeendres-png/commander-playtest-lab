@@ -97,10 +97,16 @@ final class XmageFullGameSession {
             decks.add(deckImporter.requireDeck(deckHandle));
         }
 
+        // FULL107 WS05-CMD-MULL-2/4 fixture-faithful free mulligan: the free
+        // multiplayer mulligan applies above two players (CR 102.1
+        // multiplayer = more than two players), so 2P London bottoms one
+        // card while 3..6P keep the free first mulligan. A blanket grant
+        // would silently zero the 2P bottom count the fixtures require.
+        int freeMulligans = sessionsPlayers > 2 ? 1 : 0;
         this.game = new CommanderFreeForAll(
                 MultiplayerAttackOption.MULTIPLE,
                 RangeOfInfluence.ALL,
-                MulliganType.LONDON.getMulligan(1),
+                MulliganType.LONDON.getMulligan(freeMulligans),
                 startingLife,
                 7
         );
@@ -191,6 +197,46 @@ final class XmageFullGameSession {
         String submittedDecisionId = response.get("decision_id").getAsString();
         awaitDecisionAdvance(submittedDecisionId, Duration.ofSeconds(20));
         return pendingDecisionPayload();
+    }
+
+    /**
+     * R22 public-zone counts per seat (Commander open information only).
+     *
+     * <p>Reports hand/library/graveyard/exile/battlefield/command zone
+     * <em>counts</em> per seat in game order (seat 0 first). No card
+     * identities, order, or hidden content is exposed, so principal-scoped
+     * hidden information is preserved. Intended for verifying countable
+     * game-state effects (e.g., London mulligan bottom counts via library
+     * size) without touching engine internals.</p>
+     */
+    JsonObject zoneCountsPayload() {
+        ensureStarted();
+        JsonArray seats = new JsonArray();
+        int seat = 0;
+        for (Player player : game.getPlayers().values()) {
+            JsonObject item = new JsonObject();
+            item.addProperty("seat", seat++);
+            item.addProperty("player_id", player.getId().toString());
+            item.addProperty("hand_count", player.getHand().size());
+            item.addProperty("library_count", player.getLibrary().size());
+            item.addProperty("graveyard_count", player.getGraveyard().size());
+            item.addProperty("exile_count",
+                    game.getExile().getCardsOwned(game, player.getId()).size());
+            item.addProperty("battlefield_count",
+                    game.getBattlefield().getAllPermanents().stream()
+                            .filter(permanent ->
+                                    player.getId().equals(permanent.getControllerId()))
+                            .count());
+            item.addProperty("command_count",
+                    game.getCommanderCardsFromCommandZone(
+                            player,
+                            mage.constants.CommanderCardType.COMMANDER_OR_OATHBREAKER
+                    ).size());
+            seats.add(item);
+        }
+        JsonObject payload = new JsonObject();
+        payload.add("seats", seats);
+        return payload;
     }
 
     /**

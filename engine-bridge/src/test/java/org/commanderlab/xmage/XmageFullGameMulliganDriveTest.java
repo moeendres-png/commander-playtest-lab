@@ -40,6 +40,7 @@ class XmageFullGameMulliganDriveTest {
         session.start();
 
         List<String> resolvedDecisions = new ArrayList<>();
+        List<String> eventLog = new ArrayList<>();
         for (int step = 0; step < 12; step++) {
             JsonObject payload = session.pendingDecisionPayload();
             if (payload.get("decision").isJsonNull()) {
@@ -62,6 +63,7 @@ class XmageFullGameMulliganDriveTest {
                 assertEquals(pending.get("decision_id").getAsString(),
                         started.get("executed_decision_id").getAsString());
                 assertTrue(started.has("next_actions_status"));
+                eventLog.add("choose_object:" + actorId + ":starting-player");
                 continue;
             }
             if (!"mulligan".equals(decisionClass)) {
@@ -81,10 +83,14 @@ class XmageFullGameMulliganDriveTest {
             assertTrue(status.equals("projected") || status.equals("no_pending_decision"),
                     "unexpected next_actions_status: " + status);
             resolvedDecisions.add(pending.get("decision_id").getAsString());
+            eventLog.add("mulligan:" + legal.get("actor_id").getAsString() + ":keep");
         }
 
         assertTrue(resolvedDecisions.size() >= 4,
                 "expected all four seats to resolve mulligan, got " + resolvedDecisions.size());
+        long keeps = eventLog.stream().filter(e -> e.startsWith("mulligan:")).count();
+        assertEquals(4, keeps, "expected exactly four keep events, log=" + eventLog);
+        assertEquals(1, eventLog.stream().filter(e -> e.contains("starting-player")).count());
 
         JsonObject payload = session.pendingDecisionPayload();
         assertTrue(!payload.get("decision").isJsonNull(), "game must continue past mulligan");

@@ -17,7 +17,25 @@ No code path exists to construct these fixture decks. Verified by source
 (the failure is deterministic by construction; a live probe would only
 re-confirm the throw).
 
-## Transport mapping (assessed for the handoff, not yet built)
+## Transport: PROVEN end-to-end (update)
+
+- `XmageFullGameMulliganDriveTest` GREEN live: 4P RogShai, self-selected
+  starting player + 4 scripted keeps via projected actions only
+  (exact-one-match, fail-closed), explicit `next_actions_status` per
+  submit, mulligan → priority advancement, executor-side event log
+  (starting-player + per-seat keep events).
+- Executor-side observation suffices for required_events (no engine audit
+  export needed on the full-game lane; engine audit stays a nice-to-have).
+- Bottom-count observability solved via new read-only public-zone-counts
+  projection (counts only, no hidden leak).
+- Transport finding: London bottoming surfaces as an explicit `target`
+  bottom-selection decision (min=max=1 over the 7-card hand); answered by
+  least-UUID rule among provably-identical Mountains (deck homogeneity
+  by construction) with full-hand-completeness assertion.
+
+Prior assessment below is superseded by the proven items above (kept for
+provenance; terminal postconditions were operationalized per fixture in
+the WS05 tests):
 
 - decision_script → projected legal actions: FEASIBLE pattern exists
   (mulligan keep selection live-proven in
