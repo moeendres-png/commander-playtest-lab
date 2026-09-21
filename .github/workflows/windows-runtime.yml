@@ -25,6 +25,8 @@ concurrency:
 env:
   PYTHONHASHSEED: "0"
   # WS223 scope exception: the windows lane keeps pyproject.toml range installs (documented, exempt).
+
+jobs:
   windows-runtime:
     runs-on: windows-latest
     timeout-minutes: 25
