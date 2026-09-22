@@ -69,13 +69,16 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
     if fixture_id.startswith("PLAYER_COUNT_"):
         count = int(fixture_id.rsplit("_", 1)[1].rstrip("P"))
         return {
-            "status": "DIRECT",
+            "status": "SUPPORTING",
             "pointer": (
                 f"docs/workstream_successor_integration_20260919/gate-evidence/gate-{count}p.json"
             ),
             "reason": (
-                f"sealed full gate at matching count {count}P "
-                f"(status PASS, replay MATCH, seed-bound)"
+                f"per-count live lane evidence at matching count {count}P "
+                f"(status PASS, replay MATCH); not a fixture rerun: gates run "
+                f"technical Isamaru+Plains decks at cardinality seeds, not the "
+                f"bound Rograkh+Mountain fixture at seed 424242, and assert none "
+                f"of the required events; residual: exact keep-hand runs"
             ),
         }
     if fixture_id in PILOT_FAMILY_TO_OBSERVED:

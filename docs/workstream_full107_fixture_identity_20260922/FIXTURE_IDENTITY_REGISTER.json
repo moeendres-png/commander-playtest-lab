@@ -1,0 +1,48 @@
+{
+ "adjudicated_at_main": "b094b0522713836a01c539ba558717bf70ae18b0",
+ "frozen_materialization": "commander-lab.semantic-fixture-materialization/1.0.5",
+ "mapping_rule": "DIRECT requires register verdict EXACT; enforced by tests/unit/test_full107_direct_correspondence.py",
+ "schema_version": "full107-fixture-identity-register-1.0.0",
+ "verdicts": [
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
+   "fixture_id": "WS05-CMD-MULL-2",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
+   "fixture_id": "WS05-CMD-MULL-4",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-2p.json",
+   "fixture_id": "PLAYER_COUNT_2P",
+   "note": "gate runs Isamaru+Plains at seed 20260825, not fixture Rograkh+Mountain at 424242; required_events unasserted",
+   "verdict": "EQUIVALENT"
+  },
+  {
+   "evidence_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-3p.json",
+   "fixture_id": "PLAYER_COUNT_3P",
+   "note": "gate runs Isamaru+Plains at seed 20260826, not fixture Rograkh+Mountain at 424242; required_events unasserted",
+   "verdict": "EQUIVALENT"
+  },
+  {
+   "evidence_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-4p.json",
+   "fixture_id": "PLAYER_COUNT_4P",
+   "note": "gate runs Isamaru+Plains at seed 20260824, not fixture Rograkh+Mountain at 424242; required_events unasserted",
+   "verdict": "EQUIVALENT"
+  },
+  {
+   "evidence_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-5p.json",
+   "fixture_id": "PLAYER_COUNT_5P",
+   "note": "gate runs Isamaru+Plains at seed 20260827, not fixture Rograkh+Mountain at 424242; required_events unasserted",
+   "verdict": "EQUIVALENT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+   "fixture_id": "PILOT_MULLIGAN",
+   "note": "family observed in gates; no fixture rerun of its own script",
+   "verdict": "FAMILY"
+  }
+ ]
+}
