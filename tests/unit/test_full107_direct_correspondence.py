@@ -218,3 +218,14 @@ def test_generator_mapping_rules(repo_root: Path) -> None:
         map_fixture("WS05-CMD-START-2", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
         == "NOT_RUN_BLOCKED"
     )
+
+
+def test_direct_reasons_claim_digest_equality(repo_root: Path) -> None:
+    mapping = _load_mapping(repo_root)
+    assert any(entry["status"] == "DIRECT" for entry in mapping["entries"])
+    for entry in mapping["entries"]:
+        if entry["status"] == "DIRECT":
+            assert "requested_state_digest" in entry.get("reason", ""), (
+                f"{entry['fixture_id']} is DIRECT without a digest-equality claim; "
+                "mandatory construction credit must never be silently replaced"
+            )
