@@ -34,6 +34,8 @@ ADJUDICATED_FIXTURES = {
     "WS05-CMD-MULL-4",
     "WS05-CMD-TAX-2",
     "WS05-CMD-TAX-4",
+    "WS05-CMD-PARTNER-ZONE",
+    "WS05-CMD-PARTNER-TAX",
 }
 
 EXACT_FIXTURES = [
@@ -41,6 +43,8 @@ EXACT_FIXTURES = [
     "WS05-CMD-MULL-4",
     "WS05-CMD-TAX-2",
     "WS05-CMD-TAX-4",
+    "WS05-CMD-PARTNER-ZONE",
+    "WS05-CMD-PARTNER-TAX",
 ]
 
 
@@ -78,7 +82,7 @@ def test_direct_entries_require_exact_register_verdict(repo_root: Path) -> None:
             f"{fixture_id} is DIRECT without an EXACT identity verdict"
         )
     exact = sorted(fid for fid, verdict in verdicts.items() if verdict == "EXACT")
-    assert exact == EXACT_FIXTURES
+    assert exact == sorted(EXACT_FIXTURES)
     assert sorted(direct) == exact
 
 
@@ -89,7 +93,12 @@ def test_native_direct_requires_executed_subset(repo_root: Path) -> None:
         if entry["status"] == "DIRECT":
             mode = records[entry["fixture_id"]].get("execution_entry_mode")
             if mode == "NATIVE_STATE_LOAD":
-                assert entry["fixture_id"] in ("WS05-CMD-TAX-2", "WS05-CMD-TAX-4"), (
+                assert entry["fixture_id"] in (
+                    "WS05-CMD-TAX-2",
+                    "WS05-CMD-TAX-4",
+                    "WS05-CMD-PARTNER-ZONE",
+                    "WS05-CMD-PARTNER-TAX",
+                ), (
                     f"{entry['fixture_id']} is a NATIVE DIRECT outside the executed subset; "
                     "injection alone never earns DIRECT"
                 )
@@ -129,6 +138,39 @@ def test_tax_fixtures_match_executed_subset_shape(repo_root: Path) -> None:
         ]
 
 
+def test_partner_fixtures_match_executed_subset_shape(repo_root: Path) -> None:
+    records = _load_materialization(repo_root)
+    expected_events = {
+        "WS05-CMD-PARTNER-ZONE": [
+            "game_start_command_zone:cmd:P1-A",
+            "game_start_command_zone:cmd:P1-B",
+        ],
+        "WS05-CMD-PARTNER-TAX": ["tax:cmd:P1-A:+4", "tax:cmd:P1-B:+0"],
+    }
+    for fixture_id, required in expected_events.items():
+        record = records[fixture_id]
+        assert record["execution_entry_mode"] == "NATIVE_STATE_LOAD"
+        assert record.get("deck_state") is None
+        assert record["decision_script"] == [], fixture_id
+        zones = {obj["zone"] for obj in record["semantic_objects"]}
+        assert zones <= {"command", "battlefield"}, (fixture_id, zones)
+        assert record["commander_state"]["commander_damage_matrix"] == []
+        relations = record["commander_state"]["multiple_commander_relations"]
+        assert len(relations) == 1
+        assert relations[0]["relation"] == "Partner"
+        commander_ids = {
+            commander["commander_id"] for commander in record["commander_state"]["commanders"]
+        }
+        assert set(relations[0]["commander_ids"]) <= commander_ids
+        temporal = record["temporal_state"]
+        assert (temporal["turn_number"], temporal["phase"], temporal["step"]) == (
+            1,
+            "precombat_main",
+            "main",
+        )
+        assert [event for event in record["expected_events"]["required_events"]] == required
+
+
 def test_player_count_gates_cannot_be_direct_while_technical(repo_root: Path) -> None:
     runner = (repo_root / GATE_RUNNER_PATH).read_text(encoding="utf-8")
     assert "Isamaru, Hound of Konda" in runner, (
@@ -155,6 +197,16 @@ def test_generator_mapping_rules(repo_root: Path) -> None:
     )
     assert (
         map_fixture("WS05-CMD-TAX-4", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("WS05-CMD-PARTNER-ZONE", {"execution_entry_mode": "NATIVE_STATE_LOAD"})[
+            "status"
+        ]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("WS05-CMD-PARTNER-TAX", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
         == "DIRECT"
     )
     assert map_fixture("PILOT_MULLIGAN", {})["status"] in ("SUPPORTING", "UNKNOWN")

@@ -53,6 +53,16 @@
    "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
    "fixture_id": "WS05-CMD-TAX-4",
    "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "verdict": "EXACT"
   }
  ]
 }

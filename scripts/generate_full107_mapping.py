@@ -178,6 +178,22 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
                 "and terminal postconditions verified"
             ),
         }
+    if fixture_id in ("WS05-CMD-PARTNER-ZONE", "WS05-CMD-PARTNER-TAX"):
+        return {
+            "status": "DIRECT",
+            "pointer": (
+                "engine-bridge/src/test/java/org/commanderlab/xmage/"
+                "XmageFullGamePartnerExecutionTest.java"
+            ),
+            "reason": (
+                "fixture-faithful live run PASS locally and on CI "
+                "(PR #224 conformance): exact two-commander construction "
+                "with readback MATCH (Partner legality engine-proven at "
+                "import), histories restored, per-commander tax figures "
+                "through the engine cost pipeline, required events and "
+                "terminal postconditions verified"
+            ),
+        }
     if entry == "NATIVE_STATE_LOAD":
         return {
             "status": "NOT_RUN_BLOCKED",

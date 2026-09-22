@@ -1,7 +1,7 @@
 {
  "counts": {
-  "DIRECT": 4,
-  "NOT_RUN_BLOCKED": 33,
+  "DIRECT": 6,
+  "NOT_RUN_BLOCKED": 31,
   "SUPPORTING": 13,
   "UNKNOWN": 57
  },
@@ -518,8 +518,9 @@
   },
   {
    "fixture_id": "WS05-CMD-PARTNER-TAX",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #224 conformance): exact two-commander construction with readback MATCH (Partner legality engine-proven at import), histories restored, per-commander tax figures through the engine cost pipeline, required events and terminal postconditions verified",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-PARTNER-DMG",
@@ -528,8 +529,9 @@
   },
   {
    "fixture_id": "WS05-CMD-PARTNER-ZONE",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #224 conformance): exact two-commander construction with readback MATCH (Partner legality engine-proven at import), histories restored, per-commander tax figures through the engine cost pipeline, required events and terminal postconditions verified",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-MULL-2",
