@@ -7,6 +7,7 @@
 - Evidence: executor TAX-2/TAX-4 executions (PR #220 merged)
 - Verdicts: `FULL107=NOT_QUALIFIED` · `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·
   `PRODUCTION_PROVIDER=NOT_SELECTED`
+- Status: COMPLETE (PR #222 merged; post-merge CI tracked to green)
 - Progress:
   - [x] Ownership established (branch/worktree/base verified, contract written)
   - [x] Register EXACT verdicts + generator TAX rule + mapping regen + guard
