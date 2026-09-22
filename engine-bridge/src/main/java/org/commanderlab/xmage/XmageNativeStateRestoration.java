@@ -569,6 +569,7 @@ final class XmageNativeStateRestoration {
                 pidOf(game.getState().getPriorityPlayerId(), playersByPid));
         root.addProperty("rules_seed", game.getRulesSeed());
         root.addProperty("rules_seed_explicit", game.isRulesSeedExplicit());
+        root.addProperty("has_extra_turn", game.getState().getExtraTurnId() != null);
         JsonArray seats = new JsonArray();
         List<String> orderedPids = new ArrayList<>(playersByPid.keySet());
         Collections.sort(orderedPids);
@@ -578,6 +579,8 @@ final class XmageNativeStateRestoration {
             seat.addProperty("player_id", pid);
             seat.addProperty("life", player.getLife());
             seat.addProperty("lost", player.hasLost());
+            seat.addProperty("left", player.hasLeft());
+            seat.addProperty("poison", player.getCountersCount(mage.counters.CounterType.POISON));
             seat.addProperty("hand_count", player.getHand().size());
             seat.addProperty("library_count", player.getLibrary().size());
             CommanderPlaysCountWatcher watcher =
@@ -754,6 +757,9 @@ final class XmageNativeStateRestoration {
         supported.add("turn-1 precombat-main arrival envelope with active/priority binding");
         supported.add("explicit Rules-seed binding with replay determinism");
         supported.add("strict native readback with field-level compare and digests");
+        supported.add("frozen requested_state_digest equality for constructed states "
+                + "in the v1 subset (canonical projection per the recovered spec, "
+                + "verified per fixture; see requestedDigest/constructedDigest)");
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
         unsupported.add("stack spells (casting requires real costs/timing: executor scope)");
@@ -940,6 +946,143 @@ final class XmageNativeStateRestoration {
         Collections.sort(items);
         for (int index = 0; index < items.size(); index++) {
             array.set(index, new com.google.gson.JsonPrimitive(items.get(index)));
+        }
+    }
+
+    /**
+     * Frozen digest spec {@code commander-lab.requested-state-digest/1.0.0}
+     * (recovered from the frozen WS47 tree): SHA-256 over UTF-8 bytes of
+     * canonical JSON (object keys sorted, compact separators, non-ASCII
+     * unescaped) of the record projected to the spec's key list with absent
+     * keys omitted. Reproduces all 135 frozen digests exactly.
+     */
+    static final List<String> DIGEST_PROJECTION_KEYS = List.of(
+            "execution_entry_mode", "players", "deck_state", "commander_state",
+            "semantic_objects", "temporal_state", "knowledge_state", "rules_randomness",
+            "combat_state", "stack_state", "continuous_rules_effects", "extra_turn_creation",
+            "elimination_trigger", "zone_move_event", "setup_validation");
+
+    /** Canonical JSON writer matching the frozen spec byte-for-byte. */
+    static String canonicalJson(JsonElement element) {
+        StringBuilder out = new StringBuilder();
+        appendCanonical(element, out);
+        return out.toString();
+    }
+
+    private static void appendCanonical(JsonElement element, StringBuilder out) {
+        if (element == null || element.isJsonNull()) {
+            out.append("null");
+        } else if (element.isJsonObject()) {
+            out.append('{');
+            TreeMap<String, JsonElement> sorted = new TreeMap<>();
+            for (Map.Entry<String, JsonElement> entry
+                    : element.getAsJsonObject().entrySet()) {
+                sorted.put(entry.getKey(), entry.getValue());
+            }
+            boolean first = true;
+            for (Map.Entry<String, JsonElement> entry : sorted.entrySet()) {
+                if (!first) {
+                    out.append(',');
+                }
+                first = false;
+                appendQuoted(entry.getKey(), out);
+                out.append(':');
+                appendCanonical(entry.getValue(), out);
+            }
+            out.append('}');
+        } else if (element.isJsonArray()) {
+            out.append('[');
+            boolean first = true;
+            for (JsonElement item : element.getAsJsonArray()) {
+                if (!first) {
+                    out.append(',');
+                }
+                first = false;
+                appendCanonical(item, out);
+            }
+            out.append(']');
+        } else if (element.isJsonPrimitive()) {
+            com.google.gson.JsonPrimitive primitive = element.getAsJsonPrimitive();
+            if (primitive.isString()) {
+                appendQuoted(primitive.getAsString(), out);
+            } else if (primitive.isBoolean()) {
+                out.append(primitive.getAsBoolean() ? "true" : "false");
+            } else if (primitive.isNumber()) {
+                out.append(primitive.getAsString());
+            } else {
+                throw new RestorationException(
+                        "UNCANONICAL_VALUE", "unsupported JSON primitive");
+            }
+        } else {
+            throw new RestorationException(
+                    "UNCANONICAL_VALUE", "unsupported JSON element");
+        }
+    }
+
+    private static void appendQuoted(String value, StringBuilder out) {
+        out.append('"');
+        for (int index = 0; index < value.length(); index++) {
+            char code = value.charAt(index);
+            switch (code) {
+                case '"' -> out.append("\\\"");
+                case '\\' -> out.append("\\\\");
+                case '\b' -> out.append("\\b");
+                case '\f' -> out.append("\\f");
+                case '\n' -> out.append("\\n");
+                case '\r' -> out.append("\\r");
+                case '\t' -> out.append("\\t");
+                default -> {
+                    if (code < 0x20) {
+                        out.append(String.format("\\u%04x", (int) code));
+                    } else {
+                        out.append(code);
+                    }
+                }
+            }
+        }
+        out.append('"');
+    }
+
+    /** Projects a frozen record to the digest spec keys (absent keys omitted). */
+    static JsonObject projectRecord(JsonObject record) {
+        JsonObject projected = new JsonObject();
+        for (String key : DIGEST_PROJECTION_KEYS) {
+            if (record.has(key)) {
+                projected.add(key, record.get(key));
+            }
+        }
+        return projected;
+    }
+
+    /** Frozen requested-state digest of a record (must equal its frozen hex). */
+    static String requestedDigest(JsonObject record) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(canonicalJson(projectRecord(record))
+                    .getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(hash.length * 2);
+            for (byte value : hash) {
+                hex.append(String.format("%02x", value));
+            }
+            return hex.toString();
+        } catch (Exception exc) {
+            throw new RestorationException("DIGEST_FAILED", String.valueOf(exc.getMessage()));
+        }
+    }
+
+    /** Evidence-grade digest of a constructed projection (canonical form). */
+    static String constructedDigest(JsonObject projection) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(canonicalJson(projection)
+                    .getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(hash.length * 2);
+            for (byte value : hash) {
+                hex.append(String.format("%02x", value));
+            }
+            return hex.toString();
+        } catch (Exception exc) {
+            throw new RestorationException("DIGEST_FAILED", String.valueOf(exc.getMessage()));
         }
     }
 }

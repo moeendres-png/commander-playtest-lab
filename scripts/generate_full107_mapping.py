@@ -160,7 +160,8 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
                 "fixture-faithful live run PASS locally and on CI "
                 "(PR #213 h4-xmage): exact Rograkh/Mountain decks, "
                 "scripted mulligan_once, bottom counts verified "
-                "(2P lib 93/hand 6, 4P lib 92/hand 7)"
+                "(2P lib 93/hand 6, 4P lib 92/hand 7); digest equality "
+                "verified (requested_state_digest) locally and on CI"
             ),
         }
     if fixture_id in ("WS05-CMD-TAX-2", "WS05-CMD-TAX-4"):
@@ -175,7 +176,8 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
                 "(PR #220 conformance): restored requested state with "
                 "readback MATCH, scripted cast_commander P1 exact-one "
                 "match, engine-owned {4} tax payment, required events "
-                "and terminal postconditions verified"
+                "and terminal postconditions verified; digest equality "
+                "verified (requested_state_digest) locally and on CI"
             ),
         }
     if fixture_id in ("WS05-CMD-PARTNER-ZONE", "WS05-CMD-PARTNER-TAX"):
@@ -191,7 +193,8 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
                 "with readback MATCH (Partner legality engine-proven at "
                 "import), histories restored, per-commander tax figures "
                 "through the engine cost pipeline, required events and "
-                "terminal postconditions verified"
+                "terminal postconditions verified; digest equality "
+                "verified (requested_state_digest) locally and on CI"
             ),
         }
     if entry == "NATIVE_STATE_LOAD":

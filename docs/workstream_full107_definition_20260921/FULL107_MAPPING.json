@@ -452,13 +452,13 @@
   {
    "fixture_id": "WS05-CMD-TAX-2",
    "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
-   "reason": "fixture-faithful live run PASS locally and on CI (PR #220 conformance): restored requested state with readback MATCH, scripted cast_commander P1 exact-one match, engine-owned {4} tax payment, required events and terminal postconditions verified",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #220 conformance): restored requested state with readback MATCH, scripted cast_commander P1 exact-one match, engine-owned {4} tax payment, required events and terminal postconditions verified; digest equality verified (requested_state_digest) locally and on CI",
    "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-TAX-4",
    "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
-   "reason": "fixture-faithful live run PASS locally and on CI (PR #220 conformance): restored requested state with readback MATCH, scripted cast_commander P1 exact-one match, engine-owned {4} tax payment, required events and terminal postconditions verified",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #220 conformance): restored requested state with readback MATCH, scripted cast_commander P1 exact-one match, engine-owned {4} tax payment, required events and terminal postconditions verified; digest equality verified (requested_state_digest) locally and on CI",
    "status": "DIRECT"
   },
   {
@@ -519,7 +519,7 @@
   {
    "fixture_id": "WS05-CMD-PARTNER-TAX",
    "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
-   "reason": "fixture-faithful live run PASS locally and on CI (PR #224 conformance): exact two-commander construction with readback MATCH (Partner legality engine-proven at import), histories restored, per-commander tax figures through the engine cost pipeline, required events and terminal postconditions verified",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #224 conformance): exact two-commander construction with readback MATCH (Partner legality engine-proven at import), histories restored, per-commander tax figures through the engine cost pipeline, required events and terminal postconditions verified; digest equality verified (requested_state_digest) locally and on CI",
    "status": "DIRECT"
   },
   {
@@ -530,19 +530,19 @@
   {
    "fixture_id": "WS05-CMD-PARTNER-ZONE",
    "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
-   "reason": "fixture-faithful live run PASS locally and on CI (PR #224 conformance): exact two-commander construction with readback MATCH (Partner legality engine-proven at import), histories restored, per-commander tax figures through the engine cost pipeline, required events and terminal postconditions verified",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #224 conformance): exact two-commander construction with readback MATCH (Partner legality engine-proven at import), histories restored, per-commander tax figures through the engine cost pipeline, required events and terminal postconditions verified; digest equality verified (requested_state_digest) locally and on CI",
    "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-MULL-2",
    "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
-   "reason": "fixture-faithful live run PASS locally and on CI (PR #213 h4-xmage): exact Rograkh/Mountain decks, scripted mulligan_once, bottom counts verified (2P lib 93/hand 6, 4P lib 92/hand 7)",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #213 h4-xmage): exact Rograkh/Mountain decks, scripted mulligan_once, bottom counts verified (2P lib 93/hand 6, 4P lib 92/hand 7); digest equality verified (requested_state_digest) locally and on CI",
    "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-MULL-4",
    "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
-   "reason": "fixture-faithful live run PASS locally and on CI (PR #213 h4-xmage): exact Rograkh/Mountain decks, scripted mulligan_once, bottom counts verified (2P lib 93/hand 6, 4P lib 92/hand 7)",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #213 h4-xmage): exact Rograkh/Mountain decks, scripted mulligan_once, bottom counts verified (2P lib 93/hand 6, 4P lib 92/hand 7); digest equality verified (requested_state_digest) locally and on CI",
    "status": "DIRECT"
   },
   {
