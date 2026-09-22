@@ -7,6 +7,7 @@
 - Evidence: partner executions (PR #224 merged, CI conformance green)
 - Verdicts: `FULL107=NOT_QUALIFIED` · `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·
   `PRODUCTION_PROVIDER=NOT_SELECTED`
+- Status: COMPLETE (PR #225 merged; post-merge CI tracked to green)
 - Progress:
   - [x] Ownership established (branch/worktree/base verified, contract written)
   - [x] Register EXACT verdicts + generator PARTNER rule + mapping regen + guard
