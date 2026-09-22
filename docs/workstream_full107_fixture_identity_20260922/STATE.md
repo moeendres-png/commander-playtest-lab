@@ -6,6 +6,9 @@
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Verdicts: `FULL107=NOT_QUALIFIED` · `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·
   `PRODUCTION_PROVIDER=NOT_SELECTED`
+- Status: COMPLETE (PR #216 merged as
+  `3e8dc95da3611a621c3bad977e61ffdf5aca00b4`; post-merge CI tracked to green
+  before WS2 establishment)
 - Progress:
   - [x] Ownership established (branch/worktree/base/tree verified, contract written)
   - [x] Seven-record adjudication against frozen bytes + runtime setups
