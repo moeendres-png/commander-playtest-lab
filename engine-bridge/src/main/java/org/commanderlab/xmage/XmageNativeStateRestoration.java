@@ -711,9 +711,39 @@ final class XmageNativeStateRestoration {
                 digestJson(observed));
     }
 
+    /**
+     * Enumerates a commander's current cast cost through the engine's own
+     * cost pipeline (cost modifications incl. commander tax) applied to a
+     * faithful ability copy. The copy is zoned COMMAND via the engine's
+     * {@code copyWithZone} (mirroring the stack ability's zone in the real
+     * cast path, where the tax effect applies). Pure query: the live card
+     * ability is never touched and no game state mutates (callers prove
+     * purity with readback equality). Returns the canonical sorted figure
+     * (e.g. "{0}+{4}").
+     */
+    static String enumerateCommanderCastCost(Game game, Card commander) {
+        if (game == null || commander == null) {
+            throw new RestorationException("INVALID_COMMANDER", "game and card must not be null");
+        }
+        mage.abilities.Ability raw = commander.getSpellAbility();
+        if (!(raw instanceof mage.abilities.SpellAbility)
+                || !(raw instanceof mage.abilities.AbilityImpl)) {
+            throw new RestorationException(
+                    "NO_SPELL_ABILITY", commander.getName() + " has no spell ability");
+        }
+        mage.abilities.Ability probe =
+                ((mage.abilities.AbilityImpl) raw.copy()).copyWithZone(Zone.COMMAND);
+        game.getContinuousEffects().costModification(probe, game);
+        List<String> parts = new ArrayList<>();
+        for (mage.abilities.costs.mana.ManaCost cost : probe.getManaCostsToPay()) {
+            parts.add(cost.toString());
+        }
+        Collections.sort(parts);
+        return String.join("+", parts);
+    }
+
     /** Explicit supported/unsupported dimensions descriptor (global flag untouched). */
-    static JsonObject dimensionsPayload() {
-        JsonObject payload = new JsonObject();
+    static JsonObject dimensionsPayload() {        JsonObject payload = new JsonObject();
         payload.addProperty("schema_version", "native-state-restoration-dimensions-1.0.0");
         payload.addProperty("starting_state_injection_supported", false);
         JsonArray supported = new JsonArray();
