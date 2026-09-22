@@ -43,6 +43,16 @@
    "fixture_id": "PILOT_MULLIGAN",
    "note": "family observed in gates; no fixture rerun of its own script",
    "verdict": "FAMILY"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
+   "fixture_id": "WS05-CMD-TAX-2",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
+   "fixture_id": "WS05-CMD-TAX-4",
+   "verdict": "EXACT"
   }
  ]
 }

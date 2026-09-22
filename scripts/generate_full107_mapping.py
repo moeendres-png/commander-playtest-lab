@@ -163,6 +163,21 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
                 "(2P lib 93/hand 6, 4P lib 92/hand 7)"
             ),
         }
+    if fixture_id in ("WS05-CMD-TAX-2", "WS05-CMD-TAX-4"):
+        return {
+            "status": "DIRECT",
+            "pointer": (
+                "engine-bridge/src/test/java/org/commanderlab/xmage/"
+                "XmageFullGameTaxExecutionTest.java"
+            ),
+            "reason": (
+                "fixture-faithful live run PASS locally and on CI "
+                "(PR #220 conformance): restored requested state with "
+                "readback MATCH, scripted cast_commander P1 exact-one "
+                "match, engine-owned {4} tax payment, required events "
+                "and terminal postconditions verified"
+            ),
+        }
     if entry == "NATIVE_STATE_LOAD":
         return {
             "status": "NOT_RUN_BLOCKED",
