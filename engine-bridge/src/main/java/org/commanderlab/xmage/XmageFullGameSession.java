@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -49,6 +50,7 @@ final class XmageFullGameSession {
     private final List<XmageFullGamePlayer> players;
     private final XmageFullGameDecisionController controller;
     private final int startingPlayerSeat;
+    private final XmageNativeStateRestoration restoration;
     private final AtomicReference<Throwable> engineFailure = new AtomicReference<>();
     private final List<String> engineErrorDiagnostics =
             Collections.synchronizedList(new ArrayList<>());
@@ -63,6 +65,28 @@ final class XmageFullGameSession {
             int startingLife,
             long seed,
             XmageDeckImporter deckImporter
+    ) {
+        this(protocolGameId, deckHandles, startingPlayerSeat, startingLife,
+                seed, deckImporter, null);
+    }
+
+    /**
+     * Restoration-aware construction for native-state qualification.
+     *
+     * <p>When {@code restoration} is non-null, its pre-start assembly runs
+     * against the freshly constructed (not yet started) game after normal
+     * player/deck setup. Post-arrival steps (cast-count restore, revalidate,
+     * readback, compare) stay with the caller through
+     * {@link #restorationGame()} and {@link #restorationSeats()}.</p>
+     */
+    XmageFullGameSession(
+            String protocolGameId,
+            List<String> deckHandles,
+            int startingPlayerSeat,
+            int startingLife,
+            long seed,
+            XmageDeckImporter deckImporter,
+            XmageNativeStateRestoration restoration
     ) {
         if (protocolGameId == null || protocolGameId.isBlank()) {
             throw new IllegalArgumentException("game_id must be nonblank");
@@ -160,6 +184,28 @@ final class XmageFullGameSession {
             );
         }
         this.players = List.copyOf(createdPlayers);
+        this.restoration = restoration;
+        if (restoration != null) {
+            restoration.applyPreStart(game, restorationSeats());
+        }
+    }
+
+    /**
+     * Game handle for post-arrival restoration steps. The engine thread must
+     * be parked on an external decision (or not yet started) when the caller
+     * touches game state.
+     */
+    CommanderFreeForAll restorationGame() {
+        return game;
+    }
+
+    /** Deterministic seat map (P1..PN in deck-handle order) for restoration. */
+    Map<String, Player> restorationSeats() {
+        Map<String, Player> seats = new java.util.LinkedHashMap<>();
+        for (int index = 0; index < players.size(); index++) {
+            seats.put("P" + (index + 1), players.get(index));
+        }
+        return java.util.Collections.unmodifiableMap(seats);
     }
 
     int playerCount() {
