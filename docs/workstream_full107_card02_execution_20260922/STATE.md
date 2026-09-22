@@ -11,8 +11,9 @@
   main P1 active/priority, seed 424242; scripted cast-commander P1
   (fail-closed); required commander_cast, spell_resolved,
   creature_entered; terminal Rograkh on P1 battlefield, count 1, no tax.
+- Status: COMPLETE (PR #231 merged; post-merge CI tracked to green)
 - Progress:
   - [x] Ownership established (branch/worktree/base verified, contract written)
   - [x] CARD_02 execution green (construct MATCH + digest equality + cast
     with no tax/payment + resolution + terminal); bridge 196/196 green
-  - [ ] Validate + commit + push + PR
+  - [x] Validate + commit + push + PR
