@@ -279,6 +279,21 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (ability == null) {
             fail("ILLEGAL_ACTION", "priority option disappeared: " + selected);
         }
+        // Spell abilities enumerated by getPlayable are cast, never
+        // "activated": the engine owns timing, costs (incl. commander tax),
+        // payment (pool auto-spend, bookmark rollback on failure), targets,
+        // and resolution. Anything the harness cannot operate (targets,
+        // modes, choices, shortfall payments) surfaces as further engine
+        // decisions, which the caller must handle or fail closed on.
+        if (ability instanceof SpellAbility) {
+            boolean cast = cast(
+                    (SpellAbility) ability, game, false,
+                    new mage.ApprovingObject(ability, game));
+            if (!cast) {
+                fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
+            }
+            return true;
+        }
         boolean activated = activateAbility(ability, game);
         if (!activated) {
             fail("XMAGE_ACTION_EXECUTION_FAILED", "priority activation failed: " + selected);

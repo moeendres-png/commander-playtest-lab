@@ -3324,8 +3324,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3415,8 +3415,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3506,8 +3506,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3597,8 +3597,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3688,8 +3688,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3779,8 +3779,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3870,8 +3870,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3961,8 +3961,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -4052,8 +4052,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -4143,8 +4143,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -4234,8 +4234,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -4325,8 +4325,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -4416,8 +4416,8 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "actual_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
-     "expected_sha256": "b1cfca3ce3be3d0f4a44afafa76c2daabcc887f9923a5f1c9ba00352b30082a5",
+     "actual_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
