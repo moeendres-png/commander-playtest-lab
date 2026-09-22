@@ -1,7 +1,7 @@
 {
  "counts": {
-  "DIRECT": 2,
-  "NOT_RUN_BLOCKED": 35,
+  "DIRECT": 4,
+  "NOT_RUN_BLOCKED": 33,
   "SUPPORTING": 13,
   "UNKNOWN": 57
  },
@@ -451,13 +451,15 @@
   },
   {
    "fixture_id": "WS05-CMD-TAX-2",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #220 conformance): restored requested state with readback MATCH, scripted cast_commander P1 exact-one match, engine-owned {4} tax payment, required events and terminal postconditions verified",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-TAX-4",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #220 conformance): restored requested state with readback MATCH, scripted cast_commander P1 exact-one match, engine-owned {4} tax payment, required events and terminal postconditions verified",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-ZONE-GY-YES",

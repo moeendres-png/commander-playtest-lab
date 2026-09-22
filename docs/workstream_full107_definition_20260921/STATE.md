@@ -18,8 +18,9 @@
   - [x] Merge-ready packet + Phase C dependency handoff (injection capability + executor harness gates)
   - [x] Post-merge amendments (separate workstreams): PR #214 promoted
     WS05-CMD-MULL-2/4 to DIRECT (6 DIRECT / 57 UNKNOWN); fixture-identity
-    adjudication demoted PLAYER_COUNT_2/3/4/5P to SUPPORTING — current
-    mapping: 2 DIRECT / 13 SUPPORTING / 57 UNKNOWN / 35 NOT_RUN_BLOCKED
+    adjudication demoted PLAYER_COUNT_2/3/4/5P to SUPPORTING (2 DIRECT /
+    13 SUPPORTING); TAX-2/TAX-4 execution promoted them to DIRECT — current
+    mapping: 4 DIRECT / 13 SUPPORTING / 57 UNKNOWN / 33 NOT_RUN_BLOCKED
 - Phase C terminal assessment: execution NOT started — requires (a) bridge
   NATIVE_STATE_LOAD capability (contract-locked false) and (b) a ~70-operation
   native-procedure executor; both need separate authorization. No gate bypassed.
