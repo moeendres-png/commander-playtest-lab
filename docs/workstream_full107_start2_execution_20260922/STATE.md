@@ -9,10 +9,12 @@
   `PRODUCTION_PROVIDER=NOT_SELECTED`
 - Outcome: BLOCKED (fail closed) — see BLOCKER_START2_UNSATISFIABLE.md.
   START-2 stays NOT_RUN_BLOCKED. No mapping change.
+- Status: COMPLETE as fail-closed blocker record (PR #233 merged; post-merge
+  CI tracked to green). START-2 stays NOT_RUN_BLOCKED pending authority.
 - Progress:
   - [x] Ownership established (branch/worktree/base verified, contract written)
   - [x] START-2 investigation to ground (draw-step observed live; skip
     mechanism traced to engine sources; both remediations proven unworkable)
   - [x] Repository-readiness guard in materialization (proven by progression)
   - [x] Disabled execution test preserving the exact blocker + enablers
-  - [ ] Validate + commit + push + PR
+  - [x] Validate + commit + push + PR
