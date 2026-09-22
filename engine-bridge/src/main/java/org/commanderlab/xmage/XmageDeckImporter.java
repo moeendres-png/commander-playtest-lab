@@ -284,7 +284,13 @@ public final class XmageDeckImporter {
         );
     }
 
-    private static void ensureRepositoryReady() {
+    /**
+     * Ensures the engine card repository is initialized exactly once per
+     * process (fail closed on preinitialized-unverified or failed scans).
+     * Shared with card materialization so every resolution path observes
+     * identical readiness semantics.
+     */
+    static void ensureRepositoryReady() {
         RepositoryState current =
                 repositoryState;
 
