@@ -757,6 +757,9 @@ final class XmageNativeStateRestoration {
         supported.add("turn-1 precombat-main arrival envelope with active/priority binding");
         supported.add("explicit Rules-seed binding with replay determinism");
         supported.add("strict native readback with field-level compare and digests");
+        supported.add("frozen requested_state_digest equality for constructed states "
+                + "in the v1 subset (canonical projection per the recovered spec, "
+                + "verified per fixture; see requestedDigest/constructedDigest)");
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
         unsupported.add("stack spells (casting requires real costs/timing: executor scope)");
