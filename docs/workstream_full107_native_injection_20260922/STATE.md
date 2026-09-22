@@ -14,6 +14,8 @@
   - `Player.setLife`, `GameState.copy/restore`, typed `Game.cheat` overload
   - First target class: command + battlefield + life + turn/phase/priority
     (WS05-CMD-TAX-2 shape), real cards only, no hidden identity
+- Status: COMPLETE (PR #218 merged; post-merge CI tracked to green before
+  executor establishment)
 - Progress:
   - [x] Ownership established (branch/worktree/base verified, contract written)
   - [x] Native construction/restoration API investigation (reuse-first)
@@ -21,4 +23,6 @@
     (`XmageNativeStateRestoration` + session hook; public engine APIs only)
   - [x] Positive + adversarial negative runtime tests (15/15), per-dimension
     qualification (`QUALIFICATION.md`); bridge suite 178/178 green
-  - [ ] Validate + commit + push + PR
+  - [x] Retention R24 re-baseline (session hook additive; predicates 47/47) +
+    WS17 manifest coverage
+  - [x] Validate + commit + push + PR
