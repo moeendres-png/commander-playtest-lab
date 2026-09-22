@@ -1,34 +1,34 @@
 {
  "counts": {
-  "DIRECT": 6,
+  "DIRECT": 2,
   "NOT_RUN_BLOCKED": 35,
-  "SUPPORTING": 9,
+  "SUPPORTING": 13,
   "UNKNOWN": 57
  },
  "entries": [
   {
    "fixture_id": "PLAYER_COUNT_2P",
    "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-2p.json",
-   "reason": "sealed full gate at matching count 2P (status PASS, replay MATCH, seed-bound)",
-   "status": "DIRECT"
+   "reason": "per-count live lane evidence at matching count 2P (status PASS, replay MATCH); not a fixture rerun: gates run technical Isamaru+Plains decks at cardinality seeds, not the bound Rograkh+Mountain fixture at seed 424242, and assert none of the required events; residual: exact keep-hand runs",
+   "status": "SUPPORTING"
   },
   {
    "fixture_id": "PLAYER_COUNT_3P",
    "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-3p.json",
-   "reason": "sealed full gate at matching count 3P (status PASS, replay MATCH, seed-bound)",
-   "status": "DIRECT"
+   "reason": "per-count live lane evidence at matching count 3P (status PASS, replay MATCH); not a fixture rerun: gates run technical Isamaru+Plains decks at cardinality seeds, not the bound Rograkh+Mountain fixture at seed 424242, and assert none of the required events; residual: exact keep-hand runs",
+   "status": "SUPPORTING"
   },
   {
    "fixture_id": "PLAYER_COUNT_4P",
    "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-4p.json",
-   "reason": "sealed full gate at matching count 4P (status PASS, replay MATCH, seed-bound)",
-   "status": "DIRECT"
+   "reason": "per-count live lane evidence at matching count 4P (status PASS, replay MATCH); not a fixture rerun: gates run technical Isamaru+Plains decks at cardinality seeds, not the bound Rograkh+Mountain fixture at seed 424242, and assert none of the required events; residual: exact keep-hand runs",
+   "status": "SUPPORTING"
   },
   {
    "fixture_id": "PLAYER_COUNT_5P",
    "pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-5p.json",
-   "reason": "sealed full gate at matching count 5P (status PASS, replay MATCH, seed-bound)",
-   "status": "DIRECT"
+   "reason": "per-count live lane evidence at matching count 5P (status PASS, replay MATCH); not a fixture rerun: gates run technical Isamaru+Plains decks at cardinality seeds, not the bound Rograkh+Mountain fixture at seed 424242, and assert none of the required events; residual: exact keep-hand runs",
+   "status": "SUPPORTING"
   },
   {
    "fixture_id": "PILOT_PRIORITY",
