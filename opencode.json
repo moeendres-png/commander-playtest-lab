@@ -7,9 +7,7 @@
     "max_lines": 2000,
     "max_bytes": 51200
   },
-  "enabled_providers": [
-    "opencode-go"
-  ],
+  "enabled_providers": ["opencode-go"],
   "permission": {
     "read": {
       "*": "allow",
@@ -153,9 +151,7 @@
   },
   "provider": {
     "opencode-go": {
-      "whitelist": [
-        "muse-spark-1.3-contributor"
-      ],
+      "whitelist": ["muse-spark-1.3-contributor"],
       "models": {
         "muse-spark-1.3-contributor": {
           "options": {
