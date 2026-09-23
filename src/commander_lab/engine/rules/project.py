@@ -127,9 +127,7 @@ def load_rules_deck_snapshot(
         validated_commanders: list[str] = []
         for index, name in enumerate(raw_commanders):
             if not isinstance(name, str) or not name.strip():
-                raise ValueError(
-                    f"commander name at index {index} must be a non-empty string"
-                )
+                raise ValueError(f"commander name at index {index} must be a non-empty string")
             validated_commanders.append(name)
         commanders = tuple(validated_commanders)
     else:
