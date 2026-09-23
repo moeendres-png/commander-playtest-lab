@@ -15,7 +15,12 @@ from commander_lab.engine.rules.full_game import (
     XmageFullGameRunner,
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
-from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
+from commander_lab.models import (
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    RulesDeckInput,
+)
 from commander_lab.storage import sha256_value
 
 
@@ -47,7 +52,10 @@ def _derived_rules_hash(deck: RulesDeckInput) -> str:
 def _ensure_deck_hash(deck: RulesDeckInput) -> tuple[RulesDeckInput, str]:
     if deck.deck_hash is not None:
         return deck, "source_snapshot"
-    return deck.model_copy(update={"deck_hash": _derived_rules_hash(deck)}), "derived_rules_identity"
+    return (
+        deck.model_copy(update={"deck_hash": _derived_rules_hash(deck)}),
+        "derived_rules_identity",
+    )
 
 
 def _binding(seat: int, deck: RulesDeckInput) -> FullGamePilotBinding:
@@ -205,11 +213,19 @@ def run_live_smoke(
     if result.evidence_class != FULL_GAME_EVIDENCE_CLASS:
         raise FullGameConformanceError("real 4P smoke returned unsafe evidence class")
     if result.player_count != 4 or not result.player_count_preserved:
-        raise FullGameConformanceError("real 4P smoke did not preserve four-player cardinality")
+        raise FullGameConformanceError(
+            "real 4P smoke did not preserve four-player cardinality"
+        )
     if not result.seed_preserved or not result.clean_shutdown:
         raise FullGameConformanceError("real 4P smoke did not preserve seed/clean shutdown")
-    if result.fallback_used or result.consumed_gameplay_evidence or result.holdout_consumed:
-        raise FullGameConformanceError("real 4P smoke crossed technical-evidence boundary")
+    if (
+        result.fallback_used
+        or result.consumed_gameplay_evidence
+        or result.holdout_consumed
+    ):
+        raise FullGameConformanceError(
+            "real 4P smoke crossed technical-evidence boundary"
+        )
 
     report.update(
         {
