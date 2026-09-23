@@ -182,6 +182,8 @@ compatible donor is established, use it and continue implementation/build/test/d
 qualification. Do not create a second Rules Engine, second observation layer, second replay
 system, or parallel decision protocol when a qualified existing mechanism can be reused.
 
+Qualification fixture or obligation names are evidence labels, not architecture requirements. Before adding a new decision class or protocol surface, inspect the engine callback and its authoritative context; an obligation may already be satisfied by a generic existing decision family plus a specific engine-supplied domain.
+
 ## 10. Workstream contract
 
 One session owns exactly one workstream ↔ one branch ↔ one worktree ↔ one mutation
