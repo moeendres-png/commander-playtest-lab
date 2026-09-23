@@ -63,6 +63,11 @@
    "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
    "fixture_id": "WS05-CMD-PARTNER-TAX",
    "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameCard02ExecutionTest.java",
+   "fixture_id": "CARD_02",
+   "verdict": "EXACT"
   }
  ]
 }

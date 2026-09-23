@@ -21,8 +21,9 @@
     adjudication demoted PLAYER_COUNT_2/3/4/5P to SUPPORTING (2 DIRECT /
     13 SUPPORTING); TAX-2/TAX-4 execution promoted them to DIRECT (4 DIRECT
     / 33 NOT_RUN_BLOCKED); PARTNER-ZONE/TAX execution promoted them to
-    DIRECT — current mapping: 6 DIRECT / 13 SUPPORTING / 57 UNKNOWN /
-    31 NOT_RUN_BLOCKED
+    DIRECT (6 DIRECT / 31 NOT_RUN_BLOCKED); CARD_02 execution promoted it
+    to DIRECT — current mapping: 7 DIRECT / 13 SUPPORTING / 57 UNKNOWN /
+    30 NOT_RUN_BLOCKED
 - Phase C terminal assessment: execution NOT started — requires (a) bridge
   NATIVE_STATE_LOAD capability (contract-locked false) and (b) a ~70-operation
   native-procedure executor; both need separate authorization. No gate bypassed.
