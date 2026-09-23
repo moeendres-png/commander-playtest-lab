@@ -27,9 +27,7 @@ def test_real_4p_setup_uses_four_existing_complete_decks(repo_root: Path) -> Non
         "opponent/lorehold-spirit-precon",
     )
     assert len(decks) == len(pilots) == len(provenance) == 4
-    assert [
-        len(deck.mainboard) + len(deck.commander_names) for deck in decks
-    ] == [100] * 4
+    assert [len(deck.mainboard) + len(deck.commander_names) for deck in decks] == [100] * 4
     assert [binding.seat for binding in pilots] == [1, 2, 3, 4]
     assert all(deck.deck_hash is not None for deck in decks)
     assert all(row["total_cards"] == 100 for row in provenance)
