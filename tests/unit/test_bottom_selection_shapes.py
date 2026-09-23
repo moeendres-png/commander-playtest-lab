@@ -228,6 +228,54 @@ def test_mana_payment_unknown_flag_means_usable() -> None:
     assert selected == "pool-w"
 
 
+def test_payment_withholds_unfunded_costed_mana_ability() -> None:
+    """Signet-like {1},{T} ability with empty pool: not selectable inside
+    payment; the pilot cancels instead of failing activation."""
+    policy = _policy()
+    options = [
+        _mana_option("cancel", "cancel_mana_payment", "Cancel mana payment", {}),
+        {
+            "option_id": "signet",
+            "option_type": "mana_ability",
+            "label": "Rakdos Signet — {1}, {T}: Add {B}{R}.",
+            "metadata": {
+                "mana_cost_generic": 1,
+                "pool_covers_mana_cost": False,
+                "requires_tap_source": True,
+                "source_tapped": False,
+            },
+        },
+    ]
+    selected = policy._decide_mana(
+        policy._pilots[1], _state(["hand-1"]), options,
+        {"unpaid_mana": "{1}"}, random.Random(0),
+    )
+    assert selected == "cancel"
+
+
+def test_payment_keeps_funded_costed_mana_ability() -> None:
+    policy = _policy()
+    options = [
+        _mana_option("cancel", "cancel_mana_payment", "Cancel mana payment", {}),
+        {
+            "option_id": "signet",
+            "option_type": "mana_ability",
+            "label": "Rakdos Signet — {1}, {T}: Add {B}{R}.",
+            "metadata": {
+                "mana_cost_generic": 1,
+                "pool_covers_mana_cost": True,
+                "requires_tap_source": True,
+                "source_tapped": False,
+            },
+        },
+    ]
+    selected = policy._decide_mana(
+        policy._pilots[1], _state(["hand-1"]), options,
+        {"unpaid_mana": "{1}"}, random.Random(0),
+    )
+    assert selected == "signet"
+
+
 def _priority_option(option_id: str, option_type: str, label: str) -> dict:
     return {
         "option_id": option_id,

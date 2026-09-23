@@ -1065,7 +1065,29 @@ class ExternalPilotDecisionPolicy:
                 "mana decision has no productive option: pool cannot satisfy "
                 "the colored requirement and no ability or cancel is offered"
             )
-        options = non_pool
+        # Affordability also governs mana abilities picked mid-payment: a
+        # costed mana ability (signet, filter land) the current pool cannot
+        # fund fails inside payManaMode with no pilot recourse. Withhold
+        # such abilities from selection with the same native-flag gate used
+        # at priority; pool spends and cancel are always selectable.
+        selectable: list[dict[str, Any]] = []
+        for option in non_pool:
+            if self._required_text(option, "option_type") == "mana_ability" and not (
+                self._priority_action_affordable(option, state)
+            ):
+                continue
+            selectable.append(option)
+        if not selectable:
+            raise FullGameProtocolError(
+                "mana decision has no affordable option: every mana ability "
+                "is natively unfunded and no cancel is offered"
+            )
+        if len(selectable) != len(non_pool):
+            _LOG.info(
+                "withheld %d unaffordable mana abilit(ies) from payment selection",
+                len(non_pool) - len(selectable),
+            )
+        options = selectable
 
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
