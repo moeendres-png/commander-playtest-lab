@@ -170,4 +170,3 @@ def test_rules_loader_rejects_invalid_commander_names(
         match="commander name at index 0 must be a non-empty string",
     ):
         load_rules_deck_snapshot(path)
-
