@@ -65,6 +65,7 @@ def test_real_4p_preflight_is_technical_evidence_only(repo_root: Path) -> None:
     assert report["deck_strength_evidence"] is False
     assert report["actual_card_behavior_coverage_claim"] is False
 
+
 def test_preflight_and_live_artifact_paths_are_distinct(repo_root: Path) -> None:
     module = _load_smoke_module(repo_root)
 

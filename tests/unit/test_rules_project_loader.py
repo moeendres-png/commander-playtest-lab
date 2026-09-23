@@ -144,6 +144,7 @@ def test_rules_loader_rejects_wrapped_profile_id_mismatch(tmp_path: Path) -> Non
     else:
         raise AssertionError("wrapped profile/deck ID mismatch must fail closed")
 
+
 @pytest.mark.parametrize("bad_name", [None, 7, {}, "", "   "])
 def test_rules_loader_rejects_invalid_commander_names(
     tmp_path: Path,
