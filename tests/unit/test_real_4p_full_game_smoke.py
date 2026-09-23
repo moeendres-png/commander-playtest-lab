@@ -27,7 +27,9 @@ def test_real_4p_setup_uses_four_existing_complete_decks(repo_root: Path) -> Non
         "opponent/lorehold-spirit-precon",
     )
     assert len(decks) == len(pilots) == len(provenance) == 4
-    assert [len(deck.mainboard) + len(deck.commander_names) for deck in decks] == [100] * 4
+    assert [
+        len(deck.mainboard) + len(deck.commander_names) for deck in decks
+    ] == [100] * 4
     assert [binding.seat for binding in pilots] == [1, 2, 3, 4]
     assert all(deck.deck_hash is not None for deck in decks)
     assert all(row["total_cards"] == 100 for row in provenance)
@@ -50,7 +52,7 @@ def test_real_4p_setup_preserves_command_zone_configuration(repo_root: Path) -> 
     assert provenance[3]["deck_hash_source"] == "derived_rules_identity"
 
 
-def test_real_4p_preflight_is_technical_evidence_only(repo_root: Path, tmp_path: Path) -> None:
+def test_real_4p_preflight_is_technical_evidence_only(repo_root: Path) -> None:
     module = _load_smoke_module(repo_root)
 
     # Exercise setup/report semantics without mutating canonical repo artifacts.
