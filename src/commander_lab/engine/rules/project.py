@@ -117,12 +117,21 @@ def load_rules_deck_snapshot(
     commander = payload.get("commander")
     commanders: tuple[str, ...]
     if isinstance(commander, str):
+        if not commander.strip():
+            raise ValueError("commander name must be a non-empty string")
         commanders = (commander,)
     elif isinstance(commander, dict):
         raw_commanders = commander.get("commanders")
         if not isinstance(raw_commanders, list) or not raw_commanders:
             raise ValueError("commander object must contain a non-empty commanders list")
-        commanders = tuple(str(name) for name in raw_commanders)
+        validated_commanders: list[str] = []
+        for index, name in enumerate(raw_commanders):
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError(
+                    f"commander name at index {index} must be a non-empty string"
+                )
+            validated_commanders.append(name)
+        commanders = tuple(validated_commanders)
     else:
         raise ValueError("commander must be a string or commander object")
     mainboard: list[str] = []

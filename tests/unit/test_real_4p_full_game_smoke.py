@@ -74,4 +74,3 @@ def test_preflight_and_live_artifact_paths_are_distinct(repo_root: Path) -> None
     assert preflight.name == "REAL_4P_PREFLIGHT.json"
     assert live.name == "REAL_4P_TECHNICAL_SMOKE.json"
     assert preflight != live
-

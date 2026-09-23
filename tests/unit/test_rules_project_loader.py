@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 
 
@@ -141,3 +143,30 @@ def test_rules_loader_rejects_wrapped_profile_id_mismatch(tmp_path: Path) -> Non
         assert "wrapped opponent profile deck ID mismatch" in str(exc)
     else:
         raise AssertionError("wrapped profile/deck ID mismatch must fail closed")
+
+@pytest.mark.parametrize("bad_name", [None, 7, {}, "", "   "])
+def test_rules_loader_rejects_invalid_commander_names(
+    tmp_path: Path,
+    bad_name: object,
+) -> None:
+    path = tmp_path / "bad-commander.json"
+    path.write_text(
+        json.dumps(
+            {
+                "deck_id": "invalid/commander-name",
+                "name": "Invalid commander name",
+                "commander": {"commanders": [bad_name]},
+                "cards": [
+                    {"oracle_name": "Plains", "zone": "main", "quantity": 99},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="commander name at index 0 must be a non-empty string",
+    ):
+        load_rules_deck_snapshot(path)
+

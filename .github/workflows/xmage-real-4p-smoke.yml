@@ -5,6 +5,9 @@ on:
     paths:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/models/pilots.py"
+      - "src/commander_lab/candidates/models.py"
       - "src/commander_lab/engine/rules/project.py"
       - "scripts/run_real_4p_full_game_smoke.py"
       - "tests/unit/test_real_4p_full_game_smoke.py"
@@ -19,6 +22,9 @@ on:
     paths:
       - "engine-bridge/**"
       - "src/commander_lab/engine/rules/full_game.py"
+      - "src/commander_lab/agents/**"
+      - "src/commander_lab/models/pilots.py"
+      - "src/commander_lab/candidates/models.py"
       - "src/commander_lab/engine/rules/project.py"
       - "scripts/run_real_4p_full_game_smoke.py"
       - "tests/unit/test_real_4p_full_game_smoke.py"
