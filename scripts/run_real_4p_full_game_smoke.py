@@ -205,19 +205,11 @@ def run_live_smoke(
     if result.evidence_class != FULL_GAME_EVIDENCE_CLASS:
         raise FullGameConformanceError("real 4P smoke returned unsafe evidence class")
     if result.player_count != 4 or not result.player_count_preserved:
-        raise FullGameConformanceError(
-            "real 4P smoke did not preserve four-player cardinality"
-        )
+        raise FullGameConformanceError("real 4P smoke did not preserve four-player cardinality")
     if not result.seed_preserved or not result.clean_shutdown:
         raise FullGameConformanceError("real 4P smoke did not preserve seed/clean shutdown")
-    if (
-        result.fallback_used
-        or result.consumed_gameplay_evidence
-        or result.holdout_consumed
-    ):
-        raise FullGameConformanceError(
-            "real 4P smoke crossed technical-evidence boundary"
-        )
+    if result.fallback_used or result.consumed_gameplay_evidence or result.holdout_consumed:
+        raise FullGameConformanceError("real 4P smoke crossed technical-evidence boundary")
 
     report.update(
         {
