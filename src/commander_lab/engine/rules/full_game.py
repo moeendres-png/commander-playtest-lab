@@ -365,6 +365,14 @@ class ExternalPilotDecisionPolicy:
         # the guard then takes the engine-offered cancel (graceful abort).
         self._mana_last_fingerprint: dict[int, tuple] = {}
         self._mana_repeat_count: dict[int, int] = {}
+        # No-progress guard memory for priority windows (per seat): free
+        # repeatable actions (Equip {0}, untap loops) can re-offer
+        # identically forever with zero game-state progress. An identical
+        # priority window (turn/phase/step/stack/pool/offer) repeating
+        # consecutively means no selection advanced the game; the guard
+        # then passes priority (always legal) so phases advance.
+        self._priority_last_fingerprint: dict[int, tuple] = {}
+        self._priority_repeat_count: dict[int, int] = {}
 
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
@@ -516,6 +524,55 @@ class ExternalPilotDecisionPolicy:
     ) -> str:
         pass_option = self._option_by_type(options, "pass_priority")
         pass_id = self._required_text(pass_option, "option_id")
+        seat = runtime.binding.seat
+        # Priority no-progress guard (liveness only, no MTG semantics):
+        # identical window fingerprint on consecutive same-seat priority
+        # decisions means prior selections changed nothing the offer
+        # reflects (turn/phase/step/stack/pool/options all equal). Any real
+        # progress (tapped land, spent pool, new trigger, advanced phase)
+        # alters the fingerprint and resets the count.
+        stack = state.get("stack")
+        stack_names = (
+            tuple(sorted(str(item.get("name", "")) for item in stack if isinstance(item, dict)))
+            if isinstance(stack, list)
+            else ()
+        )
+        pool = self._actor(state).get("mana_pool")
+        pool_tuple = (
+            tuple(sorted((str(key), str(value)) for key, value in pool.items()))
+            if isinstance(pool, dict)
+            else ()
+        )
+        fingerprint = (
+            seat,
+            state.get("turn_number"),
+            state.get("phase"),
+            state.get("step"),
+            stack_names,
+            pool_tuple,
+            tuple(
+                sorted(
+                    (
+                        self._required_text(option, "option_type"),
+                        str(option.get("label", "")),
+                    )
+                    for option in options
+                )
+            ),
+        )
+        if self._priority_last_fingerprint.get(seat) == fingerprint:
+            repeats = self._priority_repeat_count.get(seat, 1) + 1
+        else:
+            repeats = 1
+        self._priority_last_fingerprint[seat] = fingerprint
+        self._priority_repeat_count[seat] = repeats
+        if repeats >= 4:
+            self._priority_repeat_count[seat] = 0
+            _LOG.info(
+                "priority no-progress guard: identical window %d times, passing priority",
+                repeats,
+            )
+            return pass_id
         non_mana = [
             option
             for option in options

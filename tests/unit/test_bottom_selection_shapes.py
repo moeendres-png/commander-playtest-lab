@@ -285,6 +285,17 @@ def _priority_option(option_id: str, option_type: str, label: str) -> dict:
     }
 
 
+def _priority_state() -> dict:
+    return {
+        "actor_id": "actor-1",
+        "turn_number": 7,
+        "phase": "main",
+        "step": "main1",
+        "stack": [],
+        "players": [{"player_id": "actor-1", "mana_pool": {}}],
+    }
+
+
 def test_priority_selection_is_order_independent() -> None:
     """Same offer in different bridge orders: same raw option selected."""
     policy = _policy()
@@ -295,14 +306,31 @@ def test_priority_selection_is_order_independent() -> None:
         _priority_option("raw-mountain", "mana_ability", "Mountain"),
     ]
     first = policy._decide_priority(
-        policy._pilots[1], _state(["hand-1"]), list(options), random.Random(0)
+        policy._pilots[1], _priority_state(), list(options), random.Random(0)
     )
     reversed_options = list(reversed(options))
     second = policy._decide_priority(
-        policy._pilots[1], _state(["hand-1"]), reversed_options, random.Random(0)
+        policy._pilots[1], _priority_state(), reversed_options, random.Random(0)
     )
     assert first == second
     assert first in {option["option_id"] for option in options}
+
+
+def test_priority_no_progress_guard_passes() -> None:
+    """Greaves shape: identical priority window four times in a row.
+    The fourth must pass so the phase advances."""
+    policy = _policy()
+    options = [
+        _priority_option("raw-pass", "pass_priority", "Pass priority"),
+        _priority_option("raw-greaves", "activated_ability", "Lightning Greaves"),
+    ]
+    runtime = policy._pilots[1]
+    picks = [
+        policy._decide_priority(runtime, _priority_state(), list(options), random.Random(0))
+        for _ in range(4)
+    ]
+    assert picks[0] == "raw-greaves"
+    assert picks[3] == "raw-pass"
 
 
 def test_target_selection_is_order_independent() -> None:
