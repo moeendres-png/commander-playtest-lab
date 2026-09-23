@@ -364,10 +364,14 @@ class BasePilot:
         card_list = list(cards)
         scored = sorted(
             card_list,
+            # Twin-stable tiebreak: Rules-visible card name, never engine
+            # identity (per-process UUIDs would make same-seed twins
+            # bottom different cards). Residual same-name ties are
+            # interchangeable.
             key=lambda card: (
                 self.opening_card_value(card, commander_names),
                 -card.mana_cost,
-                card.action_id,
+                card.card_name,
             ),
         )
         return tuple(card.action_id for card in scored[:count])

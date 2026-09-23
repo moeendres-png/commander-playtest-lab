@@ -228,5 +228,54 @@ def test_mana_payment_unknown_flag_means_usable() -> None:
     assert selected == "pool-w"
 
 
+def _priority_option(option_id: str, option_type: str, label: str) -> dict:
+    return {
+        "option_id": option_id,
+        "option_type": option_type,
+        "label": label,
+        "metadata": {"source_name": label},
+    }
+
+
+def test_priority_selection_is_order_independent() -> None:
+    """Same offer in different bridge orders: same raw option selected."""
+    policy = _policy()
+    options = [
+        _priority_option("raw-pass", "pass_priority", "Pass priority"),
+        _priority_option("raw-bolt", "activated_ability", "Lightning Bolt"),
+        _priority_option("raw-abrade", "activated_ability", "Abrade"),
+        _priority_option("raw-mountain", "mana_ability", "Mountain"),
+    ]
+    first = policy._decide_priority(
+        policy._pilots[1], _state(["hand-1"]), list(options), random.Random(0)
+    )
+    reversed_options = list(reversed(options))
+    second = policy._decide_priority(
+        policy._pilots[1], _state(["hand-1"]), reversed_options, random.Random(0)
+    )
+    assert first == second
+    assert first in {option["option_id"] for option in options}
+
+
+def test_target_selection_is_order_independent() -> None:
+    """Same targets in different bridge orders: same raw option selected."""
+    policy = _policy()
+    request = {"context": {"outcome": "detriment"}}
+    options = [
+        _option("raw-island-a", "Island"),
+        _option("raw-mountain", "Mountain"),
+        _option("raw-island-b", "Island"),
+    ]
+    first = policy._decide_targets(
+        policy._pilots[1], _state(["hand-1"]), request, list(options), 1, 1, random.Random(0)
+    )
+    second = policy._decide_targets(
+        policy._pilots[1], _state(["hand-1"]), request, list(reversed(options)),
+        1, 1, random.Random(0),
+    )
+    assert first == second
+    assert first[0] in {option["option_id"] for option in options}
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))

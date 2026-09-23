@@ -561,11 +561,39 @@ class ExternalPilotDecisionPolicy:
                 "withheld %d unaffordable mana abilit(ies) from pilot selection",
                 len(mana_options) - len(affordable_mana),
             )
-        mana_views = [self._priority_mana_action(option, state) for option in affordable_mana]
-
         pilot_state = self._pilot_state(runtime, state)
-        action_views = [self._priority_action(option, state) for option in non_mana]
-        action_views.extend(mana_views)
+        # Twin-stable view identities (WS92-D5 pattern): raw engine option
+        # ids embed per-process UUIDs, so pilot tiebreaks on them would make
+        # same-seed fresh-process twins diverge. Views carry content-derived
+        # stable ids (type + label + content occurrence, all Rules-visible);
+        # the pilot's pick maps back to the raw engine id here. Occurrence
+        # counting is keyed by content, never by bridge order, so input
+        # permutation cannot change the outcome.
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
+        action_views: list[PilotActionView] = []
+        for option in non_mana:
+            base = (
+                "priority:"
+                f"{self._required_text(option, 'option_type')}:"
+                f"{str(option.get('label', 'action')).casefold()}"
+            )
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            action_views.append(
+                self._priority_action(option, state).model_copy(update={"action_id": stable_id})
+            )
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+        for option in affordable_mana:
+            base = f"priority:mana:{str(option.get('label', 'mana')).casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            action_views.append(
+                self._priority_mana_action(option, state).model_copy(update={"action_id": stable_id})
+            )
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
         action_views.append(
             PilotActionView(
                 action_id=pass_id,
@@ -582,10 +610,12 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(pilot_state, action_views, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no priority action")
-        offered = {view.action_id for view in action_views}
-        if decision.selected_action_id not in offered:
-            raise FullGameProtocolError("pilot returned unknown priority action")
-        return decision.selected_action_id
+        if decision.selected_action_id == pass_id:
+            return pass_id
+        try:
+            return raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable priority action") from exc
 
     def _priority_action_affordable(
         self, option: dict[str, Any], state: dict[str, Any]
@@ -693,17 +723,28 @@ class ExternalPilotDecisionPolicy:
             return []
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
+        # Twin-stable target identities: rank key is (score, Rules-visible
+        # label, content-derived stable id); raw engine ids never order or
+        # identify pilot inputs.
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
         ranked: list[tuple[float, str, str]] = []
         for option in options:
-            action = self._target_action(option, state, outcome)
+            base = (
+                "target:"
+                f"{self._required_text(option, 'option_type')}:"
+                f"{str(option.get('label', 'target')).casefold()}"
+            )
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+            action = self._target_action(option, state, outcome).model_copy(
+                update={"action_id": stable_id}
+            )
             breakdown = runtime.pilot.evaluate_action(pilot_state, action)
             score = breakdown.total_utility + self._target_alignment(action, state, outcome)
-            # Tiebreak by stable Rules-visible content (card label), never by
-            # native identity alone: raw option ids embed per-process engine
-            # UUIDs, so a UUID-order tiebreak would make credited same-seed
-            # twins diverge. The residual UUID element only orders options
-            # whose labels are also identical (indistinguishable targets).
-            ranked.append((score, action.card_name, action.action_id))
+            ranked.append((score, action.card_name, stable_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
 
         if max_selections <= 0:
@@ -715,7 +756,10 @@ class ExternalPilotDecisionPolicy:
         else:
             take = min_selections
         take = max(min_selections, min(max_selections, take))
-        return [option_id for _score, _label, option_id in ranked[:take]]
+        try:
+            return [raw_by_stable_id[stable_id] for _score, _label, stable_id in ranked[:take]]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable target action") from exc
 
     def _decide_semantic_option(
         self,
@@ -727,11 +771,27 @@ class ExternalPilotDecisionPolicy:
         if not options:
             raise FullGameProtocolError("semantic decision has no legal options")
         pilot_state = self._pilot_state(runtime, state)
-        actions = [self._semantic_action(option) for option in options]
+        # Twin-stable identities (same pattern as priority/targets).
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
+        actions: list[PilotActionView] = []
+        for option in options:
+            base = f"semantic:{str(option.get('label', 'option')).casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+            actions.append(
+                self._semantic_action(option).model_copy(update={"action_id": stable_id})
+            )
         decision = runtime.pilot.choose_action(pilot_state, actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no semantic option")
-        return self._require_offered(decision.selected_action_id, options, "semantic option")
+        try:
+            raw_id = raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable semantic option") from exc
+        return self._require_offered(raw_id, options, "semantic option")
 
     def _decide_mode(
         self,
@@ -772,6 +832,7 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("boolean decision has no legal options")
         outcome = str(context.get("outcome", "neutral")).casefold()
         actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
         for option in options:
             metadata = option.get("metadata")
             value = metadata.get("value") if isinstance(metadata, dict) else None
@@ -780,9 +841,12 @@ class ExternalPilotDecisionPolicy:
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in {"detriment", "detriment_to_controller"}
             )
+            # Twin-stable: boolean value words are Rules-visible content.
+            stable_id = f"boolean:{value}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
             actions.append(
                 PilotActionView(
-                    action_id=self._required_text(option, "option_id"),
+                    action_id=stable_id,
                     action_kind="card",
                     card_name=str(option.get("label", value)),
                     floor_value=0.8 if aligned else 0.35,
@@ -793,7 +857,11 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no boolean decision")
-        return self._require_offered(decision.selected_action_id, options, "boolean decision")
+        try:
+            raw_id = raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable boolean option") from exc
+        return self._require_offered(raw_id, options, "boolean decision")
 
     def _decide_pile(
         self,
@@ -808,14 +876,30 @@ class ExternalPilotDecisionPolicy:
         outcome = str(context.get("outcome", "benefit")).casefold()
         benefit = outcome not in {"detriment", "detriment_to_controller"}
         actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
         for option in options:
             metadata = option.get("metadata")
             cards = metadata.get("cards", []) if isinstance(metadata, dict) else []
             size = len(cards) if isinstance(cards, list) else 0
             scaled = min(2.0, size / 4.0)
+            # Twin-stable: pile identity is its Rules-visible content
+            # (sorted member names), never engine UUIDs.
+            names: list[str] = []
+            if isinstance(cards, list):
+                for card in cards:
+                    if isinstance(card, dict):
+                        names.append(str(card.get("name", "")).casefold())
+                    else:
+                        names.append(str(card).casefold())
+            base = f"pile:{size}:{'+'.join(sorted(names))}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
             actions.append(
                 PilotActionView(
-                    action_id=self._required_text(option, "option_id"),
+                    action_id=stable_id,
                     action_kind="card",
                     card_name=str(option.get("label", "Pile")),
                     floor_value=(0.4 + scaled * 0.25) if benefit else max(0.0, 0.9 - scaled * 0.25),
@@ -828,7 +912,11 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no pile decision")
-        return self._require_offered(decision.selected_action_id, options, "pile decision")
+        try:
+            raw_id = raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable pile option") from exc
+        return self._require_offered(raw_id, options, "pile decision")
 
     def _decide_mana(
         self,

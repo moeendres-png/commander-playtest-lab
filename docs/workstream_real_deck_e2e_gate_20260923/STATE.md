@@ -9,6 +9,7 @@
   - [x] Phase A baseline (bridge built; 36 variable-player + new gate tests green)
   - [x] Phase B real-deck single game (seed 20260923 TERMINAL, winner seat 2, 12 decision classes)
   - [x] Phase B re-validation on final code (v7: TERMINAL, 18137 decisions, winner seat 2)
+  - [x] Phase B re-validation (v9: TERMINAL, 16252 decisions, winner seat 2)
   - [ ] Phase C replay (same-seed transcript match; running)
   - [ ] Phase D 10-game batch
   - [ ] Artifacts + validation + PR/merge decision
@@ -28,6 +29,13 @@
     canChoose, no bridge signal). Fix: bridge projects mode_targets_available
     from Target.canChoose per mode; pilot prefers viable modes; no-viable-mode
     casts map to pass (601.2 rewind); genuine failures stay fatal.
+    Correction: Target.isRequired(Ability) is false for unactivated spells,
+    so the probe mirrors the engine flow with minNumberOfTargets+canChoose.
+  - Hybrid {U/R} payment livelock (54k identical mana_payments): pilot spent
+    unusable pool mana (prompt-text heuristic blind to hybrids), engine
+    re-prompted unchanged. Fix: bridge projects native ManaCost.testPay per
+    pool option; policy filters non-advancing spends; identical-offer repeat
+    guard (3x) takes the offered cancel. No color parsing in the pilot.
 - Known risk: same-seed twins run in fresh processes with per-process engine
   UUIDs; pilot tiebreaks on engine UUIDs can diverge twins (replay match).
   Cross-process determinism hardening is next if replay mismatches.

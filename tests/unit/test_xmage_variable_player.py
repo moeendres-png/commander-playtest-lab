@@ -269,12 +269,29 @@ def test_mana_pool_shortcut_pays_exact_colored_requirement() -> None:
 
 
 def test_mana_pool_shortcut_never_spends_wrong_color_into_colored_cost() -> None:
-    # WS215 liveness guard: spending blue toward {W} loops the native payment
-    # request forever. The policy must tap a source or cancel instead.
+    # WS215 liveness guard, native-flag form: the bridge projects
+    # advances_payment=False for blue toward {W} (ManaCost.testPay), so
+    # the policy must tap a source or cancel instead of spending it.
     policy = _policy(4)
-    response = policy.decide(_mana_request(4, "{W}", ("blue",)))
+    request = _mana_request(4, "{W}", ("blue",))
+    for option in request["legal_options"]:
+        if option["option_type"] == "mana_pool":
+            option["metadata"]["advances_payment"] = False
+    response = policy.decide(request)
     assert response["selected_option_ids"] != ["pool-0"]
     assert response["selected_option_ids"] in (["ability-0"], ["cancel"])
+
+
+def test_mana_pool_shortcut_spends_advancing_pool() -> None:
+    # Native-flag form: advances_payment=True means the engine reports
+    # this pool spend advances the payment, so it stays selectable.
+    policy = _policy(4)
+    request = _mana_request(4, "{W}", ("blue",))
+    for option in request["legal_options"]:
+        if option["option_type"] == "mana_pool":
+            option["metadata"]["advances_payment"] = True
+    response = policy.decide(request)
+    assert response["selected_option_ids"] == ["pool-0"]
 
 
 def test_mana_decision_without_productive_option_fails_closed() -> None:
@@ -283,6 +300,8 @@ def test_mana_decision_without_productive_option_fails_closed() -> None:
     request["legal_options"] = [
         option for option in request["legal_options"] if option["option_type"] == "mana_pool"
     ]
+    for option in request["legal_options"]:
+        option["metadata"]["advances_payment"] = False
     with pytest.raises(FullGameProtocolError, match="no productive option"):
         policy.decide(request)
 
