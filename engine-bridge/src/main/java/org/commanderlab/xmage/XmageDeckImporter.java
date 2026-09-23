@@ -9,14 +9,18 @@ import mage.cards.repository.CardRepository;
 import mage.cards.repository.CardScanner;
 import mage.deck.Commander;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 public final class XmageDeckImporter {
+
+    private static final Pattern COMBINING_MARKS = Pattern.compile("\\p{M}+");
 
     public record ImportResult(
             String deckHandle,
@@ -256,6 +260,50 @@ public final class XmageDeckImporter {
                         true
                 );
 
+        /*
+         * Some XMage registrations use an ASCII spelling where current
+         * Oracle/source data carries a diacritic (for example Gríma -> Grima).
+         * This is deliberately narrower than fuzzy matching: only canonical
+         * Unicode combining marks are ignored, and the fallback is accepted
+         * only when exactly one engine card name has the same folded identity.
+         */
+        if (cardInfo == null) {
+            String foldedRequested =
+                    foldDiacritics(oracleName);
+
+            List<String> equivalentNames =
+                    CardRepository.instance
+                            .getNames()
+                            .stream()
+                            .filter(
+                                    engineName ->
+                                            foldDiacritics(engineName)
+                                                    .equals(foldedRequested)
+                            )
+                            .distinct()
+                            .sorted()
+                            .limit(2)
+                            .toList();
+
+            if (equivalentNames.size() > 1) {
+                throw new ImportException(
+                        "AMBIGUOUS_CARD_NAME_ALIAS: requested "
+                                + oracleName
+                                + " matches multiple XMage identities after "
+                                + "diacritic folding: "
+                                + equivalentNames
+                );
+            }
+
+            if (equivalentNames.size() == 1) {
+                cardInfo =
+                        CardRepository.instance.findCard(
+                                equivalentNames.get(0),
+                                true
+                        );
+            }
+        }
+
         if (cardInfo == null) {
             throw new ImportException(
                     "UNKNOWN_CARD_NAME: "
@@ -264,11 +312,14 @@ public final class XmageDeckImporter {
         }
 
         /*
-         * Fail closed if XMage's lookup returns a different mechanical
-         * identity. Set code and collector number are deliberately not
-         * part of the simulation contract.
+         * Fail closed if XMage resolves a genuinely different mechanical
+         * identity. A unique diacritic-only spelling difference is accepted
+         * because it binds to the same engine card registration. Set code and
+         * collector number remain outside the simulation contract.
          */
-        if (!oracleName.equals(cardInfo.getName())) {
+        if (!oracleName.equals(cardInfo.getName())
+                && !foldDiacritics(oracleName)
+                        .equals(foldDiacritics(cardInfo.getName()))) {
             throw new ImportException(
                     "CARD_IDENTITY_MISMATCH: requested "
                             + oracleName
@@ -403,6 +454,17 @@ public final class XmageDeckImporter {
                 + ",group=" + error.getGroup()
                 + ",card=" + cardName
                 + ",message=" + error.getMessage();
+    }
+
+    private static String foldDiacritics(String value) {
+        return COMBINING_MARKS
+                .matcher(
+                        Normalizer.normalize(
+                                value,
+                                Normalizer.Form.NFD
+                        )
+                )
+                .replaceAll("");
     }
 
     private static String requireText(
