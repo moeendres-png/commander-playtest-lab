@@ -191,6 +191,101 @@ def build_setup(
     return scenario, decks, pilots
 
 
+def _contains_forbidden_private_state(value: Any) -> bool:
+    if isinstance(value, dict):
+        forbidden = {"pilot_state", "hand", "library", "private_hand", "library_order"}
+        if forbidden.intersection(value):
+            return True
+        return any(_contains_forbidden_private_state(item) for item in value.values())
+    if isinstance(value, list):
+        return any(_contains_forbidden_private_state(item) for item in value)
+    return False
+
+
+def run_full_gate(*, seed: int = DEFAULT_SEED) -> dict[str, Any]:
+    scenario, decks, pilots = build_setup(seed=seed)
+    runner = XmageFullGameRunner(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
+    first = runner.run(scenario=scenario, decks=decks, pilots=pilots)
+    second = runner.run(scenario=scenario, decks=decks, pilots=pilots)
+
+    if not first.terminal or not second.terminal:
+        raise SystemExit("real 4P full-game gate did not reach XMage Game Over twice")
+    if first.decision_count <= 0 or second.decision_count <= 0:
+        raise SystemExit("real 4P full-game gate exercised no external pilot decisions")
+    if first.evidence_class != FULL_GAME_EVIDENCE_CLASS:
+        raise SystemExit("real 4P full-game gate produced an unsafe evidence class")
+    if first.consumed_gameplay_evidence or first.holdout_consumed:
+        raise SystemExit("real 4P technical gate consumed gameplay evidence or holdout")
+    if _contains_forbidden_private_state(first.result_payload.get("transcript", [])):
+        raise SystemExit("real 4P transcript contains forbidden private pilot state")
+
+    semantic_match = first.semantic_transcript_sha256 == second.semantic_transcript_sha256
+    if not semantic_match:
+        raise SystemExit("real 4P same-seed semantic replay diverged")
+
+    accepted_classes = sorted(
+        {
+            str(event.get("decision_class"))
+            for event in first.result_payload.get("transcript", [])
+            if isinstance(event, dict) and event.get("kind") == "decision_accepted"
+        }
+    )
+    for required in ("mulligan", "priority"):
+        if required not in accepted_classes:
+            raise SystemExit(
+                f"real 4P full-game gate did not exercise required decision class {required}: "
+                f"{accepted_classes}"
+            )
+
+    result = {
+        "schema_version": "real-4p-full-game/1.0.0",
+        "status": "PASS",
+        "mode": "natural_terminal_dual_replay",
+        "scenario_id": scenario.scenario_id,
+        "seed": scenario.seed,
+        "player_count": scenario.player_count,
+        "first_decision_count": first.decision_count,
+        "second_decision_count": second.decision_count,
+        "first_winner_seats": list(first.winner_seats),
+        "second_winner_seats": list(second.winner_seats),
+        "semantic_replay_match": True,
+        "raw_result_match": first.raw_result_sha256 == second.raw_result_sha256,
+        "first_semantic_sha256": first.semantic_transcript_sha256,
+        "second_semantic_sha256": second.semantic_transcript_sha256,
+        "observed_decision_classes": accepted_classes,
+        "engine_version": first.engine_version,
+        "xmage_commit": first.xmage_commit,
+        "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
+        "evidence_class": FULL_GAME_EVIDENCE_CLASS,
+        "deck_strength_evidence": False,
+        "official_campaign_eligible": False,
+        "consumed_gameplay_evidence": False,
+        "holdout_consumed": False,
+        "rules_authority": "xmage",
+        "decision_authority": "commander_lab_external_pilots",
+        "fallback_used": False,
+        "decks": [
+            {
+                "seat": seat,
+                "deck_id": deck.deck_id,
+                "commander_names": list(deck.commander_names),
+                "card_count": len(deck.mainboard) + len(deck.commander_names),
+                "deck_hash": deck.deck_hash,
+                "source_path": deck.source_path,
+            }
+            for seat, deck in enumerate(decks, start=1)
+        ],
+    }
+    out = ROOT / "artifacts" / "xmage-full-game"
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "REAL_4P_DECK_FULL_GAME.json").write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return result
+
+
 def run_smoke(*, smoke_decisions: int = DEFAULT_SMOKE_DECISIONS, seed: int = DEFAULT_SEED) -> dict[str, Any]:
     scenario, decks, pilots = build_setup(seed=seed)
     runner = XmageFullGameRunner(cwd=ROOT, request_timeout_seconds=120.0, max_decisions=50_000)
@@ -259,6 +354,11 @@ def main() -> int:
     parser.add_argument("--smoke-decisions", type=int, default=DEFAULT_SMOKE_DECISIONS)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     parser.add_argument(
+        "--full-game",
+        action="store_true",
+        help="Run the real 4P pod to natural Game Over twice and require semantic replay match.",
+    )
+    parser.add_argument(
         "--validate-only",
         action="store_true",
         help="Validate and materialize the four RulesDeckInput values without launching XMage.",
@@ -276,6 +376,9 @@ def main() -> int:
             ],
         }
         print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+    if args.full_game:
+        run_full_gate(seed=args.seed)
         return 0
     run_smoke(smoke_decisions=args.smoke_decisions, seed=args.seed)
     return 0
