@@ -373,6 +373,10 @@ class ExternalPilotDecisionPolicy:
         # then passes priority (always legal) so phases advance.
         self._priority_last_fingerprint: dict[int, tuple] = {}
         self._priority_repeat_count: dict[int, int] = {}
+        # Latch: once tripped, the seat keeps passing while the window
+        # stays identical (a single forced pass would just resume the
+        # loop). Any window change unlatches and resumes normal choice.
+        self._priority_latched: dict[int, tuple] = {}
 
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
@@ -566,8 +570,16 @@ class ExternalPilotDecisionPolicy:
             repeats = 1
         self._priority_last_fingerprint[seat] = fingerprint
         self._priority_repeat_count[seat] = repeats
+        if self._priority_latched.get(seat) == fingerprint:
+            # Latched: window never changed since the trip; keep passing.
+            return pass_id
+        if seat in self._priority_latched:
+            # Window changed: unlatch and resume normal choice.
+            del self._priority_latched[seat]
+            self._priority_repeat_count[seat] = 1
         if repeats >= 4:
             self._priority_repeat_count[seat] = 0
+            self._priority_latched[seat] = fingerprint
             _LOG.info(
                 "priority no-progress guard: identical window %d times, passing priority",
                 repeats,

@@ -333,6 +333,29 @@ def test_priority_no_progress_guard_passes() -> None:
     assert picks[3] == "raw-pass"
 
 
+def test_priority_guard_latches_until_window_changes() -> None:
+    """A single forced pass must not resume the loop: while the window
+    stays identical the seat keeps passing; a changed window unlatches."""
+    policy = _policy()
+    options = [
+        _priority_option("raw-pass", "pass_priority", "Pass priority"),
+        _priority_option("raw-greaves", "activated_ability", "Lightning Greaves"),
+    ]
+    runtime = policy._pilots[1]
+    picks = [
+        policy._decide_priority(runtime, _priority_state(), list(options), random.Random(0))
+        for _ in range(7)
+    ]
+    assert picks[:3] == ["raw-greaves"] * 3
+    assert picks[3:] == ["raw-pass"] * 4
+    changed = _priority_state()
+    changed["turn_number"] = 8
+    assert (
+        policy._decide_priority(runtime, changed, list(options), random.Random(0))
+        == "raw-greaves"
+    )
+
+
 def test_target_selection_is_order_independent() -> None:
     """Same targets in different bridge orders: same raw option selected."""
     policy = _policy()
