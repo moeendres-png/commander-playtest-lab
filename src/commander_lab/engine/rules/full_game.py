@@ -37,6 +37,14 @@ FULL_GAME_LANE = "xmage_full_game_external_pilots"
 FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"
 XMAGE_FULL_GAME_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 
+# Bridge-process shutdown dispositions observed by close(). Only
+# graceful_shutdown may back a clean-shutdown evidence claim; every other
+# outcome must fail closed where such a claim matters.
+FULL_GAME_SHUTDOWN_GRACEFUL = "graceful_shutdown"
+FULL_GAME_SHUTDOWN_UNACKED_EXIT = "unacked_exit"
+FULL_GAME_SHUTDOWN_FORCED_KILL = "forced_kill"
+FULL_GAME_SHUTDOWN_ALREADY_EXITED = "already_exited"
+
 # WS229 forced-move audit channel. Forced moves (no pilot discretion) are
 # auto-submitted only with a structured log record; discretionary actions
 # are never hidden from the pilot.
@@ -185,6 +193,7 @@ class _RawFullGameClient:
         self._stderr_lines: list[str] = []
         self._stdout_thread: threading.Thread | None = None
         self._stderr_thread: threading.Thread | None = None
+        self.shutdown_disposition: str | None = None
 
     @property
     def stderr_tail(self) -> tuple[str, ...]:
@@ -276,27 +285,54 @@ class _RawFullGameClient:
             raise FullGameProtocolError(f"{message_type} failed: {detail}")
         return response.payload
 
-    def close(self) -> None:
+    def close(self) -> str:
+        """Shut the bridge process down, returning the observed disposition.
+
+        Same request/wait/kill sequence as always (no parallel lifecycle);
+        the outcome is now returned instead of swallowed so evidence can
+        distinguish graceful shutdown from kill/timeout/failed-shutdown:
+
+        - ``graceful_shutdown``: shutdown request acked, process exited
+          without kill;
+        - ``unacked_exit``: shutdown request failed but the process exited
+          on its own without kill;
+        - ``forced_kill``: the process had to be killed;
+        - ``already_exited``: no live process at entry (or none started).
+
+        Never raises for teardown itself: failures are encoded in the
+        returned disposition and callers fail closed where a shutdown
+        claim matters.
+        """
         process = self._process
         if process is None:
-            return
-        if process.poll() is None:
-            with contextlib.suppress(Exception):
+            return FULL_GAME_SHUTDOWN_ALREADY_EXITED
+        try:
+            if process.poll() is not None:
+                return FULL_GAME_SHUTDOWN_ALREADY_EXITED
+            shutdown_acked = True
+            try:
                 self.request("shutdown_engine")
-        if process.poll() is None:
-            with contextlib.suppress(subprocess.TimeoutExpired):
+            except Exception:
+                shutdown_acked = False
+            if process.poll() is None:
+                with contextlib.suppress(subprocess.TimeoutExpired):
+                    process.wait(timeout=5)
+            if process.poll() is None:
+                process.kill()
                 process.wait(timeout=5)
-        if process.poll() is None:
-            process.kill()
-            process.wait(timeout=5)
-        for stream in (process.stdin, process.stdout, process.stderr):
-            if stream is not None and not stream.closed:
-                with contextlib.suppress(OSError):
-                    stream.close()
-        for thread in (self._stdout_thread, self._stderr_thread):
-            if thread is not None:
-                thread.join(timeout=2)
-        self._process = None
+                return FULL_GAME_SHUTDOWN_FORCED_KILL
+            if shutdown_acked:
+                return FULL_GAME_SHUTDOWN_GRACEFUL
+            return FULL_GAME_SHUTDOWN_UNACKED_EXIT
+        finally:
+            for stream in (process.stdin, process.stdout, process.stderr):
+                if stream is not None and not stream.closed:
+                    with contextlib.suppress(OSError):
+                        stream.close()
+            for thread in (self._stdout_thread, self._stderr_thread):
+                if thread is not None:
+                    thread.join(timeout=2)
+            self._process = None
 
     def _pump_stdout(self, stream: Any) -> None:
         try:
@@ -314,7 +350,7 @@ class _RawFullGameClient:
         return self
 
     def __exit__(self, *_args: object) -> None:
-        self.close()
+        self.shutdown_disposition = self.close()
 
 
 class ExternalPilotDecisionPolicy:
@@ -358,6 +394,49 @@ class ExternalPilotDecisionPolicy:
         self._mulligan_count: dict[int, int] = {
             seat: 0 for seat in range(1, len(runtime_pilots) + 1)
         }
+        # No-progress guard memory for mana payments (per seat): last
+        # decision fingerprint plus consecutive-repeat count. A mana
+        # payment whose full offer (unpaid requirement, options, pool
+        # amounts) repeats identically means no selection advanced it;
+        # the guard then takes the engine-offered cancel (graceful abort).
+        self._mana_last_fingerprint: dict[
+            int, tuple[int, str, tuple[tuple[str, str, str], ...]]
+        ] = {}
+        self._mana_repeat_count: dict[int, int] = {}
+        # No-progress guard memory for priority windows (per seat): free
+        # repeatable actions (Equip {0}, untap loops) can re-offer
+        # identically forever with zero game-state progress. An identical
+        # priority window (turn/phase/step/stack/pool/offer) repeating
+        # consecutively means no selection advanced the game; the guard
+        # then passes priority (always legal) so phases advance.
+        self._priority_last_fingerprint: dict[
+            int,
+            tuple[
+                int,
+                object,
+                object,
+                object,
+                tuple[str, ...],
+                tuple[tuple[str, str], ...],
+                tuple[tuple[str, str], ...],
+            ],
+        ] = {}
+        self._priority_repeat_count: dict[int, int] = {}
+        # Latch: once tripped, the seat keeps passing while the window
+        # stays identical (a single forced pass would just resume the
+        # loop). Any window change unlatches and resumes normal choice.
+        self._priority_latched: dict[
+            int,
+            tuple[
+                int,
+                object,
+                object,
+                object,
+                tuple[str, ...],
+                tuple[tuple[str, str], ...],
+                tuple[tuple[str, str], ...],
+            ],
+        ] = {}
 
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
@@ -407,8 +486,10 @@ class ExternalPilotDecisionPolicy:
             selected = [self._decide_boolean(runtime, pilot_state, options, context, rng)]
         elif decision_class == "pile":
             selected = [self._decide_pile(runtime, pilot_state, options, context, rng)]
-        elif decision_class in {"choice", "replacement_effect", "trigger_order", "mode"}:
+        elif decision_class in {"choice", "replacement_effect", "trigger_order"}:
             selected = [self._decide_semantic_option(runtime, pilot_state, options, rng)]
+        elif decision_class == "mode":
+            selected = [self._decide_mode(runtime, pilot_state, options, rng)]
         elif decision_class == "priority":
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
         elif decision_class in {"target", "choose_object", "target_amount"}:
@@ -507,25 +588,148 @@ class ExternalPilotDecisionPolicy:
     ) -> str:
         pass_option = self._option_by_type(options, "pass_priority")
         pass_id = self._required_text(pass_option, "option_id")
+        # Forced pass-only rounds carry no discretion: take them without
+        # touching guard memory, so they can neither trip the guard nor
+        # break a genuine no-progress chain interleaved around them.
+        if len(options) == 1:
+            return pass_id
+        seat = runtime.binding.seat
+        # Priority no-progress guard (liveness only, no MTG semantics):
+        # identical window fingerprint on consecutive same-seat priority
+        # decisions means prior selections changed nothing the offer
+        # reflects (turn/phase/step/stack/pool/options all equal). Any real
+        # progress (tapped land, spent pool, new trigger, advanced phase)
+        # alters the fingerprint and resets the count.
+        stack = state.get("stack")
+        stack_names = (
+            tuple(sorted(str(item.get("name", "")) for item in stack if isinstance(item, dict)))
+            if isinstance(stack, list)
+            else ()
+        )
+        pool = self._actor(state).get("mana_pool")
+        pool_tuple = (
+            tuple(sorted((str(key), str(value)) for key, value in pool.items()))
+            if isinstance(pool, dict)
+            else ()
+        )
+        fingerprint = (
+            seat,
+            state.get("turn_number"),
+            state.get("phase"),
+            state.get("step"),
+            stack_names,
+            pool_tuple,
+            tuple(
+                sorted(
+                    (
+                        self._required_text(option, "option_type"),
+                        str(option.get("label", "")),
+                    )
+                    for option in options
+                )
+            ),
+        )
+        if self._priority_last_fingerprint.get(seat) == fingerprint:
+            repeats = self._priority_repeat_count.get(seat, 1) + 1
+        else:
+            repeats = 1
+        self._priority_last_fingerprint[seat] = fingerprint
+        self._priority_repeat_count[seat] = repeats
+        if self._priority_latched.get(seat) == fingerprint:
+            # Latched: window never changed since the trip; keep passing.
+            return pass_id
+        if seat in self._priority_latched:
+            # Window changed: unlatch and resume normal choice.
+            del self._priority_latched[seat]
+            self._priority_repeat_count[seat] = 1
+        if repeats >= 4:
+            self._priority_repeat_count[seat] = 0
+            self._priority_latched[seat] = fingerprint
+            _LOG.info(
+                "priority no-progress guard: identical window %d times, passing priority",
+                repeats,
+            )
+            return pass_id
         non_mana = [
             option
             for option in options
             if self._required_text(option, "option_type") not in {"pass_priority", "mana_ability"}
         ]
+        # Affordability-aware pilot judgment: an activated ability whose
+        # engine-reported costs provably exceed the actor's free resources
+        # (pool mana plus, for tap costs, an untapped source) is withheld
+        # from the pilot's selection set so the pilot passes or acts
+        # elsewhere instead of spending a shared resource mid-payment and
+        # failing activation. Withheld options stay engine-offered; the
+        # pilot simply does not select them. Unknown/absent cost facts mean
+        # no gating: the engine remains the authority.
+        affordable = [
+            option for option in non_mana if self._priority_action_affordable(option, state)
+        ]
+        if len(affordable) != len(non_mana):
+            _LOG.info(
+                "withheld %d unaffordable priority action(s) from pilot selection",
+                len(non_mana) - len(affordable),
+            )
+            non_mana = affordable
         # WS229 F-RULES-03 disposition: Core-authorized mana abilities were
         # withheld from the pilot. Mana abilities are discretionary actions,
         # so they are offered to the pilot with explicit mana metadata
         # instead of being hidden. Only a lone pass (no discretion) is
         # auto-submitted, with a forced-move record.
-        mana_views = [
-            self._priority_mana_action(option, state)
+        #
+        # Affordability applies to mana abilities with activation mana costs
+        # too (e.g. signets): selecting one the pool cannot fund spends a
+        # shared resource mid-payment and fails activation. Pure mana
+        # abilities (no mana cost, untapped source) always pass the gate.
+        mana_options = [
+            option
             for option in options
             if self._required_text(option, "option_type") == "mana_ability"
         ]
-
+        affordable_mana = [
+            option for option in mana_options if self._priority_action_affordable(option, state)
+        ]
+        if len(affordable_mana) != len(mana_options):
+            _LOG.info(
+                "withheld %d unaffordable mana abilit(ies) from pilot selection",
+                len(mana_options) - len(affordable_mana),
+            )
         pilot_state = self._pilot_state(runtime, state)
-        action_views = [self._priority_action(option, state) for option in non_mana]
-        action_views.extend(mana_views)
+        # Twin-stable view identities (WS92-D5 pattern): raw engine option
+        # ids embed per-process UUIDs, so pilot tiebreaks on them would make
+        # same-seed fresh-process twins diverge. Views carry content-derived
+        # stable ids (type + label + content occurrence, all Rules-visible);
+        # the pilot's pick maps back to the raw engine id here. Occurrence
+        # counting is keyed by content, never by bridge order, so input
+        # permutation cannot change the outcome.
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
+        action_views: list[PilotActionView] = []
+        for option in non_mana:
+            base = (
+                "priority:"
+                f"{self._required_text(option, 'option_type')}:"
+                f"{str(option.get('label', 'action')).casefold()}"
+            )
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            action_views.append(
+                self._priority_action(option, state).model_copy(update={"action_id": stable_id})
+            )
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+        for option in affordable_mana:
+            base = f"priority:mana:{str(option.get('label', 'mana')).casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            action_views.append(
+                self._priority_mana_action(option, state).model_copy(
+                    update={"action_id": stable_id}
+                )
+            )
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
         action_views.append(
             PilotActionView(
                 action_id=pass_id,
@@ -542,10 +746,38 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(pilot_state, action_views, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no priority action")
-        offered = {view.action_id for view in action_views}
-        if decision.selected_action_id not in offered:
-            raise FullGameProtocolError("pilot returned unknown priority action")
-        return decision.selected_action_id
+        if decision.selected_action_id == pass_id:
+            return pass_id
+        try:
+            return raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable priority action") from exc
+
+    def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
+        """Pilot-side discretionary ranking among engine-authorized options.
+
+        Returns False only when engine-native cost facts prove the action
+        cannot be funded from free resources: a tap cost on an already
+        tapped source, an untap cost on an untapped source, or mana costs
+        the current pool cannot cover (``pool_covers_mana_cost`` is the
+        engine's own ``Mana.enough`` verdict, projected losslessly by the
+        bridge). Anything unknown means affordable.
+
+        This is pilot choice, not a legality verdict: withheld options stay
+        engine-offered, the pilot simply selects pass/another legal action
+        instead, and the engine re-validates whatever is selected (a
+        mid-payment cancel aborts to pass natively). No card names, no
+        label parsing, no invented actions.
+        """
+        del state
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict):
+            return True
+        if metadata.get("requires_tap_source") is True and metadata.get("source_tapped") is True:
+            return False
+        if metadata.get("requires_untap_source") is True and metadata.get("source_tapped") is False:
+            return False
+        return metadata.get("pool_covers_mana_cost") is not False
 
     def _priority_mana_action(
         self, option: dict[str, Any], state: dict[str, Any]
@@ -589,33 +821,77 @@ class ExternalPilotDecisionPolicy:
             hand = actor.get("hand")
             if not isinstance(hand, list):
                 raise FullGameProtocolError("London bottom decision requires actor hand visibility")
-            count = min_selections
-            card_actions = tuple(self._hand_action(card) for card in hand if isinstance(card, dict))
-            selected = runtime.pilot.choose_bottom_cards(
-                card_actions,
-                count,
-                commander_names=runtime.binding.commander_names,
-            )
             legal_ids = {self._required_text(option, "option_id") for option in options}
-            if not set(selected).issubset(legal_ids):
-                raise FullGameProtocolError("pilot bottom-card selection is not XMage-legal")
-            return list(selected)
+            hand_ids = {
+                self._required_text(card, "object_id") for card in hand if isinstance(card, dict)
+            }
+            # Two engine-native shapes share the bottom-selection path:
+            # London mulligan bottoms cards FROM HAND (options are hand
+            # cards), while library effects (e.g. Dig Through Time) order
+            # looked-at LIBRARY cards (options are not hand cards). Only
+            # the London shape uses opening-hand bottom valuation; library
+            # bottom-ordering falls through to generic offered-option
+            # ranking below (highest utility first: last chosen ends
+            # bottommost, so the best card stays most accessible).
+            if legal_ids and legal_ids <= hand_ids:
+                count = min_selections
+                card_actions = tuple(
+                    self._hand_action(card) for card in hand if isinstance(card, dict)
+                )
+                selected = runtime.pilot.choose_bottom_cards(
+                    card_actions,
+                    count,
+                    commander_names=runtime.binding.commander_names,
+                )
+                if not set(selected).issubset(legal_ids):
+                    raise FullGameProtocolError("pilot bottom-card selection is not XMage-legal")
+                return list(selected)
 
         if not options:
             return []
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
+        # Twin-stable target identities: (zone, zone_index) pins the same
+        # physical card across fresh processes (identical zone-event
+        # streams); occurrence fallback is content-keyed and order-free.
+        # Raw engine ids never order or identify pilot inputs.
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
         ranked: list[tuple[float, str, str]] = []
         for option in options:
-            action = self._target_action(option, state, outcome)
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            zone = meta.get("zone")
+            zone_index = meta.get("zone_index")
+            if (
+                isinstance(zone, str)
+                and zone
+                and isinstance(zone_index, int)
+                and not isinstance(zone_index, bool)
+                and zone_index >= 0
+            ):
+                base = (
+                    "target:"
+                    f"{self._required_text(option, 'option_type')}:"
+                    f"{str(option.get('label', 'target')).casefold()}:"
+                    f"{zone}:{zone_index}"
+                )
+            else:
+                base = (
+                    "target:"
+                    f"{self._required_text(option, 'option_type')}:"
+                    f"{str(option.get('label', 'target')).casefold()}"
+                )
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+            action = self._target_action(option, state, outcome).model_copy(
+                update={"action_id": stable_id}
+            )
             breakdown = runtime.pilot.evaluate_action(pilot_state, action)
             score = breakdown.total_utility + self._target_alignment(action, state, outcome)
-            # Tiebreak by stable Rules-visible content (card label), never by
-            # native identity alone: raw option ids embed per-process engine
-            # UUIDs, so a UUID-order tiebreak would make credited same-seed
-            # twins diverge. The residual UUID element only orders options
-            # whose labels are also identical (indistinguishable targets).
-            ranked.append((score, action.card_name, action.action_id))
+            ranked.append((score, action.card_name, stable_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
 
         if max_selections <= 0:
@@ -627,7 +903,10 @@ class ExternalPilotDecisionPolicy:
         else:
             take = min_selections
         take = max(min_selections, min(max_selections, take))
-        return [option_id for _score, _label, option_id in ranked[:take]]
+        try:
+            return [raw_by_stable_id[stable_id] for _score, _label, stable_id in ranked[:take]]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable target action") from exc
 
     def _decide_semantic_option(
         self,
@@ -639,11 +918,54 @@ class ExternalPilotDecisionPolicy:
         if not options:
             raise FullGameProtocolError("semantic decision has no legal options")
         pilot_state = self._pilot_state(runtime, state)
-        actions = [self._semantic_action(option) for option in options]
+        # Twin-stable identities (same pattern as priority/targets).
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
+        actions: list[PilotActionView] = []
+        for option in options:
+            base = f"semantic:{str(option.get('label', 'option')).casefold()}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+            actions.append(
+                self._semantic_action(option).model_copy(update={"action_id": stable_id})
+            )
         decision = runtime.pilot.choose_action(pilot_state, actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no semantic option")
-        return self._require_offered(decision.selected_action_id, options, "semantic option")
+        try:
+            raw_id = raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable semantic option") from exc
+        return self._require_offered(raw_id, options, "semantic option")
+
+    def _decide_mode(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        rng: random.Random,
+    ) -> str:
+        """Modal choice with native target-availability ranking.
+
+        The bridge projects per-mode ``mode_targets_available`` from the
+        engine's own ``Target.canChoose`` verdict. Modes explicitly lacking
+        targets are depreferred (selecting one fails the cast: paper 601.2
+        rewind shape); unknown/absent flags mean no filtering and the
+        engine stays the authority. When every mode lacks targets the
+        pilot still chooses (transcript agency) and the bridge maps the
+        doomed cast to pass via its no-viable-mode flag.
+        """
+        if not options:
+            raise FullGameProtocolError("mode decision has no legal options")
+        viable = [
+            option
+            for option in options
+            if not isinstance(option.get("metadata"), dict)
+            or option["metadata"].get("mode_targets_available") is not False
+        ]
+        return self._decide_semantic_option(runtime, state, viable or options, rng)
 
     def _decide_boolean(
         self,
@@ -657,6 +979,7 @@ class ExternalPilotDecisionPolicy:
             raise FullGameProtocolError("boolean decision has no legal options")
         outcome = str(context.get("outcome", "neutral")).casefold()
         actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
         for option in options:
             metadata = option.get("metadata")
             value = metadata.get("value") if isinstance(metadata, dict) else None
@@ -665,9 +988,12 @@ class ExternalPilotDecisionPolicy:
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in {"detriment", "detriment_to_controller"}
             )
+            # Twin-stable: boolean value words are Rules-visible content.
+            stable_id = f"boolean:{value}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
             actions.append(
                 PilotActionView(
-                    action_id=self._required_text(option, "option_id"),
+                    action_id=stable_id,
                     action_kind="card",
                     card_name=str(option.get("label", value)),
                     floor_value=0.8 if aligned else 0.35,
@@ -678,7 +1004,11 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no boolean decision")
-        return self._require_offered(decision.selected_action_id, options, "boolean decision")
+        try:
+            raw_id = raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable boolean option") from exc
+        return self._require_offered(raw_id, options, "boolean decision")
 
     def _decide_pile(
         self,
@@ -693,14 +1023,30 @@ class ExternalPilotDecisionPolicy:
         outcome = str(context.get("outcome", "benefit")).casefold()
         benefit = outcome not in {"detriment", "detriment_to_controller"}
         actions: list[PilotActionView] = []
+        raw_by_stable_id: dict[str, str] = {}
+        occurrences: dict[str, int] = {}
         for option in options:
             metadata = option.get("metadata")
             cards = metadata.get("cards", []) if isinstance(metadata, dict) else []
             size = len(cards) if isinstance(cards, list) else 0
             scaled = min(2.0, size / 4.0)
+            # Twin-stable: pile identity is its Rules-visible content
+            # (sorted member names), never engine UUIDs.
+            names: list[str] = []
+            if isinstance(cards, list):
+                for card in cards:
+                    if isinstance(card, dict):
+                        names.append(str(card.get("name", "")).casefold())
+                    else:
+                        names.append(str(card).casefold())
+            base = f"pile:{size}:{'+'.join(sorted(names))}"
+            occurrence = occurrences.get(base, 0)
+            occurrences[base] = occurrence + 1
+            stable_id = f"{base}:{occurrence}"
+            raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
             actions.append(
                 PilotActionView(
-                    action_id=self._required_text(option, "option_id"),
+                    action_id=stable_id,
                     action_kind="card",
                     card_name=str(option.get("label", "Pile")),
                     floor_value=(0.4 + scaled * 0.25) if benefit else max(0.0, 0.9 - scaled * 0.25),
@@ -713,7 +1059,11 @@ class ExternalPilotDecisionPolicy:
         decision = runtime.pilot.choose_action(self._pilot_state(runtime, state), actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no pile decision")
-        return self._require_offered(decision.selected_action_id, options, "pile decision")
+        try:
+            raw_id = raw_by_stable_id[decision.selected_action_id]
+        except KeyError as exc:
+            raise FullGameProtocolError("pilot returned unknown stable pile option") from exc
+        return self._require_offered(raw_id, options, "pile decision")
 
     def _decide_mana(
         self,
@@ -725,6 +1075,48 @@ class ExternalPilotDecisionPolicy:
     ) -> str:
         if not options:
             raise FullGameProtocolError("mana decision has no legal options")
+
+        # No-progress guard: an identical mana-payment offer repeating
+        # consecutively means no selection advanced the payment (e.g. pool
+        # spends the engine cannot apply, re-prompted unchanged). Take the
+        # engine-offered cancel so the activation aborts gracefully instead
+        # of looping forever. Any progress (pool drain, tapped source,
+        # changed requirement) alters the fingerprint and resets the count.
+        # This is liveness bookkeeping, not payment semantics: the engine
+        # alone decides what each selection does.
+        seat = runtime.binding.seat
+        fingerprint = (
+            seat,
+            str(context.get("unpaid_mana", "")),
+            tuple(
+                sorted(
+                    (
+                        self._required_text(option, "option_id"),
+                        str(option.get("label", "")),
+                        str((option.get("metadata") or {}).get("mana_available")),
+                    )
+                    for option in options
+                )
+            ),
+        )
+        if self._mana_last_fingerprint.get(seat) == fingerprint:
+            repeats = self._mana_repeat_count.get(seat, 1) + 1
+        else:
+            repeats = 1
+        self._mana_last_fingerprint[seat] = fingerprint
+        self._mana_repeat_count[seat] = repeats
+        if repeats >= 3:
+            self._mana_repeat_count[seat] = 0
+            for option in options:
+                if self._required_text(option, "option_type") == "cancel_mana_payment":
+                    _LOG.info(
+                        "mana-payment no-progress guard: identical offer %d times, cancelling",
+                        repeats,
+                    )
+                    return self._required_text(option, "option_id")
+            raise FullGameProtocolError(
+                "mana-payment no-progress guard tripped with no cancel offered"
+            )
 
         pool_options = [
             option
@@ -747,6 +1139,17 @@ class ExternalPilotDecisionPolicy:
                     "colorless": "c",
                 }.get(mana_type, "")
 
+            def pool_advances(option: dict[str, Any]) -> bool:
+                # Engine-native affordance (ManaCost.testPay projected by
+                # the bridge): one mana of this pool type advances the
+                # unpaid cost. Unknown/absent means usable; the engine
+                # stays the authority and re-prompts (guarded above) if a
+                # spend cannot apply.
+                metadata = option.get("metadata")
+                if not isinstance(metadata, dict):
+                    return True
+                return metadata.get("advances_payment") is not False
+
             def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
                 metadata = option.get("metadata")
                 meta = metadata if isinstance(metadata, dict) else {}
@@ -755,27 +1158,14 @@ class ExternalPilotDecisionPolicy:
                 exact_required = 1 if symbol and f"{{{symbol}}}" in unpaid else 0
                 return exact_required, mana_type, str(option.get("label", "")).casefold()
 
-            # Liveness guard (WS215): pool mana that matches no unpaid colored
-            # requirement can never satisfy the payment; spending it loops the
-            # native payment request forever (budget-burning livelock). Generic-
-            # only costs accept any pool mana; colored costs take an exact
-            # match; otherwise the decision falls through to mana abilities
-            # (tap a source of the required color) or cancel (fizzle cleanly).
-            #
             # WS229 F-RULES-03 disposition: pool-first routing is kept, but
             # auto-submit is gated to the no-discretion case. A lone pool
             # candidate is a forced move (logged); several candidates hide
             # real discretion (which color to spend), so the pilot chooses.
-            colored_symbols = {"w", "u", "b", "r", "g"}
-            unpaid_colored = {s for s in colored_symbols if f"{{{s}}}" in unpaid}
-            pool_symbols = {pool_symbol(option) for option in pool_options}
-            candidates: list[dict[str, Any]] = []
-            if not unpaid_colored:
-                candidates = list(pool_options)
-            elif unpaid_colored & pool_symbols:
-                candidates = [
-                    option for option in pool_options if pool_symbol(option) in unpaid_colored
-                ]
+            # Productive candidates are those the engine reports as
+            # payment-advancing; the prompt-text heuristic below only orders
+            # them and never excludes: exclusion is native-flag-only.
+            candidates = [option for option in pool_options if pool_advances(option)]
             if len(candidates) == 1:
                 chosen_pool = self._required_text(candidates[0], "option_id")
                 _LOG.info(
@@ -822,7 +1212,29 @@ class ExternalPilotDecisionPolicy:
                 "mana decision has no productive option: pool cannot satisfy "
                 "the colored requirement and no ability or cancel is offered"
             )
-        options = non_pool
+        # Affordability also governs mana abilities picked mid-payment: a
+        # costed mana ability (signet, filter land) the current pool cannot
+        # fund fails inside payManaMode with no pilot recourse. Withhold
+        # such abilities from selection with the same native-flag gate used
+        # at priority; pool spends and cancel are always selectable.
+        selectable: list[dict[str, Any]] = []
+        for option in non_pool:
+            if self._required_text(option, "option_type") == "mana_ability" and not (
+                self._priority_action_affordable(option, state)
+            ):
+                continue
+            selectable.append(option)
+        if not selectable:
+            raise FullGameProtocolError(
+                "mana decision has no affordable option: every mana ability "
+                "is natively unfunded and no cancel is offered"
+            )
+        if len(selectable) != len(non_pool):
+            _LOG.info(
+                "withheld %d unaffordable mana abilit(ies) from payment selection",
+                len(non_pool) - len(selectable),
+            )
+        options = selectable
 
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
@@ -1471,14 +1883,24 @@ class XmageFullGameRunner:
             )
         policy = self._validated_policy(scenario, decks, pilots)
 
-        with _RawFullGameClient(
+        client = _RawFullGameClient(
             command,
             cwd=self.cwd,
             request_timeout_seconds=self.request_timeout_seconds,
-        ) as client:
+        )
+        with client:
             provider = self._open_game(client, scenario, decks)
             decision_count, observed, terminal = self._drive(
                 client, policy, stop_after=smoke_decision_target
+            )
+        # P1 shutdown evidence: a bounded smoke PASS must rest on observed
+        # graceful shutdown, never on a suppressed kill/timeout. Anything
+        # else fails the smoke closed (message carries the disposition).
+        disposition = getattr(client, "shutdown_disposition", None)
+        if disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+            raise FullGameConformanceError(
+                "bounded smoke shutdown not graceful: "
+                f"{disposition} (decisions={decision_count} terminal={terminal})"
             )
         if decision_count == 0:
             raise FullGameConformanceError(

@@ -572,12 +572,22 @@ def test_pool_multiple_candidates_go_to_pilot() -> None:
 
 
 def test_pool_liveness_guard_still_avoids_wrong_color() -> None:
+    # The wrong-color invariant stands, but its mechanism is now the
+    # bridge-native affordance flag (ManaCost.testPay), not prompt-text
+    # color parsing: pool-blue carries advances_payment=False exactly as
+    # the real bridge projects for blue toward {W}.
     response = _policy().decide(
         _request(
             "mana_payment",
             [
                 _option("cancel", "cancel_mana_payment", "Cancel"),
-                _option("pool-blue", "mana_pool", "Spend blue mana", mana_type="blue"),
+                _option(
+                    "pool-blue",
+                    "mana_pool",
+                    "Spend blue mana",
+                    mana_type="blue",
+                    advances_payment=False,
+                ),
                 _option("tap", "mana_ability", "Tap Plains for W"),
             ],
             minimum=1,

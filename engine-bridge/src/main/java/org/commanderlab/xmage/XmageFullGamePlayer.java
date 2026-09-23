@@ -12,6 +12,10 @@ import mage.abilities.Modes;
 import mage.abilities.PlayLandAbility;
 import mage.abilities.SpellAbility;
 import mage.abilities.TriggeredAbility;
+import mage.abilities.costs.Cost;
+import mage.abilities.costs.common.SacrificeSourceCost;
+import mage.abilities.costs.common.TapSourceCost;
+import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.cards.Card;
 import mage.cards.Cards;
@@ -23,6 +27,7 @@ import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.stack.StackObject;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
 import mage.game.permanent.Permanent;
@@ -33,6 +38,7 @@ import mage.players.net.UserData;
 import mage.target.Target;
 import mage.target.TargetAmount;
 import mage.target.TargetCard;
+import mage.target.Targets;
 import mage.util.MultiAmountMessage;
 
 import java.io.Serializable;
@@ -58,6 +64,35 @@ import java.util.concurrent.ConcurrentHashMap;
 final class XmageFullGamePlayer extends PlayerImpl {
 
     private final XmageFullGameDecisionController decisionController;
+
+    /**
+     * Set when the external pilot selects Cancel inside a mana-payment
+     * decision. The engine then aborts the in-progress activation/cast.
+     * That abort is graceful (the pilot declined to fund the action), so
+     * {@link #priority} maps it to passing priority instead of failing the
+     * game. Any activation/cast failure WITHOUT a preceding cancel stays
+     * fatal. Reset on every priority entry; single-threaded game loop.
+     */
+    private boolean paymentCancelled;
+
+    /**
+     * Set when a REQUIRED target choice (min &gt; 0) inside the current
+     * priority action finds zero legal options (e.g. a modal spell whose
+     * chosen mode has no legal targets). Paper 601.2 rewinds the illegal
+     * announcement, so {@link #priority} maps the ensuing activation/cast
+     * failure to passing priority instead of failing the game. Optional
+     * (min == 0) emptiness never sets this: the engine continues those
+     * flows itself. Reset on every priority entry.
+     */
+    private boolean emptyRequiredTarget;
+
+    /**
+     * Set when a modal choice (min &gt; 0) offers no mode whose required
+     * targets are currently choosable. The cast is doomed whatever the
+     * pilot picks, so the ensuing failure maps to pass like a 601.2
+     * rewind. Reset on every priority entry.
+     */
+    private boolean noViableMode;
 
     XmageFullGamePlayer(
             String name,
@@ -243,6 +278,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean priority(Game game) {
+        paymentCancelled = false;
+        emptyRequiredTarget = false;
+        noViableMode = false;
         JsonArray options = new JsonArray();
         Map<String, ActivatedAbility> abilities = new LinkedHashMap<>();
 
@@ -290,12 +328,29 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     (SpellAbility) ability, game, false,
                     new mage.ApprovingObject(ability, game));
             if (!cast) {
+                if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+                    // Graceful abort: pilot cancelled funding mid-payment,
+                    // or a required target choice had zero legal options
+                    // (paper 601.2 rewinds the illegal announcement).
+                    // Pass priority; partial payments are real game state
+                    // and persist.
+                    pass(game);
+                    return false;
+                }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
             }
             return true;
         }
         boolean activated = activateAbility(ability, game);
         if (!activated) {
+            if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+                // Graceful abort: pilot cancelled funding mid-payment, or
+                // a required target choice had zero legal options.
+                // Pass priority; partial payments are real game state
+                // and persist.
+                pass(game);
+                return false;
+            }
             fail("XMAGE_ACTION_EXECUTION_FAILED", "priority activation failed: " + selected);
         }
         return true;
@@ -634,6 +689,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     JsonObject metadata = new JsonObject();
                     metadata.addProperty("mana_type", manaType.toString());
                     metadata.addProperty("mana_available", getManaPool().get(manaType));
+                    metadata.addProperty("advances_payment", poolManaAdvancesPayment(unpaid, manaType));
                     options.add(XmageFullGameDecisionController.option(
                             optionId,
                             "Spend " + manaType.toString() + " mana from pool",
@@ -665,6 +721,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 ability
         ));
         if (cancel.equals(selected)) {
+            paymentCancelled = true;
             return false;
         }
         ManaType poolManaType = poolManaById.get(selected);
@@ -752,7 +809,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
         JsonArray options = new JsonArray();
         Map<String, TriggeredAbility> byId = new LinkedHashMap<>();
         List<TriggeredAbility> sorted = new ArrayList<>(abilities);
-        sorted.sort(Comparator.comparing(this::abilitySortKey));
+        // Twin-stable trigger order: Rules-visible label, then source
+        // zone-change counter (entry order, identical on twin
+        // re-execution). Native UUIDs must never sequence triggers.
+        sorted.sort(Comparator
+                .comparing((TriggeredAbility ability) -> abilityLabel(ability, game))
+                .thenComparingInt(ability -> ability.getSourceId() == null
+                        ? -1
+                        : game.getState().getZoneChangeCounter(ability.getSourceId())));
         for (TriggeredAbility ability : sorted) {
             String optionId = abilityOptionId("trigger", ability);
             options.add(XmageFullGameDecisionController.option(
@@ -789,11 +853,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
+        boolean anyModeTargetsAvailable = false;
         for (Mode mode : available) {
             String optionId = mode.getId().toString();
             JsonObject metadata = new JsonObject();
             metadata.addProperty("mode_id", mode.getId().toString());
             metadata.addProperty("paw_print_value", mode.getPawPrintValue());
+            boolean targetsAvailable = modeTargetsAvailable(mode, source, game);
+            metadata.addProperty("mode_targets_available", targetsAvailable);
+            anyModeTargetsAvailable = anyModeTargetsAvailable || targetsAvailable;
             options.add(XmageFullGameDecisionController.option(
                     optionId,
                     mode.toString(),
@@ -803,6 +871,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
             byId.put(optionId, mode);
         }
         int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
+        if (min > 0 && !available.isEmpty() && !anyModeTargetsAvailable) {
+            // No mode has choosable required targets: the cast is doomed
+            // whatever the pilot picks (601.2 rewind shape).
+            noViableMode = true;
+        }
         XmageFullGameDecisionController.DecisionResponse response = request(
                 game,
                 "mode",
@@ -823,6 +896,74 @@ final class XmageFullGamePlayer extends PlayerImpl {
         return selected;
     }
 
+    /**
+     * Engine-native pool-spend affordance for the currently unpaid cost:
+     * would one mana of the given pool type advance this payment
+     * ({@code ManaCost.testPay} carries native hybrid/colored/generic/
+     * colorless semantics)? Projected per pool option so the external
+     * pilot never spends unusable pool mana in a no-progress loop. Any
+     * introspection failure reports usable: unknown means the engine
+     * stays the authority.
+     */
+    private boolean poolManaAdvancesPayment(ManaCost unpaid, ManaType manaType) {
+        try {
+            if (unpaid == null || manaType == null) {
+                return true;
+            }
+            mage.Mana probe = new mage.Mana();
+            switch (manaType) {
+                case WHITE -> probe.setWhite(1);
+                case BLUE -> probe.setBlue(1);
+                case BLACK -> probe.setBlack(1);
+                case RED -> probe.setRed(1);
+                case GREEN -> probe.setGreen(1);
+                case COLORLESS -> probe.setColorless(1);
+                default -> {
+                    return true;
+                }
+            }
+            return unpaid.testPay(probe);
+        } catch (RuntimeException ignored) {
+            return true;
+        }
+    }
+
+    /**
+     * Engine-native per-mode target availability: every required target of
+     * the mode must be choosable right now ({@code Target.canChoose}).
+     * Modes with no targets are vacuously available. Any introspection
+     * failure reports available: unknown means the engine stays the
+     * authority, never the projection.
+     */
+    private boolean modeTargetsAvailable(Mode mode, Ability source, Game game) {
+        try {
+            if (!modeTargetsChoosable(mode.getTargets(), source, game)) {
+                return false;
+            }
+            // Ability-level targets belong to the default (first) mode:
+            // when probing that mode, they apply too. (Target.isRequired
+            // is unusable here: it reports false for not-yet-activated
+            // spells, so required-ness mirrors the engine target flow:
+            // minNumberOfTargets > 0 must be choosable.)
+            if (source.getModes().getMode() != null
+                    && source.getModes().getMode().getId().equals(mode.getId())) {
+                return modeTargetsChoosable(source.getTargets(), source, game);
+            }
+            return true;
+        } catch (RuntimeException ignored) {
+            return true;
+        }
+    }
+
+    private boolean modeTargetsChoosable(Targets targets, Ability source, Game game) {
+        for (Target target : targets) {
+            if (target.getMinNumberOfTargets() > 0 && !target.canChoose(getId(), source, game)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public void selectAttackers(Game game, UUID attackingPlayerId) {
         List<Permanent> attackers = new ArrayList<>(getAvailableAttackers(game));
@@ -841,7 +982,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     hold,
                     "Do not attack with " + attacker.getName(),
                     "hold_attacker",
-                    objectMetadata(attacker.getId(), attacker.getName())
+                    objectMetadata(attacker.getId(), attacker.getName(), game)
             ));
             Map<String, UUID> defenderByOption = new LinkedHashMap<>();
             for (UUID defenderId : defenders) {
@@ -853,7 +994,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         attacker.getId().toString(),
                         defenderId.toString()
                 );
-                JsonObject metadata = objectMetadata(attacker.getId(), attacker.getName());
+                JsonObject metadata = objectMetadata(attacker.getId(), attacker.getName(), game);
                 metadata.addProperty("defender_id", defenderId.toString());
                 options.add(XmageFullGameDecisionController.option(
                         optionId,
@@ -1162,6 +1303,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
         min = Math.min(min, max);
 
         if (sorted.isEmpty()) {
+            if (min > 0) {
+                // Required targets with zero legal options (e.g. modal
+                // spell in a targetless mode): the ensuing activation/cast
+                // failure is a paper 601.2 rewind, mapped to pass by
+                // priority(). Optional emptiness stays engine-handled.
+                emptyRequiredTarget = true;
+            }
             return false;
         }
         JsonObject context = suppliedContext == null ? new JsonObject() : suppliedContext.deepCopy();
@@ -1368,7 +1516,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     id.toString(),
                     objectLabel(id, game),
                     optionType,
-                    objectMetadata(id, objectLabel(id, game))
+                    objectMetadata(id, objectLabel(id, game), game)
             ));
         }
         return options;
@@ -1402,7 +1550,81 @@ final class XmageFullGamePlayer extends PlayerImpl {
             metadata.addProperty("source_name", objectLabel(ability.getSourceId(), game));
         }
         metadata.addProperty("mana_ability", ability.isManaAbility());
+        enrichAbilityCostFacts(metadata, ability, game);
         return metadata;
+    }
+
+    /**
+     * Attaches engine-factual activation-cost summary to ability metadata.
+     *
+     * <p>These are translated representations of engine cost objects, not
+     * legality judgments: mana-amount breakdown, whether activation taps,
+     * untaps, or sacrifices the source, and whether the source permanent is
+     * currently tapped. External pilots use them for affordability-aware
+     * discretionary choice among engine-authorized options. All enrichment is
+     * defensive: any introspection failure leaves the fields absent and the
+     * pilot treats them as unknown.</p>
+     */
+    private void enrichAbilityCostFacts(JsonObject metadata, Ability ability, Game game) {
+        mage.Mana costMana = null;
+        try {
+            costMana = ability.getManaCostsToPay().getMana();
+            if (costMana != null) {
+                metadata.addProperty("mana_cost_white", costMana.getWhite());
+                metadata.addProperty("mana_cost_blue", costMana.getBlue());
+                metadata.addProperty("mana_cost_black", costMana.getBlack());
+                metadata.addProperty("mana_cost_red", costMana.getRed());
+                metadata.addProperty("mana_cost_green", costMana.getGreen());
+                metadata.addProperty("mana_cost_generic", costMana.getGeneric());
+                metadata.addProperty("mana_cost_colorless", costMana.getColorless());
+            }
+        } catch (RuntimeException ignored) {
+            // Leave mana-cost fields absent; pilot treats them as unknown.
+        }
+        try {
+            // Lossless projection of the engine-native payability fact:
+            // can the deciding player's CURRENT pool fund the mana costs
+            // (Mana.enough carries native color/generic/colorless semantics)?
+            // Tappable permanents are deliberately excluded: pool-only
+            // coverage is the conservative discretionary signal.
+            if (costMana != null) {
+                metadata.addProperty(
+                        "pool_covers_mana_cost",
+                        costMana.enough(getManaPool().getMana())
+                );
+            }
+        } catch (RuntimeException ignored) {
+            // Leave the coverage flag absent; pilot treats it as unknown.
+        }
+        try {
+            boolean requiresTap = false;
+            boolean requiresUntap = false;
+            boolean requiresSacrifice = false;
+            for (Cost cost : ability.getCosts()) {
+                if (cost instanceof TapSourceCost) {
+                    requiresTap = true;
+                } else if (cost instanceof UntapSourceCost) {
+                    requiresUntap = true;
+                } else if (cost instanceof SacrificeSourceCost) {
+                    requiresSacrifice = true;
+                }
+            }
+            metadata.addProperty("requires_tap_source", requiresTap);
+            metadata.addProperty("requires_untap_source", requiresUntap);
+            metadata.addProperty("requires_sacrifice_source", requiresSacrifice);
+        } catch (RuntimeException ignored) {
+            // Leave cost-kind fields absent; pilot treats them as unknown.
+        }
+        try {
+            if (ability.getSourceId() != null && game != null) {
+                Permanent source = game.getPermanent(ability.getSourceId());
+                if (source != null) {
+                    metadata.addProperty("source_tapped", source.isTapped());
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Leave source-tapped field absent; pilot treats it as unknown.
+        }
     }
 
     private String abilityLabel(Ability ability, Game game) {
@@ -1445,11 +1667,89 @@ final class XmageFullGamePlayer extends PlayerImpl {
         return id.toString();
     }
 
-    private static JsonObject objectMetadata(UUID id, String label) {
+    private static JsonObject objectMetadata(UUID id, String label, Game game) {
         JsonObject metadata = new JsonObject();
         metadata.addProperty("object_id", id.toString());
         metadata.addProperty("name", label);
+        try {
+            if (game != null) {
+                Zone zone = game.getState().getZone(id);
+                if (zone != null) {
+                    metadata.addProperty("zone", zone.name().toLowerCase());
+                    int index = zoneIndex(id, zone, game);
+                    if (index >= 0) {
+                        metadata.addProperty("zone_index", index);
+                    }
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Zone facts are advisory ranking aids; absence means unknown.
+        }
         return metadata;
+    }
+
+    /**
+     * Twin-stable ordinal of a card object inside its zone's native
+     * iteration order (battlefield entry order, library list position,
+     * hand/graveyard insertion order, stack push order). Same-seed twin
+     * games admit identical zone-event streams, so identical indices pin
+     * the same physical card across fresh processes without exposing
+     * per-process UUIDs. Exile/command fall back to -1 (occurrence).
+     */
+    private static int zoneIndex(UUID id, Zone zone, Game game) {
+        switch (zone) {
+            case BATTLEFIELD: {
+                int index = 0;
+                for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
+                    if (permanent != null && id.equals(permanent.getId())) {
+                        return index;
+                    }
+                    index++;
+                }
+                return -1;
+            }
+            case LIBRARY: {
+                for (Player player : game.getPlayers().values()) {
+                    if (player == null) {
+                        continue;
+                    }
+                    int position = player.getLibrary().getCardPosition(id);
+                    if (position >= 0) {
+                        return position;
+                    }
+                }
+                return -1;
+            }
+            case HAND:
+            case GRAVEYARD: {
+                for (Player player : game.getPlayers().values()) {
+                    if (player == null) {
+                        continue;
+                    }
+                    Cards zoneCards = zone == Zone.HAND ? player.getHand() : player.getGraveyard();
+                    int index = 0;
+                    for (Card card : zoneCards.getCards(game)) {
+                        if (card != null && id.equals(card.getId())) {
+                            return index;
+                        }
+                        index++;
+                    }
+                }
+                return -1;
+            }
+            case STACK: {
+                int index = 0;
+                for (StackObject stackObject : game.getStack()) {
+                    if (stackObject != null && id.equals(stackObject.getId())) {
+                        return index;
+                    }
+                    index++;
+                }
+                return -1;
+            }
+            default:
+                return -1;
+        }
     }
 
     private static JsonObject pileMetadata(List<? extends Card> pile) {

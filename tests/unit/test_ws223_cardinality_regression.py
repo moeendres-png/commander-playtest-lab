@@ -33,6 +33,7 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_EVIDENCE_CLASS,
     FULL_GAME_LANE,
+    FULL_GAME_SHUTDOWN_GRACEFUL,
     FullGameConformanceError,
     FullGamePilotBinding,
     FullGameProtocolError,
@@ -257,16 +258,18 @@ class _ScriptedBridge:
             return {}
         raise AssertionError(f"unexpected bridge request {message_type!r}")
 
-    def close(self) -> None:
+    def close(self) -> str:
         with contextlib.suppress(Exception):
             self.request("shutdown_engine")
         self.closed = True
+        self.shutdown_disposition = FULL_GAME_SHUTDOWN_GRACEFUL
+        return FULL_GAME_SHUTDOWN_GRACEFUL
 
     def __enter__(self) -> _ScriptedBridge:
         return self
 
     def __exit__(self, *_args: object) -> None:
-        self.close()
+        self.shutdown_disposition = self.close()
 
 
 def _runner_with_bridge(
