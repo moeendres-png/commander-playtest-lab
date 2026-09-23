@@ -68,13 +68,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -170,13 +170,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -272,13 +272,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -374,13 +374,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -476,13 +476,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -578,13 +578,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -680,13 +680,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -782,13 +782,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -884,13 +884,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -986,13 +986,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1088,13 +1088,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1190,13 +1190,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1292,13 +1292,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1394,13 +1394,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1496,13 +1496,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1598,13 +1598,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1700,13 +1700,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1802,13 +1802,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -1904,13 +1904,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2006,13 +2006,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2108,13 +2108,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2210,13 +2210,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2312,13 +2312,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2414,13 +2414,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2516,13 +2516,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2618,13 +2618,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2720,13 +2720,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2822,13 +2822,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -2924,13 +2924,13 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
     },
     {
-     "expected_sha256": "1a45f2023e4c4dfa35c7b7873fe2b09fad2c192bf3efd4386f049519aef9b353",
+     "expected_sha256": "5c0a16c363b19ed30d72c08da8b402d62adcd161ca88bff7491d057c7479b6e3",
      "kind": "path_blob_sha256",
      "owns_semantics": "pilot strategies: selection among offered options only; numeric fail-closed",
      "path": "src/commander_lab/agents/pilots.py"
@@ -3013,7 +3013,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COMBAT"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3025,7 +3025,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3096,7 +3096,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTINUOUS_EFFECTS"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3108,7 +3108,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3179,7 +3179,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTROL"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3191,7 +3191,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3262,7 +3262,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COPY"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3274,7 +3274,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3345,7 +3345,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_LAYERS"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3357,7 +3357,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3428,7 +3428,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_MODES"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3440,7 +3440,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3511,7 +3511,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_PREVENTION"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3523,7 +3523,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3594,7 +3594,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_REPLACEMENT"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3606,7 +3606,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3677,7 +3677,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_RULES_RANDOMNESS"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3689,7 +3689,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3760,7 +3760,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STACK"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3772,7 +3772,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3843,7 +3843,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STATE_BASED_ACTIONS"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3855,7 +3855,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -3926,7 +3926,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_TRIGGERS"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3938,7 +3938,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
@@ -4009,7 +4009,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_ZONE_CHANGES"
     },
     {
-     "expected_sha256": "7e2597ee96ca76fd900d2b1c8cce40c5f7c551dca9004098c136a85e6d7af251",
+     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4021,7 +4021,7 @@
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameActionProjection.java"
     },
     {
-     "expected_sha256": "243ba8f6cf08bfe65a0fb7a79ef5c2e1b540dd40e2979822859270337f2cc50d",
+     "expected_sha256": "fcf705ad9d68356bfe093b9b77d90f643e3851abfb61b9eb28fb17f5e7cc457f",
      "kind": "path_blob_sha256",
      "owns_semantics": "engine callback emitters incl numeric + target_amount companion paths",
      "path": "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java"
