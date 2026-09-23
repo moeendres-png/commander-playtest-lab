@@ -73,6 +73,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     private boolean paymentCancelled;
 
+    /**
+     * Set when a REQUIRED target choice (min &gt; 0) inside the current
+     * priority action finds zero legal options (e.g. a modal spell whose
+     * chosen mode has no legal targets). Paper 601.2 rewinds the illegal
+     * announcement, so {@link #priority} maps the ensuing activation/cast
+     * failure to passing priority instead of failing the game. Optional
+     * (min == 0) emptiness never sets this: the engine continues those
+     * flows itself. Reset on every priority entry.
+     */
+    private boolean emptyRequiredTarget;
+
+    /**
+     * Set when a modal choice (min &gt; 0) offers no mode whose required
+     * targets are currently choosable. The cast is doomed whatever the
+     * pilot picks, so the ensuing failure maps to pass like a 601.2
+     * rewind. Reset on every priority entry.
+     */
+    private boolean noViableMode;
+
     XmageFullGamePlayer(
             String name,
             RangeOfInfluence range,
@@ -258,6 +277,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public boolean priority(Game game) {
         paymentCancelled = false;
+        emptyRequiredTarget = false;
+        noViableMode = false;
         JsonArray options = new JsonArray();
         Map<String, ActivatedAbility> abilities = new LinkedHashMap<>();
 
@@ -305,10 +326,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     (SpellAbility) ability, game, false,
                     new mage.ApprovingObject(ability, game));
             if (!cast) {
-                if (paymentCancelled) {
-                    // Pilot cancelled funding mid-payment: abort gracefully
-                    // by passing priority. Partial payments (tapped sources,
-                    // floated pool mana) are real game state and persist.
+                if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+                    // Graceful abort: pilot cancelled funding mid-payment,
+                    // or a required target choice had zero legal options
+                    // (paper 601.2 rewinds the illegal announcement).
+                    // Pass priority; partial payments are real game state
+                    // and persist.
                     pass(game);
                     return false;
                 }
@@ -318,10 +341,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         boolean activated = activateAbility(ability, game);
         if (!activated) {
-            if (paymentCancelled) {
-                // Pilot cancelled funding mid-payment: abort gracefully
-                // by passing priority. Partial payments (tapped sources,
-                // floated pool mana) are real game state and persist.
+            if (paymentCancelled || emptyRequiredTarget || noViableMode) {
+                // Graceful abort: pilot cancelled funding mid-payment, or
+                // a required target choice had zero legal options.
+                // Pass priority; partial payments are real game state
+                // and persist.
                 pass(game);
                 return false;
             }
@@ -819,11 +843,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         JsonArray options = new JsonArray();
         Map<String, Mode> byId = new LinkedHashMap<>();
+        boolean anyModeTargetsAvailable = false;
         for (Mode mode : available) {
             String optionId = mode.getId().toString();
             JsonObject metadata = new JsonObject();
             metadata.addProperty("mode_id", mode.getId().toString());
             metadata.addProperty("paw_print_value", mode.getPawPrintValue());
+            boolean targetsAvailable = modeTargetsAvailable(mode, source, game);
+            metadata.addProperty("mode_targets_available", targetsAvailable);
+            anyModeTargetsAvailable = anyModeTargetsAvailable || targetsAvailable;
             options.add(XmageFullGameDecisionController.option(
                     optionId,
                     mode.toString(),
@@ -833,6 +861,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
             byId.put(optionId, mode);
         }
         int min = modes.getSelectedModes().size() >= modes.getMinModes() ? 0 : 1;
+        if (min > 0 && !available.isEmpty() && !anyModeTargetsAvailable) {
+            // No mode has choosable required targets: the cast is doomed
+            // whatever the pilot picks (601.2 rewind shape).
+            noViableMode = true;
+        }
         XmageFullGameDecisionController.DecisionResponse response = request(
                 game,
                 "mode",
@@ -851,6 +884,26 @@ final class XmageFullGamePlayer extends PlayerImpl {
             fail("ILLEGAL_ACTION", "mode option disappeared");
         }
         return selected;
+    }
+
+    /**
+     * Engine-native per-mode target availability: every required target of
+     * the mode must be choosable right now ({@code Target.canChoose}).
+     * Modes with no targets are vacuously available. Any introspection
+     * failure reports available: unknown means the engine stays the
+     * authority, never the projection.
+     */
+    private boolean modeTargetsAvailable(Mode mode, Ability source, Game game) {
+        try {
+            for (Target target : mode.getTargets()) {
+                if (target.isRequired(source) && !target.canChoose(getId(), source, game)) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (RuntimeException ignored) {
+            return true;
+        }
     }
 
     @Override
@@ -1192,6 +1245,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
         min = Math.min(min, max);
 
         if (sorted.isEmpty()) {
+            if (min > 0) {
+                // Required targets with zero legal options (e.g. modal
+                // spell in a targetless mode): the ensuing activation/cast
+                // failure is a paper 601.2 rewind, mapped to pass by
+                // priority(). Optional emptiness stays engine-handled.
+                emptyRequiredTarget = true;
+            }
             return false;
         }
         JsonObject context = suppliedContext == null ? new JsonObject() : suppliedContext.deepCopy();

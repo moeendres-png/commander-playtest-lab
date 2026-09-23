@@ -105,5 +105,56 @@ def test_library_shape_ranks_offered_options() -> None:
     assert selected[0] not in hand
 
 
+def _mode_option(mode_id: str, label: str, targets_available: bool | None) -> dict:
+    metadata: dict = {"mode_id": mode_id}
+    if targets_available is not None:
+        metadata["mode_targets_available"] = targets_available
+    return {
+        "option_id": mode_id,
+        "option_type": "mode",
+        "label": label,
+        "metadata": metadata,
+    }
+
+
+def test_mode_prefers_targets_available() -> None:
+    """Abrade shape: the targetless mode must not be selected when a
+    viable mode is offered."""
+    policy = _policy()
+    options = [
+        _mode_option("mode-damage", "deal 3 damage to target creature", False),
+        _mode_option("mode-artifact", "destroy target artifact", True),
+    ]
+    selected = policy._decide_mode(
+        policy._pilots[1], _state(["hand-1"]), options, random.Random(0)
+    )
+    assert selected == "mode-artifact"
+
+
+def test_mode_unknown_flag_means_no_filtering() -> None:
+    policy = _policy()
+    options = [
+        _mode_option("mode-a", "draw a card", None),
+        _mode_option("mode-b", "create a token", None),
+    ]
+    selected = policy._decide_mode(
+        policy._pilots[1], _state(["hand-1"]), options, random.Random(0)
+    )
+    assert selected in {"mode-a", "mode-b"}
+
+
+def test_mode_all_targetless_still_chooses_offered() -> None:
+    """No viable mode: pilot still chooses (bridge maps doom to pass)."""
+    policy = _policy()
+    options = [
+        _mode_option("mode-a", "deal 3 damage to target creature", False),
+        _mode_option("mode-b", "destroy target artifact", False),
+    ]
+    selected = policy._decide_mode(
+        policy._pilots[1], _state(["hand-1"]), options, random.Random(0)
+    )
+    assert selected in {"mode-a", "mode-b"}
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))

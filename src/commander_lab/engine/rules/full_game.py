@@ -407,8 +407,10 @@ class ExternalPilotDecisionPolicy:
             selected = [self._decide_boolean(runtime, pilot_state, options, context, rng)]
         elif decision_class == "pile":
             selected = [self._decide_pile(runtime, pilot_state, options, context, rng)]
-        elif decision_class in {"choice", "replacement_effect", "trigger_order", "mode"}:
+        elif decision_class in {"choice", "replacement_effect", "trigger_order"}:
             selected = [self._decide_semantic_option(runtime, pilot_state, options, rng)]
+        elif decision_class == "mode":
+            selected = [self._decide_mode(runtime, pilot_state, options, rng)]
         elif decision_class == "priority":
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
         elif decision_class in {"target", "choose_object", "target_amount"}:
@@ -723,6 +725,33 @@ class ExternalPilotDecisionPolicy:
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no semantic option")
         return self._require_offered(decision.selected_action_id, options, "semantic option")
+
+    def _decide_mode(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, Any],
+        options: list[dict[str, Any]],
+        rng: random.Random,
+    ) -> str:
+        """Modal choice with native target-availability ranking.
+
+        The bridge projects per-mode ``mode_targets_available`` from the
+        engine's own ``Target.canChoose`` verdict. Modes explicitly lacking
+        targets are depreferred (selecting one fails the cast: paper 601.2
+        rewind shape); unknown/absent flags mean no filtering and the
+        engine stays the authority. When every mode lacks targets the
+        pilot still chooses (transcript agency) and the bridge maps the
+        doomed cast to pass via its no-viable-mode flag.
+        """
+        if not options:
+            raise FullGameProtocolError("mode decision has no legal options")
+        viable = [
+            option
+            for option in options
+            if not isinstance(option.get("metadata"), dict)
+            or option["metadata"].get("mode_targets_available") is not False
+        ]
+        return self._decide_semantic_option(runtime, state, viable or options, rng)
 
     def _decide_boolean(
         self,
