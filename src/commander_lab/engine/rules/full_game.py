@@ -399,7 +399,9 @@ class ExternalPilotDecisionPolicy:
         # payment whose full offer (unpaid requirement, options, pool
         # amounts) repeats identically means no selection advanced it;
         # the guard then takes the engine-offered cancel (graceful abort).
-        self._mana_last_fingerprint: dict[int, tuple] = {}
+        self._mana_last_fingerprint: dict[
+            int, tuple[int, str, tuple[tuple[str, str, str], ...]]
+        ] = {}
         self._mana_repeat_count: dict[int, int] = {}
         # No-progress guard memory for priority windows (per seat): free
         # repeatable actions (Equip {0}, untap loops) can re-offer
@@ -407,12 +409,34 @@ class ExternalPilotDecisionPolicy:
         # priority window (turn/phase/step/stack/pool/offer) repeating
         # consecutively means no selection advanced the game; the guard
         # then passes priority (always legal) so phases advance.
-        self._priority_last_fingerprint: dict[int, tuple] = {}
+        self._priority_last_fingerprint: dict[
+            int,
+            tuple[
+                int,
+                object,
+                object,
+                object,
+                tuple[str, ...],
+                tuple[tuple[str, str], ...],
+                tuple[tuple[str, str], ...],
+            ],
+        ] = {}
         self._priority_repeat_count: dict[int, int] = {}
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.
-        self._priority_latched: dict[int, tuple] = {}
+        self._priority_latched: dict[
+            int,
+            tuple[
+                int,
+                object,
+                object,
+                object,
+                tuple[str, ...],
+                tuple[tuple[str, str], ...],
+                tuple[tuple[str, str], ...],
+            ],
+        ] = {}
 
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
@@ -701,7 +725,9 @@ class ExternalPilotDecisionPolicy:
             occurrences[base] = occurrence + 1
             stable_id = f"{base}:{occurrence}"
             action_views.append(
-                self._priority_mana_action(option, state).model_copy(update={"action_id": stable_id})
+                self._priority_mana_action(option, state).model_copy(
+                    update={"action_id": stable_id}
+                )
             )
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
         action_views.append(
@@ -727,9 +753,7 @@ class ExternalPilotDecisionPolicy:
         except KeyError as exc:
             raise FullGameProtocolError("pilot returned unknown stable priority action") from exc
 
-    def _priority_action_affordable(
-        self, option: dict[str, Any], state: dict[str, Any]
-    ) -> bool:
+    def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
 
         Returns False only when engine-native cost facts prove the action
@@ -749,15 +773,11 @@ class ExternalPilotDecisionPolicy:
         metadata = option.get("metadata")
         if not isinstance(metadata, dict):
             return True
-        if metadata.get("requires_tap_source") is True:
-            if metadata.get("source_tapped") is True:
-                return False
-        if metadata.get("requires_untap_source") is True:
-            if metadata.get("source_tapped") is False:
-                return False
-        if metadata.get("pool_covers_mana_cost") is False:
+        if metadata.get("requires_tap_source") is True and metadata.get("source_tapped") is True:
             return False
-        return True
+        if metadata.get("requires_untap_source") is True and metadata.get("source_tapped") is False:
+            return False
+        return metadata.get("pool_covers_mana_cost") is not False
 
     def _priority_mana_action(
         self, option: dict[str, Any], state: dict[str, Any]
@@ -803,9 +823,7 @@ class ExternalPilotDecisionPolicy:
                 raise FullGameProtocolError("London bottom decision requires actor hand visibility")
             legal_ids = {self._required_text(option, "option_id") for option in options}
             hand_ids = {
-                self._required_text(card, "object_id")
-                for card in hand
-                if isinstance(card, dict)
+                self._required_text(card, "object_id") for card in hand if isinstance(card, dict)
             }
             # Two engine-native shapes share the bottom-selection path:
             # London mulligan bottoms cards FROM HAND (options are hand

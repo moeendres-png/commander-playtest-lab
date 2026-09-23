@@ -125,9 +125,7 @@ def test_mode_prefers_targets_available() -> None:
         _mode_option("mode-damage", "deal 3 damage to target creature", False),
         _mode_option("mode-artifact", "destroy target artifact", True),
     ]
-    selected = policy._decide_mode(
-        policy._pilots[1], _state(["hand-1"]), options, random.Random(0)
-    )
+    selected = policy._decide_mode(policy._pilots[1], _state(["hand-1"]), options, random.Random(0))
     assert selected == "mode-artifact"
 
 
@@ -137,9 +135,7 @@ def test_mode_unknown_flag_means_no_filtering() -> None:
         _mode_option("mode-a", "draw a card", None),
         _mode_option("mode-b", "create a token", None),
     ]
-    selected = policy._decide_mode(
-        policy._pilots[1], _state(["hand-1"]), options, random.Random(0)
-    )
+    selected = policy._decide_mode(policy._pilots[1], _state(["hand-1"]), options, random.Random(0))
     assert selected in {"mode-a", "mode-b"}
 
 
@@ -150,9 +146,7 @@ def test_mode_all_targetless_still_chooses_offered() -> None:
         _mode_option("mode-a", "deal 3 damage to target creature", False),
         _mode_option("mode-b", "destroy target artifact", False),
     ]
-    selected = policy._decide_mode(
-        policy._pilots[1], _state(["hand-1"]), options, random.Random(0)
-    )
+    selected = policy._decide_mode(policy._pilots[1], _state(["hand-1"]), options, random.Random(0))
     assert selected in {"mode-a", "mode-b"}
 
 
@@ -171,15 +165,21 @@ def _hybrid_payment_options() -> list[dict]:
     return [
         _mana_option("cancel", "cancel_mana_payment", "Cancel mana payment", {}),
         _mana_option(
-            "pool-w", "mana_pool", "Spend white mana from pool",
+            "pool-w",
+            "mana_pool",
+            "Spend white mana from pool",
             {"mana_type": "white", "mana_available": 1, "advances_payment": False},
         ),
         _mana_option(
-            "pool-u", "mana_pool", "Spend blue mana from pool",
+            "pool-u",
+            "mana_pool",
+            "Spend blue mana from pool",
             {"mana_type": "blue", "mana_available": 1, "advances_payment": True},
         ),
         _mana_option(
-            "pool-r", "mana_pool", "Spend red mana from pool",
+            "pool-r",
+            "mana_pool",
+            "Spend red mana from pool",
             {"mana_type": "red", "mana_available": 1, "advances_payment": True},
         ),
     ]
@@ -191,8 +191,11 @@ def test_mana_payment_excludes_non_advancing_pool() -> None:
     context = {"unpaid_mana": "{U/R}"}
     for _ in range(2):
         selected = policy._decide_mana(
-            policy._pilots[1], _state(["hand-1"]), _hybrid_payment_options(),
-            context, random.Random(0),
+            policy._pilots[1],
+            _state(["hand-1"]),
+            _hybrid_payment_options(),
+            context,
+            random.Random(0),
         )
         assert selected in {"pool-u", "pool-r"}, selected
 
@@ -217,13 +220,18 @@ def test_mana_payment_unknown_flag_means_usable() -> None:
     options = [
         _mana_option("cancel", "cancel_mana_payment", "Cancel mana payment", {}),
         _mana_option(
-            "pool-w", "mana_pool", "Spend white mana from pool",
+            "pool-w",
+            "mana_pool",
+            "Spend white mana from pool",
             {"mana_type": "white", "mana_available": 1},
         ),
     ]
     selected = policy._decide_mana(
-        policy._pilots[1], _state(["hand-1"]), options,
-        {"unpaid_mana": "{1}"}, random.Random(0),
+        policy._pilots[1],
+        _state(["hand-1"]),
+        options,
+        {"unpaid_mana": "{1}"},
+        random.Random(0),
     )
     assert selected == "pool-w"
 
@@ -247,8 +255,11 @@ def test_payment_withholds_unfunded_costed_mana_ability() -> None:
         },
     ]
     selected = policy._decide_mana(
-        policy._pilots[1], _state(["hand-1"]), options,
-        {"unpaid_mana": "{1}"}, random.Random(0),
+        policy._pilots[1],
+        _state(["hand-1"]),
+        options,
+        {"unpaid_mana": "{1}"},
+        random.Random(0),
     )
     assert selected == "cancel"
 
@@ -270,8 +281,11 @@ def test_payment_keeps_funded_costed_mana_ability() -> None:
         },
     ]
     selected = policy._decide_mana(
-        policy._pilots[1], _state(["hand-1"]), options,
-        {"unpaid_mana": "{1}"}, random.Random(0),
+        policy._pilots[1],
+        _state(["hand-1"]),
+        options,
+        {"unpaid_mana": "{1}"},
+        random.Random(0),
     )
     assert selected == "signet"
 
@@ -351,8 +365,7 @@ def test_priority_guard_latches_until_window_changes() -> None:
     changed = _priority_state()
     changed["turn_number"] = 8
     assert (
-        policy._decide_priority(runtime, changed, list(options), random.Random(0))
-        == "raw-greaves"
+        policy._decide_priority(runtime, changed, list(options), random.Random(0)) == "raw-greaves"
     )
 
 
@@ -392,8 +405,13 @@ def test_target_selection_is_order_independent() -> None:
         policy._pilots[1], _state(["hand-1"]), request, list(options), 1, 1, random.Random(0)
     )
     second = policy._decide_targets(
-        policy._pilots[1], _state(["hand-1"]), request, list(reversed(options)),
-        1, 1, random.Random(0),
+        policy._pilots[1],
+        _state(["hand-1"]),
+        request,
+        list(reversed(options)),
+        1,
+        1,
+        random.Random(0),
     )
     assert first == second
     assert first[0] in {option["option_id"] for option in options}
@@ -422,8 +440,13 @@ def test_zoned_target_pick_is_order_and_identity_independent() -> None:
         policy._pilots[1], _state(["hand-1"]), request, list(options), 1, 1, random.Random(0)
     )
     second = policy._decide_targets(
-        policy._pilots[1], _state(["hand-1"]), request, list(reversed(options)),
-        1, 1, random.Random(0),
+        policy._pilots[1],
+        _state(["hand-1"]),
+        request,
+        list(reversed(options)),
+        1,
+        1,
+        random.Random(0),
     )
     assert first == second
     assert first[0] in {"raw-alpha", "raw-beta"}

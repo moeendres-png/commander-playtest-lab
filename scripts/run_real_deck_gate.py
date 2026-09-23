@@ -151,8 +151,7 @@ def summarize_result(result, gate: str) -> dict:
             {
                 str(event.get("decision_class"))
                 for event in result.result_payload.get("transcript", [])
-                if isinstance(event, dict)
-                and event.get("kind") == "decision_accepted"
+                if isinstance(event, dict) and event.get("kind") == "decision_accepted"
             }
         ),
         "semantic_transcript_sha256": result.semantic_transcript_sha256,
@@ -183,13 +182,11 @@ def cmd_replay(args: argparse.Namespace) -> int:
     root = Path(args.root)
     runner = XmageFullGameRunner(cwd=root)
     runs = []
-    for index in range(2):
+    for _ in range(2):
         scenario, decks, pilots = build_gate_setup(root, args.seed)
         result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
         runs.append(summarize_result(result, GATE_LABEL))
-    semantic_match = (
-        runs[0]["semantic_transcript_sha256"] == runs[1]["semantic_transcript_sha256"]
-    )
+    semantic_match = runs[0]["semantic_transcript_sha256"] == runs[1]["semantic_transcript_sha256"]
     raw_match = runs[0]["raw_result_sha256"] == runs[1]["raw_result_sha256"]
     payload = {
         "gate": GATE_LABEL,

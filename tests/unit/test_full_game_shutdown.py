@@ -140,7 +140,9 @@ def _run_smoke_with_disposition(monkeypatch: pytest.MonkeyPatch, disposition: st
     import commander_lab.engine.rules.full_game as full_game_module
 
     runner = XmageFullGameRunner(command=("java", "-jar", "bridge.jar", "full-game"))
-    monkeypatch.setattr(full_game_module, "_RawFullGameClient", lambda *a, **k: _StubClient(disposition))
+    monkeypatch.setattr(
+        full_game_module, "_RawFullGameClient", lambda *a, **k: _StubClient(disposition)
+    )
     monkeypatch.setattr(
         XmageFullGameRunner,
         "_validated_policy",
@@ -156,9 +158,7 @@ def _run_smoke_with_disposition(monkeypatch: pytest.MonkeyPatch, disposition: st
         "_drive",
         lambda self, client, policy, stop_after=None: (5, ("priority",), False),
     )
-    return runner.run_smoke(
-        scenario=_scenario(), decks=(), pilots=(), smoke_decision_target=5
-    )
+    return runner.run_smoke(scenario=_scenario(), decks=(), pilots=(), smoke_decision_target=5)
 
 
 def test_run_smoke_passes_on_graceful_shutdown(monkeypatch: pytest.MonkeyPatch) -> None:
