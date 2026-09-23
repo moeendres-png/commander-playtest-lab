@@ -181,6 +181,7 @@ This gate is bounded discovery, not a research stopping point: once a clearly su
 compatible donor is established, use it and continue implementation/build/test/debug/
 qualification. Do not create a second Rules Engine, second observation layer, second replay
 system, or parallel decision protocol when a qualified existing mechanism can be reused.
+
 ## 10. Workstream contract
 
 One session owns exactly one workstream ↔ one branch ↔ one worktree ↔ one mutation
