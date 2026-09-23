@@ -215,6 +215,57 @@ class XmageDeckImporterTest {
     }
 
     @Test
+    void importsOracleDiacriticWhenXmageRegistryUsesFoldedName()
+            throws Exception {
+
+        List<String> mainboard =
+                new ArrayList<>();
+
+        mainboard.add(
+                "Gríma, Saruman's Footman"
+        );
+
+        for (int copy = 0; copy < 98; copy++) {
+            mainboard.add("Island");
+        }
+
+        XmageDeckImporter importer =
+                new XmageDeckImporter();
+
+        XmageDeckImporter.ImportResult result =
+                importer.importCommanderDeck(
+                        "b2-test/oracle-diacritic",
+                        "5555555555555555555555555555555555555555555555555555555555555555",
+                        mainboard,
+                        List.of("Sauron, Lord of the Rings")
+                );
+
+        assertEquals(
+                99,
+                result.mainboardCount()
+        );
+
+        Deck realDeck =
+                importer.requireDeck(
+                        result.deckHandle()
+                );
+
+        assertEquals(
+                99,
+                realDeck.getMaindeckCards().size()
+        );
+
+        assertTrue(
+                realDeck
+                        .getMaindeckCards()
+                        .stream()
+                        .anyMatch(card ->
+                                "Grima, Saruman's Footman"
+                                        .equals(card.getName()))
+        );
+    }
+
+    @Test
     void invalidCommanderDeckSizeFailsClosed()
             throws Exception {
 
