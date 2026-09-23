@@ -12,6 +12,10 @@ import mage.abilities.Modes;
 import mage.abilities.PlayLandAbility;
 import mage.abilities.SpellAbility;
 import mage.abilities.TriggeredAbility;
+import mage.abilities.costs.Cost;
+import mage.abilities.costs.common.SacrificeSourceCost;
+import mage.abilities.costs.common.TapSourceCost;
+import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.cards.Card;
 import mage.cards.Cards;
@@ -58,6 +62,16 @@ import java.util.concurrent.ConcurrentHashMap;
 final class XmageFullGamePlayer extends PlayerImpl {
 
     private final XmageFullGameDecisionController decisionController;
+
+    /**
+     * Set when the external pilot selects Cancel inside a mana-payment
+     * decision. The engine then aborts the in-progress activation/cast.
+     * That abort is graceful (the pilot declined to fund the action), so
+     * {@link #priority} maps it to passing priority instead of failing the
+     * game. Any activation/cast failure WITHOUT a preceding cancel stays
+     * fatal. Reset on every priority entry; single-threaded game loop.
+     */
+    private boolean paymentCancelled;
 
     XmageFullGamePlayer(
             String name,
@@ -243,6 +257,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean priority(Game game) {
+        paymentCancelled = false;
         JsonArray options = new JsonArray();
         Map<String, ActivatedAbility> abilities = new LinkedHashMap<>();
 
@@ -290,12 +305,26 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     (SpellAbility) ability, game, false,
                     new mage.ApprovingObject(ability, game));
             if (!cast) {
+                if (paymentCancelled) {
+                    // Pilot cancelled funding mid-payment: abort gracefully
+                    // by passing priority. Partial payments (tapped sources,
+                    // floated pool mana) are real game state and persist.
+                    pass(game);
+                    return false;
+                }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
             }
             return true;
         }
         boolean activated = activateAbility(ability, game);
         if (!activated) {
+            if (paymentCancelled) {
+                // Pilot cancelled funding mid-payment: abort gracefully
+                // by passing priority. Partial payments (tapped sources,
+                // floated pool mana) are real game state and persist.
+                pass(game);
+                return false;
+            }
             fail("XMAGE_ACTION_EXECUTION_FAILED", "priority activation failed: " + selected);
         }
         return true;
@@ -665,6 +694,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 ability
         ));
         if (cancel.equals(selected)) {
+            paymentCancelled = true;
             return false;
         }
         ManaType poolManaType = poolManaById.get(selected);
@@ -1402,7 +1432,81 @@ final class XmageFullGamePlayer extends PlayerImpl {
             metadata.addProperty("source_name", objectLabel(ability.getSourceId(), game));
         }
         metadata.addProperty("mana_ability", ability.isManaAbility());
+        enrichAbilityCostFacts(metadata, ability, game);
         return metadata;
+    }
+
+    /**
+     * Attaches engine-factual activation-cost summary to ability metadata.
+     *
+     * <p>These are translated representations of engine cost objects, not
+     * legality judgments: mana-amount breakdown, whether activation taps,
+     * untaps, or sacrifices the source, and whether the source permanent is
+     * currently tapped. External pilots use them for affordability-aware
+     * discretionary choice among engine-authorized options. All enrichment is
+     * defensive: any introspection failure leaves the fields absent and the
+     * pilot treats them as unknown.</p>
+     */
+    private void enrichAbilityCostFacts(JsonObject metadata, Ability ability, Game game) {
+        mage.Mana costMana = null;
+        try {
+            costMana = ability.getManaCostsToPay().getMana();
+            if (costMana != null) {
+                metadata.addProperty("mana_cost_white", costMana.getWhite());
+                metadata.addProperty("mana_cost_blue", costMana.getBlue());
+                metadata.addProperty("mana_cost_black", costMana.getBlack());
+                metadata.addProperty("mana_cost_red", costMana.getRed());
+                metadata.addProperty("mana_cost_green", costMana.getGreen());
+                metadata.addProperty("mana_cost_generic", costMana.getGeneric());
+                metadata.addProperty("mana_cost_colorless", costMana.getColorless());
+            }
+        } catch (RuntimeException ignored) {
+            // Leave mana-cost fields absent; pilot treats them as unknown.
+        }
+        try {
+            // Lossless projection of the engine-native payability fact:
+            // can the deciding player's CURRENT pool fund the mana costs
+            // (Mana.enough carries native color/generic/colorless semantics)?
+            // Tappable permanents are deliberately excluded: pool-only
+            // coverage is the conservative discretionary signal.
+            if (costMana != null) {
+                metadata.addProperty(
+                        "pool_covers_mana_cost",
+                        costMana.enough(getManaPool().getMana())
+                );
+            }
+        } catch (RuntimeException ignored) {
+            // Leave the coverage flag absent; pilot treats it as unknown.
+        }
+        try {
+            boolean requiresTap = false;
+            boolean requiresUntap = false;
+            boolean requiresSacrifice = false;
+            for (Cost cost : ability.getCosts()) {
+                if (cost instanceof TapSourceCost) {
+                    requiresTap = true;
+                } else if (cost instanceof UntapSourceCost) {
+                    requiresUntap = true;
+                } else if (cost instanceof SacrificeSourceCost) {
+                    requiresSacrifice = true;
+                }
+            }
+            metadata.addProperty("requires_tap_source", requiresTap);
+            metadata.addProperty("requires_untap_source", requiresUntap);
+            metadata.addProperty("requires_sacrifice_source", requiresSacrifice);
+        } catch (RuntimeException ignored) {
+            // Leave cost-kind fields absent; pilot treats them as unknown.
+        }
+        try {
+            if (ability.getSourceId() != null && game != null) {
+                Permanent source = game.getPermanent(ability.getSourceId());
+                if (source != null) {
+                    metadata.addProperty("source_tapped", source.isTapped());
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Leave source-tapped field absent; pilot treats it as unknown.
+        }
     }
 
     private String abilityLabel(Ability ability, Game game) {

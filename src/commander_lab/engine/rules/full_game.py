@@ -512,16 +512,47 @@ class ExternalPilotDecisionPolicy:
             for option in options
             if self._required_text(option, "option_type") not in {"pass_priority", "mana_ability"}
         ]
+        # Affordability-aware pilot judgment: an activated ability whose
+        # engine-reported costs provably exceed the actor's free resources
+        # (pool mana plus, for tap costs, an untapped source) is withheld
+        # from the pilot's selection set so the pilot passes or acts
+        # elsewhere instead of spending a shared resource mid-payment and
+        # failing activation. Withheld options stay engine-offered; the
+        # pilot simply does not select them. Unknown/absent cost facts mean
+        # no gating: the engine remains the authority.
+        affordable = [
+            option for option in non_mana if self._priority_action_affordable(option, state)
+        ]
+        if len(affordable) != len(non_mana):
+            _LOG.info(
+                "withheld %d unaffordable priority action(s) from pilot selection",
+                len(non_mana) - len(affordable),
+            )
+            non_mana = affordable
         # WS229 F-RULES-03 disposition: Core-authorized mana abilities were
         # withheld from the pilot. Mana abilities are discretionary actions,
         # so they are offered to the pilot with explicit mana metadata
         # instead of being hidden. Only a lone pass (no discretion) is
         # auto-submitted, with a forced-move record.
-        mana_views = [
-            self._priority_mana_action(option, state)
+        #
+        # Affordability applies to mana abilities with activation mana costs
+        # too (e.g. signets): selecting one the pool cannot fund spends a
+        # shared resource mid-payment and fails activation. Pure mana
+        # abilities (no mana cost, untapped source) always pass the gate.
+        mana_options = [
+            option
             for option in options
             if self._required_text(option, "option_type") == "mana_ability"
         ]
+        affordable_mana = [
+            option for option in mana_options if self._priority_action_affordable(option, state)
+        ]
+        if len(affordable_mana) != len(mana_options):
+            _LOG.info(
+                "withheld %d unaffordable mana abilit(ies) from pilot selection",
+                len(mana_options) - len(affordable_mana),
+            )
+        mana_views = [self._priority_mana_action(option, state) for option in affordable_mana]
 
         pilot_state = self._pilot_state(runtime, state)
         action_views = [self._priority_action(option, state) for option in non_mana]
@@ -546,6 +577,38 @@ class ExternalPilotDecisionPolicy:
         if decision.selected_action_id not in offered:
             raise FullGameProtocolError("pilot returned unknown priority action")
         return decision.selected_action_id
+
+    def _priority_action_affordable(
+        self, option: dict[str, Any], state: dict[str, Any]
+    ) -> bool:
+        """Pilot-side discretionary ranking among engine-authorized options.
+
+        Returns False only when engine-native cost facts prove the action
+        cannot be funded from free resources: a tap cost on an already
+        tapped source, an untap cost on an untapped source, or mana costs
+        the current pool cannot cover (``pool_covers_mana_cost`` is the
+        engine's own ``Mana.enough`` verdict, projected losslessly by the
+        bridge). Anything unknown means affordable.
+
+        This is pilot choice, not a legality verdict: withheld options stay
+        engine-offered, the pilot simply selects pass/another legal action
+        instead, and the engine re-validates whatever is selected (a
+        mid-payment cancel aborts to pass natively). No card names, no
+        label parsing, no invented actions.
+        """
+        del state
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict):
+            return True
+        if metadata.get("requires_tap_source") is True:
+            if metadata.get("source_tapped") is True:
+                return False
+        if metadata.get("requires_untap_source") is True:
+            if metadata.get("source_tapped") is False:
+                return False
+        if metadata.get("pool_covers_mana_cost") is False:
+            return False
+        return True
 
     def _priority_mana_action(
         self, option: dict[str, Any], state: dict[str, Any]
@@ -589,17 +652,33 @@ class ExternalPilotDecisionPolicy:
             hand = actor.get("hand")
             if not isinstance(hand, list):
                 raise FullGameProtocolError("London bottom decision requires actor hand visibility")
-            count = min_selections
-            card_actions = tuple(self._hand_action(card) for card in hand if isinstance(card, dict))
-            selected = runtime.pilot.choose_bottom_cards(
-                card_actions,
-                count,
-                commander_names=runtime.binding.commander_names,
-            )
             legal_ids = {self._required_text(option, "option_id") for option in options}
-            if not set(selected).issubset(legal_ids):
-                raise FullGameProtocolError("pilot bottom-card selection is not XMage-legal")
-            return list(selected)
+            hand_ids = {
+                self._required_text(card, "object_id")
+                for card in hand
+                if isinstance(card, dict)
+            }
+            # Two engine-native shapes share the bottom-selection path:
+            # London mulligan bottoms cards FROM HAND (options are hand
+            # cards), while library effects (e.g. Dig Through Time) order
+            # looked-at LIBRARY cards (options are not hand cards). Only
+            # the London shape uses opening-hand bottom valuation; library
+            # bottom-ordering falls through to generic offered-option
+            # ranking below (highest utility first: last chosen ends
+            # bottommost, so the best card stays most accessible).
+            if legal_ids and legal_ids <= hand_ids:
+                count = min_selections
+                card_actions = tuple(
+                    self._hand_action(card) for card in hand if isinstance(card, dict)
+                )
+                selected = runtime.pilot.choose_bottom_cards(
+                    card_actions,
+                    count,
+                    commander_names=runtime.binding.commander_names,
+                )
+                if not set(selected).issubset(legal_ids):
+                    raise FullGameProtocolError("pilot bottom-card selection is not XMage-legal")
+                return list(selected)
 
         if not options:
             return []
