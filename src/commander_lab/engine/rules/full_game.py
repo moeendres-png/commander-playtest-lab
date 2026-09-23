@@ -37,6 +37,14 @@ FULL_GAME_LANE = "xmage_full_game_external_pilots"
 FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"
 XMAGE_FULL_GAME_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 
+# Bridge-process shutdown dispositions observed by close(). Only
+# graceful_shutdown may back a clean-shutdown evidence claim; every other
+# outcome must fail closed where such a claim matters.
+FULL_GAME_SHUTDOWN_GRACEFUL = "graceful_shutdown"
+FULL_GAME_SHUTDOWN_UNACKED_EXIT = "unacked_exit"
+FULL_GAME_SHUTDOWN_FORCED_KILL = "forced_kill"
+FULL_GAME_SHUTDOWN_ALREADY_EXITED = "already_exited"
+
 # WS229 forced-move audit channel. Forced moves (no pilot discretion) are
 # auto-submitted only with a structured log record; discretionary actions
 # are never hidden from the pilot.
@@ -185,6 +193,7 @@ class _RawFullGameClient:
         self._stderr_lines: list[str] = []
         self._stdout_thread: threading.Thread | None = None
         self._stderr_thread: threading.Thread | None = None
+        self.shutdown_disposition: str | None = None
 
     @property
     def stderr_tail(self) -> tuple[str, ...]:
@@ -276,27 +285,54 @@ class _RawFullGameClient:
             raise FullGameProtocolError(f"{message_type} failed: {detail}")
         return response.payload
 
-    def close(self) -> None:
+    def close(self) -> str:
+        """Shut the bridge process down, returning the observed disposition.
+
+        Same request/wait/kill sequence as always (no parallel lifecycle);
+        the outcome is now returned instead of swallowed so evidence can
+        distinguish graceful shutdown from kill/timeout/failed-shutdown:
+
+        - ``graceful_shutdown``: shutdown request acked, process exited
+          without kill;
+        - ``unacked_exit``: shutdown request failed but the process exited
+          on its own without kill;
+        - ``forced_kill``: the process had to be killed;
+        - ``already_exited``: no live process at entry (or none started).
+
+        Never raises for teardown itself: failures are encoded in the
+        returned disposition and callers fail closed where a shutdown
+        claim matters.
+        """
         process = self._process
         if process is None:
-            return
-        if process.poll() is None:
-            with contextlib.suppress(Exception):
+            return FULL_GAME_SHUTDOWN_ALREADY_EXITED
+        try:
+            if process.poll() is not None:
+                return FULL_GAME_SHUTDOWN_ALREADY_EXITED
+            shutdown_acked = True
+            try:
                 self.request("shutdown_engine")
-        if process.poll() is None:
-            with contextlib.suppress(subprocess.TimeoutExpired):
+            except Exception:
+                shutdown_acked = False
+            if process.poll() is None:
+                with contextlib.suppress(subprocess.TimeoutExpired):
+                    process.wait(timeout=5)
+            if process.poll() is None:
+                process.kill()
                 process.wait(timeout=5)
-        if process.poll() is None:
-            process.kill()
-            process.wait(timeout=5)
-        for stream in (process.stdin, process.stdout, process.stderr):
-            if stream is not None and not stream.closed:
-                with contextlib.suppress(OSError):
-                    stream.close()
-        for thread in (self._stdout_thread, self._stderr_thread):
-            if thread is not None:
-                thread.join(timeout=2)
-        self._process = None
+                return FULL_GAME_SHUTDOWN_FORCED_KILL
+            if shutdown_acked:
+                return FULL_GAME_SHUTDOWN_GRACEFUL
+            return FULL_GAME_SHUTDOWN_UNACKED_EXIT
+        finally:
+            for stream in (process.stdin, process.stdout, process.stderr):
+                if stream is not None and not stream.closed:
+                    with contextlib.suppress(OSError):
+                        stream.close()
+            for thread in (self._stdout_thread, self._stderr_thread):
+                if thread is not None:
+                    thread.join(timeout=2)
+            self._process = None
 
     def _pump_stdout(self, stream: Any) -> None:
         try:
@@ -314,7 +350,7 @@ class _RawFullGameClient:
         return self
 
     def __exit__(self, *_args: object) -> None:
-        self.close()
+        self.shutdown_disposition = self.close()
 
 
 class ExternalPilotDecisionPolicy:
@@ -1829,14 +1865,24 @@ class XmageFullGameRunner:
             )
         policy = self._validated_policy(scenario, decks, pilots)
 
-        with _RawFullGameClient(
+        client = _RawFullGameClient(
             command,
             cwd=self.cwd,
             request_timeout_seconds=self.request_timeout_seconds,
-        ) as client:
+        )
+        with client:
             provider = self._open_game(client, scenario, decks)
             decision_count, observed, terminal = self._drive(
                 client, policy, stop_after=smoke_decision_target
+            )
+        # P1 shutdown evidence: a bounded smoke PASS must rest on observed
+        # graceful shutdown, never on a suppressed kill/timeout. Anything
+        # else fails the smoke closed (message carries the disposition).
+        disposition = getattr(client, "shutdown_disposition", None)
+        if disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+            raise FullGameConformanceError(
+                "bounded smoke shutdown not graceful: "
+                f"{disposition} (decisions={decision_count} terminal={terminal})"
             )
         if decision_count == 0:
             raise FullGameConformanceError(
