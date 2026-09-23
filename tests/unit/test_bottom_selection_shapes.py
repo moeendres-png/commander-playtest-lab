@@ -325,5 +325,35 @@ def test_target_selection_is_order_independent() -> None:
     assert first[0] in {option["option_id"] for option in options}
 
 
+def _zoned_option(option_id: str, name: str, zone: str, zone_index: int) -> dict:
+    return {
+        "option_id": option_id,
+        "option_type": "choice",
+        "label": name,
+        "metadata": {"object_id": option_id, "name": name, "zone": zone, "zone_index": zone_index},
+    }
+
+
+def test_zoned_target_pick_is_order_and_identity_independent() -> None:
+    """Fetch shape: two same-named library cards at fixed positions.
+    Whatever the bridge order, the same POSITION is selected, so twin
+    libraries keep identical name-orders after the tutor."""
+    policy = _policy()
+    request = {"context": {"outcome": "neutral"}}
+    options = [
+        _zoned_option("raw-alpha", "Island", "library", 5),
+        _zoned_option("raw-beta", "Island", "library", 12),
+    ]
+    first = policy._decide_targets(
+        policy._pilots[1], _state(["hand-1"]), request, list(options), 1, 1, random.Random(0)
+    )
+    second = policy._decide_targets(
+        policy._pilots[1], _state(["hand-1"]), request, list(reversed(options)),
+        1, 1, random.Random(0),
+    )
+    assert first == second
+    assert first[0] in {"raw-alpha", "raw-beta"}
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))

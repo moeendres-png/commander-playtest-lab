@@ -27,6 +27,7 @@ import mage.constants.Outcome;
 import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.stack.StackObject;
 import mage.game.draft.Draft;
 import mage.game.match.Match;
 import mage.game.permanent.Permanent;
@@ -974,7 +975,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     hold,
                     "Do not attack with " + attacker.getName(),
                     "hold_attacker",
-                    objectMetadata(attacker.getId(), attacker.getName())
+                    objectMetadata(attacker.getId(), attacker.getName(), game)
             ));
             Map<String, UUID> defenderByOption = new LinkedHashMap<>();
             for (UUID defenderId : defenders) {
@@ -986,7 +987,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         attacker.getId().toString(),
                         defenderId.toString()
                 );
-                JsonObject metadata = objectMetadata(attacker.getId(), attacker.getName());
+                JsonObject metadata = objectMetadata(attacker.getId(), attacker.getName(), game);
                 metadata.addProperty("defender_id", defenderId.toString());
                 options.add(XmageFullGameDecisionController.option(
                         optionId,
@@ -1508,7 +1509,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     id.toString(),
                     objectLabel(id, game),
                     optionType,
-                    objectMetadata(id, objectLabel(id, game))
+                    objectMetadata(id, objectLabel(id, game), game)
             ));
         }
         return options;
@@ -1659,11 +1660,89 @@ final class XmageFullGamePlayer extends PlayerImpl {
         return id.toString();
     }
 
-    private static JsonObject objectMetadata(UUID id, String label) {
+    private static JsonObject objectMetadata(UUID id, String label, Game game) {
         JsonObject metadata = new JsonObject();
         metadata.addProperty("object_id", id.toString());
         metadata.addProperty("name", label);
+        try {
+            if (game != null) {
+                Zone zone = game.getState().getZone(id);
+                if (zone != null) {
+                    metadata.addProperty("zone", zone.name().toLowerCase());
+                    int index = zoneIndex(id, zone, game);
+                    if (index >= 0) {
+                        metadata.addProperty("zone_index", index);
+                    }
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Zone facts are advisory ranking aids; absence means unknown.
+        }
         return metadata;
+    }
+
+    /**
+     * Twin-stable ordinal of a card object inside its zone's native
+     * iteration order (battlefield entry order, library list position,
+     * hand/graveyard insertion order, stack push order). Same-seed twin
+     * games admit identical zone-event streams, so identical indices pin
+     * the same physical card across fresh processes without exposing
+     * per-process UUIDs. Exile/command fall back to -1 (occurrence).
+     */
+    private static int zoneIndex(UUID id, Zone zone, Game game) {
+        switch (zone) {
+            case BATTLEFIELD: {
+                int index = 0;
+                for (Permanent permanent : game.getBattlefield().getAllPermanents()) {
+                    if (permanent != null && id.equals(permanent.getId())) {
+                        return index;
+                    }
+                    index++;
+                }
+                return -1;
+            }
+            case LIBRARY: {
+                for (Player player : game.getPlayers().values()) {
+                    if (player == null) {
+                        continue;
+                    }
+                    int position = player.getLibrary().getCardPosition(id);
+                    if (position >= 0) {
+                        return position;
+                    }
+                }
+                return -1;
+            }
+            case HAND:
+            case GRAVEYARD: {
+                for (Player player : game.getPlayers().values()) {
+                    if (player == null) {
+                        continue;
+                    }
+                    Cards zoneCards = zone == Zone.HAND ? player.getHand() : player.getGraveyard();
+                    int index = 0;
+                    for (Card card : zoneCards.getCards(game)) {
+                        if (card != null && id.equals(card.getId())) {
+                            return index;
+                        }
+                        index++;
+                    }
+                }
+                return -1;
+            }
+            case STACK: {
+                int index = 0;
+                for (StackObject stackObject : game.getStack()) {
+                    if (stackObject != null && id.equals(stackObject.getId())) {
+                        return index;
+                    }
+                    index++;
+                }
+                return -1;
+            }
+            default:
+                return -1;
+        }
     }
 
     private static JsonObject pileMetadata(List<? extends Card> pile) {

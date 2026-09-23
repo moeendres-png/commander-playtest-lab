@@ -723,18 +723,37 @@ class ExternalPilotDecisionPolicy:
             return []
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
-        # Twin-stable target identities: rank key is (score, Rules-visible
-        # label, content-derived stable id); raw engine ids never order or
-        # identify pilot inputs.
+        # Twin-stable target identities: (zone, zone_index) pins the same
+        # physical card across fresh processes (identical zone-event
+        # streams); occurrence fallback is content-keyed and order-free.
+        # Raw engine ids never order or identify pilot inputs.
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[str, int] = {}
         ranked: list[tuple[float, str, str]] = []
         for option in options:
-            base = (
-                "target:"
-                f"{self._required_text(option, 'option_type')}:"
-                f"{str(option.get('label', 'target')).casefold()}"
-            )
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            zone = meta.get("zone")
+            zone_index = meta.get("zone_index")
+            if (
+                isinstance(zone, str)
+                and zone
+                and isinstance(zone_index, int)
+                and not isinstance(zone_index, bool)
+                and zone_index >= 0
+            ):
+                base = (
+                    "target:"
+                    f"{self._required_text(option, 'option_type')}:"
+                    f"{str(option.get('label', 'target')).casefold()}:"
+                    f"{zone}:{zone_index}"
+                )
+            else:
+                base = (
+                    "target:"
+                    f"{self._required_text(option, 'option_type')}:"
+                    f"{str(option.get('label', 'target')).casefold()}"
+                )
             occurrence = occurrences.get(base, 0)
             occurrences[base] = occurrence + 1
             stable_id = f"{base}:{occurrence}"
