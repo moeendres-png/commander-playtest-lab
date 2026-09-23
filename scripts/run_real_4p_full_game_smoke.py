@@ -15,7 +15,12 @@ from commander_lab.engine.rules.full_game import (
     XmageFullGameRunner,
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
-from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
+from commander_lab.models import (
+    PilotConfig,
+    PilotDecisionMode,
+    PilotStrength,
+    RulesDeckInput,
+)
 from commander_lab.storage import sha256_value
 
 
