@@ -358,6 +358,13 @@ class ExternalPilotDecisionPolicy:
         self._mulligan_count: dict[int, int] = {
             seat: 0 for seat in range(1, len(runtime_pilots) + 1)
         }
+        # No-progress guard memory for mana payments (per seat): last
+        # decision fingerprint plus consecutive-repeat count. A mana
+        # payment whose full offer (unpaid requirement, options, pool
+        # amounts) repeats identically means no selection advanced it;
+        # the guard then takes the engine-offered cancel (graceful abort).
+        self._mana_last_fingerprint: dict[int, tuple] = {}
+        self._mana_repeat_count: dict[int, int] = {}
 
     def decide(self, request: dict[str, Any]) -> dict[str, Any]:
         decision_id = self._required_text(request, "decision_id")
@@ -834,6 +841,48 @@ class ExternalPilotDecisionPolicy:
         if not options:
             raise FullGameProtocolError("mana decision has no legal options")
 
+        # No-progress guard: an identical mana-payment offer repeating
+        # consecutively means no selection advanced the payment (e.g. pool
+        # spends the engine cannot apply, re-prompted unchanged). Take the
+        # engine-offered cancel so the activation aborts gracefully instead
+        # of looping forever. Any progress (pool drain, tapped source,
+        # changed requirement) alters the fingerprint and resets the count.
+        # This is liveness bookkeeping, not payment semantics: the engine
+        # alone decides what each selection does.
+        seat = runtime.binding.seat
+        fingerprint = (
+            seat,
+            str(context.get("unpaid_mana", "")),
+            tuple(
+                sorted(
+                    (
+                        self._required_text(option, "option_id"),
+                        str(option.get("label", "")),
+                        str((option.get("metadata") or {}).get("mana_available")),
+                    )
+                    for option in options
+                )
+            ),
+        )
+        if self._mana_last_fingerprint.get(seat) == fingerprint:
+            repeats = self._mana_repeat_count.get(seat, 1) + 1
+        else:
+            repeats = 1
+        self._mana_last_fingerprint[seat] = fingerprint
+        self._mana_repeat_count[seat] = repeats
+        if repeats >= 3:
+            self._mana_repeat_count[seat] = 0
+            for option in options:
+                if self._required_text(option, "option_type") == "cancel_mana_payment":
+                    _LOG.info(
+                        "mana-payment no-progress guard: identical offer %d times, cancelling",
+                        repeats,
+                    )
+                    return self._required_text(option, "option_id")
+            raise FullGameProtocolError(
+                "mana-payment no-progress guard tripped with no cancel offered"
+            )
+
         pool_options = [
             option
             for option in options
@@ -855,6 +904,17 @@ class ExternalPilotDecisionPolicy:
                     "colorless": "c",
                 }.get(mana_type, "")
 
+            def pool_advances(option: dict[str, Any]) -> bool:
+                # Engine-native affordance (ManaCost.testPay projected by
+                # the bridge): one mana of this pool type advances the
+                # unpaid cost. Unknown/absent means usable; the engine
+                # stays the authority and re-prompts (guarded above) if a
+                # spend cannot apply.
+                metadata = option.get("metadata")
+                if not isinstance(metadata, dict):
+                    return True
+                return metadata.get("advances_payment") is not False
+
             def pool_key(option: dict[str, Any]) -> tuple[int, str, str]:
                 metadata = option.get("metadata")
                 meta = metadata if isinstance(metadata, dict) else {}
@@ -863,27 +923,14 @@ class ExternalPilotDecisionPolicy:
                 exact_required = 1 if symbol and f"{{{symbol}}}" in unpaid else 0
                 return exact_required, mana_type, str(option.get("label", "")).casefold()
 
-            # Liveness guard (WS215): pool mana that matches no unpaid colored
-            # requirement can never satisfy the payment; spending it loops the
-            # native payment request forever (budget-burning livelock). Generic-
-            # only costs accept any pool mana; colored costs take an exact
-            # match; otherwise the decision falls through to mana abilities
-            # (tap a source of the required color) or cancel (fizzle cleanly).
-            #
             # WS229 F-RULES-03 disposition: pool-first routing is kept, but
             # auto-submit is gated to the no-discretion case. A lone pool
             # candidate is a forced move (logged); several candidates hide
             # real discretion (which color to spend), so the pilot chooses.
-            colored_symbols = {"w", "u", "b", "r", "g"}
-            unpaid_colored = {s for s in colored_symbols if f"{{{s}}}" in unpaid}
-            pool_symbols = {pool_symbol(option) for option in pool_options}
-            candidates: list[dict[str, Any]] = []
-            if not unpaid_colored:
-                candidates = list(pool_options)
-            elif unpaid_colored & pool_symbols:
-                candidates = [
-                    option for option in pool_options if pool_symbol(option) in unpaid_colored
-                ]
+            # Productive candidates are those the engine reports as
+            # payment-advancing; the prompt-text heuristic below only orders
+            # them and never excludes: exclusion is native-flag-only.
+            candidates = [option for option in pool_options if pool_advances(option)]
             if len(candidates) == 1:
                 chosen_pool = self._required_text(candidates[0], "option_id")
                 _LOG.info(

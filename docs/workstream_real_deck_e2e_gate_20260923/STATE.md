@@ -8,7 +8,8 @@
   - [x] Reuse-first inspection (runner/batch/replay/pilots/decks mapped)
   - [x] Phase A baseline (bridge built; 36 variable-player + new gate tests green)
   - [x] Phase B real-deck single game (seed 20260923 TERMINAL, winner seat 2, 12 decision classes)
-  - [ ] Phase C replay (same-seed transcript match)
+  - [x] Phase B re-validation on final code (v7: TERMINAL, 18137 decisions, winner seat 2)
+  - [ ] Phase C replay (same-seed transcript match; running)
   - [ ] Phase D 10-game batch
   - [ ] Artifacts + validation + PR/merge decision
 - Root causes fixed (all runtime-proven, no card/label heuristics):
@@ -23,6 +24,13 @@
   - Library bottom-ordering (Dig Through Time) misrouted into London-hand
     bottom valuation. Fix: London path only when options are hand cards;
     otherwise generic offered-option ranking.
+  - Modal cast failed on targetless mode (engine skips target callbacks via
+    canChoose, no bridge signal). Fix: bridge projects mode_targets_available
+    from Target.canChoose per mode; pilot prefers viable modes; no-viable-mode
+    casts map to pass (601.2 rewind); genuine failures stay fatal.
+- Known risk: same-seed twins run in fresh processes with per-process engine
+  UUIDs; pilot tiebreaks on engine UUIDs can diverge twins (replay match).
+  Cross-process determinism hardening is next if replay mismatches.
 - Authority adjudication (coordinator delta): pilot gate is discretionary
   ranking among engine-authorized options using authoritative structured
   cost metadata, NOT a legality verdict (see _priority_action_affordable

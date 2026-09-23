@@ -37,6 +37,7 @@ import mage.players.net.UserData;
 import mage.target.Target;
 import mage.target.TargetAmount;
 import mage.target.TargetCard;
+import mage.target.Targets;
 import mage.util.MultiAmountMessage;
 
 import java.io.Serializable;
@@ -687,6 +688,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     JsonObject metadata = new JsonObject();
                     metadata.addProperty("mana_type", manaType.toString());
                     metadata.addProperty("mana_available", getManaPool().get(manaType));
+                    metadata.addProperty("advances_payment", poolManaAdvancesPayment(unpaid, manaType));
                     options.add(XmageFullGameDecisionController.option(
                             optionId,
                             "Spend " + manaType.toString() + " mana from pool",
@@ -887,6 +889,38 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     /**
+     * Engine-native pool-spend affordance for the currently unpaid cost:
+     * would one mana of the given pool type advance this payment
+     * ({@code ManaCost.testPay} carries native hybrid/colored/generic/
+     * colorless semantics)? Projected per pool option so the external
+     * pilot never spends unusable pool mana in a no-progress loop. Any
+     * introspection failure reports usable: unknown means the engine
+     * stays the authority.
+     */
+    private boolean poolManaAdvancesPayment(ManaCost unpaid, ManaType manaType) {
+        try {
+            if (unpaid == null || manaType == null) {
+                return true;
+            }
+            mage.Mana probe = new mage.Mana();
+            switch (manaType) {
+                case WHITE -> probe.setWhite(1);
+                case BLUE -> probe.setBlue(1);
+                case BLACK -> probe.setBlack(1);
+                case RED -> probe.setRed(1);
+                case GREEN -> probe.setGreen(1);
+                case COLORLESS -> probe.setColorless(1);
+                default -> {
+                    return true;
+                }
+            }
+            return unpaid.testPay(probe);
+        } catch (RuntimeException ignored) {
+            return true;
+        }
+    }
+
+    /**
      * Engine-native per-mode target availability: every required target of
      * the mode must be choosable right now ({@code Target.canChoose}).
      * Modes with no targets are vacuously available. Any introspection
@@ -895,15 +929,31 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     private boolean modeTargetsAvailable(Mode mode, Ability source, Game game) {
         try {
-            for (Target target : mode.getTargets()) {
-                if (target.isRequired(source) && !target.canChoose(getId(), source, game)) {
-                    return false;
-                }
+            if (!modeTargetsChoosable(mode.getTargets(), source, game)) {
+                return false;
+            }
+            // Ability-level targets belong to the default (first) mode:
+            // when probing that mode, they apply too. (Target.isRequired
+            // is unusable here: it reports false for not-yet-activated
+            // spells, so required-ness mirrors the engine target flow:
+            // minNumberOfTargets > 0 must be choosable.)
+            if (source.getModes().getMode() != null
+                    && source.getModes().getMode().getId().equals(mode.getId())) {
+                return modeTargetsChoosable(source.getTargets(), source, game);
             }
             return true;
         } catch (RuntimeException ignored) {
             return true;
         }
+    }
+
+    private boolean modeTargetsChoosable(Targets targets, Ability source, Game game) {
+        for (Target target : targets) {
+            if (target.getMinNumberOfTargets() > 0 && !target.canChoose(getId(), source, game)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

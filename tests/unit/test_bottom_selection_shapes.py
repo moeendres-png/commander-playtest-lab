@@ -156,5 +156,77 @@ def test_mode_all_targetless_still_chooses_offered() -> None:
     assert selected in {"mode-a", "mode-b"}
 
 
+def _mana_option(option_id: str, option_type: str, label: str, metadata: dict) -> dict:
+    return {
+        "option_id": option_id,
+        "option_type": option_type,
+        "label": label,
+        "metadata": metadata,
+    }
+
+
+def _hybrid_payment_options() -> list[dict]:
+    """Cascade Bluffs {U/R} payment shape: white pool mana is offered but
+    natively non-advancing; blue/red advance."""
+    return [
+        _mana_option("cancel", "cancel_mana_payment", "Cancel mana payment", {}),
+        _mana_option(
+            "pool-w", "mana_pool", "Spend white mana from pool",
+            {"mana_type": "white", "mana_available": 1, "advances_payment": False},
+        ),
+        _mana_option(
+            "pool-u", "mana_pool", "Spend blue mana from pool",
+            {"mana_type": "blue", "mana_available": 1, "advances_payment": True},
+        ),
+        _mana_option(
+            "pool-r", "mana_pool", "Spend red mana from pool",
+            {"mana_type": "red", "mana_available": 1, "advances_payment": True},
+        ),
+    ]
+
+
+def test_mana_payment_excludes_non_advancing_pool() -> None:
+    """Hybrid {U/R}: white pool spend must never be selected."""
+    policy = _policy()
+    context = {"unpaid_mana": "{U/R}"}
+    for _ in range(2):
+        selected = policy._decide_mana(
+            policy._pilots[1], _state(["hand-1"]), _hybrid_payment_options(),
+            context, random.Random(0),
+        )
+        assert selected in {"pool-u", "pool-r"}, selected
+
+
+def test_mana_payment_no_progress_guard_cancels() -> None:
+    """Three identical mana-payment offers: take the offered cancel."""
+    policy = _policy()
+    options = _hybrid_payment_options()
+    context = {"unpaid_mana": "{U/R}"}
+    runtimes = policy._pilots[1]
+    first = policy._decide_mana(runtimes, _state(["hand-1"]), options, context, random.Random(0))
+    assert first in {"pool-u", "pool-r"}
+    second = policy._decide_mana(runtimes, _state(["hand-1"]), options, context, random.Random(0))
+    assert second in {"pool-u", "pool-r"}
+    third = policy._decide_mana(runtimes, _state(["hand-1"]), options, context, random.Random(0))
+    assert third == "cancel"
+
+
+def test_mana_payment_unknown_flag_means_usable() -> None:
+    """Absent advances_payment: no filtering (engine authority)."""
+    policy = _policy()
+    options = [
+        _mana_option("cancel", "cancel_mana_payment", "Cancel mana payment", {}),
+        _mana_option(
+            "pool-w", "mana_pool", "Spend white mana from pool",
+            {"mana_type": "white", "mana_available": 1},
+        ),
+    ]
+    selected = policy._decide_mana(
+        policy._pilots[1], _state(["hand-1"]), options,
+        {"unpaid_mana": "{1}"}, random.Random(0),
+    )
+    assert selected == "pool-w"
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))
