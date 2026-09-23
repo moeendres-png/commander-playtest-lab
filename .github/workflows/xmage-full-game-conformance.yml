@@ -14,6 +14,12 @@ on:
       - "tests/unit/test_xmage_variable_player.py"
       - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
+      - "scripts/run_real_4p_full_game_smoke.py"
+      - "tests/unit/test_real_4p_full_game_smoke.py"
+      - "data/decks/rogshai_current.json"
+      - "data/decks/opponents/kaervek/current/deck.json"
+      - "data/opponents/hosts_of_mordor_precon.json"
+      - "data/opponents/lorehold_spirit_precon.json"
       - ".github/workflows/xmage-full-game-conformance.yml"
   push:
     branches: [main]
@@ -29,6 +35,12 @@ on:
       - "tests/unit/test_xmage_variable_player.py"
       - "scripts/generate_full_game_contract_artifacts.py"
       - "scripts/run_external_full_game_conformance.py"
+      - "scripts/run_real_4p_full_game_smoke.py"
+      - "tests/unit/test_real_4p_full_game_smoke.py"
+      - "data/decks/rogshai_current.json"
+      - "data/decks/opponents/kaervek/current/deck.json"
+      - "data/opponents/hosts_of_mordor_precon.json"
+      - "data/opponents/lorehold_spirit_precon.json"
       - ".github/workflows/xmage-full-game-conformance.yml"
   workflow_dispatch:
 
@@ -83,12 +95,14 @@ jobs:
       - name: Generate versioned full-game contracts
         run: python scripts/generate_full_game_contract_artifacts.py
       - name: Run focused Python full-game tests
-        run: pytest -q tests/unit/test_xmage_full_game.py
+        run: pytest -q tests/unit/test_xmage_full_game.py tests/unit/test_real_4p_full_game_smoke.py
       - name: Build and verify XMage bridge including full-game contract tests
         working-directory: engine-bridge
         run: mvn -B -ntp verify
-      - name: Run real seeded 4P game-over and replay conformance
+      - name: Run synthetic seeded 4P game-over and replay conformance
         run: python scripts/run_external_full_game_conformance.py
+      - name: Run actual-deck 4P bounded technical smoke
+        run: python scripts/run_real_4p_full_game_smoke.py --smoke-decisions 35
       - name: Run bounded live smoke per supported player count (2/3/5/6)
         run: |
           set -euo pipefail
