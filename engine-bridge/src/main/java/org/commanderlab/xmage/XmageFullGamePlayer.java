@@ -809,7 +809,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
         JsonArray options = new JsonArray();
         Map<String, TriggeredAbility> byId = new LinkedHashMap<>();
         List<TriggeredAbility> sorted = new ArrayList<>(abilities);
-        sorted.sort(Comparator.comparing(this::abilitySortKey));
+        // Twin-stable trigger order: Rules-visible label, then source
+        // zone-change counter (entry order, identical on twin
+        // re-execution). Native UUIDs must never sequence triggers.
+        sorted.sort(Comparator
+                .comparing((TriggeredAbility ability) -> abilityLabel(ability, game))
+                .thenComparingInt(ability -> ability.getSourceId() == null
+                        ? -1
+                        : game.getState().getZoneChangeCounter(ability.getSourceId())));
         for (TriggeredAbility ability : sorted) {
             String optionId = abilityOptionId("trigger", ability);
             options.add(XmageFullGameDecisionController.option(
