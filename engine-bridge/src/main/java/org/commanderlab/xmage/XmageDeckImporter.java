@@ -9,6 +9,7 @@ import mage.cards.repository.CardRepository;
 import mage.cards.repository.CardScanner;
 import mage.deck.Commander;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -257,6 +258,25 @@ public final class XmageDeckImporter {
                 );
 
         if (cardInfo == null) {
+            /*
+             * XMage's historical card registry contains a small number of
+             * mechanical identities whose stored English name omits Unicode
+             * diacritics that are present in current Oracle data (for
+             * example "Gríma" vs "Grima"). Preserve exact lookup as the
+             * authority and use accent folding only as a deterministic
+             * compatibility fallback.
+             */
+            String foldedName = foldDiacritics(oracleName);
+            if (!foldedName.equals(oracleName)) {
+                cardInfo =
+                        CardRepository.instance.findCard(
+                                foldedName,
+                                true
+                        );
+            }
+        }
+
+        if (cardInfo == null) {
             throw new ImportException(
                     "UNKNOWN_CARD_NAME: "
                             + oracleName
@@ -265,10 +285,14 @@ public final class XmageDeckImporter {
 
         /*
          * Fail closed if XMage's lookup returns a different mechanical
-         * identity. Set code and collector number are deliberately not
-         * part of the simulation contract.
+         * identity. Accent-only historical registry differences are accepted
+         * only when the same normalization makes both names exactly equal.
+         * Set code and collector number are deliberately not part of the
+         * simulation contract.
          */
-        if (!oracleName.equals(cardInfo.getName())) {
+        if (!oracleName.equals(cardInfo.getName())
+                && !foldDiacritics(oracleName)
+                        .equals(foldDiacritics(cardInfo.getName()))) {
             throw new ImportException(
                     "CARD_IDENTITY_MISMATCH: requested "
                             + oracleName
@@ -281,6 +305,29 @@ public final class XmageDeckImporter {
                 cardInfo.getName(),
                 cardInfo.getCardNumber(),
                 cardInfo.getSetCode()
+        );
+    }
+
+    private static String foldDiacritics(String value) {
+        String normalized =
+                Normalizer.normalize(
+                        value,
+                        Normalizer.Form.NFD
+                );
+
+        StringBuilder folded =
+                new StringBuilder(normalized.length());
+
+        normalized
+                .codePoints()
+                .filter(codePoint ->
+                        Character.getType(codePoint)
+                                != Character.NON_SPACING_MARK)
+                .forEach(folded::appendCodePoint);
+
+        return Normalizer.normalize(
+                folded.toString(),
+                Normalizer.Form.NFC
         );
     }
 
