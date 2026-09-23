@@ -18,7 +18,6 @@ from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 from commander_lab.storage import sha256_value
 
-
 ROOT = Path(__file__).resolve().parents[1]
 XMAGE_COMMIT = "db134b9737e951367d65ef5806ad986319cc73ab"
 SCENARIO_ID = "real-existing-decks-4p-technical-smoke-v1"
