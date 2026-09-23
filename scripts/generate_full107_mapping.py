@@ -197,6 +197,23 @@ def map_fixture(fixture_id: str, record: dict) -> dict:
                 "verified (requested_state_digest) locally and on CI"
             ),
         }
+    if fixture_id == "CARD_02":
+        return {
+            "status": "DIRECT",
+            "pointer": (
+                "engine-bridge/src/test/java/org/commanderlab/xmage/"
+                "XmageFullGameCard02ExecutionTest.java"
+            ),
+            "reason": (
+                "fixture-faithful live run PASS locally and on CI "
+                "(PR #231 conformance): restored 4-commander state with "
+                "readback MATCH, scripted cast_commander P1 exact-one "
+                "match with fresh count (no tax, no payment decisions), "
+                "native resolution, required events and terminal "
+                "postconditions verified; digest equality verified "
+                "(requested_state_digest) locally and on CI"
+            ),
+        }
     if entry == "NATIVE_STATE_LOAD":
         return {
             "status": "NOT_RUN_BLOCKED",

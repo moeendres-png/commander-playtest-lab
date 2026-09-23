@@ -1,7 +1,7 @@
 {
  "counts": {
-  "DIRECT": 6,
-  "NOT_RUN_BLOCKED": 31,
+  "DIRECT": 7,
+  "NOT_RUN_BLOCKED": 30,
   "SUPPORTING": 13,
   "UNKNOWN": 57
  },
@@ -371,8 +371,9 @@
   },
   {
    "fixture_id": "CARD_02",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameCard02ExecutionTest.java",
+   "reason": "fixture-faithful live run PASS locally and on CI (PR #231 conformance): restored 4-commander state with readback MATCH, scripted cast_commander P1 exact-one match with fresh count (no tax, no payment decisions), native resolution, required events and terminal postconditions verified; digest equality verified (requested_state_digest) locally and on CI",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-MP-PRIO-3",

@@ -36,6 +36,7 @@ ADJUDICATED_FIXTURES = {
     "WS05-CMD-TAX-4",
     "WS05-CMD-PARTNER-ZONE",
     "WS05-CMD-PARTNER-TAX",
+    "CARD_02",
 }
 
 EXACT_FIXTURES = [
@@ -45,6 +46,7 @@ EXACT_FIXTURES = [
     "WS05-CMD-TAX-4",
     "WS05-CMD-PARTNER-ZONE",
     "WS05-CMD-PARTNER-TAX",
+    "CARD_02",
 ]
 
 
@@ -98,6 +100,7 @@ def test_native_direct_requires_executed_subset(repo_root: Path) -> None:
                     "WS05-CMD-TAX-4",
                     "WS05-CMD-PARTNER-ZONE",
                     "WS05-CMD-PARTNER-TAX",
+                    "CARD_02",
                 ), (
                     f"{entry['fixture_id']} is a NATIVE DIRECT outside the executed subset; "
                     "injection alone never earns DIRECT"
@@ -209,6 +212,9 @@ def test_generator_mapping_rules(repo_root: Path) -> None:
         map_fixture("WS05-CMD-PARTNER-TAX", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
         == "DIRECT"
     )
+    assert (
+        map_fixture("CARD_02", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"] == "DIRECT"
+    )
     assert map_fixture("PILOT_MULLIGAN", {})["status"] in ("SUPPORTING", "UNKNOWN")
     assert (
         map_fixture("MICRO_COSTS", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
@@ -229,3 +235,31 @@ def test_direct_reasons_claim_digest_equality(repo_root: Path) -> None:
                 f"{entry['fixture_id']} is DIRECT without a digest-equality claim; "
                 "mandatory construction credit must never be silently replaced"
             )
+
+
+def test_card02_fixture_matches_executed_shape(repo_root: Path) -> None:
+    records = _load_materialization(repo_root)
+    record = records["CARD_02"]
+    assert record["execution_entry_mode"] == "NATIVE_STATE_LOAD"
+    assert record.get("deck_state") is None
+    zones = {obj["zone"] for obj in record["semantic_objects"]}
+    assert zones <= {"command"}, zones
+    assert record["commander_state"]["commander_damage_matrix"] == []
+    assert record["commander_state"].get("multiple_commander_relations", []) == []
+    temporal = record["temporal_state"]
+    assert (temporal["turn_number"], temporal["phase"], temporal["step"]) == (
+        1,
+        "precombat_main",
+        "main",
+    )
+    assert len(record["decision_script"]) == 1
+    script = record["decision_script"][0]
+    assert script["actor"] == "P1"
+    assert script["decision_family"] == "priority"
+    assert script["selection"]["semantic_value"]["action"] == "cast_commander"
+    assert script["selection"]["semantic_value"]["commander_id"] == "cmd:P1-A"
+    assert [event for event in record["expected_events"]["required_events"]] == [
+        "commander_cast",
+        "spell_resolved",
+        "creature_entered",
+    ]
