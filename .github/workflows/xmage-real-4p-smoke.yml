@@ -120,6 +120,9 @@ jobs:
           assert report["clean_shutdown"] is True
           PY
 
+      # Preflight writes REAL_4P_PREFLIGHT.json. This unconditional upload
+      # names only the live path, so an earlier bridge/live-stage failure cannot
+      # publish the preflight PASS as live-smoke evidence.
       - name: Upload real 4P technical evidence
         if: always()
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808

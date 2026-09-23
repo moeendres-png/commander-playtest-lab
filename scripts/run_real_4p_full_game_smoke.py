@@ -125,8 +125,9 @@ def build_real_4p_setup(
     return scenario, deck_tuple, pilots, tuple(provenance)
 
 
-def _artifact_path(root: Path) -> Path:
-    path = root / "artifacts/xmage-full-game/REAL_4P_TECHNICAL_SMOKE.json"
+def _artifact_path(root: Path, *, preflight: bool = False) -> Path:
+    filename = "REAL_4P_PREFLIGHT.json" if preflight else "REAL_4P_TECHNICAL_SMOKE.json"
+    path = root / "artifacts/xmage-full-game" / filename
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -161,7 +162,9 @@ def run_preflight(root: Path = ROOT) -> dict[str, Any]:
     scenario, _decks, _pilots, provenance = build_real_4p_setup(root)
     report = _base_report(scenario, provenance)
     report.update({"mode": "preflight", "status": "PASS"})
-    _artifact_path(root).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    _artifact_path(root, preflight=True).write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n"
+    )
     return report
 
 

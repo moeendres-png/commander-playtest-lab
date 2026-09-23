@@ -64,3 +64,14 @@ def test_real_4p_preflight_is_technical_evidence_only(repo_root: Path) -> None:
     assert report["official_campaign_eligible"] is False
     assert report["deck_strength_evidence"] is False
     assert report["actual_card_behavior_coverage_claim"] is False
+
+def test_preflight_and_live_artifact_paths_are_distinct(repo_root: Path) -> None:
+    module = _load_smoke_module(repo_root)
+
+    preflight = module._artifact_path(repo_root, preflight=True)
+    live = module._artifact_path(repo_root)
+
+    assert preflight.name == "REAL_4P_PREFLIGHT.json"
+    assert live.name == "REAL_4P_TECHNICAL_SMOKE.json"
+    assert preflight != live
+
