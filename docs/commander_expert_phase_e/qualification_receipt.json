@@ -1,11 +1,12 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "artifact": "PHASE_E_GITHUB_PROVENANCE_RECEIPT",
   "base_commit": "81f688d3fd06c8edf53a289c5206dbaeef9d1fee",
   "branch": "phase-e-deckbuilding-intelligence-20260923",
   "simulator_production_modified": false,
   "system_before": "1.1",
   "method": "1.1",
+  "concurrent_authority_rebase": true,
   "phase_e_checks": {
     "decision_cases": 98,
     "false_pass_traps": 47,
@@ -16,9 +17,11 @@
   },
   "regressions": {
     "bootstrap": "29/29 PASS",
-    "phase_d_semantic": "86/86 PASS",
-    "system": "200/200 PASS"
+    "phase_d_semantic": "134/134 PASS",
+    "quality_file_backed": "37/37 PASS",
+    "system": "286/286 PASS"
   },
+  "logical_combined_checks": 396,
   "wolfram_reference": [
     "0.7728857217150797932243138571757548077679304016124638297859",
     "0.6711495665302388220185897361990996699875748394134004365922",
