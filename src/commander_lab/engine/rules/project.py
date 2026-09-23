@@ -115,6 +115,7 @@ def load_rules_deck_snapshot(
         payload = embedded
 
     commander = payload.get("commander")
+    commanders: tuple[str, ...]
     if isinstance(commander, str):
         commanders = (commander,)
     elif isinstance(commander, dict):
