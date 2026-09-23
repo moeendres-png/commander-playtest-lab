@@ -52,10 +52,9 @@ def _derived_rules_hash(deck: RulesDeckInput) -> str:
 def _ensure_deck_hash(deck: RulesDeckInput) -> tuple[RulesDeckInput, str]:
     if deck.deck_hash is not None:
         return deck, "source_snapshot"
-    return (
-        deck.model_copy(update={"deck_hash": _derived_rules_hash(deck)}),
-        "derived_rules_identity",
-    )
+    return deck.model_copy(
+        update={"deck_hash": _derived_rules_hash(deck)}
+    ), "derived_rules_identity"
 
 
 def _binding(seat: int, deck: RulesDeckInput) -> FullGamePilotBinding:
@@ -184,9 +183,7 @@ def run_live_smoke(
 
     env_commit = os.environ.get("XMAGE_COMMIT")
     if env_commit is not None and env_commit != XMAGE_COMMIT:
-        raise SystemExit(
-            f"XMAGE_COMMIT mismatch: expected {XMAGE_COMMIT}, observed {env_commit}"
-        )
+        raise SystemExit(f"XMAGE_COMMIT mismatch: expected {XMAGE_COMMIT}, observed {env_commit}")
 
     try:
         result = XmageFullGameRunner(
