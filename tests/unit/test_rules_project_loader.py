@@ -59,3 +59,85 @@ def test_rules_loader_preserves_explicit_legacy_main_zone(tmp_path: Path) -> Non
     assert len(deck.mainboard) == 99
     assert set(deck.mainboard) == {"Mountain"}
     assert deck.sideboard == ()
+
+
+def test_rules_loader_accepts_wrapped_opponent_profile(tmp_path: Path) -> None:
+    path = tmp_path / "opponent.json"
+    path.write_text(
+        json.dumps(
+            {
+                "profile_id": "opponent/example-precon",
+                "name": "Example opponent",
+                "deck": {
+                    "deck_id": "opponent/example-precon",
+                    "name": "Example precon",
+                    "commander": {"commanders": ["Commander"]},
+                    "cards": [
+                        {"oracle_name": "Commander", "zone": "commander"},
+                        {"oracle_name": "Plains", "zone": "main", "quantity": 99},
+                    ],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    deck = load_rules_deck_snapshot(path)
+
+    assert deck.deck_id == "opponent/example-precon"
+    assert deck.commander_names == ("Commander",)
+    assert len(deck.mainboard) == 99
+    assert deck.source_path == str(path)
+
+
+def test_rules_loader_accepts_legacy_string_commander(tmp_path: Path) -> None:
+    path = tmp_path / "legacy-string.json"
+    path.write_text(
+        json.dumps(
+            {
+                "deck_id": "legacy/string-commander",
+                "name": "Legacy string commander",
+                "commander": "Commander",
+                "cards": [
+                    {"oracle_name": "Commander", "zone": "commander"},
+                    {"oracle_name": "Mountain", "zone": "main", "quantity": 99},
+                ],
+                "deck_hash": "b" * 64,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    deck = load_rules_deck_snapshot(path)
+
+    assert deck.commander_names == ("Commander",)
+    assert len(deck.mainboard) == 99
+    assert deck.deck_hash == "b" * 64
+
+
+def test_rules_loader_rejects_wrapped_profile_id_mismatch(tmp_path: Path) -> None:
+    path = tmp_path / "bad-opponent.json"
+    path.write_text(
+        json.dumps(
+            {
+                "profile_id": "opponent/profile-a",
+                "deck": {
+                    "deck_id": "opponent/profile-b",
+                    "name": "Bad",
+                    "commander": {"commanders": ["Commander"]},
+                    "cards": [
+                        {"oracle_name": "Commander", "zone": "commander"},
+                        {"oracle_name": "Plains", "zone": "main", "quantity": 99},
+                    ],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    try:
+        load_rules_deck_snapshot(path)
+    except ValueError as exc:
+        assert "wrapped opponent profile deck ID mismatch" in str(exc)
+    else:
+        raise AssertionError("wrapped profile/deck ID mismatch must fail closed")
