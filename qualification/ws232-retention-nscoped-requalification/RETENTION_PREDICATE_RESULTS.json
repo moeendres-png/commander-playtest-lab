@@ -76,8 +76,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -188,8 +188,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -300,8 +300,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -412,8 +412,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -524,8 +524,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -636,8 +636,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -748,8 +748,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -860,8 +860,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -972,8 +972,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1084,8 +1084,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1196,8 +1196,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1308,8 +1308,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1420,8 +1420,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1532,8 +1532,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1644,8 +1644,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1756,8 +1756,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1868,8 +1868,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1980,8 +1980,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2092,8 +2092,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2204,8 +2204,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2316,8 +2316,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2428,8 +2428,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2540,8 +2540,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2652,8 +2652,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2764,8 +2764,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2876,8 +2876,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2988,8 +2988,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3100,8 +3100,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3212,8 +3212,8 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3310,8 +3310,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COMBAT"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3401,8 +3401,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTINUOUS_EFFECTS"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3492,8 +3492,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTROL"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3583,8 +3583,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COPY"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3674,8 +3674,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_LAYERS"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3765,8 +3765,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_MODES"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3856,8 +3856,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_PREVENTION"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3947,8 +3947,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_REPLACEMENT"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4038,8 +4038,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_RULES_RANDOMNESS"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4129,8 +4129,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STACK"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4220,8 +4220,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STATE_BASED_ACTIONS"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4311,8 +4311,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_TRIGGERS"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4402,8 +4402,8 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_ZONE_CHANGES"
     },
     {
-     "actual_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "actual_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "match": true,
      "path": "src/commander_lab/engine/rules/full_game.py"

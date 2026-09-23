@@ -68,7 +68,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -170,7 +170,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -272,7 +272,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -374,7 +374,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -476,7 +476,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -578,7 +578,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -680,7 +680,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -782,7 +782,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -884,7 +884,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -986,7 +986,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1088,7 +1088,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1190,7 +1190,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1292,7 +1292,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1394,7 +1394,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1496,7 +1496,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1598,7 +1598,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1700,7 +1700,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1802,7 +1802,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -1904,7 +1904,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2006,7 +2006,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2108,7 +2108,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2210,7 +2210,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2312,7 +2312,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2414,7 +2414,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2516,7 +2516,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2618,7 +2618,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2720,7 +2720,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2822,7 +2822,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -2924,7 +2924,7 @@
      "path": "qualification/manifests/ACTUAL_CARD_DOMAIN_v1.json"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab decision dispatch: routes engine options to pilots, never computes legality",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3013,7 +3013,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COMBAT"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3096,7 +3096,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTINUOUS_EFFECTS"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3179,7 +3179,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_CONTROL"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3262,7 +3262,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_COPY"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3345,7 +3345,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_LAYERS"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3428,7 +3428,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_MODES"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3511,7 +3511,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_PREVENTION"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3594,7 +3594,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_REPLACEMENT"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3677,7 +3677,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_RULES_RANDOMNESS"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3760,7 +3760,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STACK"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3843,7 +3843,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_STATE_BASED_ACTIONS"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -3926,7 +3926,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_TRIGGERS"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"
@@ -4009,7 +4009,7 @@
      "path": "qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json#MICRO_ZONE_CHANGES"
     },
     {
-     "expected_sha256": "3c4bdf5737a86e6b1a8a9fa44b1849a1886ded406e7f89831a76f4b63f9dfc8a",
+     "expected_sha256": "0700d4e07b4673387a757c56b8b4682e7e750c26717cf0365afd33c9e0ae1115",
      "kind": "path_blob_sha256",
      "owns_semantics": "Lab observation/projection seam for engine-owned mechanisms",
      "path": "src/commander_lab/engine/rules/full_game.py"

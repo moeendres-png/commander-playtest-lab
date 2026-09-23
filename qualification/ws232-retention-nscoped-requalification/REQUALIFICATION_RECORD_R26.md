@@ -104,3 +104,18 @@ No fixture/status change: `N_SCOPED_DISPOSITION_R21.json`,
 42 impacted predicates retain STATIC_PASS with their 2/3/5 cells
 EXPLICIT UNKNOWN (sealed cause: this record). No mapping promotion.
 Residual: N-scoped per-card/per-fixture rerun campaign (2/3/5).
+
+## Addendum R26b — post-record quality delta (format/annotations only)
+
+After the R26 bind capture, follow-up quality commits reformatted
+`full_game.py` (ruff format), simplified two nested conditionals
+(SIM102) and one return (SIM103) with identical truth tables, and
+added exact generic tuple arguments to three guard-memory dict
+annotations (mypy strict; no runtime behavior change). `pilots.py`
+and `XmageFullGamePlayer.java` are byte-identical to the R26 capture.
+Binds below were refreshed to the post-quality bytes; the R26
+semantic adjudication and UNKNOWN retention above apply unchanged
+(the delta is presentation + static types, verified by diff review).
+
+- `src/commander_lab/engine/rules/full_game.py`:
+  `3c4bdf57...` (R26 capture) → current bytes (this refresh).
