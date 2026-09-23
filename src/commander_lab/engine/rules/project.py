@@ -101,7 +101,29 @@ def load_rules_deck_snapshot(
     if not isinstance(payload, dict):
         raise ValueError("rules deck snapshot must contain a JSON object")
 
-    commanders = tuple(payload["commander"]["commanders"])
+    embedded = payload.get("deck")
+    if embedded is not None:
+        if not isinstance(embedded, dict):
+            raise ValueError("wrapped opponent profile deck must contain a JSON object")
+        profile_id = payload.get("profile_id")
+        embedded_id = embedded.get("deck_id")
+        if profile_id is not None and profile_id != embedded_id:
+            raise ValueError(
+                "wrapped opponent profile deck ID mismatch: "
+                f"profile={profile_id!r}, deck={embedded_id!r}"
+            )
+        payload = embedded
+
+    commander = payload.get("commander")
+    if isinstance(commander, str):
+        commanders = (commander,)
+    elif isinstance(commander, dict):
+        raw_commanders = commander.get("commanders")
+        if not isinstance(raw_commanders, list) or not raw_commanders:
+            raise ValueError("commander object must contain a non-empty commanders list")
+        commanders = tuple(str(name) for name in raw_commanders)
+    else:
+        raise ValueError("commander must be a string or commander object")
     mainboard: list[str] = []
     sideboard: list[str] = []
     for entry in payload["cards"]:
