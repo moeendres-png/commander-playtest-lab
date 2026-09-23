@@ -486,6 +486,32 @@ class XmageDeckImporterTest {
         );
     }
 
+    @Test
+    void importsOracleDiacriticNameAgainstUniqueXmageAsciiRegistration() {
+        XmageDeckImporter importer =
+                new XmageDeckImporter();
+
+        List<String> mainboard =
+                new ArrayList<>();
+
+        for (int index = 0; index < 99; index++) {
+            mainboard.add("Island");
+        }
+
+        XmageDeckImporter.ImportResult result =
+                importer.importCommanderDeck(
+                        "unicode-oracle-name",
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        mainboard,
+                        List.of("Gríma, Saruman's Footman")
+                );
+
+        assertEquals(99, result.mainboardCount());
+        assertEquals(1, result.commanderCount());
+        assertNotNull(importer.requireDeck(result.deckHandle()));
+    }
+
     private static RuntimeDeck loadRogShaiRuntimeDeck()
             throws IOException {
 
