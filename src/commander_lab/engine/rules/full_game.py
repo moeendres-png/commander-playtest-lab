@@ -528,6 +528,11 @@ class ExternalPilotDecisionPolicy:
     ) -> str:
         pass_option = self._option_by_type(options, "pass_priority")
         pass_id = self._required_text(pass_option, "option_id")
+        # Forced pass-only rounds carry no discretion: take them without
+        # touching guard memory, so they can neither trip the guard nor
+        # break a genuine no-progress chain interleaved around them.
+        if len(options) == 1:
+            return pass_id
         seat = runtime.binding.seat
         # Priority no-progress guard (liveness only, no MTG semantics):
         # identical window fingerprint on consecutive same-seat priority

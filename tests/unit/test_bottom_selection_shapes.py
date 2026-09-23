@@ -356,6 +356,29 @@ def test_priority_guard_latches_until_window_changes() -> None:
     )
 
 
+def test_priority_guard_ignores_forced_pass_rounds() -> None:
+    """Interleaved 1-option forced passes (priority reset rounds) must
+    neither trip the guard nor break a genuine no-progress chain."""
+    policy = _policy()
+    options = [
+        _priority_option("raw-pass", "pass_priority", "Pass priority"),
+        _priority_option("raw-greaves", "activated_ability", "Lightning Greaves"),
+    ]
+    forced = [_priority_option("raw-pass", "pass_priority", "Pass priority")]
+    runtime = policy._pilots[1]
+    picks = []
+    for _ in range(4):
+        picks.append(
+            policy._decide_priority(runtime, _priority_state(), list(options), random.Random(0))
+        )
+        forced_pick = policy._decide_priority(
+            runtime, _priority_state(), list(forced), random.Random(0)
+        )
+        assert forced_pick == "raw-pass"
+    assert picks[:3] == ["raw-greaves"] * 3
+    assert picks[3] == "raw-pass"
+
+
 def test_target_selection_is_order_independent() -> None:
     """Same targets in different bridge orders: same raw option selected."""
     policy = _policy()
