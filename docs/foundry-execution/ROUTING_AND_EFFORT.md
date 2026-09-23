@@ -4,6 +4,12 @@ Status: CANONICAL. This file plus root `AGENTS.md` plus `opencode.json` is the s
 current execution policy. Older routing instructions in historical handoffs, chats, and
 superseded PRs are provenance only.
 
+OpenCode V2 instruction-loading note: root `AGENTS.md` is the durable model-visible
+project instruction source. V2 currently accepts an `instructions` array in the config
+schema but does not resolve those files into model instructions, so `opencode.json` must
+not be relied on to inject this document. Stable rules that must reach every worker belong
+in `AGENTS.md`; this document remains the canonical detailed routing reference.
+
 ## Execution paths
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.

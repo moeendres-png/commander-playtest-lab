@@ -153,14 +153,45 @@ authority question becomes an `AUTHORITY_GATE` for Sol High. A technical decisio
 is never an authority decision: reaching and persisting a root cause within policy
 is the job, not an escalation.
 
-## 9. Workstream contract
+## 9. Reuse-first gate
+
+Before substantial new implementation, search for an existing solution in this order:
+
+1. current canonical source on the active lineage;
+2. historical project workstreams, donor branches, port ledgers, tests, and sealed evidence;
+3. the exact pinned Rules Engine and its tests/APIs;
+4. current upstream of that engine when a newer fix may supersede a project patch;
+5. alternate qualified candidate engines or external libraries when they can materially
+   reduce work without moving Rules authority out of the Rules Core.
+
+Classify each material capability before implementing it as one of:
+`REUSE_AS_IS`, `EXTRACT_AND_GENERALIZE`, `WRAP`, `PORT_FROM_DONOR`,
+`ENGINE_NATIVE_REUSE`, `REFERENCE_ONLY`, or `NEW_IMPLEMENTATION_REQUIRED`.
+`NEW_IMPLEMENTATION_REQUIRED` needs a concrete source-level reason why current source,
+historical donors, engine-native APIs/tests, and relevant external donors cannot safely
+satisfy the requirement.
+
+Prefer reuse > extract/generalize > wrap > port > new implementation when Rules
+Correctness, evidence integrity, licensing, and source-lock compatibility permit it.
+Historical code and tests may transfer; historical PASS evidence does not transfer
+without impact adjudication. Never wholesale-merge a diverged donor branch merely because
+it contains useful code. Prefer the smallest reviewed transplant and retain provenance.
+
+This gate is bounded discovery, not a research stopping point: once a clearly superior,
+compatible donor is established, use it and continue implementation/build/test/debug/
+qualification. Do not create a second Rules Engine, second observation layer, second replay
+system, or parallel decision protocol when a qualified existing mechanism can be reused.
+
+Qualification fixture or obligation names are evidence labels, not architecture requirements. Before adding a new decision class or protocol surface, inspect the engine callback and its authoritative context; an obligation may already be satisfied by a generic existing decision family plus a specific engine-supplied domain.
+
+## 10. Workstream contract
 
 One session owns exactly one workstream ↔ one branch ↔ one worktree ↔ one mutation
 surface. Every substantial assignment needs Objective, Source Lock, In/Out of Scope,
 Ownership, Dependencies, Hard Gates, Forbidden Shortcuts, Evidence Requirements,
 Persistence, and Stop Conditions. One primary objective; do not silently broaden scope.
 
-## 10. Git, worktree, ownership
+## 11. Git, worktree, ownership
 
 Do not modify another active workstream's branch or worktree. Do not modify `main`
 directly. Local commits for resumability are encouraged. Push, merge, rebase,
@@ -169,7 +200,7 @@ worktree deletion require explicit user approval. Before material work, verify b
 HEAD, tree, `git status`, contract, and state file; resume from the newest verified
 state without redoing valid evidence.
 
-## 11. Privacy
+## 12. Privacy
 
 Muse may use project-relevant technical data: repository source, tests, contracts,
 qualification artifacts, build output, logs, Git metadata, branches/worktrees, engine
@@ -180,7 +211,7 @@ consume them locally, but values must never appear in prompts, logs, evidence, c
 or handoffs. Deny explicit secret-extraction operations. Automatic session sharing is
 disabled.
 
-## 12. Semantic Completion Rule
+## 13. Semantic Completion Rule
 
 Do not stop at a remediable in-scope failure (failed test, lint, config syntax, broken
 helper, incompatible design). Inspect → classify → repair → retest → continue. Stop only
@@ -190,7 +221,7 @@ destructive/external consent
 requirement; genuinely unobtainable upstream information; or proceeding would weaken
 Rules/Evidence/Privacy invariants. Blocked means fail closed.
 
-## 13. Persistence and handoff
+## 14. Persistence and handoff
 
 Treat every session as interruptible. After each validated milestone: coherent tree,
 scoped validation, state-file update, focused local commit, recorded HEAD/evidence.

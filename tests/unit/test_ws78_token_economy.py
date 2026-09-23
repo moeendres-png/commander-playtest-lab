@@ -305,12 +305,18 @@ def test_safety_permissions_intact(repo_root: Path):
     assert permission["edit"]["*.env"] == "deny"
 
 
-def test_model_provider_instructions_intact(repo_root: Path):
+def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
     assert config["model"] == "opencode-go/muse-spark-1.3-contributor"
     assert config["enabled_providers"] == ["opencode-go"]
     assert config["default_agent"] == "foundry-implementer"
-    assert "docs/foundry-execution/ROUTING_AND_EFFORT.md" in config["instructions"]
+    assert "instructions" not in config, (
+        "OpenCode V2 accepts config.instructions but does not resolve its entries; "
+        "durable project instructions must live in AGENTS.md"
+    )
+
+    agents = (repo_root / "AGENTS.md").read_text(encoding="utf-8")
+    assert "## 9. Reuse-first gate" in agents
 
 
 # --- instruction-dedup non-regression ---------------------------------------
