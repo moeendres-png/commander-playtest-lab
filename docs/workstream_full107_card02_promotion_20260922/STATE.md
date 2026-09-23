@@ -9,6 +9,7 @@
   readiness guard only); no rerun per analysis
 - Verdicts: `FULL107=NOT_QUALIFIED` · `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·
   `PRODUCTION_PROVIDER=NOT_SELECTED`
+- Status: COMPLETE (PR #235 merged; post-merge CI tracked to green)
 - Progress:
   - [x] Ownership established + impact analysis + adjudication
   - [x] Register EXACT + generator CARD_02 rule + regen + guard
