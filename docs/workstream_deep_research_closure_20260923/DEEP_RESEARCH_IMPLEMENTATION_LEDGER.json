@@ -55,31 +55,32 @@
    ]
   },
   {
-   "current_disposition": "OPEN_PHASE5_PARTIAL_REUSE",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [
     "semantic_replay tape",
     "digests"
    ],
-   "evidence_class": "CODE_DERIVED",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [
     "RNG_RULES_TAPE",
     "REPLAY_*"
    ],
    "implementation_paths": [
     "src/commander_lab/semantic_replay/divergence.py",
-    "engine-bridge/src/main/java/org/commanderlab/xmage/Phase6DifferentialAdapter.java"
+    "engine-bridge/src/main/java/org/commanderlab/xmage/Phase6DifferentialAdapter.java",
+    "src/commander_lab/semantic_replay/comparator.py"
    ],
    "license_disposition": "METHOD_ONLY (no AGPL/GPL copy)",
-   "reason": "Partial reuse exists; provider-neutral comparator hardening + real replay-pair run required.",
+   "reason": "Method independently reimplemented on existing tape/digest infrastructure; no donor code; MATCH != Rules PASS.",
    "remaining_unknowns": [],
    "research_id": "EC-MANABREW-DIFF-03",
    "runtime_evidence": [
-    "tests/differential/test_phase6_differential.py (existing)"
+    "tests/differential/test_first_divergence_comparator.py 13/13 (MATCH + 9 classes + normalize pair + real WS218 4P 257-step pair)"
    ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "INDEPENDENT_METHOD_REIMPLEMENTATION",
    "test_paths": [
-    "tests/differential/test_phase6_differential.py"
+    "tests/differential/test_first_divergence_comparator.py"
    ]
   },
   {
