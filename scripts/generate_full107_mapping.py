@@ -64,8 +64,77 @@ PILOT_FAMILY_TO_OBSERVED = {
 }
 
 
+DR_CLOSURE_DIRECT = {
+    "PILOT_CHOOSE_MODE": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFullGameDecisionExecutionTest.java"
+        ),
+        "reason": (
+            "fixture-faithful live run PASS in DR-CLOSURE-01: exact 4P/seed 424242 "
+            "restoration, engine-offered two-mode domain, exact offered Devil-mode "
+            "selection, engine-owned payment and resolution, terminal postconditions; "
+            "constructed requested_state_digest equality verified by "
+            "XmageDigestCreditTest; no fallback"
+        ),
+    },
+    "MICRO_TARGETS": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFullGameMicroExecutionTest.java"
+        ),
+        "reason": (
+            "fixture-faithful live run PASS in DR-CLOSURE-01: exact 4P/seed 424242 "
+            "restoration, engine-authoritative target domain, exact offered P2 target, "
+            "engine-owned payment and 3-damage resolution; constructed "
+            "requested_state_digest equality verified by XmageDigestCreditTest; no fallback"
+        ),
+    },
+    "MICRO_LAYERS": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFullGameMicroExecutionTest.java"
+        ),
+        "reason": (
+            "fixture-faithful live run PASS in DR-CLOSURE-01: exact 4P/seed 424242 "
+            "restoration and engine-native layer 6/7b/7c facts for Humility, Glorious "
+            "Anthem and Grizzly Bears; constructed requested_state_digest equality "
+            "verified by XmageDigestCreditTest; no fallback"
+        ),
+    },
+    "WS05-MP-TRIG-3": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFullGameTrigExecutionTest.java"
+        ),
+        "reason": (
+            "fixture-faithful live run PASS in DR-CLOSURE-01 at exact 3P/seed 424242: "
+            "hand object restored with native-object provenance, Grizzly Bears cast through "
+            "engine legality, engine-owned payment and Soul Warden trigger resolution; "
+            "constructed requested_state_digest equality verified by XmageDigestCreditTest; "
+            "no fallback"
+        ),
+    },
+    "WS05-MP-TRIG-5": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFullGameTrigExecutionTest.java"
+        ),
+        "reason": (
+            "fixture-faithful live run PASS in DR-CLOSURE-01 at exact 5P/seed 424242: "
+            "hand object restored with native-object provenance, Grizzly Bears cast through "
+            "engine legality, engine-owned payment and Soul Warden trigger resolution; "
+            "constructed requested_state_digest equality verified by XmageDigestCreditTest; "
+            "no fallback"
+        ),
+    },
+}
+
+
 def map_fixture(fixture_id: str, record: dict) -> dict:
     entry = record.get("execution_entry_mode", "?")
+    if fixture_id in DR_CLOSURE_DIRECT:
+        return {"status": "DIRECT", **DR_CLOSURE_DIRECT[fixture_id]}
     if fixture_id.startswith("PLAYER_COUNT_"):
         count = int(fixture_id.rsplit("_", 1)[1].rstrip("P"))
         return {
