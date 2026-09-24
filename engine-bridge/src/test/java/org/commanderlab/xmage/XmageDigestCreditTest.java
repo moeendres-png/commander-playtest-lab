@@ -585,7 +585,8 @@ class XmageDigestCreditTest {
     @Test
     void chooseModeConstructionDigestMatchesFrozen() {
         verifyNativeConstructionDigest("PILOT_CHOOSE_MODE", "dig-choosemode",
-                Set.of("Rograkh, Son of Rohgahh", "Burn Down the House", "Mountain"),
+                Set.of("Rograkh, Son of Rohgahh", "Grizzly Bears",
+                        "Burn Down the House", "Mountain"),
                 Set.of("priority", "choose_mode", "mana_payment"));
     }
 
