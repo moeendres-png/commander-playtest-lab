@@ -107,25 +107,29 @@
    "test_paths": []
   },
   {
-   "current_disposition": "OPEN_PHASE6",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [
     "Phase 1 restore",
     "Oracle/CR binding"
    ],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [],
    "implementation_paths": [],
    "license_disposition": "TEST_INTELLIGENCE_ONLY (reverify before copying)",
    "reason": "No EXTERNAL_RISK_SIGNAL namespace yet; predictive pack in Phase 6.",
    "remaining_unknowns": [],
    "research_id": "EC-PHASE-BUGS-05",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "XmageExternalRiskSignalTest 4/4 (A Esior subject+count, B+C Unsummon wrong-object+destination, E restore-derived, F stale-rejection); D partial via commander-zone choice; Hex offer gap + payment over-tap findings recorded"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "REJECTED_BY_RULES_AUTHORITY_STANDING",
+   "current_disposition": "REJECTED_BY_RULES_AUTHORITY",
    "dependencies": [],
    "evidence_class": "TECHNICALLY_CONFORMANT",
    "full107_cells_affected": [],
@@ -134,30 +138,38 @@
    "reason": "Prompt/pilot auto-pass masking is forbidden; only a negative contract regression is permitted (Phase 6F).",
    "remaining_unknowns": [],
    "research_id": "EC-FORGETS-ANTI-06",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "standing; negative contract regressions above are the only permitted artifact"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "REJECTED_BY_PROJECT_INVARIANT",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "OPEN_PHASE6",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [
     "Phase 1"
    ],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [],
    "implementation_paths": [],
    "license_disposition": "N/A",
    "reason": "Restore-derived-state regression missing.",
    "remaining_unknowns": [],
    "research_id": "PRED-RESTORE-01",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "restore->round+revalidate->derived pins hold (E test)"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "ALREADY_IMPLEMENTED_VERIFY",
+   "current_disposition": "ALREADY_IMPLEMENTED_VERIFIED",
    "dependencies": [],
    "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [],
@@ -167,61 +179,75 @@
    "remaining_unknowns": [],
    "research_id": "PRED-CANCEL-02",
    "runtime_evidence": [
-    "PR #240 gate artifacts"
+    "PR240 cancel path re-verified in-campaign: cancel_mana_payment offered and explicitly submitted in NEGATIVE test; no auto-cancel behavior observed"
    ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "ALREADY_IMPLEMENTED_VERIFIED (pending verification)",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "OPEN_PHASE6",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [],
    "implementation_paths": [],
    "license_disposition": "N/A",
    "reason": "Subject/controller/count semantic-loss regression missing.",
    "remaining_unknowns": [],
    "research_id": "PRED-PARSER-03",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "Esior Bolt vehicle (A test); Hex vehicle blocked by offer gap (follow-up)"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "OPEN_PHASE6",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [],
    "implementation_paths": [],
    "license_disposition": "N/A",
    "reason": "Wrong-object / alternative-destination regressions missing.",
    "remaining_unknowns": [],
    "research_id": "PRED-ZONE-04",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "Unsummon wrong-object + hand-destination (B+C test)"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "OPEN_PHASE6",
+   "current_disposition": "IMPLEMENTED_PARTIAL_FOLLOWUP",
    "dependencies": [],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [],
    "implementation_paths": [],
    "license_disposition": "N/A",
    "reason": "Replacement-timing regression missing.",
    "remaining_unknowns": [],
    "research_id": "PRED-REPL-05",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "commander-zone replacement choice timing proven (actor+point+explicit selection); general replacement timing needs combat-temporal progression"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "OPEN_PHASE3_PHASE6",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [
     "HIDDEN_*"
    ],
@@ -230,15 +256,19 @@
    "reason": "Honeycard coverage partially exists; per-fixture closure + adversarial tests open.",
    "remaining_unknowns": [],
    "research_id": "PRED-HIDDEN-06",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "Phase1 Shivan-Dragon honeycard non-leakage + Phase3 hidden/canary suites 43/43 green; per-fixture library/facedown HIDDEN runs remain dimension-blocked"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   },
   {
-   "current_disposition": "OPEN_PHASE6",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [
     "NEGATIVE_*"
    ],
@@ -247,10 +277,14 @@
    "reason": "Pilot-masking negative contract regression missing.",
    "remaining_unknowns": [],
    "research_id": "PRED-AUTH-07",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "stale/forgery typed rejections + parked-payment + explicit cancel (F test + Phase3 negative)"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
+   ]
   }
  ],
  "schema_version": "deep-research-implementation-ledger-1.0.0",
