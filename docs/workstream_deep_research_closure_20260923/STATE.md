@@ -10,7 +10,7 @@ tree `f759ed34d35fdf76ebbb04814edf4a470f960e27`, clean).
 ## Status ledger (one `in_progress` at a time)
 
 - [x] Phase 0 — source lock, ownership, duplicate detection (this state + ledger skeleton committed)
-- [ ] Phase 1 — P0 native state restoration closure (matrix → reuse-first → 1-dimension-at-a-time with A–E proofs)
+- [x] Phase 1 — P0 native state restoration closure (matrix + reuse-first + hand v2 with A–E proofs; stack/damage/temporal/control fail-closed with follow-ups; commit `Phase 1`)
 - [ ] Phase 2 — P0 FULL107/N-scoped direct execution (partition → exact runs → promote-or-classify)
 - [ ] Phase 3 — P1 hidden-information & decision-family closure (rerun-before-redesign + Argentum audit)
 - [ ] Phase 4 — P1 bounded candidate-domain correctness (generic invariant + actual-card regression)

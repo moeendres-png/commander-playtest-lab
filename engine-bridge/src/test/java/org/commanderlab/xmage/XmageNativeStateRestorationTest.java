@@ -108,6 +108,16 @@ class XmageNativeStateRestorationTest {
                 XmageNativeStateRestoration.materializeCards(identities));
     }
 
+    static String pidOf(Map<String, Player> seats, String actorUuid) {
+        for (Map.Entry<String, Player> entry : seats.entrySet()) {
+            if (entry.getValue().getId().toString().equals(actorUuid)) {
+                return entry.getKey();
+            }
+        }
+        fail("unknown actor UUID: " + actorUuid);
+        return "?";
+    }
+
     static JsonObject singleActionOfType(
             JsonObject legal, String actionType, String optionType) {
         List<JsonObject> matches = new ArrayList<>();
@@ -381,20 +391,197 @@ class XmageNativeStateRestorationTest {
         }
     }
 
+    /**
+     * DR-CLOSURE-01 Phase 1 (v2 hand dimension): the frozen TRIG-3 record
+     * parses, restores P1's hand Grizzly Bears through the engine's typed
+     * setup primitive, and matches the native readback (subset + count
+     * pinned). Genuine Rules transition: a real priority pass advances the
+     * game and the restored hand card is offered through the engine's own
+     * cast-legality pipeline with its real cost.
+     */
     @Test
-    void rejectsHandIdentityBeforeMutation() {
+    void trig3HandIdentityMatchesNativeReadback() {
+        XmageNativeStateRestoration.Plan plan =
+                XmageNativeStateRestoration.planFromFrozenRecord(
+                        frozenRecord("WS05-MP-TRIG-3"), "ws2-trig3-hand", 424242L);
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration = restorationFor(plan);
+        List<String> handles = importScaffolding(importer, plan, "ws2-trig3-hand");
+        XmageFullGameSession session = new XmageFullGameSession(
+                "ws2-trig3-hand", handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+        completeArrival(session, restoration, seats);
+        JsonObject observed =
+                XmageNativeStateRestoration.readback(session.restorationGame(), seats);
+        XmageNativeStateRestoration.CompareVerdict verdict =
+                restoration.compare(observed, seats);
+        assertTrue(verdict.mismatches().isEmpty(),
+                "TRIG-3 hand readback mismatches: " + verdict.mismatches());
+        assertTrue(verdict.match());
+        boolean bearsInP1Hand = false;
+        for (JsonElement seatElement : observed.getAsJsonArray("seats")) {
+            JsonObject seat = seatElement.getAsJsonObject();
+            if (!seat.get("player_id").getAsString().equals("P1")) {
+                continue;
+            }
+            assertTrue(seat.get("hand_count").getAsInt() >= 8,
+                    "opening seven plus the restored Grizzly Bears (plus any natural draws)");
+            for (JsonElement card : seat.getAsJsonArray("hand")) {
+                if (card.getAsString().equals("Grizzly Bears")) {
+                    bearsInP1Hand = true;
+                }
+            }
+        }
+        assertTrue(bearsInP1Hand, "restored Grizzly Bears must sit in P1's hand");
+        // Genuine Rules transition: pass priority with the restored state and
+        // prove the engine still advances and still offers the restored card
+        // through its own legality pipeline (P1 holds 2 Forests: {1}{G} payable).
+        JsonObject legal = session.legalActionsPayload();
+        assertEquals(pidOf(seats, legal.get("actor_id").getAsString()), "P1");
+        boolean bearsOffered = false;
+        List<String> offeredTypes = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            offeredTypes.add(action.get("action_type").getAsString());
+            // Cast-from-hand projects as a priority ability option carrying
+            // the source card identity in its metadata (engine-computed).
+            if (action.toString().contains("Grizzly Bears")) {
+                bearsOffered = true;
+            }
+        }
+        assertTrue(bearsOffered,
+                "engine must offer the restored hand card through its own legality; "
+                        + "offered=" + offeredTypes);
+        JsonObject passAction = singleActionOfType(legal, "pass_priority", null);
+        JsonObject after = session.submitAction(genericProposal(
+                "ws2-trig3-hand-pass", legal.get("actor_id").getAsString(),
+                passAction.get("action_id").getAsString(),
+                passAction.get("action_type").getAsString()));
+        assertTrue(after.has("executed_decision_id"));
+        JsonObject reread =
+                XmageNativeStateRestoration.readback(session.restorationGame(), seats);
+        // The pass legitimately advances priority away from the plan pin, so
+        // assert transition invariants rather than a stale full match: the
+        // restored hand card survives, life totals hold, and priority really
+        // moved (proving a genuine engine transition, not a no-op).
+        assertTrue(!reread.get("priority_player").getAsString().equals("P1"),
+                "priority must advance after a real pass");
+        boolean bearsSurvives = false;
+        for (JsonElement seatElement : reread.getAsJsonArray("seats")) {
+            JsonObject seat = seatElement.getAsJsonObject();
+            assertEquals(40, seat.get("life").getAsInt());
+            if (!seat.get("player_id").getAsString().equals("P1")) {
+                continue;
+            }
+            for (JsonElement card : seat.getAsJsonArray("hand")) {
+                if (card.getAsString().equals("Grizzly Bears")) {
+                    bearsSurvives = true;
+                }
+            }
+        }
+        assertTrue(bearsSurvives, "restored hand card must survive the transition");
+    }
+
+    /**
+     * DR-CLOSURE-01 Phase 1 honeycard: a distinctive restored hand card for a
+     * non-actor principal ("Shivan Dragon" in P2's hand, nowhere else) must
+     * never appear in the actor's pilot-facing observation, while the
+     * engine-direct oracle still proves the restore. Pilot-facing hand arrays
+     * stay actor-only (structural negative).
+     */
+    @Test
+    void restoredHandHoneycardNeverLeaksToWrongPrincipal() {
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
-                "ws2-neg-hand", 2, 424242L,
+                "ws2-hand-honey", 2, 424242L,
+                List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
+                List.of(
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0)),
+                List.of(
+                        new XmageNativeStateRestoration.RequestedObject(
+                                "obj:forest", "Forest", "P1", "P1",
+                                mage.constants.Zone.BATTLEFIELD, false),
+                        new XmageNativeStateRestoration.RequestedObject(
+                                "obj:honey", "Shivan Dragon", "P2", "P2",
+                                mage.constants.Zone.HAND, false)),
+                1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration = restorationFor(plan);
+        List<String> handles = importScaffolding(importer, plan, "ws2-hand-honey");
+        XmageFullGameSession session = new XmageFullGameSession(
+                "ws2-hand-honey", handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+        completeArrival(session, restoration, seats);
+        XmageNativeStateRestoration.CompareVerdict verdict =
+                restoration.compare(
+                        XmageNativeStateRestoration.readback(
+                                session.restorationGame(), seats), seats);
+        assertTrue(verdict.match(),
+                "honeycard restore must match engine-direct: " + verdict.mismatches());
+        // Oracle (test-only peeking): the honeycard sits in P2's engine hand.
+        boolean oracleSeesHoney = false;
+        for (mage.cards.Card card
+                : seats.get("P2").getHand().getCards(session.restorationGame())) {
+            if (card.getName().equals("Shivan Dragon")) {
+                oracleSeesHoney = true;
+            }
+        }
+        assertTrue(oracleSeesHoney, "oracle must see the honeycard restore");
+        // Pilot-facing: no pending view may carry the honeycard identity.
+        for (int step = 0; step < 6; step++) {
+            JsonObject payload = session.pendingDecisionPayload();
+            if (payload.get("decision").isJsonNull()) {
+                break;
+            }
+            JsonObject pending = payload.getAsJsonObject("decision");
+            String actorId = pending.get("actor_id").getAsString();
+            String actorPid = pidOf(seats, actorId);
+            JsonObject pilotState = pending.getAsJsonObject("pilot_state");
+            if (!actorPid.equals("P2")) {
+                assertTrue(!pilotState.toString().contains("Shivan Dragon"),
+                        "honeycard identity leaked to " + actorPid + " at step " + step);
+            }
+            for (JsonElement element : pilotState.getAsJsonArray("players")) {
+                JsonObject entry = element.getAsJsonObject();
+                if (!entry.get("player_id").getAsString().equals(actorId)) {
+                    assertTrue(!entry.has("hand"),
+                            "opponent hand array must be absent for "
+                                    + entry.get("player_id").getAsString());
+                }
+            }
+            JsonObject legal = session.legalActionsPayload();
+            JsonObject action = singleActionOfType(legal,
+                    pending.get("decision_class").getAsString().equals("mulligan")
+                            ? "mulligan" : "pass_priority",
+                    pending.get("decision_class").getAsString().equals("mulligan")
+                            ? "keep" : null);
+            session.submitAction(genericProposal(
+                    "ws2-hand-honey-" + step, actorId,
+                    action.get("action_id").getAsString(),
+                    action.get("action_type").getAsString()));
+        }
+    }
+
+    @Test
+    void rejectsLibraryIdentityBeforeMutation() {
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                "ws2-neg-library", 2, 424242L,
                 List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
                         new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
                 List.of(),
                 List.of(new XmageNativeStateRestoration.RequestedObject(
-                        "obj:hand", "Mountain", "P1", "P1", mage.constants.Zone.HAND, false)),
+                        "obj:library", "Mountain", "P1", "P1", mage.constants.Zone.LIBRARY, false)),
                 1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
                 mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
         try {
             restorationFor(plan);
-            fail("hand identity must fail closed");
+            fail("library identity must fail closed");
         } catch (XmageNativeStateRestoration.RestorationException exc) {
             assertTrue(exc.getMessage().startsWith("UNSUPPORTED_ZONE"), exc.getMessage());
         }

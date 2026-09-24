@@ -62,21 +62,30 @@ import java.util.UUID;
  * (existence enforced, Commander-legality validation intentionally not
  * applied to the materialization vehicle, which is never registered as a
  * game deck) and the compared set covers only requested objects plus
- * requested player/temporal fields. Library and hand contents are unspecified
+ * requested player/temporal fields. Library contents are unspecified
  * by construction and excluded from comparison.</p>
  *
- * <p>Supported dimensions (v1): zones command/battlefield/graveyard/exile;
+ * <p>Supported dimensions (v2): zones command/battlefield/graveyard/exile
+ * plus hand identity (see privacy contract below);
  * permanents owned and controlled by the same principal (setup attribution),
  * untapped, without counters or attachments; commander cast counts; life
  * totals; turn-1 precombat-main arrival envelope with active/priority
  * binding; explicit Rules-seed binding. Everything else (stack spells,
- * hand/library identity, revealed, facedown, attachments, counters, tapped
+ * library identity, revealed, facedown, attachments, counters, tapped
  * permanents, controller/owner divergence, commander damage, poison, other
  * temporal points) is rejected fail-closed. Control divergence is rejected
  * deliberately: the engine's layer application re-derives control from
  * owners plus continuous effects, so directly assigned control does not
  * survive engine operation (proven by probe) and is reachable compliantly
  * only by resolving real control-change effects (executor scope).</p>
+ *
+ * <p>Hand-identity privacy contract: restored hand cards are placed through
+ * the engine's typed setup primitive and are readable engine-direct in this
+ * class's readback (test-only, never pilot-facing). Pilot-facing observation
+ * stays principal-scoped via {@code XmageFullGameStateRedactor}
+ * (opponent hands remain counts-only); hand identity must never appear in
+ * global observations, logs, error details, or digests exposed to wrong
+ * principals. Honeycard adversarial tests prove non-leakage.</p>
  *
  * <p>The global {@code starting_state_injection_supported} capability stays
  * {@code false}; this class only advertises its explicit dimensions.</p>
@@ -255,6 +264,7 @@ final class XmageNativeStateRestoration {
                 case "battlefield" -> Zone.BATTLEFIELD;
                 case "graveyard" -> Zone.GRAVEYARD;
                 case "exile" -> Zone.EXILED;
+                case "hand" -> Zone.HAND;
                 default -> throw new RestorationException(
                         "UNSUPPORTED_ZONE", fixtureId + " " + semanticId + " requests " + zoneName);
             };
@@ -316,6 +326,7 @@ final class XmageNativeStateRestoration {
      * is never registered as a game deck, only disassembled for setup lists).
      */
     static Deck materializeCards(List<String> cardIdentities) {
+        XmageDeckImporter.ensureRepositoryReady();
         DeckCardLists lists = new DeckCardLists();
         lists.setName("native-state-restoration-vehicle");
         for (String identity : cardIdentities) {
@@ -410,7 +421,7 @@ final class XmageNativeStateRestoration {
         }
         for (RequestedObject object : validated.objects()) {
             switch (object.zone()) {
-                case BATTLEFIELD, GRAVEYARD, EXILED -> {
+                case BATTLEFIELD, GRAVEYARD, EXILED, HAND -> {
                 }
                 default -> throw new RestorationException(
                         "UNSUPPORTED_ZONE",
@@ -471,6 +482,7 @@ final class XmageNativeStateRestoration {
         for (RequestedPlayer requested : plan.players()) {
             Player player = requirePlayer(playersByPid, requested.playerId());
             List<PutToBattlefieldInfo> battlefield = new ArrayList<>();
+            List<Card> hand = new ArrayList<>();
             List<Card> graveyard = new ArrayList<>();
             List<Card> exile = new ArrayList<>();
             for (RequestedObject object : plan.objects()) {
@@ -480,6 +492,7 @@ final class XmageNativeStateRestoration {
                 Card card = takeVehicleCard(vehicleByName, consumed, object);
                 switch (object.zone()) {
                     case BATTLEFIELD -> battlefield.add(new PutToBattlefieldInfo(card, false));
+                    case HAND -> hand.add(card);
                     case GRAVEYARD -> graveyard.add(card);
                     case EXILED -> exile.add(card);
                     default -> throw new RestorationException(
@@ -490,7 +503,7 @@ final class XmageNativeStateRestoration {
             // command (always empty: commanders arrive via game creation),
             // exile. Verified against engine behavior; misplacement would
             // silently corrupt the restored state.
-            game.cheat(player.getId(), List.of(), List.of(), battlefield, graveyard,
+            game.cheat(player.getId(), List.of(), hand, battlefield, graveyard,
                     List.of(), exile);
             player.setLife(requested.life(), game, null);
         }
@@ -554,8 +567,10 @@ final class XmageNativeStateRestoration {
 
     /**
      * Strict native readback of the compared dimensions. Public zones carry
-     * full identity; hand/library contribute counts only (unspecified by
-     * construction and excluded from comparison).
+     * full identity; restored hands carry full identity engine-direct
+     * (test-only proof surface, never pilot-facing: pilot observation stays
+     * principal-scoped through the redactor); libraries contribute counts
+     * only (unspecified by construction and excluded from comparison).
      */
     static JsonObject readback(CommanderFreeForAll game, Map<String, Player> playersByPid) {
         JsonObject root = new JsonObject();
@@ -583,6 +598,12 @@ final class XmageNativeStateRestoration {
             seat.addProperty("poison", player.getCountersCount(mage.counters.CounterType.POISON));
             seat.addProperty("hand_count", player.getHand().size());
             seat.addProperty("library_count", player.getLibrary().size());
+            JsonArray hand = new JsonArray();
+            for (Card card : player.getHand().getCards(game)) {
+                hand.add(card.getName());
+            }
+            sortStrings(hand);
+            seat.add("hand", hand);
             CommanderPlaysCountWatcher watcher =
                     game.getState().getWatcher(CommanderPlaysCountWatcher.class);
             JsonArray commanders = new JsonArray();
@@ -694,6 +715,7 @@ final class XmageNativeStateRestoration {
             collectZone(entry.getValue(), "battlefield", entry.getKey(), observedCounts);
             collectZone(entry.getValue(), "graveyard", entry.getKey(), observedCounts);
             collectZone(entry.getValue(), "exile", entry.getKey(), observedCounts);
+            collectZone(entry.getValue(), "hand", entry.getKey(), observedCounts);
         }
         Set<String> keys = new HashSet<>(requestedCounts.keySet());
         keys.addAll(observedCounts.keySet());
@@ -702,9 +724,45 @@ final class XmageNativeStateRestoration {
         for (String key : ordered) {
             int want = requestedCounts.getOrDefault(key, 0);
             int got = observedCounts.getOrDefault(key, 0);
+            if (isHandKey(key)) {
+                // Hands mix requested cards with the scaffolding vehicle's
+                // opening seven (harness construction, never fixture content):
+                // every requested hand card must be present, extras are the
+                // vehicle's draws (count-pinned by the hand-count check below).
+                if (got < want) {
+                    mismatches.add(
+                            "hand subset " + key + ": requested " + want + " observed " + got);
+                }
+                continue;
+            }
             if (want != got) {
                 mismatches.add(
                         "zone multiset " + key + ": requested " + want + " observed " + got);
+            }
+        }
+        for (RequestedPlayer requested : plan.players()) {
+            JsonObject seat = seatsByPid.get(requested.playerId());
+            if (seat == null) {
+                continue;
+            }
+            int requestedHand = 0;
+            for (RequestedObject object : plan.objects()) {
+                if (object.owner().equals(requested.playerId())
+                        && object.zone() == Zone.HAND) {
+                    requestedHand++;
+                }
+            }
+            // Hands also hold the scaffolding vehicle's opening seven plus
+            // any natural draws on the arrival path (harness/library
+            // content, never fixture content): pin only that the engine
+            // holds at least the requested cards. Presence itself is proven
+            // by the subset check above; vehicle consumption
+            // (VEHICLE_SHORTAGE on under-supply) proves construction used
+            // the requested cards.
+            if (seat.get("hand_count").getAsInt() < requestedHand) {
+                mismatches.add("hand_count " + requested.playerId()
+                        + ": requested at least " + requestedHand
+                        + " observed " + seat.get("hand_count").getAsInt());
             }
         }
         return new CompareVerdict(
@@ -747,11 +805,14 @@ final class XmageNativeStateRestoration {
 
     /** Explicit supported/unsupported dimensions descriptor (global flag untouched). */
     static JsonObject dimensionsPayload() {        JsonObject payload = new JsonObject();
-        payload.addProperty("schema_version", "native-state-restoration-dimensions-1.0.0");
+        payload.addProperty("schema_version", "native-state-restoration-dimensions-1.1.0");
         payload.addProperty("starting_state_injection_supported", false);
         JsonArray supported = new JsonArray();
         supported.add("command-zone commanders with prior cast counts (game-load restore path)");
         supported.add("battlefield/graveyard/exile placement of real cards (silent setup primitive)");
+        supported.add("hand identity via the same setup primitive (principal-scoped; "
+                + "pilot observation stays counts-only through the redactor; "
+                + "honeycard non-leakage proven per fixture)");
         supported.add("owner-equals-controller attribution with 1:1 readback");
         supported.add("life totals (pre-start assembly; state-based actions stay authoritative)");
         supported.add("turn-1 precombat-main arrival envelope with active/priority binding");
@@ -763,7 +824,7 @@ final class XmageNativeStateRestoration {
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
         unsupported.add("stack spells (casting requires real costs/timing: executor scope)");
-        unsupported.add("hand/library identity (hidden information: fail closed)");
+        unsupported.add("library identity (hidden information: fail closed)");
         unsupported.add("revealed and facedown objects");
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
         unsupported.add("attachments and counters");
@@ -810,6 +871,10 @@ final class XmageNativeStateRestoration {
                 + "|controller=" + object.controller();
     }
 
+    private static boolean isHandKey(String multisetKey) {
+        return multisetKey.contains("|" + Zone.HAND.name() + "|");
+    }
+
     private static void collectZone(
             JsonObject seat, String array, String pid, Map<String, Integer> counts) {
         for (JsonElement element : seat.getAsJsonArray(array)) {
@@ -828,6 +893,7 @@ final class XmageNativeStateRestoration {
                 case "battlefield" -> Zone.BATTLEFIELD.name();
                 case "graveyard" -> Zone.GRAVEYARD.name();
                 case "exile" -> Zone.EXILED.name();
+                case "hand" -> Zone.HAND.name();
                 default -> throw new RestorationException("INVALID_ZONE_ARRAY", array);
             };
             counts.merge(pid + "|" + zone + "|" + identity + "|tapped=" + tapped
