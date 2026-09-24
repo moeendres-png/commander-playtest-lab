@@ -9,9 +9,23 @@ tree `f759ed34d35fdf76ebbb04814edf4a470f960e27`, clean).
 
 ## Status ledger (one `in_progress` at a time)
 
-- [x] Phase 0 — source lock, ownership, duplicate detection (this state + ledger skeleton committed)
-- [x] Phase 1 — P0 native state restoration closure (matrix + reuse-first + hand v2 with A–E proofs; stack/damage/temporal/control fail-closed with follow-ups; commit `Phase 1`)
-- [ ] Phase 2 — P0 FULL107/N-scoped direct execution (partition → exact runs → promote-or-classify)
+- [x] Phase 0 — source lock, ownership, duplicate detection
+- [x] Phase 1 — P0 native state restoration closure (hand v2 + fail-closed taxonomy)
+- [x] Phase 2 — TRIG-3/5 promoted; ELIM life-0 blocker characterized
+- [x] Phase 3 — LAYERS/TARGETS/CHOOSE_MODE promoted; negative evidence; Argentum verified; UNKNOWN-blocker correction
+- [x] Phase 4 — candidate-domain invariant + Serum Visions regression + decoy
+- [x] Phase 5 — first-divergence comparator + real tape-pair evidence
+- [x] Phase 6 — EXTERNAL_RISK_SIGNAL pack (A/B/C/E/F + D partial; Hex-gap finding)
+- [x] Phase 7 — process-isolation audit (verified, no change)
+- [x] Final adjudication — re-lock, re-census, terminal ledger, handoff
+
+## Campaign state: `DR-CLOSURE-01 = COMPLETE`
+
+Final census: `DIRECT 12 / SUPPORTING 13 / UNKNOWN 54 / NOT_RUN_BLOCKED 28`
+(from `7/13/57/30`). All 13 research findings terminally dispositioned
+(9 implemented+verified, 2 already-verified, 1 rejected-by-invariant,
+1 blocked-fail-closed). Architecture Freeze NOT CLAIMED; Production
+Provider NOT SELECTED (untouched).
 - [ ] Phase 3 — P1 hidden-information & decision-family closure (rerun-before-redesign + Argentum audit)
 - [ ] Phase 4 — P1 bounded candidate-domain correctness (generic invariant + actual-card regression)
 - [ ] Phase 5 — P1 provider-neutral first-divergence tooling (comparator + 8 unit cases + real replay pair)
