@@ -12,7 +12,7 @@
    ],
    "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [
-    "30x NOT_RUN_BLOCKED (WS05-MP-*, WS05-CMD-*)"
+    "TRIG-3/5 DIRECT (was NOT_RUN_BLOCKED); ELIM-OWNED-3/PRIO-3/TURN-3/ELIM-5 remain blocked with exact life-reset mechanism"
    ],
    "implementation_paths": [
     "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java"
@@ -24,7 +24,8 @@
    ],
    "research_id": "EC-XMAGE-STATE-01",
    "runtime_evidence": [
-    "XmageNativeStateRestorationTest 17/17 (hand v2: TRIG-3 positive+transition, honeycard non-leakage, library/stack/temporal/control negatives)"
+    "XmageNativeStateRestorationTest 17/17 (hand v2: TRIG-3 positive+transition, honeycard non-leakage, library/stack/temporal/control negatives)",
+    "Phase2: TRIG-3/5 promoted NOT_RUN_BLOCKED->DIRECT (XmageFullGameTrigExecutionTest 2/2); ELIM life-0 blocker characterized (XmageFullGameElimExecutionTest 2/2)"
    ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "ENGINE_NATIVE_REUSE / EXTRACT_AND_GENERALIZE",

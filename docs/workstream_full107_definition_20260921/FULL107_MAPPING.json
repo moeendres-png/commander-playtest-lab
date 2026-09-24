@@ -1,9 +1,9 @@
 {
  "counts": {
-  "DIRECT": 7,
-  "NOT_RUN_BLOCKED": 30,
+  "DIRECT": 9,
   "SUPPORTING": 13,
-  "UNKNOWN": 57
+  "UNKNOWN": 57,
+  "NOT_RUN_BLOCKED": 28
  },
  "entries": [
   {
@@ -387,13 +387,15 @@
   },
   {
    "fixture_id": "WS05-MP-TRIG-3",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "reason": "fixture-faithful live run PASS (DR-CLOSURE-01 Phase 2): hand restored via qualified v2 setup primitive with readback subset+count match at exact count and seed 424242, Grizzly Bears cast from hand through engine legality, engine-owned {1}{G} Forest payment, ETB resolution through real priority passes, simultaneous Soul Warden triggers (each controller +1 life, no fabricated order); no fallback",
+   "status": "DIRECT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java"
   },
   {
    "fixture_id": "WS05-MP-TRIG-5",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "reason": "fixture-faithful live run PASS (DR-CLOSURE-01 Phase 2): hand restored via qualified v2 setup primitive with readback subset+count match at exact count and seed 424242, Grizzly Bears cast from hand through engine legality, engine-owned {1}{G} Forest payment, ETB resolution through real priority passes, simultaneous Soul Warden triggers (each controller +1 life, no fabricated order); no fallback",
+   "status": "DIRECT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java"
   },
   {
    "fixture_id": "WS05-MP-COMBAT-4",
