@@ -104,8 +104,7 @@ DR_CLOSURE_DIRECT = {
     },
     "WS05-MP-TRIG-3": {
         "pointer": (
-            "engine-bridge/src/test/java/org/commanderlab/xmage/"
-            "XmageFullGameTrigExecutionTest.java"
+            "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java"
         ),
         "reason": (
             "fixture-faithful live run PASS in DR-CLOSURE-01 at exact 3P/seed 424242: "
@@ -117,8 +116,7 @@ DR_CLOSURE_DIRECT = {
     },
     "WS05-MP-TRIG-5": {
         "pointer": (
-            "engine-bridge/src/test/java/org/commanderlab/xmage/"
-            "XmageFullGameTrigExecutionTest.java"
+            "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java"
         ),
         "reason": (
             "fixture-faithful live run PASS in DR-CLOSURE-01 at exact 5P/seed 424242: "
