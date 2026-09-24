@@ -150,6 +150,7 @@ final class XmageNativeStateRestoration {
 
     private final Plan plan;
     private final Deck materializationVehicle;
+    private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
@@ -172,6 +173,10 @@ final class XmageNativeStateRestoration {
 
     Deck materializationVehicleForTests() {
         return materializationVehicle;
+    }
+
+    Set<UUID> injectedHandIdsForTests(String playerId) {
+        return Set.copyOf(injectedHandIdsByPlayer.getOrDefault(playerId, Set.of()));
     }
 
     /**
@@ -492,7 +497,12 @@ final class XmageNativeStateRestoration {
                 Card card = takeVehicleCard(vehicleByName, consumed, object);
                 switch (object.zone()) {
                     case BATTLEFIELD -> battlefield.add(new PutToBattlefieldInfo(card, false));
-                    case HAND -> hand.add(card);
+                    case HAND -> {
+                        hand.add(card);
+                        injectedHandIdsByPlayer
+                                .computeIfAbsent(requested.playerId(), ignored -> new HashSet<>())
+                                .add(card.getId());
+                    }
                     case GRAVEYARD -> graveyard.add(card);
                     case EXILED -> exile.add(card);
                     default -> throw new RestorationException(
@@ -753,12 +763,29 @@ final class XmageNativeStateRestoration {
                 }
             }
             // Hands also hold the scaffolding vehicle's opening seven plus
-            // any natural draws on the arrival path (harness/library
-            // content, never fixture content): pin only that the engine
-            // holds at least the requested cards. Presence itself is proven
-            // by the subset check above; vehicle consumption
-            // (VEHICLE_SHORTAGE on under-supply) proves construction used
-            // the requested cards.
+            // any natural draws on the arrival path. A name-count subset is
+            // therefore insufficient when the requested identity equals a
+            // scaffolding card (for example Mountain): natural draws could
+            // otherwise mask a missing injected copy. Bind credit to the
+            // exact native UUIDs of cards consumed from the materialization
+            // vehicle and require every injected object to remain in hand.
+            Set<UUID> injected =
+                    injectedHandIdsByPlayer.getOrDefault(requested.playerId(), Set.of());
+            if (injected.size() != requestedHand) {
+                mismatches.add("hand injected-count " + requested.playerId()
+                        + ": requested " + requestedHand + " tracked " + injected.size());
+            }
+            Player livePlayer = playersByPid.get(requested.playerId());
+            if (livePlayer == null) {
+                mismatches.add("hand player missing: " + requested.playerId());
+            } else {
+                for (UUID cardId : injected) {
+                    if (!livePlayer.getHand().contains(cardId)) {
+                        mismatches.add("hand injected object missing: "
+                                + requested.playerId() + " native_id=" + cardId);
+                    }
+                }
+            }
             if (seat.get("hand_count").getAsInt() < requestedHand) {
                 mismatches.add("hand_count " + requested.playerId()
                         + ": requested at least " + requestedHand
