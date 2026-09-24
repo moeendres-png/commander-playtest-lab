@@ -34,7 +34,7 @@
    ]
   },
   {
-   "current_disposition": "OPEN_PHASE4",
+   "current_disposition": "IN_PROGRESS_PHASE4",
    "dependencies": [
     "decision projection"
    ],
@@ -42,7 +42,7 @@
    "full107_cells_affected": [],
    "implementation_paths": [],
    "license_disposition": "INDEPENDENT (no donor copy)",
-   "reason": "Generic offered_options \u2286 candidate_domain invariant + actual-card regression not yet present.",
+   "reason": "Mode/target executions prove bounded offers per family; systemic invariant + actual-card regression still open in Phase 4.",
    "remaining_unknowns": [],
    "research_id": "EC-XMAGE-CHOICE-02",
    "runtime_evidence": [],
@@ -79,22 +79,24 @@
    ]
   },
   {
-   "current_disposition": "OPEN_PHASE3_AUDIT",
+   "current_disposition": "ALREADY_IMPLEMENTED_VERIFIED",
    "dependencies": [
     "XmageFullGameStateRedactor",
     "projections",
     "digests"
    ],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [
     "HIDDEN_01..19+sentinel"
    ],
    "implementation_paths": [],
    "license_disposition": "PATTERN_ONLY_IF_MIT (reverify provenance before any port)",
-   "reason": "Audit 4 patterns vs current redactor/projection/schema/digest; implement only proven gaps; heuristic fallback prohibited.",
+   "reason": "All 4 patterns present with runtime evidence; heuristic fallback absent. No code change.",
    "remaining_unknowns": [],
    "research_id": "EC-ARGENTUM-API-04",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "Phase3 audit: redactor+hidden/canary green; authoritative options proven in TRIG/TARGETS/CHOOSE_MODE executions; protocol_version mismatch rejection tests green; digest-credit tests green"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "CONTRACT_AUDIT / SELECTIVE_PATTERN_REUSE",
    "test_paths": []

@@ -1,8 +1,8 @@
 {
  "counts": {
-  "DIRECT": 9,
+  "DIRECT": 12,
   "SUPPORTING": 13,
-  "UNKNOWN": 57,
+  "UNKNOWN": 54,
   "NOT_RUN_BLOCKED": 28
  },
  "entries": [
@@ -104,8 +104,9 @@
   },
   {
    "fixture_id": "PILOT_CHOOSE_MODE",
-   "reason": "decision family not observed in sealed live gates and no live fixture rerun exists; residual: family live campaign",
-   "status": "UNKNOWN"
+   "reason": "modal selection live run PASS (DR-CLOSURE-01 Phase 3): restored Burn Down the House with readback MATCH at 4P/seed 424242; cast through engine legality; engine offered exactly the 2 Oracle modes; Devil-token mode selected by exact option identity (mechanism-routed, transport rejects un-offered); {3}{R}{R} engine-owned payment; resolution yields 3 Devil Token permanents under P1 with Burn in graveyard; no fallback",
+   "status": "DIRECT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameDecisionExecutionTest.java"
   },
   {
    "fixture_id": "PILOT_CHOOSE_ABILITY",
@@ -306,8 +307,9 @@
   },
   {
    "fixture_id": "MICRO_TARGETS",
-   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
-   "status": "UNKNOWN"
+   "reason": "target legality live run PASS (DR-CLOSURE-01 Phase 3): restored Bolt+Mountain with readback MATCH at 4P/seed 424242; Bolt cast through engine legality; engine offered exactly the 7 legal targets (3 creatures+4 players, unfiltered); P2 selected by exact engine identity; engine-owned {R} payment from the restored Mountain; resolution deals 3 (P2 40->37); no fallback",
+   "status": "DIRECT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameMicroExecutionTest.java"
   },
   {
    "fixture_id": "MICRO_MODES",
@@ -336,8 +338,9 @@
   },
   {
    "fixture_id": "MICRO_LAYERS",
-   "reason": "no per-fixture mechanism rerun (WS232-consistent); supporting only: per-count lane gates",
-   "status": "UNKNOWN"
+   "reason": "layer authority live run PASS (DR-CLOSURE-01 Phase 3): restored Humility+Glorious Anthem+Bears with readback MATCH at 4P/seed 424242; engine-direct facts prove layer 6 ability removal on all Bears and 7b/7c P/T 2/2 for P1 vs 1/1 others; no fallback",
+   "status": "DIRECT",
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameMicroExecutionTest.java"
   },
   {
    "fixture_id": "MICRO_STATE_BASED_ACTIONS",
