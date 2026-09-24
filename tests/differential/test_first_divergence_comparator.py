@@ -20,13 +20,86 @@ from commander_lab.semantic_replay.comparator import (
 )
 
 
-def _manifest(**overrides):
-    base = {"player_count": 4, "rules_seed": 424242, "starting_life": 40}
+def _source_lock() -> dict:
+    return {
+        "lab_repository": "moeendres-png/commander-playtest-lab",
+        "lab_commit": "a" * 40,
+        "lab_tree": "b" * 40,
+        "provider_identity": "xmage",
+        "engine_repository": "moeendres-png/mage",
+        "engine_commit": "c" * 40,
+        "engine_tree": "d" * 40,
+        "engine_version": "1.4.61",
+        "adapter_identity": "test-adapter",
+        "protocol_version": "2.0.0",
+        "decision_protocol_version": "1.0.0",
+        "protocol_schema_digest": "e" * 64,
+        "rules_authority_identity": "xmage",
+    }
+
+
+def _manifest(**overrides) -> dict:
+    base = {
+        "format": "commander-ffa",
+        "player_count": 2,
+        "seat_principals": [
+            {
+                "seat": 1,
+                "deck_id": "deck-1",
+                "pilot_identity": "pilot-a",
+                "pilot_version": "1",
+                "decision_policy_version": "1",
+            },
+            {
+                "seat": 2,
+                "deck_id": "deck-2",
+                "pilot_identity": "pilot-b",
+                "pilot_version": "1",
+                "decision_policy_version": "1",
+            },
+        ],
+        "decks": [
+            {
+                "deck_id": "deck-1",
+                "deck_hash": "1" * 64,
+                "commander_names": ["Rograkh, Son of Rohgahh"],
+                "mainboard": ["Mountain"],
+            },
+            {
+                "deck_id": "deck-2",
+                "deck_hash": "2" * 64,
+                "commander_names": ["Rograkh, Son of Rohgahh"],
+                "mainboard": ["Mountain"],
+            },
+        ],
+        "commander_identities": [
+            "Rograkh, Son of Rohgahh",
+            "Rograkh, Son of Rohgahh",
+        ],
+        "starting_life": 40,
+        "starting_player_selection_contract": "seat-1",
+        "mulligan_contract": "london",
+        "rules_seed": 424242,
+        "rules_seed_explicit_required": True,
+        "pilot_seed_derivation": "rules-seed-plus-seat",
+        "process_isolation_contract": "fresh-process-per-game",
+    }
     base.update(overrides)
     return base
 
 
-def _checkpoint(**overrides):
+def _rng_contract(**overrides) -> dict:
+    base = {
+        "root_rules_seed": 424242,
+        "rules_seed_explicit": True,
+        "require_explicit_seed": True,
+        "attribution_model": "calls-coordinate-plus-state-transition",
+    }
+    base.update(overrides)
+    return base
+
+
+def _checkpoint(**overrides) -> dict:
     base = {
         "rules_seed": 424242,
         "rules_random_calls": 10,
@@ -37,39 +110,70 @@ def _checkpoint(**overrides):
         "event_offset": 5,
         "semantic_state_digest": "a" * 64,
         "public_state_digest": "b" * 64,
-        "principal_digests": {"1": "c" * 64},
+        "principal_digests": {"1": "c" * 64, "2": "d" * 64},
     }
     base.update(overrides)
     return base
 
 
-def _step(sequence, **overrides):
+def _step(sequence: int, **overrides) -> dict:
     base = {
         "sequence": sequence,
+        "step_kind": "decision",
         "decision_class": "priority",
         "actor_principal": 1,
         "decision_revision": sequence,
+        "principal_observation_digest": "f" * 64,
         "legal_set_digest": "d" * 64,
         "legal_set_size": 1,
         "selected_fingerprints": ["fp-pass"],
+        "selected_labels": ["Pass priority"],
+        "numeric_choice": None,
+        "numeric_min": None,
+        "numeric_max": None,
+        "numeric_choices": None,
+        "numeric_legs_min": None,
+        "numeric_legs_max": None,
+        "numeric_total_min": None,
+        "numeric_total_max": None,
         "rng_calls_before": 10,
         "rng_calls_after": 10,
+        "event_offset_before": sequence - 1,
+        "event_offset_after": sequence,
         "event_digest": "e" * 64,
-        "principal_observation_digest": "f" * 64,
+        "post_checkpoint_digest": "9" * 64,
     }
     base.update(overrides)
     return base
 
 
-def _tape(steps=3, **overrides):
+def _terminal(**overrides) -> dict:
     base = {
-        "tape_id": "tape-test",
+        "terminal": True,
+        "turn_number": 6,
+        "rules_random_calls": 20,
+        "outcomes": [
+            {"seat": 1, "won": True, "lost": False, "left": False, "life": 20},
+            {"seat": 2, "won": False, "lost": True, "left": True, "life": 0},
+        ],
+        "semantic_state_digest": "7" * 64,
+        "public_state_digest": "8" * 64,
+    }
+    base.update(overrides)
+    return base
+
+
+def _tape(steps: int = 3, **overrides) -> dict:
+    base = {
         "schema_version": "semantic-replay-tape/1.0.0",
-        "source_lock": {"provider_identity": "xmage"},
+        "tape_id": "1" * 64,
+        "source_lock": _source_lock(),
         "game_manifest": _manifest(),
+        "rng_contract": _rng_contract(),
         "initial_checkpoint": _checkpoint(),
-        "steps": [_step(i + 1) for i in range(steps)],
-        "terminal_checkpoint": _checkpoint(decision_sequence=3 + steps),
+        "steps": [_step(index + 1) for index in range(steps)],
+        "terminal_checkpoint": _terminal(),
+        "seal": {"canonicalization": "semantic-canonical-1.0.0"},
     }
     base.update(overrides)
     return base
@@ -104,6 +208,24 @@ def test_legal_action_set_mismatch_classified():
     assert result.divergence.record_index == 0
 
 
+def test_numeric_domain_mismatch_classified_as_legal_set():
+    expected = _tape()
+    actual = _tape()
+    for tape, upper in ((expected, 5), (actual, 6)):
+        tape["steps"][0].update(
+            {
+                "decision_class": "announce_x",
+                "selected_fingerprints": [],
+                "numeric_choice": 3,
+                "numeric_min": 0,
+                "numeric_max": upper,
+            }
+        )
+    result = compare_tapes(expected, actual)
+    assert result.divergence is not None
+    assert result.divergence.kind == DivergenceKind.LEGAL_ACTION_SET_MISMATCH
+
+
 def test_rng_mismatch_classified():
     actual = _tape()
     actual["steps"][2]["rng_calls_after"] = 11
@@ -111,6 +233,15 @@ def test_rng_mismatch_classified():
     assert result.divergence is not None
     assert result.divergence.kind == DivergenceKind.RULES_RNG_MISMATCH
     assert result.divergence.record_index == 2
+
+
+def test_rng_contract_mismatch_classified():
+    actual = _tape()
+    actual["rng_contract"]["root_rules_seed"] = 999
+    result = compare_tapes(_tape(), actual)
+    assert result.divergence is not None
+    assert result.divergence.kind == DivergenceKind.RULES_RNG_MISMATCH
+    assert result.divergence.record_index == -1
 
 
 def test_public_state_mismatch_classified():
@@ -123,20 +254,36 @@ def test_public_state_mismatch_classified():
 
 def test_terminal_mismatch_classified():
     actual = _tape()
-    actual["terminal_checkpoint"] = _checkpoint(public_state_digest="0" * 64)
+    actual["terminal_checkpoint"] = _terminal(public_state_digest="0" * 64)
     result = compare_tapes(_tape(), actual)
     assert result.divergence is not None
     assert result.divergence.kind == DivergenceKind.TERMINAL_OUTCOME_MISMATCH
     assert result.divergence.record_index == 3
 
 
+def test_terminal_outcome_mismatch_classified():
+    actual = _tape()
+    actual["terminal_checkpoint"]["outcomes"][0]["won"] = False
+    result = compare_tapes(_tape(), actual)
+    assert result.divergence is not None
+    assert result.divergence.kind == DivergenceKind.TERMINAL_OUTCOME_MISMATCH
+
+
 def test_initial_state_mismatch_classified():
     actual = _tape()
-    actual["game_manifest"] = _manifest(rules_seed=999)
+    actual["game_manifest"]["rules_seed"] = 999
     result = compare_tapes(_tape(), actual)
     assert result.divergence is not None
     assert result.divergence.kind == DivergenceKind.INITIAL_STATE_MISMATCH
     assert result.divergence.record_index == -1
+
+
+def test_full_manifest_mismatch_classified():
+    actual = _tape()
+    actual["game_manifest"]["seat_principals"][0]["pilot_identity"] = "other-pilot"
+    result = compare_tapes(_tape(), actual)
+    assert result.divergence is not None
+    assert result.divergence.kind == DivergenceKind.INITIAL_STATE_MISMATCH
 
 
 def test_early_termination_classified():
@@ -158,8 +305,7 @@ def test_decision_identity_mismatch_classified():
 def test_irrelevant_label_difference_normalizes_to_match():
     expected = _tape()
     actual = _tape()
-    actual["steps"][0]["selected_labels"] = ["Pass priority"]
-    actual["seal"] = {"different": "process-local-metadata"}
+    actual["steps"][0]["selected_labels"] = ["Different display-only label"]
     result = compare_tapes(expected, actual)
     assert result.match is True
 
@@ -183,9 +329,18 @@ def test_provider_failure_on_malformed_tape():
     assert result.divergence.kind == DivergenceKind.PROVIDER_FAILURE
 
 
+def test_provider_failure_on_unsupported_schema():
+    actual = _tape()
+    actual["schema_version"] = "semantic-replay-tape/9.9.9"
+    result = compare_tapes(_tape(), actual)
+    assert result.divergence is not None
+    assert result.divergence.kind == DivergenceKind.PROVIDER_FAILURE
+
+
 def test_real_xmage_same_seed_tape_pair(repo_root: Path):
     tape_path = (
-        repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
+        repo_root
+        / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
     )
     tape = json.loads(tape_path.read_text())
     assert len(tape["steps"]) > 100
