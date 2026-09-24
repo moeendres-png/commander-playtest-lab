@@ -569,6 +569,69 @@ class XmageNativeStateRestorationTest {
     }
 
     @Test
+    void naturalSameNameCannotMaskMissingInjectedHandObject() {
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                "ws2-hand-provenance", 2, 424242L,
+                List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
+                List.of(
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0)),
+                List.of(new XmageNativeStateRestoration.RequestedObject(
+                        "obj:injected-mountain", "Mountain", "P1", "P1",
+                        mage.constants.Zone.HAND, false)),
+                1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration = restorationFor(plan);
+        List<String> handles = importScaffolding(importer, plan, "ws2-hand-provenance");
+        XmageFullGameSession session = new XmageFullGameSession(
+                "ws2-hand-provenance", handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+        completeArrival(session, restoration, seats);
+
+        JsonObject observed =
+                XmageNativeStateRestoration.readback(session.restorationGame(), seats);
+        assertTrue(restoration.compare(observed, seats).match(),
+                "exact injected Mountain must initially earn credit");
+
+        java.util.Set<java.util.UUID> injected =
+                restoration.injectedHandIdsForTests("P1");
+        assertEquals(1, injected.size(), "one requested hand object has one native identity");
+        java.util.UUID injectedId = injected.iterator().next();
+        assertTrue(seats.get("P1").getHand().contains(injectedId),
+                "injected native object is actually in P1 hand");
+
+        int mountainsBefore = 0;
+        for (mage.cards.Card card
+                : seats.get("P1").getHand().getCards(session.restorationGame())) {
+            if (card.getName().equals("Mountain")) {
+                mountainsBefore++;
+            }
+        }
+        assertTrue(mountainsBefore >= 2,
+                "natural scaffolding draws must provide same-name decoys for this regression");
+
+        // Adversarial test-only tamper: remove exactly the injected UUID while
+        // leaving natural same-name Mountains in hand. The old name-subset
+        // comparison would still pass; provenance-bound comparison must fail.
+        assertTrue(seats.get("P1").getHand().remove(injectedId));
+        JsonObject tampered =
+                XmageNativeStateRestoration.readback(session.restorationGame(), seats);
+        XmageNativeStateRestoration.CompareVerdict verdict =
+                restoration.compare(tampered, seats);
+        assertFalse(verdict.match(),
+                "natural same-name draws must never mask a missing injected object");
+        assertTrue(verdict.mismatches().stream()
+                        .anyMatch(message -> message.startsWith("hand injected object missing:")),
+                "failure must be attributed to injected-object provenance: "
+                        + verdict.mismatches());
+    }
+
+    @Test
     void rejectsLibraryIdentityBeforeMutation() {
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
                 "ws2-neg-library", 2, 424242L,
