@@ -306,10 +306,9 @@ def compare_tapes(
                 window(expected_steps, index),
             )
 
-        if (
-            exp.get("rng_calls_before") != act.get("rng_calls_before")
-            or exp.get("rng_calls_after") != act.get("rng_calls_after")
-        ):
+        if exp.get("rng_calls_before") != act.get("rng_calls_before") or exp.get(
+            "rng_calls_after"
+        ) != act.get("rng_calls_after"):
             return diverge(
                 DivergenceKind.RULES_RNG_MISMATCH,
                 index,
@@ -335,11 +334,9 @@ def compare_tapes(
                 window(expected_steps, index),
             )
 
-        if (
-            exp.get("principal_observation_digest")
-            != act.get("principal_observation_digest")
-            or exp.get("post_checkpoint_digest") != act.get("post_checkpoint_digest")
-        ):
+        if exp.get("principal_observation_digest") != act.get(
+            "principal_observation_digest"
+        ) or exp.get("post_checkpoint_digest") != act.get("post_checkpoint_digest"):
             return diverge(
                 DivergenceKind.PUBLIC_STATE_MISMATCH,
                 index,
