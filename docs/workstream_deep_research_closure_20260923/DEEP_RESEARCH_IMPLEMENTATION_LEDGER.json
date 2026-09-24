@@ -27,7 +27,7 @@
     "XmageNativeStateRestorationTest 17/17 (hand v2: TRIG-3 positive+transition, honeycard non-leakage, library/stack/temporal/control negatives)",
     "Phase2: TRIG-3/5 promoted NOT_RUN_BLOCKED->DIRECT (XmageFullGameTrigExecutionTest 2/2); ELIM life-0 blocker characterized (XmageFullGameElimExecutionTest 2/2)"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "ENGINE_NATIVE_REUSE / EXTRACT_AND_GENERALIZE",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageNativeStateRestorationTest.java"
@@ -48,7 +48,7 @@
    "runtime_evidence": [
     "XmageFullGameCandidateDomainTest 2/2 (scry domain confinement+decoy, target universe subset); Phase3 mode/target executions"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "TEST_REUSE / SYSTEMIC_INVARIANT",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameCandidateDomainTest.java"
@@ -77,7 +77,7 @@
    "runtime_evidence": [
     "tests/differential/test_first_divergence_comparator.py 13/13 (MATCH + 9 classes + normalize pair + real WS218 4P 257-step pair)"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "INDEPENDENT_METHOD_REIMPLEMENTATION",
    "test_paths": [
     "tests/differential/test_first_divergence_comparator.py"
@@ -102,7 +102,7 @@
    "runtime_evidence": [
     "Phase3 audit: redactor+hidden/canary green; authoritative options proven in TRIG/TARGETS/CHOOSE_MODE executions; protocol_version mismatch rejection tests green; digest-credit tests green"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "CONTRACT_AUDIT / SELECTIVE_PATTERN_REUSE",
    "test_paths": []
   },
@@ -122,7 +122,7 @@
    "runtime_evidence": [
     "XmageExternalRiskSignalTest 4/4 (A Esior subject+count, B+C Unsummon wrong-object+destination, E restore-derived, F stale-rejection); D partial via commander-zone choice; Hex offer gap + payment over-tap findings recorded"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -141,7 +141,7 @@
    "runtime_evidence": [
     "standing; negative contract regressions above are the only permitted artifact"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "REJECTED_BY_PROJECT_INVARIANT",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -162,7 +162,7 @@
    "runtime_evidence": [
     "restore->round+revalidate->derived pins hold (E test)"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -181,7 +181,7 @@
    "runtime_evidence": [
     "PR240 cancel path re-verified in-campaign: cancel_mana_payment offered and explicitly submitted in NEGATIVE test; no auto-cancel behavior observed"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "ALREADY_IMPLEMENTED_VERIFIED (pending verification)",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -200,7 +200,7 @@
    "runtime_evidence": [
     "Esior Bolt vehicle (A test); Hex vehicle blocked by offer gap (follow-up)"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -219,7 +219,7 @@
    "runtime_evidence": [
     "Unsummon wrong-object + hand-destination (B+C test)"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -238,7 +238,7 @@
    "runtime_evidence": [
     "commander-zone replacement choice timing proven (actor+point+explicit selection); general replacement timing needs combat-temporal progression"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -259,7 +259,7 @@
    "runtime_evidence": [
     "Phase1 Shivan-Dragon honeycard non-leakage + Phase3 hidden/canary suites 43/43 green; per-fixture library/facedown HIDDEN runs remain dimension-blocked"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -280,7 +280,7 @@
    "runtime_evidence": [
     "stale/forgery typed rejections + parked-payment + explicit cancel (F test + Phase3 negative)"
    ],
-   "source_lock": "FINAL_HEAD_PENDING",
+   "source_lock": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
    "target_disposition": "PREDICTIVE_REGRESSION_PACK",
    "test_paths": [
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageExternalRiskSignalTest.java"
@@ -289,7 +289,7 @@
  ],
  "schema_version": "deep-research-implementation-ledger-1.0.0",
  "source_lock": {
-  "head": "2231ff4bdd30753a127133e51a0d3657c668532d",
-  "tree": "f759ed34d35fdf76ebbb04814edf4a470f960e27"
+  "head": "45feecfc084e713d2576e2fea92c33e2d8cab1cd",
+  "tree": "37ae813cbd3b59174898f2ce7612b1f9579f8eae"
  }
 }
