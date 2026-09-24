@@ -34,21 +34,25 @@
    ]
   },
   {
-   "current_disposition": "IN_PROGRESS_PHASE4",
+   "current_disposition": "IMPLEMENTED_AND_RUNTIME_VERIFIED",
    "dependencies": [
     "decision projection"
    ],
-   "evidence_class": "UNKNOWN",
+   "evidence_class": "DIRECTLY_VERIFIED",
    "full107_cells_affected": [],
    "implementation_paths": [],
    "license_disposition": "INDEPENDENT (no donor copy)",
-   "reason": "Mode/target executions prove bounded offers per family; systemic invariant + actual-card regression still open in Phase 4.",
+   "reason": "Generic invariant proven across look/target/mode families with actual-card (Serum Visions) regression and decoy adversarial. No second legality engine.",
    "remaining_unknowns": [],
    "research_id": "EC-XMAGE-CHOICE-02",
-   "runtime_evidence": [],
+   "runtime_evidence": [
+    "XmageFullGameCandidateDomainTest 2/2 (scry domain confinement+decoy, target universe subset); Phase3 mode/target executions"
+   ],
    "source_lock": "2231ff4bdd30753a127133e51a0d3657c668532d",
    "target_disposition": "TEST_REUSE / SYSTEMIC_INVARIANT",
-   "test_paths": []
+   "test_paths": [
+    "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameCandidateDomainTest.java"
+   ]
   },
   {
    "current_disposition": "OPEN_PHASE5_PARTIAL_REUSE",
