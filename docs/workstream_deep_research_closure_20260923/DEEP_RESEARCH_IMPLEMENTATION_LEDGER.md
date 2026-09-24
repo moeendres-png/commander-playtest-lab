@@ -1,24 +1,30 @@
-# Deep Research Implementation Ledger (human-readable, Phase 0 skeleton)
+# Deep Research Implementation Ledger — Final Adjudication
 
-Terminal dispositions are assigned only at Final Adjudication. This skeleton
-records the Phase 0 duplicate-detection census; see
-`DEEP_RESEARCH_IMPLEMENTATION_LEDGER.json` for the machine-readable record.
+This human-readable ledger mirrors `DEEP_RESEARCH_IMPLEMENTATION_LEDGER.json`. The machine-readable file remains authoritative for per-finding paths, evidence, dependencies, blocked dimensions and source locks.
 
-| Research ID | Target | Phase 0 status |
+| Research ID | Terminal disposition | Evidence |
 |---|---|---|
-| EC-XMAGE-STATE-01 | ENGINE_NATIVE_REUSE / EXTRACT_AND_GENERALIZE (P0) | IN_PROGRESS → Phase 1 |
-| EC-XMAGE-CHOICE-02 | TEST_REUSE / SYSTEMIC_INVARIANT (P1) | OPEN → Phase 4 |
-| EC-MANABREW-DIFF-03 | INDEPENDENT_METHOD_REIMPLEMENTATION (P1) | PARTIAL REUSE EXISTS → Phase 5 hardening |
-| EC-ARGENTUM-API-04 | CONTRACT_AUDIT / SELECTIVE_PATTERN_REUSE (P1) | OPEN audit → Phase 3 |
-| EC-PHASE-BUGS-05 | PREDICTIVE_REGRESSION_PACK (P2) | OPEN → Phase 6 |
-| EC-FORGETS-ANTI-06 | REJECTED_BY_RULES_AUTHORITY | STANDING REJECTION (negative test only) |
-| PRED-RESTORE-01 | predictive pack | OPEN → Phase 6 |
-| PRED-CANCEL-02 | do-not-redo | ALREADY_IMPLEMENTED (verify in Phase 7/2) |
-| PRED-PARSER-03 | predictive pack | OPEN → Phase 6 |
-| PRED-ZONE-04 | predictive pack | OPEN → Phase 6 |
-| PRED-REPL-05 | predictive pack | OPEN → Phase 6 |
-| PRED-HIDDEN-06 | predictive pack + hidden closure | OPEN → Phase 3/6 |
-| PRED-AUTH-07 | negative contract | OPEN → Phase 6 |
+| EC-XMAGE-STATE-01 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| EC-XMAGE-CHOICE-02 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| EC-MANABREW-DIFF-03 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| EC-ARGENTUM-API-04 | ALREADY_IMPLEMENTED_VERIFIED | DIRECTLY_VERIFIED |
+| EC-PHASE-BUGS-05 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| EC-FORGETS-ANTI-06 | REJECTED_BY_RULES_AUTHORITY | TECHNICALLY_CONFORMANT |
+| PRED-RESTORE-01 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| PRED-CANCEL-02 | ALREADY_IMPLEMENTED_VERIFIED | DIRECTLY_VERIFIED |
+| PRED-PARSER-03 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| PRED-ZONE-04 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| PRED-REPL-05 | BLOCKED_FAIL_CLOSED | DIRECTLY_VERIFIED |
+| PRED-HIDDEN-06 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
+| PRED-AUTH-07 | IMPLEMENTED_AND_RUNTIME_VERIFIED | DIRECTLY_VERIFIED |
 
-No finding is closed at Phase 0. `EC-FORGETS-ANTI-06` carries a standing
-rejection of the pattern itself; its negative contract regression is still open.
+## Disposition Summary
+
+- IMPLEMENTED_AND_RUNTIME_VERIFIED: 9
+- ALREADY_IMPLEMENTED_VERIFIED: 2
+- REJECTED_BY_RULES_AUTHORITY: 1
+- BLOCKED_FAIL_CLOSED: 1
+
+All 13 tracked research findings have terminal dispositions. No finding is silently promoted from UNKNOWN/PARTIAL/NOT_RUN to PASS. `PRED-REPL-05` remains blocked-fail-closed for general replacement-effect timing despite direct evidence for the commander-zone replacement choice path.
+
+Validated implementation head before documentation-only reconciliation: `28cecb44325047bd2b7b4069cbcebba9064aacca`.

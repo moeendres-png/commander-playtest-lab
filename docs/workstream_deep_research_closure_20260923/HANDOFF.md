@@ -70,11 +70,11 @@ dir (lock/state/ledger/provenance/matrix/phase closeouts/handoff) +
 
 ## Tests / Evidence
 
-- Java bridge full suite: 217 run, 0 fail, 0 error, 1 pre-existing skip.
-- Python differential+regressions+contract: 40 passed, 1 pre-existing skip
-  (`test_phase1212` uncollectable: missing `typer` in env, untouched).
-- All evidence DIRECTLY_VERIFIED on final bytes unless labeled otherwise;
-  UNKNOWN≠PASS, NOT_RUN≠PASS preserved.
+- Final XMage bridge conformance at implementation head `28cecb44`: 223 tests run, 0 failures, 0 errors, 1 skip; Maven BUILD SUCCESS.
+- Final repository CI at implementation head `28cecb44`: 1545 Python tests passed, 5 skipped; Ruff lint/format, mypy strict, compile, secret scan, wheel build and security job all succeeded.
+- H4 Docker Materialization run 60: preflight PASS, h4-xmage PASS, h4-forge PASS.
+- All eight PR workflows were green at implementation head `28cecb44325047bd2b7b4069cbcebba9064aacca`.
+- All evidence DIRECTLY_VERIFIED on the validated implementation bytes unless labeled otherwise; UNKNOWN≠PASS, NOT_RUN≠PASS preserved.
 
 ## FULL107 Delta
 
@@ -99,9 +99,7 @@ life-0 elimination (4, genuine-loss executor-side), library/facedown (HIDDEN
 
 ## Outputs
 
-Branch `dr-closure-01-deep-research-20260924` (local commits, no push):
-Phase 0/1/2/3/4/5/6 commits + this adjudication. All source/tests/docs/
-artifacts listed above.
+PR #241 branch `dr-closure-01-deep-research-20260924` is pushed and review-remediated. Validated implementation head before final documentation reconciliation: `28cecb44325047bd2b7b4069cbcebba9064aacca`, tree `d675269ce58e8294bc72bc45c1c55b3006218977`. The final docs-only descendant and merge SHA are recorded by GitHub on PR #241.
 
 ## Dependencies Unblocked
 
@@ -121,7 +119,17 @@ CONTINUOUS, SBA, NEGATIVE_* hand-only) for follow-up executor work.
 
 ## Exact Next Action
 
-Coordinator: review this handoff + ledger, then dispatch follow-ups
-1–6 as independent workstreams (or accept residual UNKNOWN/blocked as
-standing qualification posture). No authority gate is open:
-ARCHITECTURE_FREEZE NOT CLAIMED, PRODUCTION_PROVIDER NOT SELECTED.
+Merge PR #241 after the docs-only reconciliation checks remain green, then verify `main` HEAD/TREE and post-merge workflows. After merge, dispatch follow-ups 1–6 as independent non-overlapping workstreams according to dependency/ownership constraints. No authority gate is opened by this workstream: ARCHITECTURE_FREEZE NOT CLAIMED, PRODUCTION_PROVIDER NOT SELECTED.
+
+
+## Post-Review Remediation
+
+Five P1 review findings were fixed before merge and their review threads resolved:
+
+- hand restoration now binds credit to exact injected native UUIDs, with a same-name Mountain adversarial regression;
+- semantic replay tapes are validated against the supported Pydantic schema before comparison;
+- the complete normalized game manifest is compared before trace comparison;
+- numeric legal domains are compared explicitly;
+- terminal outcomes are compared explicitly and normalized.
+
+The FULL107 correspondence generator, mapping, identity register and digest-credit gates were aligned so the five new DIRECT promotions cannot drift silently.

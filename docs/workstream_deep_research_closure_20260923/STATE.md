@@ -21,18 +21,7 @@ tree `f759ed34d35fdf76ebbb04814edf4a470f960e27`, clean).
 
 ## Campaign state: `DR-CLOSURE-01 = COMPLETE`
 
-Final census: `DIRECT 12 / SUPPORTING 13 / UNKNOWN 54 / NOT_RUN_BLOCKED 28`
-(from `7/13/57/30`). All 13 research findings terminally dispositioned
-(9 implemented+verified, 2 already-verified, 1 rejected-by-invariant,
-1 blocked-fail-closed). Architecture Freeze NOT CLAIMED; Production
-Provider NOT SELECTED (untouched).
-- [ ] Phase 3 — P1 hidden-information & decision-family closure (rerun-before-redesign + Argentum audit)
-- [ ] Phase 4 — P1 bounded candidate-domain correctness (generic invariant + actual-card regression)
-- [ ] Phase 5 — P1 provider-neutral first-divergence tooling (comparator + 8 unit cases + real replay pair)
-- [ ] Phase 6 — P2 predictive regression pack (`EXTERNAL_RISK_SIGNAL` namespace, classes A–F)
-- [ ] Phase 7 — P2 process-isolation audit (audit-before-edit)
-- [ ] Final adjudication — re-lock, re-census, disposition ledger, handoff
-
+Final census: `DIRECT 12 / SUPPORTING 13 / UNKNOWN 54 / NOT_RUN_BLOCKED 28` (from `7/13/57/30`). All 13 research findings are terminally dispositioned (9 implemented+runtime-verified, 2 already-implemented-verified, 1 rejected-by-Rules-authority, 1 blocked-fail-closed). Validated implementation head: `28cecb44325047bd2b7b4069cbcebba9064aacca` / tree `d675269ce58e8294bc72bc45c1c55b3006218977`. All eight PR workflows green; all five P1 review threads resolved. Architecture Freeze NOT CLAIMED; Production Provider NOT SELECTED.
 ## Dependency DAG (sequential default, single worker)
 
 ```text
@@ -87,7 +76,4 @@ N-Scoped Qualification P0      Hidden/Decision P1
 
 ## Next single action
 
-Phase 1 Step 1: build the blocked-fixture dimension matrix
-(`BLOCKED_FIXTURE_MATRIX.json`) from the frozen FULL107 mapping + frozen
-semantic records, rank missing dimensions by ordinal/Pareto leverage, then
-reuse-first investigation per dimension.
+Merge PR #241 once the documentation-only reconciliation checks are green, then verify the resulting `main` HEAD/TREE and post-merge workflows. Subsequent technical work must start as separate bounded workstreams; do not reopen DR-CLOSURE-01 unless the merged bytes or qualification evidence materially change.

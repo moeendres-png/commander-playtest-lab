@@ -148,3 +148,30 @@ No post-research workstream implements Phase 1–7 of this campaign; the
   milestones.
 - Candidate/reference repos (`mage`, `forge`, upstream, Manabrew, Argentum,
   Phase) are read-only in this workstream.
+
+
+## 10. Final pre-merge reconciliation
+
+Validated implementation head before documentation-only reconciliation:
+
+- HEAD: `28cecb44325047bd2b7b4069cbcebba9064aacca`
+- TREE: `d675269ce58e8294bc72bc45c1c55b3006218977`
+- PR: #241, mergeable
+- FULL107: DIRECT 12 / SUPPORTING 13 / UNKNOWN 54 / NOT_RUN_BLOCKED 28
+- XMage pin unchanged: `db134b9737e951367d65ef5806ad986319cc73ab`
+- Forge pin unchanged: `a37a865a53280dd8ad6fad3384d69611e8c5a42f`
+- Architecture Freeze: NOT CLAIMED
+- Production Provider: NOT SELECTED
+
+Validation at that implementation head:
+
+- CI: success (quality + security); 1545 Python tests passed, 5 skipped
+- XMage Full Game Conformance: success; 223 tests, 0 failures, 0 errors, 1 skip
+- XMage Real 4P Technical Smoke: success
+- External XMage Integration: success
+- Core Workflow Acceptance: success
+- Windows Runtime Hygiene: success
+- Production Qualification: success
+- H4 Docker Materialization: success (preflight, h4-xmage, h4-forge)
+
+Post-review remediation closed all five P1 review threads: exact injected-hand provenance, strict tape-schema validation, complete game-manifest comparison, explicit numeric-domain comparison, and terminal-outcome comparison. The documentation reconciliation commit is intentionally non-semantic; PR #241's final head and merge SHA are the canonical end lock after merge.
