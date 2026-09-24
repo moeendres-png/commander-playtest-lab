@@ -30,6 +30,11 @@ ADJUDICATED_FIXTURES = {
     "PLAYER_COUNT_4P",
     "PLAYER_COUNT_5P",
     "PILOT_MULLIGAN",
+    "PILOT_CHOOSE_MODE",
+    "MICRO_TARGETS",
+    "MICRO_LAYERS",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
     "WS05-CMD-MULL-2",
     "WS05-CMD-MULL-4",
     "WS05-CMD-TAX-2",
@@ -40,6 +45,11 @@ ADJUDICATED_FIXTURES = {
 }
 
 EXACT_FIXTURES = [
+    "PILOT_CHOOSE_MODE",
+    "MICRO_TARGETS",
+    "MICRO_LAYERS",
+    "WS05-MP-TRIG-3",
+    "WS05-MP-TRIG-5",
     "WS05-CMD-MULL-2",
     "WS05-CMD-MULL-4",
     "WS05-CMD-TAX-2",
@@ -96,6 +106,11 @@ def test_native_direct_requires_executed_subset(repo_root: Path) -> None:
             mode = records[entry["fixture_id"]].get("execution_entry_mode")
             if mode == "NATIVE_STATE_LOAD":
                 assert entry["fixture_id"] in (
+                    "PILOT_CHOOSE_MODE",
+                    "MICRO_TARGETS",
+                    "MICRO_LAYERS",
+                    "WS05-MP-TRIG-3",
+                    "WS05-MP-TRIG-5",
                     "WS05-CMD-TAX-2",
                     "WS05-CMD-TAX-4",
                     "WS05-CMD-PARTNER-ZONE",
@@ -194,6 +209,23 @@ def test_generator_mapping_rules(repo_root: Path) -> None:
     assert map_fixture("PLAYER_COUNT_5P", {})["status"] == "SUPPORTING"
     assert map_fixture("WS05-CMD-MULL-2", {})["status"] == "DIRECT"
     assert map_fixture("WS05-CMD-MULL-4", {})["status"] == "DIRECT"
+    assert map_fixture("PILOT_CHOOSE_MODE", {})["status"] == "DIRECT"
+    assert (
+        map_fixture("MICRO_TARGETS", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("MICRO_LAYERS", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("WS05-MP-TRIG-3", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("WS05-MP-TRIG-5", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
     assert (
         map_fixture("WS05-CMD-TAX-2", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
         == "DIRECT"

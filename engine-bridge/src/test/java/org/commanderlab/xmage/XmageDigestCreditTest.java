@@ -35,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * (recovered from the frozen WS47 tree) defines SHA-256 over canonical JSON
  * of the record projected to the spec key list with absent keys omitted.
  * These tests prove the canonicalizer reproduces all 135 frozen digests,
- * then prove each of the six DIRECT fixtures' constructed starting states
- * digest to their frozen hexes from live engine runs. Per-key provenance:
+ * then prove the DIRECT fixtures covered here construct starting states
+ * that digest to their frozen hexes from live engine runs. Per-key provenance:
  * every constructed value is natively read, engine-enforced at import, or
  * a documented harness input; descriptor mirrors (knowledge,
  * rules_randomness, setup_validation) are shape-verified with
@@ -548,6 +548,46 @@ class XmageDigestCreditTest {
                 Set.of("Rograkh, Son of Rohgahh", "Kediss, Emberclaw Familiar",
                         "Grizzly Bears", "Mountain"),
                 Set.of());
+    }
+
+    @Test
+    void trig3ConstructionDigestMatchesFrozen() {
+        verifyNativeConstructionDigest("WS05-MP-TRIG-3", "dig-trig3",
+                Set.of("Rograkh, Son of Rohgahh", "Grizzly Bears", "Soul Warden",
+                        "Forest", "Mountain"),
+                Set.of("priority"));
+    }
+
+    @Test
+    void trig5ConstructionDigestMatchesFrozen() {
+        verifyNativeConstructionDigest("WS05-MP-TRIG-5", "dig-trig5",
+                Set.of("Rograkh, Son of Rohgahh", "Grizzly Bears", "Soul Warden",
+                        "Forest", "Mountain"),
+                Set.of("priority"));
+    }
+
+    @Test
+    void microLayersConstructionDigestMatchesFrozen() {
+        verifyNativeConstructionDigest("MICRO_LAYERS", "dig-layers",
+                Set.of("Rograkh, Son of Rohgahh", "Grizzly Bears", "Humility",
+                        "Glorious Anthem", "Plains", "Mountain"),
+                Set.of());
+    }
+
+    @Test
+    void microTargetsConstructionDigestMatchesFrozen() {
+        verifyNativeConstructionDigest("MICRO_TARGETS", "dig-targets",
+                Set.of("Rograkh, Son of Rohgahh", "Grizzly Bears", "Lightning Bolt",
+                        "Mountain"),
+                Set.of("priority", "target"));
+    }
+
+    @Test
+    void chooseModeConstructionDigestMatchesFrozen() {
+        verifyNativeConstructionDigest("PILOT_CHOOSE_MODE", "dig-choosemode",
+                Set.of("Rograkh, Son of Rohgahh", "Grizzly Bears",
+                        "Burn Down the House", "Mountain"),
+                Set.of("priority", "choose_mode", "mana_payment"));
     }
 
     @Test

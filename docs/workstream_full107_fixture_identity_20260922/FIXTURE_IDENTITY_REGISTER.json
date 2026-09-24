@@ -1,5 +1,5 @@
 {
- "adjudicated_at_main": "b094b0522713836a01c539ba558717bf70ae18b0",
+ "adjudicated_at_main": "2231ff4bdd30753a127133e51a0d3657c668532d",
  "frozen_materialization": "commander-lab.semantic-fixture-materialization/1.0.5",
  "mapping_rule": "DIRECT requires register verdict EXACT; enforced by tests/unit/test_full107_direct_correspondence.py",
  "schema_version": "full107-fixture-identity-register-1.0.0",
@@ -67,6 +67,36 @@
   {
    "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameCard02ExecutionTest.java",
    "fixture_id": "CARD_02",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameDecisionExecutionTest.java",
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "note": "DR-CLOSURE-01 exact fixture execution; constructed requested_state_digest equality is guarded by XmageDigestCreditTest.",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameMicroExecutionTest.java",
+   "fixture_id": "MICRO_TARGETS",
+   "note": "DR-CLOSURE-01 exact fixture execution; constructed requested_state_digest equality is guarded by XmageDigestCreditTest.",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameMicroExecutionTest.java",
+   "fixture_id": "MICRO_LAYERS",
+   "note": "DR-CLOSURE-01 exact fixture execution; constructed requested_state_digest equality is guarded by XmageDigestCreditTest.",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java",
+   "fixture_id": "WS05-MP-TRIG-3",
+   "note": "DR-CLOSURE-01 exact fixture execution; constructed requested_state_digest equality is guarded by XmageDigestCreditTest.",
+   "verdict": "EXACT"
+  },
+  {
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java",
+   "fixture_id": "WS05-MP-TRIG-5",
+   "note": "DR-CLOSURE-01 exact fixture execution; constructed requested_state_digest equality is guarded by XmageDigestCreditTest.",
    "verdict": "EXACT"
   }
  ]
