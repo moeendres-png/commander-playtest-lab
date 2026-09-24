@@ -210,18 +210,22 @@ def test_generator_mapping_rules(repo_root: Path) -> None:
     assert map_fixture("WS05-CMD-MULL-2", {})["status"] == "DIRECT"
     assert map_fixture("WS05-CMD-MULL-4", {})["status"] == "DIRECT"
     assert map_fixture("PILOT_CHOOSE_MODE", {})["status"] == "DIRECT"
-    assert map_fixture("MICRO_TARGETS", {"execution_entry_mode": "NATIVE_STATE_LOAD"})[
-        "status"
-    ] == "DIRECT"
-    assert map_fixture("MICRO_LAYERS", {"execution_entry_mode": "NATIVE_STATE_LOAD"})[
-        "status"
-    ] == "DIRECT"
-    assert map_fixture("WS05-MP-TRIG-3", {"execution_entry_mode": "NATIVE_STATE_LOAD"})[
-        "status"
-    ] == "DIRECT"
-    assert map_fixture("WS05-MP-TRIG-5", {"execution_entry_mode": "NATIVE_STATE_LOAD"})[
-        "status"
-    ] == "DIRECT"
+    assert (
+        map_fixture("MICRO_TARGETS", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("MICRO_LAYERS", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("WS05-MP-TRIG-3", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
+    assert (
+        map_fixture("WS05-MP-TRIG-5", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+        == "DIRECT"
+    )
     assert (
         map_fixture("WS05-CMD-TAX-2", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
         == "DIRECT"
