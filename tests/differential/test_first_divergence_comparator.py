@@ -312,9 +312,7 @@ def test_irrelevant_label_difference_normalizes_to_match():
 
 def test_meaningful_digest_difference_must_not_normalize():
     actual = _tape()
-    actual["steps"][0]["legal_set_digest"] = actual["steps"][0][
-        "principal_observation_digest"
-    ]
+    actual["steps"][0]["legal_set_digest"] = actual["steps"][0]["principal_observation_digest"]
     result = compare_tapes(_tape(), actual)
     assert result.match is False
     assert result.divergence is not None
@@ -338,10 +336,7 @@ def test_provider_failure_on_unsupported_schema():
 
 
 def test_real_xmage_same_seed_tape_pair(repo_root: Path):
-    tape_path = (
-        repo_root
-        / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
-    )
+    tape_path = repo_root / "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
     tape = json.loads(tape_path.read_text())
     assert len(tape["steps"]) > 100
     matched = compare_tapes(copy.deepcopy(tape), copy.deepcopy(tape))
@@ -356,11 +351,7 @@ def test_real_xmage_same_seed_tape_pair(repo_root: Path):
     assert diverged.divergence is not None
     assert diverged.divergence.kind == DivergenceKind.EVENT_MISMATCH
     assert diverged.divergence.record_index == target
-    assert diverged.divergence.decision_offset == tape["steps"][target][
-        "decision_revision"
-    ]
-    assert diverged.divergence.actor_principal == tape["steps"][target][
-        "actor_principal"
-    ]
+    assert diverged.divergence.decision_offset == tape["steps"][target]["decision_revision"]
+    assert diverged.divergence.actor_principal == tape["steps"][target]["actor_principal"]
     assert diverged.divergence.expected_provider == "xmage"
     assert len(diverged.divergence.context_window) == 3
