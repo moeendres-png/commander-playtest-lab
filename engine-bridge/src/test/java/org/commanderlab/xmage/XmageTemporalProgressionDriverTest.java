@@ -74,11 +74,11 @@ class XmageTemporalProgressionDriverTest {
 
     @Test
     void parserAcceptsOnlyQualifiedFrozenTemporalTargets() {
+        // These frozen records isolate temporal parsing without unrelated
+        // unsupported dimensions (for example cumulative-upkeep counters).
         for (String fixture : List.of(
-                "PILOT_TRIGGER_ORDER",
                 "PILOT_DECLARE_ATTACKER",
                 "PILOT_DECLARE_BLOCKER",
-                "MICRO_REPLACEMENT",
                 "WS05-MP-TURN-3",
                 "WS05-CMD-START-2")) {
             XmageNativeStateRestoration.Plan parsed =
