@@ -18,6 +18,7 @@ import mage.game.Game;
 import mage.game.PutToBattlefieldInfo;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
+import mage.watchers.common.CommanderInfoWatcher;
 import mage.watchers.common.CommanderPlaysCountState;
 import mage.watchers.common.CommanderPlaysCountWatcher;
 
@@ -119,6 +120,14 @@ final class XmageNativeStateRestoration {
     ) {
     }
 
+    /** One requested accumulated combat-damage edge for an exact Commander identity. */
+    record RequestedCommanderDamage(
+            String commanderId,
+            String damagedPlayer,
+            int combatDamage
+    ) {
+    }
+
     /** Requested player fields. */
     record RequestedPlayer(String playerId, int seat, int life) {
     }
@@ -130,6 +139,7 @@ final class XmageNativeStateRestoration {
             long seed,
             List<RequestedPlayer> players,
             List<RequestedCommander> commanders,
+            List<RequestedCommanderDamage> commanderDamage,
             List<RequestedObject> objects,
             int turnNumber,
             TurnPhase phase,
@@ -137,6 +147,23 @@ final class XmageNativeStateRestoration {
             String activePlayer,
             String priorityPlayer
     ) {
+        /** Backward-compatible constructor for plans with no Commander-damage history. */
+        Plan(
+                String planId,
+                int playerCount,
+                long seed,
+                List<RequestedPlayer> players,
+                List<RequestedCommander> commanders,
+                List<RequestedObject> objects,
+                int turnNumber,
+                TurnPhase phase,
+                PhaseStep step,
+                String activePlayer,
+                String priorityPlayer
+        ) {
+            this(planId, playerCount, seed, players, commanders, List.of(), objects,
+                    turnNumber, phase, step, activePlayer, priorityPlayer);
+        }
     }
 
     /** Field-level compare verdict with digests, never any hidden content. */
@@ -201,11 +228,6 @@ final class XmageNativeStateRestoration {
                     player.get("life").getAsInt()));
         }
         JsonObject commanderState = record.getAsJsonObject("commander_state");
-        if (commanderState.has("commander_damage_matrix")
-                && !commanderState.get("commander_damage_matrix").isJsonNull()
-                && !commanderState.getAsJsonArray("commander_damage_matrix").isEmpty()) {
-            throw new RestorationException("UNSUPPORTED_DAMAGE_MATRIX", fixtureId);
-        }
         List<RequestedCommander> commanders = new ArrayList<>();
         for (JsonElement element : commanderState.getAsJsonArray("commanders")) {
             JsonObject commander = element.getAsJsonObject();
@@ -217,7 +239,22 @@ final class XmageNativeStateRestoration {
         }
         Set<String> commanderIds = new HashSet<>();
         for (RequestedCommander commander : commanders) {
-            commanderIds.add(commander.commanderId());
+            if (!commanderIds.add(commander.commanderId())) {
+                throw new RestorationException(
+                        "DUPLICATE_COMMANDER_ID", fixtureId + " " + commander.commanderId());
+            }
+        }
+        List<RequestedCommanderDamage> commanderDamage = new ArrayList<>();
+        if (commanderState.has("commander_damage_matrix")
+                && !commanderState.get("commander_damage_matrix").isJsonNull()) {
+            for (JsonElement element
+                    : commanderState.getAsJsonArray("commander_damage_matrix")) {
+                JsonObject edge = element.getAsJsonObject();
+                commanderDamage.add(new RequestedCommanderDamage(
+                        edge.get("source_commander_id").getAsString(),
+                        edge.get("damaged_player").getAsString(),
+                        edge.get("combat_damage").getAsInt()));
+            }
         }
         if (commanderState.has("multiple_commander_relations")
                 && !commanderState.get("multiple_commander_relations").isJsonNull()) {
@@ -294,6 +331,7 @@ final class XmageNativeStateRestoration {
                 seed,
                 List.copyOf(players),
                 List.copyOf(commanders),
+                List.copyOf(commanderDamage),
                 List.copyOf(objects),
                 turnNumber,
                 phase,
@@ -451,7 +489,14 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException("INVALID_CARD_IDENTITY", object.semanticId());
             }
         }
+        Set<String> commanderIds = new HashSet<>();
         for (RequestedCommander commander : validated.commanders()) {
+            if (commander.commanderId() == null || commander.commanderId().isBlank()) {
+                throw new RestorationException("INVALID_COMMANDER_ID", "blank commander id");
+            }
+            if (!commanderIds.add(commander.commanderId())) {
+                throw new RestorationException("DUPLICATE_COMMANDER_ID", commander.commanderId());
+            }
             if (!seats.contains(commander.owner())) {
                 throw new RestorationException(
                         "UNKNOWN_ACTOR", "commander owner must name a planned player");
@@ -461,6 +506,34 @@ final class XmageNativeStateRestoration {
             }
             if (commander.cardIdentity() == null || commander.cardIdentity().isBlank()) {
                 throw new RestorationException("INVALID_CARD_IDENTITY", commander.commanderId());
+            }
+        }
+        if (validated.commanderDamage() == null) {
+            throw new RestorationException(
+                    "INVALID_DAMAGE_MATRIX", "Commander damage matrix must not be null");
+        }
+        Set<String> damageEdges = new HashSet<>();
+        for (RequestedCommanderDamage edge : validated.commanderDamage()) {
+            if (edge == null || edge.commanderId() == null || edge.commanderId().isBlank()) {
+                throw new RestorationException("INVALID_DAMAGE_MATRIX", "blank Commander identity");
+            }
+            if (!commanderIds.contains(edge.commanderId())) {
+                throw new RestorationException(
+                        "UNKNOWN_COMMANDER_ID", String.valueOf(edge.commanderId()));
+            }
+            if (edge.damagedPlayer() == null || !seats.contains(edge.damagedPlayer())) {
+                throw new RestorationException(
+                        "UNKNOWN_ACTOR", String.valueOf(edge.damagedPlayer()));
+            }
+            if (edge.combatDamage() < 0) {
+                throw new RestorationException(
+                        "INVALID_COMMANDER_DAMAGE",
+                        edge.commanderId() + " -> " + edge.damagedPlayer()
+                                + "=" + edge.combatDamage());
+            }
+            String key = edge.commanderId() + "|" + edge.damagedPlayer();
+            if (!damageEdges.add(key)) {
+                throw new RestorationException("DUPLICATE_DAMAGE_EDGE", key);
             }
         }
     }
@@ -530,43 +603,105 @@ final class XmageNativeStateRestoration {
     synchronized void restoreCommanderCasts(
             CommanderFreeForAll game, Map<String, Player> playersByPid) {
         requireApplied();
-        CommanderPlaysCountWatcher watcher =
+
+        // Resolve every semantic Commander to one genuine native Commander id
+        // before mutating any watcher state. Generic setup-placed copies are
+        // never considered Commander identities.
+        Map<String, UUID> liveCommanderIds =
+                bindLiveCommanderIds(game, playersByPid);
+
+        CommanderPlaysCountWatcher castWatcher =
                 game.getState().getWatcher(CommanderPlaysCountWatcher.class);
-        if (watcher == null) {
+        if (castWatcher == null) {
             throw new RestorationException(
                     "WATCHER_MISSING", "CommanderPlaysCountWatcher not registered");
         }
-        // Single restore call: restoreStateForGameLoad replaces (not merges)
-        // the whole history, so per-commander calls would wipe each other.
+
         Map<UUID, Integer> counts = new HashMap<>();
         for (RequestedCommander requested : plan.commanders()) {
+            UUID liveId = liveCommanderIds.get(requested.commanderId());
+            if (counts.put(liveId, requested.priorCasts()) != null) {
+                throw new RestorationException(
+                        "COMMANDER_IDENTITY_AMBIGUOUS",
+                        "duplicate native Commander id for " + requested.commanderId());
+            }
+        }
+
+        // Pre-resolve all CARD-scope CommanderInfoWatchers and native player
+        // ids before the first restore call, so ambiguity/missing watcher/
+        // unknown-player failures cannot partially mutate the damage ledgers.
+        Map<CommanderInfoWatcher, Map<UUID, Integer>> damageByWatcher = new HashMap<>();
+        for (RequestedCommanderDamage edge : plan.commanderDamage()) {
+            UUID commanderId = liveCommanderIds.get(edge.commanderId());
+            CommanderInfoWatcher watcher =
+                    game.getState().getWatcher(CommanderInfoWatcher.class, commanderId);
+            if (watcher == null) {
+                throw new RestorationException(
+                        "COMMANDER_DAMAGE_WATCHER_MISSING", edge.commanderId());
+            }
+            Player damaged = requirePlayer(playersByPid, edge.damagedPlayer());
+            Map<UUID, Integer> ledger =
+                    damageByWatcher.computeIfAbsent(watcher, ignored -> new HashMap<>());
+            if (ledger.put(damaged.getId(), edge.combatDamage()) != null) {
+                throw new RestorationException(
+                        "DUPLICATE_DAMAGE_EDGE",
+                        edge.commanderId() + "|" + edge.damagedPlayer());
+            }
+        }
+
+        try {
+            // One cast-history restore call: native semantics replace the whole
+            // cast-count state rather than merging per Commander.
+            castWatcher.restoreStateForGameLoad(
+                    CommanderPlaysCountState.fromMap(counts), game);
+
+            // One native restore call per exact Commander watcher. This is
+            // state restoration, not synthetic historical damage-event replay.
+            for (Map.Entry<CommanderInfoWatcher, Map<UUID, Integer>> entry
+                    : damageByWatcher.entrySet()) {
+                entry.getKey().restoreDamageStateForGameLoad(entry.getValue(), game);
+            }
+        } catch (IllegalArgumentException exc) {
+            throw new RestorationException(
+                    "COMMANDER_HISTORY_REJECTED", String.valueOf(exc.getMessage()));
+        }
+    }
+
+    /**
+     * Resolves semantic Commander ids to the exact native Commander main-card
+     * ids owned by the requested player. Only GameCommanderImpl's authoritative
+     * Commander identity set participates; battlefield setup copies are
+     * deliberately excluded. Owner + exact card identity must bind 1:1.
+     */
+    private Map<String, UUID> bindLiveCommanderIds(
+            CommanderFreeForAll game, Map<String, Player> playersByPid) {
+        Map<String, UUID> resolved = new HashMap<>();
+        Set<UUID> used = new HashSet<>();
+        for (RequestedCommander requested : plan.commanders()) {
             Player owner = requirePlayer(playersByPid, requested.owner());
-            List<Card> matches = new ArrayList<>();
-            for (Card card : game.getCommanderCardsFromCommandZone(
-                    owner, CommanderCardType.COMMANDER_OR_OATHBREAKER)) {
-                if (card.getName().equals(requested.cardIdentity())) {
-                    matches.add(card);
+            List<UUID> matches = new ArrayList<>();
+            for (UUID commanderId
+                    : game.getCommandersIds(owner, CommanderCardType.ANY, false)) {
+                Card card = game.getCard(commanderId);
+                if (card != null && requested.cardIdentity().equals(card.getName())) {
+                    matches.add(commanderId);
                 }
             }
             if (matches.size() != 1) {
                 throw new RestorationException(
                         "COMMANDER_IDENTITY_AMBIGUOUS",
                         requested.commanderId() + " matched " + matches.size()
-                                + " command-zone cards for " + requested.owner());
+                                + " genuine Commander ids for " + requested.owner());
             }
-            if (counts.put(matches.get(0).getId(), requested.priorCasts()) != null) {
+            UUID liveId = matches.get(0);
+            if (!used.add(liveId)) {
                 throw new RestorationException(
                         "COMMANDER_IDENTITY_AMBIGUOUS",
-                        "duplicate command-zone card for " + requested.commanderId());
+                        "native Commander id reused for " + requested.commanderId());
             }
+            resolved.put(requested.commanderId(), liveId);
         }
-        try {
-            watcher.restoreStateForGameLoad(
-                    CommanderPlaysCountState.fromMap(counts), game);
-        } catch (IllegalArgumentException exc) {
-            throw new RestorationException(
-                    "COMMANDER_HISTORY_REJECTED", String.valueOf(exc.getMessage()));
-        }
+        return Map.copyOf(resolved);
     }
 
     /** Engine-authoritative re-validation: layers plus state-based actions. */
@@ -835,7 +970,9 @@ final class XmageNativeStateRestoration {
         payload.addProperty("schema_version", "native-state-restoration-dimensions-1.1.0");
         payload.addProperty("starting_state_injection_supported", false);
         JsonArray supported = new JsonArray();
-        supported.add("command-zone commanders with prior cast counts (game-load restore path)");
+        supported.add("commanders with prior cast counts (native game-load restore path)");
+        supported.add("commander damage matrices through exact live CommanderInfoWatcher bindings "
+                + "(native game-load restore; no synthetic damage events)");
         supported.add("battlefield/graveyard/exile placement of real cards (silent setup primitive)");
         supported.add("hand identity via the same setup primitive (principal-scoped; "
                 + "pilot observation stays counts-only through the redactor; "
@@ -856,7 +993,7 @@ final class XmageNativeStateRestoration {
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
         unsupported.add("attachments and counters");
         unsupported.add("tapped permanents (unqualified dimension)");
-        unsupported.add("commander damage matrices and commander relations");
+        unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
         unsupported.add("temporal points outside turn-1 precombat main");
         unsupported.add("frozen requested_state_digest reproduction (no canonicalization spec in repo)");
