@@ -1,0 +1,83 @@
+{
+  "schema_version": "ws19-controlled-salvage-final/1.0.0",
+  "status": "FINAL_POST_WS17R",
+  "method": "MANUAL_CONTROLLED_TRANSPLANT_NO_CHERRY_PICK",
+  "old": {
+    "branch": "ws19/forge-isolated-provider-requalification",
+    "base_commit": "9665c9d5dc5e720240b99f88300176c7a4a0f4fa",
+    "head_commit": "3e4e5b4da27c46638dfbf14bba9c03bcca3ddefd",
+    "head_tree": "ff9744728f49230bfdf32a22cb9133b7f7f074b8",
+    "commit_count_from_old_base": 16,
+    "pr": 132,
+    "pr_state": "DRAFT_OPEN_UNMERGED",
+    "evidence_status": "PROVISIONAL_PRE_WS17R_NOT_ADMISSIBLE"
+  },
+  "new": {
+    "branch": "ws19/forge-isolated-provider-requalification-v2",
+    "base_commit": "c83e52ae79ff2242578757c0f517badbb1a2621c",
+    "base_tree": "551c0d55a171508618d2b7d29e0f49b19893f886",
+    "runtime_code_commit": "d06fe667e5bc432709cf9244ea2188a543386c91",
+    "runtime_code_tree": "8a81a89d2b75c684d649437131448ef30c710265",
+    "pr": 135,
+    "pr_state_at_runtime_lock": "DRAFT_OPEN_UNMERGED"
+  },
+  "salvaged_runtime_paths": [
+    {
+      "path": ".github/workflows/ws19-forge-qualification.yml",
+      "git_blob": "7ec6b69c3d98a044680c4969fff7efe61a8969d7",
+      "classification": "REWRITE_FOR_NEW_BASELINE"
+    },
+    {
+      "path": "artifacts/ws19/forge/README.md",
+      "git_blob": "8547b16d0162091e058a9d82223c34ca1967753c",
+      "classification": "REWRITE_FOR_NEW_BASELINE"
+    },
+    {
+      "path": "artifacts/ws19/forge/WS19_EXPECTED_SOURCE_LOCK.json",
+      "git_blob": "c7630841c0219aa189302dedd71a9f65489806f2",
+      "classification": "REWRITE_FOR_NEW_BASELINE"
+    },
+    {
+      "path": "scripts/ws19_generate_forge_probe.py",
+      "git_blob": "f5ef79a6e7e600b2d126d577379c80908080b3af",
+      "classification": "SALVAGE_CANDIDATE_CODE"
+    },
+    {
+      "path": "scripts/ws19_run_forge_provider.py",
+      "git_blob": "56665947908795e51bee7a3aa4d78242dc73aa9f",
+      "classification": "SALVAGE_CANDIDATE_CODE"
+    },
+    {
+      "path": "scripts/ws19_summarize_forge_results.py",
+      "git_blob": "bdf16e2fcfeda5460600cc68b39c4b954502a594",
+      "classification": "SALVAGE_CANDIDATE_CODE_REEXECUTE_ONLY"
+    },
+    {
+      "path": "tests/qualification/test_ws19_forge_isolation.py",
+      "git_blob": "a721a2f216de95dcc5ab611774e09bb0f32ea869",
+      "classification": "SALVAGE_TEST"
+    }
+  ],
+  "runtime_path_manifest_algorithm": "sha256(sorted UTF-8 lines: '<git_blob>  <path>\\n')",
+  "runtime_path_manifest_sha256": "59c3f5ca0684e72eda00fe99c5f65d484ae3ebe3ad1d2ff4ba2ee88191109a58",
+  "not_transplanted": [
+    "pre-WS17R generated AF results",
+    "pre-WS17R COMMON_RESULTS",
+    "pre-WS17R candidate matrices",
+    "pre-WS17R Production Admission outputs",
+    "pre-WS17R aggregate evidence",
+    "stale runtime source-lock outputs",
+    "common WS-10R semantics changes",
+    "common fixture manifest changes",
+    "obligation catalog changes",
+    "denominator manifest changes",
+    "WS-17R workflow repair changes"
+  ],
+  "shared_infrastructure_changes_transplanted": false,
+  "canonical_runtime_evidence": {
+    "workflow_run": 33265726473,
+    "workflow_conclusion": "SUCCESS",
+    "artifact_id": 9718602687,
+    "artifact_sha256": "89511fbfcf5dd6b853f020956827845da123841a463e377fd391a5ac1b161a41"
+  }
+}
