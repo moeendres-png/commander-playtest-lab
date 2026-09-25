@@ -1,0 +1,32 @@
+{
+  "complete_differential_result_sha256": "d19ebdfe682130f50b0c8ffe4d51e437a91ff4b66a09205f176e8c0a9c4ca447",
+  "differential_verdict": "SETUP_NONISOMORPHIC",
+  "forge": {
+    "checkpoint_hashes": {
+      "actor_observation": "2d38422a7cab2e97f447386877c8d23f1dbe9250b73201435822ac97f20476a7",
+      "decision_coverage": "2f9f1fd02e81d117e7fd0bb1d4b53777ccd97f53795b76ab19ad7bafec9c1224",
+      "terminal_snapshot": "cf44bd8d57a86e182f1152a519bc108363a2a84bbd726c11b6c976e61d33290d"
+    },
+    "decision_tape_sha256": "bc78e4884b9b720899e720662b9dafe9662b44f8ddcf0fdb9477c9e299af5b6a",
+    "event_tape_sha256": "623f97444b3bed4e7d81fe065c7e33a563deca8bd8668844e9a2e68740edebcf",
+    "rules_rng_tape_sha256": "3fb4d8af995bcb2f591d24cdb49ba2138202b89fc92eaa393a2e032ab2d11243",
+    "scenario_sha256": "4849539d28e40da2d00f0071a83b53fe3b08a14e3670fdc92d1ea1e82da86629",
+    "terminal_state_sha256": "cf44bd8d57a86e182f1152a519bc108363a2a84bbd726c11b6c976e61d33290d"
+  },
+  "schema_version": "ws28-replay-checkpoint-evidence/1.0.0",
+  "xmage": {
+    "checkpoints_sha256": "005fe28dea8a80944cacb751467d083e68aa3a025f07eab7044af8a411013c58",
+    "decision_tape_sha256": "a17fef13723b15d67a37522db29a22856739307bd83f08d7851f258e677974f0",
+    "event_tape_sha256": "72e293e200602b3764b5acd994975dc153eedbb78963c023818d153788a6c8b3",
+    "fresh_process_second_hashes": {
+      "checkpoints": "005fe28dea8a80944cacb751467d083e68aa3a025f07eab7044af8a411013c58",
+      "decision": "a17fef13723b15d67a37522db29a22856739307bd83f08d7851f258e677974f0",
+      "event": "72e293e200602b3764b5acd994975dc153eedbb78963c023818d153788a6c8b3",
+      "final_state": "acbb647c9b0dcb267e52ce999bfe3c17e77bf676d15223da522c6ef5b799accf",
+      "rules_rng": "1300ca4a26e1adc36cdf04a726d565ed8e18b067155c607efa49f767b13a89e3"
+    },
+    "initial_semantic_state_sha256": "d9af8dd093c0e0ff0b1c256cf5f030cdbfd63a5a75625225be7eb4f747f3b86b",
+    "rules_rng_tape_sha256": "1300ca4a26e1adc36cdf04a726d565ed8e18b067155c607efa49f767b13a89e3",
+    "terminal_state_sha256": "acbb647c9b0dcb267e52ce999bfe3c17e77bf676d15223da522c6ef5b799accf"
+  }
+}
