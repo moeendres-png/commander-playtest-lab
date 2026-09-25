@@ -538,7 +538,7 @@ def test_safe_push_succeeds_under_ancestor_lock(tmp_path: Path) -> None:
     locks.mkdir()
     env = _env()
     env["HOME"] = "/nonexistent-fake-home"
-    remote = tmp_path / "test-host" / "fixture-repo" / "remote.git"
+    remote = tmp_path / "test-host" / "fixture-repo.git"
     remote.parent.mkdir(parents=True)
     _git(["init", "--bare", "-b", "main", str(remote)], tmp_path, env)
     seed = tmp_path / "seed"
@@ -585,7 +585,8 @@ def test_safe_push_succeeds_under_ancestor_lock(tmp_path: Path) -> None:
         "lock.acquire(); "
         f"p = subprocess.run([sys.executable, {str(TOOLS / 'safe_push.py')!r}, "
         "'--worktree', sys.argv[1], '--expected-branch', 'test/ws', "
-        "'--state', sys.argv[2], '--expected-slug', 'test-host/fixture-repo'], "
+        "'--state', sys.argv[2], '--expected-slug', 'test-host/fixture-repo', "
+        "'--allow-local-path-target'], "
         "capture_output=True, text=True); "
         "sys.stdout.write(p.stdout); sys.stderr.write(p.stderr); "
         "lock.release(); sys.exit(p.returncode)"
