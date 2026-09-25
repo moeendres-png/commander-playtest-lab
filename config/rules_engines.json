@@ -4,9 +4,9 @@
   "primary_engine": {
     "provider": "xmage",
     "release": "compatibility-fork-unreleased",
-    "commit": "db134b9737e951367d65ef5806ad986319cc73ab",
+    "commit": "b19596980f2734496ea1896504253e1bdd2756dd",
     "repository": "https://github.com/moeendres-png/mage.git",
-    "source_archive": "https://github.com/moeendres-png/mage/archive/db134b9737e951367d65ef5806ad986319cc73ab.tar.gz",
+    "source_archive": "https://github.com/moeendres-png/mage/archive/b19596980f2734496ea1896504253e1bdd2756dd.tar.gz",
     "license": "MIT",
     "role": "real pinned XMage B4-D bounded bridge for deck import, Commander game start, live state observation, current-priority legal-action handoff, fail-closed targetless/nonmodal action submission, external audit event export and explicit per-game lifecycle cleanup; complete external game control remains incomplete",
     "status": "B4D_EVENT_LOG_LIFECYCLE_VALIDATED_DEGRADED",
@@ -78,7 +78,7 @@
   ],
   "rules_engine_release_gate": {
     "minimum_project_critical_interactions": 50,
-    "required_match_rate": 1.0,
+    "required_match_rate": 1,
     "allow_tactical_oracle_substitution": false
   },
   "current_runtime": {
@@ -113,6 +113,6 @@
       "selection_truth": "ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT SELECTED. provider_decision=NO_PROVIDER_READY, current_runtime.provider_selected=false, current_runtime.production_provider=null. No engine is production-selected until the provider release gate passes and a Freeze workstream records the decision.",
       "rename_policy": "Do not rename primary_engine/secondary_engine keys: they are runtime-contract fields consumed by src/commander_lab/technical_truth.py, scripts/run_external_b4f_*.py and .github/workflows/release-artifacts.yml. Terminology changes belong in documentation, not in schema renames."
     },
-    "known_stale_pointers": "docker/forge/Dockerfile, docker/xmage/Dockerfile and src/commander_lab/engine/rules/phase85.py (Phase-8.5 output template) carry older pins. They are NOT authority. Re-pinning container flows requires a dedicated re-pin workstream with requalification (Authority Gate PIN_DIVERGENCE_DOCKERFILES); see docs/RETENTION_AND_LIFECYCLE_POLICY.md, Appendix G (recorded Authority Gates). WS88 addendum: since WS-A1D both Dockerfiles declare required build args without pin defaults and resolve identity from this manifest at build time, so they are pin-free by design; phase85.py remains frozen historical provenance. Canonical xmage pin is now db134b9737e951367d65ef5806ad986319cc73ab (WS213 consolidated repin and requalification: WS206 combat-damage legality plus WS211 authoritative concession plus WS212 explicit Rules-seed authority; direct 5-commit descendant of cfc36f445f917f101fa2ed588770e043f53bc44c, which superseded 77d7646da6958fdf8125ee7c8f4aabd130d21d4c; all retained only in sealed historical evidence)."
+    "known_stale_pointers": "docker/forge/Dockerfile, docker/xmage/Dockerfile and src/commander_lab/engine/rules/phase85.py (Phase-8.5 output template) carry older pins. They are NOT authority. Re-pinning container flows requires a dedicated re-pin workstream with requalification (Authority Gate PIN_DIVERGENCE_DOCKERFILES); see docs/RETENTION_AND_LIFECYCLE_POLICY.md, Appendix G (recorded Authority Gates). WS88 addendum: since WS-A1D both Dockerfiles declare required build args without pin defaults and resolve identity from this manifest at build time, so they are pin-free by design; phase85.py remains frozen historical provenance. Prior canonical xmage pin db134b9737e951367d65ef5806ad986319cc73ab is retained only in sealed historical evidence from WS213 and descendants. Canonical xmage pin is now b19596980f2734496ea1896504253e1bdd2756dd, the cumulative M1-M4 Mage residual candidate (RG-02 commander-damage restore qualification, RG-07 exact-N target offering qualification, RG-08 replacement timing qualification, RG-06A ordered-library/face-down state-load remediation). Architecture Freeze remains NOT CLAIMED and Production Provider remains NOT SELECTED."
   }
 }
