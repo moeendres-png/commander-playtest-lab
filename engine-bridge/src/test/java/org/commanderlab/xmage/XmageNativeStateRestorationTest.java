@@ -4,16 +4,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import mage.abilities.effects.common.continuous.BecomesFaceDownCreatureEffect;
 import mage.cards.decks.Deck;
+import mage.game.permanent.Permanent;
 import mage.players.Player;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -798,4 +802,81 @@ class XmageNativeStateRestorationTest {
         assertTrue(!dimensions.getAsJsonArray("supported_dimensions").isEmpty());
         assertTrue(!dimensions.getAsJsonArray("unsupported_dimensions").isEmpty());
     }
+
+    @Test
+    void residualCandidateOrderedLibraryRestorePrimitiveIsRuntimeReachable() {
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                "residual-library-api", 2, 424242L,
+                List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
+                List.of(
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0)),
+                List.of(), 1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration = restorationFor(plan);
+        List<String> handles = importScaffolding(importer, plan, "residual-library-api");
+        XmageFullGameSession session = new XmageFullGameSession(
+                "residual-library-api", handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+        completeArrival(session, restoration, seats);
+
+        Player p1 = seats.get("P1");
+        List<UUID> original = new ArrayList<>(p1.getLibrary().getCardList());
+        assertTrue(original.size() > 1, "scaffolding library must contain multiple cards");
+        List<UUID> requested = new ArrayList<>(original);
+        Collections.reverse(requested);
+        p1.getLibrary().restoreOrderForGameLoad(requested, session.restorationGame());
+        assertEquals(requested, p1.getLibrary().getCardList(),
+                "bridge runtime must execute the residual candidate's exact ordered-library API");
+    }
+
+    @Test
+    void residualCandidateFaceDownRestorePrimitiveIsRuntimeReachable() {
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                "residual-facedown-api", 2, 424242L,
+                List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                        new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
+                List.of(
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P1-A", "Rograkh, Son of Rohgahh", "P1", 0),
+                        new XmageNativeStateRestoration.RequestedCommander(
+                                "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0)),
+                List.of(new XmageNativeStateRestoration.RequestedObject(
+                        "obj:P1-bears", "Grizzly Bears", "P1", "P1",
+                        mage.constants.Zone.BATTLEFIELD, false)),
+                1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration = restorationFor(plan);
+        List<String> handles = importScaffolding(importer, plan, "residual-facedown-api");
+        XmageFullGameSession session = new XmageFullGameSession(
+                "residual-facedown-api", handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+        completeArrival(session, restoration, seats);
+
+        Permanent bears = session.restorationGame().getBattlefield().getAllActivePermanents().stream()
+                .filter(p -> p.getOwnerId().equals(seats.get("P1").getId()))
+                .filter(p -> "Grizzly Bears".equals(p.getName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("restored Grizzly Bears missing"));
+        BecomesFaceDownCreatureEffect.restoreFaceDownStateForGameLoad(
+                bears.getId(),
+                BecomesFaceDownCreatureEffect.FaceDownType.MANIFESTED,
+                session.restorationGame());
+        XmageNativeStateRestoration.revalidate(session.restorationGame());
+
+        assertTrue(bears.isFaceDown(session.restorationGame()));
+        assertTrue(bears.isManifested());
+        assertFalse(bears.isCloaked());
+        assertFalse(XmageProvider.capabilitiesPayload().getAsJsonObject("capabilities")
+                .get("starting_state_injection_supported").getAsBoolean(),
+                "bounded native primitive reachability must not inflate the global capability");
+    }
+
 }
