@@ -25,8 +25,8 @@ from commander_lab.engine.rules.full_game_batch import (
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
-# WS213 authorized repin: WS212 production candidate (was cfc36f44).
-XMAGE_COMMIT = "db134b9737e951367d65ef5806ad986319cc73ab"
+# Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
+XMAGE_COMMIT = "b19596980f2734496ea1896504253e1bdd2756dd"
 
 
 def _binding(seat: int, deck_id: str) -> FullGamePilotBinding:
