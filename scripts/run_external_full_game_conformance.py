@@ -19,7 +19,7 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
 ROOT = Path(__file__).resolve().parents[1]
-XMAGE_COMMIT = "db134b9737e951367d65ef5806ad986319cc73ab"
+XMAGE_COMMIT = "b19596980f2734496ea1896504253e1bdd2756dd"
 
 # WS223 cardinality contract. 4P keeps the full game-over + replay gate
 # (continuity with WS213/WS215 evidence, same seed). 2P/3P/5P run the bounded

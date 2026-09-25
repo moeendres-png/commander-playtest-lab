@@ -241,7 +241,7 @@ class Ws92DecisionKindCensusTest {
         JsonObject census = new JsonObject();
         census.addProperty("schema", "ws92.decision-kind-census.v1");
         census.addProperty("workstream", "WS92-XMAGE-D1-D5-BOUNDARY-REACQUISITION");
-        census.addProperty("engine_commit", "db134b9737e951367d65ef5806ad986319cc73ab");
+        census.addProperty("engine_commit", XmageProvider.ENGINE_COMMIT);
         census.addProperty("seed", CENSUS_SEED);
         census.addProperty("deck", "rogshai_current.json");
         census.addProperty("operational_pod_size", 4);

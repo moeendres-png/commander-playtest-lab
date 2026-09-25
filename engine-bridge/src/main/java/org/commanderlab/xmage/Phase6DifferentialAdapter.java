@@ -45,7 +45,7 @@ import java.util.UUID;
 final class Phase6DifferentialAdapter {
 
     private static final Gson GSON = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
-    private static final String BACKEND_VERSION = "xmage-1.4.61@db134b9737e951367d65ef5806ad986319cc73ab";
+    private static final String BACKEND_VERSION = "xmage-" + XmageProvider.ENGINE_VERSION + "@" + XmageProvider.ENGINE_COMMIT;
 
     private Phase6DifferentialAdapter() {
     }
@@ -77,7 +77,7 @@ final class Phase6DifferentialAdapter {
         JsonObject response = new JsonObject();
         response.addProperty("backend_version", BACKEND_VERSION);
         response.addProperty("provider", "xmage");
-        response.addProperty("provider_commit", "db134b9737e951367d65ef5806ad986319cc73ab");
+        response.addProperty("provider_commit", XmageProvider.ENGINE_COMMIT);
         response.addProperty("scenario_mode", "provider_state_injection_v1");
         response.add("normalized_output", normalized);
         response.add("normalized_output_provenance", normalizedOutputProvenance(caseId));
@@ -180,11 +180,12 @@ final class Phase6DifferentialAdapter {
                             "XMage CommanderInfoWatcher unavailable for " + commanderName
                     );
                 }
-                // Explicit test-only starting-state injection into XMage's own
-                // CommanderInfoWatcher. The loss rule is then evaluated by
-                // GameCommanderImpl.checkStateBasedActions(), not by this adapter.
-                watcher.getDamageToPlayer().put(defender.getId(), amount);
-                maximum = Math.max(maximum, watcher.getDamageToPlayer().get(defender.getId()));
+                // Restore through XMage's native game-load seam. No historical
+                // DAMAGED_PLAYER event is synthesized and no Lab-side damage ledger exists.
+                watcher.restoreDamageStateForGameLoad(
+                        Map.of(defender.getId(), amount), scenario.game());
+                maximum = Math.max(
+                        maximum, watcher.getDamageToPlayer().getOrDefault(defender.getId(), 0));
             }
 
             scenario.game().runCommanderStateBasedActions();
