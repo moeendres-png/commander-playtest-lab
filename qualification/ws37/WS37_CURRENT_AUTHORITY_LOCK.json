@@ -1,0 +1,2459 @@
+{
+  "authority_defects": [],
+  "authority_status": "PASS",
+  "commander_rules_authority": "Current official Comprehensive Rules section 903 and applicable keyword rules; no engine behavior used.",
+  "comprehensive_rules": {
+    "authority_scope": "CURRENT_OFFICIAL_WIZARDS_COMPREHENSIVE_RULES",
+    "current_cr": {
+      "content_type": "text/plain",
+      "etag": "\"fb8bffb15798ecff075d383589c2f263:1787170217.794465\"",
+      "final_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
+      "http_status": 200,
+      "last_modified": "Wed, 19 Aug 2026 20:07:32 GMT",
+      "raw_byte_count": 977822,
+      "requested_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
+      "retrieved_at_utc": "2026-09-02T17:55:05.561183Z",
+      "sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f"
+    },
+    "effective_date_text": "August 7, 2026",
+    "raw_rules_bytes_committed": false,
+    "relevant_rule_semantic_validation": {
+      "comparison_count": 29,
+      "defects": [],
+      "match_count": 29,
+      "prior_ws31_cr_sha256_provenance": "9e2268a0ed58f229c5b974a3ae7986c5f91a5a052c4af1a9e672906a427c044c",
+      "records": [
+        {
+          "current_normalized_sha256": "e2af1df861be77cdd2d4c6028d830a11974585e9801ddf41c66bc817e4095cee",
+          "rule_ref": "101.4",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "active player",
+                "nonactive players"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "actions happen simultaneously"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "af7bb88568ae25178b0a0656f9204c28c4a72207197cf90e65c78a9ff47b3d1f",
+          "rule_ref": "107.1",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "only numbers",
+                "integers"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "a6b5301df9ba0a0f0914938ba2de07890ef9855abcdf5eb134d72d9ed7c04b28",
+          "rule_ref": "107.3",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "letter x",
+                "placeholder"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "controller choose",
+                "value of x"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "11bd9e261e2bb4ecf7c266df5df81de14a34a2ab560de7597eeabacd241ae34c",
+          "rule_ref": "115.1",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "spells and abilities",
+                "one or more targets"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "putting the spell or ability on the stack"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "5e85b0a5d904922f4e1117c4227baecb1b0a19d63573ca0d8a9b29c4d3eadd5b",
+          "rule_ref": "115.3",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "same target can't be chosen multiple times",
+                "one instance of the word \"target\""
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "a21af16967b45e08259e37813aea132dae1f49908d6fd74615acb7b32741e780",
+          "rule_ref": "401",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "single face-down pile"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "players can’t look at or change the order"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "5a23d5d1a5455ed1995158bcdda7887762c4419bb4dc9139012f60e09151e7b6",
+          "rule_ref": "508.1b",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "active player announces",
+                "each of the chosen creatures is attacking"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "b29d06932bab059464552b9ff28166320206bd0def60de3639b155e1798308b2",
+          "rule_ref": "601.2b",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "spell is modal",
+                "announces the mode choice"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "alternative or additional costs",
+                "announces their intentions"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "variable cost",
+                "announces the value"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "a258cdfe57a0d317fbafc7acf8caee205cb0c71c4aa988052472580c4910558c",
+          "rule_ref": "601.2c",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "choice of an appropriate object or player",
+                "each target"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "variable number of targets",
+                "announces how many targets"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "6f9f37717e4f0594579bc0cf3fd938c7d56cc49deaa165c7c011400e46e38fbc",
+          "rule_ref": "601.2d",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "divide or distribute an effect",
+                "one or more targets"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "each of these targets must receive at least one"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "0e5bab9baa20723de7bca986f8aad67092fb5cb90121850d21971bc7c6ec7df8",
+          "rule_ref": "601.2f",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "determines the total cost"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "additional or alternative costs"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "cost increases",
+                "cost reductions"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "ac7c7844f55cede4e47fdaf2fca30617206bcd1576b26a129137b4c888104f0d",
+          "rule_ref": "603.10",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "objects that exist immediately after an event",
+                "trigger conditions"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "6b3e2ce18e0408e3dd374d3fc44810332c8da9703fc273ebdad29cf83a617888",
+          "rule_ref": "603.10a",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "zone-change triggers look back in time"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "leaves-the-battlefield abilities"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "sacrifices a permanent"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "81584e76d6cb11e4f87018ba5c6fc6b48a2351e003eae16d74a39745c909b22c",
+          "rule_ref": "603.3b",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "multiple abilities have triggered",
+                "apnap order"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "puts each triggered ability they control",
+                "stack"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "ebc2c87f28be3a1e0196dd191efa249300f7499946b0c359e83fcda06d474d17",
+          "rule_ref": "603.3d",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "process for putting a triggered ability on the stack",
+                "identical to the process for casting a spell"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "no legal choices can be made",
+                "removed from the stack"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "1149438f50a9f8cfb090b3e3192ba4931e2c1a7a221fb46aed934f1139e1e48f",
+          "rule_ref": "603.5",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "triggered abilities’ effects are optional",
+                "may"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "choice is made when the ability resolves"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "d4b7b95ce43a7508fbd9e74de4b8732c01e26c908a6e2457f07b5091b37dd370",
+          "rule_ref": "608.2b",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "specifies targets",
+                "checks whether the targets are still legal"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "last known information"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "72f8bd6e4d8bf5abcd9e0399b0b97f8ad81f23905a94b79eec10310b9d500375",
+          "rule_ref": "608.2d",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "offers any choices",
+                "player announces these while applying the effect"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "can’t choose an option that’s illegal or impossible"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "358aee6aec3de9e38413a1b6e1f5fc33da1cc3a2a4b73acc98828a74c5a92300",
+          "rule_ref": "613.7",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "timestamp system"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "earlier timestamp",
+                "later timestamp"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "36b520023736076b735e7abb644b299a409479e9c3e6050dce681e0198c629eb",
+          "rule_ref": "700.2",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "spell or ability is modal"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "each of those options is a mode"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "66836a8ab1aff08a41622f6f5d6e25b9c6d64b480f2391065f30568ebe3c3953",
+          "rule_ref": "701.20e",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "instruct a player to look at one or more cards"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "shown only to the specified player"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "d982368711a00d9d409e1d0ff8f9b89f66ae6197f53d6e4f6ec6a838c8cecaf6",
+          "rule_ref": "701.22a",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "scry n"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "look at the top n cards"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "bottom of your library"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "rest on top of your library"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "dd1e944aa80c7f468d8cbde934a46b247727831d326189c429e44359f1acbe3c",
+          "rule_ref": "702.124d",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "two commanders function independently"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "ignore how many times your other commander has been cast"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "damage from each of your two commanders separately"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "df0a1f3a7fc26f43a66d196413749b62725a688853ba4f7fc2116b66b42ef028",
+          "rule_ref": "802.3",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "attacking player declares each attacking creature"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "choose a defending player"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "02803fb05a7b0df9580a3ff2097251717a5cd4e39c14dd4a9abc5fe25b5b2178",
+          "rule_ref": "903.10a",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "21 or more combat damage"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "same commander"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "loses the game"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "6f175c75f0f8cfbf37da6107d97f0aba9e25f4dd3235a1646900598cc25c9881",
+          "rule_ref": "903.3",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "designated as its commander"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "creature card"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "c9bc0b41e8ebb52b9ed34396050332346e350b6008740d56f06006f5a89e793e",
+          "rule_ref": "903.8",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "cast a commander they own from the command zone"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "additional {2}",
+                "each previous time"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "56f66a8291621d8cc775965ef4c1450e3a32779df25509739d33cba71daf49b7",
+          "rule_ref": "903.9a",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "commander is in a graveyard or in exile"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "state-based action"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "put it into the command zone"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        {
+          "current_normalized_sha256": "fde9c04116b7fe28d865eb8eb2349ec31828302d950d72d713a83ea967a1121e",
+          "rule_ref": "903.9b",
+          "semantic_predicates": [
+            {
+              "required_terms": [
+                "commander would be put into its owner’s hand or library"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "put it into the command zone instead"
+              ],
+              "status": "PASS"
+            },
+            {
+              "required_terms": [
+                "replacement effect"
+              ],
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        }
+      ],
+      "required_rule_ref_count": 29,
+      "status": "PASS",
+      "validation_mode": "CURRENT_RULE_SEMANTIC_PREDICATES"
+    },
+    "rules_page": {
+      "content_type": "text/html; charset=utf-8",
+      "etag": "\"24b86-yncePEi9uMP8NR2l4vjJWlVbp9Q\"",
+      "final_url": "https://magic.wizards.com/en/rules",
+      "http_status": 200,
+      "last_modified": null,
+      "raw_byte_count": 150406,
+      "requested_url": "https://magic.wizards.com/en/rules",
+      "retrieved_at_utc": "2026-09-02T17:55:05.375358Z",
+      "sha256": "3989f494369076c84e64985384db51b13c6023735d8ebc59935be8218f783002"
+    },
+    "schema_version": "commander-lab.ws37.current-cr-acquisition/1.2.0"
+  },
+  "locked_at_from_source_retrieval": true,
+  "mechanics_authority": "Current official Comprehensive Rules plus current Oracle/rulings for the exact 29 identities.",
+  "oracle_and_rulings": {
+    "cards": [
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "53",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Ishai, Ojutai Dragonspeaker",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "2",
+            "official_gatherer_url": "https://gatherer.wizards.com/FCA/en-us/53/ishai-ojutai-dragonspeaker",
+            "official_rulings": [
+              {
+                "date": "11/10/2020",
+                "text": "An ability that triggers when a player casts a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional 2 the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "0cb7aa71a371bb7c06cab90c87e5f7fac54aacb29c68ae5bb1bad594ba56cff9",
+            "oracle_text": "Flying Whenever an opponent casts a spell, put a +1/+1 counter on Ishai. Partner (You can have two commanders if both have partner.)",
+            "power_toughness": "1 / 1",
+            "raw_html_byte_count": 220505,
+            "raw_html_sha256": "eeb6d1dde0adc68167c92b0aa7411af690dc8b5b45fc0fd432f8181fc5dddbd1",
+            "requested_face_name": "Ishai, Ojutai Dragonspeaker",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:06.827485Z",
+            "set_or_printing_used": "FCA - FINAL FANTASY Through the Ages",
+            "type_line": "Legendary Creature - Bird Monk"
+          }
+        ],
+        "project_card_identity": "Ishai, Ojutai Dragonspeaker",
+        "semantic_identity": "ws37:authority-probe:9111187c15a48cccdfcbbd69efb12f4fbbacd1481249f051b87defd40a94674e",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "197",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Rograkh, Son of Rohgahh",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "0",
+            "official_gatherer_url": "https://gatherer.wizards.com/CMR/en-us/197/rograkh-son-of-rohgahh",
+            "official_rulings": [
+              {
+                "date": "6/6/2025",
+                "text": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional 2 the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "c0b9fdd95fae21e3d7721b2bf3dac6d4c1f1da9b08080aa82af565f498180805",
+            "oracle_text": "First strike, menace, trample Partner (You can have two commanders if both have partner.)",
+            "power_toughness": "0 / 1",
+            "raw_html_byte_count": 276013,
+            "raw_html_sha256": "87b9ffab03a84791a29cab98314f84a7d525c1e882d6266d6b012f08edf0ab1d",
+            "requested_face_name": "Rograkh, Son of Rohgahh",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:07.334902Z",
+            "set_or_printing_used": "CMR - Commander Legends",
+            "type_line": "Legendary Creature – Kobold Warrior"
+          }
+        ],
+        "project_card_identity": "Rograkh, Son of Rohgahh",
+        "semantic_identity": "ws37:authority-probe:19a0f04b3ac6fdec59c7ea770d713775246b493955807aad0924814c9284fca6",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "67",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Esior, Wardwing Familiar",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/CMR/en-us/67/esior-wardwing-familiar",
+            "official_rulings": [
+              {
+                "date": "11/10/2020",
+                "text": "To determine the total cost of an opponent's spell that targets a commander you control, start with the mana cost or alternative cost that player is paying, add any cost increases (such as that of Esior's middle ability), then apply any cost reductions. The mana value of the spell is determined only by its mana cost, no matter what the total cost to cast the spell was."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "Spells that target more than one commander you control cost only 3 more to cast."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional 2 the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "e76c9e9bb1df9cae1b1ca7e553c108ae42e4a1048b5fa64bb5db68ef940a4591",
+            "oracle_text": "Flying Spells your opponents cast that target one or more commanders you control cost 3 more to cast. Partner (You can have two commanders if both have partner.)",
+            "power_toughness": "1 / 3",
+            "raw_html_byte_count": 292079,
+            "raw_html_sha256": "3a83dbcfb69d04ab7a236699287d8567f94ba3393e3cf8065bcb2460d1f2c4f4",
+            "requested_face_name": "Esior, Wardwing Familiar",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:07.830892Z",
+            "set_or_printing_used": "CMR - Commander Legends",
+            "type_line": "Legendary Creature – Bird"
+          }
+        ],
+        "project_card_identity": "Esior, Wardwing Familiar",
+        "semantic_identity": "ws37:authority-probe:4743cdc01ad974b9a444fb9547756eaaf649ac4431028afa6719c2418d1abc3f",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "188",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Kediss, Emberclaw Familiar",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/CMR/en-us/188/kediss-emberclaw-familiar",
+            "official_rulings": [
+              {
+                "date": "11/10/2020",
+                "text": "The damage the commander deals as a result of Kediss's triggered ability isn't combat damage. It isn't tracked with combat damage dealt by commanders and won't cause Kediss's ability to trigger again."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "Kediss's triggered ability will trigger if any commander you control deals combat damage to an opponent, not just your commander."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "Kediss's triggered ability won't trigger if a commander you control deals combat damage to a planeswalker."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional 2 the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "9c100ebad02084d2d1c6eb3fab42019dbe4475a60f87ec9e41fc064ccdcd2850",
+            "oracle_text": "Whenever a commander you control deals combat damage to an opponent, it deals that much damage to each other opponent. Partner (You can have two commanders if both have partner.)",
+            "power_toughness": "1 / 1",
+            "raw_html_byte_count": 300168,
+            "raw_html_sha256": "967dc42d08fe59c6328b21e3937d6e2358b67b129ba05ecc4f4d6824a871c0cf",
+            "requested_face_name": "Kediss, Emberclaw Familiar",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:08.449903Z",
+            "set_or_printing_used": "CMR - Commander Legends",
+            "type_line": "Legendary Creature – Elemental Lizard"
+          }
+        ],
+        "project_card_identity": "Kediss, Emberclaw Familiar",
+        "semantic_identity": "ws37:authority-probe:19b33de0ae1812773af2c13a641422d99e34ad53e82a3f637d2b61da2e9dbb0a",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "337",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Veyran, Voice of Duality",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/SOC/en-us/337/veyran-voice-of-duality",
+            "official_rulings": [
+              {
+                "date": "4/16/2021",
+                "text": "Veyran, Voice of Duality's last ability causes each of your magecraft abilities, including Veyran's own, to trigger an additional time."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "Veyran's effect doesn't copy the triggered ability; it just causes the ability to trigger again. Any choices you make as you put the ability on the stack, such as modes and targets, are made separately for each instance of the ability. Any choices made on resolution are also made individually."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "If you somehow control two Veyrans (which would be poetic), you casting an instant or sorcery spell causes abilities to trigger three times. A third Veyran (less poetic) causes abilities to trigger four times, and so on."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "Each magecraft ability has a different effect, although they all have the same trigger condition, whenever you cast or copy an instant or sorcery spell."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "If an effect creates a copy of an instant or sorcery spell, this will also cause the magecraft ability to trigger."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "If an effect creates multiple copies of an instant or sorcery spell, magecraft abilities trigger once for each copy created by the effect."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "Some effects instruct you to copy an instant or sorcery card in a zone other than the stack. These copies do not cause magecraft abilities to trigger. However, most effects that do this also allow you to cast the copy, and casting the copy will cause magecraft abilities to trigger. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "520bc27e6cd4325ecda33dba32615fe357700230a5ddcf70960dbafcf0cb0c95",
+            "oracle_text": "Magecraft - Whenever you cast or copy an instant or sorcery spell, Veyran gets +1/+1 until end of turn. If you casting or copying an instant or sorcery spell causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time.",
+            "power_toughness": "2 / 2",
+            "raw_html_byte_count": 346954,
+            "raw_html_sha256": "17e46df5162a49f5c6f200b4adfc917524fe8087c532cffa2bedf75dffc6c3b1",
+            "requested_face_name": "Veyran, Voice of Duality",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:09.067074Z",
+            "set_or_printing_used": "SOC - Secrets of Strixhaven Commander",
+            "type_line": "Legendary Creature - Efreet Wizard"
+          }
+        ],
+        "project_card_identity": "Veyran, Voice of Duality",
+        "semantic_identity": "ws37:authority-probe:c42ae0d3ef5f0bd51eb29d9e6feebfacb598ae8e1990b119570cec56811f1774",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "123",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Harmonic Prodigy",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/SOC/en-us/123/harmonic-prodigy",
+            "official_rulings": [],
+            "oracle_section_sha256": "56c2c35a13399c52efbdb651195520ec7ecfd3da59a8d25e024aeda4b437bacb",
+            "oracle_text": "Prowess (Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn.) If a triggered ability of a Shaman or another Wizard you control triggers, that ability triggers an additional time.",
+            "power_toughness": "1 / 3",
+            "raw_html_byte_count": 227530,
+            "raw_html_sha256": "b641b8d5895d9c51c5268b28312d6c9a61158b4a4d0e4dd7e861089f4dc5d7b1",
+            "requested_face_name": "Harmonic Prodigy",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:09.600721Z",
+            "set_or_printing_used": "SOC - Secrets of Strixhaven Commander",
+            "type_line": "Creature - Human Wizard"
+          }
+        ],
+        "project_card_identity": "Harmonic Prodigy",
+        "semantic_identity": "ws37:authority-probe:df1165c6f7c3562f662f2447bd92e8e3ebad8cf80fdac1672109dc380e0c1e79",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "32",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Narset, Parter of Veils",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": "5",
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/MB2/en-us/32/narset-parter-of-veils",
+            "official_rulings": [
+              {
+                "date": "5/3/2019",
+                "text": "Your opponents can each draw a maximum of one card each on each player's turn. Subsequent card draws during that turn are ignored."
+              },
+              {
+                "date": "5/3/2019",
+                "text": "If an opponent hasn't drawn any cards in a turn and a spell or ability instructs that player to draw multiple cards, that player will just draw one card. However, if the draws are optional, the player can't choose to draw, even if they could draw one card this way."
+              },
+              {
+                "date": "5/3/2019",
+                "text": "Narset will \"see\" cards drawn by opponents earlier in the turn she entered the battlefield, although Narset can't affect cards drawn before she entered the battlefield. For example, if an opponent draws two cards, then Narset enters the battlefield, that opponent can't draw more cards that turn, but the two drawn cards are unaffected."
+              },
+              {
+                "date": "5/3/2019",
+                "text": "Replacement effects (such as that of Underrealm Lich or the first ability of Jace, Wielder of Mysteries) can't be used to replace draws that Narset disallows. However, if an opponent's first draw is replaced (by Underrealm Lich's ability, for example), that draw didn't happen and Narset won't stop the next draw (which may also be replaced by Underrealm Lich's ability). Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "370ac5f50d7fb00f7155e5ed3b9e99b645fd73083775b10b84b89ec66720427a",
+            "oracle_text": "Each opponent can't draw more than one card each turn. −2: Look at the top four cards of your library. You may reveal a noncreature, nonland card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
+            "power_toughness": null,
+            "raw_html_byte_count": 171946,
+            "raw_html_sha256": "b5ca7c9aff846cf85d121b42ec07ee10ae54086184bdbf70558e7270f33b8934",
+            "requested_face_name": "Narset, Parter of Veils",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:10.181593Z",
+            "set_or_printing_used": "Rarity Uncommon rules Text Each opponent can't draw more than one card each turn. −2: Look at the top four cards of your library. You may reveal a noncreature, nonland card from among them and put it into your hand. Put the rest on the bottom of your library in a random order. Artist Magali Villeneuve Loyalty 5 Set MB2 - Mystery Booster 2: Convention Edition",
+            "type_line": "Legendary Planeswalker – Narset"
+          }
+        ],
+        "project_card_identity": "Narset, Parter of Veils",
+        "semantic_identity": "ws37:authority-probe:459758ec931d2c4c217fcf610b137903186bb76a679d7d23d23ab73b4bfee24d",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "186",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Jeska, Thrice Reborn",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": "counter on her for each time you've cast a commander from the command zone this game. 0: Choose target creature. Until your next turn, if that creature would deal combat damage to one of your opponents, it deals triple that damage to that player instead. −X: Jeska deals X damage to each of up to three targets. Jeska, Thrice Reborn can be your commander. Partner Artist Yongjae Choi 0",
+            "mana_cost": "2",
+            "official_gatherer_url": "https://gatherer.wizards.com/CMR/en-us/186/jeska-thrice-reborn",
+            "official_rulings": [
+              {
+                "date": "11/10/2020",
+                "text": "If you cast Jeska, Thrice Reborn and she is your commander, that casting counts for her first ability."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "For a creature affected by Jeska's second ability, if that creature has trample, only the damage dealt to the defending player is tripled (as long as that player is one of your opponents). For example, say you activate that ability targeting a 5/5 creature with trample, attack one of your opponents with that creature, and that creature is blocked by a 3/3 creature. You could assign 3 damage to the blocking creature and 2 damage to the defending player. If you did, your attacker would deal 3 damage to the blocking creature and 6 damage (2 damage tripled) to the defending player. All of the damage remains combat damage."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "If a creature is targeted by Jeska's second ability twice, combat damage it would deal one of your opponents is multiplied by nine. Three abilities multiply the damage by twenty-seven, and so on."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If your Commander deck has two commanders, you can only include cards whose own color identities are also found in your commanders' combined color identities. If Bruse Tarl and Ishai are your commanders, your deck may contain cards with red, white, and/or blue in their color identity, but not cards with green or black."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Both commanders start in the command zone, and the remaining 98 cards (or 58 cards in a Commander Draft game) of your deck are shuffled to become your library."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "Once the game begins, your two commanders are tracked separately. If you cast one, you won't have to pay an additional 2 the first time you cast the other. A player loses the game after having been dealt 21 damage from any one of them, not from both of them combined."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Beacon), you choose one of your commanders at the time the effect happens."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "An effect that checks whether you control your commander is satisfied if you control one or both of your two commanders."
+              },
+              {
+                "date": "6/6/2025",
+                "text": "You can choose two commanders with partner that are the same color or colors. In Commander Draft, you can even choose two of the same commander with partner if you drafted them. If you do this, make sure you keep the number of times you've cast each from the command zone clear for \"commander tax\" purposes. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "a5a785227ce964ddeff28ea271d0c3f6948cab1ae22ea8d860e217750e57d089",
+            "oracle_text": "Jeska enters with a",
+            "power_toughness": null,
+            "raw_html_byte_count": 314359,
+            "raw_html_sha256": "fe47877f61a0f86970aa324cf3c79fb447d9a59a4a63ea9a583e7929efb0b2ca",
+            "requested_face_name": "Jeska, Thrice Reborn",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:10.730153Z",
+            "set_or_printing_used": "CMR - Commander Legends",
+            "type_line": "Legendary Planeswalker – Jeska"
+          }
+        ],
+        "project_card_identity": "Jeska, Thrice Reborn",
+        "semantic_identity": "ws37:authority-probe:d0d213787fc8281cd109367a1e8d46029da5e8820fd499f0ca5e99e32ddde85a",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "of targets. Tap two target permanents. Create a 4/4 blue and red Elemental creature token. Draw two cards. , Discard this card: Create a Treasure token. Artist Liiga Smilshkalne Set SOC - Secrets of Strixhaven Commander Number 318",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Magma Opus",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "6",
+            "official_gatherer_url": "https://gatherer.wizards.com/SOC/en-us/318/magma-opus",
+            "official_rulings": [
+              {
+                "date": "4/16/2021",
+                "text": "You choose all targets for Magma Opus as you cast the spell. This includes up to four targets for the first effect and two target permanents for the second effect."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "You also choose how the 4 damage will be divided among the first group of targets as you cast Magma Opus. You must have at least 1 damage dealt to each of those targets."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "You must choose two different target permanents for the second effect. You may choose permanents that are already tapped."
+              },
+              {
+                "date": "4/16/2021",
+                "text": "The same permanent can be chosen as a target for each of the two instances of \"target.\" That is, you can have Magma Opus both deal damage to a creature or planeswalker and then tap it. (We're having a hard time imagining why you would, but you're the brilliant student.)"
+              },
+              {
+                "date": "4/16/2021",
+                "text": "If somehow all of Magma Opus's targets are illegal as it tries to resolve, none of its effects happen. You will not create an Elemental token or draw two cards. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "9ccfa36289de9c35ab33def3d8d459b77a53153e2b5b845972c6e54b616ffba3",
+            "oracle_text": "Magma Opus deals 4 damage divided as you choose among any number of targets. Tap two target permanents. Create a 4/4 blue and red Elemental creature token. Draw two cards. , Discard this card: Create a Treasure token.",
+            "power_toughness": null,
+            "raw_html_byte_count": 292538,
+            "raw_html_sha256": "0e27e178b73122202dfe155cc7ee93da3d2fa74fda9c818f314fb53f0bc9284a",
+            "requested_face_name": "Magma Opus",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:11.255089Z",
+            "set_or_printing_used": "SOC - Secrets of Strixhaven Commander",
+            "type_line": "Instant"
+          }
+        ],
+        "project_card_identity": "Magma Opus",
+        "semantic_identity": "ws37:authority-probe:5994626993a1108df4297ef94c8b2faf658024c9664496796ce799b9c01536f1",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "87",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Wash Away",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": null,
+            "official_gatherer_url": "https://gatherer.wizards.com/VOW/en-us/87/wash-away",
+            "official_rulings": [
+              {
+                "date": "11/19/2021",
+                "text": "Copies of spells are never cast from a player's hand, so Wash Away can counter copies of spells even if its cleave cost wasn't paid, regardless of whether the original spell being copied was cast from a player's hand."
+              },
+              {
+                "date": "11/19/2021",
+                "text": "If you cast a spell for its cleave cost, that spell doesn't have any of the text in square brackets while it's on the stack."
+              },
+              {
+                "date": "11/19/2021",
+                "text": "A cleave cost is an alternative cost that's paid instead of the spell's mana cost. Casting a spell for its cleave cost doesn't change the spell's mana value."
+              },
+              {
+                "date": "11/19/2021",
+                "text": "You can't cast a spell for both its cleave cost and another alternative cost. For example, if an effect gives an Alchemist's Retrieval in your graveyard a flashback cost of , you can't cast it from your graveyard for its cleave cost."
+              },
+              {
+                "date": "11/19/2021",
+                "text": "If an effect allows you to \"cast a spell without paying its mana cost,\" you can't cast that spell for its cleave cost. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "f5747b136ccc30c5d5a8526b3cadf335704614fcc250f5d8e2eda3dafe57364a",
+            "oracle_text": "Cleave 1 (You may cast this spell for its cleave cost. If you do, remove the words in square brackets.) Counter target spell [that wasn't cast from its owner's hand].",
+            "power_toughness": null,
+            "raw_html_byte_count": 221365,
+            "raw_html_sha256": "b1357f7748373b50e2bad500b1416611be26801b12812f257b488ece5faed205",
+            "requested_face_name": "Wash Away",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:11.792859Z",
+            "set_or_printing_used": "VOW - Innistrad: Crimson Vow",
+            "type_line": "Instant"
+          }
+        ],
+        "project_card_identity": "Wash Away",
+        "semantic_identity": "ws37:authority-probe:78d0d6e370cf0c4c0048ce1d30606d4ae077adb7f290ed672013d50953c7268f",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+        "faces": [
+          {
+            "collector_number": "222",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Wear",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/PIP/en-us/222/wear",
+            "official_rulings": [],
+            "oracle_section_sha256": "00bfe4a497457e875b31cd6149de6106c00484b3ad6ce5505f0a429fce4edb73",
+            "oracle_text": "Destroy target artifact. // Destroy target enchantment. // Fuse (You may cast one or both halves of this card from your hand.)",
+            "power_toughness": null,
+            "raw_html_byte_count": 335321,
+            "raw_html_sha256": "33b1db393733835441b0c1a4998b567ef5ca9cb68d01406df3cee7e031e43f1d",
+            "requested_face_name": "Wear",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:12.322447Z",
+            "set_or_printing_used": "PIP - Magic The Gathering—Fallout",
+            "type_line": "Instant"
+          },
+          {
+            "collector_number": "222",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Tear",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": null,
+            "official_gatherer_url": "https://gatherer.wizards.com/PIP/en-us/222/tear",
+            "official_rulings": [],
+            "oracle_section_sha256": "62dab40696d0f03545047a35aa668fd749148249a78cfc5b2cc8a53621c99b3a",
+            "oracle_text": "Destroy target artifact. // Destroy target enchantment. // Fuse (You may cast one or both halves of this card from your hand.)",
+            "power_toughness": null,
+            "raw_html_byte_count": 335473,
+            "raw_html_sha256": "af986419ded095a86607a7024259b73e3193c8864db68de5875456c536e29120",
+            "requested_face_name": "Tear",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:12.829163Z",
+            "set_or_printing_used": "PIP - Magic The Gathering—Fallout",
+            "type_line": "Instant"
+          }
+        ],
+        "project_card_identity": "Wear // Tear",
+        "semantic_identity": "ws37:authority-probe:273d45e37f482f03e69ba4ea5b04a7497fc889671fa97c63902d46c2f2c0be29",
+        "special_structure_hints": [
+          "FUSE",
+          "MULTIFACE"
+        ]
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "54",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Dig Through Time",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "6",
+            "official_gatherer_url": "https://gatherer.wizards.com/MAR/en-us/54/dig-through-time",
+            "official_rulings": [
+              {
+                "date": "3/19/2021",
+                "text": "Delve doesn't change a spell's mana cost or mana value. For example, Treasure Cruise's mana value is 8 even if you exiled three cards to cast it."
+              },
+              {
+                "date": "3/19/2021",
+                "text": "You can exile cards to pay only for generic mana, and you can't exile more cards than the generic mana requirement of a spell with delve. For example, you can't exile more than seven cards from your graveyard to cast Treasure Cruise unless an effect has increased its cost."
+              },
+              {
+                "date": "3/19/2021",
+                "text": "Because delve isn't an alternative cost, it can be used in conjunction with alternative costs, such as flashback. It can also be used to pay for additional costs that include generic mana. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "39425613b038201e762c16f02fd81b2b75b2ecb340c4789bf56bd6dc16eb1989",
+            "oracle_text": "Delve (Each card you exile from your graveyard while casting this spell pays for 1 .) Look at the top seven cards of your library. Put two of them into your hand and the rest on the bottom of your library in any order.",
+            "power_toughness": null,
+            "raw_html_byte_count": 443883,
+            "raw_html_sha256": "f983bc5dad1fcbe2d91d613b85f9c0c299d488b3a872b4339c90e267513ff841",
+            "requested_face_name": "Dig Through Time",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:13.397073Z",
+            "set_or_printing_used": "MAR - Marvel Source Material",
+            "type_line": "Instant"
+          }
+        ],
+        "project_card_identity": "Dig Through Time",
+        "semantic_identity": "ws37:authority-probe:248c2b384945952a4dd2b970eb1755c5bbdd33e8df7a7d20dc9447c67a66c309",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "119",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Flare of Duplication",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/MH3/en-us/119/flare-of-duplication",
+            "official_rulings": [
+              {
+                "date": "6/7/2024",
+                "text": "The copy is created on the stack, so it's not \"cast.\" Abilities that trigger when a player casts a spell won't trigger."
+              },
+              {
+                "date": "6/7/2024",
+                "text": "The copy will have the same targets as the spell it's copying unless you choose new ones. You may change any number of the targets, including all of them or none of them. If, for one of the targets, you can't choose a new legal target, then it remains unchanged (even if the current target is illegal)."
+              },
+              {
+                "date": "6/7/2024",
+                "text": "If the spell that's copied is modal (that is, it says \"Choose one —\" or the like), the copy will have the same mode. A different mode can't be chosen."
+              },
+              {
+                "date": "6/7/2024",
+                "text": "If the spell that's copied has an X whose value was determined as it was cast (like Kozilek's Command does), the copy will have the same value of X."
+              },
+              {
+                "date": "6/7/2024",
+                "text": "If the spell has damage divided as it was cast, the division can't be changed (although the targets receiving that damage still can). The same is true of spells that distribute counters."
+              },
+              {
+                "date": "6/7/2024",
+                "text": "The controller of a copy can't choose to pay any alternative or additional costs for the copy. However, effects based on any alternative or additional costs that were paid for the original spell are copied as though those same costs were paid for the copy."
+              },
+              {
+                "date": "6/7/2024",
+                "text": "If you copy a spell, you control the copy. It will resolve before the original spell does. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "1a4710b024f459b6992478d415c0e1c3ea3995cdb6138acea19f915ddd14aacf",
+            "oracle_text": "You may sacrifice a nontoken red creature rather than pay this spell's mana cost. Copy target instant or sorcery spell. You may choose new targets for the copy.",
+            "power_toughness": null,
+            "raw_html_byte_count": 303275,
+            "raw_html_sha256": "1c90c21d503f66e4cc021cf894d2f1a7bc448d0c9f087b630a542cc1ec6d1028",
+            "requested_face_name": "Flare of Duplication",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:13.945390Z",
+            "set_or_printing_used": "MH3 - Modern Horizons 3",
+            "type_line": "Instant"
+          }
+        ],
+        "project_card_identity": "Flare of Duplication",
+        "semantic_identity": "ws37:authority-probe:0ca6472f1b71ee35215e8e300cc7a6f5ced74755f4f0f99310cc7e17c788c474",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "168",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Vandalblast",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": null,
+            "official_gatherer_url": "https://gatherer.wizards.com/MSC/en-us/168/vandalblast",
+            "official_rulings": [
+              {
+                "date": "1/12/2024",
+                "text": "If you don't pay the overload cost of a spell with overload, that spell will have a single target. If you pay the overload cost, the spell won't have any targets."
+              },
+              {
+                "date": "1/12/2024",
+                "text": "Because a spell with overload doesn't target when its overload cost is paid, it may affect permanents with hexproof or with protection from the appropriate color."
+              },
+              {
+                "date": "1/12/2024",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as an overload cost), add any cost increases, then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+              },
+              {
+                "date": "1/12/2024",
+                "text": "If you are instructed to cast a spell with overload \"without paying its mana cost,\" you can't choose to pay its overload cost instead. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "a71b24e744e503790b7c4c1b57eeb4b074b944369514fca77c2281584a2df372",
+            "oracle_text": "Destroy target artifact you don't control. Overload 4 (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")",
+            "power_toughness": null,
+            "raw_html_byte_count": 475385,
+            "raw_html_sha256": "0763926375c994f3c1c48c5e28ef72d6c3b5e2fd958b1ac17ef0dd221ac922e7",
+            "requested_face_name": "Vandalblast",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:14.458091Z",
+            "set_or_printing_used": "MSC - Magic: The Gathering | Marvel Super Heroes Commander",
+            "type_line": "Sorcery"
+          }
+        ],
+        "project_card_identity": "Vandalblast",
+        "semantic_identity": "ws37:authority-probe:14fb04bcad4b5f5998d428017e2b891d0c441a5de529a004efad48ed433a6bf1",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "589",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Finale of Revelation",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "X",
+            "official_gatherer_url": "https://gatherer.wizards.com/FDN/en-us/589/finale-of-revelation",
+            "official_rulings": [],
+            "oracle_section_sha256": "b9642ddae0ea42820099211bc5f8543e6c09607084b3cb033d26cc54016e17fb",
+            "oracle_text": "Draw X cards. If X is 10 or more, instead shuffle your graveyard into your library, draw X cards, untap up to five lands, and you have no maximum hand size for the rest of the game. Exile Finale of Revelation.",
+            "power_toughness": null,
+            "raw_html_byte_count": 159238,
+            "raw_html_sha256": "3edc626b0af604c8729b8a6d69834993aae04b88711c489b481e6098a8230eeb",
+            "requested_face_name": "Finale of Revelation",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:14.967847Z",
+            "set_or_printing_used": "FDN - Magic: The Gathering Foundations",
+            "type_line": "Sorcery"
+          }
+        ],
+        "project_card_identity": "Finale of Revelation",
+        "semantic_identity": "ws37:authority-probe:1cd6de7af4f46b09fb5f6fdf15ff08f807d1f325a8499c03ababa82f2ae4463a",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "of cards in your hand. Whenever you draw a card, each opponent loses 1 life. Flavor Text \"If that brain can't figure out the secret of the serum, then add more brains.\" —Rhmir, Hand of the Augur Artist Stephan Martiniere P/T * / * Set BLC - Bloomburrow Commander Number 282",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Psychosis Crawler",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "5",
+            "official_gatherer_url": "https://gatherer.wizards.com/BLC/en-us/282/psychosis-crawler",
+            "official_rulings": [
+              {
+                "date": "6/1/2011",
+                "text": "If an effect causes you to draw multiple cards, Psychosis Crawler will trigger that many times. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "671410780741fdb7c9db3dc9e2e344f7be0b0f7979d07ba3fe24c069546a86c8",
+            "oracle_text": "Psychosis Crawler's power and toughness are each equal to the number of cards in your hand. Whenever you draw a card, each opponent loses 1 life.",
+            "power_toughness": "* / *",
+            "raw_html_byte_count": 444360,
+            "raw_html_sha256": "05407565dcdc80f44e53719b44161194d22d15685ea4f2665412789cae2a95e1",
+            "requested_face_name": "Psychosis Crawler",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:15.491145Z",
+            "set_or_printing_used": "BLC - Bloomburrow Commander",
+            "type_line": "Artifact Creature – Phyrexian Horror"
+          }
+        ],
+        "project_card_identity": "Psychosis Crawler",
+        "semantic_identity": "ws37:authority-probe:9add85e2b98fc8820529148250b1ed4c6f75c6773b1ba07c2b4fd5c92b78f33c",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "222",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Kaervek the Merciless",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "5",
+            "official_gatherer_url": "https://gatherer.wizards.com/DSC/en-us/222/kaervek-the-merciless",
+            "official_rulings": [
+              {
+                "date": "3/19/2021",
+                "text": "An ability that triggers when a player casts a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+              },
+              {
+                "date": "3/19/2021",
+                "text": "Alternative costs, additional costs, and cost reductions don't change a spell's mana value. Its mana value is still based on its mana cost."
+              },
+              {
+                "date": "3/19/2021",
+                "text": "For spells with X in their mana costs, use the value chosen for X to determine the spell's mana value. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "a32fcae451b2c9dcdb5cca279b71a55ee54597cdb5a941a056044f7026af1f82",
+            "oracle_text": "Whenever an opponent casts a spell, Kaervek deals damage equal to that spell's mana value to any target.",
+            "power_toughness": "5 / 4",
+            "raw_html_byte_count": 293213,
+            "raw_html_sha256": "c1a96d67ab3bb56df474cbdffb2651ee0e27895e831074a9ee832f6e1cee06af",
+            "requested_face_name": "Kaervek the Merciless",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:15.981672Z",
+            "set_or_printing_used": "DSC - Duskmourn: House of Horror Commander",
+            "type_line": "Legendary Creature – Human Shaman"
+          }
+        ],
+        "project_card_identity": "Kaervek the Merciless",
+        "semantic_identity": "ws37:authority-probe:d9e04609e2799cf40fca571de74c04cdd91631d2fc6043a09eab4fbf40b51d42",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "85",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Shriekmaw",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "4",
+            "official_gatherer_url": "https://gatherer.wizards.com/ECC/en-us/85/shriekmaw",
+            "official_rulings": [
+              {
+                "date": "3/19/2021",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as an evoke cost), add any cost increases, then apply any cost reductions. The mana value of the spell is determined by only its mana cost, no matter what the total cost to cast that spell was."
+              },
+              {
+                "date": "3/19/2021",
+                "text": "If you pay the evoke cost, you can have Shriekmaw's own triggered ability resolve before the evoke triggered ability. You can cast spells after that ability resolves but before you have to sacrifice Shriekmaw. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "5a4e383d862eb6869d693162cdbc38a98e986ab525df910266791e379a987d4e",
+            "oracle_text": "Fear (This creature can't be blocked except by artifact creatures and/or black creatures.) When this creature enters, destroy target nonartifact, nonblack creature. Evoke 1 (You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters.)",
+            "power_toughness": "3 / 2",
+            "raw_html_byte_count": 472660,
+            "raw_html_sha256": "f79d8bb76320efbff11abb8cddb0adbcf3cec8241ada5cedb7196f87720a8048",
+            "requested_face_name": "Shriekmaw",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:16.477688Z",
+            "set_or_printing_used": "ECC - Lorwyn Eclipsed Commander",
+            "type_line": "Creature - Elemental"
+          }
+        ],
+        "project_card_identity": "Shriekmaw",
+        "semantic_identity": "ws37:authority-probe:ff93beb521834a7b4f753d4ac05f71a75714e154c73abb8f63c134c2f15043f0",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "187",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Butcher of Malakir",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "5",
+            "official_gatherer_url": "https://gatherer.wizards.com/LCC/en-us/187/butcher-of-malakir",
+            "official_rulings": [
+              {
+                "date": "3/1/2010",
+                "text": "When the triggered ability resolves, first the player whose turn it is (if that player is an opponent) chooses which creature they will sacrifice, then each other opponent in turn order does the same, then all chosen creatures are sacrificed at the same time."
+              },
+              {
+                "date": "3/1/2010",
+                "text": "If multiple creatures you control (possibly including Butcher of Malakir itself) are put into their owners' graveyards at the same time, Butcher of Malakir's triggered ability will trigger that many times."
+              },
+              {
+                "date": "3/1/2010",
+                "text": "If you control more than one Butcher of Malakir and a creature you control is put into a graveyard, each of those Butchers' abilities will trigger. Each opponent will sacrifice a creature each time one of those abilities resolves."
+              },
+              {
+                "date": "3/1/2010",
+                "text": "If you and an opponent each control a Butcher of Malakir and a creature is put into a graveyard, a chain reaction happens. First the ability of one player's Butcher will trigger, causing each opponent to sacrifice a creature. That sacrifice causes the ability of the other player's Butcher to trigger, and so on. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "9d8eb20e7b63afd8f0b85859cfe3fc70e02d371be621b4fa8fbd2f9586f0b9a2",
+            "oracle_text": "Flying Whenever this creature or another creature you control dies, each opponent sacrifices a creature of their choice.",
+            "power_toughness": "5 / 4",
+            "raw_html_byte_count": 519947,
+            "raw_html_sha256": "4b8d4b8acd51e8766be039b88e4e95c0ab1fb9bbc53cfe73488f88b81a29bf1c",
+            "requested_face_name": "Butcher of Malakir",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:16.997734Z",
+            "set_or_printing_used": "LCC - The Lost Caverns of Ixalan Commander",
+            "type_line": "Creature – Vampire Warrior"
+          }
+        ],
+        "project_card_identity": "Butcher of Malakir",
+        "semantic_identity": "ws37:authority-probe:ec87ac6b51f2ada89b69a5e413b0d47aaa54a041661eb7957a8c723c90660cdf",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "159",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Syphon Mind",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "3",
+            "official_gatherer_url": "https://gatherer.wizards.com/MSC/en-us/159/syphon-mind",
+            "official_rulings": [],
+            "oracle_section_sha256": "0a78061d0b1d378b928d68dc382228655d73e8a70ca7b585bc6254efaffa21ae",
+            "oracle_text": "Each other player discards a card. You draw a card for each card discarded this way.",
+            "power_toughness": null,
+            "raw_html_byte_count": 335700,
+            "raw_html_sha256": "fac2dabf28ac28713f54609b1277b83bfa9fed7f0a196f58e62a5af335408a2b",
+            "requested_face_name": "Syphon Mind",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:17.498000Z",
+            "set_or_printing_used": "MSC - Magic: The Gathering | Marvel Super Heroes Commander",
+            "type_line": "Sorcery"
+          }
+        ],
+        "project_card_identity": "Syphon Mind",
+        "semantic_identity": "ws37:authority-probe:c29ec1b2eb6789d8f34813f0f67d413e849cb355498a604d924e05de37a1e107",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "715",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Gratuitous Violence",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "2",
+            "official_gatherer_url": "https://gatherer.wizards.com/FDN/en-us/715/gratuitous-violence",
+            "official_rulings": [],
+            "oracle_section_sha256": "5c2eef4711891c1adbb22f827b3bc89662f6a12b1a724906ec5406ce8faa62d0",
+            "oracle_text": "If a creature you control would deal damage to a permanent or player, it deals double that damage instead.",
+            "power_toughness": null,
+            "raw_html_byte_count": 163307,
+            "raw_html_sha256": "d004790e0289c2a583325a3a40dd105a8abc33c2a3bb93b52e7ee76a2cc95bba",
+            "requested_face_name": "Gratuitous Violence",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:17.999331Z",
+            "set_or_printing_used": "FDN - Magic: The Gathering Foundations",
+            "type_line": "Enchantment"
+          }
+        ],
+        "project_card_identity": "Gratuitous Violence",
+        "semantic_identity": "ws37:authority-probe:4aa26bd768e827d1ed0a8b6b691b2772b1106b5022daef4921b9f88167088291",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "163",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Bolt Bend",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "3",
+            "official_gatherer_url": "https://gatherer.wizards.com/TLE/en-us/163/bolt-bend",
+            "official_rulings": [
+              {
+                "date": "11/8/2024",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying, add any cost increases, then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+              },
+              {
+                "date": "11/8/2024",
+                "text": "Once you announce that you're casting Bolt Bend, no player may take actions until the spell has been paid for. Notably, opponents can't try to change whether you control a creature with power 4 or greater."
+              },
+              {
+                "date": "11/8/2024",
+                "text": "Once you've cast Bolt Bend, losing control of all creatures with power 4 or greater won't affect the spell or cause you to pay more mana."
+              },
+              {
+                "date": "11/8/2024",
+                "text": "The single target that the target spell or ability targets doesn't have to be a creature you control with power 4 or greater."
+              },
+              {
+                "date": "11/8/2024",
+                "text": "You don't choose the new target for the spell or ability until Bolt Bend resolves. You must change the target if possible. However, you can't change the target to an illegal target. If there are no legal targets to choose from, the target isn't changed. It doesn't matter if the original target has somehow become illegal itself."
+              },
+              {
+                "date": "11/8/2024",
+                "text": "If a spell or ability targets multiple things, you can't target it with Bolt Bend, even if all but one of those targets have become illegal."
+              },
+              {
+                "date": "11/8/2024",
+                "text": "If a spell or ability targets the same player or object multiple times, you can't target it with Bolt Bend. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "8b55ec1cc0732f5a93e63295fa27bf30d8980af71d8028df53e1dea6681de775",
+            "oracle_text": "This spell costs 3 less to cast if you control a creature with power 4 or greater. Change the target of target spell or ability with a single target.",
+            "power_toughness": null,
+            "raw_html_byte_count": 206075,
+            "raw_html_sha256": "2e65855d44d37badb8ca0b0adf1f04fdc15e51a2bcce7cb6dc0c98ace1e369b6",
+            "requested_face_name": "Bolt Bend",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:18.537607Z",
+            "set_or_printing_used": "TLE - Magic: The Gathering | Avatar: The Last Airbender Jumpstart",
+            "type_line": "Instant"
+          }
+        ],
+        "project_card_identity": "Bolt Bend",
+        "semantic_identity": "ws37:authority-probe:22dee864df471de3c79c6dd233128caf42b49e8153bcb3aad711c22320b5f9f8",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "20",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Makeshift Mannequin",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "3",
+            "official_gatherer_url": "https://gatherer.wizards.com/ARC/en-us/20/makeshift-mannequin",
+            "official_rulings": [],
+            "oracle_section_sha256": "adfd6f1f83a2297d0270a6bdff456de1bbffebc1bda5a7da27ab5289c79ea4c2",
+            "oracle_text": "Return target creature card from your graveyard to the battlefield with a mannequin counter on it. For as long as that creature has a mannequin counter on it, it has \"When this creature becomes the target of a spell or ability, sacrifice it.\"",
+            "power_toughness": null,
+            "raw_html_byte_count": 142430,
+            "raw_html_sha256": "aea03e6be4a9c289eed4adec306556834e948b4f26536024e80543e20ca8af73",
+            "requested_face_name": "Makeshift Mannequin",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:19.027811Z",
+            "set_or_printing_used": "ARC - Archenemy",
+            "type_line": "Instant"
+          }
+        ],
+        "project_card_identity": "Makeshift Mannequin",
+        "semantic_identity": "ws37:authority-probe:f34260a9f950814b72032e48e9ff7e5745b55ae571d91a30266e6b94efad206f",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "38",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Warstorm Surge",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "5",
+            "official_gatherer_url": "https://gatherer.wizards.com/TLE/en-us/38/warstorm-surge",
+            "official_rulings": [
+              {
+                "date": "9/22/2011",
+                "text": "The creature that entered deals damage equal to its current power to the targeted permanent or player. If it's no longer on the battlefield, its last known existence on the battlefield is checked to determine its power."
+              },
+              {
+                "date": "9/22/2011",
+                "text": "Warstorm Surge is the source of the ability, but the creature is the source of the damage. The ability couldn't target a creature with protection from red, for example. It could target a creature with protection from creatures, but all the damage would be prevented. Since damage is dealt by the creature, abilities like lifelink, deathtouch and infect are taken into account, even if the creature has left the battlefield by the time it deals damage. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "16c518928dcfd95259b8e8d1b325e86104f6a7b20d0121797a9a269838b3f831",
+            "oracle_text": "Whenever a creature you control enters, it deals damage equal to its power to any target.",
+            "power_toughness": null,
+            "raw_html_byte_count": 460083,
+            "raw_html_sha256": "a1a5c4f7669c86e006f6ff84194f53348491fc3f26e1c0db187962fad2c70e62",
+            "requested_face_name": "Warstorm Surge",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:19.553457Z",
+            "set_or_printing_used": "TLE - Magic: The Gathering | Avatar: The Last Airbender Extra",
+            "type_line": "Enchantment"
+          }
+        ],
+        "project_card_identity": "Warstorm Surge",
+        "semantic_identity": "ws37:authority-probe:d865aae2fe27e6854a8d5ee755f0b178f4c27fe17f61e2348b798d6bdc8137cc",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "669",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Basilisk Collar",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "1",
+            "official_gatherer_url": "https://gatherer.wizards.com/FDN/en-us/669/basilisk-collar",
+            "official_rulings": [],
+            "oracle_section_sha256": "a946a63ff0a69236deed35195b4cdd5571e7d3364e345ba5483616b3a10f6faf",
+            "oracle_text": "Equipped creature has deathtouch and lifelink. (Any amount of damage it deals to a creature is enough to destroy it. Damage dealt by this creature also causes you to gain that much life.) Equip 2 ( 2 : Attach to target creature you control. Equip only as a sorcery.)",
+            "power_toughness": null,
+            "raw_html_byte_count": 189350,
+            "raw_html_sha256": "c11b0c43cade203b5b0714e3bda28fe08d2376f3f1ffb595cc2a301508554bb9",
+            "requested_face_name": "Basilisk Collar",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:20.203943Z",
+            "set_or_printing_used": "FDN - Magic: The Gathering Foundations",
+            "type_line": "Artifact – Equipment"
+          }
+        ],
+        "project_card_identity": "Basilisk Collar",
+        "semantic_identity": "ws37:authority-probe:0eaf5a567d5bfb1713abe3d1dd2daa433fe5e47fbc913ab35e1e771066c4b099",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "131",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Burn Down the House",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "3",
+            "official_gatherer_url": "https://gatherer.wizards.com/MID/en-us/131/burn-down-the-house",
+            "official_rulings": [],
+            "oracle_section_sha256": "87a26020bd56754f72a1d75be0fae8a451354e8d2dedf4185089fc17bf2bbf1b",
+            "oracle_text": "Choose one - * Burn Down the House deals 5 damage to each creature and each planeswalker. * Create three 1/1 red Devil creature tokens with \"When this token dies, it deals 1 damage to any target.\" They gain haste until end of turn.",
+            "power_toughness": null,
+            "raw_html_byte_count": 222608,
+            "raw_html_sha256": "874780b77f9110baf4abf387dc28b8faf6c91264d8a7155666b47d1391688ec7",
+            "requested_face_name": "Burn Down the House",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:20.739191Z",
+            "set_or_printing_used": "MID - Innistrad: Midnight Hunt",
+            "type_line": "Sorcery"
+          }
+        ],
+        "project_card_identity": "Burn Down the House",
+        "semantic_identity": "ws37:authority-probe:1246eca167c5c1d778f99f20b7caa684429737e730681a6fd31f191a645e107f",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "SINGLE_FACE",
+        "faces": [
+          {
+            "collector_number": "80",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Path of Ancestry",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": null,
+            "official_gatherer_url": "https://gatherer.wizards.com/MBC/en-us/80/path-of-ancestry",
+            "official_rulings": [
+              {
+                "date": "11/10/2020",
+                "text": "If your commander is a card that has no colors in its color identity, Path of Ancestry's ability produces no mana. It doesn't produce ."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "If you don't have a commander, Path of Ancestry's ability produces no mana."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "If you cast your commander with mana from Path of Ancestry, and your commander hasn't somehow lost all of its creature types while on the stack, you'll scry 1."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "If your commander has no creature types, it can't share a creature type with any spell that you cast."
+              },
+              {
+                "date": "11/10/2020",
+                "text": "If Path of Ancestry's last ability produces two mana (most likely due to Mana Reflection), spending those two mana to cast creature spells that share a creature type with your commander will cause two abilities to trigger. Each of those abilities will cause you to scry 1. You won't scry 2. This is true whether you spend the mana on one creature spell or two."
+              },
+              {
+                "date": "7/28/2023",
+                "text": "If you have two commanders, the last ability adds one mana of any color in their combined color identities. When you spend that mana on a creature spell that shares a creature type with either of your commanders, you'll scry 1."
+              },
+              {
+                "date": "7/28/2023",
+                "text": "Your commander's creature types are checked immediately after you cast a creature spell spending mana from Path of Ancestry's last ability. They aren't set before the game begins, and they may not be the same types your commander had when you activated that ability. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "7de14b71e49de471ff4517055f436e48ae80f2f7a827dccf0790e8aef3e2a838",
+            "oracle_text": "This land enters tapped. : Add one mana of any color in your commander's color identity. When that mana is spent to cast a creature spell that shares a creature type with your commander, scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+            "power_toughness": null,
+            "raw_html_byte_count": 232087,
+            "raw_html_sha256": "c0dd9d23308d57ee1fb2e159fe7585ac2f7a653ff3e92ddb1d770bee63ab309b",
+            "requested_face_name": "Path of Ancestry",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:21.221915Z",
+            "set_or_printing_used": "MBC - Mystery Booster Commander Edition",
+            "type_line": "Land"
+          }
+        ],
+        "project_card_identity": "Path of Ancestry",
+        "semantic_identity": "ws37:authority-probe:3fdf7423976593e8d3a7f76d1cf430240a73e20b4347466000b8dbd02cacf9d3",
+        "special_structure_hints": []
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+        "faces": [
+          {
+            "collector_number": "261",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Find",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": null,
+            "official_gatherer_url": "https://gatherer.wizards.com/M3C/en-us/261/find",
+            "official_rulings": [],
+            "oracle_section_sha256": "02f0afd5aae92fd7905d9326a72c90e9d89a7ebcc259e3b29ff0bc90d7ffb219",
+            "oracle_text": "Return up to two target creature cards from your graveyard to your hand. // You may put two +1/+1 counters on a creature you control. Then all creatures get -4/-4 until end of turn.",
+            "power_toughness": null,
+            "raw_html_byte_count": 260323,
+            "raw_html_sha256": "488a128930025c13beec8024a83879e7151788c8aaeee37bab2b6605e7db2a56",
+            "requested_face_name": "Find",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:21.825277Z",
+            "set_or_printing_used": "M3C - Modern Horizons 3 Commander",
+            "type_line": "Sorcery"
+          },
+          {
+            "collector_number": "261",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Finality",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "4",
+            "official_gatherer_url": "https://gatherer.wizards.com/M3C/en-us/261/finality",
+            "official_rulings": [],
+            "oracle_section_sha256": "9924739cf77e08727ebb1cf1e316d516aa5dda97efc2dcf0d1c570eea1e912fe",
+            "oracle_text": "Return up to two target creature cards from your graveyard to your hand. // You may put two +1/+1 counters on a creature you control. Then all creatures get -4/-4 until end of turn.",
+            "power_toughness": null,
+            "raw_html_byte_count": 253918,
+            "raw_html_sha256": "0f267c99d104ab4d97765df70dab94a73256734b1eafe990ce885ed837e2ac57",
+            "requested_face_name": "Finality",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:22.341293Z",
+            "set_or_printing_used": "M3C - Modern Horizons 3 Commander",
+            "type_line": "Sorcery"
+          }
+        ],
+        "project_card_identity": "Find // Finality",
+        "semantic_identity": "ws37:authority-probe:5db7cb67da7865d299bec3fceacfbfa89562f3d36fdce7655f97e44f80b5eea6",
+        "special_structure_hints": [
+          "MULTIFACE"
+        ]
+      },
+      {
+        "acquisition_status": "PASS",
+        "authority_scope": "OFFICIAL_GATHERER_IDENTITY_AND_ORACLE_ONLY_NO_RUNTIME_CREDIT",
+        "face_relation": "EXPLICIT_PROJECT_MULTIFACE",
+        "faces": [
+          {
+            "collector_number": "177",
+            "color_indicator": "that defines its color. ( 2/18/2022 ) A nonmodal double-faced card enters the battlefield with its front face up by default, unless a spell or ability instructs you to put it onto the battlefield transformed or you cast it transformed, in which case it enters with its back face up. ( 2/18/2022 ) If you are instructed to put a card that isn't a double-faced card onto the battlefield transformed, it will not enter the battlefield at all. In that case, it stays in the zone it was previously in. For example, if a single-faced card is a copy of Azusa's Many Journeys, the chapter III ability will cause it to be exiled and then remain in exile. Secret Lair footer Banner Shop at Amazon footer banner",
+            "colors": [],
+            "current_gatherer_card_name": "Boseiju Reaches Skyward",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": "3",
+            "official_gatherer_url": "https://gatherer.wizards.com/NEO/en-us/177/boseiju-reaches-skyward",
+            "official_rulings": [
+              {
+                "date": "2/18/2022",
+                "text": "Each face of a nonmodal double-faced card has its own set of characteristics: name, types, subtypes, abilities, and so on. While a nonmodal double-faced permanent is on the battlefield, consider only the characteristics of the face that's currently up. The other set of characteristics is ignored."
+              },
+              {
+                "date": "2/18/2022",
+                "text": "Each nonmodal double-faced card in this set is cast face up. In every zone other than the battlefield, consider only the characteristics of its front face. If it is on the battlefield, consider only the characteristics of the face that's up; the other face's characteristics are ignored."
+              },
+              {
+                "date": "2/18/2022",
+                "text": "The mana value of a nonmodal double-faced card is the mana value of its front face, no matter which face is up."
+              },
+              {
+                "date": "2/18/2022",
+                "text": "The back face of a nonmodal double-faced card usually has a color indicator that defines its color."
+              },
+              {
+                "date": "2/18/2022",
+                "text": "A nonmodal double-faced card enters the battlefield with its front face up by default, unless a spell or ability instructs you to put it onto the battlefield transformed or you cast it transformed, in which case it enters with its back face up."
+              },
+              {
+                "date": "2/18/2022",
+                "text": "If you are instructed to put a card that isn't a double-faced card onto the battlefield transformed, it will not enter the battlefield at all. In that case, it stays in the zone it was previously in. For example, if a single-faced card is a copy of Azusa's Many Journeys, the chapter III ability will cause it to be exiled and then remain in exile. Secret Lair footer Banner Shop at Amazon footer banner"
+              }
+            ],
+            "oracle_section_sha256": "c4c8bf7d55580c5706af2778923103c732ede34a9d964698cb059d25f7f88840",
+            "oracle_text": "(As this Saga enters and after your draw step, add a lore counter.) I - Search your library for up to two basic Forest cards, reveal them, put them into your hand, then shuffle. II - Put up to one target land card from your graveyard on top of your library. III - Exile this Saga, then return it to the battlefield transformed under your control.",
+            "power_toughness": null,
+            "raw_html_byte_count": 248240,
+            "raw_html_sha256": "52879b8eb84473855a465d1c3d6544a6a8273b4290369e799d97b6d67d36f103",
+            "requested_face_name": "Boseiju Reaches Skyward",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:22.902304Z",
+            "set_or_printing_used": "NEO - Kamigawa: Neon Dynasty",
+            "type_line": "Enchantment – Saga"
+          },
+          {
+            "collector_number": "177",
+            "color_indicator": null,
+            "colors": [],
+            "current_gatherer_card_name": "Branch of Boseiju",
+            "currentness_status": "CURRENT_OFFICIAL_GATHERER_AT_RETRIEVAL",
+            "defense": null,
+            "loyalty": null,
+            "mana_cost": null,
+            "official_gatherer_url": "https://gatherer.wizards.com/NEO/en-us/177/branch-of-boseiju",
+            "official_rulings": [],
+            "oracle_section_sha256": "69cddf6a7b11a2a47d9d1a688a24124c9f6ce160a66eb84356c8022bcafb4340",
+            "oracle_text": "Reach This creature gets +1/+1 for each land you control.",
+            "power_toughness": "0 / 0",
+            "raw_html_byte_count": 204933,
+            "raw_html_sha256": "53e8bf25b24e6bc94cd5ef8c55348111c272e1c34b8077049ab81633c80dfc90",
+            "requested_face_name": "Branch of Boseiju",
+            "retrieval_timestamp_utc": "2026-09-02T17:55:23.373864Z",
+            "set_or_printing_used": "NEO - Kamigawa: Neon Dynasty",
+            "type_line": "Enchantment Creature – Plant"
+          }
+        ],
+        "project_card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+        "semantic_identity": "ws37:authority-probe:3cf87852cba9ec9c940c4e5cdd6eba81bad5193f8d42d6d66afa53063917b8d3",
+        "special_structure_hints": [
+          "MULTIFACE",
+          "SAGA_TRANSFORM",
+          "TRANSFORM"
+        ]
+      }
+    ],
+    "identity_count": 29,
+    "pass_count": 29,
+    "source": "current official public Gatherer"
+  },
+  "oracle_baseline_comparison": {
+    "baseline": "WS31 KNOWN_ACTUAL_CARD_ORACLE_1385 @ 1bee87b9a0c4db90ecbf1f5374fae0732d6dd16e",
+    "comparison_count": 29,
+    "defects": [],
+    "exact_identity_count": 29,
+    "records": [
+      {
+        "baseline_face_keys": [
+          "ishai, ojutai dragonspeaker"
+        ],
+        "baseline_semantic_digest": "94347b5c044e4545c1bf067177027d16510f6bfa377177ef8ee8e5321f9e1831",
+        "card_identity": "Ishai, Ojutai Dragonspeaker",
+        "fresh_face_keys": [
+          "ishai, ojutai dragonspeaker"
+        ],
+        "fresh_semantic_digest": "94347b5c044e4545c1bf067177027d16510f6bfa377177ef8ee8e5321f9e1831",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "rograkh, son of rohgahh"
+        ],
+        "baseline_semantic_digest": "f843a6abadcd796c54af12cb243740a6679eeedbe9b29ff434766f20b7967a37",
+        "card_identity": "Rograkh, Son of Rohgahh",
+        "fresh_face_keys": [
+          "rograkh, son of rohgahh"
+        ],
+        "fresh_semantic_digest": "f843a6abadcd796c54af12cb243740a6679eeedbe9b29ff434766f20b7967a37",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "esior, wardwing familiar"
+        ],
+        "baseline_semantic_digest": "0ba01af51ccc193eb9b7d4d4bf9073aee3abba6f684e58b52c07fced810805c4",
+        "card_identity": "Esior, Wardwing Familiar",
+        "fresh_face_keys": [
+          "esior, wardwing familiar"
+        ],
+        "fresh_semantic_digest": "0ba01af51ccc193eb9b7d4d4bf9073aee3abba6f684e58b52c07fced810805c4",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "kediss, emberclaw familiar"
+        ],
+        "baseline_semantic_digest": "1ef9e4336e50bbae87b3c509ec4beda14ea7a4648cadf559fd93bb7f1820530d",
+        "card_identity": "Kediss, Emberclaw Familiar",
+        "fresh_face_keys": [
+          "kediss, emberclaw familiar"
+        ],
+        "fresh_semantic_digest": "1ef9e4336e50bbae87b3c509ec4beda14ea7a4648cadf559fd93bb7f1820530d",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "veyran, voice of duality"
+        ],
+        "baseline_semantic_digest": "d17160cdf851e11d42f7f11be49a4d69ee0d4bac633e4abfd4151af7329ddae7",
+        "card_identity": "Veyran, Voice of Duality",
+        "fresh_face_keys": [
+          "veyran, voice of duality"
+        ],
+        "fresh_semantic_digest": "d17160cdf851e11d42f7f11be49a4d69ee0d4bac633e4abfd4151af7329ddae7",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "harmonic prodigy"
+        ],
+        "baseline_semantic_digest": "72652f6db48c303f7e9c90346080e86075e12493e9eca31ec9c5a0c232d822b1",
+        "card_identity": "Harmonic Prodigy",
+        "fresh_face_keys": [
+          "harmonic prodigy"
+        ],
+        "fresh_semantic_digest": "72652f6db48c303f7e9c90346080e86075e12493e9eca31ec9c5a0c232d822b1",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "narset, parter of veils"
+        ],
+        "baseline_semantic_digest": "7f07d66064bc5947b823b857e273b7d2ea1470a9b941b167caedc23e7e343300",
+        "card_identity": "Narset, Parter of Veils",
+        "fresh_face_keys": [
+          "narset, parter of veils"
+        ],
+        "fresh_semantic_digest": "7f07d66064bc5947b823b857e273b7d2ea1470a9b941b167caedc23e7e343300",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "jeska, thrice reborn"
+        ],
+        "baseline_semantic_digest": "34245825615d6dddd8ac295fd52b6512fa4bfa89f80736e72e195609d3377854",
+        "card_identity": "Jeska, Thrice Reborn",
+        "fresh_face_keys": [
+          "jeska, thrice reborn"
+        ],
+        "fresh_semantic_digest": "34245825615d6dddd8ac295fd52b6512fa4bfa89f80736e72e195609d3377854",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "magma opus"
+        ],
+        "baseline_semantic_digest": "9a4b7f257508241370a8eec44ab27975413c010d7fc3dc36a53929c97f9bea9c",
+        "card_identity": "Magma Opus",
+        "fresh_face_keys": [
+          "magma opus"
+        ],
+        "fresh_semantic_digest": "9a4b7f257508241370a8eec44ab27975413c010d7fc3dc36a53929c97f9bea9c",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "wash away"
+        ],
+        "baseline_semantic_digest": "21093dcf799e7f032a11c356d062d38bae1bab90e73c4b83bf7a0c328a764162",
+        "card_identity": "Wash Away",
+        "fresh_face_keys": [
+          "wash away"
+        ],
+        "fresh_semantic_digest": "21093dcf799e7f032a11c356d062d38bae1bab90e73c4b83bf7a0c328a764162",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "tear",
+          "wear"
+        ],
+        "baseline_semantic_digest": "ee19805d9fc63c29d758849d15a47ead82cafb05a85f5d24d011566c11e2c287",
+        "card_identity": "Wear // Tear",
+        "fresh_face_keys": [
+          "tear",
+          "wear"
+        ],
+        "fresh_semantic_digest": "ee19805d9fc63c29d758849d15a47ead82cafb05a85f5d24d011566c11e2c287",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "dig through time"
+        ],
+        "baseline_semantic_digest": "40ea5b1095f380498b520df0238880e6c3c4ab44ffbb3dfee5521690ade4facc",
+        "card_identity": "Dig Through Time",
+        "fresh_face_keys": [
+          "dig through time"
+        ],
+        "fresh_semantic_digest": "40ea5b1095f380498b520df0238880e6c3c4ab44ffbb3dfee5521690ade4facc",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "flare of duplication"
+        ],
+        "baseline_semantic_digest": "7b041e4ed87f96a7effcf31670abee23843a4acce5c315de1629ba1e731d1008",
+        "card_identity": "Flare of Duplication",
+        "fresh_face_keys": [
+          "flare of duplication"
+        ],
+        "fresh_semantic_digest": "7b041e4ed87f96a7effcf31670abee23843a4acce5c315de1629ba1e731d1008",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "vandalblast"
+        ],
+        "baseline_semantic_digest": "416e97fe55016cfacbd83dea6750cbcba18b2a6a42eab832a033f2b73febd190",
+        "card_identity": "Vandalblast",
+        "fresh_face_keys": [
+          "vandalblast"
+        ],
+        "fresh_semantic_digest": "416e97fe55016cfacbd83dea6750cbcba18b2a6a42eab832a033f2b73febd190",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "finale of revelation"
+        ],
+        "baseline_semantic_digest": "d41ae006bba63526722386208afe139e5286f97381acb3be14287ab75283af97",
+        "card_identity": "Finale of Revelation",
+        "fresh_face_keys": [
+          "finale of revelation"
+        ],
+        "fresh_semantic_digest": "d41ae006bba63526722386208afe139e5286f97381acb3be14287ab75283af97",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "psychosis crawler"
+        ],
+        "baseline_semantic_digest": "94e45cb9ad24f984ea30409762d95a5c2d412f3c0aecac6755c6779255d16cf2",
+        "card_identity": "Psychosis Crawler",
+        "fresh_face_keys": [
+          "psychosis crawler"
+        ],
+        "fresh_semantic_digest": "94e45cb9ad24f984ea30409762d95a5c2d412f3c0aecac6755c6779255d16cf2",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "kaervek the merciless"
+        ],
+        "baseline_semantic_digest": "fb71b0c13b97bbaca7f6d66cc3d343b14959c58af833cbb6ec1aab779fc8c4e4",
+        "card_identity": "Kaervek the Merciless",
+        "fresh_face_keys": [
+          "kaervek the merciless"
+        ],
+        "fresh_semantic_digest": "fb71b0c13b97bbaca7f6d66cc3d343b14959c58af833cbb6ec1aab779fc8c4e4",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "shriekmaw"
+        ],
+        "baseline_semantic_digest": "4a67c7f6071c72211dc4811674ba4a3d2d210cc429af336cce9d48d5146ffe78",
+        "card_identity": "Shriekmaw",
+        "fresh_face_keys": [
+          "shriekmaw"
+        ],
+        "fresh_semantic_digest": "4a67c7f6071c72211dc4811674ba4a3d2d210cc429af336cce9d48d5146ffe78",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "butcher of malakir"
+        ],
+        "baseline_semantic_digest": "4e2bf9695f915ad5b7d7ce2264988b3c5b98c3c94ddbe9537281e6a6a91b2bd5",
+        "card_identity": "Butcher of Malakir",
+        "fresh_face_keys": [
+          "butcher of malakir"
+        ],
+        "fresh_semantic_digest": "4e2bf9695f915ad5b7d7ce2264988b3c5b98c3c94ddbe9537281e6a6a91b2bd5",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "syphon mind"
+        ],
+        "baseline_semantic_digest": "7c18a4995f92f56556463fbfa7cbcddf841146e3d31c7f021a5f8f4f73f89790",
+        "card_identity": "Syphon Mind",
+        "fresh_face_keys": [
+          "syphon mind"
+        ],
+        "fresh_semantic_digest": "7c18a4995f92f56556463fbfa7cbcddf841146e3d31c7f021a5f8f4f73f89790",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "gratuitous violence"
+        ],
+        "baseline_semantic_digest": "391e6d4feb88f55d000b84510147b05d72cac3bdd4fd188ac878ca12445ce73e",
+        "card_identity": "Gratuitous Violence",
+        "fresh_face_keys": [
+          "gratuitous violence"
+        ],
+        "fresh_semantic_digest": "391e6d4feb88f55d000b84510147b05d72cac3bdd4fd188ac878ca12445ce73e",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "bolt bend"
+        ],
+        "baseline_semantic_digest": "aa193c67b493bfcf5d7548cfb1f1889f9cfbb0dcba96f86c208b280f55f56d61",
+        "card_identity": "Bolt Bend",
+        "fresh_face_keys": [
+          "bolt bend"
+        ],
+        "fresh_semantic_digest": "aa193c67b493bfcf5d7548cfb1f1889f9cfbb0dcba96f86c208b280f55f56d61",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "makeshift mannequin"
+        ],
+        "baseline_semantic_digest": "cf11e2fc7a18b42a64fdf4fc8d52679ddc8996aa3600aca1ac85f0808b139f53",
+        "card_identity": "Makeshift Mannequin",
+        "fresh_face_keys": [
+          "makeshift mannequin"
+        ],
+        "fresh_semantic_digest": "cf11e2fc7a18b42a64fdf4fc8d52679ddc8996aa3600aca1ac85f0808b139f53",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "warstorm surge"
+        ],
+        "baseline_semantic_digest": "c3073f4d83f56fe1343dd6366a757b832dacc9cae98ddcd5c4783f6295ec03f5",
+        "card_identity": "Warstorm Surge",
+        "fresh_face_keys": [
+          "warstorm surge"
+        ],
+        "fresh_semantic_digest": "c3073f4d83f56fe1343dd6366a757b832dacc9cae98ddcd5c4783f6295ec03f5",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "basilisk collar"
+        ],
+        "baseline_semantic_digest": "f32b9075a29657aaf47c0592088c42357960648e0fd53d020006356d76f81de4",
+        "card_identity": "Basilisk Collar",
+        "fresh_face_keys": [
+          "basilisk collar"
+        ],
+        "fresh_semantic_digest": "f32b9075a29657aaf47c0592088c42357960648e0fd53d020006356d76f81de4",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "burn down the house"
+        ],
+        "baseline_semantic_digest": "1115273077e11b9107c63e0ecf21591053e8c1ae9df167151584b15c85aaece6",
+        "card_identity": "Burn Down the House",
+        "fresh_face_keys": [
+          "burn down the house"
+        ],
+        "fresh_semantic_digest": "1115273077e11b9107c63e0ecf21591053e8c1ae9df167151584b15c85aaece6",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "path of ancestry"
+        ],
+        "baseline_semantic_digest": "a8f27dd77460bccf4f411a1b812ac8a86a7e61900aa1cdd8faf406029aa71146",
+        "card_identity": "Path of Ancestry",
+        "fresh_face_keys": [
+          "path of ancestry"
+        ],
+        "fresh_semantic_digest": "a8f27dd77460bccf4f411a1b812ac8a86a7e61900aa1cdd8faf406029aa71146",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "finality",
+          "find"
+        ],
+        "baseline_semantic_digest": "2858d5c285d2b4e3f521feeae2044e7b4813f083054cc431f58cb67e7f7f6ad1",
+        "card_identity": "Find // Finality",
+        "fresh_face_keys": [
+          "finality",
+          "find"
+        ],
+        "fresh_semantic_digest": "2858d5c285d2b4e3f521feeae2044e7b4813f083054cc431f58cb67e7f7f6ad1",
+        "semantic_match": true
+      },
+      {
+        "baseline_face_keys": [
+          "boseiju reaches skyward",
+          "branch of boseiju"
+        ],
+        "baseline_semantic_digest": "df47263f873d3b4e76e3a2ce031544bf2cec5bb794e8d7b8eb127b78351ca3ca",
+        "card_identity": "Boseiju Reaches Skyward // Branch of Boseiju",
+        "fresh_face_keys": [
+          "boseiju reaches skyward",
+          "branch of boseiju"
+        ],
+        "fresh_semantic_digest": "df47263f873d3b4e76e3a2ce031544bf2cec5bb794e8d7b8eb127b78351ca3ca",
+        "semantic_match": true
+      }
+    ],
+    "semantic_match_count": 29,
+    "status": "PASS"
+  },
+  "runtime_credit": 0,
+  "schema_version": "commander-lab.ws37.current-authority-lock/1.0.0"
+}
