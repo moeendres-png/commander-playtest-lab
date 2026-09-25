@@ -133,7 +133,7 @@ class XmageTemporalAdvancedProgressionTest {
                                                 observed.get("active_player").getAsString())
                                         && "PRECOMBAT_MAIN".equals(
                                                 observed.get("phase").getAsString()),
-                        neutralScript(arrived.seats(), null),
+                        cleanupAwareScript(arrived.seats(), "Island"),
                         260);
 
         assertEquals(2, result.observed().get("turn_number").getAsInt());
@@ -315,6 +315,64 @@ class XmageTemporalAdvancedProgressionTest {
                 arrived.session(), tag + "-pay", manaLabel, 16);
         XmageExternalRiskSignalTest.resolveStackEmpty(
                 arrived.session(), tag + "-resolve");
+    }
+
+    /**
+     * Extra-turn progression crosses cleanup. The injected Time Warp plus the
+     * natural draw can leave P1 above maximum hand size, so the external test
+     * pilot explicitly discards one provider-offered scaffolding basic. The
+     * selector is semantic (name + greatest stable hand zone_index), never
+     * first/random/default, and it is enabled only for a native discard frame.
+     */
+    private static XmageTemporalProgressionDriver.DecisionSource cleanupAwareScript(
+            Map<String, Player> seats,
+            String discardCardName
+    ) {
+        return (pending, legal, index) -> {
+            String dc = pending.get("decision_class").getAsString();
+            if ("choose_object".equals(dc)) {
+                JsonObject context = pending.has("context")
+                        && pending.get("context").isJsonObject()
+                        ? pending.getAsJsonObject("context") : new JsonObject();
+                String targetName = context.has("target_name")
+                        && !context.get("target_name").isJsonNull()
+                        ? context.get("target_name").getAsString() : "";
+                if (!targetName.endsWith("to discard")) {
+                    return null;
+                }
+                JsonObject chosen = null;
+                int chosenIndex = Integer.MIN_VALUE;
+                for (JsonElement element : legal.getAsJsonArray("actions")) {
+                    JsonObject action = element.getAsJsonObject();
+                    JsonObject metadata = action.getAsJsonObject("metadata");
+                    JsonObject nativeMeta = metadata.has("xmage_option_metadata")
+                            && metadata.get("xmage_option_metadata").isJsonObject()
+                            ? metadata.getAsJsonObject("xmage_option_metadata")
+                            : new JsonObject();
+                    String name = nativeMeta.has("name")
+                            ? nativeMeta.get("name").getAsString() : "";
+                    if (!discardCardName.equals(name) || !nativeMeta.has("zone_index")) {
+                        continue;
+                    }
+                    int zoneIndex = nativeMeta.get("zone_index").getAsInt();
+                    if (zoneIndex > chosenIndex) {
+                        chosen = action;
+                        chosenIndex = zoneIndex;
+                    } else if (zoneIndex == chosenIndex) {
+                        throw new AssertionError(
+                                "discard semantic zone_index is ambiguous: " + zoneIndex);
+                    }
+                }
+                if (chosen == null) {
+                    throw new AssertionError(
+                            "required scripted cleanup discard not provider-offered: "
+                                    + discardCardName);
+                }
+                return proposal("rg03-cleanup-discard-" + index,
+                        legal.get("actor_id").getAsString(), chosen);
+            }
+            return neutralProposal(pending, legal, index);
+        };
     }
 
     private static XmageTemporalProgressionDriver.DecisionSource capturingNeutralScript(
