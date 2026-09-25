@@ -41,7 +41,8 @@ class XmageNativeStateRestorationTest {
     private static final Map<String, List<String>> COMMANDER_COLORS = Map.of(
             "Rograkh, Son of Rohgahh", List.of("R"),
             "Kediss, Emberclaw Familiar", List.of("R"),
-            "Isamaru, Hound of Konda", List.of("W"));
+            "Isamaru, Hound of Konda", List.of("W"),
+            "Esika, God of the Tree", List.of("W", "U", "B", "R", "G"));
 
     static Path repoRoot() {
         Path candidate = Path.of(System.getProperty("user.dir"));
