@@ -479,13 +479,13 @@ class Ws204DecisionKindCensusTest {
         kinds.put("trigger ordering", statusFor(observedClasses, "trigger_order"));
         kinds.put("modes", statusFor(observedClasses, "mode"));
         kinds.put("combat damage assignment",
-                "NOT_OBSERVED in this generic-boundary run: the WS213 pin routes "
+                "NOT_OBSERVED in this generic-boundary run: the current pinned engine routes "
                         + "damage assignment through the native multi_amount seam "
                         + "(WS206 CombatGroup validation); this census driver answers "
                         + "zero blockers so no multi-blocker distribution frame opens");
         kinds.put("Commander movement", statusFor(observedClasses, "choose_use"));
         kinds.put("concession",
-                "NOT_OBSERVED in this generic-boundary run: the WS213 pin exposes "
+                "NOT_OBSERVED in this generic-boundary run: the current pinned engine exposes "
                         + "CONCEDE as an authoritative LegalAction via the concede "
                         + "offer/submit boundary (WS211 Game.canConcede); this census "
                         + "driver never submits a concession");
@@ -496,7 +496,7 @@ class Ws204DecisionKindCensusTest {
         JsonObject census = new JsonObject();
         census.addProperty("schema", "ws204.decision-kind-census.v1");
         census.addProperty("workstream", "WS204-XMAGE-B4D-ACTION-SUBMISSION");
-        census.addProperty("engine_commit", "db134b9737e951367d65ef5806ad986319cc73ab");
+        census.addProperty("engine_commit", XmageProvider.ENGINE_COMMIT);
         census.addProperty("seed", CENSUS_SEED);
         census.addProperty("deck", "rogshai_current.json");
         census.addProperty("operational_pod_size", 4);
@@ -542,7 +542,7 @@ class Ws204DecisionKindCensusTest {
     private static String statusFor(Set<String> observed, String decisionClass) {
         if (observed.contains(decisionClass)) {
             return "OBSERVED: engine requested " + decisionClass
-                    + " through the generic B4-D transport in a real cfc36f game "
+                    + " through the generic B4-D transport in a real current-pinned XMage game "
                     + "(reachability only; not behavior PASS)";
         }
         return "NOT_OBSERVED in this generic-boundary run";
