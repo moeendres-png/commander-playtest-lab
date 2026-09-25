@@ -352,8 +352,23 @@ final class XmageNativeStateRestoration {
     }
 
     private static PhaseStep parseStep(String phase, String step, String fixtureId) {
+        if ("beginning".equals(phase) && "upkeep".equals(step)) {
+            return PhaseStep.UPKEEP;
+        }
+        if ("beginning".equals(phase) && "draw".equals(step)) {
+            return PhaseStep.DRAW;
+        }
         if ("precombat_main".equals(phase) && "main".equals(step)) {
             return PhaseStep.PRECOMBAT_MAIN;
+        }
+        if ("combat".equals(phase) && "declare_attackers".equals(step)) {
+            return PhaseStep.DECLARE_ATTACKERS;
+        }
+        if ("combat".equals(phase) && "declare_blockers".equals(step)) {
+            return PhaseStep.DECLARE_BLOCKERS;
+        }
+        if ("combat".equals(phase) && "combat_damage".equals(step)) {
+            return PhaseStep.COMBAT_DAMAGE;
         }
         if ("postcombat_main".equals(phase) && "main".equals(step)) {
             return PhaseStep.POSTCOMBAT_MAIN;
@@ -427,6 +442,29 @@ final class XmageNativeStateRestoration {
         return List.copyOf(filler);
     }
 
+    /**
+     * Temporal targets qualified for native progression. This is only an
+     * allow-list for a requested checkpoint; it never assigns phase/step/turn
+     * fields. XmageTemporalProgressionDriver must reach the target through the
+     * running engine and explicit external decisions.
+     */
+    static boolean isSupportedTemporalPoint(Plan validated) {
+        if (validated.turnNumber() != 1) {
+            return false;
+        }
+        return (validated.phase() == TurnPhase.BEGINNING
+                        && (validated.step() == PhaseStep.UPKEEP
+                                || validated.step() == PhaseStep.DRAW))
+                || (validated.phase() == TurnPhase.PRECOMBAT_MAIN
+                        && validated.step() == PhaseStep.PRECOMBAT_MAIN)
+                || (validated.phase() == TurnPhase.COMBAT
+                        && (validated.step() == PhaseStep.DECLARE_ATTACKERS
+                                || validated.step() == PhaseStep.DECLARE_BLOCKERS
+                                || validated.step() == PhaseStep.COMBAT_DAMAGE))
+                || (validated.phase() == TurnPhase.POSTCOMBAT_MAIN
+                        && validated.step() == PhaseStep.POSTCOMBAT_MAIN);
+    }
+
     /** Validates the whole plan before any game mutation. */
     static void validatePlan(Plan validated) {
         if (validated.playerCount() < XmageFullGameSession.MIN_PLAYERS
@@ -448,12 +486,10 @@ final class XmageNativeStateRestoration {
                         "UNSUPPORTED_LIFE", player.playerId() + "=" + player.life());
             }
         }
-        if (validated.turnNumber() != 1
-                || validated.phase() != TurnPhase.PRECOMBAT_MAIN
-                || validated.step() != PhaseStep.PRECOMBAT_MAIN) {
+        if (!isSupportedTemporalPoint(validated)) {
             throw new RestorationException(
                     "UNSUPPORTED_TEMPORAL_POINT",
-                    "v1 arrives naturally at turn 1 precombat main only; requested "
+                    "RG-03 supports only qualified turn-1 checkpoints; requested "
                             + validated.turnNumber() + "/" + validated.phase()
                             + "/" + validated.step());
         }
@@ -979,7 +1015,9 @@ final class XmageNativeStateRestoration {
                 + "honeycard non-leakage proven per fixture)");
         supported.add("owner-equals-controller attribution with 1:1 readback");
         supported.add("life totals (pre-start assembly; state-based actions stay authoritative)");
-        supported.add("turn-1 precombat-main arrival envelope with active/priority binding");
+        supported.add("qualified turn-1 temporal targets: upkeep, draw, precombat main, "
+                + "declare attackers, declare blockers, combat damage, postcombat main; "
+                + "arrival requires XmageTemporalProgressionDriver native progression");
         supported.add("explicit Rules-seed binding with replay determinism");
         supported.add("strict native readback with field-level compare and digests");
         supported.add("frozen requested_state_digest equality for constructed states "
@@ -995,7 +1033,7 @@ final class XmageNativeStateRestoration {
         unsupported.add("tapped permanents (unqualified dimension)");
         unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
-        unsupported.add("temporal points outside turn-1 precombat main");
+        unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
         unsupported.add("frozen requested_state_digest reproduction (no canonicalization spec in repo)");
         payload.add("unsupported_dimensions", unsupported);
         return payload;
