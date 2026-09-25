@@ -18,7 +18,7 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.engine.rules.full_game_batch import FullGameBatchCase
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 
-XMAGE_COMMIT = "db134b9737e951367d65ef5806ad986319cc73ab"
+XMAGE_COMMIT = "b19596980f2734496ea1896504253e1bdd2756dd"
 
 
 def _binding(seat: int, deck_id: str) -> FullGamePilotBinding:
