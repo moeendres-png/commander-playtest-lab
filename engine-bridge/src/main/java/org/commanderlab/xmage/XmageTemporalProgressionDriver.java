@@ -34,10 +34,24 @@ final class XmageTemporalProgressionDriver {
         JsonObject choose(JsonObject pendingDecision, JsonObject legalActions, int decisionIndex);
     }
 
+    /**
+     * Read-only native checkpoint predicate. It may inspect the live provider
+     * state but must not mutate it or manufacture Rules outcomes.
+     */
+    @FunctionalInterface
+    interface Checkpoint {
+        boolean reached(
+                XmageFullGameSession session,
+                Map<String, Player> seats,
+                JsonObject observed
+        );
+    }
+
     record ProgressionResult(
             JsonObject observed,
             int submittedDecisions,
-            List<String> decisionClasses
+            List<String> decisionClasses,
+            List<String> temporalTrace
     ) {
     }
 
@@ -51,14 +65,55 @@ final class XmageTemporalProgressionDriver {
             DecisionSource decisionSource,
             int maxDecisions
     ) {
-        if (session == null || seats == null || plan == null) {
+        if (plan == null) {
             throw new ProgressionException(
-                    "INVALID_DRIVER_INPUT", "session, seats and plan are required");
+                    "INVALID_DRIVER_INPUT", "plan is required");
         }
         if (!XmageNativeStateRestoration.isSupportedTemporalPoint(plan)) {
             throw new ProgressionException(
                     "UNSUPPORTED_TEMPORAL_POINT",
                     plan.turnNumber() + "/" + plan.phase() + "/" + plan.step());
+        }
+        return drive(
+                session,
+                seats,
+                (liveSession, liveSeats, observed) -> matchesTarget(observed, plan),
+                decisionSource,
+                maxDecisions,
+                plan);
+    }
+
+    /**
+     * General RG-03 progression primitive for causal work such as skipped
+     * phases, extra turns/combats, trigger settlement and stack blocking.
+     * The checkpoint is read-only. There is deliberately no generic
+     * "overshoot" heuristic because event/state predicates can span turns.
+     */
+    static ProgressionResult driveUntil(
+            XmageFullGameSession session,
+            Map<String, Player> seats,
+            Checkpoint checkpoint,
+            DecisionSource decisionSource,
+            int maxDecisions
+    ) {
+        if (checkpoint == null) {
+            throw new ProgressionException(
+                    "INVALID_DRIVER_INPUT", "checkpoint is required");
+        }
+        return drive(session, seats, checkpoint, decisionSource, maxDecisions, null);
+    }
+
+    private static ProgressionResult drive(
+            XmageFullGameSession session,
+            Map<String, Player> seats,
+            Checkpoint checkpoint,
+            DecisionSource decisionSource,
+            int maxDecisions,
+            XmageNativeStateRestoration.Plan temporalPlan
+    ) {
+        if (session == null || seats == null) {
+            throw new ProgressionException(
+                    "INVALID_DRIVER_INPUT", "session and seats are required");
         }
         if (decisionSource == null) {
             throw new ProgressionException(
@@ -71,23 +126,31 @@ final class XmageTemporalProgressionDriver {
         }
 
         List<String> classes = new ArrayList<>();
+        List<String> trace = new ArrayList<>();
         for (int decisionIndex = 0; decisionIndex <= maxDecisions; decisionIndex++) {
             JsonObject observed =
                     XmageNativeStateRestoration.readback(session.restorationGame(), seats);
-            if (matchesTarget(observed, plan)) {
-                return new ProgressionResult(
-                        observed.deepCopy(), decisionIndex, List.copyOf(classes));
+            String sample = describe(observed);
+            if (trace.isEmpty() || !trace.get(trace.size() - 1).equals(sample)) {
+                trace.add(sample);
             }
-            if (hasOvershot(observed, plan)) {
+            if (checkpoint.reached(session, seats, observed)) {
+                return new ProgressionResult(
+                        observed.deepCopy(), decisionIndex,
+                        List.copyOf(classes), List.copyOf(trace));
+            }
+            if (temporalPlan != null && hasOvershot(observed, temporalPlan)) {
                 throw new ProgressionException(
                         "TEMPORAL_TARGET_OVERSHOT",
                         describe(observed) + " after target "
-                                + plan.turnNumber() + "/" + plan.phase() + "/" + plan.step());
+                                + temporalPlan.turnNumber() + "/"
+                                + temporalPlan.phase() + "/" + temporalPlan.step());
             }
             if (decisionIndex == maxDecisions) {
                 throw new ProgressionException(
                         "TEMPORAL_DECISION_BOUND_EXCEEDED",
-                        "target not reached after " + maxDecisions + " explicit decisions");
+                        "checkpoint not reached after " + maxDecisions
+                                + " explicit decisions");
             }
 
             JsonObject payload = session.pendingDecisionPayload();
