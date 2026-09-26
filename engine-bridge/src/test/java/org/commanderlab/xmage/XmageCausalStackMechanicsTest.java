@@ -87,10 +87,11 @@ class XmageCausalStackMechanicsTest {
         XmageFullGameDecisionExecutionTest.payHomogeneousMana(
                 live.session(), "rg01-bears", "Forest — {T}: Add {G}.");
 
+        UUID wardenId = live.restoration().injectedObjectId("obj:warden");
         StackObject trigger = null;
         for (int step = 0; step < 40; step++) {
             for (StackObject object : live.session().restorationGame().getStack()) {
-                if ("Soul Warden".equals(object.getName())
+                if (wardenId.equals(object.getSourceId())
                         && object.getStackAbility() != null
                         && object.getStackAbility().getAbilityType().name()
                                 .toLowerCase().contains("trigger")) {
@@ -490,7 +491,7 @@ class XmageCausalStackMechanicsTest {
         JsonObject proposal = new JsonObject();
         proposal.addProperty("proposal_id", "rg01-leaver-concede");
         proposal.addProperty("actor_id", actorId);
-        proposal.addProperty("action_type", "concede");
+        proposal.addProperty("player_id", actorId);
         return proposal;
     }
 
