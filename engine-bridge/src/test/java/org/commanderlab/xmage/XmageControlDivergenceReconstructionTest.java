@@ -78,10 +78,10 @@ class XmageControlDivergenceReconstructionTest {
                 arrived.session(), target,
                 arrived.seats().get("P1").getId(), arrived.seats().get("P2").getId());
 
-        XmageTemporalProgressionDriver.driveUntil(
-                arrived.session(), arrived.seats(),
-                (session, seats, observed) -> observed.get("turn_number").getAsInt() >= 2,
-                neutral(), 260);
+        // Act of Treason lasts until end of P2's turn. Reaching P3's real
+        // precombat main proves native cleanup has run; observing only the
+        // integer turn counter is too early in XMage's turn transition.
+        advanceToOwnPrecombatMain(arrived, "P3");
         XmageControlDivergenceReconstruction.requireOwnerController(
                 arrived.session(), target,
                 arrived.seats().get("P1").getId(), arrived.seats().get("P1").getId());
@@ -291,8 +291,9 @@ class XmageControlDivergenceReconstructionTest {
                 if (!targetName.endsWith("to discard")) {
                     return null;
                 }
-                JsonObject chosen = null;
-                String chosenKey = null;
+                int required = pending.has("minimum_selections")
+                        ? pending.get("minimum_selections").getAsInt() : 1;
+                List<SemanticAction> candidates = new ArrayList<>();
                 for (JsonElement element : legal.getAsJsonArray("actions")) {
                     JsonObject action = element.getAsJsonObject();
                     JsonObject nativeMeta = nativeMeta(action);
@@ -301,19 +302,30 @@ class XmageControlDivergenceReconstructionTest {
                     }
                     String key = nativeMeta.get("name").getAsString()
                             + "|" + nativeMeta.get("zone_index").getAsInt();
-                    if (chosen == null || key.compareTo(chosenKey) > 0) {
-                        chosen = action;
-                        chosenKey = key;
-                    } else if (key.equals(chosenKey)) {
+                    candidates.add(new SemanticAction(key, action));
+                }
+                candidates.sort((left, right) -> right.key().compareTo(left.key()));
+                for (int i = 1; i < candidates.size(); i++) {
+                    if (candidates.get(i - 1).key().equals(candidates.get(i).key())) {
                         throw new AssertionError(
-                                "cleanup discard semantic key is ambiguous: " + key);
+                                "cleanup discard semantic key is ambiguous: "
+                                        + candidates.get(i).key());
                     }
                 }
-                if (chosen == null) {
+                if (required < 0 || candidates.size() < required) {
                     throw new AssertionError(
-                            "cleanup discard exposed no semantically keyed option");
+                            "cleanup discard cannot satisfy exact native cardinality "
+                                    + required + " from " + candidates.size() + " options");
                 }
-                return proposal("rg04-progress-discard-" + index, legal, chosen);
+                List<JsonObject> chosen = candidates.stream()
+                        .limit(required)
+                        .map(SemanticAction::action)
+                        .toList();
+                return multiSelectProposal(
+                        "rg04-progress-discard-" + index,
+                        legal,
+                        chosen,
+                        "choose_targets");
             }
             return null;
         };
@@ -337,12 +349,22 @@ class XmageControlDivergenceReconstructionTest {
         public JsonObject choose(JsonObject pending, JsonObject legal, int decisionIndex) {
             String dc = pending.get("decision_class").getAsString();
             if ("target".equals(dc)) {
-                if (targetIndex >= targets.size()) {
-                    throw new AssertionError("unexpected extra target decision");
+                int required = pending.has("minimum_selections")
+                        ? pending.get("minimum_selections").getAsInt() : 1;
+                if (required < 1 || targetIndex + required > targets.size()) {
+                    throw new AssertionError(
+                            "scripted target cardinality mismatch: need " + required
+                                    + " with " + (targets.size() - targetIndex) + " remaining");
                 }
-                UUID wanted = targets.get(targetIndex++);
-                JsonObject match = exactNativeObject(legal, wanted);
-                return proposal("rg04-target-" + decisionIndex, legal, match);
+                List<JsonObject> selected = new ArrayList<>();
+                for (int i = 0; i < required; i++) {
+                    selected.add(exactNativeObject(legal, targets.get(targetIndex++)));
+                }
+                return multiSelectProposal(
+                        "rg04-target-" + decisionIndex,
+                        legal,
+                        selected,
+                        "choose_targets");
             }
             if ("mana_payment".equals(dc)) {
                 JsonObject pool = exactManaPoolIfPresent(legal, manaType);
@@ -357,6 +379,33 @@ class XmageControlDivergenceReconstructionTest {
             }
             return null;
         }
+    }
+
+    private static JsonObject multiSelectProposal(
+            String id,
+            JsonObject legal,
+            List<JsonObject> selected,
+            String actionType
+    ) {
+        if (selected.isEmpty()) {
+            throw new AssertionError("multi-select proposal requires at least one option");
+        }
+        JsonObject proposal = XmageFullGameTaxExecutionTest.genericProposal(
+                id,
+                legal.get("actor_id").getAsString(),
+                selected.get(0).get("action_id").getAsString(),
+                actionType);
+        com.google.gson.JsonArray optionIds = new com.google.gson.JsonArray();
+        for (JsonObject action : selected) {
+            String actionId = action.get("action_id").getAsString();
+            int split = actionId.indexOf(':');
+            if (split < 1 || split == actionId.length() - 1) {
+                throw new AssertionError("invalid projected action id: " + actionId);
+            }
+            optionIds.add(actionId.substring(split + 1));
+        }
+        proposal.getAsJsonObject("choices").add("selected_option_ids", optionIds);
+        return proposal;
     }
 
     private static JsonObject exactNativeObject(JsonObject legal, UUID wanted) {
@@ -448,15 +497,7 @@ class XmageControlDivergenceReconstructionTest {
         JsonObject proposal = new JsonObject();
         proposal.addProperty("proposal_id", "rg04-concede-" + actor.substring(0, 8));
         proposal.addProperty("actor_id", actor);
-        proposal.addProperty("action_type", "concede");
-        proposal.add("legal_action_id", com.google.gson.JsonNull.INSTANCE);
-        proposal.add("target_ids", new com.google.gson.JsonArray());
-        proposal.add("selected_modes", new com.google.gson.JsonArray());
-        JsonObject choices = new JsonObject();
-        choices.add("ordering", new com.google.gson.JsonArray());
-        proposal.add("choices", choices);
-        proposal.addProperty("decision_tier", 1);
-        proposal.addProperty("policy_name", "rg04-native-leave-cleanup");
+        proposal.addProperty("player_id", actor);
         return proposal;
     }
 
@@ -469,6 +510,8 @@ class XmageControlDivergenceReconstructionTest {
         }
         return false;
     }
+
+    private record SemanticAction(String key, JsonObject action) {}
 
     private record Arrived(
             XmageFullGameSession session,
