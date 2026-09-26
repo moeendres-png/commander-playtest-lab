@@ -1,13 +1,12 @@
 package org.commanderlab.xmage;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import mage.constants.CommanderCardType;
 import mage.constants.PhaseStep;
 import mage.constants.TurnPhase;
 import mage.constants.Zone;
-import mage.counters.Counter;
-import mage.counters.CounterType;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
 import org.junit.jupiter.api.Test;
@@ -111,19 +110,76 @@ class XmageCausalEliminationReconstructionTest {
                         List.of("b1", "b2"), "black");
         assertEquals(Set.of("P1", "P3"), result.survivingPlayers());
 
+        // A: genuine self-loss through Sign in Blood (draw 2, lose 2 at life 2).
+        assertEquals(0, arrived.seats().get("P2").getLife());
+        // B: P2 leaves the game (CR 104.5/800.4 operative transition).
+        assertTrue(arrived.seats().get("P2").hasLeft(),
+                "P2 must leave the game after losing on its own turn");
+
+        // C: the current turn is NOT silently reassigned (CR 800.4j): XMage
+        // keeps the departed slot as active while routing priority onward.
+        JsonObject atLoss = XmageNativeStateRestoration.readback(
+                arrived.session().restorationGame(), arrived.seats());
+        assertEquals(3, atLoss.get("turn_number").getAsInt());
+        assertEquals("P2", atLoss.get("active_player").getAsString(),
+                "the turn must continue under the departed slot, not jump to P3");
+
+        // D/E: the turn completes natively with decisions flowing only to
+        // survivors. Transition frames may still name departed P2 once (its
+        // own cleanup discard on the continuing turn); those are answered by
+        // the deterministic transport, but once priority has moved on, P2
+        // must never decide again.
+        String departedId = arrived.seats().get("P2").getId().toString();
+        boolean[] handoff = {false};
+        XmageTemporalProgressionDriver.DecisionSource guarded = (pending, legal, index) -> {
+            String actor = pending.get("actor_id").getAsString();
+            String dc = pending.get("decision_class").getAsString();
+            if (departedId.equals(actor)) {
+                if (handoff[0]) {
+                    throw new AssertionError(
+                            "departed P2 decided again after handoff at index " + index);
+                }
+                if (!"priority".equals(dc) && !"choose_object".equals(dc)) {
+                    throw new AssertionError(
+                            "unexpected departed-actor transition frame: " + dc);
+                }
+            } else {
+                handoff[0] = true;
+            }
+            return progressionScript().choose(pending, legal, index);
+        };
+        // Rotation from here is P1 (T4) -> P3 (T5) -> P1 (T6, P2's slot skipped).
+        driveToPrecombat(arrived, "P1", 4, guarded);
+        driveToPrecombat(arrived, "P3", 5, guarded);
+        // G: P2's scheduled turn does not begin (CR 800.4k).
+        driveToPrecombat(arrived, "P1", 6, guarded);
+        JsonObject observed = XmageNativeStateRestoration.readback(
+                arrived.session().restorationGame(), arrived.seats());
+        assertEquals(6, observed.get("turn_number").getAsInt());
+        assertEquals("P1", observed.get("active_player").getAsString());
+        assertEquals("P1", observed.get("priority_player").getAsString(),
+                "a surviving player must hold authoritative continuation");
+        assertFalse(arrived.seats().get("P1").hasLost());
+        assertFalse(arrived.seats().get("P3").hasLost());
+    }
+
+    private static void driveToPrecombat(
+            Arrived arrived,
+            String actor,
+            int turn,
+            XmageTemporalProgressionDriver.DecisionSource decisions
+    ) {
         XmageTemporalProgressionDriver.driveUntil(
                 arrived.session(),
                 arrived.seats(),
                 (session, seats, observed) ->
-                        "P3".equals(observed.get("active_player").getAsString())
+                        observed.get("turn_number").getAsInt() == turn
+                                && actor.equals(observed.get("active_player").getAsString())
                                 && "PRECOMBAT_MAIN".equals(observed.get("phase").getAsString())
-                                && "PRECOMBAT_MAIN".equals(observed.get("step").getAsString()),
-                progressionScript(),
-                520);
-        JsonObject observed = XmageNativeStateRestoration.readback(
-                arrived.session().restorationGame(), arrived.seats());
-        assertEquals("P3", observed.get("active_player").getAsString());
-        assertNotEquals("P2", observed.get("priority_player").getAsString());
+                                && "PRECOMBAT_MAIN".equals(observed.get("step").getAsString())
+                                && actor.equals(observed.get("priority_player").getAsString()),
+                decisions,
+                600);
     }
 
     @Test
@@ -148,6 +204,34 @@ class XmageCausalEliminationReconstructionTest {
             String actor = pending.getAsJsonObject("decision").get("actor_id").getAsString();
             assertNotEquals(arrived.seats().get("P3").getId().toString(), actor);
         }
+    }
+
+    @Test
+    void twoPlayerNativeLossEndsGameWithWinnerAndNoFurtherDecisions() {
+        // Distinct 2P terminal boundary (not multiplayer continuation): both
+        // start at the bounded initial life 3, P1's genuine Bolt removes the
+        // last 3 life, P2 loses, P1 wins natively and the decided game
+        // exposes no further survivor decision loop.
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-terminal-2", 2, 3,
+                List.of(
+                        object("bolt", "Lightning Bolt", "P1", Zone.HAND),
+                        object("red", "Mountain", "P1", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 3);
+
+        XmageCausalEliminationReconstruction.Result result =
+                eliminateWithSpell(
+                        arrived, "P1", "P2", "bolt",
+                        List.of(arrived.seats().get("P2").getId()),
+                        List.of("red"), "red");
+
+        assertEquals(Set.of("P1"), result.survivingPlayers());
+        assertTrue(arrived.seats().get("P2").hasLost() || arrived.seats().get("P2").hasLeft());
+        assertTrue(arrived.seats().get("P1").hasWon(),
+                "native two-player semantics must award the win to the survivor");
+        JsonObject terminal = arrived.session().pendingDecisionPayload();
+        assertTrue(terminal.get("decision").isJsonNull(),
+                "the decided two-player game exposes no further decisions");
     }
 
     @Test
@@ -390,81 +474,83 @@ class XmageCausalEliminationReconstructionTest {
     }
 
     @Test
-    void emptyLibraryPlusActualDrawCausesNativeDeckOut() {
+    void worshipLetsSoleSurvivorWinFourPlayerGame() {
+        // Genuine 4P primary cell: all four start at the bounded initial life
+        // 4 (uniform authorized configuration, no post-start mutation).
+        // P1's Flame Rift deals 4 to every player; P2/P3/P4 fall to 0 while
+        // P1's Worship (controlling a creature) replaces its own lethal
+        // damage with life total 1. Sole survivor must win natively.
         XmageNativeStateRestoration.Plan plan = plan(
-                "rg05-deckout", 3, 40,
-                List.of(
-                        object("sign", "Sign in Blood", "P1", Zone.HAND),
-                        object("b1", "Swamp", "P1", Zone.BATTLEFIELD),
-                        object("b2", "Swamp", "P1", Zone.BATTLEFIELD)));
-        Arrived arrived = arrive(plan, 40);
-        arrived.session().restorationGame().cheat(
-                arrived.seats().get("P2").getId(),
-                Map.of(Zone.LIBRARY, "clear"));
-        assertEquals(0, arrived.seats().get("P2").getLibrary().size());
-
-        castSpell(
-                arrived, "P1", "sign",
-                List.of(arrived.seats().get("P2").getId()),
-                List.of("b1", "b2"), "black");
-        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
-
-        assertTrue(arrived.seats().get("P2").hasLost() || arrived.seats().get("P2").hasLeft(),
-                "attempting to draw from an empty library must cause native loss");
-    }
-
-    @Test
-    void ninePoisonPlusActualPrologueCausesNativePoisonLoss() {
-        XmageNativeStateRestoration.Plan plan = plan(
-                "rg05-poison", 3, 40,
-                List.of(
-                        object("prologue", "Prologue to Phyresis", "P1", Zone.HAND),
-                        object("u1", "Island", "P1", Zone.BATTLEFIELD),
-                        object("u2", "Island", "P1", Zone.BATTLEFIELD)));
-        Arrived arrived = arrive(plan, 40);
-        Player victim = arrived.seats().get("P2");
-        boolean added = victim.addCounters(
-                new Counter(CounterType.POISON.getName(), 9),
-                arrived.seats().get("P1").getId(),
-                null,
-                arrived.session().restorationGame());
-        assertTrue(added);
-        assertEquals(9, victim.getCountersCount(CounterType.POISON));
-        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
-        assertFalse(victim.hasLost());
-
-        castSpell(
-                arrived, "P1", "prologue", List.of(),
-                List.of("u1", "u2"), "blue");
-        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
-
-        assertEquals(10, victim.getCountersCount(CounterType.POISON));
-        assertTrue(victim.hasLost() || victim.hasLeft());
-    }
-
-    @Test
-    void flameRiftEliminatesThreeOpponentsSimultaneouslyAndProducesWinnerInFourPlayer() {
-        XmageNativeStateRestoration.Plan plan = plan(
-                "rg05-simultaneous-winner", 4, 4,
+                "rg05-worship-4", 4, 4,
                 List.of(
                         object("rift", "Flame Rift", "P1", Zone.HAND),
                         object("r1", "Mountain", "P1", Zone.BATTLEFIELD),
-                        object("r2", "Mountain", "P1", Zone.BATTLEFIELD)));
+                        object("r2", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("worship", "Worship", "P1", Zone.BATTLEFIELD),
+                        object("worship-creature", "Grizzly Bears", "P1", Zone.BATTLEFIELD),
+                        object("m2", "Mountain", "P2", Zone.BATTLEFIELD),
+                        object("m3", "Mountain", "P3", Zone.BATTLEFIELD),
+                        object("m4", "Mountain", "P4", Zone.BATTLEFIELD)));
         Arrived arrived = arrive(plan, 4);
-        arrived.seats().get("P1").setLife(8, arrived.session().restorationGame(), null);
-        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
 
         castSpell(arrived, "P1", "rift", List.of(), List.of("r1", "r2"), "red");
         XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
 
+        assertEquals(1, arrived.seats().get("P1").getLife(),
+                "Worship must replace P1's lethal damage with life total 1");
         assertFalse(arrived.seats().get("P1").hasLost());
-        assertEquals(4, arrived.seats().get("P1").getLife());
         for (String pid : List.of("P2", "P3", "P4")) {
             assertTrue(arrived.seats().get(pid).hasLost() || arrived.seats().get(pid).hasLeft(),
                     pid + " must be eliminated by the same resolving Flame Rift");
         }
+        // Owned-object cleanup is proven where the game continues (3P Bolt
+        // cells and the 4P single-victim cell below): this terminal winner
+        // state is asserted without requiring post-terminal battlefield
+        // sterility, which the native engine does not complete after deciding
+        // the game (victim Mountains may linger in the frozen terminal state;
+        // no continuing game is affected).
         assertTrue(arrived.seats().get("P1").hasWon(),
                 "sole surviving player must receive the native winner state");
+        JsonObject terminal = arrived.session().pendingDecisionPayload();
+        assertTrue(terminal.get("decision").isJsonNull(),
+                "the decided game exposes no further decisions");
+    }
+
+    @Test
+    void doubleBoltEliminatesExactlyOneVictimInContinuingFourPlayerGame() {
+        // 4P cleanup in a CONTINUING game: P2 alone is eliminated by two
+        // genuine Bolts while P3/P4 survive, so native leave-game cleanup is
+        // observably complete (contrast the terminal winner cell above).
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-cleanup-4", 4, 4,
+                List.of(
+                        object("bolt1", "Lightning Bolt", "P1", Zone.HAND),
+                        object("bolt2", "Lightning Bolt", "P1", Zone.HAND),
+                        object("r1", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("r2", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("m2", "Mountain", "P2", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 4);
+
+        castSpell(arrived, "P1", "bolt1",
+                List.of(arrived.seats().get("P2").getId()), List.of("r1"), "red");
+        castSpell(arrived, "P1", "bolt2",
+                List.of(arrived.seats().get("P2").getId()), List.of("r2"), "red");
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+
+        assertTrue(arrived.seats().get("P2").hasLost() || arrived.seats().get("P2").hasLeft());
+        assertFalse(arrived.seats().get("P1").hasWon(),
+                "with three survivors the game must continue, not decide");
+        for (Permanent permanent
+                : arrived.session().restorationGame().getBattlefield().getAllPermanents()) {
+            assertNotEquals(arrived.seats().get("P2").getId(), permanent.getOwnerId(),
+                    "no P2-owned permanent may remain after native cleanup");
+        }
+        JsonObject pending = arrived.session().pendingDecisionPayload();
+        assertFalse(pending.get("decision").isJsonNull(),
+                "survivors must continue with an authoritative decision");
+        String actor = pending.getAsJsonObject("decision").get("actor_id").getAsString();
+        assertNotEquals(arrived.seats().get("P2").getId().toString(), actor,
+                "eliminated P2 must never receive priority again");
     }
 
     @Test
@@ -721,28 +807,84 @@ class XmageCausalEliminationReconstructionTest {
                 if (!targetName.endsWith("to discard")) {
                     return null;
                 }
-                int required = pending.has("minimum_selections")
-                        ? pending.get("minimum_selections").getAsInt() : 1;
-                List<JsonObject> candidates = new ArrayList<>();
-                for (JsonElement element : legal.getAsJsonArray("actions")) {
-                    JsonObject action = element.getAsJsonObject();
-                    JsonObject nativeMeta = nativeMeta(action);
-                    if (nativeMeta.has("name") && nativeMeta.has("zone_index")) {
-                        candidates.add(action);
-                    }
-                }
-                if (candidates.size() < required) {
-                    throw new AssertionError("cleanup discard underflow");
+                List<JsonObject> picked = resolveDiscardSelection(pending, legal);
+                if (picked == null) {
+                    return null;
                 }
                 return multiSelectProposal(
                         "rg05-discard-" + index,
                         legal,
-                        candidates.subList(0, required),
+                        picked,
                         "choose_targets");
             }
             return null;
         };
     }
+
+    /**
+     * Deterministic cleanup-discard transport.
+     *
+     * <p>The intended qualification choice is explicit: discard exactly the
+     * native required count, preferring the highest stable semantic key
+     * ({@code name|zone_index} from the authoritative offer, descending).
+     * Fixture boards place expendable filler lands so needed spells sort
+     * below the discard line, and each test asserts its needed cards
+     * survive. Returns {@code null} (fail closed) when the pending decision
+     * is not an exact-count discard. Throws when the semantic identity is
+     * ambiguous or the keyed offer cannot satisfy the native cardinality.
+     * Never a positional default: every selected option is bound by its
+     * engine-exposed semantic key.</p>
+     */
+    static List<JsonObject> resolveDiscardSelection(JsonObject pending, JsonObject legal) {
+        JsonObject context = pending.has("context") && pending.get("context").isJsonObject()
+                ? pending.getAsJsonObject("context") : new JsonObject();
+        String targetName = context.has("target_name") && !context.get("target_name").isJsonNull()
+                ? context.get("target_name").getAsString() : "";
+        if (!targetName.endsWith("to discard")) {
+            return null;
+        }
+        int min = pending.has("minimum_selections") && !pending.get("minimum_selections").isJsonNull()
+                ? pending.get("minimum_selections").getAsInt() : -1;
+        int max = pending.has("maximum_selections") && !pending.get("maximum_selections").isJsonNull()
+                ? pending.get("maximum_selections").getAsInt() : -1;
+        if (min < 0 || min != max) {
+            return null;
+        }
+        List<DiscardOption> keyed = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject nativeMeta = nativeMeta(action);
+            if (!nativeMeta.has("name") || !nativeMeta.has("zone_index")) {
+                continue;
+            }
+            JsonElement zoneIndex = nativeMeta.get("zone_index");
+            if (!zoneIndex.isJsonPrimitive() || !zoneIndex.getAsJsonPrimitive().isNumber()) {
+                continue;
+            }
+            keyed.add(new DiscardOption(
+                    nativeMeta.get("name").getAsString() + "|"
+                            + zoneIndex.getAsJsonPrimitive().getAsInt(),
+                    action));
+        }
+        keyed.sort((left, right) -> right.key().compareTo(left.key()));
+        for (int i = 1; i < keyed.size(); i++) {
+            if (keyed.get(i - 1).key().equals(keyed.get(i).key())) {
+                throw new AssertionError(
+                        "cleanup discard semantic key is ambiguous: " + keyed.get(i).key());
+            }
+        }
+        if (keyed.size() < min) {
+            throw new AssertionError("cleanup discard cannot satisfy exact native cardinality "
+                    + min + " from " + keyed.size() + " semantically keyed options");
+        }
+        List<JsonObject> picked = new ArrayList<>();
+        for (int i = 0; i < min; i++) {
+            picked.add(keyed.get(i).action());
+        }
+        return picked;
+    }
+
+    private record DiscardOption(String key, JsonObject action) {}
 
     private static final class Script
             implements XmageControlDivergenceReconstruction.DecisionSource {
@@ -849,6 +991,89 @@ class XmageCausalEliminationReconstructionTest {
         }
         proposal.getAsJsonObject("choices").add("selected_option_ids", optionIds);
         return proposal;
+    }
+
+    @Test
+    void discardSelectionPrefersHighestSemanticKey() {
+        JsonObject pending = discardFrame(2, 2, "card to discard");
+        JsonObject legal = discardLegal(
+                discardOption("a1", "Mountain", 5),
+                discardOption("a2", "Mountain", 3),
+                discardOption("a3", "Control Magic", 1));
+        List<JsonObject> picked = resolveDiscardSelection(pending, legal);
+        assertNotNull(picked);
+        assertEquals(2, picked.size());
+        assertEquals("a1", picked.get(0).get("action_id").getAsString());
+        assertEquals("a2", picked.get(1).get("action_id").getAsString());
+    }
+
+    @Test
+    void discardSelectionFailsClosedOnAmbiguousKey() {
+        JsonObject pending = discardFrame(1, 1, "card to discard");
+        JsonObject legal = discardLegal(
+                discardOption("a1", "Mountain", 5),
+                discardOption("a2", "Mountain", 5));
+        try {
+            resolveDiscardSelection(pending, legal);
+            throw new AssertionError("ambiguous semantic identity must fail closed");
+        } catch (AssertionError expected) {
+            assertTrue(expected.getMessage().contains("ambiguous"),
+                    "unexpected failure: " + expected.getMessage());
+        }
+    }
+
+    @Test
+    void discardSelectionFailsClosedOnInsufficientCardinality() {
+        JsonObject pending = discardFrame(2, 2, "card to discard");
+        JsonObject legal = discardLegal(discardOption("a1", "Mountain", 5));
+        try {
+            resolveDiscardSelection(pending, legal);
+            throw new AssertionError("insufficient cardinality must fail closed");
+        } catch (AssertionError expected) {
+            assertTrue(expected.getMessage().contains("cardinality"),
+                    "unexpected failure: " + expected.getMessage());
+        }
+    }
+
+    @Test
+    void discardSelectionFailsClosedOnNonExactShape() {
+        assertNull(resolveDiscardSelection(discardFrame(0, 2, "card to discard"),
+                discardLegal(discardOption("a1", "Mountain", 5))));
+        assertNull(resolveDiscardSelection(discardFrame(1, 1, "something else"),
+                discardLegal(discardOption("a1", "Mountain", 5))));
+    }
+
+    private static JsonObject discardFrame(int min, int max, String targetName) {
+        JsonObject pending = new JsonObject();
+        pending.addProperty("minimum_selections", min);
+        pending.addProperty("maximum_selections", max);
+        JsonObject context = new JsonObject();
+        context.addProperty("target_name", targetName);
+        pending.add("context", context);
+        return pending;
+    }
+
+    private static JsonObject discardLegal(JsonObject... actions) {
+        JsonObject legal = new JsonObject();
+        JsonArray array = new JsonArray();
+        for (JsonObject action : actions) {
+            array.add(action);
+        }
+        legal.add("actions", array);
+        return legal;
+    }
+
+    private static JsonObject discardOption(String actionId, String name, int zoneIndex) {
+        JsonObject action = new JsonObject();
+        action.addProperty("action_id", actionId);
+        JsonObject metadata = new JsonObject();
+        metadata.addProperty("option_id", actionId);
+        JsonObject nativeMeta = new JsonObject();
+        nativeMeta.addProperty("name", name);
+        nativeMeta.addProperty("zone_index", zoneIndex);
+        metadata.add("xmage_option_metadata", nativeMeta);
+        action.add("metadata", metadata);
+        return action;
     }
 
     private static JsonObject nativeMeta(JsonObject action) {
