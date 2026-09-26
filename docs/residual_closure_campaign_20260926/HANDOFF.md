@@ -4,7 +4,11 @@
 
 **Campaign disposition:** COMPLETE / BOUNDED PASS
 
-**Final stacked branch:** `sol/rg06-hidden-replay-integration-20260924`
+**Original L7 branch:** `sol/rg06-hidden-replay-integration-20260924`
+
+**Final reconciled integration branch:** `sol/final-residual-integration-full107-20260926`
+
+**PR:** #249 (DRAFT, unmerged)
 
 **Mage pin throughout Lab campaign:** `b19596980f2734496ea1896504253e1bdd2756dd`
 
@@ -26,7 +30,7 @@
 | L6 | RG-05 causal multiplayer elimination | `15bedf1a4f3f9053fbb79ca9b4d116cd770f5f4e` | `4117aff09d9bd2c9e46c834bb53672d24af53c29` | #247 | PASS after final integrity + semantic closure (Gates A+B) |
 | L7 | RG-06 hidden-state + replay integration | terminal docs descendant on this branch | `a7de8603535bb5d3656df576ef5c8f8190f144f1` | #248 | PASS |
 
-Each layer was created/resumed from the exact predecessor terminal head. L2–L7 remain stacked Draft PRs and were not merged to `main`.
+L1–L5 form the earlier stacked predecessor sequence. Initial L6 closed at `060869e5`. L7 was originally implemented from that then-current L6 terminal state. Final L6 semantic remediation subsequently advanced RG-05 through `4117aff0` / `15bedf1a` on a divergent branch. PR #249 reconciled the authoritative final L6 bytes with the existing L7 and FULL107 work. The FINAL CONTENT TREE is therefore reconciled and qualified; Git history must NOT be described as one uninterrupted linear L6→L7 ancestry. L2–L7 remain stacked Draft PRs and were not merged to `main`.
 
 ## Work Completed
 
@@ -87,9 +91,11 @@ Each layer was created/resumed from the exact predecessor terminal head. L2–L7
 
 ## Final Cumulative Runtime Evidence
 
-Exact reconciled runtime head:
+Unambiguous reconciled runtime-qualified authority:
 
 `593326713faeddb8c90df2fdc5e5bafbe1fccf1b`
+
+Docs-only terminal heads (e.g. `20bf2cd2`, `5a5a5523`, and successors) are terminal documentation heads only unless source changes; runtime qualification stays bound to the SHA above.
 
 (L6 authoritative-final test contract + L7 implementation + FULL107
 requalification + prevalidation atomicity battery; no production Rules change
@@ -128,7 +134,9 @@ Key cumulative results:
 - Real 4P technical smoke: PASS
 - H4 XMage/Forge materialization: PASS
 
-Final evidence artifacts:
+Terminal evidence for the reconciled candidate is the six exact workflow RUN IDs on `59332671` (CI `36252815364`, External `36252815268`, Conformance `36252815281`, Smoke `36252815303`, H4 `36252815304`, Production Qualification `36252815322`), all terminal SUCCESS.
+
+Historical artifact IDs below belong to pre-reconciliation L7 rounds and are retained as historical/supporting evidence only — they are NOT current evidence for the reconciled candidate:
 
 - CI: `10906583687`
 - Security: `10907106377`
@@ -170,8 +178,9 @@ Within the bounded commissioned scope:
 - hidden ordered-library / bounded typed face-down integration
 - principal-scoped hidden information
 - semantic replay/privacy
-- 2–5 player technical conformance, plus current 6P bounded smoke
-- 7P fail-closed unsupported boundary
+- 2P/3P/4P/5P mechanism-specific RG-05 evidence is DIRECTLY_VERIFIED
+- any 6P claim is only the separately qualified bounded/general smoke surface, not RG-05 mechanism-specific elimination evidence
+- 7P remains FAIL_CLOSED / unsupported
 - cumulative regression suite / container materialization
 
 ### FAIL
@@ -213,19 +222,21 @@ Persistent workstream handoffs:
 - L7: `docs/workstream_rg06_hidden_replay_integration_20260926/HANDOFF.md`
 - cumulative campaign: this file
 
-Stacked Draft PRs: #243 → #244 → #245 → #246 → #247 → #248.
+Historical stacked workstream PRs: #243–#248. Final reconciliation / FULL107 integration candidate against main: #249 (DRAFT, unmerged).
+
+## FULL107 Reconciliation State
+
+The reconciled tree promotes three exact residual fixtures to DIRECT (mapping counts DIRECT 12→15, NOT_RUN_BLOCKED 28→25; verified reproducible via generator + 10/10 correspondence guard): WS05-CMD-DMG-SPLIT, WS05-CMD-PARTNER-DMG (independent native Commander-damage edges, no aggregation), and WS05-CMD-START-3 (native turn-1 draw, 8/7/7 hands), each with EXACT fixture-identity register verdicts pointing at the already-qualified `XmageFull107ResidualRequalificationTest` (3/3 green on reconciled bytes). No Java bridge change was required; the requalification test file is byte-identical to its qualified form.
 
 ## Dependencies Unblocked
 
-Coordinator can now adjudicate the cumulative L1→L7 stacked candidate as one linear source lineage.
+Coordinator can adjudicate the single reconciled PR #249 content tree whose runtime bytes are bound to `593326713faeddb8c90df2fdc5e5bafbe1fccf1b`.
 
 No Architecture Freeze or Production Provider decision follows automatically from this technical closure.
 
 ## Exact Next Action
 
-Coordinator should record the terminal L7 branch head containing this docs-only cumulative handoff as the residual-closure candidate.
-
-If integration of the stacked L2→L7 line is later explicitly authorized, integrate it in ancestry-preserving order (or an equivalently ancestry-preserving single cumulative integration), then verify the exact resulting `main` SHA and post-merge gates. Do not infer integration permission from this handoff.
+Coordinator performs final PR #249 integration adjudication against unchanged main after this source-truth correction and current-tip checks. Do NOT merge in this task.
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED`
 
