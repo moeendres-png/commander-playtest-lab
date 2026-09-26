@@ -198,7 +198,6 @@ def test_partner_fixtures_match_executed_subset_shape(repo_root: Path) -> None:
         assert [event for event in record["expected_events"]["required_events"]] == required
 
 
-
 def test_final_residual_exact_fixtures_match_frozen_shape(repo_root: Path) -> None:
     records = _load_materialization(repo_root)
 
