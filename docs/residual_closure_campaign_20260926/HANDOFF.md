@@ -23,7 +23,7 @@
 | L3 | RG-03 authoritative temporal driver | `d254855f5ca70f6c3d2fb3cf5fe6be9f21cbda2a` | `1efab77b4bda64e957391400b38eb2035acfa9ff` | #244 | PASS |
 | L4 | RG-01 causal stack reconstruction | `3f6eb944e0b137062cc5af6b5b89d1cabeeeac39` | `ab4c0c259a84aae5715efd3d0f0340ca417a3f16` | #245 | PASS |
 | L5 | RG-04 causal control divergence | `fffff1a4eed12d44bd6e3460fd6a730feb9596eb` | `8dd283feebde5cced91d5655a188b61040d992ca` | #246 | PASS |
-| L6 | RG-05 causal multiplayer elimination | `060869e5ee60b4a504c317f24786b715ddd66c0d` | `8d3e69ed02a3bd992a4c27b599db8f210c67c777` | #247 | PASS after integrity remediation |
+| L6 | RG-05 causal multiplayer elimination | `15bedf1a4f3f9053fbb79ca9b4d116cd770f5f4e` | `4117aff09d9bd2c9e46c834bb53672d24af53c29` | #247 | PASS after final integrity + semantic closure (Gates A+B) |
 | L7 | RG-06 hidden-state + replay integration | terminal docs descendant on this branch | `a7de8603535bb5d3656df576ef5c8f8190f144f1` | #248 | PASS |
 
 Each layer was created/resumed from the exact predecessor terminal head. L2–L7 remain stacked Draft PRs and were not merged to `main`.
@@ -68,6 +68,7 @@ Each layer was created/resumed from the exact predecessor terminal head. L2–L7
 
 - native loss only; no Lab lost/left/winner flag mutation;
 - integrity audit removed three formerly credited cells with manufactured mid-game preconditions and one first-N fallback;
+- final semantic closure: cleanup discards are caller-owned expendable-name bindings (no ranking anywhere; unrequested options structurally unselectable; 7 adversarial unit tests); active-player departure proven behaviorally against pinned-source 800.4j diagnostic (Outcome B: retained scheduling slot, correct Rules treatment; raw-null-active retained UNKNOWN with reason);
 - replacement evidence uses genuine causal cards plus permitted bounded initial game configuration;
 - lethal damage, Commander damage, active-player loss, winner/draw cells, cleanup, priority-ring/turn recomputation, 2P/3P/4P/5P behavior qualified;
 - poison-counter and empty-library causation retained UNKNOWN rather than fabricated.
@@ -86,25 +87,34 @@ Each layer was created/resumed from the exact predecessor terminal head. L2–L7
 
 ## Final Cumulative Runtime Evidence
 
-Exact final L7 runtime head:
+Exact reconciled runtime head:
 
-`a7de8603535bb5d3656df576ef5c8f8190f144f1`
+`593326713faeddb8c90df2fdc5e5bafbe1fccf1b`
 
-All five cumulative workflows SUCCESS:
+(L6 authoritative-final test contract + L7 implementation + FULL107
+requalification + prevalidation atomicity battery; no production Rules change
+in reconciliation.)
 
-- CI `36244387854`
-- External XMage Integration `36244387873`
-- XMage Full Game Conformance `36244387786`
-- XMage Real 4P Technical Smoke `36244387825`
-- H4 Docker Materialization `36244387833`
+All six cumulative workflows SUCCESS on that exact head:
+
+- CI `36252815364`
+- External XMage Integration `36252815268`
+- XMage Full Game Conformance `36252815281`
+- XMage Real 4P Technical Smoke `36252815303`
+- H4 Docker Materialization `36252815304`
+- Production Qualification `36252815322`
+
+Superseded historical evidence (supporting only): prior tip rounds including
+the `a7de8603`-era L7 runs (`36244387854` et al.) and the stale-L6 rounds;
+none of them qualify the reconciled semantics.
 
 Key cumulative results:
 
 - Python: **1548 passed / 7 skipped / 1 warning**
 - mypy: **0 issues / 261 source files**
-- Bridge: **291 tests / 0 failures / 0 errors / 1 intentional skip**
-- Hidden/Replay L7: **8/8**
-- Elimination L6 inherited suite: **18/18**
+- Bridge: **298 tests / 0 failures / 0 errors / 1 intentional skip**
+- Hidden/Replay L7: **9/9** (8 inherited + prevalidation atomicity battery)
+- Elimination L6 inherited suite: **21/21** (14 live + 7 discard-authority unit tests)
 - Control L5: **7/7**
 - Stack mechanics L4: **7/7**
 - Stack reconstruction L4: **5/5**
@@ -140,6 +150,8 @@ Material examples:
 - L5 initial failures were target-cardinality/concession/cleanup timing harness defects; corrected without Rules shortcuts.
 - L6 underwent explicit integrity remediation: direct mid-game life/counter/library manipulation and first-N discard fallback were removed from credited evidence. Their unsupported causal cases remain UNKNOWN.
 - L7 initial XMage-specific failure was a historical internal reflection-signature compatibility regression; fixed with a strictly public-only overload, then all five workflows reran successfully.
+- Final reconciliation (PR #249): the integration branch contained a stale L6 test copy (18 tests, ranking-based discard). It was replaced by the authoritative final L6 version (21 tests, caller-owned contract), verified byte-identical to `15bedf1a` except deliberate later change (none required — zero delta). No stale L6 blob survived conflict resolution.
+- L7 atomicity impact check: Lab prevalidation throws before any mutation; the single native face-down call precedes library restores with its own validate-before-mutate seam; native library re-rejection after Lab prevalidation requires concurrent engine mutation, impossible for all current synchronous parked-engine callers (documented invariant). Added prevalidation atomicity battery (6 rejection paths, zero-mutation asserts). Registry lifecycle reviewed: no purge hook (see UNKNOWN item 8).
 
 ## PASS / FAIL / UNKNOWN
 
@@ -177,6 +189,8 @@ These are not promoted:
 5. Historical frozen hidden records lacking a lossless complete library permutation or native face-down subtype.
 6. Historical START-2 full frozen fixture's separate first-turn-draw assertion contradiction.
 7. 7-player execution: intentionally unsupported / fail closed.
+8. `RESTORED_FACE_DOWN_IDENTITIES` static registry has no purge hook (bounded per-restore leak, game-ID-keyed and collision-safe; reads are game-scoped; purge deferred for post-terminal-read safety).
+9. Bridge submit path has no departed-principal liveness gate (transition frames answered deterministically; hardening recorded as follow-up with its own impact adjudication).
 
 UNKNOWN is not PASS and does not invalidate the bounded qualified campaign.
 
