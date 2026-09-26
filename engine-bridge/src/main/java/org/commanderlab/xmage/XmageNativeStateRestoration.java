@@ -178,6 +178,7 @@ final class XmageNativeStateRestoration {
     private final Plan plan;
     private final Deck materializationVehicle;
     private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
+    private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
@@ -204,6 +205,15 @@ final class XmageNativeStateRestoration {
 
     Set<UUID> injectedHandIdsForTests(String playerId) {
         return Set.copyOf(injectedHandIdsByPlayer.getOrDefault(playerId, Set.of()));
+    }
+
+    UUID injectedObjectId(String semanticId) {
+        UUID id = injectedObjectIdsBySemanticId.get(semanticId);
+        if (id == null) {
+            throw new RestorationException(
+                    "UNKNOWN_SEMANTIC_OBJECT", String.valueOf(semanticId));
+        }
+        return id;
     }
 
     /**
@@ -498,7 +508,14 @@ final class XmageNativeStateRestoration {
             throw new RestorationException(
                     "UNKNOWN_ACTOR", "active/priority must name a planned player");
         }
+        Set<String> objectIds = new HashSet<>();
         for (RequestedObject object : validated.objects()) {
+            if (object.semanticId() == null || object.semanticId().isBlank()) {
+                throw new RestorationException("INVALID_SEMANTIC_OBJECT", "blank semantic id");
+            }
+            if (!objectIds.add(object.semanticId())) {
+                throw new RestorationException("DUPLICATE_SEMANTIC_OBJECT", object.semanticId());
+            }
             switch (object.zone()) {
                 case BATTLEFIELD, GRAVEYARD, EXILED, HAND -> {
                 }
@@ -604,6 +621,10 @@ final class XmageNativeStateRestoration {
                     continue;
                 }
                 Card card = takeVehicleCard(vehicleByName, consumed, object);
+                if (injectedObjectIdsBySemanticId.put(object.semanticId(), card.getId()) != null) {
+                    throw new RestorationException(
+                            "DUPLICATE_SEMANTIC_OBJECT", object.semanticId());
+                }
                 switch (object.zone()) {
                     case BATTLEFIELD -> battlefield.add(new PutToBattlefieldInfo(card, false));
                     case HAND -> {
