@@ -45,6 +45,14 @@ final class XmageFullGameStateRedactor {
     private static final Map<String, Map<String, Set<String>>> ZONE_FULL_LOOK =
             new ConcurrentHashMap<>();
 
+    /**
+     * Hidden identity registry for bounded L7 restored face-down permanents.
+     * This stores identity only; authorization is derived dynamically from the
+     * live native controller relationship. It is not a second permission model.
+     */
+    private static final Map<String, Map<UUID, String>> RESTORED_FACE_DOWN_IDENTITIES =
+            new ConcurrentHashMap<>();
+
     static void beginZoneFullLook(Player viewer, Player owner, Game game) {
         if (viewer == null || owner == null || game == null) {
             return;
@@ -65,6 +73,26 @@ final class XmageFullGameStateRedactor {
                 owners.remove(owner.getId().toString());
             }
         }
+    }
+
+    static void registerRestoredFaceDownIdentity(Game game, UUID permanentId, String cardIdentity) {
+        if (game == null || permanentId == null || cardIdentity == null || cardIdentity.isBlank()) {
+            throw new IllegalArgumentException("face-down identity registration requires game/id/name");
+        }
+        RESTORED_FACE_DOWN_IDENTITIES
+                .computeIfAbsent(game.getId().toString(), ignored -> new ConcurrentHashMap<>())
+                .put(permanentId, cardIdentity);
+    }
+
+    private static String restoredFaceDownIdentity(Game game, Permanent permanent, Player viewer) {
+        if (game == null || permanent == null || viewer == null
+                || !permanent.isFaceDown(game)
+                || !viewer.getId().equals(permanent.getControllerId())) {
+            return null;
+        }
+        Map<UUID, String> byPermanent =
+                RESTORED_FACE_DOWN_IDENTITIES.get(game.getId().toString());
+        return byPermanent == null ? null : byPermanent.get(permanent.getId());
     }
 
     private static boolean hasZoneFullLook(Game game, Player viewer, Player owner) {
@@ -118,7 +146,7 @@ final class XmageFullGameStateRedactor {
                 if (!player.getId().equals(permanent.getControllerId())) {
                     continue;
                 }
-                JsonObject item = publicPermanent(permanent, game);
+                JsonObject item = publicPermanent(permanent, game, actor);
                 battlefield.add(item);
             }
             p.add("battlefield", battlefield);
@@ -191,6 +219,33 @@ final class XmageFullGameStateRedactor {
         return view;
     }
 
+    /**
+     * Global public-only projection. It is derived from the same redactor and
+     * then strips every principal-private field. This is the only state allowed
+     * to back a public replay/transcript hash.
+     */
+    static JsonObject publicView(Game game) {
+        Player anchor = game.getPlayers().values().stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("game has no players"));
+        JsonObject view = actorView(game, anchor);
+        view.remove("actor_id");
+        view.remove("seat");
+        for (JsonElement element : view.getAsJsonArray("players")) {
+            JsonObject player = element.getAsJsonObject();
+            player.remove("is_actor");
+            player.remove("hand");
+            player.remove("mana_pool");
+            player.remove("land_plays_remaining");
+            player.remove("granted_library");
+            if (player.has("battlefield") && player.get("battlefield").isJsonArray()) {
+                for (JsonElement permanentElement : player.getAsJsonArray("battlefield")) {
+                    permanentElement.getAsJsonObject().remove("private_identity");
+                }
+            }
+        }
+        return view;
+    }
+
     static int seat(Game game, UUID playerId) {
         int seat = 0;
         for (Player player : game.getPlayers().values()) {
@@ -202,12 +257,20 @@ final class XmageFullGameStateRedactor {
         return -1;
     }
 
-    private static JsonObject publicPermanent(Permanent permanent, Game game) {
+    private static JsonObject publicPermanent(Permanent permanent, Game game, Player viewer) {
         JsonObject item = new JsonObject();
         item.addProperty("object_id", permanent.getId().toString());
         item.addProperty("name", permanent.getName());
         item.addProperty("controller_id", permanent.getControllerId().toString());
         item.addProperty("tapped", permanent.isTapped());
+        boolean faceDown = permanent.isFaceDown(game);
+        item.addProperty("face_down", faceDown);
+        if (faceDown) {
+            String privateIdentity = restoredFaceDownIdentity(game, permanent, viewer);
+            if (privateIdentity != null) {
+                item.addProperty("private_identity", privateIdentity);
+            }
+        }
         // WS92-D3 public physical characteristics of battlefield permanents
         // (systemic reacquisition). Power/toughness, damage and counters are
         // board-public; ability text is projected only for face-up permanents
