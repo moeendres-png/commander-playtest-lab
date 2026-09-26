@@ -162,7 +162,6 @@ DR_CLOSURE_DIRECT = {
             "requested_state_digest equality verified in the same test; no fallback"
         ),
     },
-
 }
 
 
