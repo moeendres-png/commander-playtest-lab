@@ -1,9 +1,9 @@
 {
  "counts": {
+  "DIRECT": 15,
+  "NOT_RUN_BLOCKED": 25,
   "SUPPORTING": 13,
-  "UNKNOWN": 54,
-  "DIRECT": 12,
-  "NOT_RUN_BLOCKED": 28
+  "UNKNOWN": 54
  },
  "entries": [
   {
@@ -514,8 +514,9 @@
   },
   {
    "fixture_id": "WS05-CMD-DMG-SPLIT",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+   "reason": "fixture-faithful final residual run PASS at exact 4P/seed 424242: native CommanderInfoWatcher state restores independent 11 and 10 damage edges for the two Partner commanders without aggregation; constructed requested_state_digest equality verified in XmageFull107ResidualRequalificationTest; no fallback",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-DMG-CONTROL",
@@ -530,8 +531,9 @@
   },
   {
    "fixture_id": "WS05-CMD-PARTNER-DMG",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+   "reason": "fixture-faithful final residual run PASS at exact 4P/seed 424242: native CommanderInfoWatcher state restores independent 12 and 9 damage edges for the Partner commanders; constructed requested_state_digest equality verified in XmageFull107ResidualRequalificationTest; no fallback",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-PARTNER-ZONE",
@@ -558,8 +560,9 @@
   },
   {
    "fixture_id": "WS05-CMD-START-3",
-   "reason": "bridge reports starting_state_injection_supported=false (contract-locked); residual: injection-capability workstream",
-   "status": "NOT_RUN_BLOCKED"
+   "pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+   "reason": "fixture-faithful final residual run PASS at exact 3P/seed 424242: native progression reaches P1 turn-1 DRAW with P1 at eight cards and P2/P3 at seven, proving first_turn_draw:true; constructed requested_state_digest equality verified in XmageFull107ResidualRequalificationTest; no fallback",
+   "status": "DIRECT"
   },
   {
    "fixture_id": "WS05-CMD-ELIM-4",

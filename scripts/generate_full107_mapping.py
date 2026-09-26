@@ -126,6 +126,43 @@ DR_CLOSURE_DIRECT = {
             "no fallback"
         ),
     },
+    "WS05-CMD-DMG-SPLIT": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFull107ResidualRequalificationTest.java"
+        ),
+        "reason": (
+            "fixture-faithful final residual run PASS at exact 4P/seed 424242: "
+            "native CommanderInfoWatcher state restores independent 11 and 10 damage "
+            "edges for the two Partner commanders without aggregation; constructed "
+            "requested_state_digest equality verified in the same test; no fallback"
+        ),
+    },
+    "WS05-CMD-PARTNER-DMG": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFull107ResidualRequalificationTest.java"
+        ),
+        "reason": (
+            "fixture-faithful final residual run PASS at exact 4P/seed 424242: "
+            "native CommanderInfoWatcher state restores independent 12 and 9 damage "
+            "edges for the Partner commanders; constructed requested_state_digest "
+            "equality verified in the same test; no fallback"
+        ),
+    },
+    "WS05-CMD-START-3": {
+        "pointer": (
+            "engine-bridge/src/test/java/org/commanderlab/xmage/"
+            "XmageFull107ResidualRequalificationTest.java"
+        ),
+        "reason": (
+            "fixture-faithful final residual run PASS at exact 3P/seed 424242: "
+            "native progression reaches P1 turn-1 DRAW with P1 at eight cards and "
+            "P2/P3 at seven, proving first_turn_draw:true; constructed "
+            "requested_state_digest equality verified in the same test; no fallback"
+        ),
+    },
+
 }
 
 

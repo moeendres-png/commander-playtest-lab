@@ -98,6 +98,24 @@
    "fixture_id": "WS05-MP-TRIG-5",
    "note": "DR-CLOSURE-01 exact fixture execution; constructed requested_state_digest equality is guarded by XmageDigestCreditTest.",
    "verdict": "EXACT"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+   "note": "Final residual exact frozen 4P/seed 424242 run; independent 11/10 native Commander damage plus requested_state_digest equality.",
+   "verdict": "EXACT"
+  },
+  {
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+   "note": "Final residual exact frozen 4P/seed 424242 run; independent Partner 12/9 native Commander damage plus requested_state_digest equality.",
+   "verdict": "EXACT"
+  },
+  {
+   "fixture_id": "WS05-CMD-START-3",
+   "evidence_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+   "note": "Final residual exact frozen 3P/seed 424242 run; P1 native turn-1 draw observed with 8/7/7 hands plus requested_state_digest equality.",
+   "verdict": "EXACT"
   }
  ]
 }
