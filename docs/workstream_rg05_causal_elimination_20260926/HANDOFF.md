@@ -1,116 +1,115 @@
 # L6 — RG-05 Causal Multiplayer Elimination Reconstruction
 
-## Terminal Handoff
+## Terminal Handoff (integrity remediation + re-closure)
 
-**Disposition:** COMPLETE / PASS
+**Disposition:** COMPLETE / PASS (remediated; prior invalid cells removed)
 
 **Branch:** `sol/rg05-causal-elimination-20260924`
 
-**Exact predecessor L5 head:** `fffff1a4eed12d44bd6e3460fd6a730feb9596eb`
+**Exact predecessor L5:** `fffff1a4eed12d44bd6e3460fd6a730feb9596eb`
 
-**Runtime-validated L6 implementation head:** `b19149dda18221c7cbcadc8b4339092af2b1f541`
+**Runtime-qualified L6 head:** `8d3e69ed02a3bd992a4c27b599db8f210c67c777`
 
-**Mage pin:** `b19596980f2734496ea1896504253e1bdd2756dd`
+**Runtime-qualified L6 tree:** `ebb9ea8865888fe20ae044e93ac60dcac6212ac6`
 
-**Draft PR:** #247, stacked on L5
+**Mage pin:** `b19596980f2734496ea1896504253e1bdd2756dd` (unchanged)
 
-**WORKTREE:** NOT_AVAILABLE_IN_CONNECTOR_EXECUTION
+**Draft PR:** #247, stacked on `sol/rg04-control-divergence-20260924`, OPEN/UNMERGED
+
+**Rules authority:** official Wizards Comprehensive Rules effective 2026-08-07
+(current version at verification 2026-09-26; Reality Fracture bulletin
+2026-09-21 announces future changes only). Predicates: CR 100.1a/100.1b,
+104.3b/104.5, 800.4a/800.4j/800.4k (texts reverified verbatim).
 
 **ARCHITECTURE_FREEZE:** NOT CLAIMED
 
 **PRODUCTION_PROVIDER:** NOT SELECTED
 
+## Prior Invalid PASS Claims (corrected)
+
+The previous terminal handoff (docs head `703af39f`, runtime head `b19149dd`)
+credited three cells that manufactured preconditions outside authorized
+initial configuration, plus one first-N fallback:
+
+1. `flameRiftEliminatesThreeOpponentsSimultaneouslyAndProducesWinnerInFourPlayer`
+   — mid-game `setLife(8)` after start. REMOVED as a PASS cell; replaced by a
+   genuine Worship-based 4P winner cell (uniform initial life 4, no mutation).
+2. `ninePoisonPlusActualPrologueCausesNativePoisonLoss` — direct
+   `addCounters(...9 poison)` after start. REMOVED from PASS; poison retained
+   UNKNOWN (no poison ledger added; genuine paths documented as follow-up).
+3. `emptyLibraryPlusActualDrawCausesNativeDeckOut` — mid-game
+   `cheat(...LIBRARY "clear")`. REMOVED from PASS; deck-out retained UNKNOWN.
+4. Cleanup-discard `candidates.subList(0, required)` — first-N fallback.
+   REPLACED by explicit semantic selection (below).
+
+No production Rules logic was weakened or bypassed at any point. The three
+removed cells' underlying native loss transactions were never in doubt; only
+their manufactured setups were disqualified as evidence.
+
 ## Work Completed
 
-- Added/qualified causal multiplayer elimination reconstruction driven only by genuine XMage Rules execution.
-- No Lab code sets player lost/left/won flags and no terminal result is injected.
-- Actual-card causes cover lethal damage, self-loss, empty-library draw loss, poison, Commander combat damage, simultaneous loss/winner/draw, active-player loss and multiplayer continuation.
-- Qualified owned-object cleanup, controlled-but-foreign-owned cleanup, leaver-owned stack-object cleanup, priority-ring removal, turn recomputation, survivor continuation and 3P/4P/5P live rings.
-- Reused L3 temporal progression and L4/L5 native cast/target/mana seams rather than adding a second action legality path.
-- Same-seed fresh-session elimination behavior remains bound to native execution.
+- Causal runner `XmageCausalEliminationReconstruction` preserved unchanged in
+  architecture (no lost/left/life/terminal mutation; observes native state).
+- R1: discard transport selects exactly the native required count by stable
+  semantic key (`name|zone_index` descending) with ambiguity/underflow throws
+  and exact-or-null shape gating; 4 adversarial unit tests (top-N order,
+  ambiguity, underflow, non-exact shape).
+- R2: Worship-4P genuine winner cell; double-Bolt 4P continuing-game cleanup
+  cell; setLife/cheat-clear/addCounters cells removed per above.
+- R3: bounded genuine 2P terminal cell (initial life 3, Bolt, native win,
+  null-decision terminality, no survivor loop).
+- R4: active-leave cell proves T3 active-slot retention (800.4j
+  representation), survivor-only decisions after handoff (transition-frame
+  tolerant), T4→P1/T5→P3 rotation, T6 skip of P2's slot (800.4k).
 
-## Failure / Remediation History
+## Tests / Evidence (runtime head `8d3e69ed`)
 
-The leaver-owned-stack test initially used a bespoke cast helper. It failed because the helper did not bind an offered cast at the actual current decision state.
-
-A first simplification from Giant Growth to targetless Opt reproduced the same zero-offer failure, proving target legality was not the cause.
-
-Final remediation:
-- removed the bespoke cast setup from the affected test;
-- reused the already runtime-qualified L4 sequence:
-  exact pass-to-actor -> offered Lightning Bolt cast -> exact native target -> native mana payment;
-- only after the P2-owned spell genuinely existed on the stack did the test causally eliminate P2 with P1's genuine Lightning Bolt;
-- native leaver cleanup then had to remove the P2-owned stack object without resolving it.
-
-No Rules-Core or production legality behavior was weakened to satisfy the test.
-
-## Tests / Evidence
-
-All five workflows on exact L6 implementation head
-`b19149dda18221c7cbcadc8b4339092af2b1f541` completed SUCCESS:
-
-- External XMage Integration — `36230385741`
-- XMage Full Game Conformance — `36230385743`
-- XMage Real 4P Technical Smoke — `36230385754`
-- CI — `36230385766`
-- H4 Docker Materialization — `36230385779`
-
-The final bridge suite includes the full `XmageCausalEliminationReconstructionTest`
-matrix with all 14 cells passing on the same cumulative stacked source.
+- `XmageCausalEliminationReconstructionTest`: **18/18 green locally**
+  (14 inherited − 3 removed + 3 live additions + 4 unit).
+- Full bridge suite locally: **283 green, 1 pre-existing skip**.
+- Live cells by count: 2P (terminal), 3P ×8 (bolt, priority, active-leave,
+  replay, commander-combat, control-cleanup, stack-cleanup, worship-3P,
+  angel, draw), 4P ×2 (worship-winner, single-victim cleanup), 5P (middle
+  seat). No 2P/5P inference beyond exercised cells; no 6P claim.
+- Evidence classes: causal executions DIRECTLY_VERIFIED (+TECHNICALLY_CONFORMANT
+  harness transport where noted); CR predicates EXTERNALLY_RULE_VALIDATED;
+  absence-of-mutation CODE_DERIVED; poison/deck-out UNKNOWN (honest residual).
 
 ## PASS / FAIL / UNKNOWN
 
-### PASS
+**PASS:** `RG05_CAUSAL_MULTIPLAYER_ELIMINATION = PASS` — G01–G20 hold for the
+cells listed above; PASS list contains no forbidden-setup cell.
 
-- native lethal-damage elimination
-- active-player/self-loss progression
-- deck-out loss
-- poison loss
-- Commander-damage loss
-- simultaneous winner/draw semantics
-- eliminated player priority removal
-- live-ring / next-active-player continuation
-- owned battlefield cleanup
-- foreign-control / owner-leaves cleanup
-- leaver-owned stack-object removal
-- 3P/4P/5P causal multiplayer behavior
-- cumulative L1-L6 regression surface
+**FAIL:** none in bounded L6 scope.
 
-### FAIL
-
-None in L6 scope.
-
-### UNKNOWN / intentionally outside L6
-
-- Hidden ordered-library restoration and private/public projection integration
-- Face-down hidden identity projection and replay
-- Public/principal replay privacy against hidden-state oracle hashes
-
-These are L7 scope.
+**UNKNOWN (retained, non-blocking):** poison-counter causation, empty-library
+causation, MICRO/RNG/REPLAY families, FULL107 mapping promotion (separate
+qualification scope).
 
 ## Remaining Blockers
 
-None for L7 start.
+None for L6; none blocking L7 start.
 
 ## Outputs
 
-- Draft stacked PR #247
-- causal elimination implementation/tests
-- this terminal handoff
+- Draft stacked PR #247 (head `8d3e69ed`, then this docs-only handoff).
+- Causal runner (unchanged architecture) + 18-test qualification suite.
+- This corrected handoff.
 
 ## Dependencies Unblocked
 
-L7 must start from the exact terminal head produced by this handoff commit.
+L7 hidden-state/replay integration is dependency-unblocked once required
+workflows on the runtime head are terminal SUCCESS. L6 must not be reopened
+for poison/deck-out without a new genuine-causation design.
 
 ## Exact Next Action
 
-Create/resume `sol/rg06-hidden-replay-integration-20260924` from the exact L6 terminal head.
-
-Integrate the already qualified Mage ordered-library and bounded face-down game-load
-APIs into a lossless Lab hidden-state request surface, harden the sole
-principal-scoped redactor, and qualify semantic replay so public/principal tapes
-cannot act as hidden-card oracle hashes. Ambiguous old frozen records must stay
-fail-closed rather than infer library order or face-down subtype.
+Watch the exact-head (`8d3e69ed`) workflows CI / External XMage Integration /
+XMage Full Game Conformance / Real 4P Smoke / H4 Docker Materialization to
+terminal SUCCESS; on any failure classify per ambient/L6-attributable rules
+before any further mutation. Then Coordinator may dispatch L7 from the
+terminal docs head. Do not merge the stacked chain; no freeze/provider change.
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED`
+
 `PRODUCTION_PROVIDER = NOT SELECTED`
