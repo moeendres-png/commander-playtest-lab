@@ -413,13 +413,21 @@ final class XmageCausalStackReconstruction {
             }
             return;
         }
-        int selectedModes =
-                stackObject.getStackAbility().getModes().getSelectedModes().size();
-        if (selectedModes != frame.modes().size()) {
-            throw new ReconstructionException(
-                    "STACK_MODE_COUNT_MISMATCH",
-                    frame.semanticId() + " expected=" + frame.modes().size()
-                            + " actual=" + selectedModes);
+        // XMage's internal Modes always contains/selects the ordinary
+        // default mode for a nonmodal spell. Frozen modes=[] means "no
+        // discretionary modal choice", not "zero internal modes". Only an
+        // explicitly mode-bearing frozen frame constrains selected-mode
+        // cardinality here; mode identity itself remains native-decision
+        // evidence supplied/checked by the actual cast path.
+        if (!frame.modes().isEmpty()) {
+            int selectedModes =
+                    stackObject.getStackAbility().getModes().getSelectedModes().size();
+            if (selectedModes != frame.modes().size()) {
+                throw new ReconstructionException(
+                        "STACK_MODE_COUNT_MISMATCH",
+                        frame.semanticId() + " expected=" + frame.modes().size()
+                                + " actual=" + selectedModes);
+            }
         }
     }
 
