@@ -299,23 +299,22 @@ class XmageCausalEliminationReconstructionTest {
                 List.of(
                         object("p1-bolt", "Lightning Bolt", "P1", Zone.HAND),
                         object("p1-red", "Mountain", "P1", Zone.BATTLEFIELD),
-                        object("p2-growth", "Giant Growth", "P2", Zone.HAND),
-                        object("p2-green", "Forest", "P2", Zone.BATTLEFIELD),
-                        object("p2-bear", "Grizzly Bears", "P2", Zone.BATTLEFIELD)));
+                        object("p2-opt", "Opt", "P2", Zone.HAND),
+                        object("p2-blue", "Island", "P2", Zone.BATTLEFIELD)));
         Arrived arrived = arrive(plan, 3);
 
         passPriorityUntil(arrived, "P2", 12);
-        UUID growthId = arrived.restoration().injectedObjectId("p2-growth");
+        UUID optId = arrived.restoration().injectedObjectId("p2-opt");
         castAndLeaveOnStack(
-                arrived, "P2", growthId,
+                arrived, "P2", optId,
                 new Script(
-                        List.of(arrived.restoration().injectedObjectId("p2-bear")),
-                        List.of(arrived.restoration().injectedObjectId("p2-green")),
-                        "green"),
+                        List.of(),
+                        List.of(arrived.restoration().injectedObjectId("p2-blue")),
+                        "blue"),
                 40);
         assertTrue(arrived.session().restorationGame().getStack().stream()
-                .anyMatch(stackObject -> stackObject.getSourceId().equals(growthId)),
-                "P2 Giant Growth must genuinely exist on the stack before elimination");
+                .anyMatch(stackObject -> stackObject.getSourceId().equals(optId)),
+                "P2 Opt must genuinely exist on the stack before elimination");
 
         passPriorityUntil(arrived, "P1", 12);
         eliminateWithSpell(
@@ -324,7 +323,7 @@ class XmageCausalEliminationReconstructionTest {
                 List.of("p1-red"), "red");
 
         assertFalse(arrived.session().restorationGame().getStack().stream()
-                        .anyMatch(stackObject -> stackObject.getSourceId().equals(growthId)),
+                        .anyMatch(stackObject -> stackObject.getSourceId().equals(optId)),
                 "departing player's owned stack object must be removed, not resolved");
     }
 
