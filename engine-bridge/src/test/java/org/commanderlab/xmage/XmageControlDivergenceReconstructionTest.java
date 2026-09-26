@@ -240,6 +240,85 @@ class XmageControlDivergenceReconstructionTest {
                 80);
     }
 
+    private static void advanceToOwnPrecombatMain(Arrived arrived, String actor) {
+        JsonObject now = XmageNativeStateRestoration.readback(
+                arrived.session().restorationGame(), arrived.seats());
+        if (actor.equals(now.get("active_player").getAsString())
+                && "PRECOMBAT_MAIN".equals(now.get("phase").getAsString())
+                && "PRECOMBAT_MAIN".equals(now.get("step").getAsString())
+                && actor.equals(now.get("priority_player").getAsString())) {
+            return;
+        }
+        XmageTemporalProgressionDriver.driveUntil(
+                arrived.session(),
+                arrived.seats(),
+                (session, seats, observed) ->
+                        actor.equals(observed.get("active_player").getAsString())
+                                && "PRECOMBAT_MAIN".equals(observed.get("phase").getAsString())
+                                && "PRECOMBAT_MAIN".equals(observed.get("step").getAsString())
+                                && actor.equals(observed.get("priority_player").getAsString()),
+                progressionScript(),
+                520);
+    }
+
+    private static XmageTemporalProgressionDriver.DecisionSource progressionScript() {
+        return (pending, legal, index) -> {
+            String dc = pending.get("decision_class").getAsString();
+            if ("priority".equals(dc)) {
+                return proposal("rg04-progress-pass-" + index, legal,
+                        XmageFullGameTaxExecutionTest.singleActionOfType(
+                                legal, "pass_priority", null));
+            }
+            if ("declare_attacker".equals(dc)) {
+                return proposal("rg04-progress-hold-" + index, legal,
+                        XmageFullGameTaxExecutionTest.singleActionOfType(
+                                legal, "declare_attackers", "hold_attacker"));
+            }
+            if ("declare_blocker".equals(dc)) {
+                JsonObject p = XmageFullGameTaxExecutionTest.genericProposal(
+                        "rg04-progress-no-block-" + index,
+                        legal.get("actor_id").getAsString(), "", "structural_decision");
+                p.add("legal_action_id", com.google.gson.JsonNull.INSTANCE);
+                return p;
+            }
+            if ("choose_object".equals(dc)) {
+                JsonObject context = pending.has("context")
+                        && pending.get("context").isJsonObject()
+                        ? pending.getAsJsonObject("context") : new JsonObject();
+                String targetName = context.has("target_name")
+                        && !context.get("target_name").isJsonNull()
+                        ? context.get("target_name").getAsString() : "";
+                if (!targetName.endsWith("to discard")) {
+                    return null;
+                }
+                JsonObject chosen = null;
+                String chosenKey = null;
+                for (JsonElement element : legal.getAsJsonArray("actions")) {
+                    JsonObject action = element.getAsJsonObject();
+                    JsonObject nativeMeta = nativeMeta(action);
+                    if (!nativeMeta.has("name") || !nativeMeta.has("zone_index")) {
+                        continue;
+                    }
+                    String key = nativeMeta.get("name").getAsString()
+                            + "|" + nativeMeta.get("zone_index").getAsInt();
+                    if (chosen == null || key.compareTo(chosenKey) > 0) {
+                        chosen = action;
+                        chosenKey = key;
+                    } else if (key.equals(chosenKey)) {
+                        throw new AssertionError(
+                                "cleanup discard semantic key is ambiguous: " + key);
+                    }
+                }
+                if (chosen == null) {
+                    throw new AssertionError(
+                            "cleanup discard exposed no semantically keyed option");
+                }
+                return proposal("rg04-progress-discard-" + index, legal, chosen);
+            }
+            return null;
+        };
+    }
+
     private static final class Script
             implements XmageControlDivergenceReconstruction.DecisionSource {
         private final List<UUID> targets;
