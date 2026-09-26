@@ -8,7 +8,7 @@
 
 **Final reconciled integration branch:** `sol/final-residual-integration-full107-20260926`
 
-**PR:** #249 (DRAFT, unmerged)
+**PR:** #249 (MERGED to `main` as `f133fe9d96c5e61842c866f3338de06a764a97b6`)
 
 **Mage pin throughout Lab campaign:** `b19596980f2734496ea1896504253e1bdd2756dd`
 
@@ -30,7 +30,25 @@
 | L6 | RG-05 causal multiplayer elimination | `15bedf1a4f3f9053fbb79ca9b4d116cd770f5f4e` | `4117aff09d9bd2c9e46c834bb53672d24af53c29` | #247 | PASS after final integrity + semantic closure (Gates A+B) |
 | L7 | RG-06 hidden-state + replay integration | terminal docs descendant on this branch | `a7de8603535bb5d3656df576ef5c8f8190f144f1` | #248 | PASS |
 
-L1–L5 form the earlier stacked predecessor sequence. Initial L6 closed at `060869e5`. L7 was originally implemented from that then-current L6 terminal state. Final L6 semantic remediation subsequently advanced RG-05 through `4117aff0` / `15bedf1a` on a divergent branch. PR #249 reconciled the authoritative final L6 bytes with the existing L7 and FULL107 work. The FINAL CONTENT TREE is therefore reconciled and qualified; Git history must NOT be described as one uninterrupted linear L6→L7 ancestry. L2–L7 remain stacked Draft PRs and were not merged to `main`.
+L1–L5 form the earlier stacked predecessor sequence. Initial L6 closed at `060869e5`. L7 was originally implemented from that then-current L6 terminal state. Final L6 semantic remediation subsequently advanced RG-05 through `4117aff0` / `15bedf1a` on a divergent branch. PR #249 reconciled the authoritative final L6 bytes with the existing L7 and FULL107 work. The FINAL CONTENT TREE is therefore reconciled and qualified; Git history must NOT be described as one uninterrupted linear L6→L7 ancestry. PR #249 is now merged to `main`; historical PRs #243–#248 were closed as superseded while their branches were retained for provenance. PR #247 remains non-ancestral by design, but its authoritative final-L6 content was reconciled into #249 before qualification and merge.
+
+## Canonical Main Integration
+
+- PR #249 merged by normal merge commit (no squash/rebase).
+- Canonical main merge SHA: `f133fe9d96c5e61842c866f3338de06a764a97b6`.
+- Merge parents: prior main `c491528cd851edc26d6f9f5f830d0ee6d4fd807f` + qualified PR head `ca5164bf630159898016f2a8c4d3d2027dafe14e`.
+- Merge tree: `d5a04aca4de1adc64b9796f7f4c230661001cb41`, byte-identical to the qualified PR-head tree.
+- Reconciled runtime-qualified authority remains `593326713faeddb8c90df2fdc5e5bafbe1fccf1b`; the merge itself introduced no content delta relative to the qualified PR head.
+- Mage pin remains `b19596980f2734496ea1896504253e1bdd2756dd`.
+- Post-merge push workflows on the exact merge SHA all completed SUCCESS:
+  - CI `36258323058`
+  - XMage Full Game Conformance `36258323005`
+  - XMage Real 4P Technical Smoke `36258323067`
+  - Production Qualification `36258323077`
+  - Exact Main Recovery `36258323070`
+  - Windows Runtime Hygiene `36258323073`
+  - Release Artifacts `36258323069`
+- H4 Docker Materialization was not re-triggered by the merge push; its PR-head qualification remains applicable because the merge tree is byte-identical to the already-qualified PR-head tree.
 
 ## Work Completed
 
@@ -222,7 +240,7 @@ Persistent workstream handoffs:
 - L7: `docs/workstream_rg06_hidden_replay_integration_20260926/HANDOFF.md`
 - cumulative campaign: this file
 
-Historical stacked workstream PRs: #243–#248. Final reconciliation / FULL107 integration candidate against main: #249 (DRAFT, unmerged).
+Historical stacked workstream PRs #243–#248 are CLOSED as superseded; their branches remain retained for provenance. Final reconciliation / FULL107 integration PR #249 is MERGED to `main` as `f133fe9d96c5e61842c866f3338de06a764a97b6`.
 
 ## FULL107 Reconciliation State
 
@@ -230,13 +248,13 @@ The reconciled tree promotes three exact residual fixtures to DIRECT (mapping co
 
 ## Dependencies Unblocked
 
-Coordinator can adjudicate the single reconciled PR #249 content tree whose runtime bytes are bound to `593326713faeddb8c90df2fdc5e5bafbe1fccf1b`.
+The reconciled residual-closure content is now canonical on `main` at `f133fe9d96c5e61842c866f3338de06a764a97b6`, with runtime evidence bound to `593326713faeddb8c90df2fdc5e5bafbe1fccf1b`.
 
-No Architecture Freeze or Production Provider decision follows automatically from this technical closure.
+The next provider-selection prerequisite is a common-denominator Forge qualification against the same frozen FULL107 contract now used for XMage. Forge's own R14–R19 admission evidence is substantial, but its promotion packet explicitly records FULL107 as NOT_RUN; therefore Architecture Freeze and Production Provider selection remain premature.
 
 ## Exact Next Action
 
-Coordinator performs final PR #249 integration adjudication against unchanged main after this source-truth correction and current-tip checks. Do NOT merge in this task.
+Open exactly one next critical-path workstream: Forge FULL107 / common-denominator qualification against the frozen WS47 v1.0.5 107-item contract, using current Forge master evidence as input but granting no behavior credit without fixture-corresponding execution. Require same-deck/same-seed cross-engine fixtures, principal-scoped hidden-information checks, Rules-RNG/replay parity, and independent divergence adjudication before any Architecture Freeze or Production Provider decision.
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED`
 
