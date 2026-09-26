@@ -131,6 +131,84 @@ class XmageHiddenReplayIntegrationTest {
     }
 
     @Test
+    void hiddenStateLabPrevalidationRejectsWithoutAnyMutation() {
+        Arrived arrived = arrive(plan("l7-prevalidation", true), "l7-prevalidation");
+        Player p1 = arrived.seats().get("P1");
+        List<UUID> beforeIds = new ArrayList<>(p1.getLibrary().getCardList());
+        List<String> names = libraryNames(p1, arrived.game());
+        List<String> rotated = new ArrayList<>(names);
+        Collections.rotate(rotated, 1);
+        UUID bearsId = arrived.restoration().injectedObjectId("obj:p1-bears");
+
+        // Duplicate player order.
+        assertCode("DUPLICATE_LIBRARY_ORDER", () -> XmageHiddenStateRestoration.apply(
+                arrived.game(), arrived.seats(), arrived.restoration(),
+                new XmageHiddenStateRestoration.Request(
+                        List.of(
+                                new XmageHiddenStateRestoration.LibraryOrder("P1", rotated),
+                                new XmageHiddenStateRestoration.LibraryOrder("P1", rotated)),
+                        List.of())));
+        // Unknown player.
+        assertCode("UNKNOWN_ACTOR", () -> XmageHiddenStateRestoration.apply(
+                arrived.game(), arrived.seats(), arrived.restoration(),
+                new XmageHiddenStateRestoration.Request(
+                        List.of(new XmageHiddenStateRestoration.LibraryOrder("PX", rotated)),
+                        List.of())));
+        // Blank identity with preserved size.
+        List<String> blanked = new ArrayList<>(rotated);
+        blanked.set(0, "  ");
+        assertCode("INVALID_LIBRARY_ORDER", () -> XmageHiddenStateRestoration.apply(
+                arrived.game(), arrived.seats(), arrived.restoration(),
+                new XmageHiddenStateRestoration.Request(
+                        List.of(new XmageHiddenStateRestoration.LibraryOrder("P1", blanked)),
+                        List.of())));
+        // Multiple face-down states exceed the atomic surface.
+        assertCode("MULTIPLE_FACE_DOWN_STATES_UNSUPPORTED_ATOMICALLY",
+                () -> XmageHiddenStateRestoration.apply(
+                        arrived.game(), arrived.seats(), arrived.restoration(),
+                        new XmageHiddenStateRestoration.Request(
+                                List.of(),
+                                List.of(
+                                        new XmageHiddenStateRestoration.FaceDownState(
+                                                "obj:p1-bears",
+                                                BecomesFaceDownCreatureEffect.FaceDownType.MANIFESTED),
+                                        new XmageHiddenStateRestoration.FaceDownState(
+                                                "obj:p1-bears",
+                                                BecomesFaceDownCreatureEffect.FaceDownType.CLOAKED)))));
+        // MANUAL has no native Rules semantics.
+        assertCode("INVALID_FACE_DOWN_STATE", () -> XmageHiddenStateRestoration.apply(
+                arrived.game(), arrived.seats(), arrived.restoration(),
+                new XmageHiddenStateRestoration.Request(
+                        List.of(),
+                        List.of(new XmageHiddenStateRestoration.FaceDownState(
+                                "obj:p1-bears",
+                                BecomesFaceDownCreatureEffect.FaceDownType.MANUAL)))));
+        // Unknown semantic identity.
+        assertCode("UNKNOWN_FACE_DOWN_OBJECT", () -> XmageHiddenStateRestoration.apply(
+                arrived.game(), arrived.seats(), arrived.restoration(),
+                new XmageHiddenStateRestoration.Request(
+                        List.of(),
+                        List.of(new XmageHiddenStateRestoration.FaceDownState(
+                                "obj:ghost",
+                                BecomesFaceDownCreatureEffect.FaceDownType.MANIFESTED)))));
+
+        assertEquals(beforeIds, new ArrayList<>(p1.getLibrary().getCardList()),
+                "no rejected request may mutate library order");
+        assertFalse(arrived.game().getPermanent(bearsId).isFaceDown(arrived.game()),
+                "no rejected request may mutate face-down state");
+    }
+
+    private static void assertCode(String code, Runnable action) {
+        try {
+            action.run();
+            throw new AssertionError("expected HiddenStateException " + code);
+        } catch (XmageHiddenStateRestoration.HiddenStateException expected) {
+            assertTrue(expected.getMessage().startsWith(code),
+                    "unexpected failure: " + expected.getMessage());
+        }
+    }
+
+    @Test
     void restoredFaceDownIdentityIsVisibleOnlyToCurrentController() throws Exception {
         Arrived arrived = arrive(plan("l7-facedown", true), "l7-facedown");
         UUID bearsId = arrived.restoration().injectedObjectId("obj:p1-bears");
