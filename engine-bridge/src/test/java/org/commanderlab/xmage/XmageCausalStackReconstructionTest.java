@@ -254,24 +254,26 @@ class XmageCausalStackReconstructionTest {
         Player player = seats.get(requested);
         if (player != null) {
             expectedNative = player.getId().toString();
-        } else {
-            try {
-                expectedNative = prepared.restoration().injectedObjectId(requested).toString();
-            } catch (XmageNativeStateRestoration.RestorationException ignored) {
-                // It may be a lower stack object. Bind by the unique native
-                // stack object whose source semantic id is requested.
-                JsonObject source = semanticObject(prepared.requestedRecord(), requested);
-                String name = source.get("card_identity").getAsString();
-                List<StackObject> matches = new ArrayList<>();
-                for (StackObject object : session.restorationGame().getStack()) {
-                    if (name.equals(object.getName())) {
-                        matches.add(object);
-                    }
-                }
-                if (matches.size() == 1) {
-                    expectedNative = matches.get(0).getId().toString();
+        } else if (isRequestedStackSource(prepared.requestedRecord(), requested)) {
+            // Frozen stack targets name semantic source ids, but XMage
+            // TargetSpell offers StackObject.getId(), not the underlying card
+            // source UUID. Bind the unique live stack object by the exact
+            // injected source UUID; never by card name.
+            UUID sourceId = prepared.restoration().injectedObjectId(requested);
+            List<StackObject> matches = new ArrayList<>();
+            for (StackObject object : session.restorationGame().getStack()) {
+                if (sourceId.equals(object.getSourceId())) {
+                    matches.add(object);
                 }
             }
+            if (matches.size() == 1) {
+                expectedNative = matches.get(0).getId().toString();
+            } else if (matches.size() > 1) {
+                throw new AssertionError(
+                        "ambiguous live stack object for semantic source " + requested);
+            }
+        } else {
+            expectedNative = prepared.restoration().injectedObjectId(requested).toString();
         }
         if (expectedNative == null) {
             return null;
@@ -537,6 +539,19 @@ class XmageCausalStackReconstructionTest {
         modes.forEach(modeArray::add);
         frame.add("modes", modeArray);
         record.getAsJsonArray("stack_state").add(frame);
+    }
+
+    private static boolean isRequestedStackSource(
+            JsonObject record,
+            String semanticId
+    ) {
+        for (JsonElement element : record.getAsJsonArray("stack_state")) {
+            JsonObject frame = element.getAsJsonObject();
+            if (semanticId.equals(frame.get("source_semantic_id").getAsString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static JsonObject semanticObject(JsonObject record, String semanticId) {
