@@ -212,7 +212,7 @@ class XmageCausalStackMechanicsTest {
                 live, live.restoration().injectedObjectId("obj:morph"));
         assertTrue(stack instanceof Spell);
         assertTrue(((Spell) stack).isFaceDown(live.session().restorationGame()));
-        assertTrue(stack.getStackAbility().getSpellAbilityCastMode().isFaceDown());
+        assertTrue(((Spell) stack).getSpellAbility().getSpellAbilityCastMode().isFaceDown());
     }
 
     @Test
