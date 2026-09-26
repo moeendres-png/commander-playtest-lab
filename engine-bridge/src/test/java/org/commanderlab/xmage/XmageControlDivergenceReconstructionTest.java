@@ -230,6 +230,7 @@ class XmageControlDivergenceReconstructionTest {
             List<String> manaSemanticIds,
             String manaType
     ) {
+        advanceToOwnPrecombatMain(arrived, actor);
         List<UUID> manaIds = manaSemanticIds.stream()
                 .map(arrived.restoration()::injectedObjectId).toList();
         XmageControlDivergenceReconstruction.castAndResolve(
