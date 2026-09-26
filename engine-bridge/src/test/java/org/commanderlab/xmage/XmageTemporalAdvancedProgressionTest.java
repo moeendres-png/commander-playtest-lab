@@ -110,6 +110,92 @@ class XmageTemporalAdvancedProgressionTest {
     }
 
     @Test
+    void simultaneousBeginningTriggersExposeNativeOrderingDecision() {
+        XmageNativeStateRestoration.Plan plan = basePlan(
+                "rg03-trigger-order", 4,
+                List.of(
+                        object("obj:arena", "Phyrexian Arena", "P1", Zone.BATTLEFIELD),
+                        object("obj:remora", "Mystic Remora", "P1", Zone.BATTLEFIELD)));
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration =
+                XmageNativeStateRestorationTest.restorationFor(plan);
+        List<String> handles =
+                XmageNativeStateRestorationTest.importScaffolding(
+                        importer, plan, "rg03-trigger-order");
+        XmageFullGameSession session = new XmageFullGameSession(
+                "rg03-trigger-order", handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        Map<String, Player> seats = session.restorationSeats();
+
+        XmageTemporalProgressionDriver.ProgressionResult reached =
+                XmageTemporalProgressionDriver.driveUntil(
+                        session, seats,
+                        (live, liveSeats, observed) -> {
+                            JsonObject payload = live.pendingDecisionPayload();
+                            return !payload.get("decision").isJsonNull()
+                                    && "trigger_order".equals(
+                                            payload.getAsJsonObject("decision")
+                                                    .get("decision_class").getAsString());
+                        },
+                        (pending, legal, index) -> {
+                            String dc = pending.get("decision_class").getAsString();
+                            if ("mulligan".equals(dc)) {
+                                return proposal("rg03-trigger-keep-" + index,
+                                        legal.get("actor_id").getAsString(),
+                                        XmageNativeStateRestorationTest.singleActionOfType(
+                                                legal, "mulligan", "keep"));
+                            }
+                            if ("choose_object".equals(dc)
+                                    && pending.has("prompt")
+                                    && pending.get("prompt").getAsString()
+                                            .contains("starting player")) {
+                                return proposal("rg03-trigger-start-" + index,
+                                        legal.get("actor_id").getAsString(),
+                                        XmageNativeStateRestorationTest.singleSelfAction(
+                                                legal, legal.get("actor_id").getAsString()));
+                            }
+                            if ("priority".equals(dc)) {
+                                return proposal("rg03-trigger-pass-" + index,
+                                        legal.get("actor_id").getAsString(),
+                                        exactByType(legal, "pass_priority", null));
+                            }
+                            return null;
+                        },
+                        80);
+
+        assertEquals("BEGINNING", reached.observed().get("phase").getAsString());
+        assertEquals("UPKEEP", reached.observed().get("step").getAsString());
+        JsonObject pending = session.pendingDecisionPayload().getAsJsonObject("decision");
+        assertEquals("trigger_order", pending.get("decision_class").getAsString());
+        JsonObject legal = session.legalActionsPayload();
+        assertEquals(2, legal.getAsJsonArray("actions").size(),
+                "both simultaneous P1 upkeep triggers must be native offered options");
+
+        Set<String> sourceNames = new LinkedHashSet<>();
+        JsonObject arena = null;
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject nativeMeta = action.getAsJsonObject("metadata")
+                    .getAsJsonObject("xmage_option_metadata");
+            String source = nativeMeta.has("source_name")
+                    ? nativeMeta.get("source_name").getAsString() : "";
+            sourceNames.add(source);
+            if ("Phyrexian Arena".equals(source)) {
+                arena = action;
+            }
+        }
+        assertEquals(Set.of("Phyrexian Arena", "Mystic Remora"), sourceNames);
+        assertTrue(arena != null, "explicit Arena-first ordering choice must be offered");
+
+        JsonObject result = session.submitAction(proposal(
+                "rg03-trigger-arena-first",
+                legal.get("actor_id").getAsString(),
+                arena));
+        assertEquals(pending.get("decision_id").getAsString(),
+                result.get("executed_decision_id").getAsString());
+    }
+
+    @Test
     void timeWarpCreatesARealExtraTurnBeforeTheNextPlayer() {
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(object("obj:warp", "Time Warp", "P1", Zone.HAND));
