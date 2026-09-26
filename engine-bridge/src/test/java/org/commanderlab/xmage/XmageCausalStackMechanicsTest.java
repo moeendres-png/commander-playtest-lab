@@ -338,10 +338,34 @@ class XmageCausalStackMechanicsTest {
         String p2 = live.seats().get("P2").getId().toString();
         assertTrue(live.session().concedeOfferPayload(p2)
                 .get("concede_available").getAsBoolean());
-        live.session().submitConcede(concedeProposal(p2));
+        JsonObject concede = live.session().submitConcede(concedeProposal(p2));
+        assertTrue(concede.getAsJsonArray("outcomes").asList().stream()
+                .map(JsonElement::getAsJsonObject)
+                .filter(item -> p2.equals(item.get("player_id").getAsString()))
+                .allMatch(item -> item.get("lost").getAsBoolean()),
+                "native concede marks the exact player lost immediately");
+
+        // Native leave cleanup is game-thread work, not synchronous proposal
+        // bookkeeping. Advance only through exact offered priority passes
+        // until XMage removes the conceder's owned stack object.
+        for (int step = 0; step < 20
+                && live.session().restorationGame().getStack().stream()
+                        .anyMatch(object -> "Lightning Bolt".equals(object.getName()));
+                step++) {
+            JsonObject payload = live.session().pendingDecisionPayload();
+            if (payload.get("decision").isJsonNull()) {
+                break;
+            }
+            JsonObject pending = payload.getAsJsonObject("decision");
+            assertEquals("priority", pending.get("decision_class").getAsString(),
+                    "unexpected discretionary decision during native leave cleanup");
+            submit(live.session(), "rg01-leaver-cleanup-" + step,
+                    exactActionType(live.session().legalActionsPayload(), "pass_priority"));
+        }
 
         assertTrue(live.session().restorationGame().getStack().stream()
-                .noneMatch(object -> "Lightning Bolt".equals(object.getName())));
+                .noneMatch(object -> "Lightning Bolt".equals(object.getName())),
+                "native leave processing removes objects owned by the leaver");
         JsonObject next = live.session().pendingDecisionPayload();
         assertTrue(next.get("decision").isJsonNull()
                 || !p2.equals(next.getAsJsonObject("decision")
