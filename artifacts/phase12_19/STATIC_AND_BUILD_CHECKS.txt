@@ -1,4 +1,0 @@
-
-compileall: passed
-git_diff_check: passed
-git_fsck_full: passed

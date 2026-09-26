@@ -87,8 +87,6 @@ class XmageFull107ResidualRequalificationTest {
                 "WS05-CMD-START-3", handles, 0, 40, SEED, importer, restoration);
         session.start();
         Map<String, Player> seats = session.restorationSeats();
-        int p1HandBefore = seats.get("P1").getHand().size();
-
         XmageTemporalProgressionDriver.ProgressionResult result =
                 XmageTemporalProgressionDriver.driveToPlanTarget(
                         session, seats, plan, arrivalSource("full107-start3"), 80);
@@ -97,10 +95,12 @@ class XmageFull107ResidualRequalificationTest {
 
         assertEquals("P1", result.observed().get("active_player").getAsString());
         assertEquals("DRAW", result.observed().get("step").getAsString());
-        assertEquals(p1HandBefore + 1, seats.get("P1").getHand().size(),
-                "3P starting player must actually take the first-turn draw");
-        assertEquals(p1HandBefore, seats.get("P2").getHand().size(),
+        assertEquals(8, seats.get("P1").getHand().size(),
+                "3P starting player must actually take the first-turn draw after keeping seven");
+        assertEquals(7, seats.get("P2").getHand().size(),
                 "P2 has not reached its draw step at the frozen checkpoint");
+        assertEquals(7, seats.get("P3").getHand().size(),
+                "P3 has not reached its draw step at the frozen checkpoint");
 
         Arrived arrived = new Arrived(
                 "WS05-CMD-START-3", requested, plan, session, restoration, seats);
