@@ -2,6 +2,7 @@ package org.commanderlab.xmage;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import mage.constants.CommanderCardType;
 import mage.constants.PhaseStep;
 import mage.constants.TurnPhase;
 import mage.constants.Zone;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -177,6 +179,154 @@ class XmageCausalEliminationReconstructionTest {
     }
 
 
+
+    @Test
+    void nineteenCommanderDamagePlusRealHastyCommanderCombatCausesLossAndCleanup() {
+        List<XmageNativeStateRestoration.RequestedPlayer> players = List.of(
+                new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
+                new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40),
+                new XmageNativeStateRestoration.RequestedPlayer("P3", 3, 40));
+        List<XmageNativeStateRestoration.RequestedCommander> commanders = List.of(
+                new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:P1-A", "Isamaru, Hound of Konda", "P1", 0),
+                new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:P2-A", "Rograkh, Son of Rohgahh", "P2", 0),
+                new XmageNativeStateRestoration.RequestedCommander(
+                        "cmd:P3-A", "Rograkh, Son of Rohgahh", "P3", 0));
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                "rg05-commander-combat", 3, SEED, players, commanders,
+                List.of(new XmageNativeStateRestoration.RequestedCommanderDamage(
+                        "cmd:P1-A", "P2", 19)),
+                List.of(
+                        object("white", "Plains", "P1", Zone.BATTLEFIELD),
+                        object("haste", "Fervor", "P1", Zone.BATTLEFIELD),
+                        object("leave-owned-cmd", "Sol Ring", "P2", Zone.BATTLEFIELD)),
+                1, TurnPhase.PRECOMBAT_MAIN, PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        Arrived arrived = arrive(plan, 40);
+
+        UUID commanderId = arrived.session().restorationGame()
+                .getCommandersIds(arrived.seats().get("P1"), CommanderCardType.ANY, false)
+                .stream()
+                .filter(id -> {
+                    var card = arrived.session().restorationGame().getCard(id);
+                    return card != null && "Isamaru, Hound of Konda".equals(card.getName());
+                })
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("native Isamaru Commander id missing"));
+
+        XmageControlDivergenceReconstruction.castAndResolve(
+                arrived.session(), arrived.seats(), "P1", commanderId,
+                new Script(List.of(),
+                        List.of(arrived.restoration().injectedObjectId("white")), "white"),
+                120);
+        assertNotNull(arrived.session().restorationGame().getPermanent(commanderId),
+                "genuine Commander cast must resolve to the battlefield");
+
+        AtomicBoolean declared = new AtomicBoolean(false);
+        XmageTemporalProgressionDriver.driveUntil(
+                arrived.session(), arrived.seats(),
+                (session, seats, observed) ->
+                        seats.get("P2").hasLost() || seats.get("P2").hasLeft(),
+                (pending, legal, index) -> {
+                    String dc = pending.get("decision_class").getAsString();
+                    if ("priority".equals(dc)) {
+                        return proposal("rg05-cmd-pass-" + index, legal,
+                                XmageFullGameTaxExecutionTest.singleActionOfType(
+                                        legal, "pass_priority", null));
+                    }
+                    if ("declare_attacker".equals(dc)) {
+                        if (!declared.get()) {
+                            JsonObject attack = exactAttack(
+                                    legal, commanderId, arrived.seats().get("P2").getId());
+                            declared.set(true);
+                            return proposal("rg05-cmd-attack-" + index, legal, attack);
+                        }
+                        return proposal("rg05-cmd-hold-" + index, legal,
+                                XmageFullGameTaxExecutionTest.singleActionOfType(
+                                        legal, "declare_attackers", "hold_attacker"));
+                    }
+                    if ("declare_blocker".equals(dc)) {
+                        return emptyStructuralProposal(
+                                "rg05-cmd-no-block-" + index,
+                                legal.get("actor_id").getAsString());
+                    }
+                    return null;
+                },
+                220);
+
+        assertTrue(arrived.seats().get("P2").hasLost() || arrived.seats().get("P2").hasLeft());
+        assertNull(arrived.session().restorationGame().getPermanent(
+                arrived.restoration().injectedObjectId("leave-owned-cmd")),
+                "Commander-damage elimination must invoke normal owned-object cleanup");
+    }
+
+    @Test
+    void eliminatedOwnersPermanentLeavesEvenWhileControlledByOpponent() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-control-cleanup", 3, 3,
+                List.of(
+                        object("control", "Control Magic", "P1", Zone.HAND),
+                        object("u1", "Island", "P1", Zone.BATTLEFIELD),
+                        object("u2", "Island", "P1", Zone.BATTLEFIELD),
+                        object("u3", "Island", "P1", Zone.BATTLEFIELD),
+                        object("u4", "Island", "P1", Zone.BATTLEFIELD),
+                        object("bolt", "Lightning Bolt", "P1", Zone.HAND),
+                        object("red", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("victim-bear", "Grizzly Bears", "P2", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 3);
+        UUID bearId = arrived.restoration().injectedObjectId("victim-bear");
+
+        castSpell(arrived, "P1", "control", List.of(bearId),
+                List.of("u1", "u2", "u3", "u4"), "blue");
+        Permanent stolen = arrived.session().restorationGame().getPermanent(bearId);
+        assertNotNull(stolen);
+        assertEquals(arrived.seats().get("P2").getId(), stolen.getOwnerId());
+        assertEquals(arrived.seats().get("P1").getId(), stolen.getControllerId());
+
+        eliminateWithSpell(arrived, "P1", "P2", "bolt",
+                List.of(arrived.seats().get("P2").getId()),
+                List.of("red"), "red");
+
+        assertNull(arrived.session().restorationGame().getPermanent(bearId),
+                "an object owned by the departing player must leave even under opponent control");
+    }
+
+    @Test
+    void departingPlayersOwnedSpellIsRemovedFromStackBeforeItCanResolve() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-stack-cleanup", 3, 3,
+                List.of(
+                        object("p1-bolt", "Lightning Bolt", "P1", Zone.HAND),
+                        object("p1-red", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("p2-growth", "Giant Growth", "P2", Zone.HAND),
+                        object("p2-green", "Forest", "P2", Zone.BATTLEFIELD),
+                        object("p2-bear", "Grizzly Bears", "P2", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 3);
+
+        passPriorityUntil(arrived, "P2", 12);
+        UUID growthId = arrived.restoration().injectedObjectId("p2-growth");
+        castAndLeaveOnStack(
+                arrived, "P2", growthId,
+                new Script(
+                        List.of(arrived.restoration().injectedObjectId("p2-bear")),
+                        List.of(arrived.restoration().injectedObjectId("p2-green")),
+                        "green"),
+                40);
+        assertTrue(arrived.session().restorationGame().getStack().stream()
+                .anyMatch(stackObject -> stackObject.getSourceId().equals(growthId)),
+                "P2 Giant Growth must genuinely exist on the stack before elimination");
+
+        passPriorityUntil(arrived, "P1", 12);
+        eliminateWithSpell(
+                arrived, "P1", "P2", "p1-bolt",
+                List.of(arrived.seats().get("P2").getId()),
+                List.of("p1-red"), "red");
+
+        assertFalse(arrived.session().restorationGame().getStack().stream()
+                        .anyMatch(stackObject -> stackObject.getSourceId().equals(growthId)),
+                "departing player's owned stack object must be removed, not resolved");
+    }
+
     @Test
     void worshipReplacementPreventsLethalDamageWithoutFabricatedPrevention() {
         XmageNativeStateRestoration.Plan plan = plan(
@@ -324,6 +474,112 @@ class XmageCausalEliminationReconstructionTest {
                     pid + " must lose in the simultaneous native SBA batch");
             assertFalse(arrived.seats().get(pid).hasWon());
         }
+    }
+
+
+    private static JsonObject exactAttack(JsonObject legal, UUID attacker, UUID defender) {
+        List<JsonObject> matches = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject metadata = action.getAsJsonObject("metadata");
+            JsonObject nativeMetadata = nativeMeta(action);
+            if ("declare_attacker".equals(text(metadata, "option_type"))
+                    && attacker.toString().equals(text(nativeMetadata, "object_id"))
+                    && defender.toString().equals(text(nativeMetadata, "defender_id"))) {
+                matches.add(action);
+            }
+        }
+        assertEquals(1, matches.size(), "exact Commander attack option");
+        return matches.get(0);
+    }
+
+    private static JsonObject emptyStructuralProposal(String id, String actor) {
+        JsonObject proposal = XmageFullGameTaxExecutionTest.genericProposal(
+                id, actor, "", "structural_decision");
+        proposal.add("legal_action_id", com.google.gson.JsonNull.INSTANCE);
+        proposal.getAsJsonObject("choices")
+                .add("selected_option_ids", new com.google.gson.JsonArray());
+        return proposal;
+    }
+
+    private static void passPriorityUntil(Arrived arrived, String actorPid, int bound) {
+        for (int index = 0; index < bound; index++) {
+            JsonObject payload = arrived.session().pendingDecisionPayload();
+            if (payload.get("decision").isJsonNull()) {
+                throw new AssertionError("engine terminated while passing priority to " + actorPid);
+            }
+            JsonObject pending = payload.getAsJsonObject("decision");
+            String nativeActor = pending.get("actor_id").getAsString();
+            if (arrived.seats().get(actorPid).getId().toString().equals(nativeActor)) {
+                return;
+            }
+            assertEquals("priority", pending.get("decision_class").getAsString());
+            JsonObject legal = arrived.session().legalActionsPayload();
+            arrived.session().submitAction(proposal(
+                    "rg05-stack-pass-" + index,
+                    legal,
+                    XmageFullGameTaxExecutionTest.singleActionOfType(
+                            legal, "pass_priority", null)));
+        }
+        throw new AssertionError("priority did not reach " + actorPid);
+    }
+
+    private static void castAndLeaveOnStack(
+            Arrived arrived,
+            String actorPid,
+            UUID sourceId,
+            XmageControlDivergenceReconstruction.DecisionSource decisionSource,
+            int bound
+    ) {
+        JsonObject legal = arrived.session().legalActionsPayload();
+        assertEquals(arrived.seats().get(actorPid).getId().toString(),
+                legal.get("actor_id").getAsString());
+        JsonObject cast = exactSourceCast(legal, sourceId);
+        arrived.session().submitAction(proposal(
+                "rg05-stack-cast", legal, cast));
+
+        for (int index = 0; index < bound; index++) {
+            JsonObject payload = arrived.session().pendingDecisionPayload();
+            boolean sourceOnStack = arrived.session().restorationGame().getStack().stream()
+                    .anyMatch(stackObject -> stackObject.getSourceId().equals(sourceId));
+            if (sourceOnStack && !payload.get("decision").isJsonNull()
+                    && "priority".equals(payload.getAsJsonObject("decision")
+                    .get("decision_class").getAsString())) {
+                return;
+            }
+            if (payload.get("decision").isJsonNull()) {
+                throw new AssertionError("engine terminated during stack cast");
+            }
+            JsonObject pending = payload.getAsJsonObject("decision");
+            JsonObject currentLegal = arrived.session().legalActionsPayload();
+            JsonObject selected = decisionSource.choose(
+                    pending.deepCopy(), currentLegal.deepCopy(), index);
+            if (selected == null) {
+                throw new AssertionError(
+                        "unscripted stack-cast decision "
+                                + pending.get("decision_class").getAsString());
+            }
+            arrived.session().submitAction(selected);
+        }
+        throw new AssertionError("source did not reach completed native stack state");
+    }
+
+    private static JsonObject exactSourceCast(JsonObject legal, UUID sourceId) {
+        List<JsonObject> matches = new ArrayList<>();
+        for (JsonElement element : legal.getAsJsonArray("actions")) {
+            JsonObject action = element.getAsJsonObject();
+            JsonObject metadata = nativeMeta(action);
+            String source = text(metadata, "source_object_id");
+            if (source.isBlank()) {
+                source = text(metadata, "object_id");
+            }
+            if (sourceId.toString().equals(source)
+                    && "cast_spell".equals(action.get("action_type").getAsString())) {
+                matches.add(action);
+            }
+        }
+        assertEquals(1, matches.size(), "exact source cast option");
+        return matches.get(0);
     }
 
     private static XmageControlDivergenceReconstruction.Result castSpell(
