@@ -519,11 +519,24 @@ final class XmageCausalStackReconstruction {
     }
 
     static JsonObject proposal(String proposalId, String actor, JsonObject action) {
-        return XmageFullGameTaxExecutionTest.genericProposal(
-                proposalId,
-                actor,
-                action.get("action_id").getAsString(),
-                action.get("action_type").getAsString());
+        if (action == null) {
+            throw new ReconstructionException("INVALID_ACTION", "action is null");
+        }
+        JsonObject proposal = new JsonObject();
+        proposal.addProperty("proposal_id", proposalId);
+        proposal.addProperty("actor_id", actor);
+        proposal.addProperty("legal_action_id",
+                requiredText(action, "action_id"));
+        proposal.addProperty("action_type",
+                requiredText(action, "action_type"));
+        proposal.add("target_ids", new JsonArray());
+        proposal.add("selected_modes", new JsonArray());
+        JsonObject choices = new JsonObject();
+        choices.add("ordering", new JsonArray());
+        proposal.add("choices", choices);
+        proposal.addProperty("decision_tier", 1);
+        proposal.addProperty("policy_name", "rg01-causal-stack-reconstruction");
+        return proposal;
     }
 
     private static JsonObject pending(XmageFullGameSession session) {
