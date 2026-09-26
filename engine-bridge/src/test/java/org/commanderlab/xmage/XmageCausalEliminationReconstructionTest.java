@@ -299,31 +299,42 @@ class XmageCausalEliminationReconstructionTest {
                 List.of(
                         object("p1-bolt", "Lightning Bolt", "P1", Zone.HAND),
                         object("p1-red", "Mountain", "P1", Zone.BATTLEFIELD),
-                        object("p2-opt", "Opt", "P2", Zone.HAND),
-                        object("p2-blue", "Island", "P2", Zone.BATTLEFIELD)));
+                        object("p2-bolt", "Lightning Bolt", "P2", Zone.HAND),
+                        object("p2-red", "Mountain", "P2", Zone.BATTLEFIELD)));
         Arrived arrived = arrive(plan, 3);
 
-        passPriorityUntil(arrived, "P2", 12);
-        UUID optId = arrived.restoration().injectedObjectId("p2-opt");
-        castAndLeaveOnStack(
-                arrived, "P2", optId,
-                new Script(
-                        List.of(),
-                        List.of(arrived.restoration().injectedObjectId("p2-blue")),
-                        "blue"),
-                40);
-        assertTrue(arrived.session().restorationGame().getStack().stream()
-                .anyMatch(stackObject -> stackObject.getSourceId().equals(optId)),
-                "P2 Opt must genuinely exist on the stack before elimination");
+        XmageExternalRiskSignalTest.passToActor(
+                arrived.session(), "rg05-stack-cleanup", arrived.seats(), "P2");
+        JsonObject p2CastLegal = arrived.session().legalActionsPayload();
+        arrived.session().submitAction(proposal(
+                "rg05-stack-p2-bolt",
+                p2CastLegal,
+                XmageExternalRiskSignalTest.spellOffer(p2CastLegal, "Lightning Bolt")));
 
-        passPriorityUntil(arrived, "P1", 12);
+        JsonObject p2TargetLegal = arrived.session().legalActionsPayload();
+        arrived.session().submitAction(multiSelectProposal(
+                "rg05-stack-p2-target",
+                p2TargetLegal,
+                List.of(exactNativeObject(
+                        p2TargetLegal, arrived.seats().get("P1").getId())),
+                "choose_targets"));
+        XmageFullGameDecisionExecutionTest.payHomogeneousMana(
+                arrived.session(), "rg05-stack-p2-pay", "Mountain — {T}: Add {R}.");
+
+        UUID p2BoltId = arrived.restoration().injectedObjectId("p2-bolt");
+        assertTrue(arrived.session().restorationGame().getStack().stream()
+                .anyMatch(stackObject -> stackObject.getSourceId().equals(p2BoltId)),
+                "P2 Lightning Bolt must genuinely exist on the stack before elimination");
+
+        XmageExternalRiskSignalTest.passToActor(
+                arrived.session(), "rg05-stack-cleanup", arrived.seats(), "P1");
         eliminateWithSpell(
                 arrived, "P1", "P2", "p1-bolt",
                 List.of(arrived.seats().get("P2").getId()),
                 List.of("p1-red"), "red");
 
         assertFalse(arrived.session().restorationGame().getStack().stream()
-                        .anyMatch(stackObject -> stackObject.getSourceId().equals(optId)),
+                        .anyMatch(stackObject -> stackObject.getSourceId().equals(p2BoltId)),
                 "departing player's owned stack object must be removed, not resolved");
     }
 
