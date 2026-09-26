@@ -131,6 +131,14 @@ class XmageCausalEliminationReconstructionTest {
         // must never decide again.
         String departedId = arrived.seats().get("P2").getId().toString();
         boolean[] handoff = {false};
+        // Transition-frame rule (800.4a/800.4j-adjacent, falsifiable): the
+        // engine parks exactly one pass-only priority frame on the departed
+        // slot before routing onward (observed: 1 option). It is answered
+        // with an explicit pass — the sole offered option, no discretion for
+        // P2. Any multi-option frame for P2, any non-priority/non-discard
+        // class, or any P2 frame after handoff fails closed. A cleanup
+        // discard naming P2 is answered only through the deterministic
+        // helper (P2's zones were cleared on leave; no live card is at stake).
         XmageTemporalProgressionDriver.DecisionSource guarded = (pending, legal, index) -> {
             String actor = pending.get("actor_id").getAsString();
             String dc = pending.get("decision_class").getAsString();
@@ -139,7 +147,10 @@ class XmageCausalEliminationReconstructionTest {
                     throw new AssertionError(
                             "departed P2 decided again after handoff at index " + index);
                 }
-                if (!"priority".equals(dc) && !"choose_object".equals(dc)) {
+                if ("priority".equals(dc)) {
+                    assertEquals(1, legal.getAsJsonArray("actions").size(),
+                            "departed-actor priority frame must offer exactly one option");
+                } else if (!"choose_object".equals(dc)) {
                     throw new AssertionError(
                             "unexpected departed-actor transition frame: " + dc);
                 }
