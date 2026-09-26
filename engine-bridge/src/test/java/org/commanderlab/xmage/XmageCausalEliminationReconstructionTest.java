@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import mage.constants.PhaseStep;
 import mage.constants.TurnPhase;
 import mage.constants.Zone;
+import mage.counters.Counter;
+import mage.counters.CounterType;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
 import org.junit.jupiter.api.Test;
@@ -172,6 +174,176 @@ class XmageCausalEliminationReconstructionTest {
                 .getPermanent(first.restoration().injectedObjectId("owned")));
         assertNull(second.session().restorationGame()
                 .getPermanent(second.restoration().injectedObjectId("owned")));
+    }
+
+
+    @Test
+    void worshipReplacementPreventsLethalDamageWithoutFabricatedPrevention() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-worship", 3, 3,
+                List.of(
+                        object("bolt", "Lightning Bolt", "P1", Zone.HAND),
+                        object("red", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("worship", "Worship", "P2", Zone.BATTLEFIELD),
+                        object("worship-creature", "Grizzly Bears", "P2", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 3);
+
+        castSpell(
+                arrived, "P1", "bolt",
+                List.of(arrived.seats().get("P2").getId()),
+                List.of("red"), "red");
+
+        assertEquals(1, arrived.seats().get("P2").getLife(),
+                "Worship must replace lethal damage with a life total of 1");
+        assertFalse(arrived.seats().get("P2").hasLost());
+    }
+
+    @Test
+    void platinumAngelCanPreventLossUntilActualAngelRemoval() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-cant-lose", 3, 3,
+                List.of(
+                        object("bolt", "Lightning Bolt", "P1", Zone.HAND),
+                        object("red", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("doom", "Doom Blade", "P1", Zone.HAND),
+                        object("black1", "Swamp", "P1", Zone.BATTLEFIELD),
+                        object("black2", "Swamp", "P1", Zone.BATTLEFIELD),
+                        object("angel", "Platinum Angel", "P2", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 3);
+
+        castSpell(
+                arrived, "P1", "bolt",
+                List.of(arrived.seats().get("P2").getId()),
+                List.of("red"), "red");
+        assertEquals(0, arrived.seats().get("P2").getLife());
+        assertFalse(arrived.seats().get("P2").hasLost(),
+                "Platinum Angel must keep its controller in the game at 0 life");
+
+        castSpell(
+                arrived, "P1", "doom",
+                List.of(arrived.restoration().injectedObjectId("angel")),
+                List.of("black1", "black2"), "black");
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+        assertTrue(arrived.seats().get("P2").hasLost() || arrived.seats().get("P2").hasLeft(),
+                "after native removal of Platinum Angel, native SBA must eliminate P2");
+    }
+
+    @Test
+    void emptyLibraryPlusActualDrawCausesNativeDeckOut() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-deckout", 3, 40,
+                List.of(
+                        object("sign", "Sign in Blood", "P1", Zone.HAND),
+                        object("b1", "Swamp", "P1", Zone.BATTLEFIELD),
+                        object("b2", "Swamp", "P1", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 40);
+        arrived.session().restorationGame().cheat(
+                arrived.seats().get("P2").getId(),
+                Map.of(Zone.LIBRARY, "clear"));
+        assertEquals(0, arrived.seats().get("P2").getLibrary().size());
+
+        castSpell(
+                arrived, "P1", "sign",
+                List.of(arrived.seats().get("P2").getId()),
+                List.of("b1", "b2"), "black");
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+
+        assertTrue(arrived.seats().get("P2").hasLost() || arrived.seats().get("P2").hasLeft(),
+                "attempting to draw from an empty library must cause native loss");
+    }
+
+    @Test
+    void ninePoisonPlusActualPrologueCausesNativePoisonLoss() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-poison", 3, 40,
+                List.of(
+                        object("prologue", "Prologue to Phyresis", "P1", Zone.HAND),
+                        object("u1", "Island", "P1", Zone.BATTLEFIELD),
+                        object("u2", "Island", "P1", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 40);
+        Player victim = arrived.seats().get("P2");
+        boolean added = victim.addCounters(
+                new Counter(CounterType.POISON.getName(), 9),
+                arrived.seats().get("P1").getId(),
+                null,
+                arrived.session().restorationGame());
+        assertTrue(added);
+        assertEquals(9, victim.getCountersCount(CounterType.POISON));
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+        assertFalse(victim.hasLost());
+
+        castSpell(
+                arrived, "P1", "prologue", List.of(),
+                List.of("u1", "u2"), "blue");
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+
+        assertEquals(10, victim.getCountersCount(CounterType.POISON));
+        assertTrue(victim.hasLost() || victim.hasLeft());
+    }
+
+    @Test
+    void flameRiftEliminatesThreeOpponentsSimultaneouslyAndProducesWinnerInFourPlayer() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-simultaneous-winner", 4, 4,
+                List.of(
+                        object("rift", "Flame Rift", "P1", Zone.HAND),
+                        object("r1", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("r2", "Mountain", "P1", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 4);
+        arrived.seats().get("P1").setLife(8, arrived.session().restorationGame(), null);
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+
+        castSpell(arrived, "P1", "rift", List.of(), List.of("r1", "r2"), "red");
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+
+        assertFalse(arrived.seats().get("P1").hasLost());
+        assertEquals(4, arrived.seats().get("P1").getLife());
+        for (String pid : List.of("P2", "P3", "P4")) {
+            assertTrue(arrived.seats().get(pid).hasLost() || arrived.seats().get(pid).hasLeft(),
+                    pid + " must be eliminated by the same resolving Flame Rift");
+        }
+        assertTrue(arrived.seats().get("P1").hasWon(),
+                "sole surviving player must receive the native winner state");
+    }
+
+    @Test
+    void flameRiftCanProduceNativeDrawWhenAllPlayersLoseSimultaneously() {
+        XmageNativeStateRestoration.Plan plan = plan(
+                "rg05-simultaneous-draw", 3, 4,
+                List.of(
+                        object("rift", "Flame Rift", "P1", Zone.HAND),
+                        object("r1", "Mountain", "P1", Zone.BATTLEFIELD),
+                        object("r2", "Mountain", "P1", Zone.BATTLEFIELD)));
+        Arrived arrived = arrive(plan, 4);
+
+        castSpell(arrived, "P1", "rift", List.of(), List.of("r1", "r2"), "red");
+        XmageNativeStateRestoration.revalidate(arrived.session().restorationGame());
+
+        for (String pid : List.of("P1", "P2", "P3")) {
+            assertTrue(arrived.seats().get(pid).hasLost() || arrived.seats().get(pid).hasLeft(),
+                    pid + " must lose in the simultaneous native SBA batch");
+            assertFalse(arrived.seats().get(pid).hasWon());
+        }
+    }
+
+    private static XmageControlDivergenceReconstruction.Result castSpell(
+            Arrived arrived,
+            String actor,
+            String sourceSemanticId,
+            List<UUID> targets,
+            List<String> manaSemanticIds,
+            String manaType
+    ) {
+        List<UUID> manaIds = manaSemanticIds.stream()
+                .map(arrived.restoration()::injectedObjectId)
+                .toList();
+        return XmageControlDivergenceReconstruction.castAndResolve(
+                arrived.session(),
+                arrived.seats(),
+                actor,
+                arrived.restoration().injectedObjectId(sourceSemanticId),
+                new Script(targets, manaIds, manaType),
+                180);
     }
 
     private static XmageCausalEliminationReconstruction.Result eliminateWithSpell(
