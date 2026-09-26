@@ -2,6 +2,21 @@
 
 Local, reproducible decision system for Commander deck validation, Structural simulation, pilot/ensemble analysis, paired comparisons, ablation, holdout, sensitivity and constrained optimization.
 
+## Project identity, licensing, and third-party software
+
+Commander Playtest Lab / Commander Simulator Next is an independent, unofficial research and engineering project. It is not maintained by XMage or Forge and is not affiliated with or endorsed by Wizards of the Coast.
+
+The Lab's own package metadata currently declares `LicenseRef-Proprietary`. Public repository visibility does not by itself grant a license to reuse the Lab's original code or documentation. That project-level status does not replace or absorb third-party rights: third-party engines, data, rules text, card names, artwork, and other materials remain subject to their respective licenses and rights holders.
+
+Current external rules-engine candidates are tracked under their own upstream licenses:
+
+- [XMage](https://github.com/magefree/mage) — MIT-licensed upstream project. The separate [Commander Simulator Next XMage fork](https://github.com/moeendres-png/mage) retains XMage's upstream [`LICENSE.txt`](https://github.com/magefree/mage/blob/master/LICENSE.txt) and copyright/permission notice.
+- [Forge](https://github.com/Card-Forge/forge) — GPL-3.0-licensed upstream project. The Lab's current Forge topology treats Forge as a separately built and launched provider process; this repository's proprietary package metadata does not relicense Forge.
+
+The Lab does not claim legal clearance for all uses of Wizards intellectual property merely by being public or by linking to the [Wizards Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy). Magic: The Gathering and related Wizards materials remain property of their respective rights holders. This section records attribution and repository-status boundaries; it is not legal advice or a substitute for a separate legal-clearance decision.
+
+These statements are not a production-provider decision. Architecture Freeze and production-provider selection remain governed by the project's qualification gates.
+
 ## Commander Simulator Next: project goal
 
 The end goal is the best realistically achievable, maximally rules-correct full-rules
