@@ -133,7 +133,7 @@ class XmageTemporalAdvancedProgressionTest {
                                                 observed.get("active_player").getAsString())
                                         && "PRECOMBAT_MAIN".equals(
                                                 observed.get("phase").getAsString()),
-                        cleanupAwareScript(arrived.seats(), "Island"),
+                        cleanupAwareScript(arrived.seats()),
                         260);
 
         assertEquals(2, result.observed().get("turn_number").getAsInt());
@@ -324,9 +324,19 @@ class XmageTemporalAdvancedProgressionTest {
      * selector is semantic (name + greatest stable hand zone_index), never
      * first/random/default, and it is enabled only for a native discard frame.
      */
+    /**
+     * Extra-turn progression crosses cleanup. The injected spell plus normal
+     * draws can leave P1 above maximum hand size. The external test pilot
+     * therefore makes one explicit discard selection from the exact
+     * provider-offered actor-visible hand options.
+     *
+     * <p>The policy is reproducible semantic selection, not a fallback:
+     * choose the greatest (card name, zone_index) tuple among offered discard
+     * candidates. It never depends on native UUID, option order, "first",
+     * randomness, or an assumed scaffolding card identity.</p>
+     */
     private static XmageTemporalProgressionDriver.DecisionSource cleanupAwareScript(
-            Map<String, Player> seats,
-            String discardCardName
+            Map<String, Player> seats
     ) {
         return (pending, legal, index) -> {
             String dc = pending.get("decision_class").getAsString();
@@ -340,7 +350,9 @@ class XmageTemporalAdvancedProgressionTest {
                 if (!targetName.endsWith("to discard")) {
                     return null;
                 }
+
                 JsonObject chosen = null;
+                String chosenName = null;
                 int chosenIndex = Integer.MIN_VALUE;
                 for (JsonElement element : legal.getAsJsonArray("actions")) {
                     JsonObject action = element.getAsJsonObject();
@@ -349,24 +361,27 @@ class XmageTemporalAdvancedProgressionTest {
                             && metadata.get("xmage_option_metadata").isJsonObject()
                             ? metadata.getAsJsonObject("xmage_option_metadata")
                             : new JsonObject();
-                    String name = nativeMeta.has("name")
-                            ? nativeMeta.get("name").getAsString() : "";
-                    if (!discardCardName.equals(name) || !nativeMeta.has("zone_index")) {
+                    if (!nativeMeta.has("name") || !nativeMeta.has("zone_index")) {
                         continue;
                     }
+                    String name = nativeMeta.get("name").getAsString();
                     int zoneIndex = nativeMeta.get("zone_index").getAsInt();
-                    if (zoneIndex > chosenIndex) {
+                    boolean better = chosen == null
+                            || name.compareTo(chosenName) > 0
+                            || (name.equals(chosenName) && zoneIndex > chosenIndex);
+                    if (better) {
                         chosen = action;
+                        chosenName = name;
                         chosenIndex = zoneIndex;
-                    } else if (zoneIndex == chosenIndex) {
+                    } else if (name.equals(chosenName) && zoneIndex == chosenIndex) {
                         throw new AssertionError(
-                                "discard semantic zone_index is ambiguous: " + zoneIndex);
+                                "discard semantic key is ambiguous: "
+                                        + name + "@" + zoneIndex);
                     }
                 }
                 if (chosen == null) {
                     throw new AssertionError(
-                            "required scripted cleanup discard not provider-offered: "
-                                    + discardCardName);
+                            "cleanup discard decision exposed no semantically keyed option");
                 }
                 return proposal("rg03-cleanup-discard-" + index,
                         legal.get("actor_id").getAsString(), chosen);
