@@ -1,4 +1,4 @@
-"""FULL107 DIRECT correspondence guard (adjudications 2026-09-22).
+"""FULL107 DIRECT correspondence guard (adjudications through 2026-09-26).
 
 Mechanical regression preventing unsupported DIRECT promotions: every DIRECT
 mapping entry must hold an EXACT verdict in the fixture-identity register;
@@ -41,6 +41,9 @@ ADJUDICATED_FIXTURES = {
     "WS05-CMD-TAX-4",
     "WS05-CMD-PARTNER-ZONE",
     "WS05-CMD-PARTNER-TAX",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-PARTNER-DMG",
+    "WS05-CMD-START-3",
     "CARD_02",
 }
 
@@ -56,6 +59,9 @@ EXACT_FIXTURES = [
     "WS05-CMD-TAX-4",
     "WS05-CMD-PARTNER-ZONE",
     "WS05-CMD-PARTNER-TAX",
+    "WS05-CMD-DMG-SPLIT",
+    "WS05-CMD-PARTNER-DMG",
+    "WS05-CMD-START-3",
     "CARD_02",
 ]
 
@@ -115,6 +121,9 @@ def test_native_direct_requires_executed_subset(repo_root: Path) -> None:
                     "WS05-CMD-TAX-4",
                     "WS05-CMD-PARTNER-ZONE",
                     "WS05-CMD-PARTNER-TAX",
+                    "WS05-CMD-DMG-SPLIT",
+                    "WS05-CMD-PARTNER-DMG",
+                    "WS05-CMD-START-3",
                     "CARD_02",
                 ), (
                     f"{entry['fixture_id']} is a NATIVE DIRECT outside the executed subset; "
@@ -189,6 +198,51 @@ def test_partner_fixtures_match_executed_subset_shape(repo_root: Path) -> None:
         assert [event for event in record["expected_events"]["required_events"]] == required
 
 
+def test_final_residual_exact_fixtures_match_frozen_shape(repo_root: Path) -> None:
+    records = _load_materialization(repo_root)
+
+    split = records["WS05-CMD-DMG-SPLIT"]
+    partner = records["WS05-CMD-PARTNER-DMG"]
+    start3 = records["WS05-CMD-START-3"]
+
+    for record in (split, partner):
+        assert record["execution_entry_mode"] == "NATIVE_STATE_LOAD"
+        assert len(record["players"]) == 4
+        assert record["decision_script"] == []
+        assert record["commander_state"]["multiple_commander_relations"] == [
+            {"commander_ids": ["cmd:P1-A", "cmd:P1-B"], "relation": "Partner"}
+        ]
+        assert (
+            record["temporal_state"]["turn_number"],
+            record["temporal_state"]["phase"],
+            record["temporal_state"]["step"],
+        ) == (1, "precombat_main", "main")
+
+    assert split["commander_state"]["commander_damage_matrix"] == [
+        {"combat_damage": 11, "damaged_player": "P2", "source_commander_id": "cmd:P1-A"},
+        {"combat_damage": 10, "damaged_player": "P2", "source_commander_id": "cmd:P1-B"},
+    ]
+    assert partner["commander_state"]["commander_damage_matrix"] == [
+        {"combat_damage": 12, "damaged_player": "P2", "source_commander_id": "cmd:P1-A"},
+        {"combat_damage": 9, "damaged_player": "P2", "source_commander_id": "cmd:P1-B"},
+    ]
+
+    assert start3["execution_entry_mode"] == "NATIVE_STATE_LOAD"
+    assert len(start3["players"]) == 3
+    assert start3["decision_script"] == []
+    assert start3["commander_state"]["commander_damage_matrix"] == []
+    assert (
+        start3["temporal_state"]["active_player"],
+        start3["temporal_state"]["turn_number"],
+        start3["temporal_state"]["phase"],
+        start3["temporal_state"]["step"],
+    ) == ("P1", 1, "beginning", "draw")
+    assert start3["expected_events"]["required_events"] == [
+        "starting_player:P1",
+        "first_turn_draw:true",
+    ]
+
+
 def test_player_count_gates_cannot_be_direct_while_technical(repo_root: Path) -> None:
     runner = (repo_root / GATE_RUNNER_PATH).read_text(encoding="utf-8")
     assert "Isamaru, Hound of Konda" in runner, (
@@ -244,6 +298,15 @@ def test_generator_mapping_rules(repo_root: Path) -> None:
         map_fixture("WS05-CMD-PARTNER-TAX", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
         == "DIRECT"
     )
+    for fixture_id in (
+        "WS05-CMD-DMG-SPLIT",
+        "WS05-CMD-PARTNER-DMG",
+        "WS05-CMD-START-3",
+    ):
+        assert (
+            map_fixture(fixture_id, {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"]
+            == "DIRECT"
+        )
     assert (
         map_fixture("CARD_02", {"execution_entry_mode": "NATIVE_STATE_LOAD"})["status"] == "DIRECT"
     )

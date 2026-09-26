@@ -41,7 +41,8 @@ class XmageNativeStateRestorationTest {
     private static final Map<String, List<String>> COMMANDER_COLORS = Map.of(
             "Rograkh, Son of Rohgahh", List.of("R"),
             "Kediss, Emberclaw Familiar", List.of("R"),
-            "Isamaru, Hound of Konda", List.of("W"));
+            "Isamaru, Hound of Konda", List.of("W"),
+            "Esika, God of the Tree", List.of("W", "U", "B", "R", "G"));
 
     static Path repoRoot() {
         Path candidate = Path.of(System.getProperty("user.dir"));
@@ -655,16 +656,16 @@ class XmageNativeStateRestorationTest {
     }
 
     @Test
-    void rejectsNonMainTemporalPoint() {
+    void rejectsUnqualifiedTemporalPoint() {
         XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
                 "ws2-neg-temporal", 2, 424242L,
                 List.of(new XmageNativeStateRestoration.RequestedPlayer("P1", 1, 40),
                         new XmageNativeStateRestoration.RequestedPlayer("P2", 2, 40)),
-                List.of(), List.of(), 1, mage.constants.TurnPhase.COMBAT,
-                mage.constants.PhaseStep.DECLARE_ATTACKERS, "P1", "P1");
+                List.of(), List.of(), 2, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                mage.constants.PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
         try {
             restorationFor(plan);
-            fail("combat temporal point must fail closed in v1");
+            fail("turn-2 temporal point must remain fail closed in RG-03");
         } catch (XmageNativeStateRestoration.RestorationException exc) {
             assertTrue(exc.getMessage().startsWith("UNSUPPORTED_TEMPORAL_POINT"), exc.getMessage());
         }

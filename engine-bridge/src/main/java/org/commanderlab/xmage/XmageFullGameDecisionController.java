@@ -110,7 +110,9 @@ final class XmageFullGameDecisionController {
         );
 
         JsonObject actorView = XmageFullGameStateRedactor.actorView(game, actor);
+        JsonObject publicView = XmageFullGameStateRedactor.publicView(game);
         String actorViewHash = XmageAuditEventLog.stateHash(actorView);
+        String publicViewHash = XmageAuditEventLog.stateHash(publicView);
 
         JsonObject request = new JsonObject();
         request.addProperty("protocol_version", PROTOCOL_VERSION);
@@ -125,7 +127,7 @@ final class XmageFullGameDecisionController {
         request.addProperty("minimum_selections", minimumSelections);
         request.addProperty("maximum_selections", maximumSelections);
         request.add("legal_options", legalOptions == null ? new JsonArray() : legalOptions.deepCopy());
-        request.addProperty("public_state_reference", "actor-view:" + actorViewHash);
+        request.addProperty("public_state_reference", "public-view:" + publicViewHash);
         request.addProperty("private_actor_state_reference", "actor-view:" + actorViewHash);
         request.addProperty("timeout_millis", timeoutMillis);
         request.add("source_object", sourceObject == null ? JsonNull.INSTANCE : sourceObject.deepCopy());
@@ -333,10 +335,6 @@ final class XmageFullGameDecisionController {
         event.addProperty(
                 "public_state_reference",
                 request.get("public_state_reference").getAsString()
-        );
-        event.addProperty(
-                "private_actor_state_reference",
-                request.get("private_actor_state_reference").getAsString()
         );
         JsonArray types = new JsonArray();
         JsonArray labels = new JsonArray();

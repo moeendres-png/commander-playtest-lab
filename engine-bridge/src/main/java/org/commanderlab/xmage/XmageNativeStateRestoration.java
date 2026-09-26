@@ -18,6 +18,7 @@ import mage.game.Game;
 import mage.game.PutToBattlefieldInfo;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
+import mage.watchers.common.CommanderInfoWatcher;
 import mage.watchers.common.CommanderPlaysCountState;
 import mage.watchers.common.CommanderPlaysCountWatcher;
 
@@ -119,6 +120,14 @@ final class XmageNativeStateRestoration {
     ) {
     }
 
+    /** One requested accumulated combat-damage edge for an exact Commander identity. */
+    record RequestedCommanderDamage(
+            String commanderId,
+            String damagedPlayer,
+            int combatDamage
+    ) {
+    }
+
     /** Requested player fields. */
     record RequestedPlayer(String playerId, int seat, int life) {
     }
@@ -130,6 +139,7 @@ final class XmageNativeStateRestoration {
             long seed,
             List<RequestedPlayer> players,
             List<RequestedCommander> commanders,
+            List<RequestedCommanderDamage> commanderDamage,
             List<RequestedObject> objects,
             int turnNumber,
             TurnPhase phase,
@@ -137,6 +147,23 @@ final class XmageNativeStateRestoration {
             String activePlayer,
             String priorityPlayer
     ) {
+        /** Backward-compatible constructor for plans with no Commander-damage history. */
+        Plan(
+                String planId,
+                int playerCount,
+                long seed,
+                List<RequestedPlayer> players,
+                List<RequestedCommander> commanders,
+                List<RequestedObject> objects,
+                int turnNumber,
+                TurnPhase phase,
+                PhaseStep step,
+                String activePlayer,
+                String priorityPlayer
+        ) {
+            this(planId, playerCount, seed, players, commanders, List.of(), objects,
+                    turnNumber, phase, step, activePlayer, priorityPlayer);
+        }
     }
 
     /** Field-level compare verdict with digests, never any hidden content. */
@@ -151,6 +178,7 @@ final class XmageNativeStateRestoration {
     private final Plan plan;
     private final Deck materializationVehicle;
     private final Map<String, Set<UUID>> injectedHandIdsByPlayer = new HashMap<>();
+    private final Map<String, UUID> injectedObjectIdsBySemanticId = new HashMap<>();
     private boolean preStartApplied;
 
     XmageNativeStateRestoration(Plan plan, Deck materializationVehicle) {
@@ -179,6 +207,15 @@ final class XmageNativeStateRestoration {
         return Set.copyOf(injectedHandIdsByPlayer.getOrDefault(playerId, Set.of()));
     }
 
+    UUID injectedObjectId(String semanticId) {
+        UUID id = injectedObjectIdsBySemanticId.get(semanticId);
+        if (id == null) {
+            throw new RestorationException(
+                    "UNKNOWN_SEMANTIC_OBJECT", String.valueOf(semanticId));
+        }
+        return id;
+    }
+
     /**
      * Parses a frozen materialization record into a plan, rejecting every
      * unsupported dimension with a code. The caller supplies the Rules seed
@@ -201,11 +238,6 @@ final class XmageNativeStateRestoration {
                     player.get("life").getAsInt()));
         }
         JsonObject commanderState = record.getAsJsonObject("commander_state");
-        if (commanderState.has("commander_damage_matrix")
-                && !commanderState.get("commander_damage_matrix").isJsonNull()
-                && !commanderState.getAsJsonArray("commander_damage_matrix").isEmpty()) {
-            throw new RestorationException("UNSUPPORTED_DAMAGE_MATRIX", fixtureId);
-        }
         List<RequestedCommander> commanders = new ArrayList<>();
         for (JsonElement element : commanderState.getAsJsonArray("commanders")) {
             JsonObject commander = element.getAsJsonObject();
@@ -217,7 +249,22 @@ final class XmageNativeStateRestoration {
         }
         Set<String> commanderIds = new HashSet<>();
         for (RequestedCommander commander : commanders) {
-            commanderIds.add(commander.commanderId());
+            if (!commanderIds.add(commander.commanderId())) {
+                throw new RestorationException(
+                        "DUPLICATE_COMMANDER_ID", fixtureId + " " + commander.commanderId());
+            }
+        }
+        List<RequestedCommanderDamage> commanderDamage = new ArrayList<>();
+        if (commanderState.has("commander_damage_matrix")
+                && !commanderState.get("commander_damage_matrix").isJsonNull()) {
+            for (JsonElement element
+                    : commanderState.getAsJsonArray("commander_damage_matrix")) {
+                JsonObject edge = element.getAsJsonObject();
+                commanderDamage.add(new RequestedCommanderDamage(
+                        edge.get("source_commander_id").getAsString(),
+                        edge.get("damaged_player").getAsString(),
+                        edge.get("combat_damage").getAsInt()));
+            }
         }
         if (commanderState.has("multiple_commander_relations")
                 && !commanderState.get("multiple_commander_relations").isJsonNull()) {
@@ -294,6 +341,7 @@ final class XmageNativeStateRestoration {
                 seed,
                 List.copyOf(players),
                 List.copyOf(commanders),
+                List.copyOf(commanderDamage),
                 List.copyOf(objects),
                 turnNumber,
                 phase,
@@ -314,8 +362,23 @@ final class XmageNativeStateRestoration {
     }
 
     private static PhaseStep parseStep(String phase, String step, String fixtureId) {
+        if ("beginning".equals(phase) && "upkeep".equals(step)) {
+            return PhaseStep.UPKEEP;
+        }
+        if ("beginning".equals(phase) && "draw".equals(step)) {
+            return PhaseStep.DRAW;
+        }
         if ("precombat_main".equals(phase) && "main".equals(step)) {
             return PhaseStep.PRECOMBAT_MAIN;
+        }
+        if ("combat".equals(phase) && "declare_attackers".equals(step)) {
+            return PhaseStep.DECLARE_ATTACKERS;
+        }
+        if ("combat".equals(phase) && "declare_blockers".equals(step)) {
+            return PhaseStep.DECLARE_BLOCKERS;
+        }
+        if ("combat".equals(phase) && "combat_damage".equals(step)) {
+            return PhaseStep.COMBAT_DAMAGE;
         }
         if ("postcombat_main".equals(phase) && "main".equals(step)) {
             return PhaseStep.POSTCOMBAT_MAIN;
@@ -389,6 +452,29 @@ final class XmageNativeStateRestoration {
         return List.copyOf(filler);
     }
 
+    /**
+     * Temporal targets qualified for native progression. This is only an
+     * allow-list for a requested checkpoint; it never assigns phase/step/turn
+     * fields. XmageTemporalProgressionDriver must reach the target through the
+     * running engine and explicit external decisions.
+     */
+    static boolean isSupportedTemporalPoint(Plan validated) {
+        if (validated.turnNumber() != 1) {
+            return false;
+        }
+        return (validated.phase() == TurnPhase.BEGINNING
+                        && (validated.step() == PhaseStep.UPKEEP
+                                || validated.step() == PhaseStep.DRAW))
+                || (validated.phase() == TurnPhase.PRECOMBAT_MAIN
+                        && validated.step() == PhaseStep.PRECOMBAT_MAIN)
+                || (validated.phase() == TurnPhase.COMBAT
+                        && (validated.step() == PhaseStep.DECLARE_ATTACKERS
+                                || validated.step() == PhaseStep.DECLARE_BLOCKERS
+                                || validated.step() == PhaseStep.COMBAT_DAMAGE))
+                || (validated.phase() == TurnPhase.POSTCOMBAT_MAIN
+                        && validated.step() == PhaseStep.POSTCOMBAT_MAIN);
+    }
+
     /** Validates the whole plan before any game mutation. */
     static void validatePlan(Plan validated) {
         if (validated.playerCount() < XmageFullGameSession.MIN_PLAYERS
@@ -410,12 +496,10 @@ final class XmageNativeStateRestoration {
                         "UNSUPPORTED_LIFE", player.playerId() + "=" + player.life());
             }
         }
-        if (validated.turnNumber() != 1
-                || validated.phase() != TurnPhase.PRECOMBAT_MAIN
-                || validated.step() != PhaseStep.PRECOMBAT_MAIN) {
+        if (!isSupportedTemporalPoint(validated)) {
             throw new RestorationException(
                     "UNSUPPORTED_TEMPORAL_POINT",
-                    "v1 arrives naturally at turn 1 precombat main only; requested "
+                    "RG-03 supports only qualified turn-1 checkpoints; requested "
                             + validated.turnNumber() + "/" + validated.phase()
                             + "/" + validated.step());
         }
@@ -424,7 +508,14 @@ final class XmageNativeStateRestoration {
             throw new RestorationException(
                     "UNKNOWN_ACTOR", "active/priority must name a planned player");
         }
+        Set<String> objectIds = new HashSet<>();
         for (RequestedObject object : validated.objects()) {
+            if (object.semanticId() == null || object.semanticId().isBlank()) {
+                throw new RestorationException("INVALID_SEMANTIC_OBJECT", "blank semantic id");
+            }
+            if (!objectIds.add(object.semanticId())) {
+                throw new RestorationException("DUPLICATE_SEMANTIC_OBJECT", object.semanticId());
+            }
             switch (object.zone()) {
                 case BATTLEFIELD, GRAVEYARD, EXILED, HAND -> {
                 }
@@ -451,7 +542,14 @@ final class XmageNativeStateRestoration {
                 throw new RestorationException("INVALID_CARD_IDENTITY", object.semanticId());
             }
         }
+        Set<String> commanderIds = new HashSet<>();
         for (RequestedCommander commander : validated.commanders()) {
+            if (commander.commanderId() == null || commander.commanderId().isBlank()) {
+                throw new RestorationException("INVALID_COMMANDER_ID", "blank commander id");
+            }
+            if (!commanderIds.add(commander.commanderId())) {
+                throw new RestorationException("DUPLICATE_COMMANDER_ID", commander.commanderId());
+            }
             if (!seats.contains(commander.owner())) {
                 throw new RestorationException(
                         "UNKNOWN_ACTOR", "commander owner must name a planned player");
@@ -461,6 +559,34 @@ final class XmageNativeStateRestoration {
             }
             if (commander.cardIdentity() == null || commander.cardIdentity().isBlank()) {
                 throw new RestorationException("INVALID_CARD_IDENTITY", commander.commanderId());
+            }
+        }
+        if (validated.commanderDamage() == null) {
+            throw new RestorationException(
+                    "INVALID_DAMAGE_MATRIX", "Commander damage matrix must not be null");
+        }
+        Set<String> damageEdges = new HashSet<>();
+        for (RequestedCommanderDamage edge : validated.commanderDamage()) {
+            if (edge == null || edge.commanderId() == null || edge.commanderId().isBlank()) {
+                throw new RestorationException("INVALID_DAMAGE_MATRIX", "blank Commander identity");
+            }
+            if (!commanderIds.contains(edge.commanderId())) {
+                throw new RestorationException(
+                        "UNKNOWN_COMMANDER_ID", String.valueOf(edge.commanderId()));
+            }
+            if (edge.damagedPlayer() == null || !seats.contains(edge.damagedPlayer())) {
+                throw new RestorationException(
+                        "UNKNOWN_ACTOR", String.valueOf(edge.damagedPlayer()));
+            }
+            if (edge.combatDamage() < 0) {
+                throw new RestorationException(
+                        "INVALID_COMMANDER_DAMAGE",
+                        edge.commanderId() + " -> " + edge.damagedPlayer()
+                                + "=" + edge.combatDamage());
+            }
+            String key = edge.commanderId() + "|" + edge.damagedPlayer();
+            if (!damageEdges.add(key)) {
+                throw new RestorationException("DUPLICATE_DAMAGE_EDGE", key);
             }
         }
     }
@@ -495,6 +621,10 @@ final class XmageNativeStateRestoration {
                     continue;
                 }
                 Card card = takeVehicleCard(vehicleByName, consumed, object);
+                if (injectedObjectIdsBySemanticId.put(object.semanticId(), card.getId()) != null) {
+                    throw new RestorationException(
+                            "DUPLICATE_SEMANTIC_OBJECT", object.semanticId());
+                }
                 switch (object.zone()) {
                     case BATTLEFIELD -> battlefield.add(new PutToBattlefieldInfo(card, false));
                     case HAND -> {
@@ -530,43 +660,105 @@ final class XmageNativeStateRestoration {
     synchronized void restoreCommanderCasts(
             CommanderFreeForAll game, Map<String, Player> playersByPid) {
         requireApplied();
-        CommanderPlaysCountWatcher watcher =
+
+        // Resolve every semantic Commander to one genuine native Commander id
+        // before mutating any watcher state. Generic setup-placed copies are
+        // never considered Commander identities.
+        Map<String, UUID> liveCommanderIds =
+                bindLiveCommanderIds(game, playersByPid);
+
+        CommanderPlaysCountWatcher castWatcher =
                 game.getState().getWatcher(CommanderPlaysCountWatcher.class);
-        if (watcher == null) {
+        if (castWatcher == null) {
             throw new RestorationException(
                     "WATCHER_MISSING", "CommanderPlaysCountWatcher not registered");
         }
-        // Single restore call: restoreStateForGameLoad replaces (not merges)
-        // the whole history, so per-commander calls would wipe each other.
+
         Map<UUID, Integer> counts = new HashMap<>();
         for (RequestedCommander requested : plan.commanders()) {
+            UUID liveId = liveCommanderIds.get(requested.commanderId());
+            if (counts.put(liveId, requested.priorCasts()) != null) {
+                throw new RestorationException(
+                        "COMMANDER_IDENTITY_AMBIGUOUS",
+                        "duplicate native Commander id for " + requested.commanderId());
+            }
+        }
+
+        // Pre-resolve all CARD-scope CommanderInfoWatchers and native player
+        // ids before the first restore call, so ambiguity/missing watcher/
+        // unknown-player failures cannot partially mutate the damage ledgers.
+        Map<CommanderInfoWatcher, Map<UUID, Integer>> damageByWatcher = new HashMap<>();
+        for (RequestedCommanderDamage edge : plan.commanderDamage()) {
+            UUID commanderId = liveCommanderIds.get(edge.commanderId());
+            CommanderInfoWatcher watcher =
+                    game.getState().getWatcher(CommanderInfoWatcher.class, commanderId);
+            if (watcher == null) {
+                throw new RestorationException(
+                        "COMMANDER_DAMAGE_WATCHER_MISSING", edge.commanderId());
+            }
+            Player damaged = requirePlayer(playersByPid, edge.damagedPlayer());
+            Map<UUID, Integer> ledger =
+                    damageByWatcher.computeIfAbsent(watcher, ignored -> new HashMap<>());
+            if (ledger.put(damaged.getId(), edge.combatDamage()) != null) {
+                throw new RestorationException(
+                        "DUPLICATE_DAMAGE_EDGE",
+                        edge.commanderId() + "|" + edge.damagedPlayer());
+            }
+        }
+
+        try {
+            // One cast-history restore call: native semantics replace the whole
+            // cast-count state rather than merging per Commander.
+            castWatcher.restoreStateForGameLoad(
+                    CommanderPlaysCountState.fromMap(counts), game);
+
+            // One native restore call per exact Commander watcher. This is
+            // state restoration, not synthetic historical damage-event replay.
+            for (Map.Entry<CommanderInfoWatcher, Map<UUID, Integer>> entry
+                    : damageByWatcher.entrySet()) {
+                entry.getKey().restoreDamageStateForGameLoad(entry.getValue(), game);
+            }
+        } catch (IllegalArgumentException exc) {
+            throw new RestorationException(
+                    "COMMANDER_HISTORY_REJECTED", String.valueOf(exc.getMessage()));
+        }
+    }
+
+    /**
+     * Resolves semantic Commander ids to the exact native Commander main-card
+     * ids owned by the requested player. Only GameCommanderImpl's authoritative
+     * Commander identity set participates; battlefield setup copies are
+     * deliberately excluded. Owner + exact card identity must bind 1:1.
+     */
+    private Map<String, UUID> bindLiveCommanderIds(
+            CommanderFreeForAll game, Map<String, Player> playersByPid) {
+        Map<String, UUID> resolved = new HashMap<>();
+        Set<UUID> used = new HashSet<>();
+        for (RequestedCommander requested : plan.commanders()) {
             Player owner = requirePlayer(playersByPid, requested.owner());
-            List<Card> matches = new ArrayList<>();
-            for (Card card : game.getCommanderCardsFromCommandZone(
-                    owner, CommanderCardType.COMMANDER_OR_OATHBREAKER)) {
-                if (card.getName().equals(requested.cardIdentity())) {
-                    matches.add(card);
+            List<UUID> matches = new ArrayList<>();
+            for (UUID commanderId
+                    : game.getCommandersIds(owner, CommanderCardType.ANY, false)) {
+                Card card = game.getCard(commanderId);
+                if (card != null && requested.cardIdentity().equals(card.getName())) {
+                    matches.add(commanderId);
                 }
             }
             if (matches.size() != 1) {
                 throw new RestorationException(
                         "COMMANDER_IDENTITY_AMBIGUOUS",
                         requested.commanderId() + " matched " + matches.size()
-                                + " command-zone cards for " + requested.owner());
+                                + " genuine Commander ids for " + requested.owner());
             }
-            if (counts.put(matches.get(0).getId(), requested.priorCasts()) != null) {
+            UUID liveId = matches.get(0);
+            if (!used.add(liveId)) {
                 throw new RestorationException(
                         "COMMANDER_IDENTITY_AMBIGUOUS",
-                        "duplicate command-zone card for " + requested.commanderId());
+                        "native Commander id reused for " + requested.commanderId());
             }
+            resolved.put(requested.commanderId(), liveId);
         }
-        try {
-            watcher.restoreStateForGameLoad(
-                    CommanderPlaysCountState.fromMap(counts), game);
-        } catch (IllegalArgumentException exc) {
-            throw new RestorationException(
-                    "COMMANDER_HISTORY_REJECTED", String.valueOf(exc.getMessage()));
-        }
+        return Map.copyOf(resolved);
     }
 
     /** Engine-authoritative re-validation: layers plus state-based actions. */
@@ -835,30 +1027,38 @@ final class XmageNativeStateRestoration {
         payload.addProperty("schema_version", "native-state-restoration-dimensions-1.1.0");
         payload.addProperty("starting_state_injection_supported", false);
         JsonArray supported = new JsonArray();
-        supported.add("command-zone commanders with prior cast counts (game-load restore path)");
+        supported.add("commanders with prior cast counts (native game-load restore path)");
+        supported.add("commander damage matrices through exact live CommanderInfoWatcher bindings "
+                + "(native game-load restore; no synthetic damage events)");
         supported.add("battlefield/graveyard/exile placement of real cards (silent setup primitive)");
         supported.add("hand identity via the same setup primitive (principal-scoped; "
                 + "pilot observation stays counts-only through the redactor; "
                 + "honeycard non-leakage proven per fixture)");
         supported.add("owner-equals-controller attribution with 1:1 readback");
         supported.add("life totals (pre-start assembly; state-based actions stay authoritative)");
-        supported.add("turn-1 precombat-main arrival envelope with active/priority binding");
+        supported.add("qualified turn-1 temporal targets: upkeep, draw, precombat main, "
+                + "declare attackers, declare blockers, combat damage, postcombat main; "
+                + "arrival requires XmageTemporalProgressionDriver native progression");
         supported.add("explicit Rules-seed binding with replay determinism");
         supported.add("strict native readback with field-level compare and digests");
+        supported.add("explicit L7 lossless hidden-state requests: complete live-library "
+                + "identity order plus one explicitly typed face-down battlefield object; "
+                + "delegated to native RG-06A game-load APIs");
         supported.add("frozen requested_state_digest equality for constructed states "
                 + "in the v1 subset (canonical projection per the recovered spec, "
                 + "verified per fixture; see requestedDigest/constructedDigest)");
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
         unsupported.add("stack spells (casting requires real costs/timing: executor scope)");
-        unsupported.add("library identity (hidden information: fail closed)");
-        unsupported.add("revealed and facedown objects");
+        unsupported.add("legacy/frozen partial library identity: no complete permutation, fail closed");
+        unsupported.add("legacy/frozen face_down=true without explicit native type: fail closed");
+        unsupported.add("revealed-zone restoration");
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
         unsupported.add("attachments and counters");
         unsupported.add("tapped permanents (unqualified dimension)");
-        unsupported.add("commander damage matrices and commander relations");
+        unsupported.add("commander relations other than validated Partner linkage");
         unsupported.add("poison counters");
-        unsupported.add("temporal points outside turn-1 precombat main");
+        unsupported.add("temporal points outside the qualified RG-03 turn-1 checkpoint allow-list");
         unsupported.add("frozen requested_state_digest reproduction (no canonicalization spec in repo)");
         payload.add("unsupported_dimensions", unsupported);
         return payload;
