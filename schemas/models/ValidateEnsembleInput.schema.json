@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ensemble_id": {
+      "title": "Ensemble Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ensemble_id"
+  ],
+  "title": "ValidateEnsembleInput",
+  "type": "object"
+}

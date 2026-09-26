@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "case_id": "commander_tax_third_cast",
+      "description": "A five-mana commander cast for the third time costs nine total mana.",
+      "backend": "either",
+      "input_state": {
+        "format": "commander",
+        "commander_name": "Korvold, Fae-Cursed King",
+        "printed_mana_value": 5,
+        "prior_command_zone_casts": 2,
+        "action": "cast_commander"
+      },
+      "expected_normalized": {
+        "total_cast_cost": 9,
+        "commander_tax": 4,
+        "legal": true
+      },
+      "comparison_keys": ["total_cast_cost", "commander_tax", "legal"],
+      "critical": true
+    },
+    {
+      "case_id": "commander_damage_not_combined",
+      "description": "Commander damage from different commanders is tracked separately and is not combined.",
+      "backend": "either",
+      "input_state": {
+        "format": "commander",
+        "defending_player_life": 40,
+        "commander_damage": {
+          "Ishai, Ojutai Dragonspeaker": 12,
+          "Rograkh, Son of Rohgahh": 10
+        },
+        "action": "check_state_based_actions"
+      },
+      "expected_normalized": {
+        "player_loses": false,
+        "loss_reason": null,
+        "maximum_single_commander_damage": 12
+      },
+      "comparison_keys": ["player_loses", "loss_reason", "maximum_single_commander_damage"],
+      "critical": true
+    },
+    {
+      "case_id": "commander_damage_exactly_twenty_one",
+      "description": "Twenty-one combat damage from one commander eliminates that player.",
+      "backend": "either",
+      "input_state": {
+        "format": "commander",
+        "defending_player_life": 40,
+        "commander_damage": {
+          "Ishai, Ojutai Dragonspeaker": 21
+        },
+        "action": "check_state_based_actions"
+      },
+      "expected_normalized": {
+        "player_loses": true,
+        "loss_reason": "commander_damage",
+        "maximum_single_commander_damage": 21
+      },
+      "comparison_keys": ["player_loses", "loss_reason", "maximum_single_commander_damage"],
+      "critical": true
+    }
+  ]
+}

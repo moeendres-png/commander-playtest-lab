@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "MetaCategory": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "MetaCategory",
+      "type": "string"
+    },
+    "MetaEvidenceRating": {
+      "enum": [
+        "authoritative_tournament",
+        "verified_decklist",
+        "established_primer",
+        "aggregator",
+        "local_project_context",
+        "partial_or_synthetic"
+      ],
+      "title": "MetaEvidenceRating",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/MetaCategory"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "evidence_quality": {
+      "$ref": "#/$defs/MetaEvidenceRating"
+    },
+    "key_points": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Key Points",
+      "type": "array"
+    },
+    "sequencing_notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Sequencing Notes",
+      "type": "array"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "transfer_limitations": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Transfer Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source_id",
+    "commander",
+    "title",
+    "key_points",
+    "categories",
+    "evidence_quality"
+  ],
+  "title": "PrimerReference",
+  "type": "object"
+}

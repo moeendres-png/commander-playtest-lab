@@ -1,0 +1,45 @@
+{
+  "commands": {
+    "docker": null,
+    "git": "/usr/bin/git",
+    "gradle": null,
+    "java": "/usr/bin/java",
+    "javac": "/usr/bin/javac",
+    "mvn": null,
+    "mypy": null,
+    "ruff": null
+  },
+  "database": {
+    "foreign_keys": false,
+    "integrity": false,
+    "schema_version": null,
+    "status": "missing"
+  },
+  "engine": {
+    "adapter_version": "commander-lab-protocol-2.0.0",
+    "capabilities": null,
+    "details": [
+      "ENGINE_START_COMMAND is empty"
+    ],
+    "engine_version": null,
+    "last_healthcheck_at": null,
+    "pid": null,
+    "protocol_version": "2.0.0",
+    "provider": "xmage",
+    "started_at": null,
+    "status": "not_configured",
+    "stderr_log": "/mnt/data/cplab_repair_1215_1217/artifacts/engine_setup/logs/xmage.bridge.stderr.log",
+    "stdout_log": "/mnt/data/cplab_repair_1215_1217/artifacts/engine_setup/logs/xmage.bridge.stdout.jsonl",
+    "stopped_at": null
+  },
+  "external_engine_validation_pending": true,
+  "packages": {
+    "fastapi": true,
+    "hypothesis": false,
+    "pydantic": true,
+    "pytest": true
+  },
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+  "python": "3.13.5",
+  "writable": true
+}

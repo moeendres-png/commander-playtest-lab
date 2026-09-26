@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closing_power": {
+      "title": "Closing Power",
+      "type": "number"
+    },
+    "commander_independence": {
+      "title": "Commander Independence",
+      "type": "number"
+    },
+    "four_player_performance": {
+      "title": "Four Player Performance",
+      "type": "number"
+    },
+    "matchup_robustness": {
+      "title": "Matchup Robustness",
+      "type": "number"
+    },
+    "physical_allocation": {
+      "title": "Physical Allocation",
+      "type": "number"
+    },
+    "rebuild": {
+      "title": "Rebuild",
+      "type": "number"
+    },
+    "worst_quartile": {
+      "title": "Worst Quartile",
+      "type": "number"
+    }
+  },
+  "required": [
+    "four_player_performance",
+    "worst_quartile",
+    "commander_independence",
+    "rebuild",
+    "closing_power",
+    "matchup_robustness",
+    "physical_allocation"
+  ],
+  "title": "ObjectiveVector",
+  "type": "object"
+}

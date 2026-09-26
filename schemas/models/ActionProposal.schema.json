@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "ActionType": {
+      "enum": [
+        "pass_priority",
+        "play_land",
+        "cast_spell",
+        "cast_commander",
+        "activate_ability",
+        "declare_attackers",
+        "declare_blockers",
+        "choose_targets",
+        "choose_mode",
+        "pay_cost",
+        "mulligan",
+        "concede",
+        "structural_decision"
+      ],
+      "title": "ActionType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_type": {
+      "$ref": "#/$defs/ActionType"
+    },
+    "actor_id": {
+      "title": "Actor Id",
+      "type": "string"
+    },
+    "choices": {
+      "additionalProperties": true,
+      "title": "Choices",
+      "type": "object"
+    },
+    "decision_tier": {
+      "default": 1,
+      "maximum": 3,
+      "minimum": 1,
+      "title": "Decision Tier",
+      "type": "integer"
+    },
+    "legal_action_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Legal Action Id"
+    },
+    "model_config_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model Config Hash"
+    },
+    "model_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model Name"
+    },
+    "policy_name": {
+      "default": "heuristic",
+      "title": "Policy Name",
+      "type": "string"
+    },
+    "proposal_id": {
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rationale"
+    },
+    "selected_modes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Selected Modes",
+      "type": "array"
+    },
+    "source_object_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Object Id"
+    },
+    "target_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "actor_id",
+    "action_type"
+  ],
+  "title": "ActionProposal",
+  "type": "object"
+}

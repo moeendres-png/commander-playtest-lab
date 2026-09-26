@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "commander": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commander"
+    },
+    "deck_hash": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deck Hash"
+    },
+    "format_band": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FormatBand"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "rules_path": {
+      "title": "Rules Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rules_path"
+  ],
+  "title": "ValidatePilotRulesInput",
+  "type": "object"
+}

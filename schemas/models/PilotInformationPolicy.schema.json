@@ -1,0 +1,46 @@
+{
+  "$defs": {
+    "PilotInformationMode": {
+      "description": "Information boundary available to a structural pilot.\n\nCurrent production pilots are restricted to visible state plus explicitly\nmodelled public/known cards. No mode grants library-order or hidden-hand\naccess.",
+      "enum": [
+        "visible_only",
+        "visible_plus_known_cards"
+      ],
+      "title": "PilotInformationMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "exact_future_draws": {
+      "default": false,
+      "title": "Exact Future Draws",
+      "type": "boolean"
+    },
+    "hidden_opponent_hands": {
+      "default": false,
+      "title": "Hidden Opponent Hands",
+      "type": "boolean"
+    },
+    "mode": {
+      "$ref": "#/$defs/PilotInformationMode",
+      "default": "visible_plus_known_cards"
+    },
+    "opponent_hand_model": {
+      "default": "plausible_distribution",
+      "enum": [
+        "none",
+        "plausible_distribution"
+      ],
+      "title": "Opponent Hand Model",
+      "type": "string"
+    },
+    "random_library_order": {
+      "default": false,
+      "title": "Random Library Order",
+      "type": "boolean"
+    }
+  },
+  "title": "PilotInformationPolicy",
+  "type": "object"
+}

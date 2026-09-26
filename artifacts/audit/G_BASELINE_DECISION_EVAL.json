@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "audit_point": "G",
+  "generated": "2026-08-09",
+  "estimate_type": "structural_model_estimates",
+  "development": {
+    "passed": 18,
+    "total": 24,
+    "failed": 6,
+    "pass_rate": 0.75
+  },
+  "holdout": {
+    "passed": 9,
+    "total": 12,
+    "failed": 3,
+    "pass_rate": 0.75
+  },
+  "source": "pre-G pilot evaluated against fixed G scenario corpora"
+}

@@ -1,0 +1,48 @@
+{
+  "automatic_deck_change": false,
+  "confidence": 0.5900000000000001,
+  "counterevidence": [
+    "low opponent sensitivity",
+    "tested alternative action does not improve the model result"
+  ],
+  "counterfactual_result": {
+    "consistency": null,
+    "improvement": null
+  },
+  "cut_release_gate": "blocked:package_dependency_unchecked,seed_sensitivity_high,counterfactuals_inconclusive,holdout_not_confirmed,diagnosis_not_deck_or_card_weakness",
+  "diagnosis_id": "8bde4ff30800ba91b24442bb",
+  "empirically_proven": false,
+  "evidence": [
+    "effect is unstable across common-random-number seeds"
+  ],
+  "hypothesis": "random_variance",
+  "metrics": {
+    "counterfactual_improvement": 0.0,
+    "dead_card_rate": 0.1,
+    "decision_regret": 0.0,
+    "evidence_strength": 0.6000000000000001,
+    "missed_line_count": 0,
+    "package_failure_rate": 0.0,
+    "pilot_disagreement": 0.1,
+    "unplayable_rate": 0.0625
+  },
+  "model_dependent": true,
+  "opponent_sensitivity": 0.1,
+  "package_dependency": {
+    "checked": false,
+    "completeness": null,
+    "minimum_met": null,
+    "package_id": null
+  },
+  "pilot_sensitivity": 0.1,
+  "recommended_next_test": "increase_paired_seed_count_and_report_interval",
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.9,
+  "source_ids": [
+    "synthetic-known-cause-high-variance"
+  ],
+  "subject": "Test Card",
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}

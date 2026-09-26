@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "battlefield": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Battlefield",
+      "type": "array"
+    },
+    "command": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Command",
+      "type": "array"
+    },
+    "exile": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Exile",
+      "type": "array"
+    },
+    "graveyard": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Graveyard",
+      "type": "array"
+    },
+    "hand": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Hand",
+      "type": "array"
+    },
+    "library": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Library",
+      "type": "array"
+    }
+  },
+  "title": "ZoneState",
+  "type": "object"
+}

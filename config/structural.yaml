@@ -1,0 +1,15 @@
+engine_version: structural-0.3.0
+estimate_type: structural_model_estimates
+seed: 20260804
+limits:
+  max_turns: 35
+  max_events: 30000
+  max_no_progress_turns: 20
+  max_spells_per_turn: 8
+batch:
+  workers: 1
+  starting_player_rotation: true
+role_profile_file: data/cards/structural_role_profiles.json
+notes:
+  - Results are structural_model_estimates, not rules-validated games or empirical win rates.
+  - Synthetic aggro/control/engine decks are engine-validation fixtures only.

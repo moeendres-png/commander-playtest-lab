@@ -1,0 +1,188 @@
+{
+  "$id": "https://commander-lab.local/schemas/candidate_result_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "af_results": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "gate_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "verdict": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN",
+              "NOT_RUN",
+              "PARTIAL",
+              "UNSUPPORTED",
+              "NOT_APPLICABLE"
+            ]
+          }
+        },
+        "required": [
+          "gate_id",
+          "verdict",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "authority_status": {
+      "type": "string"
+    },
+    "candidate": {
+      "type": "string"
+    },
+    "classifications": {
+      "items": {
+        "enum": [
+          "DIRECT_RULES_FAIL",
+          "DIRECT_PILOT_BOUNDARY_FAIL",
+          "DIRECT_CARD_COVERAGE_FAIL",
+          "PROTOCOL_ADAPTER_MISSING",
+          "QUALIFICATION_INFRASTRUCTURE_MISSING",
+          "AUTHORITY_BLOCKED",
+          "RUNTIME_NOT_RUN",
+          "RUNTIME_PASS",
+          "REMEDIATION_REQUIRED"
+        ]
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "common_runtime_reason": {
+      "type": "string"
+    },
+    "common_runtime_status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "UNKNOWN",
+        "NOT_RUN",
+        "PARTIAL",
+        "UNSUPPORTED",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "direct_failures": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "fixture_results": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_hashes": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "candidate": {
+            "type": "string"
+          },
+          "classification": {
+            "enum": [
+              "DIRECT_RULES_FAIL",
+              "DIRECT_PILOT_BOUNDARY_FAIL",
+              "DIRECT_CARD_COVERAGE_FAIL",
+              "PROTOCOL_ADAPTER_MISSING",
+              "QUALIFICATION_INFRASTRUCTURE_MISSING",
+              "AUTHORITY_BLOCKED",
+              "RUNTIME_NOT_RUN",
+              "RUNTIME_PASS",
+              "REMEDIATION_REQUIRED"
+            ]
+          },
+          "evidence_class": {
+            "enum": [
+              "RUNTIME_VERIFIED",
+              "DIRECT_CODE_FAIL",
+              "CODE_DERIVED",
+              "SOURCE_DERIVED",
+              "NOT_RUN"
+            ]
+          },
+          "fixture_id": {
+            "type": "string"
+          },
+          "omission_reason_code": {
+            "enum": [
+              "PROTOCOL_ADAPTER_MISSING",
+              "REMEDIATION_REQUIRED",
+              "AUTHORITY_BLOCKED",
+              "PROVIDER_ABSENT",
+              "RUNTIME_UNAVAILABLE"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "source_lock": {
+            "type": "object"
+          },
+          "verdict": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN",
+              "NOT_RUN",
+              "PARTIAL",
+              "UNSUPPORTED",
+              "NOT_APPLICABLE"
+            ]
+          }
+        },
+        "required": [
+          "fixture_id",
+          "candidate",
+          "source_lock",
+          "verdict",
+          "evidence_class",
+          "reason",
+          "classification",
+          "omission_reason_code",
+          "artifact_hashes"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "freeze_eligible": {
+      "type": "boolean"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "source_lock": {
+      "type": "object"
+    },
+    "thin_adapter_assessment": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "candidate",
+    "source_lock",
+    "classifications",
+    "direct_failures",
+    "thin_adapter_assessment",
+    "authority_status",
+    "common_runtime_status",
+    "common_runtime_reason",
+    "fixture_results",
+    "af_results",
+    "freeze_eligible"
+  ],
+  "type": "object"
+}

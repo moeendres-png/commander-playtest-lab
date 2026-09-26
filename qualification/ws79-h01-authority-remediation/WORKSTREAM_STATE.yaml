@@ -1,0 +1,67 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws79-rqc3-h01-authority-remediation
+branch: ws79/rq-c3-h01-authority-remediation-20260912
+audit_base_sha: 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+audit_base_tree: ed83951226f52f528953e7cdb0dec0b12e6eabcc
+state_written_against_head: c6f51d4a06d795384e01ccea9615210646426df9
+validated_head: c6f51d4a06d795384e01ccea9615210646426df9
+objective: Persist the Coordinator-corrected RQ-C3-H01 rules authority as a new current-main
+  authority package, preserve historical evidence immutably, and produce an exact
+  impact/requalification ledger without behavior-credit fabrication.
+in_scope:
+- historical H01 authority reconstruction
+- three-case corrected H01 authority family
+- rules-source provenance
+- machine-readable impact ledger
+- affected evidence and aggregate-claim classification
+- deterministic validation of the new package
+out_of_scope:
+- editing historical RQ-C3 branch
+- engine implementation
+- provider implementation
+- behavior requalification
+- numerical rewriting of historical First-Wave results
+- Architecture Freeze
+- Production Provider selection
+ownership: WS79-RQC3-H01-AUTHORITY-REMEDIATION
+status: COMPLETE
+exact_next_action: Coordinator review of the terminal package; authorize downstream
+  H01 behavioral requalification; safe_push branch (dry-run first, then actual).
+dependencies:
+- CPL main 90f95c117b190d6b21704ca7639198e3ac0a2dc2
+- historical RQ-C3 branch 897d72f0b57bb8febe045870acaa3d2dba4bde56
+- binding Coordinator H01 adjudication
+hard_gates:
+- historical files remain byte-untouched
+- corrected H01 has exactly three contrast cases
+- non-discriminating old terminal assertion is explicitly rejected
+- impact ledger distinguishes invalidated, requalification-required, historical-only
+  and unaffected evidence
+- no behavior PASS is manufactured
+- new authority package validates deterministically
+forbidden_shortcuts:
+- rewrite historical branch
+- silently mutate old PASS counts
+- engine-parity as rules authority
+- green CI as behavior proof
+- UNKNOWN to PASS promotion
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+current_failure: NONE
+evidence:
+- 'VALIDATION.json: double-run VALIDATION_PASS, byte-identical stdout SHA-256 22b52589f380187054ec3ef35371d61535729df19226130be257c3a4eae839ab
+  (DIRECTLY_VERIFIED)'
+- Historical H01 oracle reconstructed from 897d72f0 blob c4e74252 (CODE_DERIVED);
+  CR 614.12 absent in old citations; old decision sequence Rules-incorrect
+- CR 614.12 current text + Meddling Mage/Humility Q&A verified 2026-09-12 via mtg.wiki
+  + magicjudges FTW article (EXTERNALLY_RULE_VALIDATED, text provenance only)
+- 'Impact ledger: 15 entries; WS60 H01 PASS INVALIDATED, WS60 14/15 + WS65 9/15 REQUALIFICATION_REQUIRED,
+  historical numbers preserved unedited'
+- WS67 candidate object 22e7f17 absent from this repository; WS67/WS76 code-level
+  statements UNKNOWN; Coordinator dispositions recorded as inputs
+tests_run:
+- python3 qualification/ws79-h01-authority-remediation/validate_ws79_h01.py -> VALIDATION_PASS
+  (run twice, identical SHA-256)
+- 4 negative self-tests on scratch copies (copy-choice claim, missing disposition,
+  credit claim, fourth case) -> all VALIDATION_FAIL as expected

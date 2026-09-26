@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "MetaCategory": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "MetaCategory",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "archetype_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{1,127}$",
+      "title": "Archetype Id",
+      "type": "string"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/MetaCategory"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "commanders": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Commanders",
+      "type": "array"
+    },
+    "confidence": {
+      "default": 0.5,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "interaction_profile": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "title": "Interaction Profile",
+      "type": "object"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "packages": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Packages",
+      "type": "array"
+    },
+    "primary_plan": {
+      "title": "Primary Plan",
+      "type": "string"
+    },
+    "secondary_plan": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Secondary Plan"
+    },
+    "win_conditions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Win Conditions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "archetype_id",
+    "name",
+    "commanders",
+    "categories",
+    "primary_plan"
+  ],
+  "title": "MetaArchetype",
+  "type": "object"
+}

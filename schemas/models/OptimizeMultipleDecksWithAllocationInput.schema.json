@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_ids": {
+      "default": [
+        "korvold/current",
+        "rogshai/current",
+        "kaervek/current"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Deck Ids",
+      "type": "array"
+    },
+    "max_candidates_per_deck": {
+      "default": 5,
+      "maximum": 20,
+      "minimum": 1,
+      "title": "Max Candidates Per Deck",
+      "type": "integer"
+    }
+  },
+  "title": "OptimizeMultipleDecksWithAllocationInput",
+  "type": "object"
+}

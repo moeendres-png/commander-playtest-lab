@@ -1,0 +1,51 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authority_rank_new": {
+      "minimum": 0,
+      "title": "Authority Rank New",
+      "type": "integer"
+    },
+    "authority_rank_old": {
+      "minimum": 0,
+      "title": "Authority Rank Old",
+      "type": "integer"
+    },
+    "effective_at": {
+      "format": "date-time",
+      "title": "Effective At",
+      "type": "string"
+    },
+    "historical_record_retained": {
+      "default": true,
+      "title": "Historical Record Retained",
+      "type": "boolean"
+    },
+    "new_id": {
+      "title": "New Id",
+      "type": "string"
+    },
+    "old_id": {
+      "title": "Old Id",
+      "type": "string"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "supersession_id": {
+      "title": "Supersession Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "supersession_id",
+    "old_id",
+    "new_id",
+    "reason",
+    "authority_rank_old",
+    "authority_rank_new"
+  ],
+  "title": "SupersessionRecord",
+  "type": "object"
+}

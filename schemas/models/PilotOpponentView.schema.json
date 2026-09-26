@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "board_power": {
+      "minimum": 0.0,
+      "title": "Board Power",
+      "type": "number"
+    },
+    "commander_damage_from_actor": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Commander Damage From Actor",
+      "type": "object"
+    },
+    "engine_value": {
+      "minimum": 0.0,
+      "title": "Engine Value",
+      "type": "number"
+    },
+    "graveyard_size": {
+      "minimum": 0,
+      "title": "Graveyard Size",
+      "type": "integer"
+    },
+    "hand_size": {
+      "minimum": 0,
+      "title": "Hand Size",
+      "type": "integer"
+    },
+    "life": {
+      "title": "Life",
+      "type": "number"
+    },
+    "player_id": {
+      "title": "Player Id",
+      "type": "string"
+    },
+    "threat": {
+      "minimum": 0.0,
+      "title": "Threat",
+      "type": "number"
+    }
+  },
+  "required": [
+    "player_id",
+    "life",
+    "threat",
+    "board_power",
+    "engine_value",
+    "graveyard_size",
+    "hand_size"
+  ],
+  "title": "PilotOpponentView",
+  "type": "object"
+}

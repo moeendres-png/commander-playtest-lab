@@ -1,0 +1,23 @@
+{
+  "decision_count": 2071,
+  "decision_protocol_version": "xmage-external-decision-protocol-1.0.0",
+  "evidence_class": "technical_conformance_only",
+  "mode": "full_gate",
+  "observed_decision_classes": [
+    "choose_object",
+    "choose_use",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+  ],
+  "player_count": 3,
+  "raw_result_match": false,
+  "semantic_replay_match": true,
+  "status": "PASS",
+  "winner_seats": [
+    1
+  ]
+}

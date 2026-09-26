@@ -1,0 +1,572 @@
+{
+  "status": "completed",
+  "metadata": {
+    "tool_name": "run_robustness_suite",
+    "invocation_id": "run_robustness_suite-aec43c0ff014",
+    "created_at": "2026-08-07T03:34:26.076968Z",
+    "git_commit": "393e75823657a5711ed7ed2ddf59618a3888191b",
+    "engine_version": "structural-0.6.0",
+    "data_snapshot_hash": "80cb03c2c63036023b03abb35bf866c96bf9f66ae248cf20f2b23bac925612d9",
+    "deck_hashes": {
+      "korvold/current": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+      "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+      "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+      "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+    },
+    "scenario_hash": "0f9c7a8b54c03b16821b3e5ee8d743cb9fe4a83ac305466c87455dd31a1a92ba",
+    "configuration_hash": "0f9c7a8b54c03b16821b3e5ee8d743cb9fe4a83ac305466c87455dd31a1a92ba",
+    "opponent_hashes": {
+      "synthetic/aggro": "aa6d1c4ea79204748a65e5a92d09cc380c57131316e2a905d911a059ce50c0fa",
+      "synthetic/control": "dd6b14cdbd136000a3aeb75157e8be7a0bfe41a3cebcd6a7ecb551c4d21bd3f5",
+      "synthetic/engine": "c40f466842980f2131b737d1173bc9316116ba0fc6e1d1c046295b0ce037f392"
+    },
+    "pilot_version": "strong",
+    "seed": 20260807,
+    "iterations": 1,
+    "estimate_type": "structural_model_estimates",
+    "elapsed_seconds": 2.95713072900071,
+    "deterministic_game_log_directory": null,
+    "openai_trace_directory": "/mnt/data/cplab_repair_1215_1217/data/runs/openai_traces"
+  },
+  "result": {
+    "validation_level": "structural_only",
+    "execution_status": "passed",
+    "scenario_count": 30,
+    "pod_sizes": [
+      3,
+      4,
+      5
+    ],
+    "politics_included": true,
+    "politics_regimes": [
+      "rational_threat_focus",
+      "current_leader_focus",
+      "commander_reputation_focus",
+      "combo_prevention",
+      "revenge_bias",
+      "random_targeting_noise",
+      "open_mana_deterrence",
+      "visible_engine_focus",
+      "low_visibility_tolerance",
+      "table_balance"
+    ],
+    "scenario_results": [
+      {
+        "politics": "rational_threat_focus",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "current_leader_focus",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "commander_reputation_focus",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "combo_prevention",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": -1.0,
+        "place_1_share_delta": -1.0,
+        "confidence_interval": [
+          -1.0,
+          -1.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "revenge_bias",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 1.0,
+        "place_1_share_delta": 1.0,
+        "confidence_interval": [
+          1.0,
+          1.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "random_targeting_noise",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "open_mana_deterrence",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "visible_engine_focus",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "low_visibility_tolerance",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "table_balance",
+        "pod_size": 3,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "rational_threat_focus",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "current_leader_focus",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "commander_reputation_focus",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "combo_prevention",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "revenge_bias",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 1.0,
+        "place_1_share_delta": 1.0,
+        "confidence_interval": [
+          1.0,
+          1.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "random_targeting_noise",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "open_mana_deterrence",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": -1.0,
+        "place_1_share_delta": -1.0,
+        "confidence_interval": [
+          -1.0,
+          -1.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "visible_engine_focus",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "low_visibility_tolerance",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "table_balance",
+        "pod_size": 4,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "rational_threat_focus",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "current_leader_focus",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "commander_reputation_focus",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "combo_prevention",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 1.0,
+        "place_1_share_delta": 1.0,
+        "confidence_interval": [
+          1.0,
+          1.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "revenge_bias",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "random_targeting_noise",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": -1.0,
+        "place_1_share_delta": -1.0,
+        "confidence_interval": [
+          -1.0,
+          -1.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "open_mana_deterrence",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "visible_engine_focus",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "low_visibility_tolerance",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      },
+      {
+        "politics": "table_balance",
+        "pod_size": 5,
+        "opponents": [
+          "synthetic/aggro",
+          "synthetic/control",
+          "synthetic/engine",
+          "opponent/morcant-elves"
+        ],
+        "iterations": 1,
+        "placement_improvement": 0.0,
+        "place_1_share_delta": 0.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "validation_level": "structural_only"
+      }
+    ],
+    "mean_effect": 0.0,
+    "worst_case_effect": -1.0,
+    "recommendation_status": "insufficient_evidence",
+    "automatic_application": false
+  },
+  "warnings": [],
+  "errors": []
+}

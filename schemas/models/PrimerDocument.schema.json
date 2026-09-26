@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    },
+    "PrimerFormat": {
+      "enum": [
+        "markdown",
+        "text",
+        "json",
+        "curated"
+      ],
+      "title": "PrimerFormat",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "content_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Content Sha256",
+      "type": "string"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "imported_at": {
+      "format": "date-time",
+      "title": "Imported At",
+      "type": "string"
+    },
+    "license_notes": {
+      "default": "structured extraction only unless the source is user-provided",
+      "title": "License Notes",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "primer_format": {
+      "$ref": "#/$defs/PrimerFormat"
+    },
+    "primer_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Primer Id",
+      "type": "string"
+    },
+    "raw_text_stored": {
+      "default": false,
+      "title": "Raw Text Stored",
+      "type": "boolean"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Path"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "primer_id",
+    "source_id",
+    "title",
+    "commander",
+    "deck_hash",
+    "format_band",
+    "primer_format",
+    "content_sha256",
+    "imported_at"
+  ],
+  "title": "PrimerDocument",
+  "type": "object"
+}

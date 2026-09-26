@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "J_P6_BENCHMARK_POLICY_v1",
+  "baseline_main_commit": "0d5dbc633d0776f72e80e271e52234018e80e307",
+  "baseline_main_tree": "169fee0f88b550f5897324b14451b1086c0b3617",
+  "package_version": "1.15.0",
+  "python_version": "3.12",
+  "runner_class": "github-hosted ubuntu-latest",
+  "benchmark_seed": 20260811,
+  "repetitions": 3,
+  "warmup_runs": 1,
+  "comparison_rule": "compare medians on the same runner class and benchmark configuration; report all repetitions and dispersion",
+  "retain_optimization_only_if": {
+    "semantic_equivalence": true,
+    "deterministic_equivalence": true,
+    "decision_quality_regression": false,
+    "holdout_regression": false,
+    "minimum_measured_wall_or_memory_improvement_fraction": 0.05
+  },
+  "benchmarks": {
+    "service_initialization": {"repetitions": 5},
+    "goldfish": {"iterations": 50, "workers": 1},
+    "matchup_batch_small": {"iterations": 32, "workers": [1, 2]},
+    "matchup_batch_large": {"iterations": 64, "workers": [1, 2]},
+    "paired_comparison": {"iterations": 8, "workers": 1},
+    "card_ablation": {"iterations": 4},
+    "package_ablation": {"iterations": 4},
+    "commander_denial": {"iterations": 4},
+    "sensitivity": {"seeds": [20260811], "pilot_strengths": ["strong"]},
+    "optimizer_search": {"iterations": 1, "max_steps": 1, "cuts_per_step": 2},
+    "reporting": {"responses": 1},
+    "serialization": {"iterations": 1000},
+    "card_lookup": {"iterations": 10000},
+    "sqlite": {"rows": 1000}
+  },
+  "holdout_policy": "P4 and P5 consumed holdouts are regression-only; never tune performance or optimizer logic from their outcomes",
+  "truth_boundary": "timings are technical runtime evidence on the stated runner class; simulation outputs remain structural_model_estimates"
+}

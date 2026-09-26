@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "maximum": {
+      "title": "Maximum",
+      "type": "number"
+    },
+    "minimum": {
+      "title": "Minimum",
+      "type": "number"
+    }
+  },
+  "required": [
+    "minimum",
+    "maximum"
+  ],
+  "title": "NumericRange",
+  "type": "object"
+}

@@ -1,0 +1,95 @@
+{
+  "$defs": {
+    "ActionType": {
+      "enum": [
+        "pass_priority",
+        "play_land",
+        "cast_spell",
+        "cast_commander",
+        "activate_ability",
+        "declare_attackers",
+        "declare_blockers",
+        "choose_targets",
+        "choose_mode",
+        "pay_cost",
+        "mulligan",
+        "concede",
+        "structural_decision"
+      ],
+      "title": "ActionType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "title": "Action Id",
+      "type": "string"
+    },
+    "action_type": {
+      "$ref": "#/$defs/ActionType"
+    },
+    "actor_id": {
+      "title": "Actor Id",
+      "type": "string"
+    },
+    "allowed_target_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Target Ids",
+      "type": "array"
+    },
+    "choices_schema": {
+      "additionalProperties": true,
+      "title": "Choices Schema",
+      "type": "object"
+    },
+    "cost": {
+      "additionalProperties": true,
+      "title": "Cost",
+      "type": "object"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "modes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Modes",
+      "type": "array"
+    },
+    "source_object_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Object Id"
+    },
+    "target_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "action_id",
+    "actor_id",
+    "action_type"
+  ],
+  "title": "LegalAction",
+  "type": "object"
+}

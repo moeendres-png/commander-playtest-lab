@@ -1,0 +1,29 @@
+{
+  "assumed_cards_marked_confirmed": false,
+  "automatic_profile_overwrite": false,
+  "ensembles": [
+    {
+      "ensemble_id": "cosmic-spiderman-ensemble-v1",
+      "variant_count": 4,
+      "weight_mode": "unweighted"
+    },
+    {
+      "ensemble_id": "morcant-elves-ensemble-v1",
+      "variant_count": 4,
+      "weight_mode": "unweighted"
+    },
+    {
+      "ensemble_id": "doom-prevails-ensemble-v1",
+      "variant_count": 4,
+      "weight_mode": "unweighted"
+    }
+  ],
+  "known_cards_never_inferred": true,
+  "package_version": "1.7.0",
+  "real_game_count_used_for_weights": 0,
+  "schema_version": "1.0.0",
+  "status": "opponent_ensembles_ready_with_limitations",
+  "structural_estimates_only": true,
+  "variant_count_total": 12,
+  "weights_are_empirical": false
+}

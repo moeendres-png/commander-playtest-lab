@@ -1,0 +1,46 @@
+{
+  "blockers": [
+    {
+      "blocker_id": "BLOCK-EXT-001",
+      "severity": "release",
+      "status": "open",
+      "subject": "XMage external execution",
+      "reason": "No real XMage JSONL bridge/provider process is configured or reachable in this runtime.",
+      "required_to_clear": [
+        "run pinned XMage process",
+        "external handshake",
+        "deck import",
+        "4-player Commander",
+        "legal actions",
+        "action submission",
+        "illegal-action rejection",
+        "event log",
+        "replay",
+        "Commander Tax/Partner/Damage/Stack/Priority scenarios"
+      ]
+    },
+    {
+      "blocker_id": "BLOCK-EXT-002",
+      "severity": "release",
+      "status": "open",
+      "subject": "Forge external execution",
+      "reason": "No real Forge JSONL bridge/provider process is configured or reachable in this runtime.",
+      "required_to_clear": [
+        "run pinned Forge process",
+        "external handshake",
+        "rules/action loop",
+        "differential cross-check"
+      ]
+    },
+    {
+      "blocker_id": "BLOCK-QA-001",
+      "severity": "quality",
+      "status": "open",
+      "subject": "network quality-tool execution",
+      "reason": "Ruff/mypy/Hypothesis/mutmut/pip-audit/CycloneDX/pip-licenses could not be installed from this runtime package index.",
+      "required_to_clear": [
+        "run pinned tools in network-enabled CI/local environment"
+      ]
+    }
+  ]
+}

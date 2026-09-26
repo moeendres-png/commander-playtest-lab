@@ -1,0 +1,70 @@
+name: Optimizer Workflow Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'src/commander_lab/optimizer_cli.py'
+      - 'src/commander_lab/optimizer_v2_cli.py'
+      - 'src/commander_lab/whole_deck/**'
+      - 'data/cards/FULL_PHYSICAL_CARD_KNOWLEDGE_MANIFEST_CURRENT.json'
+      - 'data/cards/rogshai_semantic_projection_current.zlib.b64'
+      - 'data/decision/DECISION_CONTRACT_CURRENT.json'
+      - 'docs/CARD_KNOWLEDGE_POLICY_CURRENT.md'
+      - 'docs/decision_quality/MODEL_PRECISION_POLICY_CURRENT.md'
+      - 'tests/unit/test_optimizer_v2*.py'
+      - '.github/workflows/optimizer-v2-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: optimizer-workflow-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  optimizer-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5 immutable revision
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+      - name: Install optimizer runtime
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Evidence-partition contract
+        run: |
+          python -m pytest -q \
+            tests/unit/test_optimizer_v2.py::test_evidence_partitions_are_disjoint \
+            tests/unit/test_optimizer_v2.py::test_seed_and_scenario_leakage_fail_closed
+      - name: 1E/2F decision-runtime contract
+        run: python -m pytest -q tests/unit/test_optimizer_v2_decision_runtime.py
+      - name: Optimizer CLI contract
+        run: |
+          commander-lab-optimizer --help
+          commander-lab-optimizer manifest --help
+          commander-lab-optimizer preflight --help
+          commander-lab-optimizer run --help
+          commander-lab-optimizer confirm --help
+          commander-lab-optimizer diagnose --help
+          commander-lab-optimizer holdout --help
+      - name: Non-consuming first-run readiness preflight
+        run: |
+          commander-lab-optimizer manifest \
+            --output /tmp/optimizer-readiness-manifest.json \
+            --run-id readiness-smoke-1e-2f \
+            --seed 20260820
+          commander-lab-optimizer preflight \
+            --manifest /tmp/optimizer-readiness-manifest.json
+      - name: Assert tracked repository remains clean
+        run: |
+          test -z "$(git status --porcelain --untracked-files=no)"
+          git diff --exit-code

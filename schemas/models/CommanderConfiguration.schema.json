@@ -1,0 +1,51 @@
+{
+  "$defs": {
+    "Color": {
+      "enum": [
+        "W",
+        "U",
+        "B",
+        "R",
+        "G"
+      ],
+      "title": "Color",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "commander_identity_override": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Color"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commander Identity Override"
+    },
+    "commanders": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Commanders",
+      "type": "array"
+    },
+    "uses_partner": {
+      "default": false,
+      "title": "Uses Partner",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "commanders"
+  ],
+  "title": "CommanderConfiguration",
+  "type": "object"
+}

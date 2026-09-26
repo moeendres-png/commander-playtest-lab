@@ -1,0 +1,221 @@
+{
+  "$defs": {
+    "RunStatus": {
+      "enum": [
+        "planned",
+        "running",
+        "completed",
+        "failed",
+        "aborted"
+      ],
+      "title": "RunStatus",
+      "type": "string"
+    },
+    "SimulationConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "card_data_hash": {
+          "title": "Card Data Hash",
+          "type": "string"
+        },
+        "deck_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Deck Ids",
+          "type": "array"
+        },
+        "engine_version": {
+          "default": "unimplemented",
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "iterations": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "max_turns": {
+          "default": 30,
+          "minimum": 1,
+          "title": "Max Turns",
+          "type": "integer"
+        },
+        "mode": {
+          "$ref": "#/$defs/SimulationMode",
+          "default": "structural"
+        },
+        "model_configuration": {
+          "additionalProperties": true,
+          "title": "Model Configuration",
+          "type": "object"
+        },
+        "opponent_profile_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Opponent Profile Ids",
+          "type": "array"
+        },
+        "paired_seed_group": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Paired Seed Group"
+        },
+        "pilot_configs": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Pilot Configs",
+          "type": "object"
+        },
+        "pod_size": {
+          "default": 4,
+          "maximum": 10,
+          "minimum": 2,
+          "title": "Pod Size",
+          "type": "integer"
+        },
+        "scenario_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Hash"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "seed",
+        "deck_ids",
+        "card_data_hash"
+      ],
+      "title": "SimulationConfig",
+      "type": "object"
+    },
+    "SimulationMode": {
+      "enum": [
+        "structural",
+        "tactical",
+        "rules_validated"
+      ],
+      "title": "SimulationMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "aborted_games": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Aborted Games",
+      "type": "integer"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "config": {
+      "$ref": "#/$defs/SimulationConfig"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "data_snapshot_hash": {
+      "title": "Data Snapshot Hash",
+      "type": "string"
+    },
+    "deck_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Deck Hashes",
+      "type": "object"
+    },
+    "errors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "git_commit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Git Commit"
+    },
+    "result_files": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Result Files",
+      "type": "array"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Started At"
+    },
+    "status": {
+      "$ref": "#/$defs/RunStatus",
+      "default": "planned"
+    }
+  },
+  "required": [
+    "run_id",
+    "config",
+    "created_at",
+    "data_snapshot_hash"
+  ],
+  "title": "SimulationRun",
+  "type": "object"
+}

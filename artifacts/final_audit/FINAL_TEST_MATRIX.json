@@ -1,0 +1,62 @@
+[
+  {
+    "module": "Core models/import/validation",
+    "unit": "passed",
+    "integration": "passed",
+    "property": "passed",
+    "golden": "n/a",
+    "differential": "n/a",
+    "replay": "passed",
+    "e2e": "passed"
+  },
+  {
+    "module": "Structural simulator",
+    "unit": "passed",
+    "integration": "passed",
+    "property": "passed",
+    "golden": "passed",
+    "differential": "blocked_external",
+    "replay": "passed",
+    "e2e": "passed"
+  },
+  {
+    "module": "Pilots/agents",
+    "unit": "passed",
+    "integration": "passed",
+    "property": "passed",
+    "golden": "passed",
+    "differential": "n/a",
+    "replay": "passed",
+    "e2e": "passed"
+  },
+  {
+    "module": "Optimization",
+    "unit": "passed",
+    "integration": "passed",
+    "property": "passed",
+    "golden": "n/a",
+    "differential": "n/a",
+    "replay": "n/a",
+    "e2e": "passed_with_limitations"
+  },
+  {
+    "module": "Extensions 12.1\u201312.10",
+    "unit": "passed",
+    "integration": "passed",
+    "property": "passed",
+    "golden": "passed",
+    "differential": "n/a",
+    "replay": "passed",
+    "e2e": "10/10 passed_with_limitations"
+  },
+  {
+    "module": "External rules engine",
+    "unit": "passed",
+    "integration": "tactical_only",
+    "property": "n/a",
+    "golden": "tactical_only",
+    "differential": "1 skipped",
+    "replay": "tactical_only",
+    "e2e": "blocked_external_runtime"
+  }
+]

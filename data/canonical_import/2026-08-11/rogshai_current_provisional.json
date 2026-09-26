@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "data_as_of": "2026-08-11",
+  "status": "current_provisional_final_for_simulator_optimization",
+  "source_file": "ROGSHAI_CURRENT_PROVISIONAL_FINAL_SIMULATOR_2026-08-11.json",
+  "source_drive_file_id": "16O0JxDIwx8sQ0eWBALtoVSecI-oQuSKY",
+  "source_sha256": "e9313fec4c2f721a2770020c3875850518adea96048e1cd965b78410f86c0cf0",
+  "deck_hashes": {"rogshai/current": "7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126"},
+  "deck": {"deck_id":"rogshai/current","name":"Ishai + Rograkh — Provisional Final / Simulator Optimization Baseline","commanders":["Ishai, Ojutai Dragonspeaker","Rograkh, Son of Rohgahh"],"total_cards":100,"library_cards":98,"land_count":36,"deck_hash":"7b7d03aa16be6586df8f8a4e9f1acd30f85ad2e8e45e7889e700353a6f19c126","normalized_file":"data/decks/rogshai_current.json","text_file":"data/decks/rogshai_current.txt"},
+  "note": "Sole current own-deck source metadata; old Korvold and superseded RogShai deck records are not retained here."
+}

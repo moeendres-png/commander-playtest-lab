@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "provider": "forge",
+  "provider_release": "forge-2.0.14",
+  "provider_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
+  "provider_tree": "4471ff068dd23127fc5878bdffa0c0e6de8e6c28",
+  "contract_hash": "89e0813ec66787328dd4b204f57cb5c404694dec29d249fbbb8785fad0a6d2c6",
+  "scoring_hash": "67bc2d99e604f22c3a0d6cc3e00682fe9ac5cb86faccae979418eb2cf40d6227",
+  "fixture_hash": "cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb",
+  "runtime_evidence": {
+    "run_id": 31429537724,
+    "workflow_commit": "641db5fc66d0748762cfe649358f5a0273a3a137",
+    "artifact_id": 9078696345,
+    "artifact_sha256": "28b5e6c6af0a1602ee083265b20335382e70abbdfbbe67ac16209f489003da87",
+    "artifact_size_bytes": 283514,
+    "internal_manifest_sha256": "7f475706664a0ce8b514948e101d32c9c65b3321e54ffd22157dc7ce93c9788c",
+    "drive_id": "1peoRSZB0aLL_LUvva-EgPR3vW3wlhsDI",
+    "drive_roundtrip_sha256": "28b5e6c6af0a1602ee083265b20335382e70abbdfbbe67ac16209f489003da87"
+  },
+  "build_controller_evidence": {
+    "run_id": 31429032677,
+    "workflow_commit": "fcee69c499f55c04186ab24aad5d7519e3e23b95",
+    "artifact_id": 9078423792,
+    "artifact_sha256": "f951787f4a68ac843f90648d2c6733e35f45dd69d79af060c04a844a93dadefa",
+    "artifact_size_bytes": 62384,
+    "internal_manifest_sha256": "0529dc2723d49d54ea849054e6a035671c8ee12cf13c974150154729da82d00e",
+    "drive_id": "1H69PC2PI5vNpykm5zlxdZ_DUAxu8Se0_",
+    "drive_roundtrip_sha256": "f951787f4a68ac843f90648d2c6733e35f45dd69d79af060c04a844a93dadefa"
+  },
+  "truth_boundary": {
+    "real_forge_executed": true,
+    "mock_evidence_used": false,
+    "tactical_oracle_used_as_forge_evidence": false,
+    "real_four_player_rogshai_commander_session_proven": true,
+    "exact_partner_pair_proven": true,
+    "external_live_machine_listable_legal_actions_proven": false,
+    "external_valid_gameplay_action_submission_proven": false,
+    "semantic_illegal_action_rejection_proven": false,
+    "external_priority_revision_protocol_proven": false,
+    "explicit_seed_input_proven": true,
+    "same_seed_trace_determinism_proven": false,
+    "provider_replay_exercised": false,
+    "equivalent_ordered_raw_trace_captured": true
+  }
+}

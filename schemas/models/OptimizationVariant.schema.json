@@ -1,0 +1,223 @@
+{
+  "$defs": {
+    "ConstraintIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "context": {
+          "additionalProperties": true,
+          "title": "Context",
+          "type": "object"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "severity": {
+          "default": "error",
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ConstraintIssue",
+      "type": "object"
+    },
+    "ConstraintReport": {
+      "additionalProperties": false,
+      "properties": {
+        "issues": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ConstraintIssue"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "metrics": {
+          "additionalProperties": true,
+          "title": "Metrics",
+          "type": "object"
+        },
+        "valid": {
+          "title": "Valid",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "valid"
+      ],
+      "title": "ConstraintReport",
+      "type": "object"
+    },
+    "ObjectiveVector": {
+      "additionalProperties": false,
+      "properties": {
+        "closing_power": {
+          "title": "Closing Power",
+          "type": "number"
+        },
+        "commander_independence": {
+          "title": "Commander Independence",
+          "type": "number"
+        },
+        "four_player_performance": {
+          "title": "Four Player Performance",
+          "type": "number"
+        },
+        "matchup_robustness": {
+          "title": "Matchup Robustness",
+          "type": "number"
+        },
+        "physical_allocation": {
+          "title": "Physical Allocation",
+          "type": "number"
+        },
+        "rebuild": {
+          "title": "Rebuild",
+          "type": "number"
+        },
+        "worst_quartile": {
+          "title": "Worst Quartile",
+          "type": "number"
+        }
+      },
+      "required": [
+        "four_player_performance",
+        "worst_quartile",
+        "commander_independence",
+        "rebuild",
+        "closing_power",
+        "matchup_robustness",
+        "physical_allocation"
+      ],
+      "title": "ObjectiveVector",
+      "type": "object"
+    },
+    "VariantSwap": {
+      "additionalProperties": false,
+      "properties": {
+        "add_candidate_id": {
+          "title": "Add Candidate Id",
+          "type": "string"
+        },
+        "remove": {
+          "title": "Remove",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remove",
+        "add_candidate_id"
+      ],
+      "title": "VariantSwap",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "affected_matchups": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Affected Matchups",
+      "type": "array"
+    },
+    "automatically_applied": {
+      "const": false,
+      "default": false,
+      "title": "Automatically Applied",
+      "type": "boolean"
+    },
+    "constraint_report": {
+      "$ref": "#/$defs/ConstraintReport"
+    },
+    "deck_hash": {
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "objectives": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ObjectiveVector"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "parent_variant_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Variant Id"
+    },
+    "screening_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Screening Score"
+    },
+    "search_method": {
+      "title": "Search Method",
+      "type": "string"
+    },
+    "structural_rationale": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Structural Rationale",
+      "type": "array"
+    },
+    "swaps": {
+      "items": {
+        "$ref": "#/$defs/VariantSwap"
+      },
+      "title": "Swaps",
+      "type": "array"
+    },
+    "variant_id": {
+      "title": "Variant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "variant_id",
+    "deck_id",
+    "deck_hash",
+    "swaps",
+    "structural_rationale",
+    "affected_matchups",
+    "constraint_report",
+    "search_method"
+  ],
+  "title": "OptimizationVariant",
+  "type": "object"
+}

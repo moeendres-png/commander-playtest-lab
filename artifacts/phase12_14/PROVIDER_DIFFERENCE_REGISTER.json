@@ -1,0 +1,6 @@
+{
+  "schema_version": 2,
+  "status": "not_run",
+  "provider_comparisons": [],
+  "reason": "No real XMage or Forge process could be executed in the current runtime."
+}

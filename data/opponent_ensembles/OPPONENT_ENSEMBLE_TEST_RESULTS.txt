@@ -1,0 +1,24 @@
+Phase 12.7 opponent ensemble validation
+Date: 2026-08-06
+Package version: 1.7.0
+
+Targeted suite:
+19 passed, 0 failed
+
+Full regression:
+229 passed, 1 skipped, 0 failed
+Duration: 76.57 seconds
+
+Skipped:
+tests/differential/test_phase6_differential.py:56
+Reason: requires configured XMage or Forge differential command
+
+Additional checks:
+- python -m compileall -q src tests: passed
+- git diff --check: passed
+- tool registry: 73 tools, 73 unique names
+- seed ensembles: 3
+- variants: 12
+- real imported games used for weighting: 0
+- automatic profile overwrite: false
+- automatic deck application: false

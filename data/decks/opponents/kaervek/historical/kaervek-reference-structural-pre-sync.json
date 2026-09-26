@@ -1,0 +1,30 @@
+{
+  "status": "superseded",
+  "superseded_by": "kaervek/current",
+  "structural_profile_hash": "dd74f8cbb9ee1198e9c7d05408b9362efb4e20cf6ca1335c4162a5e7c37910dd",
+  "profile_spec": {
+    "deck_id": "opponent/kaervek-reference",
+    "name": "Kaervek the Merciless Reference",
+    "commander": "Kaervek the Merciless",
+    "commander_cost": 7.0,
+    "commander_power": 5.0,
+    "strategy": "punisher_control_reanimation",
+    "source_status": "project_reference",
+    "data_quality": "project_inferred",
+    "land_count": 38,
+    "roles": {
+      "ramp": 12,
+      "draw": 9,
+      "removal": 12,
+      "wipe": 5,
+      "recursion": 5,
+      "graveyard_hate": 3,
+      "engine": 8,
+      "payoff": 10,
+      "finisher": 5
+    },
+    "uncertainty": [
+      "Open Path of Ancestry replacement remains unresolved"
+    ]
+  }
+}

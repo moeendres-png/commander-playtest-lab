@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deck Id"
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Version"
+    }
+  },
+  "required": [
+    "package_id"
+  ],
+  "title": "InspectPackageInput",
+  "type": "object"
+}

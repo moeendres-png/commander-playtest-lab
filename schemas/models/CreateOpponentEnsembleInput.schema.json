@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "source_path": {
+      "title": "Source Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_path"
+  ],
+  "title": "CreateOpponentEnsembleInput",
+  "type": "object"
+}

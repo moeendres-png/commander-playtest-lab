@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "include_machine_candidates": {
+      "default": true,
+      "title": "Include Machine Candidates",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "deck_id"
+  ],
+  "title": "ExtractPackagesInput",
+  "type": "object"
+}

@@ -1,0 +1,208 @@
+{
+  "$defs": {
+    "DiagnosticMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "counterfactual_improvement": {
+          "title": "Counterfactual Improvement",
+          "type": "number"
+        },
+        "dead_card_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Dead Card Rate",
+          "type": "number"
+        },
+        "decision_regret": {
+          "minimum": 0.0,
+          "title": "Decision Regret",
+          "type": "number"
+        },
+        "evidence_strength": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Evidence Strength",
+          "type": "number"
+        },
+        "missed_line_count": {
+          "minimum": 0,
+          "title": "Missed Line Count",
+          "type": "integer"
+        },
+        "package_failure_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Package Failure Rate",
+          "type": "number"
+        },
+        "pilot_disagreement": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Pilot Disagreement",
+          "type": "number"
+        },
+        "unplayable_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Unplayable Rate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "dead_card_rate",
+        "unplayable_rate",
+        "package_failure_rate",
+        "pilot_disagreement",
+        "decision_regret",
+        "missed_line_count",
+        "counterfactual_improvement",
+        "evidence_strength"
+      ],
+      "title": "DiagnosticMetrics",
+      "type": "object"
+    },
+    "FailureCause": {
+      "enum": [
+        "card_is_weak",
+        "card_is_misplayed",
+        "package_is_incomplete",
+        "pilot_does_not_recognize_line",
+        "pilot_style_mismatch",
+        "opponent_model_is_wrong",
+        "simulation_abstraction_is_wrong",
+        "random_variance",
+        "insufficient_evidence",
+        "genuine_deck_construction_issue"
+      ],
+      "title": "FailureCause",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "automatic_deck_change": {
+      "default": false,
+      "title": "Automatic Deck Change",
+      "type": "boolean"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "counterevidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Counterevidence",
+      "type": "array"
+    },
+    "counterfactual_result": {
+      "additionalProperties": true,
+      "title": "Counterfactual Result",
+      "type": "object"
+    },
+    "cut_release_gate": {
+      "title": "Cut Release Gate",
+      "type": "string"
+    },
+    "diagnosis_id": {
+      "title": "Diagnosis Id",
+      "type": "string"
+    },
+    "empirically_proven": {
+      "default": false,
+      "title": "Empirically Proven",
+      "type": "boolean"
+    },
+    "evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "hypothesis": {
+      "$ref": "#/$defs/FailureCause"
+    },
+    "metrics": {
+      "$ref": "#/$defs/DiagnosticMetrics"
+    },
+    "model_dependent": {
+      "default": true,
+      "title": "Model Dependent",
+      "type": "boolean"
+    },
+    "opponent_sensitivity": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Opponent Sensitivity",
+      "type": "number"
+    },
+    "package_dependency": {
+      "additionalProperties": true,
+      "title": "Package Dependency",
+      "type": "object"
+    },
+    "pilot_sensitivity": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Pilot Sensitivity",
+      "type": "number"
+    },
+    "recommended_next_test": {
+      "title": "Recommended Next Test",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "seed_sensitivity": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Seed Sensitivity",
+      "type": "number"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "subject": {
+      "title": "Subject",
+      "type": "string"
+    },
+    "validation_levels": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Levels",
+      "type": "array"
+    }
+  },
+  "required": [
+    "diagnosis_id",
+    "subject",
+    "hypothesis",
+    "evidence",
+    "counterevidence",
+    "pilot_sensitivity",
+    "opponent_sensitivity",
+    "seed_sensitivity",
+    "package_dependency",
+    "counterfactual_result",
+    "confidence",
+    "recommended_next_test",
+    "metrics",
+    "cut_release_gate"
+  ],
+  "title": "DiagnosisRecord",
+  "type": "object"
+}

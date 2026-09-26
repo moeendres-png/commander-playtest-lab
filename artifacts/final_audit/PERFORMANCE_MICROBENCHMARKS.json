@@ -1,0 +1,47 @@
+{
+  "package_startup": {
+    "samples": 3,
+    "p50_ms": 638.3006319993001,
+    "p95_ms": 657.7993820001211,
+    "mean_ms": 642.928993333347,
+    "errors": 0,
+    "error_rate": 0.0
+  },
+  "deck_validation": {
+    "samples": 5,
+    "p50_ms": 7.769906999783416,
+    "p95_ms": 11.803942000369716,
+    "mean_ms": 8.312511400072253,
+    "errors": 0,
+    "error_rate": 0.0
+  },
+  "replay_scan": {
+    "samples": 5,
+    "p50_ms": 1571.897973999512,
+    "p95_ms": 1598.0040029999145,
+    "mean_ms": 1569.993911200072,
+    "errors": 0,
+    "error_rate": 0.0
+  },
+  "counterfactual_single_future": {
+    "samples": 3,
+    "p50_ms": 1610.3151870001966,
+    "p95_ms": 1626.8933900000775,
+    "mean_ms": 1598.4742076667924,
+    "errors": 0,
+    "error_rate": 0.0
+  },
+  "diagnostic": {
+    "samples": 10,
+    "p50_ms": 0.013598500117950607,
+    "p95_ms": 0.08332400011568097,
+    "mean_ms": 0.022383200121112168,
+    "errors": 0,
+    "error_rate": 0.0
+  },
+  "parquet_write_1000_rows": {
+    "status": "blocked",
+    "reason": "Neither pyarrow nor fastparquet is installed. No write was completed."
+  },
+  "peak_rss_kib": 145488
+}

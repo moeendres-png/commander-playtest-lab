@@ -1,0 +1,78 @@
+{
+  "cases": [
+    {
+      "case": "invalid deck",
+      "execution_status": "passed",
+      "behavior": "rejected with validation issues",
+      "evidence": "tests/unit/test_validation.py"
+    },
+    {
+      "case": "missing physical card",
+      "execution_status": "passed",
+      "behavior": "quantity validation rejects shortage",
+      "evidence": "tests/property/test_quantity_properties.py"
+    },
+    {
+      "case": "uncovered simultaneous allocation",
+      "execution_status": "passed",
+      "behavior": "allocation validation rejects conflict",
+      "evidence": "tests/property/test_quantity_properties.py"
+    },
+    {
+      "case": "missing external engine",
+      "execution_status": "passed_with_limitations",
+      "behavior": "reported not_configured/blocked; no false pass",
+      "evidence": "tests/integration/test_phase85_validation.py and CLI engine-status"
+    },
+    {
+      "case": "aborted simulation",
+      "execution_status": "passed",
+      "behavior": "excluded/flagged rather than silently aggregated",
+      "evidence": "tests/property/test_structural_properties.py"
+    },
+    {
+      "case": "incomplete replay",
+      "execution_status": "passed",
+      "behavior": "replay validation rejects incomplete/unknown state transition",
+      "evidence": "tests/unit/test_counterfactual_replay.py and tests/contract/test_phase85_protocol.py"
+    },
+    {
+      "case": "conflicting primer rules",
+      "execution_status": "passed",
+      "behavior": "compile rejects unless explicit conflict strategy",
+      "evidence": "tests/unit/test_primer_to_pilot_compiler.py"
+    },
+    {
+      "case": "empty real playtest dataset",
+      "execution_status": "passed",
+      "behavior": "insufficient data; no learned values",
+      "evidence": "tests/unit/test_local_meta_learning.py and tests/unit/test_phase9_playtests.py"
+    },
+    {
+      "case": "speculative opponent list",
+      "execution_status": "passed",
+      "behavior": "known cards and synthetic assumptions remain separated",
+      "evidence": "tests/integration/test_opponent_ensemble_tools.py"
+    },
+    {
+      "case": "too-small sample",
+      "execution_status": "passed",
+      "behavior": "machine package extraction remains unvalidated",
+      "evidence": "tests/unit/test_phase12_4_packages.py"
+    },
+    {
+      "case": "fragile upgrade variant",
+      "execution_status": "passed",
+      "behavior": "release gate blocks automatic application",
+      "evidence": "tests/unit/test_phase7_optimization.py"
+    },
+    {
+      "case": "attempted automatic deck change",
+      "execution_status": "passed",
+      "behavior": "guardrails and tools keep automatic application false",
+      "evidence": "tests/unit/test_phase5_guardrails.py and final tool smokes"
+    }
+  ],
+  "live_model_called": false,
+  "openai_key_present": false
+}

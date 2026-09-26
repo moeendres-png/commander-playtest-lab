@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Name"
+    },
+    "primer_id": {
+      "title": "Primer Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "primer_id"
+  ],
+  "title": "ExtractPrimerRulesInput",
+  "type": "object"
+}

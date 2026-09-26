@@ -1,0 +1,63 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "best_alternative": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Best Alternative"
+    },
+    "comparison_id": {
+      "title": "Comparison Id",
+      "type": "string"
+    },
+    "mean_improvements": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Mean Improvements",
+      "type": "object"
+    },
+    "model_dependent": {
+      "default": true,
+      "title": "Model Dependent",
+      "type": "boolean"
+    },
+    "ranking": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Ranking",
+      "type": "array"
+    },
+    "result_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Result Ids",
+      "type": "array"
+    },
+    "worst_case_improvements": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Worst Case Improvements",
+      "type": "object"
+    }
+  },
+  "required": [
+    "comparison_id",
+    "result_ids",
+    "best_alternative",
+    "mean_improvements",
+    "worst_case_improvements",
+    "ranking"
+  ],
+  "title": "CounterfactualComparison",
+  "type": "object"
+}

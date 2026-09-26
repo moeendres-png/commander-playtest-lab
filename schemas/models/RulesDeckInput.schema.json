@@ -1,0 +1,68 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "commander_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Commander Names",
+      "type": "array"
+    },
+    "deck_hash": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deck Hash"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "mainboard": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Mainboard",
+      "type": "array"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "sideboard": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Sideboard",
+      "type": "array"
+    },
+    "source_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Path"
+    }
+  },
+  "required": [
+    "deck_id",
+    "name",
+    "commander_names",
+    "mainboard"
+  ],
+  "title": "RulesDeckInput",
+  "type": "object"
+}

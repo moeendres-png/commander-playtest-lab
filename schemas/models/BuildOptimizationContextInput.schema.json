@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_ids": {
+      "default": [
+        "korvold/current",
+        "rogshai/current"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Deck Ids",
+      "type": "array"
+    },
+    "include_kaervek": {
+      "default": false,
+      "title": "Include Kaervek",
+      "type": "boolean"
+    }
+  },
+  "title": "BuildOptimizationContextInput",
+  "type": "object"
+}

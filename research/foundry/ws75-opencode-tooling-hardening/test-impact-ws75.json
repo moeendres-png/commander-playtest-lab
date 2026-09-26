@@ -1,0 +1,59 @@
+{
+  "base": "c1a760af21469fc1358dbdb9b821f79dcdfaf2db",
+  "changed": [
+    ".github/workflows/opencode.yml",
+    ".opencode/agents/foundry-implementer.md",
+    "docs/foundry-execution/GITHUB_REMOTE_GATES.md",
+    "docs/foundry-execution/METRICS.md",
+    "opencode.json",
+    "research/foundry/ws75-opencode-tooling-hardening/",
+    "tests/foundry/test_launcher.py",
+    "tests/foundry/test_ws75_tooling_hardening.py",
+    "tools/foundry/bootstrap.py",
+    "tools/foundry/launcher.py",
+    "tools/foundry/metrics.py",
+    "tools/foundry/opencode_cli_version.py",
+    "tools/foundry/permission_battery.py",
+    "tools/foundry/reference_roots.py",
+    "tools/foundry/test_impact.py"
+  ],
+  "contract_override": "Contract-required tests always run regardless of this mapping; a green subset never qualifies an unrun surface.",
+  "head": "c1a760af21469fc1358dbdb9b821f79dcdfaf2db",
+  "manual": [
+    "permission battery vs pinned-CLI resolved rules",
+    "permission battery vs pinned-CLI resolved rules (resolution order is runtime truth)",
+    "launcher init dry-run for cpl/mage/forge profiles"
+  ],
+  "minimum": [
+    "pytest tests/foundry/ -q",
+    "pytest tests/foundry/test_launcher.py -q",
+    "pytest tests/foundry/test_foundry_tools.py -q",
+    "pytest tests/foundry/test_ws75_tooling_hardening.py -q",
+    "pytest tests/ -q"
+  ],
+  "reasons": {
+    ".github/workflows/opencode.yml": "default conservative surface",
+    ".opencode/agents/foundry-implementer.md": "agent permission/model/variant surface changed",
+    "docs/foundry-execution/GITHUB_REMOTE_GATES.md": "default conservative surface",
+    "docs/foundry-execution/METRICS.md": "default conservative surface",
+    "opencode.json": "permission/model/effort lock changed",
+    "research/foundry/ws75-opencode-tooling-hardening/": "outside known operating-layer surface: full suite + requalification",
+    "tests/foundry/test_launcher.py": "test change requires the suite it belongs to",
+    "tests/foundry/test_ws75_tooling_hardening.py": "test change requires the suite it belongs to",
+    "tools/foundry/bootstrap.py": "bootstrap gate maps to launcher/bootstrap tests",
+    "tools/foundry/launcher.py": "launcher maps to its test suite plus profile smoke",
+    "tools/foundry/metrics.py": "metrics schema maps to tool tests",
+    "tools/foundry/opencode_cli_version.py": "CLI version pin maps to WS75 hardening tests",
+    "tools/foundry/permission_battery.py": "battery logic changed; re-prove against live resolution",
+    "tools/foundry/reference_roots.py": "reference-root contract maps to WS75 hardening tests",
+    "tools/foundry/test_impact.py": "default conservative surface"
+  },
+  "regression": [
+    "pytest tests/foundry/ -q",
+    "pytest tests/ -q"
+  ],
+  "requalification_required": true,
+  "uncertain_files": [
+    "research/foundry/ws75-opencode-tooling-hardening/"
+  ]
+}

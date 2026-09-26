@@ -1,0 +1,13 @@
+........................................................................ [ 64%]
+.......................................                                  [100%]
+=============================== warnings summary ===============================
+src/commander_lab/models/tooling.py:455
+  /mnt/data/cpl_1211_latest/commander-playtest-lab/src/commander_lab/models/tooling.py:455: PytestCollectionWarning: cannot collect test class 'TestVariantAcrossPilotsInput' because it has a __init__ constructor (from: tests/unit/test_opponent_ensembles.py)
+    class TestVariantAcrossPilotsInput(FrozenModel):
+
+src/commander_lab/models/tooling.py:652
+  /mnt/data/cpl_1211_latest/commander-playtest-lab/src/commander_lab/models/tooling.py:652: PytestCollectionWarning: cannot collect test class 'TestKeepRuleInput' because it has a __init__ constructor (from: tests/unit/test_opponent_ensembles.py)
+    class TestKeepRuleInput(FrozenModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+111 passed, 2 warnings in 21.16s

@@ -1,0 +1,57 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "feature": {
+      "title": "Feature",
+      "type": "string"
+    },
+    "operator": {
+      "enum": [
+        "ge",
+        "le",
+        "eq",
+        "between",
+        "true",
+        "false"
+      ],
+      "title": "Operator",
+      "type": "string"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "boolean"
+        }
+      ],
+      "title": "Value"
+    }
+  },
+  "required": [
+    "feature",
+    "operator",
+    "value",
+    "rationale"
+  ],
+  "title": "KeepRuleClause",
+  "type": "object"
+}

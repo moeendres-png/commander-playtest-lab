@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "count": {
+      "minimum": 0,
+      "title": "Count",
+      "type": "integer"
+    },
+    "interval": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Interval",
+      "type": "array"
+    },
+    "proportion": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Proportion",
+      "type": "number"
+    },
+    "total": {
+      "minimum": 0,
+      "title": "Total",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "count",
+    "total",
+    "proportion",
+    "interval"
+  ],
+  "title": "CategoryEstimate",
+  "type": "object"
+}

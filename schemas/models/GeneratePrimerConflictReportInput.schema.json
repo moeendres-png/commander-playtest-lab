@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "default": "primer_conflict_report.json",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "rule_paths": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rule Paths",
+      "type": "array"
+    }
+  },
+  "required": [
+    "rule_paths"
+  ],
+  "title": "GeneratePrimerConflictReportInput",
+  "type": "object"
+}

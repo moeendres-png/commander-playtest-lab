@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "estimate_type": "structural_model_estimates",
+  "scenarios": [
+    {"scenario_id":"commander-without-immediate-value","expected_difference":"KorvoldConservativePilot and KorvoldValuePilot delay Korvold more strongly than KorvoldAggressivePilot."},
+    {"scenario_id":"protected-commander-window","expected_difference":"RogShaiTempoPilot and RogShaiProtectedFinishPilot increase Ishai priority when protection remains open."},
+    {"scenario_id":"boardwipe-threat","expected_difference":"KorvoldLandRebuildPilot and KorvoldConservativePilot preserve rebuild capacity."},
+    {"scenario_id":"opponent-can-win","expected_difference":"RogShaiControlPilot spends interaction on the real win attempt but not harmless value."},
+    {"scenario_id":"multiple-sacrifice-options","expected_difference":"KorvoldSacrificePilot prefers the renewable-material sacrifice line."},
+    {"scenario_id":"multiple-combat-targets","expected_difference":"Aggressive and Voltron profiles accept higher visibility for lethal pressure."},
+    {"scenario_id":"jeska-kill-window","expected_difference":"RogShaiProtectedFinishPilot prefers Jeska only when the finish window is protected."},
+    {"scenario_id":"kediss-versus-single-target-kill","expected_difference":"RogShaiVoltronPilot distinguishes commander-damage lethal from Kediss table damage."},
+    {"scenario_id":"graveyard-package-under-hate","expected_difference":"KorvoldLandRebuildPilot penalizes graveyard exposure under visible hate."},
+    {"scenario_id":"rebuild-after-wipe","expected_difference":"KorvoldLandRebuildPilot prioritizes explicit rebuild lines."}
+  ],
+  "truth_boundaries": {
+    "hidden_information_used": false,
+    "legal_actions_only": true,
+    "automatic_deck_changes": false
+  }
+}

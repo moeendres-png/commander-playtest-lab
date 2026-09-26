@@ -1,0 +1,7 @@
+{
+  "additionalProperties": false,
+  "description": "Validated mutable aggregate used at import and orchestration boundaries.",
+  "properties": {},
+  "title": "MutableModel",
+  "type": "object"
+}

@@ -1,0 +1,50 @@
+{
+  "automatic_deck_change": false,
+  "confidence": 0.72,
+  "counterevidence": [
+    "low opponent sensitivity",
+    "low seed sensitivity",
+    "tested alternative action does not improve the model result"
+  ],
+  "counterfactual_result": {
+    "consistency": null,
+    "improvement": null
+  },
+  "cut_release_gate": "blocked:package_dependency_unchecked,counterfactuals_inconclusive,holdout_not_confirmed,diagnosis_not_deck_or_card_weakness",
+  "diagnosis_id": "c151da6ef5bc63f7d937adf3",
+  "empirically_proven": false,
+  "evidence": [
+    "structural results materially disagree with a higher or independent validation level"
+  ],
+  "hypothesis": "simulation_abstraction_is_wrong",
+  "metrics": {
+    "counterfactual_improvement": 0.0,
+    "dead_card_rate": 0.1,
+    "decision_regret": 0.0,
+    "evidence_strength": 0.8,
+    "missed_line_count": 0,
+    "package_failure_rate": 0.0,
+    "pilot_disagreement": 0.1,
+    "unplayable_rate": 0.0625
+  },
+  "model_dependent": true,
+  "opponent_sensitivity": 0.1,
+  "package_dependency": {
+    "checked": false,
+    "completeness": null,
+    "minimum_met": null,
+    "package_id": null
+  },
+  "pilot_sensitivity": 0.1,
+  "recommended_next_test": "repair_structural_abstraction_and_repeat_tactical_or_real_validation",
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.1,
+  "source_ids": [
+    "synthetic-known-cause-wrong-structural"
+  ],
+  "subject": "Test Card",
+  "validation_levels": [
+    "structural_model_estimates",
+    "tactical_oracle"
+  ]
+}

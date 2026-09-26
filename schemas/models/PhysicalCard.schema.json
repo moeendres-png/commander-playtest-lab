@@ -1,0 +1,169 @@
+{
+  "$defs": {
+    "CardCondition": {
+      "enum": [
+        "M",
+        "NM",
+        "EX",
+        "GD",
+        "LP",
+        "PL",
+        "PO",
+        "UNKNOWN"
+      ],
+      "title": "CardCondition",
+      "type": "string"
+    },
+    "PurchaseStatus": {
+      "enum": [
+        "owned",
+        "ordered",
+        "planned",
+        "not_owned",
+        "unknown"
+      ],
+      "title": "PurchaseStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "acquired_on": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Acquired On"
+    },
+    "box": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Box"
+    },
+    "collector_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Collector Number"
+    },
+    "condition": {
+      "$ref": "#/$defs/CardCondition",
+      "default": "UNKNOWN"
+    },
+    "copy_id": {
+      "minLength": 1,
+      "title": "Copy Id",
+      "type": "string"
+    },
+    "foil": {
+      "default": false,
+      "title": "Foil",
+      "type": "boolean"
+    },
+    "language": {
+      "default": "en",
+      "title": "Language",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "oracle_name": {
+      "minLength": 1,
+      "title": "Oracle Name",
+      "type": "string"
+    },
+    "printing_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Printing Id"
+    },
+    "purchase_status": {
+      "$ref": "#/$defs/PurchaseStatus",
+      "default": "owned"
+    },
+    "quantity": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Quantity",
+      "type": "integer"
+    },
+    "reserved_for": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reserved For"
+    },
+    "set_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Set Code"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source"
+    }
+  },
+  "required": [
+    "copy_id",
+    "oracle_name"
+  ],
+  "title": "PhysicalCard",
+  "type": "object"
+}

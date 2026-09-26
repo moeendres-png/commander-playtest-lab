@@ -1,0 +1,428 @@
+{
+  "$defs": {
+    "CardPerformanceInstrumentation": {
+      "additionalProperties": false,
+      "properties": {
+        "alternative_lines": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternative Lines",
+          "type": "array"
+        },
+        "average_turn_played": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Turn Played"
+        },
+        "card_name": {
+          "title": "Card Name",
+          "type": "string"
+        },
+        "counterfactual_outcome_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Counterfactual Outcome Delta"
+        },
+        "dead_in_hand": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Dead In Hand",
+          "type": "integer"
+        },
+        "discarded": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Discarded",
+          "type": "integer"
+        },
+        "drawn": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Drawn",
+          "type": "integer"
+        },
+        "kept": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Kept",
+          "type": "integer"
+        },
+        "mana_efficiency": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mana Efficiency"
+        },
+        "mulliganed": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Mulliganed",
+          "type": "integer"
+        },
+        "opening_hand": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Opening Hand",
+          "type": "integer"
+        },
+        "pilot_decisions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Pilot Decisions",
+          "type": "array"
+        },
+        "played": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Played",
+          "type": "integer"
+        },
+        "removed": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Removed",
+          "type": "integer"
+        },
+        "sample_size": {
+          "minimum": 0,
+          "title": "Sample Size",
+          "type": "integer"
+        },
+        "successful": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Successful",
+          "type": "integer"
+        },
+        "synergy_partner_present": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Synergy Partner Present",
+          "type": "integer"
+        },
+        "unplayable": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Unplayable",
+          "type": "integer"
+        },
+        "without_value": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Without Value",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "card_name",
+        "sample_size"
+      ],
+      "title": "CardPerformanceInstrumentation",
+      "type": "object"
+    },
+    "PilotDiagnosticEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "average_placement": {
+          "anyOf": [
+            {
+              "minimum": 1.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Placement"
+        },
+        "dead_card_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Dead Card Rate",
+          "type": "number"
+        },
+        "decision_regret": {
+          "minimum": 0.0,
+          "title": "Decision Regret",
+          "type": "number"
+        },
+        "missed_line_count": {
+          "minimum": 0,
+          "title": "Missed Line Count",
+          "type": "integer"
+        },
+        "pilot_name": {
+          "title": "Pilot Name",
+          "type": "string"
+        },
+        "primer_rule_miss_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Primer Rule Miss Count",
+          "type": "integer"
+        },
+        "sample_size": {
+          "minimum": 0,
+          "title": "Sample Size",
+          "type": "integer"
+        },
+        "success_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Success Rate",
+          "type": "number"
+        },
+        "unplayable_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Unplayable Rate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "pilot_name",
+        "sample_size",
+        "success_rate",
+        "dead_card_rate",
+        "unplayable_rate",
+        "decision_regret",
+        "missed_line_count"
+      ],
+      "title": "PilotDiagnosticEvidence",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "card_metrics": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CardPerformanceInstrumentation"
+      },
+      "title": "Card Metrics",
+      "type": "array"
+    },
+    "counterfactual_consistency": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Counterfactual Consistency"
+    },
+    "counterfactual_improvement": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Counterfactual Improvement"
+    },
+    "dataset_id": {
+      "title": "Dataset Id",
+      "type": "string"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "deck_variant_effect": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deck Variant Effect"
+    },
+    "external_rules_structural_disagreement": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "External Rules Structural Disagreement",
+      "type": "number"
+    },
+    "holdout_confirms_problem": {
+      "default": false,
+      "title": "Holdout Confirms Problem",
+      "type": "boolean"
+    },
+    "multiple_pods_confirm": {
+      "default": false,
+      "title": "Multiple Pods Confirm",
+      "type": "boolean"
+    },
+    "notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "opponent_ensemble_count": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Opponent Ensemble Count",
+      "type": "integer"
+    },
+    "opponent_observation_conflict": {
+      "default": false,
+      "title": "Opponent Observation Conflict",
+      "type": "boolean"
+    },
+    "opponent_sensitivity": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Opponent Sensitivity",
+      "type": "number"
+    },
+    "package_checked": {
+      "default": false,
+      "title": "Package Checked",
+      "type": "boolean"
+    },
+    "package_completeness": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Package Completeness"
+    },
+    "package_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Package Id"
+    },
+    "package_minimum_met": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Package Minimum Met"
+    },
+    "pilot_disagreement": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Pilot Disagreement",
+      "type": "number"
+    },
+    "pilot_metrics": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PilotDiagnosticEvidence"
+      },
+      "title": "Pilot Metrics",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "seed_sensitivity": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Seed Sensitivity",
+      "type": "number"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "tactical_structural_disagreement": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Tactical Structural Disagreement",
+      "type": "number"
+    },
+    "validation_levels": {
+      "default": [
+        "structural_model_estimates"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Levels",
+      "type": "array"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "deck_id",
+    "deck_hash"
+  ],
+  "title": "DiagnosticDataset",
+  "type": "object"
+}

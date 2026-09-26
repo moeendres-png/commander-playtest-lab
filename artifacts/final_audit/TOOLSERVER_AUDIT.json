@@ -1,0 +1,30 @@
+{
+  "health": {
+    "status": "ok",
+    "tool_count": 92
+  },
+  "tool_count": 92,
+  "unique_tools": 92,
+  "safe_invoke_status": 200,
+  "safe_invoke_result_status": "completed",
+  "live_orchestrator_without_key_status": 503,
+  "live_orchestrator_detail": "OPENAI_API_KEY is required for live agent workflows",
+  "health_latency_ms": {
+    "p50": 50.760658500166755,
+    "p95": 57.35771400031808,
+    "samples": [
+      78.04622299954644,
+      48.687937000067905,
+      47.447912999814434,
+      51.74299600002996,
+      57.35771400031808,
+      46.425266999904125,
+      52.093862000219815,
+      52.26751400005014,
+      49.77832100030355,
+      49.748204000025
+    ]
+  },
+  "actual_mcp_server": false,
+  "function_tool_http_server": true
+}

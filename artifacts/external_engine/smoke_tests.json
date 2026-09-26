@@ -1,0 +1,12 @@
+{
+  "build": "blocked",
+  "process_start": "not_run",
+  "deck_import": "not_run",
+  "two_player_game": "not_run",
+  "three_player_game": "not_run",
+  "four_player_game": "not_run",
+  "legal_action_query": "not_run",
+  "action_submission": "not_run",
+  "illegal_action_rejection": "not_run",
+  "external_event_log": "not_run"
+}

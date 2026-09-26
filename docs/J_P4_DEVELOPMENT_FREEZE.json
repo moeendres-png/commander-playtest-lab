@@ -1,0 +1,21 @@
+{
+  "development_frozen_before_holdout": true,
+  "holdout_first_evaluation_performed_after_freeze": true,
+  "holdout_sha256": "426e184e2dd3ade9245dd4756ee58e796841e1fa71237c3239b55ab16b0859f2",
+  "local_freeze_commit": "1a9e40f68390fc7c9dbae75f96b297cbe675d9dc",
+  "phase": "J-P4",
+  "post_holdout_tuning_permitted": false,
+  "schema_version": "1.0.0",
+  "sha256": {
+    "data/evals/golden/pilot_decisions_j_p4_v1.json": "259cb59c70f86fe2117282c0751d218a9e9535b7121211117a1b504b81d49e78",
+    "data/evals/holdout/pilot_decisions_j_p4_v1.json": "426e184e2dd3ade9245dd4756ee58e796841e1fa71237c3239b55ab16b0859f2",
+    "scripts/run_j_p4_development.py": "b81706694920b2b5043f4113a2d94d36db7d320ba529899101f4223ec3119e12",
+    "scripts/run_j_p4_holdout_once.py": "deba52939624c424951b3454d42e5c34d0e602100eb64232e9b2d5004acd1e07",
+    "scripts/run_j_p4_sensitivity.py": "873100e0bd02c1f8c9cae13d7c8f857f85da6a3b16a4451a80aa49ad66969656",
+    "src/commander_lab/agents/pilots.py": "a8a262ab91d42a7d38de79630cf5a1711878ecaf943c59361524c5474980bc39",
+    "src/commander_lab/evals/golden.py": "23a481cf76c4e6efed802104feed3fd65fb750d3717de45d0219d88236d8fd84",
+    "src/commander_lab/evals/models.py": "1e198af9a00cdb7a6900a3f72793bd223cef2e0d00b05131db0678e0aa58db48",
+    "src/commander_lab/models/pilots.py": "f2b14390a0215655ba9a3f350d47460dae33c27e504bde550ad82903e6db5ee7"
+  },
+  "source_main_commit": "01c03019fdbf835441514ddfee01f4ef5945fd5a"
+}

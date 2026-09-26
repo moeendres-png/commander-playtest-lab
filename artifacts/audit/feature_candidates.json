@@ -1,0 +1,102 @@
+[
+  {
+    "benefit": "Prevents partial/corrupt runs from entering analysis",
+    "decision": "implement_now",
+    "effort": "medium",
+    "feature": "Atomic run artifacts and manifests",
+    "project_fit": "very high",
+    "rationale": "Direct data-integrity gain.",
+    "risk": "low",
+    "source": "SQLite atomic commit/event-sourcing practice"
+  },
+  {
+    "benefit": "Prevents mocks or legacy bridges being labeled as external rules validation",
+    "decision": "implement_now",
+    "effort": "low",
+    "feature": "Strict validation-level attestation",
+    "project_fit": "critical",
+    "rationale": "Eliminates false validation claims.",
+    "risk": "low",
+    "source": "Existing adapter protocol and trust-boundary audit"
+  },
+  {
+    "benefit": "Creates reproducible tactical fixtures",
+    "decision": "implement_now",
+    "effort": "medium",
+    "feature": "Scenario editor",
+    "project_fit": "high",
+    "rationale": "High debugging and validation value.",
+    "risk": "low",
+    "source": "Property/golden test workflow"
+  },
+  {
+    "benefit": "State diffs and minimal reproductions",
+    "decision": "implement_now",
+    "effort": "medium",
+    "feature": "Replay debugger",
+    "project_fit": "high",
+    "rationale": "Strong debugging leverage.",
+    "risk": "medium",
+    "source": "Event-sourcing/replay debugging"
+  },
+  {
+    "benefit": "Prevents post-hoc hypothesis changes",
+    "decision": "implement_now",
+    "effort": "medium",
+    "feature": "Experiment registry",
+    "project_fit": "high",
+    "rationale": "Required for trustworthy optimization.",
+    "risk": "low",
+    "source": "Pre-registration and immutable experiment metadata"
+  },
+  {
+    "benefit": "Automatic shrinking of transition failures",
+    "decision": "implement_later",
+    "effort": "medium",
+    "feature": "Hypothesis RuleBasedStateMachine",
+    "project_fit": "high",
+    "rationale": "Dependency unavailable in current sandbox; workflow prepared.",
+    "risk": "low",
+    "source": "Hypothesis official stateful testing documentation"
+  },
+  {
+    "benefit": "Static defect detection and consistent style",
+    "decision": "implement_later",
+    "effort": "low",
+    "feature": "Ruff and mypy gates",
+    "project_fit": "high",
+    "rationale": "Configured already; execution blocked by unavailable packages.",
+    "risk": "low",
+    "source": "Official Ruff and mypy documentation"
+  },
+  {
+    "benefit": "Measures whether tests detect semantic defects",
+    "decision": "experimental",
+    "effort": "medium",
+    "feature": "Mutation testing with mutmut",
+    "project_fit": "medium",
+    "rationale": "Target only critical modules; tool unavailable here.",
+    "risk": "medium",
+    "source": "Mutation-testing practice"
+  },
+  {
+    "benefit": "Convenient visualization",
+    "decision": "implement_later",
+    "effort": "high",
+    "feature": "Full local dashboard",
+    "project_fit": "medium",
+    "rationale": "Lower priority than correctness and validation gates.",
+    "risk": "medium",
+    "source": "Observability feature review"
+  },
+  {
+    "benefit": "Could automate otherwise inaccessible flows",
+    "decision": "reject",
+    "effort": "very high",
+    "feature": "GUI automation of XMage",
+    "project_fit": "low",
+    "rationale": "Brittle and not a stable rules-engine API.",
+    "risk": "high",
+    "source": "XMage client architecture"
+  }
+]

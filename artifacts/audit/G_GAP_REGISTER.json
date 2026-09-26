@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "audit_point": "G",
+  "generated": "2026-08-09",
+  "gaps": [
+    {
+      "gap_id": "G-COVERAGE-001",
+      "category": "card_coverage",
+      "object": "decision-relevant mechanic distinctions",
+      "severity": "HIGH",
+      "decision_impact": "commander dependence, rebuild, table damage, finish compression and stack reserve",
+      "evidence": "role-only baseline plus G development failures",
+      "implemented_change": "StructuralMechanic tags propagated into profiles/actions/pilot scoring",
+      "remaining_gap": "many low-impact cards remain role-density abstractions",
+      "status": "CLOSED_FOR_G_SCOPE"
+    },
+    {
+      "gap_id": "G-PILOT-001",
+      "category": "pilot_decision_quality",
+      "object": "Korvold/RogShai adversarial decisions",
+      "severity": "HIGH",
+      "decision_impact": "protection, interaction reserve, engine-vs-threat, rebuild and finish windows",
+      "evidence": "baseline development 18/24 and holdout 9/12",
+      "implemented_change": "acceptable-action golden schema, 24 development cases, 12 untouched holdouts, focused pilot semantics",
+      "remaining_gap": "structural heuristics are not exact rules execution",
+      "status": "CLOSED_FOR_G_SCOPE"
+    },
+    {
+      "gap_id": "G-OPP-001",
+      "category": "opponent_data",
+      "object": "Cosmic Spider-Man final list",
+      "severity": "HIGH",
+      "decision_impact": "target selection and matchup-specific interaction",
+      "evidence": "4 hard-known cards; partial observed profile",
+      "implemented_change": "known native cards retained separately from synthetic residual slots",
+      "remaining_gap": "96 slots remain unknown/synthetic",
+      "status": "OPEN_DATA_POINT_NONBLOCKING"
+    },
+    {
+      "gap_id": "G-OPP-002",
+      "category": "opponent_data",
+      "object": "Morcant / Elves final local list",
+      "severity": "HIGH",
+      "decision_impact": "go-wide, -1/-1 counter and engine-density realism",
+      "evidence": "54 hard slots + provisional/synthetic completion",
+      "implemented_change": "9 high-impact native cards and explicit observed/provisional boundary",
+      "remaining_gap": "final list remains incomplete",
+      "status": "OPEN_DATA_POINT_NONBLOCKING"
+    },
+    {
+      "gap_id": "G-OPP-003",
+      "category": "opponent_data",
+      "object": "Doom Prevails local upgrades",
+      "severity": "HIGH",
+      "decision_impact": "artifact/Villain engine density and interaction priorities",
+      "evidence": "official precon verified; upgrades not verified",
+      "implemented_change": "official baseline commander/native cards plus uncertainty boundary",
+      "remaining_gap": "concrete local upgrades unknown",
+      "status": "OPEN_DATA_POINT_NONBLOCKING"
+    },
+    {
+      "gap_id": "G-KAE-001",
+      "category": "physical_state",
+      "object": "Kaervek Path of Ancestry physical slot",
+      "severity": "MEDIUM",
+      "decision_impact": "physical buildability, not structural list semantics",
+      "evidence": "current direct-user/project truth: physical slot open",
+      "implemented_change": "none; structural nonbasic utility audited without changing list",
+      "remaining_gap": "replacement remains user decision",
+      "status": "OPEN_DATA_POINT_NONBLOCKING"
+    },
+    {
+      "gap_id": "G-RULES-001",
+      "category": "validation_boundary",
+      "object": "real external XMage/Forge validation",
+      "severity": "HIGH",
+      "decision_impact": "exact rules/priority validation",
+      "evidence": "external observations remain zero in current release boundary",
+      "implemented_change": "none in G; structural/rules boundary preserved",
+      "remaining_gap": "external rules-engine phase required",
+      "status": "DEFERRED_OUT_OF_SCOPE"
+    },
+    {
+      "gap_id": "G-REALPLAY-001",
+      "category": "calibration",
+      "object": "real-playtest calibration",
+      "severity": "HIGH",
+      "decision_impact": "empirical local frequencies and outcome calibration",
+      "evidence": "real-play calibration inactive",
+      "implemented_change": "none; no synthetic frequency inference",
+      "remaining_gap": "requires real observations",
+      "status": "DEFERRED_OUT_OF_SCOPE"
+    }
+  ]
+}

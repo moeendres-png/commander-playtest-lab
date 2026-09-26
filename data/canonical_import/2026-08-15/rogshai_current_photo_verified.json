@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "data_as_of": "2026-08-15",
+  "status": "current_physical_photo_verified",
+  "source_file": "RogShai_Current_Normalized.json",
+  "source_drive_file_id": "1vLoovox352y1LIw7AOZQF6_M4HdZ5XlO",
+  "source_sha256": "2991799ba720be02bca25f37dd6727935117f2f3ac11b11fc2d38719ae391cbe",
+  "deck_hashes": {
+    "rogshai/current": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3"
+  },
+  "deck": {
+    "deck_id": "rogshai/current",
+    "name": "Ishai + Rograkh — Current Physical Photo-Verified Build",
+    "commanders": [
+      "Ishai, Ojutai Dragonspeaker",
+      "Rograkh, Son of Rohgahh"
+    ],
+    "total_cards": 100,
+    "library_cards": 98,
+    "land_count": 36,
+    "deck_hash": "1704b6f1574e4d3152f08cf9936c389683f0ae6efa98a8a277a64daa37f583e3",
+    "source_file_sha256": "2b6258ae1c778784ed252bb46ff828343055177146634c77847506d33f4a4362",
+    "normalized_file": "data/decks/rogshai_current.json",
+    "text_file": "data/decks/rogshai_current.txt",
+    "physical_printings_file": "data/decks/rogshai_current_physical_printings.json"
+  },
+  "note": "Prepared import for the photo-verified runtime baseline. It does not change deck contents, inventory quantities, purchases, or physical allocations."
+}

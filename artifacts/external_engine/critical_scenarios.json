@@ -1,0 +1,17 @@
+{
+  "validation_level": "structural_only",
+  "scenarios": [
+    "commander_from_command_zone",
+    "commander_tax_after_removal",
+    "partner_commanders",
+    "commander_damage_per_opponent",
+    "kediss_normal_damage",
+    "jeska_combat_damage_tripling",
+    "boardwipe",
+    "counter_commander",
+    "protection_response",
+    "kaervek_cast_trigger_survives_counter"
+  ],
+  "status_for_all": "not_run",
+  "rules_engine_validated_count": 0
+}

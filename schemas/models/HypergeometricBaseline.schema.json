@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "category_size": {
+      "title": "Category Size",
+      "type": "integer"
+    },
+    "draws": {
+      "title": "Draws",
+      "type": "integer"
+    },
+    "population_size": {
+      "title": "Population Size",
+      "type": "integer"
+    },
+    "probability_at_least": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Probability At Least",
+      "type": "object"
+    }
+  },
+  "required": [
+    "population_size",
+    "category_size",
+    "draws",
+    "probability_at_least",
+    "category"
+  ],
+  "title": "HypergeometricBaseline",
+  "type": "object"
+}

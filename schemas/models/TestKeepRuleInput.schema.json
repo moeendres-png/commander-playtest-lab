@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "card_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Card Names",
+      "type": "array"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "rule_path": {
+      "title": "Rule Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rule_path",
+    "deck_id",
+    "card_names"
+  ],
+  "title": "TestKeepRuleInput",
+  "type": "object"
+}

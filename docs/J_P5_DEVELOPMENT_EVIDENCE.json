@@ -1,0 +1,4990 @@
+{
+  "ablation": {
+    "card": {
+      "errors": [],
+      "result": {
+        "ablation_comparison": {
+          "actual_sample_size": 3,
+          "baseline_average_cards_drawn": 25.333333333333332,
+          "baseline_average_damage": 56.37123466666666,
+          "baseline_average_placement": 1.3333333333333333,
+          "baseline_place_1_share": 0.6666666666666666,
+          "bayesian_shrunk_effect": 0.043478260869565216,
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "cards_drawn_delta": 0.6666666666666679,
+          "confidence_interval": [
+            0.0,
+            1.0
+          ],
+          "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+          "damage_delta": 4.857387950080003,
+          "discarded_runs": 0,
+          "distributionally_robust_lower_bound": 0.04465819873852045,
+          "effect_size": 0.5773502691896257,
+          "failed_runs": 0,
+          "games": 3,
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "monte_carlo_standard_error": 0.3333333333333333,
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+          "paired_loss_count": 0,
+          "paired_or_unpaired": "paired",
+          "paired_randomization_p_value": 1.0,
+          "paired_tie_count": 2,
+          "paired_win_count": 1,
+          "pairing_conditions": {
+            "common_random_numbers": true,
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "same_opponent_assumptions": true,
+            "same_pilot_configuration": true,
+            "same_pod_size": true,
+            "same_seats": true,
+            "same_seeds": true,
+            "seat_policy": "deterministic_rotation",
+            "starting_player_seat": null
+          },
+          "pilot_weights": "single configured pilot: strong",
+          "place_1_share_delta": 0.33333333333333337,
+          "placement_improvement": 0.33333333333333326,
+          "quantiles": {
+            "maximum": 1.0,
+            "mean": 0.3333333333333333,
+            "median": 0.0,
+            "minimum": 0.0,
+            "q10": 0.0,
+            "q25": 0.0,
+            "q75": 0.5,
+            "q90": 0.8
+          },
+          "requested_runs": 3,
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "scenario_weights": "equal within this paired scenario",
+          "seeds": [
+            3647992489359440818,
+            17019629536640983351,
+            9531602842727224762
+          ],
+          "started_runs": 3,
+          "valid_runs": 3,
+          "validation_level": "structural_only",
+          "variant_average_cards_drawn": 26.0,
+          "variant_average_damage": 61.22862261674666,
+          "variant_average_placement": 1.0,
+          "variant_place_1_share": 1.0,
+          "worker_count": 1,
+          "worst_case_result": 0.0
+        },
+        "card_name": "Mirkwood Bats",
+        "estimated_card_contribution": {
+          "interpretation": "positive means the original card improved average placement",
+          "placement_value": -0.33333333333333326
+        },
+        "pair_sample": [
+          {
+            "baseline_log_sha256": "0ce0d9c9d8871f59a5520057d41285db59fd91fa5b1a9d45c9371d29e32f2200",
+            "baseline_placement": 1,
+            "comparison": "tie",
+            "index": 0,
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 3647992489359440818,
+            "starting_player_seat": 0,
+            "variant_log_sha256": "e87f6e13c08fe5e4924b954f78a8094e08ae10041c8697f8a98cf1ba3db9eaca",
+            "variant_placement": 1
+          },
+          {
+            "baseline_log_sha256": "85780eeb3117dfb155df75d99af9871aaabce7a50fa3658d287a70aad39c014d",
+            "baseline_placement": 2,
+            "comparison": "variant_win",
+            "index": 1,
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 17019629536640983351,
+            "starting_player_seat": 1,
+            "variant_log_sha256": "dac049200f84fadeff50120a1bcf347c70747fbfff1bacbffd5d57e70e979ac1",
+            "variant_placement": 1
+          },
+          {
+            "baseline_log_sha256": "fee6eb4171ecf8db5cdd525307eb7a943baf89e39f468bd1cc3ecac4131677d6",
+            "baseline_placement": 1,
+            "comparison": "tie",
+            "index": 2,
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "seed": 9531602842727224762,
+            "starting_player_seat": 2,
+            "variant_log_sha256": "0bbf7952cc5ad2ba66376645f8f7091f75a8106e110f6b3d94a289155def79f5",
+            "variant_placement": 1
+          }
+        ]
+      },
+      "status": "completed"
+    },
+    "package": {
+      "errors": [],
+      "result": {
+        "ablation_comparison": {
+          "actual_sample_size": 3,
+          "baseline_average_cards_drawn": 22.333333333333332,
+          "baseline_average_damage": 53.97526346666666,
+          "baseline_average_placement": 1.3333333333333333,
+          "baseline_place_1_share": 0.6666666666666666,
+          "bayesian_shrunk_effect": 0.043478260869565216,
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "cards_drawn_delta": 1.0,
+          "confidence_interval": [
+            0.0,
+            1.0
+          ],
+          "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+          "damage_delta": 9.667523466666673,
+          "discarded_runs": 0,
+          "distributionally_robust_lower_bound": 0.04465819873852045,
+          "effect_size": 0.5773502691896257,
+          "failed_runs": 0,
+          "games": 3,
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "monte_carlo_standard_error": 0.3333333333333333,
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+          "paired_loss_count": 0,
+          "paired_or_unpaired": "paired",
+          "paired_randomization_p_value": 1.0,
+          "paired_tie_count": 2,
+          "paired_win_count": 1,
+          "pairing_conditions": {
+            "common_random_numbers": true,
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "same_opponent_assumptions": true,
+            "same_pilot_configuration": true,
+            "same_pod_size": true,
+            "same_seats": true,
+            "same_seeds": true,
+            "seat_policy": "deterministic_rotation",
+            "starting_player_seat": null
+          },
+          "pilot_weights": "single configured pilot: strong",
+          "place_1_share_delta": 0.33333333333333337,
+          "placement_improvement": 0.33333333333333326,
+          "quantiles": {
+            "maximum": 1.0,
+            "mean": 0.3333333333333333,
+            "median": 0.0,
+            "minimum": 0.0,
+            "q10": 0.0,
+            "q25": 0.0,
+            "q75": 0.5,
+            "q90": 0.8
+          },
+          "requested_runs": 3,
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "scenario_weights": "equal within this paired scenario",
+          "seeds": [
+            5305770442851083687,
+            15341279065911011525,
+            11114353181549315514
+          ],
+          "started_runs": 3,
+          "valid_runs": 3,
+          "validation_level": "structural_only",
+          "variant_average_cards_drawn": 23.333333333333332,
+          "variant_average_damage": 63.64278693333333,
+          "variant_average_placement": 1.0,
+          "variant_place_1_share": 1.0,
+          "worker_count": 1,
+          "worst_case_result": 0.0
+        },
+        "automatic_deck_application": false,
+        "cards": [
+          "Mayhem Devil",
+          "Mirkwood Bats"
+        ],
+        "estimate_type": "structural_model_estimates",
+        "package_id": null
+      },
+      "status": "completed"
+    }
+  },
+  "automatic_canonical_mutation": false,
+  "challenge_checks": {
+    "korvold/current": {
+      "bad_not_recommended_from_noisy_mean": true,
+      "bad_preselected": false,
+      "finalist_class": "neutral",
+      "good_preselected": true,
+      "neutral_preselected": true,
+      "pass": true,
+      "safety_discrimination_pass": true,
+      "strict_good_over_neutral_observed": false
+    },
+    "rogshai/current": {
+      "bad_not_recommended_from_noisy_mean": true,
+      "bad_preselected": false,
+      "finalist_class": "good",
+      "good_preselected": true,
+      "neutral_preselected": true,
+      "pass": true,
+      "safety_discrimination_pass": true,
+      "strict_good_over_neutral_observed": true
+    }
+  },
+  "challenge_primary": [
+    {
+      "add_candidate_id": "inventory/scouring-swarm-decedec9",
+      "class": "good",
+      "constraint_valid": true,
+      "deck_id": "korvold/current",
+      "development_recommendation_gate_pass": false,
+      "holm_adjusted_model_internal_p_value": 1.0,
+      "id": "korvold_good_static",
+      "pair_count": 12,
+      "paired": {
+        "actual_sample_size": 12,
+        "baseline_average_cards_drawn": 21.166666666666668,
+        "baseline_average_damage": 63.69440258066667,
+        "baseline_average_placement": 1.0833333333333333,
+        "baseline_place_1_share": 0.9166666666666666,
+        "bayesian_shrunk_effect": -0.03125,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": 2.583333333333332,
+        "confidence_interval": [
+          -0.3333333333333333,
+          0.16666666666666666
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": -2.0774499056666684,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": -0.34079765860555195,
+        "effect_size": -0.16183471874253738,
+        "failed_runs": 0,
+        "games": 12,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.1486470975026408,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "paired_loss_count": 2,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 1.0,
+        "paired_tie_count": 9,
+        "paired_win_count": 1,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true,
+          "seat_policy": "deterministic_rotation",
+          "starting_player_seat": null
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": -0.08333333333333326,
+        "placement_improvement": -0.08333333333333348,
+        "quantiles": {
+          "maximum": 1.0,
+          "mean": -0.08333333333333333,
+          "median": 0.0,
+          "minimum": -1.0,
+          "q10": -0.8999999999999999,
+          "q25": 0.0,
+          "q75": 0.0,
+          "q90": 0.0
+        },
+        "requested_runs": 12,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          4839347544461375431,
+          3828273898956007983,
+          15729268883866774953,
+          15274609304568427060,
+          5830307849106681656,
+          12838209909805828070,
+          4845288037602328798,
+          3564762029246012534,
+          3618494394494797047,
+          13485584886081719341,
+          16246415409973623770,
+          7365148734754442060
+        ],
+        "started_runs": 12,
+        "valid_runs": 12,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 23.75,
+        "variant_average_damage": 61.616952675,
+        "variant_average_placement": 1.1666666666666667,
+        "variant_place_1_share": 0.8333333333333334,
+        "worker_count": 1,
+        "worst_case_result": -1.0
+      },
+      "preselection_pass": true,
+      "remove": "Mayhem Devil",
+      "static_screening_delta": 1.565,
+      "variant_hash": "38f7b1d472ff2f3701f2b7da07eb7554440178cae54b96d80fcbb0cd4e7f7d45"
+    },
+    {
+      "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+      "class": "neutral",
+      "constraint_valid": true,
+      "deck_id": "korvold/current",
+      "development_recommendation_gate_pass": false,
+      "holm_adjusted_model_internal_p_value": 1.0,
+      "id": "korvold_neutral_static",
+      "pair_count": 12,
+      "paired": {
+        "actual_sample_size": 12,
+        "baseline_average_cards_drawn": 22.083333333333332,
+        "baseline_average_damage": 71.45882754333333,
+        "baseline_average_placement": 1.0833333333333333,
+        "baseline_place_1_share": 0.9166666666666666,
+        "bayesian_shrunk_effect": 0.03125,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": 1.25,
+        "confidence_interval": [
+          0.0,
+          0.25
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": -1.5994709718133322,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": -0.061004233964073104,
+        "effect_size": 0.28867513459481287,
+        "failed_runs": 0,
+        "games": 12,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.08333333333333333,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "paired_loss_count": 0,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 1.0,
+        "paired_tie_count": 11,
+        "paired_win_count": 1,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true,
+          "seat_policy": "deterministic_rotation",
+          "starting_player_seat": null
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": 0.08333333333333337,
+        "placement_improvement": 0.08333333333333326,
+        "quantiles": {
+          "maximum": 1.0,
+          "mean": 0.08333333333333333,
+          "median": 0.0,
+          "minimum": 0.0,
+          "q10": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "q90": 0.0
+        },
+        "requested_runs": 12,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          11000346186746762755,
+          9415766984480748370,
+          9201229605014456087,
+          7707913344025130289,
+          1298134294052669733,
+          2644980409317289156,
+          8084685935631202954,
+          16866806580885257572,
+          15508006748659513147,
+          4289967762921059372,
+          1066644890027369668,
+          14030919551906906875
+        ],
+        "started_runs": 12,
+        "valid_runs": 12,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 23.333333333333332,
+        "variant_average_damage": 69.85935657152,
+        "variant_average_placement": 1.0,
+        "variant_place_1_share": 1.0,
+        "worker_count": 1,
+        "worst_case_result": 0.0
+      },
+      "preselection_pass": true,
+      "remove": "Goblin Bombardment",
+      "static_screening_delta": 0.025,
+      "variant_hash": "d06ffa0ca892de4523de40ef2a7224dcaf2a8568bfe9dff85de6108961aa5c43"
+    },
+    {
+      "add_candidate_id": "inventory/gate-colossus-47ea16ae",
+      "class": "bad",
+      "constraint_valid": true,
+      "deck_id": "korvold/current",
+      "id": "korvold_bad_static",
+      "pair_count": 12,
+      "paired": {
+        "actual_sample_size": 12,
+        "baseline_average_cards_drawn": 23.666666666666668,
+        "baseline_average_damage": 62.30728429933333,
+        "baseline_average_placement": 1.0,
+        "baseline_place_1_share": 1.0,
+        "bayesian_shrunk_effect": -0.03125,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": -1.4166666666666679,
+        "confidence_interval": [
+          -0.25,
+          0.0
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": 2.619304577554132,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": -0.22767090063073975,
+        "effect_size": -0.28867513459481287,
+        "failed_runs": 0,
+        "games": 12,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.08333333333333333,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "paired_loss_count": 1,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 1.0,
+        "paired_tie_count": 11,
+        "paired_win_count": 0,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true,
+          "seat_policy": "deterministic_rotation",
+          "starting_player_seat": null
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": -0.08333333333333337,
+        "placement_improvement": -0.08333333333333326,
+        "quantiles": {
+          "maximum": 0.0,
+          "mean": -0.08333333333333333,
+          "median": 0.0,
+          "minimum": -1.0,
+          "q10": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "q90": 0.0
+        },
+        "requested_runs": 12,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          13596844488681426338,
+          1197921862782611597,
+          1438111178093705081,
+          14182423487323724711,
+          3997551882268432910,
+          7329271799272557343,
+          14411631510958460192,
+          14283187975489700083,
+          2254011264867726102,
+          11928725159181731110,
+          6478343651553230725,
+          17657641829011895483
+        ],
+        "started_runs": 12,
+        "valid_runs": 12,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 22.25,
+        "variant_average_damage": 64.92658887688746,
+        "variant_average_placement": 1.0833333333333333,
+        "variant_place_1_share": 0.9166666666666666,
+        "worker_count": 1,
+        "worst_case_result": -1.0
+      },
+      "preselection_pass": false,
+      "remove": "Pest Infestation",
+      "static_screening_delta": -6.95,
+      "variant_hash": "ab42086e2e7a5f6610fcfb6bc395482e2363c9d175cbb527a9813af312d45793"
+    },
+    {
+      "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+      "class": "good",
+      "constraint_valid": true,
+      "deck_id": "rogshai/current",
+      "development_recommendation_gate_pass": false,
+      "holm_adjusted_model_internal_p_value": 1.0,
+      "id": "rogshai_good_static",
+      "pair_count": 12,
+      "paired": {
+        "actual_sample_size": 12,
+        "baseline_average_cards_drawn": 18.5,
+        "baseline_average_damage": 61.799903571622224,
+        "baseline_average_placement": 1.1666666666666667,
+        "baseline_place_1_share": 0.8333333333333334,
+        "bayesian_shrunk_effect": 0.03125,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": -1.0833333333333321,
+        "confidence_interval": [
+          -0.16666666666666666,
+          0.3333333333333333
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": -0.7877507843999965,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": -0.17413099193888532,
+        "effect_size": 0.16183471874253738,
+        "failed_runs": 0,
+        "games": 12,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.1486470975026408,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "paired_loss_count": 1,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 1.0,
+        "paired_tie_count": 9,
+        "paired_win_count": 2,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true,
+          "seat_policy": "deterministic_rotation",
+          "starting_player_seat": null
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": 0.08333333333333326,
+        "placement_improvement": 0.08333333333333348,
+        "quantiles": {
+          "maximum": 1.0,
+          "mean": 0.08333333333333333,
+          "median": 0.0,
+          "minimum": -1.0,
+          "q10": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "q90": 0.9000000000000004
+        },
+        "requested_runs": 12,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          17063192729204387688,
+          557864097775855658,
+          5167433415712117936,
+          18099643119708065169,
+          4885181045089515824,
+          14622194481936147154,
+          4137887014072057886,
+          17237625012862457637,
+          10374414830197382686,
+          4973379166264611381,
+          13927119808197640950,
+          9605206504480904806
+        ],
+        "started_runs": 12,
+        "valid_runs": 12,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 17.416666666666668,
+        "variant_average_damage": 61.01215278722223,
+        "variant_average_placement": 1.0833333333333333,
+        "variant_place_1_share": 0.9166666666666666,
+        "worker_count": 1,
+        "worst_case_result": -1.0
+      },
+      "preselection_pass": true,
+      "remove": "Flare of Duplication",
+      "static_screening_delta": 1.115,
+      "variant_hash": "908041c62804185e7ecf06f7d20f0ba153b290739c0f7db64554aafbf0d8bb02"
+    },
+    {
+      "add_candidate_id": "inventory/divine-resilience-842a919d",
+      "class": "neutral",
+      "constraint_valid": true,
+      "deck_id": "rogshai/current",
+      "development_recommendation_gate_pass": false,
+      "holm_adjusted_model_internal_p_value": 1.0,
+      "id": "rogshai_neutral_static",
+      "pair_count": 12,
+      "paired": {
+        "actual_sample_size": 12,
+        "baseline_average_cards_drawn": 18.75,
+        "baseline_average_damage": 73.29020285142222,
+        "baseline_average_placement": 1.0,
+        "baseline_place_1_share": 1.0,
+        "bayesian_shrunk_effect": -0.0625,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": -1.25,
+        "confidence_interval": [
+          -0.4166666666666667,
+          0.0
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": -12.15575126813333,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": -0.3612914027070474,
+        "effect_size": -0.4281744192888376,
+        "failed_runs": 0,
+        "games": 12,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.11236664374387369,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "paired_loss_count": 2,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 0.5,
+        "paired_tie_count": 10,
+        "paired_win_count": 0,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true,
+          "seat_policy": "deterministic_rotation",
+          "starting_player_seat": null
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": -0.16666666666666663,
+        "placement_improvement": -0.16666666666666674,
+        "quantiles": {
+          "maximum": 0.0,
+          "mean": -0.16666666666666666,
+          "median": 0.0,
+          "minimum": -1.0,
+          "q10": -0.8999999999999999,
+          "q25": 0.0,
+          "q75": 0.0,
+          "q90": 0.0
+        },
+        "requested_runs": 12,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          2731491262487314721,
+          3662578521126155001,
+          6651787269989133613,
+          4695438743538492836,
+          16393122721591413207,
+          10773862848472574918,
+          15796500824214540087,
+          1900110626500739675,
+          13412744967995831617,
+          13277585166510892353,
+          8308869939941462051,
+          1925501701705306964
+        ],
+        "started_runs": 12,
+        "valid_runs": 12,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 17.5,
+        "variant_average_damage": 61.13445158328889,
+        "variant_average_placement": 1.1666666666666667,
+        "variant_place_1_share": 0.8333333333333334,
+        "worker_count": 1,
+        "worst_case_result": -1.0
+      },
+      "preselection_pass": true,
+      "remove": "Preordain",
+      "static_screening_delta": 0.01,
+      "variant_hash": "fa883be6c01519f46be237643d53c070486849c6520cba8fb3bc297148d906e5"
+    },
+    {
+      "add_candidate_id": "inventory/sphinx-of-the-final-word-c3b31ea0",
+      "class": "bad",
+      "constraint_valid": true,
+      "deck_id": "rogshai/current",
+      "id": "rogshai_bad_static",
+      "pair_count": 12,
+      "paired": {
+        "actual_sample_size": 12,
+        "baseline_average_cards_drawn": 16.0,
+        "baseline_average_damage": 72.92337335555555,
+        "baseline_average_placement": 1.0,
+        "baseline_place_1_share": 1.0,
+        "bayesian_shrunk_effect": 0.0,
+        "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+        "cards_drawn_delta": 1.0,
+        "confidence_interval": [
+          0.0,
+          0.0
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "damage_delta": 5.942167192888888,
+        "discarded_runs": 0,
+        "distributionally_robust_lower_bound": 0.0,
+        "effect_size": 0.0,
+        "failed_runs": 0,
+        "games": 12,
+        "holdout_definition": "primary paired scenario; holdouts reported separately",
+        "monte_carlo_standard_error": 0.0,
+        "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+        "paired_loss_count": 0,
+        "paired_or_unpaired": "paired",
+        "paired_randomization_p_value": 1.0,
+        "paired_tie_count": 12,
+        "paired_win_count": 0,
+        "pairing_conditions": {
+          "common_random_numbers": true,
+          "opponent_deck_ids": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_mode": "deterministic",
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "same_opponent_assumptions": true,
+          "same_pilot_configuration": true,
+          "same_pod_size": true,
+          "same_seats": true,
+          "same_seeds": true,
+          "seat_policy": "deterministic_rotation",
+          "starting_player_seat": null
+        },
+        "pilot_weights": "single configured pilot: strong",
+        "place_1_share_delta": 0.0,
+        "placement_improvement": 0.0,
+        "quantiles": {
+          "maximum": 0.0,
+          "mean": 0.0,
+          "median": 0.0,
+          "minimum": 0.0,
+          "q10": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "q90": 0.0
+        },
+        "requested_runs": 12,
+        "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+        "scenario_weights": "equal within this paired scenario",
+        "seeds": [
+          8469793838486321286,
+          7280016557889992800,
+          8628421097447080420,
+          12931312784563954781,
+          11883728700208088673,
+          10707505080693250765,
+          13672088270121566718,
+          1918196278393080040,
+          4045836914474686825,
+          13432516260478157872,
+          9062328157128126949,
+          7957764530222443347
+        ],
+        "started_runs": 12,
+        "valid_runs": 12,
+        "validation_level": "structural_only",
+        "variant_average_cards_drawn": 17.0,
+        "variant_average_damage": 78.86554054844444,
+        "variant_average_placement": 1.0,
+        "variant_place_1_share": 1.0,
+        "worker_count": 1,
+        "worst_case_result": 0.0
+      },
+      "preselection_pass": false,
+      "remove": "Farewell",
+      "static_screening_delta": -5.716,
+      "variant_hash": "f7502c8d1a14fa09aae6af053021d4216d7ad56a982864e915073174c2e5c3d4"
+    }
+  ],
+  "challenge_set_pass": true,
+  "commander_denial": {
+    "korvold/current": {
+      "errors": [],
+      "result": {
+        "additional_commander_tax": 6,
+        "commander_dependency_penalty": 0.33333333333333326,
+        "commander_synergy_suppressed": true,
+        "comparison": {
+          "actual_sample_size": 3,
+          "baseline_average_cards_drawn": 21.666666666666668,
+          "baseline_average_damage": 76.28900285333333,
+          "baseline_average_placement": 1.0,
+          "baseline_place_1_share": 1.0,
+          "bayesian_shrunk_effect": -0.043478260869565216,
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "cards_drawn_delta": -1.6666666666666679,
+          "confidence_interval": [
+            -1.0,
+            0.0
+          ],
+          "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+          "damage_delta": -27.361073386666668,
+          "discarded_runs": 0,
+          "distributionally_robust_lower_bound": -0.6220084679281461,
+          "effect_size": -0.5773502691896257,
+          "failed_runs": 0,
+          "games": 3,
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "monte_carlo_standard_error": 0.3333333333333333,
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+          "paired_loss_count": 1,
+          "paired_or_unpaired": "paired",
+          "paired_randomization_p_value": 1.0,
+          "paired_tie_count": 2,
+          "paired_win_count": 0,
+          "pairing_conditions": {
+            "common_random_numbers": true,
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "same_opponent_assumptions": true,
+            "same_pilot_configuration": true,
+            "same_pod_size": true,
+            "same_seats": true,
+            "same_seeds": true,
+            "seat_policy": "deterministic_rotation",
+            "starting_player_seat": null
+          },
+          "pilot_weights": "single configured pilot: strong",
+          "place_1_share_delta": -0.33333333333333337,
+          "placement_improvement": -0.33333333333333326,
+          "quantiles": {
+            "maximum": 0.0,
+            "mean": -0.3333333333333333,
+            "median": 0.0,
+            "minimum": -1.0,
+            "q10": -0.8,
+            "q25": -0.5,
+            "q75": 0.0,
+            "q90": 0.0
+          },
+          "requested_runs": 3,
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "scenario_weights": "equal within this paired scenario",
+          "seeds": [
+            5478613448217758831,
+            4034378262184683417,
+            2417187661815416996
+          ],
+          "started_runs": 3,
+          "valid_runs": 3,
+          "validation_level": "structural_only",
+          "variant_average_cards_drawn": 20.0,
+          "variant_average_damage": 48.92792946666666,
+          "variant_average_placement": 1.3333333333333333,
+          "variant_place_1_share": 0.6666666666666666,
+          "worker_count": 1,
+          "worst_case_result": -1.0
+        }
+      },
+      "status": "completed"
+    },
+    "rogshai/current": {
+      "errors": [],
+      "result": {
+        "additional_commander_tax": 6,
+        "commander_dependency_penalty": -0.0,
+        "commander_synergy_suppressed": true,
+        "comparison": {
+          "actual_sample_size": 3,
+          "baseline_average_cards_drawn": 19.666666666666668,
+          "baseline_average_damage": 70.67764337777778,
+          "baseline_average_placement": 1.0,
+          "baseline_place_1_share": 1.0,
+          "bayesian_shrunk_effect": 0.0,
+          "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+          "cards_drawn_delta": 8.666666666666664,
+          "confidence_interval": [
+            0.0,
+            0.0
+          ],
+          "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+          "damage_delta": -23.538311031333343,
+          "discarded_runs": 0,
+          "distributionally_robust_lower_bound": 0.0,
+          "effect_size": 0.0,
+          "failed_runs": 0,
+          "games": 3,
+          "holdout_definition": "primary paired scenario; holdouts reported separately",
+          "monte_carlo_standard_error": 0.0,
+          "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+          "paired_loss_count": 0,
+          "paired_or_unpaired": "paired",
+          "paired_randomization_p_value": 1.0,
+          "paired_tie_count": 3,
+          "paired_win_count": 0,
+          "pairing_conditions": {
+            "common_random_numbers": true,
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_mode": "deterministic",
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "same_opponent_assumptions": true,
+            "same_pilot_configuration": true,
+            "same_pod_size": true,
+            "same_seats": true,
+            "same_seeds": true,
+            "seat_policy": "deterministic_rotation",
+            "starting_player_seat": null
+          },
+          "pilot_weights": "single configured pilot: strong",
+          "place_1_share_delta": 0.0,
+          "placement_improvement": 0.0,
+          "quantiles": {
+            "maximum": 0.0,
+            "mean": 0.0,
+            "median": 0.0,
+            "minimum": 0.0,
+            "q10": 0.0,
+            "q25": 0.0,
+            "q75": 0.0,
+            "q90": 0.0
+          },
+          "requested_runs": 3,
+          "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+          "scenario_weights": "equal within this paired scenario",
+          "seeds": [
+            9630715575593603387,
+            3142061881289299138,
+            14571638348968389135
+          ],
+          "started_runs": 3,
+          "valid_runs": 3,
+          "validation_level": "structural_only",
+          "variant_average_cards_drawn": 28.333333333333332,
+          "variant_average_damage": 47.13933234644444,
+          "variant_average_placement": 1.0,
+          "variant_place_1_share": 1.0,
+          "worker_count": 1,
+          "worst_case_result": 0.0
+        }
+      },
+      "status": "completed"
+    }
+  },
+  "constraint_enforcement": {
+    "current_candidate_count": 555,
+    "current_free_inventory_entries": 1333,
+    "hard_locked_cards": {
+      "korvold/current": [
+        "Dark Ritual",
+        "Tinder Wall",
+        "Orcish Lumberjack",
+        "Exploration Broodship",
+        "Pitiless Plunderer",
+        "Ophiomancer",
+        "Mirkwood Bats"
+      ],
+      "rogshai/current": [
+        "Duelist's Heritage",
+        "Chandra, Torch of Defiance",
+        "Light of Hope",
+        "Kediss, Emberclaw Familiar",
+        "Silence",
+        "Jeska, Thrice Reborn"
+      ]
+    },
+    "pass": true
+  },
+  "counterfactual_replay": {
+    "branchpoint_id": "jp5:2",
+    "external_engine_used": false,
+    "historical_fact": false,
+    "mean_improvement": 2.262,
+    "truth_boundary": "model alternative, not historical fact"
+  },
+  "evidence_type": "structural_model_estimates",
+  "finalists": [
+    {
+      "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+      "class": "neutral",
+      "deck_id": "korvold/current",
+      "id": "korvold_neutral_static",
+      "remove": "Goblin Bombardment",
+      "static_screening_delta": 0.025,
+      "variant_hash": "d06ffa0ca892de4523de40ef2a7224dcaf2a8568bfe9dff85de6108961aa5c43"
+    },
+    {
+      "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+      "class": "good",
+      "deck_id": "rogshai/current",
+      "id": "rogshai_good_static",
+      "remove": "Flare of Duplication",
+      "static_screening_delta": 1.115,
+      "variant_hash": "908041c62804185e7ecf06f7d20f0ba153b290739c0f7db64554aafbf0d8bb02"
+    }
+  ],
+  "holdout_identity": {
+    "evaluated": false,
+    "id": "J_P5_OPTIMIZER_HOLDOUT_v1",
+    "sha256": "b75e8622097221b00ad51322e2ad13fe5158cfd8647e92d2cb21a0d65b447203"
+  },
+  "multiple_comparisons": {
+    "method": "Holm FWER per deck family",
+    "pass": true
+  },
+  "paired_comparison": {
+    "families": "Holm per deck",
+    "model_internal_CI_only": true,
+    "pass": true
+  },
+  "pareto": {
+    "korvold": {
+      "errors": [],
+      "result": {
+        "automatic_application": false,
+        "evaluated": [
+          {
+            "affected_matchups": [
+              "grindy_pods",
+              "korvold_synergy",
+              "large_pods",
+              "post_wipe_rebuild",
+              "table_closure"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.622950819672131,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 6,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 1,
+                  "counter": 0,
+                  "draw": 11,
+                  "enabler": 13,
+                  "engine": 16,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 17,
+                  "mana_source": 39,
+                  "payoff": 8,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 11,
+                  "sacrifice_outlet": 10,
+                  "selection": 1,
+                  "token_source": 8,
+                  "wipe": 7
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "38f7b1d472ff2f3701f2b7da07eb7554440178cae54b96d80fcbb0cd4e7f7d45",
+            "deck_id": "korvold/current",
+            "objectives": {
+              "central_performance": -0.5,
+              "commander_independence": -0.10991537893039505,
+              "finish_reliability": 1.0,
+              "matchup_robustness": -0.5,
+              "opponent_uncertainty": -0.5,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": -0.5,
+              "rebuild": 1.0,
+              "seat_robustness": -1.0,
+              "worst_quartile": -1.0
+            },
+            "parent_variant_id": null,
+            "screening_score": 1.5649999999999997,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 1.405 to 2.520.",
+              "Mana value changes from 3.0 to 3.0.",
+              "Gains roles: enabler, engine, land_synergy, sacrifice_outlet, token_source.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/scouring-swarm-decedec9",
+                "remove": "Mayhem Devil"
+              }
+            ],
+            "variant_id": "korvold/current/search/b0ffe222179b"
+          },
+          {
+            "affected_matchups": [
+              "grindy_pods",
+              "korvold_synergy",
+              "large_pods",
+              "post_wipe_rebuild",
+              "table_closure"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.6721311475409837,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 7,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 1,
+                  "counter": 0,
+                  "draw": 12,
+                  "enabler": 13,
+                  "engine": 16,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 16,
+                  "mana_source": 39,
+                  "payoff": 7,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 11,
+                  "sacrifice_outlet": 9,
+                  "selection": 1,
+                  "token_source": 7,
+                  "wipe": 7
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "d06ffa0ca892de4523de40ef2a7224dcaf2a8568bfe9dff85de6108961aa5c43",
+            "deck_id": "korvold/current",
+            "objectives": {
+              "central_performance": 0.0,
+              "commander_independence": -0.10486737436173073,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.0,
+              "opponent_uncertainty": 0.0,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.0,
+              "rebuild": 1.0,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": 0.0250000000000003,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 2.325 to 2.250.",
+              "Mana value changes from 2.0 to 5.0.",
+              "Gains roles: draw, enabler, engine.",
+              "Loses roles: payoff.",
+              "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+                "remove": "Goblin Bombardment"
+              }
+            ],
+            "variant_id": "korvold/current/search/e54d13f7fb52"
+          },
+          {
+            "affected_matchups": [
+              "commander_damage",
+              "creature_engines",
+              "large_pods",
+              "table_closure",
+              "wide_boards"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.7049180327868854,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 7,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 2,
+                  "counter": 0,
+                  "draw": 11,
+                  "enabler": 13,
+                  "engine": 15,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 16,
+                  "mana_source": 39,
+                  "payoff": 8,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 10,
+                  "sacrifice_outlet": 9,
+                  "selection": 1,
+                  "token_source": 6,
+                  "wipe": 6
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "ab42086e2e7a5f6610fcfb6bc395482e2363c9d175cbb527a9813af312d45793",
+            "deck_id": "korvold/current",
+            "objectives": {
+              "central_performance": 0.5,
+              "commander_independence": -0.10505749462510078,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.5,
+              "opponent_uncertainty": 0.5,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.5,
+              "rebuild": 1.0,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": -6.949999999999999,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 3.435 to 0.535.",
+              "Mana value changes from 3.0 to 8.0.",
+              "Gains roles: combat_payoff, enabler.",
+              "Loses roles: removal, token_source, wipe.",
+              "Immediate impact 1.10 \u2192 0.45; turn-cycle risk 0.15 \u2192 0.45."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/gate-colossus-47ea16ae",
+                "remove": "Pest Infestation"
+              }
+            ],
+            "variant_id": "korvold/current/search/164e9e5f2bec"
+          }
+        ],
+        "evidence": {
+          "korvold/current/search/164e9e5f2bec": {
+            "holdouts": [],
+            "paired": {
+              "comparison": {
+                "actual_sample_size": 2,
+                "baseline_average_cards_drawn": 20.0,
+                "baseline_average_damage": 48.3991355,
+                "baseline_average_placement": 1.5,
+                "baseline_place_1_share": 0.5,
+                "bayesian_shrunk_effect": 0.045454545454545456,
+                "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+                "cards_drawn_delta": 1.0,
+                "confidence_interval": [
+                  0.0,
+                  1.0
+                ],
+                "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+                "damage_delta": 9.713450250000001,
+                "discarded_runs": 0,
+                "distributionally_robust_lower_bound": 0.1464466094067262,
+                "effect_size": 0.7071067811865475,
+                "failed_runs": 0,
+                "games": 2,
+                "holdout_definition": "primary paired scenario; holdouts reported separately",
+                "monte_carlo_standard_error": 0.5,
+                "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+                "paired_loss_count": 0,
+                "paired_or_unpaired": "paired",
+                "paired_randomization_p_value": 1.0,
+                "paired_tie_count": 1,
+                "paired_win_count": 1,
+                "pairing_conditions": {
+                  "common_random_numbers": true,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "same_opponent_assumptions": true,
+                  "same_pilot_configuration": true,
+                  "same_pod_size": true,
+                  "same_seats": true,
+                  "same_seeds": true,
+                  "seat_policy": "deterministic_rotation",
+                  "starting_player_seat": null
+                },
+                "pilot_weights": "single configured pilot: strong",
+                "place_1_share_delta": 0.5,
+                "placement_improvement": 0.5,
+                "quantiles": {
+                  "maximum": 1.0,
+                  "mean": 0.5,
+                  "median": 0.5,
+                  "minimum": 0.0,
+                  "q10": 0.1,
+                  "q25": 0.25,
+                  "q75": 0.75,
+                  "q90": 0.9
+                },
+                "requested_runs": 2,
+                "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+                "scenario_weights": "equal within this paired scenario",
+                "seeds": [
+                  17191181076964222504,
+                  1100846678644478157
+                ],
+                "started_runs": 2,
+                "valid_runs": 2,
+                "validation_level": "structural_only",
+                "variant_average_cards_drawn": 21.0,
+                "variant_average_damage": 58.11258575,
+                "variant_average_placement": 1.0,
+                "variant_place_1_share": 1.0,
+                "worker_count": 1,
+                "worst_case_result": 0.0
+              },
+              "pairs": [
+                {
+                  "baseline_log_sha256": "4f30ea5606db3f01d3b0328d4db6b99a0ea55e6a39a9614d1ca5dd00ecc8c7bd",
+                  "baseline_placement": 2,
+                  "comparison": "variant_win",
+                  "index": 0,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 17191181076964222504,
+                  "starting_player_seat": 0,
+                  "variant_log_sha256": "a070117e1af2710bc8b90433fd178851b725514dd354f813e3d46554b6669b96",
+                  "variant_placement": 1
+                },
+                {
+                  "baseline_log_sha256": "3d74e654f50b1a447760111e9fe673bd4a8153e9305017eb255aee79444d9ecb",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 1,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 1100846678644478157,
+                  "starting_player_seat": 1,
+                  "variant_log_sha256": "7f041d413684923e66035b1c1eff88e1d028aeb582343fa5202e214d9303b2b5",
+                  "variant_placement": 1
+                }
+              ]
+            }
+          },
+          "korvold/current/search/b0ffe222179b": {
+            "holdouts": [],
+            "paired": {
+              "comparison": {
+                "actual_sample_size": 2,
+                "baseline_average_cards_drawn": 19.0,
+                "baseline_average_damage": 63.595975550000006,
+                "baseline_average_placement": 1.0,
+                "baseline_place_1_share": 1.0,
+                "bayesian_shrunk_effect": -0.045454545454545456,
+                "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+                "cards_drawn_delta": 1.0,
+                "confidence_interval": [
+                  -1.0,
+                  0.0
+                ],
+                "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+                "damage_delta": 0.25164144999999394,
+                "discarded_runs": 0,
+                "distributionally_robust_lower_bound": -0.8535533905932737,
+                "effect_size": -0.7071067811865475,
+                "failed_runs": 0,
+                "games": 2,
+                "holdout_definition": "primary paired scenario; holdouts reported separately",
+                "monte_carlo_standard_error": 0.5,
+                "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+                "paired_loss_count": 1,
+                "paired_or_unpaired": "paired",
+                "paired_randomization_p_value": 1.0,
+                "paired_tie_count": 1,
+                "paired_win_count": 0,
+                "pairing_conditions": {
+                  "common_random_numbers": true,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "same_opponent_assumptions": true,
+                  "same_pilot_configuration": true,
+                  "same_pod_size": true,
+                  "same_seats": true,
+                  "same_seeds": true,
+                  "seat_policy": "deterministic_rotation",
+                  "starting_player_seat": null
+                },
+                "pilot_weights": "single configured pilot: strong",
+                "place_1_share_delta": -0.5,
+                "placement_improvement": -0.5,
+                "quantiles": {
+                  "maximum": 0.0,
+                  "mean": -0.5,
+                  "median": -0.5,
+                  "minimum": -1.0,
+                  "q10": -0.9,
+                  "q25": -0.75,
+                  "q75": -0.25,
+                  "q90": -0.09999999999999998
+                },
+                "requested_runs": 2,
+                "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+                "scenario_weights": "equal within this paired scenario",
+                "seeds": [
+                  6481891417372607930,
+                  4717517434336986372
+                ],
+                "started_runs": 2,
+                "valid_runs": 2,
+                "validation_level": "structural_only",
+                "variant_average_cards_drawn": 20.0,
+                "variant_average_damage": 63.847617,
+                "variant_average_placement": 1.5,
+                "variant_place_1_share": 0.5,
+                "worker_count": 1,
+                "worst_case_result": -1.0
+              },
+              "pairs": [
+                {
+                  "baseline_log_sha256": "44ae07dab8faf179b486280002fb9c87bfac722720ba45fe51c5bee34be07e75",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 0,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 6481891417372607930,
+                  "starting_player_seat": 0,
+                  "variant_log_sha256": "d31899a8b5b42bab108515b3be6b56d0174b221ab17f60c1ca774c7a78707239",
+                  "variant_placement": 1
+                },
+                {
+                  "baseline_log_sha256": "d64a88ee4b42c02bcae02af53492cc2b4a6a60b05542f116633b258208e2ff63",
+                  "baseline_placement": 1,
+                  "comparison": "variant_loss",
+                  "index": 1,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 4717517434336986372,
+                  "starting_player_seat": 1,
+                  "variant_log_sha256": "b5538901b36f7a8a2f37d45be2862632e6745b80558bf5d251995fd19d9851ae",
+                  "variant_placement": 2
+                }
+              ]
+            }
+          },
+          "korvold/current/search/e54d13f7fb52": {
+            "holdouts": [],
+            "paired": {
+              "comparison": {
+                "actual_sample_size": 2,
+                "baseline_average_cards_drawn": 20.5,
+                "baseline_average_damage": 72.4941803488,
+                "baseline_average_placement": 1.0,
+                "baseline_place_1_share": 1.0,
+                "bayesian_shrunk_effect": 0.0,
+                "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+                "cards_drawn_delta": 2.0,
+                "confidence_interval": [
+                  0.0,
+                  0.0
+                ],
+                "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+                "damage_delta": -1.8426917567999936,
+                "discarded_runs": 0,
+                "distributionally_robust_lower_bound": 0.0,
+                "effect_size": 0.0,
+                "failed_runs": 0,
+                "games": 2,
+                "holdout_definition": "primary paired scenario; holdouts reported separately",
+                "monte_carlo_standard_error": 0.0,
+                "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+                "paired_loss_count": 0,
+                "paired_or_unpaired": "paired",
+                "paired_randomization_p_value": 1.0,
+                "paired_tie_count": 2,
+                "paired_win_count": 0,
+                "pairing_conditions": {
+                  "common_random_numbers": true,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "same_opponent_assumptions": true,
+                  "same_pilot_configuration": true,
+                  "same_pod_size": true,
+                  "same_seats": true,
+                  "same_seeds": true,
+                  "seat_policy": "deterministic_rotation",
+                  "starting_player_seat": null
+                },
+                "pilot_weights": "single configured pilot: strong",
+                "place_1_share_delta": 0.0,
+                "placement_improvement": 0.0,
+                "quantiles": {
+                  "maximum": 0.0,
+                  "mean": 0.0,
+                  "median": 0.0,
+                  "minimum": 0.0,
+                  "q10": 0.0,
+                  "q25": 0.0,
+                  "q75": 0.0,
+                  "q90": 0.0
+                },
+                "requested_runs": 2,
+                "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+                "scenario_weights": "equal within this paired scenario",
+                "seeds": [
+                  9897602983896410338,
+                  7821215609997958494
+                ],
+                "started_runs": 2,
+                "valid_runs": 2,
+                "validation_level": "structural_only",
+                "variant_average_cards_drawn": 22.5,
+                "variant_average_damage": 70.651488592,
+                "variant_average_placement": 1.0,
+                "variant_place_1_share": 1.0,
+                "worker_count": 1,
+                "worst_case_result": 0.0
+              },
+              "pairs": [
+                {
+                  "baseline_log_sha256": "150659188e7568ad1a4ce1624ba5a41072c481fc0e8ad729df4d3335660b1b27",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 0,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 9897602983896410338,
+                  "starting_player_seat": 0,
+                  "variant_log_sha256": "f3e31aa768fe46722718f360d53a0e0ee323ca4734c014006cebd5974b83790c",
+                  "variant_placement": 1
+                },
+                {
+                  "baseline_log_sha256": "966cb1be35792d3dbe7a5bb669a05fb5409074469f219cae142737a304c35073",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 1,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 7821215609997958494,
+                  "starting_player_seat": 1,
+                  "variant_log_sha256": "7fb1b808695a1d3a7ddcab182cd53dcb99cb044240e055ebd2aaf3913c753bd1",
+                  "variant_placement": 1
+                }
+              ]
+            }
+          }
+        },
+        "objectives_are_maximized": true,
+        "pareto_front": [
+          {
+            "affected_matchups": [
+              "commander_damage",
+              "creature_engines",
+              "large_pods",
+              "table_closure",
+              "wide_boards"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.7049180327868854,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 7,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 2,
+                  "counter": 0,
+                  "draw": 11,
+                  "enabler": 13,
+                  "engine": 15,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 16,
+                  "mana_source": 39,
+                  "payoff": 8,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 10,
+                  "sacrifice_outlet": 9,
+                  "selection": 1,
+                  "token_source": 6,
+                  "wipe": 6
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "ab42086e2e7a5f6610fcfb6bc395482e2363c9d175cbb527a9813af312d45793",
+            "deck_id": "korvold/current",
+            "objectives": {
+              "central_performance": 0.5,
+              "commander_independence": -0.10505749462510078,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.5,
+              "opponent_uncertainty": 0.5,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.5,
+              "rebuild": 1.0,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": -6.949999999999999,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 3.435 to 0.535.",
+              "Mana value changes from 3.0 to 8.0.",
+              "Gains roles: combat_payoff, enabler.",
+              "Loses roles: removal, token_source, wipe.",
+              "Immediate impact 1.10 \u2192 0.45; turn-cycle risk 0.15 \u2192 0.45."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/gate-colossus-47ea16ae",
+                "remove": "Pest Infestation"
+              }
+            ],
+            "variant_id": "korvold/current/search/164e9e5f2bec"
+          },
+          {
+            "affected_matchups": [
+              "grindy_pods",
+              "korvold_synergy",
+              "large_pods",
+              "post_wipe_rebuild",
+              "table_closure"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.6721311475409837,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 7,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 1,
+                  "counter": 0,
+                  "draw": 12,
+                  "enabler": 13,
+                  "engine": 16,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 16,
+                  "mana_source": 39,
+                  "payoff": 7,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 11,
+                  "sacrifice_outlet": 9,
+                  "selection": 1,
+                  "token_source": 7,
+                  "wipe": 7
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "d06ffa0ca892de4523de40ef2a7224dcaf2a8568bfe9dff85de6108961aa5c43",
+            "deck_id": "korvold/current",
+            "objectives": {
+              "central_performance": 0.0,
+              "commander_independence": -0.10486737436173073,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.0,
+              "opponent_uncertainty": 0.0,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.0,
+              "rebuild": 1.0,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": 0.0250000000000003,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 2.325 to 2.250.",
+              "Mana value changes from 2.0 to 5.0.",
+              "Gains roles: draw, enabler, engine.",
+              "Loses roles: payoff.",
+              "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+                "remove": "Goblin Bombardment"
+              }
+            ],
+            "variant_id": "korvold/current/search/e54d13f7fb52"
+          }
+        ]
+      },
+      "status": "completed"
+    },
+    "rogshai": {
+      "errors": [],
+      "result": {
+        "automatic_application": false,
+        "evaluated": [
+          {
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.380952380952381,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 5,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 8,
+                  "token_source": 2,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "908041c62804185e7ecf06f7d20f0ba153b290739c0f7db64554aafbf0d8bb02",
+            "deck_id": "rogshai/current",
+            "objectives": {
+              "central_performance": 0.0,
+              "commander_independence": -0.01864285714285714,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.0,
+              "opponent_uncertainty": 0.0,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.0,
+              "rebuild": 0.8280000000000001,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": 1.1150000000000002,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 1.265 to 1.930.",
+              "Mana value changes from 3.0 to 3.0.",
+              "Gains roles: protection, token_source.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+                "remove": "Flare of Duplication"
+              }
+            ],
+            "variant_id": "rogshai/current/search/6776fb807d9c"
+          },
+          {
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.380952380952381,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 6,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 7,
+                  "token_source": 1,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "fa883be6c01519f46be237643d53c070486849c6520cba8fb3bc297148d906e5",
+            "deck_id": "rogshai/current",
+            "objectives": {
+              "central_performance": 0.0,
+              "commander_independence": -0.018648809523809526,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.0,
+              "opponent_uncertainty": 0.0,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.0,
+              "rebuild": 0.812,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": 0.010000000000000342,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 1.405 to 1.765.",
+              "Mana value changes from 1.0 to 1.0.",
+              "Gains roles: enabler, protection.",
+              "Loses roles: selection.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/divine-resilience-842a919d",
+                "remove": "Preordain"
+              }
+            ],
+            "variant_id": "rogshai/current/search/91354645353d"
+          },
+          {
+            "affected_matchups": [
+              "commander_denial",
+              "control",
+              "creature_engines",
+              "graveyard_recursion",
+              "wide_boards"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.3968253968253967,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 6,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 2,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 8,
+                  "token_source": 1,
+                  "wipe": 4
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "f7502c8d1a14fa09aae6af053021d4216d7ad56a982864e915073174c2e5c3d4",
+            "deck_id": "rogshai/current",
+            "objectives": {
+              "central_performance": 0.0,
+              "commander_independence": -0.018648809523809526,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.0,
+              "opponent_uncertainty": 0.0,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.0,
+              "rebuild": 0.812,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": -5.716,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 2.911 to 0.895.",
+              "Mana value changes from 6.0 to 7.0.",
+              "Gains roles: enabler, protection.",
+              "Loses roles: graveyard_hate, wipe.",
+              "Immediate impact 1.10 \u2192 0.45; turn-cycle risk 0.15 \u2192 0.45."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/sphinx-of-the-final-word-c3b31ea0",
+                "remove": "Farewell"
+              }
+            ],
+            "variant_id": "rogshai/current/search/68e87bdd7bc9"
+          }
+        ],
+        "evidence": {
+          "rogshai/current/search/6776fb807d9c": {
+            "holdouts": [],
+            "paired": {
+              "comparison": {
+                "actual_sample_size": 2,
+                "baseline_average_cards_drawn": 15.0,
+                "baseline_average_damage": 59.13670653333334,
+                "baseline_average_placement": 1.0,
+                "baseline_place_1_share": 1.0,
+                "bayesian_shrunk_effect": 0.0,
+                "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+                "cards_drawn_delta": 0.5,
+                "confidence_interval": [
+                  0.0,
+                  0.0
+                ],
+                "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+                "damage_delta": 6.690543466666668,
+                "discarded_runs": 0,
+                "distributionally_robust_lower_bound": 0.0,
+                "effect_size": 0.0,
+                "failed_runs": 0,
+                "games": 2,
+                "holdout_definition": "primary paired scenario; holdouts reported separately",
+                "monte_carlo_standard_error": 0.0,
+                "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+                "paired_loss_count": 0,
+                "paired_or_unpaired": "paired",
+                "paired_randomization_p_value": 1.0,
+                "paired_tie_count": 2,
+                "paired_win_count": 0,
+                "pairing_conditions": {
+                  "common_random_numbers": true,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "same_opponent_assumptions": true,
+                  "same_pilot_configuration": true,
+                  "same_pod_size": true,
+                  "same_seats": true,
+                  "same_seeds": true,
+                  "seat_policy": "deterministic_rotation",
+                  "starting_player_seat": null
+                },
+                "pilot_weights": "single configured pilot: strong",
+                "place_1_share_delta": 0.0,
+                "placement_improvement": 0.0,
+                "quantiles": {
+                  "maximum": 0.0,
+                  "mean": 0.0,
+                  "median": 0.0,
+                  "minimum": 0.0,
+                  "q10": 0.0,
+                  "q25": 0.0,
+                  "q75": 0.0,
+                  "q90": 0.0
+                },
+                "requested_runs": 2,
+                "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+                "scenario_weights": "equal within this paired scenario",
+                "seeds": [
+                  13363611467988628273,
+                  18252403067826276433
+                ],
+                "started_runs": 2,
+                "valid_runs": 2,
+                "validation_level": "structural_only",
+                "variant_average_cards_drawn": 15.5,
+                "variant_average_damage": 65.82725,
+                "variant_average_placement": 1.0,
+                "variant_place_1_share": 1.0,
+                "worker_count": 1,
+                "worst_case_result": 0.0
+              },
+              "pairs": [
+                {
+                  "baseline_log_sha256": "4d73046f2e7162b03e8533f61a3c8efcf9640157d43992b3786f935bf9583dd2",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 0,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 13363611467988628273,
+                  "starting_player_seat": 0,
+                  "variant_log_sha256": "e8a57088ec713cdf10239f3cfb724cf479a6aa2e8cbf8c4c5b00fa6cf48b9a49",
+                  "variant_placement": 1
+                },
+                {
+                  "baseline_log_sha256": "57baef9ebab3b8f7cec9be27682bd4f63bac25317d9f036042c39142145db2ad",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 1,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 18252403067826276433,
+                  "starting_player_seat": 1,
+                  "variant_log_sha256": "9034a0206f37c2cf191c6e3662309be79a86ac0af8da5276c3e601c20a9fbfe0",
+                  "variant_placement": 1
+                }
+              ]
+            }
+          },
+          "rogshai/current/search/68e87bdd7bc9": {
+            "holdouts": [],
+            "paired": {
+              "comparison": {
+                "actual_sample_size": 2,
+                "baseline_average_cards_drawn": 21.0,
+                "baseline_average_damage": 47.6764884,
+                "baseline_average_placement": 1.0,
+                "baseline_place_1_share": 1.0,
+                "bayesian_shrunk_effect": 0.0,
+                "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+                "cards_drawn_delta": -5.0,
+                "confidence_interval": [
+                  0.0,
+                  0.0
+                ],
+                "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+                "damage_delta": 51.68029160000002,
+                "discarded_runs": 0,
+                "distributionally_robust_lower_bound": 0.0,
+                "effect_size": 0.0,
+                "failed_runs": 0,
+                "games": 2,
+                "holdout_definition": "primary paired scenario; holdouts reported separately",
+                "monte_carlo_standard_error": 0.0,
+                "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+                "paired_loss_count": 0,
+                "paired_or_unpaired": "paired",
+                "paired_randomization_p_value": 1.0,
+                "paired_tie_count": 2,
+                "paired_win_count": 0,
+                "pairing_conditions": {
+                  "common_random_numbers": true,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "same_opponent_assumptions": true,
+                  "same_pilot_configuration": true,
+                  "same_pod_size": true,
+                  "same_seats": true,
+                  "same_seeds": true,
+                  "seat_policy": "deterministic_rotation",
+                  "starting_player_seat": null
+                },
+                "pilot_weights": "single configured pilot: strong",
+                "place_1_share_delta": 0.0,
+                "placement_improvement": 0.0,
+                "quantiles": {
+                  "maximum": 0.0,
+                  "mean": 0.0,
+                  "median": 0.0,
+                  "minimum": 0.0,
+                  "q10": 0.0,
+                  "q25": 0.0,
+                  "q75": 0.0,
+                  "q90": 0.0
+                },
+                "requested_runs": 2,
+                "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+                "scenario_weights": "equal within this paired scenario",
+                "seeds": [
+                  15466413455994290249,
+                  9101171339106676272
+                ],
+                "started_runs": 2,
+                "valid_runs": 2,
+                "validation_level": "structural_only",
+                "variant_average_cards_drawn": 16.0,
+                "variant_average_damage": 99.35678000000001,
+                "variant_average_placement": 1.0,
+                "variant_place_1_share": 1.0,
+                "worker_count": 1,
+                "worst_case_result": 0.0
+              },
+              "pairs": [
+                {
+                  "baseline_log_sha256": "27a44b5a2a254cf81c6940552acf22ee3a7cb6a3be894334b6151c48f28d6d1a",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 0,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 15466413455994290249,
+                  "starting_player_seat": 0,
+                  "variant_log_sha256": "bea4b195a6f0c5205343681deef25ddbdc90d199198d1d2593984585f271bf35",
+                  "variant_placement": 1
+                },
+                {
+                  "baseline_log_sha256": "6611716d3243fac24b58f2796de32a4acc8a65b2cd805567c2cf14d48f85ca81",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 1,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 9101171339106676272,
+                  "starting_player_seat": 1,
+                  "variant_log_sha256": "ff6543fbaa2ccbf4edb08a7ff29e60566c34bbba762b6b7b3e91d55a94921d7d",
+                  "variant_placement": 1
+                }
+              ]
+            }
+          },
+          "rogshai/current/search/91354645353d": {
+            "holdouts": [],
+            "paired": {
+              "comparison": {
+                "actual_sample_size": 2,
+                "baseline_average_cards_drawn": 17.5,
+                "baseline_average_damage": 61.76575,
+                "baseline_average_placement": 1.0,
+                "baseline_place_1_share": 1.0,
+                "bayesian_shrunk_effect": 0.0,
+                "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+                "cards_drawn_delta": 0.0,
+                "confidence_interval": [
+                  0.0,
+                  0.0
+                ],
+                "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+                "damage_delta": 1.4459770784000057,
+                "discarded_runs": 0,
+                "distributionally_robust_lower_bound": 0.0,
+                "effect_size": 0.0,
+                "failed_runs": 0,
+                "games": 2,
+                "holdout_definition": "primary paired scenario; holdouts reported separately",
+                "monte_carlo_standard_error": 0.0,
+                "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+                "paired_loss_count": 0,
+                "paired_or_unpaired": "paired",
+                "paired_randomization_p_value": 1.0,
+                "paired_tie_count": 2,
+                "paired_win_count": 0,
+                "pairing_conditions": {
+                  "common_random_numbers": true,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "same_opponent_assumptions": true,
+                  "same_pilot_configuration": true,
+                  "same_pod_size": true,
+                  "same_seats": true,
+                  "same_seeds": true,
+                  "seat_policy": "deterministic_rotation",
+                  "starting_player_seat": null
+                },
+                "pilot_weights": "single configured pilot: strong",
+                "place_1_share_delta": 0.0,
+                "placement_improvement": 0.0,
+                "quantiles": {
+                  "maximum": 0.0,
+                  "mean": 0.0,
+                  "median": 0.0,
+                  "minimum": 0.0,
+                  "q10": 0.0,
+                  "q25": 0.0,
+                  "q75": 0.0,
+                  "q90": 0.0
+                },
+                "requested_runs": 2,
+                "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+                "scenario_weights": "equal within this paired scenario",
+                "seeds": [
+                  12817294623503605901,
+                  2426841478073807701
+                ],
+                "started_runs": 2,
+                "valid_runs": 2,
+                "validation_level": "structural_only",
+                "variant_average_cards_drawn": 17.5,
+                "variant_average_damage": 63.2117270784,
+                "variant_average_placement": 1.0,
+                "variant_place_1_share": 1.0,
+                "worker_count": 1,
+                "worst_case_result": 0.0
+              },
+              "pairs": [
+                {
+                  "baseline_log_sha256": "70f4041f94c26ddaf2e99ef03964d0ad1ca760593676980af6c22d4e52439dbb",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 0,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 12817294623503605901,
+                  "starting_player_seat": 0,
+                  "variant_log_sha256": "93e8a0361fa5140118fa00302296949af33ced52c456a936627eed3cc397c58b",
+                  "variant_placement": 1
+                },
+                {
+                  "baseline_log_sha256": "22b5dbd6edc06738a1e3a58dab4eae76813eb8c11452f3fb894414abae1a53ba",
+                  "baseline_placement": 1,
+                  "comparison": "tie",
+                  "index": 1,
+                  "opponent_deck_ids": [
+                    "opponent/morcant-elves",
+                    "opponent/doom-prevails-precon",
+                    "opponent/cosmic-spiderman-midbudget"
+                  ],
+                  "pilot_mode": "deterministic",
+                  "pilot_strength": "strong",
+                  "pod_size": 4,
+                  "seed": 2426841478073807701,
+                  "starting_player_seat": 1,
+                  "variant_log_sha256": "26be8461624ef85bb6b90e90cedd4175f50dbbe1e8b907507f08d0c2ce1ca961",
+                  "variant_placement": 1
+                }
+              ]
+            }
+          }
+        },
+        "objectives_are_maximized": true,
+        "pareto_front": [
+          {
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "automatically_applied": false,
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.380952380952381,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 5,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 8,
+                  "token_source": 2,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "deck_hash": "908041c62804185e7ecf06f7d20f0ba153b290739c0f7db64554aafbf0d8bb02",
+            "deck_id": "rogshai/current",
+            "objectives": {
+              "central_performance": 0.0,
+              "commander_independence": -0.01864285714285714,
+              "finish_reliability": 1.0,
+              "matchup_robustness": 0.0,
+              "opponent_uncertainty": 0.0,
+              "physical_allocation": 1.0,
+              "pod_size_robustness": 0.0,
+              "rebuild": 0.8280000000000001,
+              "seat_robustness": 0.0,
+              "worst_quartile": 0.0
+            },
+            "parent_variant_id": null,
+            "screening_score": 1.1150000000000002,
+            "search_method": "pareto_evaluation",
+            "structural_rationale": [
+              "Profile score changes from 1.265 to 1.930.",
+              "Mana value changes from 3.0 to 3.0.",
+              "Gains roles: protection, token_source.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+                "remove": "Flare of Duplication"
+              }
+            ],
+            "variant_id": "rogshai/current/search/6776fb807d9c"
+          }
+        ]
+      },
+      "status": "completed"
+    }
+  },
+  "phase": "J-P5-development",
+  "recommendation_traces": [
+    {
+      "affected_roles": [],
+      "automatic_application": false,
+      "baseline_identity": {
+        "deck_hash": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
+        "deck_id": "korvold/current"
+      },
+      "candidate_change": [
+        {
+          "add_candidate_id": "inventory/god-eternal-bontu-a0217122",
+          "remove": "Goblin Bombardment"
+        }
+      ],
+      "central_effect": {
+        "confidence_interval": [
+          0.0,
+          0.25
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "effect_size": 0.28867513459481287,
+        "monte_carlo_standard_error": 0.08333333333333333,
+        "paired_randomization_p_value": 1.0,
+        "placement_improvement": 0.08333333333333326
+      },
+      "constraint_status": {
+        "valid": true
+      },
+      "evidence_type": "structural_model_estimates",
+      "holdout_status": "sealed_not_yet_evaluated",
+      "llm_explanation_is_simulation_evidence": false,
+      "model_limitations": [
+        "structural_model_estimates only; not empirical Commander winrates",
+        "paired uncertainty reflects Monte Carlo uncertainty inside the configured simulator",
+        "opponent/pilot assumptions are model inputs and no opponent-frequency weights are inferred",
+        "Tactical Oracle is not an external rules engine"
+      ],
+      "paired_seed_set": {
+        "count": 12,
+        "seeds": [
+          11000346186746762755,
+          9415766984480748370,
+          9201229605014456087,
+          7707913344025130289,
+          1298134294052669733,
+          2644980409317289156,
+          8084685935631202954,
+          16866806580885257572,
+          15508006748659513147,
+          4289967762921059372,
+          1066644890027369668,
+          14030919551906906875
+        ],
+        "sha256": "4aebf9bf6d72c7cc434e5070e141a213791168283f8c2452f03a3910e85ab8bf"
+      },
+      "recommendation_confidence": "development_candidate_only",
+      "sensitivity": {
+        "heterogeneity": {
+          "maximum": 0.3333333333333335,
+          "mean": 0.1111111111111111,
+          "minimum": -0.33333333333333326,
+          "scenario_count": 9.0,
+          "standard_deviation": 0.2357022603955158
+        },
+        "rows": [
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon"
+            ],
+            "pilot_strength": "average",
+            "pod_size": 3,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon"
+            ],
+            "pilot_strength": "strong",
+            "pod_size": 3,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon"
+            ],
+            "pilot_strength": "near_optimal_heuristic",
+            "pod_size": 3,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_strength": "average",
+            "pod_size": 4,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.33333333333333326,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "robust_lower_bound": 0.04465819873852045
+          },
+          {
+            "effect": -0.33333333333333326,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_strength": "near_optimal_heuristic",
+            "pod_size": 4,
+            "robust_lower_bound": -0.6220084679281461
+          },
+          {
+            "effect": 0.33333333333333326,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "synthetic/control"
+            ],
+            "pilot_strength": "average",
+            "pod_size": 5,
+            "robust_lower_bound": 0.04465819873852045
+          },
+          {
+            "effect": 0.3333333333333335,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "synthetic/control"
+            ],
+            "pilot_strength": "strong",
+            "pod_size": 5,
+            "robust_lower_bound": 0.04465819873852045
+          },
+          {
+            "effect": 0.33333333333333326,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "synthetic/control"
+            ],
+            "pilot_strength": "near_optimal_heuristic",
+            "pod_size": 5,
+            "robust_lower_bound": 0.04465819873852045
+          }
+        ],
+        "worst_effect": -0.33333333333333326,
+        "worst_robust_lower_bound": -0.6220084679281461
+      },
+      "variant_identity": {
+        "deck_hash": "d06ffa0ca892de4523de40ef2a7224dcaf2a8568bfe9dff85de6108961aa5c43",
+        "variant_id": "korvold_neutral_static"
+      },
+      "worst_case_effect": -0.33333333333333326
+    },
+    {
+      "affected_roles": [],
+      "automatic_application": false,
+      "baseline_identity": {
+        "deck_hash": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932",
+        "deck_id": "rogshai/current"
+      },
+      "candidate_change": [
+        {
+          "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+          "remove": "Flare of Duplication"
+        }
+      ],
+      "central_effect": {
+        "confidence_interval": [
+          -0.16666666666666666,
+          0.3333333333333333
+        ],
+        "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+        "effect_size": 0.16183471874253738,
+        "monte_carlo_standard_error": 0.1486470975026408,
+        "paired_randomization_p_value": 1.0,
+        "placement_improvement": 0.08333333333333348
+      },
+      "constraint_status": {
+        "valid": true
+      },
+      "evidence_type": "structural_model_estimates",
+      "holdout_status": "sealed_not_yet_evaluated",
+      "llm_explanation_is_simulation_evidence": false,
+      "model_limitations": [
+        "structural_model_estimates only; not empirical Commander winrates",
+        "paired uncertainty reflects Monte Carlo uncertainty inside the configured simulator",
+        "opponent/pilot assumptions are model inputs and no opponent-frequency weights are inferred",
+        "Tactical Oracle is not an external rules engine"
+      ],
+      "paired_seed_set": {
+        "count": 12,
+        "seeds": [
+          17063192729204387688,
+          557864097775855658,
+          5167433415712117936,
+          18099643119708065169,
+          4885181045089515824,
+          14622194481936147154,
+          4137887014072057886,
+          17237625012862457637,
+          10374414830197382686,
+          4973379166264611381,
+          13927119808197640950,
+          9605206504480904806
+        ],
+        "sha256": "c5a811944a47fe18b2b26e508e176546f04c8d6dfd1959824b3fe81c77b227e0"
+      },
+      "recommendation_confidence": "development_candidate_only",
+      "sensitivity": {
+        "heterogeneity": {
+          "maximum": 0.33333333333333326,
+          "mean": 0.03703703703703703,
+          "minimum": -0.33333333333333326,
+          "scenario_count": 9.0,
+          "standard_deviation": 0.2003084041924438
+        },
+        "rows": [
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon"
+            ],
+            "pilot_strength": "average",
+            "pod_size": 3,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon"
+            ],
+            "pilot_strength": "strong",
+            "pod_size": 3,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon"
+            ],
+            "pilot_strength": "near_optimal_heuristic",
+            "pod_size": 3,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.33333333333333326,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_strength": "average",
+            "pod_size": 4,
+            "robust_lower_bound": 0.04465819873852045
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_strength": "strong",
+            "pod_size": 4,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": -0.33333333333333326,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "pilot_strength": "near_optimal_heuristic",
+            "pod_size": 4,
+            "robust_lower_bound": -0.6220084679281461
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "synthetic/control"
+            ],
+            "pilot_strength": "average",
+            "pod_size": 5,
+            "robust_lower_bound": 0.0
+          },
+          {
+            "effect": 0.33333333333333326,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "synthetic/control"
+            ],
+            "pilot_strength": "strong",
+            "pod_size": 5,
+            "robust_lower_bound": 0.04465819873852045
+          },
+          {
+            "effect": 0.0,
+            "opponents": [
+              "opponent/morcant-elves",
+              "opponent/doom-prevails-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "synthetic/control"
+            ],
+            "pilot_strength": "near_optimal_heuristic",
+            "pod_size": 5,
+            "robust_lower_bound": 0.0
+          }
+        ],
+        "worst_effect": -0.33333333333333326,
+        "worst_robust_lower_bound": -0.6220084679281461
+      },
+      "variant_identity": {
+        "deck_hash": "908041c62804185e7ecf06f7d20f0ba153b290739c0f7db64554aafbf0d8bb02",
+        "variant_id": "rogshai_good_static"
+      },
+      "worst_case_effect": -0.33333333333333326
+    }
+  ],
+  "schema_version": "1.0",
+  "search": {
+    "beam": {
+      "errors": [],
+      "result": {
+        "automatic_application": false,
+        "beam_width": 2,
+        "depth": 1,
+        "method": "staged_beam_search",
+        "ranking_policy": "hard_constraints_then_static_beam_preselection_then_paired_distributionally_robust_lower_bound",
+        "variants": [
+          {
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "automatic_application": false,
+            "comparison": {
+              "actual_sample_size": 2,
+              "baseline_average_cards_drawn": 22.5,
+              "baseline_average_damage": 72.11327304,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": 3.5,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": -25.214998539999996,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 2,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 2,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 2,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                5045581487907125905,
+                5801243320536111029
+              ],
+              "started_runs": 2,
+              "valid_runs": 2,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 26.0,
+              "variant_average_damage": 46.8982745,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.380952380952381,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 5,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 8,
+                  "token_source": 2,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "robust_lower_bound": 0.0,
+            "screening_score": 1.1150000000000002,
+            "structural_rationale": [
+              "Profile score changes from 1.265 to 1.930.",
+              "Mana value changes from 3.0 to 3.0.",
+              "Gains roles: protection, token_source.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/rootborn-defenses-677fdbcf",
+                "remove": "Flare of Duplication"
+              }
+            ],
+            "variant_deck_hash": "908041c62804185e7ecf06f7d20f0ba153b290739c0f7db64554aafbf0d8bb02",
+            "worst_quartile_delta": 0.0
+          },
+          {
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "automatic_application": false,
+            "comparison": {
+              "actual_sample_size": 2,
+              "baseline_average_cards_drawn": 16.0,
+              "baseline_average_damage": 58.53078383333333,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": 8.5,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": 0.6628161666666728,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 2,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 2,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 2,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                2007054744623390125,
+                16597450027259047394
+              ],
+              "started_runs": 2,
+              "valid_runs": 2,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 24.5,
+              "variant_average_damage": 59.1936,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.3492063492063493,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 5,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 8,
+                  "token_source": 1,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "robust_lower_bound": 0.0,
+            "screening_score": 0.9500000000000002,
+            "structural_rationale": [
+              "Profile score changes from 1.265 to 1.765.",
+              "Mana value changes from 3.0 to 1.0.",
+              "Gains roles: protection.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ],
+            "swaps": [
+              {
+                "add_candidate_id": "inventory/divine-resilience-842a919d",
+                "remove": "Flare of Duplication"
+              }
+            ],
+            "variant_deck_hash": "e3e11b9518b9dd29dd852761f02548eb9462f3dce0c79cd637e9f65b192c92e6",
+            "worst_quartile_delta": 0.0
+          }
+        ]
+      },
+      "status": "completed"
+    },
+    "local": {
+      "errors": [],
+      "result": {
+        "automatic_application": false,
+        "best_variant": null,
+        "evaluated_neighbors": 8,
+        "method": "staged_constrained_local_search",
+        "path": [],
+        "ranking_policy": "hard_constraints_then_static_preselection_then_paired_distributionally_robust_lower_bound"
+      },
+      "status": "completed"
+    },
+    "policy": {
+      "development_only_tuning": true,
+      "development_recommendation_gate": {
+        "distributionally_robust_lower_bound_minimum": 0.0,
+        "holm_adjusted_model_internal_p_value_maximum": 0.05
+      },
+      "hard_constraint_gate_first": true,
+      "holdout": "one frozen finalist per deck may be evaluated only after development freeze; no post-holdout tuning",
+      "multiple_comparisons": "Holm family-wise correction per deck search family",
+      "policy_id": "J_P5_SEARCH_POLICY_v1",
+      "preselection": {
+        "minimum_static_screening_delta": -0.5,
+        "rationale": "exclude structurally severe role/profile regressions before costly stochastic comparison"
+      },
+      "ranking": [
+        "distributionally_robust_lower_bound",
+        "paired_mean_effect",
+        "static_screening_delta"
+      ],
+      "truth_boundary": "all effects and p-values are model-internal structural simulation quantities, not empirical Commander results"
+    }
+  },
+  "sensitivity": {
+    "korvold/current": {
+      "heterogeneity": {
+        "maximum": 0.3333333333333335,
+        "mean": 0.1111111111111111,
+        "minimum": -0.33333333333333326,
+        "scenario_count": 9.0,
+        "standard_deviation": 0.2357022603955158
+      },
+      "rows": [
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon"
+          ],
+          "pilot_strength": "average",
+          "pod_size": 3,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon"
+          ],
+          "pilot_strength": "strong",
+          "pod_size": 3,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon"
+          ],
+          "pilot_strength": "near_optimal_heuristic",
+          "pod_size": 3,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_strength": "average",
+          "pod_size": 4,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.33333333333333326,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "robust_lower_bound": 0.04465819873852045
+        },
+        {
+          "effect": -0.33333333333333326,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_strength": "near_optimal_heuristic",
+          "pod_size": 4,
+          "robust_lower_bound": -0.6220084679281461
+        },
+        {
+          "effect": 0.33333333333333326,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "synthetic/control"
+          ],
+          "pilot_strength": "average",
+          "pod_size": 5,
+          "robust_lower_bound": 0.04465819873852045
+        },
+        {
+          "effect": 0.3333333333333335,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "synthetic/control"
+          ],
+          "pilot_strength": "strong",
+          "pod_size": 5,
+          "robust_lower_bound": 0.04465819873852045
+        },
+        {
+          "effect": 0.33333333333333326,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "synthetic/control"
+          ],
+          "pilot_strength": "near_optimal_heuristic",
+          "pod_size": 5,
+          "robust_lower_bound": 0.04465819873852045
+        }
+      ],
+      "worst_effect": -0.33333333333333326,
+      "worst_robust_lower_bound": -0.6220084679281461
+    },
+    "rogshai/current": {
+      "heterogeneity": {
+        "maximum": 0.33333333333333326,
+        "mean": 0.03703703703703703,
+        "minimum": -0.33333333333333326,
+        "scenario_count": 9.0,
+        "standard_deviation": 0.2003084041924438
+      },
+      "rows": [
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon"
+          ],
+          "pilot_strength": "average",
+          "pod_size": 3,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon"
+          ],
+          "pilot_strength": "strong",
+          "pod_size": 3,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon"
+          ],
+          "pilot_strength": "near_optimal_heuristic",
+          "pod_size": 3,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.33333333333333326,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_strength": "average",
+          "pod_size": 4,
+          "robust_lower_bound": 0.04465819873852045
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_strength": "strong",
+          "pod_size": 4,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": -0.33333333333333326,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget"
+          ],
+          "pilot_strength": "near_optimal_heuristic",
+          "pod_size": 4,
+          "robust_lower_bound": -0.6220084679281461
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "synthetic/control"
+          ],
+          "pilot_strength": "average",
+          "pod_size": 5,
+          "robust_lower_bound": 0.0
+        },
+        {
+          "effect": 0.33333333333333326,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "synthetic/control"
+          ],
+          "pilot_strength": "strong",
+          "pod_size": 5,
+          "robust_lower_bound": 0.04465819873852045
+        },
+        {
+          "effect": 0.0,
+          "opponents": [
+            "opponent/morcant-elves",
+            "opponent/doom-prevails-precon",
+            "opponent/cosmic-spiderman-midbudget",
+            "synthetic/control"
+          ],
+          "pilot_strength": "near_optimal_heuristic",
+          "pod_size": 5,
+          "robust_lower_bound": 0.0
+        }
+      ],
+      "worst_effect": -0.33333333333333326,
+      "worst_robust_lower_bound": -0.6220084679281461
+    }
+  },
+  "shapley": {
+    "errors": [],
+    "result": {
+      "contributions": {
+        "Mayhem Devil": {
+          "ci95_high": 1.5194462721363244,
+          "ci95_low": 1.4805537278636751,
+          "shapley_value": 1.4999999999999998,
+          "standard_error": 0.009921567416492196
+        },
+        "Mirkwood Bats": {
+          "ci95_high": 3.2454462721363235,
+          "ci95_low": 3.2065537278636747,
+          "shapley_value": 3.225999999999999,
+          "standard_error": 0.00992156741649217
+        }
+      },
+      "method": "permutation_profile_shapley_with_paired_single_card_ablation",
+      "paired_ablation_evidence": {
+        "Mayhem Devil": {
+          "ablation_comparison": {
+            "actual_sample_size": 2,
+            "baseline_average_cards_drawn": 26.5,
+            "baseline_average_damage": 57.12308564,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "bayesian_shrunk_effect": -0.045454545454545456,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -3.0,
+            "confidence_interval": [
+              -1.0,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": -7.656130079999997,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": -0.8535533905932737,
+            "effect_size": -0.7071067811865475,
+            "failed_runs": 0,
+            "games": 2,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.5,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+            "paired_loss_count": 1,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
+            "paired_tie_count": 1,
+            "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true,
+              "seat_policy": "deterministic_rotation",
+              "starting_player_seat": null
+            },
+            "pilot_weights": "single configured pilot: strong",
+            "place_1_share_delta": -0.5,
+            "placement_improvement": -0.5,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": -0.5,
+              "median": -0.5,
+              "minimum": -1.0,
+              "q10": -0.9,
+              "q25": -0.75,
+              "q75": -0.25,
+              "q90": -0.09999999999999998
+            },
+            "requested_runs": 2,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              2234769936309618707,
+              5834515266810052394
+            ],
+            "started_runs": 2,
+            "valid_runs": 2,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 23.5,
+            "variant_average_damage": 49.46695556,
+            "variant_average_placement": 1.5,
+            "variant_place_1_share": 0.5,
+            "worker_count": 1,
+            "worst_case_result": -1.0
+          },
+          "card_name": "Mayhem Devil",
+          "estimated_card_contribution": {
+            "interpretation": "positive means the original card improved average placement",
+            "placement_value": 0.5
+          },
+          "pair_sample": [
+            {
+              "baseline_log_sha256": "d8cfa257da3472c1fc845d3ef2492530b53021fcbd9edf6fb009810fc8af640a",
+              "baseline_placement": 1,
+              "comparison": "tie",
+              "index": 0,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "seed": 2234769936309618707,
+              "starting_player_seat": 0,
+              "variant_log_sha256": "9a8c55c092071015d7cc06e3afcabeb3a4d264fadb848d4478a65f3258963c94",
+              "variant_placement": 1
+            },
+            {
+              "baseline_log_sha256": "12719d07a7892f68f5ce592fdb8f5565d295823dc0af5f7dce2d9137bea1cc2c",
+              "baseline_placement": 1,
+              "comparison": "variant_loss",
+              "index": 1,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "seed": 5834515266810052394,
+              "starting_player_seat": 1,
+              "variant_log_sha256": "eaa95505b2bf7b1dd49c82b833d7062c0b68af67fb964046d1f28ba421198543",
+              "variant_placement": 2
+            }
+          ]
+        },
+        "Mirkwood Bats": {
+          "ablation_comparison": {
+            "actual_sample_size": 2,
+            "baseline_average_cards_drawn": 22.5,
+            "baseline_average_damage": 66.2975886,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "bayesian_shrunk_effect": 0.0,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -3.0,
+            "confidence_interval": [
+              0.0,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": -16.527188600000002,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 0.0,
+            "effect_size": 0.0,
+            "failed_runs": 0,
+            "games": 2,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.0,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+            "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
+            "paired_tie_count": 2,
+            "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true,
+              "seat_policy": "deterministic_rotation",
+              "starting_player_seat": null
+            },
+            "pilot_weights": "single configured pilot: strong",
+            "place_1_share_delta": 0.0,
+            "placement_improvement": 0.0,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": 0.0,
+              "median": 0.0,
+              "minimum": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q75": 0.0,
+              "q90": 0.0
+            },
+            "requested_runs": 2,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              12517354445583319594,
+              15534741937213874814
+            ],
+            "started_runs": 2,
+            "valid_runs": 2,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 19.5,
+            "variant_average_damage": 49.770399999999995,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 0.0
+          },
+          "card_name": "Mirkwood Bats",
+          "estimated_card_contribution": {
+            "interpretation": "positive means the original card improved average placement",
+            "placement_value": -0.0
+          },
+          "pair_sample": [
+            {
+              "baseline_log_sha256": "fe23812cffb5b0e6310e4f608248f80c23dc9df90918e2b5be23f3399e537321",
+              "baseline_placement": 1,
+              "comparison": "tie",
+              "index": 0,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "seed": 12517354445583319594,
+              "starting_player_seat": 0,
+              "variant_log_sha256": "f7a3dd9da2f8507568a8ea70c954586491c5ef686c867b6a2d86c833d8e665a1",
+              "variant_placement": 1
+            },
+            {
+              "baseline_log_sha256": "b3e4ceb187f6aaaaa9ae622f4a655aaefbf42ad3cf90393ef7498fc5feb035f0",
+              "baseline_placement": 1,
+              "comparison": "tie",
+              "index": 1,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "seed": 15534741937213874814,
+              "starting_player_seat": 1,
+              "variant_log_sha256": "7856b84de12cfd7aa8459dca3a76e773f37b91fa19c756304e1e0e96d2c0c402",
+              "variant_placement": 1
+            }
+          ]
+        }
+      },
+      "permutations": 16,
+      "primary_optimizer_ranking_allowed": false,
+      "selection_role": "secondary_explanatory_triage_only",
+      "warning": "Shapley values use a profile-surrogate coalition value with paired single-card ablation; they are approximate structural contribution estimates, not causal real-game values and must not select the final optimizer winner by themselves."
+    },
+    "status": "completed"
+  },
+  "shapley_method_judgment": "useful as secondary explanatory/triage evidence only; not a primary winner-selection method",
+  "source_deck_hashes": {
+    "korvold/current": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
+    "rogshai/current": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
+  },
+  "swap_matrix": {
+    "korvold": {
+      "errors": [],
+      "result": {
+        "automatic_application": false,
+        "best_valid_cell": {
+          "add": "Scouring Swarm",
+          "affected_matchups": [
+            "grindy_pods",
+            "korvold_synergy",
+            "large_pods",
+            "post_wipe_rebuild",
+            "table_closure"
+          ],
+          "candidate_id": "inventory/scouring-swarm-decedec9",
+          "comparison": {
+            "actual_sample_size": 1,
+            "baseline_average_cards_drawn": 19.0,
+            "baseline_average_damage": 30.96125,
+            "baseline_average_placement": 2.0,
+            "baseline_place_1_share": 0.0,
+            "bayesian_shrunk_effect": 0.047619047619047616,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": 6.0,
+            "confidence_interval": [
+              1.0,
+              1.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": 30.406358000000004,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 1.0,
+            "effect_size": 0.0,
+            "failed_runs": 0,
+            "games": 1,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.0,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+            "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
+            "paired_tie_count": 0,
+            "paired_win_count": 1,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true,
+              "seat_policy": "deterministic_rotation",
+              "starting_player_seat": null
+            },
+            "pilot_weights": "single configured pilot: strong",
+            "place_1_share_delta": 1.0,
+            "placement_improvement": 1.0,
+            "quantiles": {
+              "maximum": 1.0,
+              "mean": 1.0,
+              "median": 1.0,
+              "minimum": 1.0,
+              "q10": 1.0,
+              "q25": 1.0,
+              "q75": 1.0,
+              "q90": 1.0
+            },
+            "requested_runs": 1,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              6315419843473059980
+            ],
+            "started_runs": 1,
+            "valid_runs": 1,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 25.0,
+            "variant_average_damage": 61.367608000000004,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 1.0
+          },
+          "constraint_report": {
+            "issues": [],
+            "metrics": {
+              "average_nonland_mana_value": 2.622950819672131,
+              "colored_sources": {
+                "B": 29,
+                "G": 30,
+                "R": 26
+              },
+              "high_mana_value_cards": 6,
+              "lands": 39,
+              "role_counts": {
+                "combat_payoff": 1,
+                "counter": 0,
+                "draw": 11,
+                "enabler": 13,
+                "engine": 16,
+                "finisher": 5,
+                "graveyard_hate": 3,
+                "land_synergy": 17,
+                "mana_source": 39,
+                "payoff": 8,
+                "protection": 5,
+                "ramp": 20,
+                "recursion": 8,
+                "removal": 11,
+                "sacrifice_outlet": 10,
+                "selection": 1,
+                "token_source": 8,
+                "wipe": 7
+              }
+            },
+            "valid": true
+          },
+          "remove": "Mayhem Devil",
+          "screening_score": 1.5649999999999997,
+          "status": "paired_screened",
+          "structural_rationale": [
+            "Profile score changes from 1.405 to 2.520.",
+            "Mana value changes from 3.0 to 3.0.",
+            "Gains roles: enabler, engine, land_synergy, sacrifice_outlet, token_source.",
+            "No structural role is lost.",
+            "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+          ]
+        },
+        "cells": 4,
+        "matrix_complete": true,
+        "rows": [
+          {
+            "add": "Scouring Swarm",
+            "affected_matchups": [
+              "grindy_pods",
+              "korvold_synergy",
+              "large_pods",
+              "post_wipe_rebuild",
+              "table_closure"
+            ],
+            "candidate_id": "inventory/scouring-swarm-decedec9",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 19.0,
+              "baseline_average_damage": 30.96125,
+              "baseline_average_placement": 2.0,
+              "baseline_place_1_share": 0.0,
+              "bayesian_shrunk_effect": 0.047619047619047616,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": 6.0,
+              "confidence_interval": [
+                1.0,
+                1.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": 30.406358000000004,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 1.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 0,
+              "paired_win_count": 1,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 1.0,
+              "placement_improvement": 1.0,
+              "quantiles": {
+                "maximum": 1.0,
+                "mean": 1.0,
+                "median": 1.0,
+                "minimum": 1.0,
+                "q10": 1.0,
+                "q25": 1.0,
+                "q75": 1.0,
+                "q90": 1.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                6315419843473059980
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 25.0,
+              "variant_average_damage": 61.367608000000004,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 1.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.622950819672131,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 6,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 1,
+                  "counter": 0,
+                  "draw": 11,
+                  "enabler": 13,
+                  "engine": 16,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 17,
+                  "mana_source": 39,
+                  "payoff": 8,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 11,
+                  "sacrifice_outlet": 10,
+                  "selection": 1,
+                  "token_source": 8,
+                  "wipe": 7
+                }
+              },
+              "valid": true
+            },
+            "remove": "Mayhem Devil",
+            "screening_score": 1.5649999999999997,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 1.405 to 2.520.",
+              "Mana value changes from 3.0 to 3.0.",
+              "Gains roles: enabler, engine, land_synergy, sacrifice_outlet, token_source.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+            ]
+          },
+          {
+            "add": "Scouring Swarm",
+            "affected_matchups": [
+              "grindy_pods",
+              "korvold_synergy",
+              "large_pods",
+              "post_wipe_rebuild",
+              "table_closure"
+            ],
+            "candidate_id": "inventory/scouring-swarm-decedec9",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 26.0,
+              "baseline_average_damage": 58.1936,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": -5.0,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": 3.891211999999996,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 1,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                2163340952647475273
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 21.0,
+              "variant_average_damage": 62.084812,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.639344262295082,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 6,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 1,
+                  "counter": 0,
+                  "draw": 11,
+                  "enabler": 13,
+                  "engine": 16,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 17,
+                  "mana_source": 39,
+                  "payoff": 8,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 11,
+                  "sacrifice_outlet": 9,
+                  "selection": 1,
+                  "token_source": 8,
+                  "wipe": 7
+                }
+              },
+              "valid": true
+            },
+            "remove": "Goblin Bombardment",
+            "screening_score": 1.0949999999999993,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 2.325 to 2.520.",
+              "Mana value changes from 2.0 to 3.0.",
+              "Gains roles: enabler, engine, land_synergy, token_source.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+            ]
+          },
+          {
+            "add": "God-Eternal Bontu",
+            "affected_matchups": [
+              "grindy_pods",
+              "korvold_synergy",
+              "large_pods",
+              "post_wipe_rebuild",
+              "table_closure"
+            ],
+            "candidate_id": "inventory/god-eternal-bontu-a0217122",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 22.0,
+              "baseline_average_damage": 75.97123929292799,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": 1.0,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": 12.651188707072023,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 1,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                16712117036296917697
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 23.0,
+              "variant_average_damage": 88.62242800000001,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.6557377049180326,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 7,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 1,
+                  "counter": 0,
+                  "draw": 12,
+                  "enabler": 13,
+                  "engine": 16,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 16,
+                  "mana_source": 39,
+                  "payoff": 7,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 11,
+                  "sacrifice_outlet": 10,
+                  "selection": 1,
+                  "token_source": 7,
+                  "wipe": 7
+                }
+              },
+              "valid": true
+            },
+            "remove": "Mayhem Devil",
+            "screening_score": 0.49500000000000066,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 1.405 to 2.250.",
+              "Mana value changes from 3.0 to 5.0.",
+              "Gains roles: draw, enabler, engine, sacrifice_outlet.",
+              "Loses roles: payoff.",
+              "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+            ]
+          },
+          {
+            "add": "God-Eternal Bontu",
+            "affected_matchups": [
+              "grindy_pods",
+              "korvold_synergy",
+              "large_pods",
+              "post_wipe_rebuild",
+              "table_closure"
+            ],
+            "candidate_id": "inventory/god-eternal-bontu-a0217122",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 25.0,
+              "baseline_average_damage": 71.21871200000001,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": -1.0,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": -9.088512000000009,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 1,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                4385267874606948980
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 24.0,
+              "variant_average_damage": 62.1302,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.6721311475409837,
+                "colored_sources": {
+                  "B": 29,
+                  "G": 30,
+                  "R": 26
+                },
+                "high_mana_value_cards": 7,
+                "lands": 39,
+                "role_counts": {
+                  "combat_payoff": 1,
+                  "counter": 0,
+                  "draw": 12,
+                  "enabler": 13,
+                  "engine": 16,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 16,
+                  "mana_source": 39,
+                  "payoff": 7,
+                  "protection": 5,
+                  "ramp": 20,
+                  "recursion": 8,
+                  "removal": 11,
+                  "sacrifice_outlet": 9,
+                  "selection": 1,
+                  "token_source": 7,
+                  "wipe": 7
+                }
+              },
+              "valid": true
+            },
+            "remove": "Goblin Bombardment",
+            "screening_score": 0.0250000000000003,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 2.325 to 2.250.",
+              "Mana value changes from 2.0 to 5.0.",
+              "Gains roles: draw, enabler, engine.",
+              "Loses roles: payoff.",
+              "Immediate impact 0.80 \u2192 0.45; turn-cycle risk 0.45 \u2192 0.60."
+            ]
+          }
+        ],
+        "simulated_cells": 4,
+        "valid_cells": 4
+      },
+      "status": "completed"
+    },
+    "rogshai": {
+      "errors": [],
+      "result": {
+        "automatic_application": false,
+        "best_valid_cell": {
+          "add": "Rootborn Defenses",
+          "affected_matchups": [
+            "commander_denial",
+            "control"
+          ],
+          "candidate_id": "inventory/rootborn-defenses-677fdbcf",
+          "comparison": {
+            "actual_sample_size": 1,
+            "baseline_average_cards_drawn": 24.0,
+            "baseline_average_damage": 47.377652999999995,
+            "baseline_average_placement": 1.0,
+            "baseline_place_1_share": 1.0,
+            "bayesian_shrunk_effect": 0.0,
+            "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+            "cards_drawn_delta": -7.0,
+            "confidence_interval": [
+              0.0,
+              0.0
+            ],
+            "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+            "damage_delta": 36.634347000000005,
+            "discarded_runs": 0,
+            "distributionally_robust_lower_bound": 0.0,
+            "effect_size": 0.0,
+            "failed_runs": 0,
+            "games": 1,
+            "holdout_definition": "primary paired scenario; holdouts reported separately",
+            "monte_carlo_standard_error": 0.0,
+            "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+            "paired_loss_count": 0,
+            "paired_or_unpaired": "paired",
+            "paired_randomization_p_value": 1.0,
+            "paired_tie_count": 1,
+            "paired_win_count": 0,
+            "pairing_conditions": {
+              "common_random_numbers": true,
+              "opponent_deck_ids": [
+                "opponent/morcant-elves",
+                "opponent/doom-prevails-precon",
+                "opponent/cosmic-spiderman-midbudget"
+              ],
+              "pilot_mode": "deterministic",
+              "pilot_strength": "strong",
+              "pod_size": 4,
+              "same_opponent_assumptions": true,
+              "same_pilot_configuration": true,
+              "same_pod_size": true,
+              "same_seats": true,
+              "same_seeds": true,
+              "seat_policy": "deterministic_rotation",
+              "starting_player_seat": null
+            },
+            "pilot_weights": "single configured pilot: strong",
+            "place_1_share_delta": 0.0,
+            "placement_improvement": 0.0,
+            "quantiles": {
+              "maximum": 0.0,
+              "mean": 0.0,
+              "median": 0.0,
+              "minimum": 0.0,
+              "q10": 0.0,
+              "q25": 0.0,
+              "q75": 0.0,
+              "q90": 0.0
+            },
+            "requested_runs": 1,
+            "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+            "scenario_weights": "equal within this paired scenario",
+            "seeds": [
+              4522837925286651338
+            ],
+            "started_runs": 1,
+            "valid_runs": 1,
+            "validation_level": "structural_only",
+            "variant_average_cards_drawn": 17.0,
+            "variant_average_damage": 84.012,
+            "variant_average_placement": 1.0,
+            "variant_place_1_share": 1.0,
+            "worker_count": 1,
+            "worst_case_result": 0.0
+          },
+          "constraint_report": {
+            "issues": [],
+            "metrics": {
+              "average_nonland_mana_value": 2.380952380952381,
+              "colored_sources": {
+                "R": 23,
+                "U": 31,
+                "W": 24
+              },
+              "high_mana_value_cards": 5,
+              "lands": 37,
+              "role_counts": {
+                "combat_payoff": 7,
+                "counter": 11,
+                "draw": 14,
+                "enabler": 5,
+                "engine": 7,
+                "finisher": 5,
+                "graveyard_hate": 3,
+                "land_synergy": 0,
+                "mana_source": 37,
+                "payoff": 3,
+                "protection": 6,
+                "ramp": 10,
+                "recursion": 0,
+                "removal": 13,
+                "sacrifice_outlet": 0,
+                "selection": 8,
+                "token_source": 2,
+                "wipe": 5
+              }
+            },
+            "valid": true
+          },
+          "remove": "Flare of Duplication",
+          "screening_score": 1.1150000000000002,
+          "status": "paired_screened",
+          "structural_rationale": [
+            "Profile score changes from 1.265 to 1.930.",
+            "Mana value changes from 3.0 to 3.0.",
+            "Gains roles: protection, token_source.",
+            "No structural role is lost.",
+            "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+          ]
+        },
+        "cells": 4,
+        "matrix_complete": true,
+        "rows": [
+          {
+            "add": "Rootborn Defenses",
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "candidate_id": "inventory/rootborn-defenses-677fdbcf",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 24.0,
+              "baseline_average_damage": 47.377652999999995,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": -7.0,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": 36.634347000000005,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 1,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                4522837925286651338
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 17.0,
+              "variant_average_damage": 84.012,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.380952380952381,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 5,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 8,
+                  "token_source": 2,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "remove": "Flare of Duplication",
+            "screening_score": 1.1150000000000002,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 1.265 to 1.930.",
+              "Mana value changes from 3.0 to 3.0.",
+              "Gains roles: protection, token_source.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ]
+          },
+          {
+            "add": "Divine Resilience",
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "candidate_id": "inventory/divine-resilience-842a919d",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 12.0,
+              "baseline_average_damage": 101.02609999999999,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": 2.0,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": 22.65390000000002,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 1,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                2564740098070851298
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 14.0,
+              "variant_average_damage": 123.68,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.3492063492063493,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 5,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 8,
+                  "token_source": 1,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "remove": "Flare of Duplication",
+            "screening_score": 0.9500000000000002,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 1.265 to 1.765.",
+              "Mana value changes from 3.0 to 1.0.",
+              "Gains roles: protection.",
+              "No structural role is lost.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ]
+          },
+          {
+            "add": "Rootborn Defenses",
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "candidate_id": "inventory/rootborn-defenses-677fdbcf",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 17.0,
+              "baseline_average_damage": 68.78082693333333,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": -5.0,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": 1.6091730666666706,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 1,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                3734410637222000356
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 12.0,
+              "variant_average_damage": 70.39,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.4126984126984126,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 6,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 7,
+                  "token_source": 2,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "remove": "Preordain",
+            "screening_score": 0.17500000000000038,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 1.405 to 1.930.",
+              "Mana value changes from 1.0 to 3.0.",
+              "Gains roles: enabler, protection, token_source.",
+              "Loses roles: selection.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ]
+          },
+          {
+            "add": "Divine Resilience",
+            "affected_matchups": [
+              "commander_denial",
+              "control"
+            ],
+            "candidate_id": "inventory/divine-resilience-842a919d",
+            "comparison": {
+              "actual_sample_size": 1,
+              "baseline_average_cards_drawn": 15.0,
+              "baseline_average_damage": 88.22999999999999,
+              "baseline_average_placement": 1.0,
+              "baseline_place_1_share": 1.0,
+              "bayesian_shrunk_effect": 0.0,
+              "bootstrap_method": "deterministic_paired_percentile_bootstrap_2000",
+              "cards_drawn_delta": 0.0,
+              "confidence_interval": [
+                0.0,
+                0.0
+              ],
+              "confidence_interval_interpretation": "model-internal Monte Carlo uncertainty interval for the paired structural simulator; not an empirical Commander confidence interval",
+              "damage_delta": -25.90299999999999,
+              "discarded_runs": 0,
+              "distributionally_robust_lower_bound": 0.0,
+              "effect_size": 0.0,
+              "failed_runs": 0,
+              "games": 1,
+              "holdout_definition": "primary paired scenario; holdouts reported separately",
+              "monte_carlo_standard_error": 0.0,
+              "multiple_testing_method": "not_applicable_single_comparison; Holm required for ranked families",
+              "paired_loss_count": 0,
+              "paired_or_unpaired": "paired",
+              "paired_randomization_p_value": 1.0,
+              "paired_tie_count": 1,
+              "paired_win_count": 0,
+              "pairing_conditions": {
+                "common_random_numbers": true,
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/doom-prevails-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "pilot_mode": "deterministic",
+                "pilot_strength": "strong",
+                "pod_size": 4,
+                "same_opponent_assumptions": true,
+                "same_pilot_configuration": true,
+                "same_pod_size": true,
+                "same_seats": true,
+                "same_seeds": true,
+                "seat_policy": "deterministic_rotation",
+                "starting_player_seat": null
+              },
+              "pilot_weights": "single configured pilot: strong",
+              "place_1_share_delta": 0.0,
+              "placement_improvement": 0.0,
+              "quantiles": {
+                "maximum": 0.0,
+                "mean": 0.0,
+                "median": 0.0,
+                "minimum": 0.0,
+                "q10": 0.0,
+                "q25": 0.0,
+                "q75": 0.0,
+                "q90": 0.0
+              },
+              "requested_runs": 1,
+              "rounding_policy": "unrounded internal values; presentation may round to six decimals",
+              "scenario_weights": "equal within this paired scenario",
+              "seeds": [
+                1269286611454989884
+              ],
+              "started_runs": 1,
+              "valid_runs": 1,
+              "validation_level": "structural_only",
+              "variant_average_cards_drawn": 15.0,
+              "variant_average_damage": 62.327,
+              "variant_average_placement": 1.0,
+              "variant_place_1_share": 1.0,
+              "worker_count": 1,
+              "worst_case_result": 0.0
+            },
+            "constraint_report": {
+              "issues": [],
+              "metrics": {
+                "average_nonland_mana_value": 2.380952380952381,
+                "colored_sources": {
+                  "R": 23,
+                  "U": 31,
+                  "W": 24
+                },
+                "high_mana_value_cards": 5,
+                "lands": 37,
+                "role_counts": {
+                  "combat_payoff": 7,
+                  "counter": 11,
+                  "draw": 14,
+                  "enabler": 6,
+                  "engine": 7,
+                  "finisher": 5,
+                  "graveyard_hate": 3,
+                  "land_synergy": 0,
+                  "mana_source": 37,
+                  "payoff": 3,
+                  "protection": 6,
+                  "ramp": 10,
+                  "recursion": 0,
+                  "removal": 13,
+                  "sacrifice_outlet": 0,
+                  "selection": 7,
+                  "token_source": 1,
+                  "wipe": 5
+                }
+              },
+              "valid": true
+            },
+            "remove": "Preordain",
+            "screening_score": 0.010000000000000342,
+            "status": "paired_screened",
+            "structural_rationale": [
+              "Profile score changes from 1.405 to 1.765.",
+              "Mana value changes from 1.0 to 1.0.",
+              "Gains roles: enabler, protection.",
+              "Loses roles: selection.",
+              "Immediate impact 0.80 \u2192 0.65; turn-cycle risk 0.45 \u2192 0.25."
+            ]
+          }
+        ],
+        "simulated_cells": 4,
+        "valid_cells": 4
+      },
+      "status": "completed"
+    }
+  },
+  "truth_boundary": "simulation/model evidence only; not empirical Commander winrate evidence"
+}

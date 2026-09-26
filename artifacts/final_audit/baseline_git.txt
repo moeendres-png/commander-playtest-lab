@@ -1,0 +1,33 @@
+start_commit=6459581cc3e886d412d8e3c1bf3c1f7dfe0f3009
+current_commit=f5a17fe6726cc7d8d5a3300224e654b360380a28
+branch=audit/post-12.10-final-hardening
+f5a17fe (HEAD -> audit/post-12.10-final-hardening) perf: reuse tactical bridge in protocol contract sweep
+22bdd6f fix: harden phase12.11 lifecycle and deterministic runs
+69a0da0 test: add phase12.11 lifecycle and reproducibility regressions
+6459581 (fix/phase12-8-10-completion-audit) Preserve canonical deck snapshots during completion audit
+a750596 Report executed provenance lineage in integrated smoke
+165a88f Record completion audit provenance
+1916638 Complete phase 12.8 to 12.10 execution paths
+a58534c (origin/feature/decision-diagnostics, feature/decision-diagnostics) Link final extensions into provenance graph
+ea99321 Add decision diagnostics and integrated smoke
+8cfb5b7 Add counterfactual replay analysis
+a983a28 Add Mulligan Lab
+ffe1312 chore: link ensemble outputs into provenance graph
+9ae4d05 feat: add uncertainty-aware opponent ensembles
+65333bc feat: add conservative local meta learning
+82af488 feat: add complete provenance graph and source auditing
+c6ffd40 Implement archetype and package extraction
+5de6d51 feat: add multi-pilot ensembles and robustness evaluation
+1d7edaf Add primer-to-pilot compiler
+6c73487 Add meta knowledge base
+21e8151 fix: make phase 10 clean-restore acceptance self-contained
+95837cb feat: add phase 10 end-to-end acceptance
+cd0c43b Record Phase 9 package build
+b144081 Add Phase 9 validation evidence
+57be0aa Implement Phase 9 real playtest calibration
+1971e4e Record final Phase 8.6 audit evidence
+83b36b0 Audit and harden system before Phase 9
+a189065 Remove fixture process logs from Phase 8.5 evidence
+a101c99 Prepare Phase 8.5 external rules-engine runtime
+58e8601 Implement Phase 8 tactical and rules-engine adapters
+cbbe507 Implement Phase 7 constrained deck optimization

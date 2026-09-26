@@ -1,0 +1,73 @@
+Phase 8 test and build results
+==============================
+Date: 2026-08-04
+Package: commander-playtest-lab 0.8.0
+Tactical engine: tactical-0.8.0
+
+Collection
+----------
+120 tests collected.
+
+Executed as complete test-category partitions because a monolithic pytest process exceeded the container orchestration timeout. The partitions cover every collected test path.
+
+Unit tests
+----------
+87 passed in 12.91s
+
+Integration tests
+-----------------
+17 passed in 21.51s
+
+Property tests
+--------------
+8 passed in 7.19s
+
+Golden tests
+------------
+1 passed in 0.10s
+
+Differential tests
+------------------
+2 passed, 1 skipped in 1.40s
+Skipped: the real XMage/Forge differential test requires a configured external bridge.
+
+Agent evals
+-----------
+4 passed in 0.11s
+
+Aggregate
+---------
+119 passed
+1 skipped (external XMage/Forge backend not configured)
+0 failed
+
+Phase-8 validation
+------------------
+73 interaction cases
+73 tactical cases passed
+0 rules-engine cases passed
+Local acceptance: passed
+External rules-engine release gate: blocked
+Card status counts:
+- structural_only: 108
+- tactical_validated: 59
+- rules_engine_validated: 0
+
+Build checks
+------------
+Python compileall: passed
+Wheel build: passed with pip --no-build-isolation
+Wheel: commander_playtest_lab-0.8.0-py3-none-any.whl
+Wheel SHA-256: bd62dd8ac1ee994b3a8dcc120950c83121b22ed959a609cb8a73c05856e20177
+Wheel import: passed (version 0.8.0, 64 tactical rule primitives)
+CLI backend probe: passed
+CLI Phase-8 validation: passed
+Ruff: not installed in this container
+
+External environment
+--------------------
+Java: OpenJDK 21.0.10
+Maven: not installed
+XMage executable/bridge: not configured
+Forge executable/bridge: not configured
+GitHub DNS resolution from the container: unavailable

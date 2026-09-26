@@ -1,0 +1,23 @@
+{
+  "architecture_winner": null,
+  "candidate_credit_against_missing_ws10_1_0_0": "PROHIBITED",
+  "required_obligation_satisfying_verdicts": [
+    "PASS"
+  ],
+  "schema_version": "ws10r-pass-fail-unknown-matrix/1.0.0",
+  "semantic_equivalences": {
+    "CODE_DERIVED_is_RUNTIME_VERIFIED": false,
+    "NOT_RUN_is_PASS": false,
+    "PARTIAL_is_FULL": false,
+    "UNKNOWN_is_PASS": false
+  },
+  "verdicts": [
+    "PASS",
+    "FAIL",
+    "UNKNOWN",
+    "NOT_RUN",
+    "PARTIAL",
+    "UNSUPPORTED",
+    "NOT_APPLICABLE"
+  ]
+}

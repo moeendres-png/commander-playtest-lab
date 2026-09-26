@@ -1,0 +1,53 @@
+{
+  "phase": "12.12",
+  "execution_status": "passed",
+  "completion_status": "manual_playtest_subsystem_removed",
+  "start_version": "1.10.2",
+  "start_commit": "5d54ec23ba2993deea9670dfd5df653fc22411ba",
+  "active_validation_levels": [
+    "structural_only",
+    "tactical_oracle",
+    "external_rules_engine"
+  ],
+  "removed_tools": [
+    "ingest_playtest",
+    "calibrate",
+    "ingest_local_game",
+    "update_local_opponent_profile",
+    "inspect_local_meta",
+    "compare_observed_to_assumed",
+    "detect_local_meta_drift",
+    "build_local_meta_scenarios",
+    "generate_local_meta_report"
+  ],
+  "removed_cli_commands": [
+    "ingest-playtest",
+    "calibrate-playtests",
+    "validate-phase9"
+  ],
+  "current_tool_count": 83,
+  "database_schema_version": 2,
+  "legacy_tables_handled": [
+    "calibration_profiles",
+    "local_opponent_profiles",
+    "local_games",
+    "playtest_games",
+    "playtests"
+  ],
+  "tests": {
+    "passed": 249,
+    "skipped": 1,
+    "failed": 0,
+    "warnings": 2
+  },
+  "external_engine_test_status": "blocked",
+  "canonical_deck_changes": false,
+  "inventory_changes": false,
+  "allocation_changes": false,
+  "historical_git_rewrite": false,
+  "notes": [
+    "The prior manifest expected 259 passed tests; the active suite after removing manual-playtest-only tests contains 250 collected tests.",
+    "The external differential test remains skipped because no real XMage or Forge command is configured.",
+    "A pytest-only thread executor prevents capture-pipe blockage in worker-independence tests; production batches retain process parallelism."
+  ]
+}

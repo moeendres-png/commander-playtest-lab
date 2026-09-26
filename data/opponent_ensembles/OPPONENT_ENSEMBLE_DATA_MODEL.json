@@ -1,0 +1,38 @@
+{
+  "automatic_profile_overwrite": false,
+  "models": [
+    "OpponentEnsemble",
+    "OpponentVariant",
+    "VariantWeight",
+    "UncertaintyDimension",
+    "ObservedConstraint",
+    "RobustnessScenario"
+  ],
+  "observation_statuses": [
+    "directly_observed",
+    "reported_by_player",
+    "inferred_role",
+    "unknown",
+    "synthetic_assumption"
+  ],
+  "required_variant_fields": [
+    "known_cards",
+    "assumed_cards",
+    "role_distribution",
+    "speed_turn_range",
+    "interaction_density",
+    "wipe_count_range",
+    "win_axes",
+    "source_ids",
+    "confidence",
+    "weight",
+    "synthetic"
+  ],
+  "weight_modes": [
+    "unweighted",
+    "equal",
+    "observation_based",
+    "manual",
+    "worst_case"
+  ]
+}

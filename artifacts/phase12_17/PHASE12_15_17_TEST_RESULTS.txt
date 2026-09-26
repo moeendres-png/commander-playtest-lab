@@ -1,0 +1,12 @@
+Phase 12.15–12.17 repair regression
+
+Collected: 278 tests
+Unit: 213 passed, 0 failed
+Architecture/contract/differential/fuzz/golden/mutation/property/regressions/agent_evals: 37 passed, 1 skipped, 0 failed
+Integration: 27/27 passed when each integration file is executed in isolation.
+External skip: tests/differential/test_phase6_differential.py requires a configured XMage or Forge differential command.
+Total isolated execution: 277 passed, 1 skipped, 0 failed.
+
+Monolithic pytest -q: not counted as passed; timed out due a pre-existing order-dependent integration lifecycle/process cleanup issue. The individual integration files all pass, including phase10 acceptance and phase5 demo.
+python -m compileall -q src tests: passed
+git diff --check: passed

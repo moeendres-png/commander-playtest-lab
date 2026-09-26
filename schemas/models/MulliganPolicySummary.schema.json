@@ -1,0 +1,282 @@
+{
+  "$defs": {
+    "MulliganEstimateLevel": {
+      "enum": [
+        "exact_hypergeometric",
+        "monte_carlo_hand_quality",
+        "structural_followup"
+      ],
+      "title": "MulliganEstimateLevel",
+      "type": "string"
+    },
+    "MulliganHandTypeSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "average_dead_cards": {
+          "minimum": 0.0,
+          "title": "Average Dead Cards",
+          "type": "number"
+        },
+        "average_mulligans": {
+          "minimum": 0.0,
+          "title": "Average Mulligans",
+          "type": "number"
+        },
+        "color_problem_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Color Problem Rate",
+          "type": "number"
+        },
+        "commander_cast_turn_mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Commander Cast Turn Mean"
+        },
+        "first_draw_engine_turn_mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Draw Engine Turn Mean"
+        },
+        "first_ramp_turn_mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Ramp Turn Mean"
+        },
+        "hand_type": {
+          "title": "Hand Type",
+          "type": "string"
+        },
+        "keep_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Keep Rate",
+          "type": "number"
+        },
+        "mulligan_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Mulligan Rate",
+          "type": "number"
+        },
+        "samples": {
+          "minimum": 1,
+          "title": "Samples",
+          "type": "integer"
+        },
+        "structural_placement_mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Structural Placement Mean"
+        },
+        "uncertainty_half_width_95": {
+          "minimum": 0.0,
+          "title": "Uncertainty Half Width 95",
+          "type": "number"
+        }
+      },
+      "required": [
+        "hand_type",
+        "samples",
+        "keep_rate",
+        "mulligan_rate",
+        "average_mulligans",
+        "color_problem_rate",
+        "average_dead_cards",
+        "uncertainty_half_width_95"
+      ],
+      "title": "MulliganHandTypeSummary",
+      "type": "object"
+    },
+    "MulliganPolicyName": {
+      "enum": [
+        "conservative",
+        "curve_oriented",
+        "commander_oriented",
+        "interaction_oriented",
+        "matchup_oriented",
+        "primer_policy",
+        "current_pilot",
+        "learned_policy"
+      ],
+      "title": "MulliganPolicyName",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "average_dead_cards": {
+      "minimum": 0.0,
+      "title": "Average Dead Cards",
+      "type": "number"
+    },
+    "average_mulligans": {
+      "minimum": 0.0,
+      "title": "Average Mulligans",
+      "type": "number"
+    },
+    "color_problem_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Color Problem Rate",
+      "type": "number"
+    },
+    "commander_cast_turn_mean": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commander Cast Turn Mean"
+    },
+    "completed_followup_games": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Completed Followup Games",
+      "type": "integer"
+    },
+    "estimate_level": {
+      "$ref": "#/$defs/MulliganEstimateLevel",
+      "default": "monte_carlo_hand_quality"
+    },
+    "final_keep_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Final Keep Rate",
+      "type": "number"
+    },
+    "first_draw_engine_turn_mean": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Draw Engine Turn Mean"
+    },
+    "first_ramp_turn_mean": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Ramp Turn Mean"
+    },
+    "full_followup_games": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Full Followup Games",
+      "type": "integer"
+    },
+    "hand_type_summaries": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/MulliganHandTypeSummary"
+      },
+      "title": "Hand Type Summaries",
+      "type": "array"
+    },
+    "keep_rate_first_seven": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Keep Rate First Seven",
+      "type": "number"
+    },
+    "median_hand_score": {
+      "title": "Median Hand Score",
+      "type": "number"
+    },
+    "mulligan_rate": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Mulligan Rate",
+      "type": "number"
+    },
+    "policy": {
+      "$ref": "#/$defs/MulliganPolicyName"
+    },
+    "samples": {
+      "minimum": 1,
+      "title": "Samples",
+      "type": "integer"
+    },
+    "structural_placement_mean": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Structural Placement Mean"
+    },
+    "uncertainty_half_width_95": {
+      "minimum": 0.0,
+      "title": "Uncertainty Half Width 95",
+      "type": "number"
+    },
+    "validation_contexts": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Contexts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "policy",
+    "samples",
+    "keep_rate_first_seven",
+    "final_keep_rate",
+    "mulligan_rate",
+    "average_mulligans",
+    "color_problem_rate",
+    "average_dead_cards",
+    "median_hand_score",
+    "uncertainty_half_width_95"
+  ],
+  "title": "MulliganPolicySummary",
+  "type": "object"
+}

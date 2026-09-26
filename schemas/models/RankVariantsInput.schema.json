@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "prefer_worst_case": {
+      "default": true,
+      "title": "Prefer Worst Case",
+      "type": "boolean"
+    },
+    "variants": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Variants",
+      "type": "array"
+    }
+  },
+  "required": [
+    "variants"
+  ],
+  "title": "RankVariantsInput",
+  "type": "object"
+}

@@ -1,0 +1,33 @@
+{
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "method": "read-only exact-ref git ls-remote (no wildcards, no enumeration, no writes, no clones); live target-absence checks confirm creation-path premise",
+  "note_production_rejection": "Pre-remediation production rejections are quoted from the WS57 task statement (provenance, not re-executed: no remote push was or will be performed inside WS57)",
+  "packets": [
+    {
+      "audit_base": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+      "exact_future_flag": "--expected-audit-base-ref foundry/ws39-commander-history-state-restore",
+      "exact_intended_invocation": "python3 tools/foundry/safe_push.py --worktree <ws54-worktree> --expected-branch qualification/ws54-xmage-rng-reexecution-remediation-20260910 --state <ws54-state> --remote origin --expected-slug moeendres-png/mage --expected-audit-base-ref foundry/ws39-commander-history-state-restore [--dry-run first]",
+      "prerequisite": "git fetch origin foundry/ws39-commander-history-state-restore (read-only; harmless no-op when tip == audit base)",
+      "repository": "moeendres-png/mage",
+      "source_ref": "foundry/ws39-commander-history-state-restore",
+      "source_tip": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
+      "source_tip_vs_audit_base": "EQUAL (exact-tip shape; covered by Positive 1/2 test shapes)",
+      "target": "qualification/ws54-xmage-rng-reexecution-remediation-20260910",
+      "target_absent": true,
+      "workstream": "WS54"
+    },
+    {
+      "audit_base": "a62a8c7cced4cc226ae9b9a44d06539fbf542bd6",
+      "exact_future_flag": "--expected-audit-base-ref research/argentum-readonly-qualification-20260910",
+      "exact_intended_invocation": "python3 tools/foundry/safe_push.py --worktree <rqa2-worktree> --expected-branch research/argentum-comparable-qualification-rq-a2-20260910 --state <rqa2-state> --remote origin --expected-slug moeendres-png/commander-playtest-lab --expected-audit-base-ref research/argentum-readonly-qualification-20260910 [--dry-run first]",
+      "prerequisite": "git fetch origin research/argentum-readonly-qualification-20260910 (read-only)",
+      "repository": "moeendres-png/commander-playtest-lab",
+      "source_ref": "research/argentum-readonly-qualification-20260910",
+      "source_tip": "a62a8c7cced4cc226ae9b9a44d06539fbf542bd6",
+      "source_tip_vs_audit_base": "EQUAL (exact-tip shape; covered by Positive 1/2 test shapes)",
+      "target": "research/argentum-comparable-qualification-rq-a2-20260910",
+      "target_absent": true,
+      "workstream": "RQ-A2"
+    }
+  ]
+}

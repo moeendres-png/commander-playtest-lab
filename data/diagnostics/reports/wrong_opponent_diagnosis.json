@@ -1,0 +1,48 @@
+{
+  "automatic_deck_change": false,
+  "confidence": 0.5900000000000001,
+  "counterevidence": [
+    "low seed sensitivity",
+    "tested alternative action does not improve the model result"
+  ],
+  "counterfactual_result": {
+    "consistency": null,
+    "improvement": null
+  },
+  "cut_release_gate": "blocked:package_dependency_unchecked,opponent_assumptions_fragile,counterfactuals_inconclusive,holdout_not_confirmed,diagnosis_not_deck_or_card_weakness",
+  "diagnosis_id": "2788dd224781d218b6a2d831",
+  "empirically_proven": false,
+  "evidence": [
+    "result changes strongly with opponent assumptions or conflicts with observation"
+  ],
+  "hypothesis": "opponent_model_is_wrong",
+  "metrics": {
+    "counterfactual_improvement": 0.0,
+    "dead_card_rate": 0.1,
+    "decision_regret": 0.0,
+    "evidence_strength": 0.6000000000000001,
+    "missed_line_count": 0,
+    "package_failure_rate": 0.0,
+    "pilot_disagreement": 0.1,
+    "unplayable_rate": 0.0625
+  },
+  "model_dependent": true,
+  "opponent_sensitivity": 0.85,
+  "package_dependency": {
+    "checked": false,
+    "completeness": null,
+    "minimum_met": null,
+    "package_id": null
+  },
+  "pilot_sensitivity": 0.1,
+  "recommended_next_test": "collect_observed_opponent_constraints_and_rebuild_ensemble",
+  "schema_version": "1.0.0",
+  "seed_sensitivity": 0.1,
+  "source_ids": [
+    "synthetic-known-cause-wrong-opponent"
+  ],
+  "subject": "Test Card",
+  "validation_levels": [
+    "structural_model_estimates"
+  ]
+}

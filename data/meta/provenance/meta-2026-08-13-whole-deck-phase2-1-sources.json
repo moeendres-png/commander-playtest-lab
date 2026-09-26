@@ -1,0 +1,82 @@
+{
+  "snapshot_id": "meta-2026-08-13-whole-deck-phase2-1",
+  "sources": [
+    {
+      "author": "Moritz Endres / project files",
+      "categories": [
+        "local_meta",
+        "normal_four_player",
+        "large_pod"
+      ],
+      "evidence_quality": "local_project_context",
+      "license_notes": "reference metadata and short structured extraction only; no long primer text copied",
+      "notes": "Local context only; no external performance claim",
+      "published_at": null,
+      "retrieved_at": "2026-08-05T22:45:00Z",
+      "source_id": "local-project-meta-2026-08-05",
+      "source_type": "local_context",
+      "title": "Local MTG project context for Korvold/RogShai",
+      "url": "drive://MTG-Aktueller-Projektstand"
+    },
+    {
+      "author": "EDHREC",
+      "categories": [
+        "normal_four_player"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "22 user-set Bracket 3 decks in fetched page; frequency-ranked structured extract only; not a literal 100-card deck and not a random Commander sample.",
+      "published_at": "2026-06-22T00:00:00Z",
+      "retrieved_at": "2026-08-13T11:57:00Z",
+      "source_id": "edhrec-rogshai-upgraded-2026-08-13",
+      "source_type": "aggregator",
+      "title": "EDHREC RogShai Upgraded (user-set Bracket 3)",
+      "url": "https://edhrec.com/commanders/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/upgraded"
+    },
+    {
+      "author": "EDHREC",
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "11 user-set optimized decks; structured average-deck extract only; high-power benchmark, not local-meta prediction.",
+      "published_at": "2026-06-22T00:00:00Z",
+      "retrieved_at": "2026-08-13T11:57:00Z",
+      "source_id": "edhrec-rogshai-optimized-2026-08-13",
+      "source_type": "aggregator",
+      "title": "EDHREC RogShai Optimized",
+      "url": "https://edhrec.com/average-decks/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/optimized"
+    },
+    {
+      "author": "EDHREC",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "Fetched page reported 414 user-set cEDH decks; average decklist is a benchmark, not a tournament result.",
+      "published_at": "2026-06-30T00:00:00Z",
+      "retrieved_at": "2026-08-13T11:57:00Z",
+      "source_id": "edhrec-rogshai-cedh-2026-08-13",
+      "source_type": "aggregator",
+      "title": "EDHREC RogShai cEDH average deck",
+      "url": "https://edhrec.com/average-decks/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/cedh"
+    },
+    {
+      "author": "EDHTop16 / TopDeck.gg",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "authoritative_tournament",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "Fetched commander page: 394 entries, 1.29% meta share, 20.56% conversion under the displayed 1-year / 50+ player view. Tournament evidence only; no local-meta transfer assumption.",
+      "published_at": null,
+      "retrieved_at": "2026-08-13T11:57:00Z",
+      "source_id": "edhtop16-rogshai-2026-08-13",
+      "source_type": "tournament",
+      "title": "EDHTop16 RogShai commander results",
+      "url": "https://edhtop16.com/commander/Ishai%2C%20Ojutai%20Dragonspeaker%20%2F%20Rograkh%2C%20Son%20of%20Rohgahh"
+    }
+  ]
+}

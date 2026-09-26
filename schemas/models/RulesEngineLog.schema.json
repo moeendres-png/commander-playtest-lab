@@ -1,0 +1,142 @@
+{
+  "$defs": {
+    "GameEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actor Id"
+        },
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "title": "Event Type",
+          "type": "string"
+        },
+        "game_id": {
+          "title": "Game Id",
+          "type": "string"
+        },
+        "occurred_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Occurred At"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "post_state_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Post State Hash"
+        },
+        "pre_state_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pre State Hash"
+        },
+        "sequence": {
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "event_id",
+        "game_id",
+        "sequence",
+        "event_type"
+      ],
+      "title": "GameEvent",
+      "type": "object"
+    },
+    "RulesBackend": {
+      "enum": [
+        "tactical",
+        "forge",
+        "xmage"
+      ],
+      "title": "RulesBackend",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "backend": {
+      "$ref": "#/$defs/RulesBackend"
+    },
+    "events": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/GameEvent"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "log_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Log Sha256"
+    },
+    "raw_lines": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Raw Lines",
+      "type": "array"
+    },
+    "session_id": {
+      "title": "Session Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "backend",
+    "session_id"
+  ],
+  "title": "RulesEngineLog",
+  "type": "object"
+}

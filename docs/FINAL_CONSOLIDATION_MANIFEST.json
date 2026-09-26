@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-12T02:00:00+02:00",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "start_main": "2b577c36e7c5da701af9e66a04873d07ffc84267",
+  "integration_branch": "agent/final-consolidation-p0-p1",
+  "scope": "RogShai-only P0/P1 consolidation; no deck, inventory, opponent, holdout, or purchase mutation",
+  "items": [
+    {
+      "branch_or_pr": "PR #40",
+      "base_commit": "verified through merged main history",
+      "head_commit": "merged",
+      "changed_files": "context, feature fusion, screening, mana, cache, workflows, bundle, technical truth",
+      "functional_domain": "priority improvements",
+      "already_on_main": true,
+      "overlap_with_other_work": "current implementation baseline",
+      "collision_risk": "low",
+      "recommended_action": "ALREADY_ON_MAIN",
+      "reason": "Useful implementation is present on the verified start main and is extended in place."
+    },
+    {
+      "branch_or_pr": "PR #41",
+      "base_commit": "verified through merged main history",
+      "head_commit": "merged",
+      "changed_files": "active-deck and Korvold-release semantics",
+      "functional_domain": "current data semantics",
+      "already_on_main": true,
+      "overlap_with_other_work": "PR #43 and #47",
+      "collision_risk": "medium",
+      "recommended_action": "ALREADY_ON_MAIN",
+      "reason": "The current main contains the accepted release semantics."
+    },
+    {
+      "branch_or_pr": "PR #43",
+      "base_commit": "verified through merged main history",
+      "head_commit": "merged",
+      "changed_files": "J-FINAL RogShai scope reconciliation",
+      "functional_domain": "J reconciliation",
+      "already_on_main": true,
+      "overlap_with_other_work": "live context",
+      "collision_risk": "medium",
+      "recommended_action": "ALREADY_ON_MAIN",
+      "reason": "Sealed J evidence remains historical while live context is now explicitly decoupled."
+    },
+    {
+      "branch_or_pr": "PR #46",
+      "base_commit": "verified through merged main history",
+      "head_commit": "merged",
+      "changed_files": "RogShai 100-card / 36-land projection synchronization",
+      "functional_domain": "current RogShai data",
+      "already_on_main": true,
+      "overlap_with_other_work": "PR #47",
+      "collision_risk": "low",
+      "recommended_action": "ALREADY_ON_MAIN",
+      "reason": "Exact current deck identity is present on main."
+    },
+    {
+      "branch_or_pr": "PR #47",
+      "base_commit": "pre-cleanup main",
+      "head_commit": "1937adcca14d6de6dfed4972212127b3f723414b",
+      "changed_files": "sole current RogShai baseline and retired operational Korvold artifacts",
+      "functional_domain": "cleanup and active baseline",
+      "already_on_main": true,
+      "overlap_with_other_work": "active scope and deck manifest",
+      "collision_risk": "low",
+      "recommended_action": "ALREADY_ON_MAIN",
+      "reason": "Merged as start main 2b577c36 after all required gates passed."
+    },
+    {
+      "branch_or_pr": "PR #37",
+      "base_commit": "historical pre-J main",
+      "head_commit": "f44c70eb",
+      "changed_files": "structural collision guards, invariant auditor, regression tests",
+      "functional_domain": "project invariants and evidence boundaries",
+      "already_on_main": false,
+      "overlap_with_other_work": "collision guards already equivalent on main",
+      "collision_risk": "high if merged wholesale",
+      "recommended_action": "PORT_SELECTED_CHANGES",
+      "reason": "Port only the adapted read-only auditor and missing regression coverage; do not duplicate collision logic."
+    },
+    {
+      "branch_or_pr": "PR #48",
+      "base_commit": "outdated main",
+      "head_commit": "76f541",
+      "changed_files": "generic architecture and second-deck readiness",
+      "functional_domain": "future second-deck work",
+      "already_on_main": false,
+      "overlap_with_other_work": "outside RogShai-only P0/P1 scope",
+      "collision_risk": "high",
+      "recommended_action": "DEFER",
+      "reason": "Out of scope and its material gates failed; it remains a separate future track."
+    },
+    {
+      "branch_or_pr": "J-P5/J-P6 and historical agent branches",
+      "base_commit": "sealed historical phase bases",
+      "head_commit": "superseded by verified main",
+      "changed_files": "paired statistics, holdout, performance, runtime hygiene, release",
+      "functional_domain": "Roadmap J",
+      "already_on_main": true,
+      "overlap_with_other_work": "current J acceptance and runtime",
+      "collision_risk": "high if replayed",
+      "recommended_action": "SUPERSEDED",
+      "reason": "Accepted work is already on main; sealed evidence is retained without retroactive rewrite."
+    }
+  ]
+}

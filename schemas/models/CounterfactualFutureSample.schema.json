@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "alternative_score": {
+      "title": "Alternative Score",
+      "type": "number"
+    },
+    "chosen_score": {
+      "title": "Chosen Score",
+      "type": "number"
+    },
+    "estimated_placement_delta": {
+      "title": "Estimated Placement Delta",
+      "type": "number"
+    },
+    "improvement": {
+      "title": "Improvement",
+      "type": "number"
+    },
+    "sample_index": {
+      "minimum": 0,
+      "title": "Sample Index",
+      "type": "integer"
+    },
+    "seed": {
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "sample_index",
+    "seed",
+    "chosen_score",
+    "alternative_score",
+    "improvement",
+    "estimated_placement_delta"
+  ],
+  "title": "CounterfactualFutureSample",
+  "type": "object"
+}

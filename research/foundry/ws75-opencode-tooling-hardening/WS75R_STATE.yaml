@@ -1,0 +1,88 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws75-foundry-opencode-tooling-hardening
+branch: ws75/foundry-opencode-tooling-hardening-20260912
+audit_base_sha: c1a760af21469fc1358dbdb9b821f79dcdfaf2db
+audit_base_tree: 061135e2a90fb1b1a6289e6ea508db4da132bd9c
+state_written_against_head: 70302f6d19c12170e20f989de1d0982780f7772b
+validated_head: 70302f6d19c12170e20f989de1d0982780f7772b
+objective: 'WS75R CI-hermeticity remediation (no production-semantic change). Repair
+  only the WS75 PR-head generic-CI failure (run 34700221661: 9 failed, 1073 passed,
+  3 skipped — every failure is a missing ambient `opencode` executable): make
+  launcher/unit tests hermetic via explicit qualified-version stubs, gate the one
+  real-CLI assertion to SKIP when OpenCode is absent, and lock missing-binary
+  fail-closed behavior with explicit regression tests.'
+in_scope:
+- tests/foundry/test_launcher.py (autouse hermetic qualified-CLI stub)
+- tests/foundry/test_ws75_tooling_hardening.py (autouse stub, real-CLI SKIP gate,
+  missing-binary + precedence regression)
+- this WS75R state/evidence record
+out_of_scope:
+- production launcher semantics (unchanged; no production bug found)
+- broad CI redesign
+- Rules/provider/engine work, OpenCode version change
+- weakening fail-closed version verification
+- unrelated tests
+- merging PR #181
+dependencies:
+- entry remote head db655ea1ee17658c10f3c9e1cbfd896f0e176220 (PR #181 head)
+- OpenCode 1.18.30 remains the exact canonical qualified version (unchanged)
+- dedicated .github/workflows/opencode.yml keeps real-CLI coverage
+  (immutable assets + SHA256 + exact `opencode --version == 1.18.30` asserts)
+hard_gates:
+- wrong OpenCode version still fails closed
+- missing binary still fails closed for real launcher invocations
+- malformed/unparseable version still fails closed
+- absence of OpenCode in generic CI is SKIP/NOT_RUN, never fabricated PASS
+- safe_push remains the sole remote-write path
+ownership: WS75R-CI-HERMETICITY
+status: ACTIVE
+exact_next_action: safe_push dry-run then actual with --expected-audit-base-ref main;
+  then terminal WS75R handoff (do NOT merge PR #181).
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+technical_decisions:
+- id: TD-WS75R-01-autouse-stub
+  decision: Function-scoped autouse fixture in both test modules routes
+    FOUNDRY_OPENCODE_BIN at a stub reporting exactly
+    version_mod.QUALIFIED_OPENCODE_VERSION; explicit opencode_bin= still wins.
+    No test depends on ambient PATH opencode anymore.
+  evidence: full file suites green with PATH stripped of opencode (52 passed,
+    1 skipped); 53 passed with opencode present.
+- id: TD-WS75R-02-real-cli-gate
+  decision: test_installed_cli_reports_qualified_version uses a shutil.which
+    capability gate (SKIP when absent); real coverage stays in
+    .github/workflows/opencode.yml, which is untouched.
+  evidence: SKIP message names the workflow as the coverage vehicle.
+- id: TD-WS75R-03-missing-binary-locked
+  decision: Missing-binary fail-closed is now explicitly tested at launcher
+    level (nonexistent path -> LAUNCH_REFUSED, no exception), unit level
+    (VersionCheckError), env-precedence level (explicit beats stale env;
+    stale env alone refuses), and env-chain level.
+  evidence: five new regression tests.
+- id: TD-WS75R-04-full-pytest-locally
+  decision: 'Local full-pytest failures outside tests/foundry are dirty-tree
+    artifacts (suites requiring a clean tracked worktree); they passed in CI
+    run 34700221661 on the clean PR head. Definitive proof is the full run
+    from the clean remediation commit. Missing third-party test deps
+    (typer/hypothesis/openpyxl/fastapi) were installed into a disposable
+    venv (validation-only, repo untouched) to mirror CI deps.'
+  evidence: failure texts (clean-worktree assertions); CI 9-failed-only record.
+tests_run:
+- 'targeted: pytest tests/foundry/test_launcher.py tests/foundry/test_ws75_tooling_hardening.py -q -> 53 passed (opencode present); 52 passed + 1 SKIP with PATH stripped of opencode (CI simulation)'
+- 'pytest tests/foundry/ -q -> 220 passed, 1 skipped (live export snapshot absent)'
+- 'full pytest -q (venv mirroring CI deps) from clean HEAD 70302f6d -> 1088 passed, 2 skipped, 0 failed'
+- 'ruff check . -> All checks passed; ruff format --check . -> 777 files formatted'
+evidence:
+- 'CI run 34700221661 log: 9 failed (all missing-executable opencode), 1073 passed, 3 skipped'
+- clean-HEAD full run 1088 passed / 0 failed closes exactly those 9 plus 5 new regression tests
+- 'version pin unchanged: QUALIFIED_OPENCODE_VERSION == 1.18.30; workflow asserts untouched'
+artifacts: []
+files_modified:
+- tests/foundry/test_launcher.py
+- tests/foundry/test_ws75_tooling_hardening.py
+- research/foundry/ws75-opencode-tooling-hardening/WS75R_STATE.yaml (this record)
+remaining_scope:
+- commit, clean-HEAD validation, validated_head record, safe_push
+authority_gates: []
+next_action: Commit the remediation and validate from the clean tree.

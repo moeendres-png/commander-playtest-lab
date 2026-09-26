@@ -1,0 +1,74 @@
+{
+  "$defs": {
+    "ClaimKind": {
+      "enum": [
+        "source_fact",
+        "model_output",
+        "inference"
+      ],
+      "title": "ClaimKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "citation_id": {
+      "title": "Citation Id",
+      "type": "string"
+    },
+    "claim_id": {
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "claim_kind": {
+      "$ref": "#/$defs/ClaimKind"
+    },
+    "claim_text": {
+      "title": "Claim Text",
+      "type": "string"
+    },
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "derived_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Derived Ids",
+      "type": "array"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Location"
+    },
+    "source_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "citation_id",
+    "claim_id",
+    "claim_text",
+    "claim_kind"
+  ],
+  "title": "CitationRecord",
+  "type": "object"
+}

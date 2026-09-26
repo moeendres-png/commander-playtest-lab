@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "conflict_id": {
+      "title": "Conflict Id",
+      "type": "string"
+    },
+    "conflict_type": {
+      "enum": [
+        "opposing_adjustment",
+        "duplicate_rule_id",
+        "deck_version_mismatch",
+        "format_band_mismatch",
+        "source_disagreement"
+      ],
+      "title": "Conflict Type",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "resolution_required": {
+      "default": true,
+      "title": "Resolution Required",
+      "type": "boolean"
+    },
+    "rule_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rule Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "conflict_id",
+    "rule_ids",
+    "conflict_type",
+    "description"
+  ],
+  "title": "PrimerRuleConflict",
+  "type": "object"
+}

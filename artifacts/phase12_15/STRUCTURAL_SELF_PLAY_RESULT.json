@@ -1,0 +1,1842 @@
+{
+  "common_random_numbers_across_profiles": true,
+  "empirical_weights_used": false,
+  "estimate_type": "structural_model_estimates",
+  "execution_status": "passed",
+  "game_count": 96,
+  "hidden_information_access": false,
+  "rows": [
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "weak",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "average",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "strong",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "near_optimal_heuristic",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "conservative",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "interaction_holding",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "commander_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "engine_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "anti_leader",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "anti_combo",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "rebuild_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "tempo_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "politically_low_visibility",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "politically_aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 3437190531089867777,
+      "opponent_variants": [
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "adversarial_worst_case",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 0
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "weak",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "average",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "strong",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "near_optimal_heuristic",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "conservative",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "interaction_holding",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "commander_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "engine_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "anti_leader",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "anti_combo",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "rebuild_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "tempo_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "politically_low_visibility",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "politically_aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 5791939996394773671,
+      "opponent_variants": [
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median"
+      ],
+      "pilot": "adversarial_worst_case",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 1
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "weak",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "average",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "strong",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "near_optimal_heuristic",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "conservative",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "interaction_holding",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "commander_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "engine_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "anti_leader",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "anti_combo",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "rebuild_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "tempo_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "politically_low_visibility",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "politically_aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "korvold/current",
+      "match_seed": 1479056378211289986,
+      "opponent_variants": [
+        "opponent-kaervek-reference-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-blight-curse-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "adversarial_worst_case",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 2
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "weak",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "average",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "strong",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "near_optimal_heuristic",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "conservative",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "interaction_holding",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "commander_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "engine_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "anti_leader",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "anti_combo",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "rebuild_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "tempo_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "politically_low_visibility",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "politically_aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 5983087522979678493,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "adversarial_worst_case",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 3,
+      "politics": "rational_threat_focus",
+      "scenario_index": 3
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "weak",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "average",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "strong",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "near_optimal_heuristic",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "conservative",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "interaction_holding",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "commander_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "engine_focused",
+      "place_1": false,
+      "placement": 2,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "anti_leader",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "anti_combo",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "rebuild_focused",
+      "place_1": false,
+      "placement": 2,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "tempo_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "politically_low_visibility",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "politically_aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 230295306639088589,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-cosmic-spiderman-midbudget-median",
+        "opponent-doom-prevails-precon-median"
+      ],
+      "pilot": "adversarial_worst_case",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 4,
+      "politics": "rational_threat_focus",
+      "scenario_index": 4
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "weak",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "average",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "strong",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "near_optimal_heuristic",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "conservative",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "interaction_holding",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "commander_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "engine_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "anti_leader",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "anti_combo",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "rebuild_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "tempo_focused",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "politically_low_visibility",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "politically_aggressive",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    },
+    {
+      "aborted": false,
+      "all_seats_same_policy_profile": true,
+      "completed": true,
+      "deck_id": "rogshai/current",
+      "match_seed": 1159933078591220819,
+      "opponent_variants": [
+        "opponent-dance-elements-precon-fixed_reference",
+        "opponent-wakanda-forever-precon-fixed_reference",
+        "opponent-morcant-elves-median",
+        "opponent-kaervek-reference-fixed_reference"
+      ],
+      "pilot": "adversarial_worst_case",
+      "place_1": true,
+      "placement": 1,
+      "pod_size": 5,
+      "politics": "rational_threat_focus",
+      "scenario_index": 5
+    }
+  ],
+  "runtime_seconds": 5.822465,
+  "scenario_count": 6,
+  "schema_version": 1,
+  "self_play_status": "structural_same_policy_all_seats_executed",
+  "summaries": [
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "adversarial_worst_case",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "aggressive",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "anti_combo",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "anti_leader",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "average",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "commander_focused",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "conservative",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "interaction_holding",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "near_optimal_heuristic",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "politically_aggressive",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "politically_low_visibility",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "strong",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "tempo_focused",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.0,
+      "games": 6,
+      "pilot": "weak",
+      "place_1_share": 1.0
+    },
+    {
+      "average_placement": 1.166667,
+      "games": 6,
+      "pilot": "engine_focused",
+      "place_1_share": 0.833333
+    },
+    {
+      "average_placement": 1.166667,
+      "games": 6,
+      "pilot": "rebuild_focused",
+      "place_1_share": 0.833333
+    }
+  ],
+  "unknown_cards_invented": false,
+  "validation_level": "structural_only"
+}

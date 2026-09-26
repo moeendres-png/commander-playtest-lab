@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "audit_point": "F",
+  "date": "2026-08-08",
+  "canonical_software_before_cleanup": {
+    "branch": "main",
+    "commit": "ae7be044fb9edc86ed353422dbc4e16766261ad2",
+    "version": "1.13.4"
+  },
+  "policy": {
+    "git_branch_delete_rule": "delete only when branch tip is an ancestor of main (no exclusive commits)",
+    "drive_delete_rule": "delete only proven empty or redundant objects; preserve unique historical evidence by archiving",
+    "canonical_deck_mutations": 0,
+    "inventory_mutations": 0
+  },
+  "github": {
+    "cleanup_workflow_run": 31279203285,
+    "cleanup_artifact_id": 9027914170,
+    "cleanup_artifact_sha256": "750f35345a3b37d7013bab559f488c652d61c65891d8bce231d7b37196eadfb5",
+    "deleted_branches": [
+      "agent/audit-e-bug-remediation",
+      "backup/external-engine-foundation-pre-rebase-2026-08-07",
+      "backup/pr5-external-engine-before-rebuild-2026-08-08",
+      "backup/release-1.13.1-pre-rebase-2026-08-07",
+      "canonical/drive-1.13.3-exact",
+      "feature/data-sync-before-xmage",
+      "feature/external-engine-foundation-main",
+      "fix/1.13.4-portable-snapshots",
+      "fix/1.13.4-pretest-ruff",
+      "fix/ci-bootstrap",
+      "fix/release-1.13.1-current-deck-metadata",
+      "fix/runtime-hygiene",
+      "fix/runtime-hygiene-final",
+      "fix/windows-atomic-write",
+      "historical/github-main-pre-reconciliation-2026-08-08",
+      "reconcile/1.13.3-hardening",
+      "reconcile/1.13.3-hardening-runtime-port-staging",
+      "release/1.13.1",
+      "release/1.13.1-canonical-main",
+      "release/1.13.4-final",
+      "release/1.13.4-reconciliation",
+      "release/canonical-1.13.3",
+      "release/final-acceptance-main",
+      "work/1.13.4-pretest-variants"
+    ],
+    "kept_branches_with_exclusive_commits": [
+      {"branch":"agent/audit-d-limitation-remediation","ahead":7,"behind":5,"action":"REVIEW_REQUIRED"},
+      {"branch":"agent/limitation-remediation-d","ahead":3,"behind":5,"action":"REVIEW_REQUIRED"},
+      {"branch":"backup/pr5-before-main-18826-sync-2026-08-08","ahead":12,"behind":63,"action":"KEEP_HISTORICAL"},
+      {"branch":"backup/runtime-hygiene-pre-cleanup-2026-08-07","ahead":16,"behind":111,"action":"KEEP_HISTORICAL"},
+      {"branch":"backup/windows-atomic-write-pre-main-sync-2026-08-07","ahead":2,"behind":138,"action":"KEEP_HISTORICAL"},
+      {"branch":"docs/d-closeout-e-handoff","ahead":2,"behind":4,"action":"REVIEW_REQUIRED"},
+      {"branch":"feature/external-engine-foundation","ahead":8,"behind":61,"action":"KEEP_HISTORICAL"},
+      {"branch":"feature/external-engine-foundation-v2","ahead":7,"behind":61,"action":"KEEP_HISTORICAL"},
+      {"branch":"fix/1.13.4-strict-quality","ahead":17,"behind":5,"action":"REVIEW_REQUIRED"},
+      {"branch":"fix/1.13.4-strict-quality-controlled","ahead":39,"behind":5,"action":"REVIEW_REQUIRED"},
+      {"branch":"measure/e-perf-32-postfix","ahead":33,"behind":3,"action":"REVIEW_REQUIRED"},
+      {"branch":"merge/1.13.4-main-reconciliation","ahead":1,"behind":17,"action":"KEEP_HISTORICAL"},
+      {"branch":"research/korvold-rogshai-pod-meta","ahead":8,"behind":131,"action":"KEEP_HISTORICAL"},
+      {"branch":"sync/canonical-drive-1.13.3","ahead":2,"behind":63,"action":"KEEP_HISTORICAL"}
+    ],
+    "tags": [],
+    "releases": []
+  },
+  "drive": {
+    "permanently_deleted": [
+      {
+        "id": "1Ftt8cy9ADZ0PuLwIWGqEhT7pFsCXdXun",
+        "name": "17_Mulligan_Lab",
+        "reason": "proven empty duplicate; populated 17_Mulligan_Lab remains"
+      }
+    ],
+    "archived_or_moved": [
+      {"id":"1PV4WXGZyolwiylzK9F5w5VrJ2LmAv_vj","name":"HISTORICAL_00_LATEST_PRE_E_2026-08-08","reason":"active 00_LATEST contained stale/mixed 1.13.1-era release artifacts"},
+      {"id":"1aD4-p6e1Rs6RDFe_f2v7xEBEX_pw5vQw","name":"HISTORICAL_21_SUPERSEDED_Pre_XMage_Data_Sync_1.13.3"},
+      {"id":"1i8EXpQ1NYy4qfzB4FHFgGvGXo3xOZFTN","name":"HISTORICAL_23_SUPERSEDED_Pre_XMage_Data_Sync_1.13.3"},
+      {"id":"1WiO3wqJwELp_sZ6ptfoTIpJdFW8FIwK5","name":"HISTORICAL_20_Pre-XMage_Data_Sync_1.13.3"},
+      {"id":"1NnWzSiuf56yvIg0LyjN-DSwsrxMH1XFD","name":"HISTORICAL_23_Pre_XMage_Data_Sync_1.13.3"},
+      {"id":"1EoTcdtBOaLRh3doAoO0Jaj0JEjuJNl8U","name":"HISTORICAL_23_Data_Sync_1.13.3"},
+      {"id":"1QDcD2O2CrQtbqLAX6RLPDnvxiiI2ZWWQ","name":"HISTORICAL_23_Pre_XMage_Data_Sync_1.13.3_FINAL"},
+      {"id":"1xjEpg5jil6LQaQvATlAp4HaFAy8EXFot","name":"HISTORICAL_24_Release_1.13.4_Pretest_Variants_2026-08-08"},
+      {"id":"1YTuihDCyRZBynKa1wQ9JXe_6DvdJDzyf","name":"HISTORICAL_20_Final_System_Audit_2026-08-06"},
+      {"id":"1QbjNOYMpwcmCQpsqfvS4biCHZqGG1jZQ","name":"HISTORICAL_PLAYTEST_LAB_KANONISCHER_EINSTIEG_PRE_1.13.4.md"},
+      {"id":"1eJ6RYx4E7t0K_PbcCdVXB8G0Jjd86TZc","name":"HISTORICAL_PLAYTEST_LAB_EXTERNAL_ENGINE_FIX_2026-08-07.md"},
+      {"id":"1iLPLiSRQ455RJ6cMTwQdnW6S5aaa_6yp","name":"HISTORICAL_12_15-12_17_Repair_1.10.3_2026-08-07"},
+      {"id":"15fR539hgFeM_n9fLFnqiAQD3QpyFUyt-","name":"HISTORICAL_12_15-12_17_Intermediate_1.12.0_2026-08-07"}
+    ],
+    "active_release_pointer_created": false,
+    "reason_no_new_00_latest": "F is cleanup, not a new software release; GitHub main remains the current software truth until H performs release/pointer organization"
+  }
+}

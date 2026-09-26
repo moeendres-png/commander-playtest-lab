@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "CardRole": {
+      "enum": [
+        "mana_source",
+        "ramp",
+        "draw",
+        "selection",
+        "removal",
+        "counter",
+        "protection",
+        "wipe",
+        "recursion",
+        "graveyard_hate",
+        "engine",
+        "enabler",
+        "payoff",
+        "finisher",
+        "combat_payoff",
+        "token_source",
+        "sacrifice_outlet",
+        "land_synergy"
+      ],
+      "title": "CardRole",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "title": "Action Id",
+      "type": "string"
+    },
+    "action_kind": {
+      "enum": [
+        "card",
+        "commander",
+        "counter",
+        "protection",
+        "combat_target",
+        "removal_target",
+        "graveyard_target",
+        "pass"
+      ],
+      "title": "Action Kind",
+      "type": "string"
+    },
+    "base_power": {
+      "default": 0.0,
+      "maximum": 10000.0,
+      "minimum": 0.0,
+      "title": "Base Power",
+      "type": "number"
+    },
+    "card_name": {
+      "title": "Card Name",
+      "type": "string"
+    },
+    "commander_synergy": {
+      "default": 0.0,
+      "maximum": 3.0,
+      "minimum": 0.0,
+      "title": "Commander Synergy",
+      "type": "number"
+    },
+    "floor_value": {
+      "default": 0.0,
+      "maximum": 3.0,
+      "minimum": 0.0,
+      "title": "Floor Value",
+      "type": "number"
+    },
+    "immediate_impact": {
+      "default": 0.0,
+      "maximum": 2.0,
+      "minimum": 0.0,
+      "title": "Immediate Impact",
+      "type": "number"
+    },
+    "mana_cost": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Mana Cost",
+      "type": "number"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "title": "Metadata",
+      "type": "object"
+    },
+    "multiplayer_scaling": {
+      "default": 0.0,
+      "maximum": 3.0,
+      "minimum": -1.0,
+      "title": "Multiplayer Scaling",
+      "type": "number"
+    },
+    "remaining_mana": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Remaining Mana",
+      "type": "number"
+    },
+    "role_strengths": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/CardRole"
+      },
+      "title": "Role Strengths",
+      "type": "object"
+    },
+    "roles": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CardRole"
+      },
+      "title": "Roles",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "target_player_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Player Id"
+    },
+    "target_threat": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Target Threat",
+      "type": "number"
+    },
+    "threat_score": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Threat Score",
+      "type": "number"
+    },
+    "turn_cycle_risk": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Turn Cycle Risk",
+      "type": "number"
+    }
+  },
+  "required": [
+    "action_id",
+    "action_kind",
+    "card_name"
+  ],
+  "title": "PilotActionView",
+  "type": "object"
+}

@@ -1,0 +1,52 @@
+{
+  "$defs": {
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "commander": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Commander"
+    },
+    "format_band": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FormatBand"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "min_frequency": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Min Frequency",
+      "type": "number"
+    }
+  },
+  "title": "QueryMetaCardsInput",
+  "type": "object"
+}

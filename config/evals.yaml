@@ -1,0 +1,20 @@
+schema_version: 1
+thresholds:
+  unit_pass_rate: 1.0
+  property_pass_rate: 1.0
+  minimum_property_cases: 250
+  golden_pass_rate: 0.95
+  golden_critical_pass_rate: 1.0
+  differential_match_rate: 1.0
+  minimum_external_differential_cases: 3
+  agent_tool_choice_rate: 0.95
+  agent_interpretation_rate: 0.95
+  agent_uncertainty_rate: 0.95
+  agent_no_fabrication_rate: 1.0
+  agent_model_real_separation_rate: 1.0
+  agent_validation_before_recommendation_rate: 1.0
+  maximum_aborted_property_games_rate: 0.02
+external_backends:
+  forge_command_env: COMMANDER_LAB_FORGE_DIFFERENTIAL_CMD
+  xmage_command_env: COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD
+  required_external_cases_for_release: 3

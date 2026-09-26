@@ -1,0 +1,107 @@
+{
+  "$defs": {
+    "PilotDecisionMode": {
+      "enum": [
+        "deterministic",
+        "stochastic"
+      ],
+      "title": "PilotDecisionMode",
+      "type": "string"
+    },
+    "PilotStrength": {
+      "enum": [
+        "weak",
+        "average",
+        "strong",
+        "near_optimal_heuristic"
+      ],
+      "title": "PilotStrength",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approval_token": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approval Token"
+    },
+    "deck_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deck Ids",
+      "type": "array"
+    },
+    "iterations": {
+      "default": 100,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 35,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Max Turns",
+      "type": "integer"
+    },
+    "pilot_mode": {
+      "$ref": "#/$defs/PilotDecisionMode",
+      "default": "deterministic"
+    },
+    "pilot_strength": {
+      "$ref": "#/$defs/PilotStrength",
+      "default": "strong"
+    },
+    "pilot_strengths": {
+      "default": [
+        "average",
+        "strong",
+        "near_optimal_heuristic"
+      ],
+      "items": {
+        "$ref": "#/$defs/PilotStrength"
+      },
+      "title": "Pilot Strengths",
+      "type": "array"
+    },
+    "seed": {
+      "default": 20260804,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "seeds": {
+      "default": [
+        20260804,
+        20260805,
+        20260806
+      ],
+      "items": {
+        "type": "integer"
+      },
+      "title": "Seeds",
+      "type": "array"
+    },
+    "workers": {
+      "default": 1,
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "deck_ids"
+  ],
+  "title": "SensitivityInput",
+  "type": "object"
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "providers": {
+    "xmage": {
+      "source": "https://github.com/magefree/mage.git",
+      "license": "MIT",
+      "java_requirement": "Java 8+ per official README",
+      "build_system": "Maven",
+      "configured_release": "xmage_1.4.60V3",
+      "configured_commit": "06d166b098ad36b277edef01116472203d5a047e",
+      "pin_verification": "blocked",
+      "bootstrap_exit_code": 128,
+      "runtime_status": "blocked"
+    },
+    "forge": {
+      "source": "https://github.com/Card-Forge/forge.git",
+      "license": "GPL-3.0",
+      "java_requirement": "Java 17+ per official user guide",
+      "build_system": "Maven",
+      "configured_release": "forge-2.0.13",
+      "configured_commit": "852066bf4f761b302ed17cb011999d8a8fe08ad6",
+      "pin_verification": "blocked",
+      "bootstrap_exit_code": 128,
+      "runtime_status": "blocked"
+    }
+  }
+}

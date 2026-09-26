@@ -1,0 +1,71 @@
+{
+  "captured_at": "2026-08-06T22:52:00+02:00",
+  "python": "3.13.5 (main, May  5 2026, 21:05:52) [GCC 14.2.0]",
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+  "cpu_count": 5,
+  "git_commit": "f5a17fe6726cc7d8d5a3300224e654b360380a28",
+  "branch": "audit/post-12.10-final-hardening",
+  "package_version": "1.10.2",
+  "java": {
+    "status": "passed",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "openjdk version \"21.0.10\" 2026-01-20\nOpenJDK Runtime Environment (build 21.0.10+7-Debian-1deb13u1)\nOpenJDK 64-Bit Server VM (build 21.0.10+7-Debian-1deb13u1, mixed mode, sharing)"
+  },
+  "git": {
+    "status": "passed",
+    "exit_code": 0,
+    "stdout": "git version 2.47.3",
+    "stderr": ""
+  },
+  "dependencies": {
+    "pydantic": "2.13.4",
+    "typer": "0.26.3",
+    "fastapi": "0.128.2",
+    "uvicorn": "0.48.0",
+    "pytest": "9.0.2",
+    "pytest-asyncio": "1.3.0",
+    "openai": null,
+    "openai-agents": null,
+    "ruff": null,
+    "mypy": null,
+    "hypothesis": null,
+    "mutmut": null,
+    "build": null,
+    "pip-audit": null,
+    "cyclonedx-bom": null,
+    "pyarrow": null,
+    "pandas": "2.2.3"
+  },
+  "quality_tools": {
+    "ruff": {
+      "status": "blocked_not_installed"
+    },
+    "mypy": {
+      "status": "blocked_not_installed"
+    },
+    "pip-audit": {
+      "status": "blocked_not_installed"
+    }
+  },
+  "build_tool": {
+    "status": "failed",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "/opt/pyvenv/bin/python: No module named build"
+  },
+  "maven": {
+    "status": "blocked_not_installed"
+  },
+  "gradle": {
+    "status": "blocked_not_installed"
+  },
+  "docker": {
+    "status": "blocked_not_installed"
+  },
+  "external_engine_env": {
+    "ENGINE_START_COMMAND": null,
+    "COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD": null,
+    "COMMANDER_LAB_FORGE_DIFFERENTIAL_CMD": null
+  }
+}

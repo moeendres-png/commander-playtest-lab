@@ -1,0 +1,69 @@
+{
+  "$defs": {
+    "RulesBackend": {
+      "enum": [
+        "tactical",
+        "forge",
+        "xmage"
+      ],
+      "title": "RulesBackend",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_cards": {
+      "minimum": 0,
+      "title": "Accepted Cards",
+      "type": "integer"
+    },
+    "backend": {
+      "$ref": "#/$defs/RulesBackend"
+    },
+    "commander_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Commander Names",
+      "type": "array"
+    },
+    "deck_hash": {
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "handle_id": {
+      "title": "Handle Id",
+      "type": "string"
+    },
+    "rejected_cards": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Rejected Cards",
+      "type": "array"
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "backend",
+    "handle_id",
+    "deck_id",
+    "deck_hash",
+    "commander_names",
+    "accepted_cards"
+  ],
+  "title": "RulesDeckHandle",
+  "type": "object"
+}

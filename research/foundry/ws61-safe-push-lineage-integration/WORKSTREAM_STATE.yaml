@@ -1,0 +1,94 @@
+schema_version: '2.0'
+repository: moeendres-png/commander-playtest-lab
+worktree: /home/moeen/code/ws61-foundry-safe-push-lineage-integration
+branch: ws61/foundry-safe-push-lineage-integration-20260911
+audit_base_sha: 55fd87f99462f9b30225f9ac8587e8a6abf75e88
+audit_base_tree: 4e1d594fefb7365d1c9117061a86f63ffb595033
+state_written_against_head: ebf94e680e92043e9418a588229099d33834a945
+validated_head: fc4c451787fc2ff3d8d3315373099a4a21a7f9f7
+objective: WS61 integrate previously qualified WS57 safe-push source-lineage support
+  onto current post-WS58R main without importing stale workstream state or regressing
+  the hardened canonical state writer.
+in_scope:
+- tools/foundry/safe_push.py lineage-anchor semantics
+- tests/foundry/test_safe_push.py
+- required Foundry docs
+- WS61 integration evidence
+- compatibility with current WS58R state writer
+out_of_scope:
+- .foundry/WORKSTREAM_STATE.yaml replacement from WS57
+- engine/provider changes
+- candidate qualification
+- behavior credit
+dependencies:
+- WS57 remote terminal 9af19e627fa1b02fcf3ed94a2dfccbb51798ae9c
+- main 55fd87f99462f9b30225f9ac8587e8a6abf75e88
+hard_gates:
+- no wholesale stale-state cherry-pick
+- existing-target fast-forward semantics unchanged
+- new non-main branch creation requires exact named remote source branch
+- source ref strict validation
+- no fetch inside safe_push
+- WS58R state-writer invariants remain green
+- full Foundry regression green
+forbidden_shortcuts:
+- ordinary push
+- force push
+- --no-verify
+- manual FOUNDRY_SAFE_PUSH
+- foreign .foundry state replacement
+ownership: WS61-FOUNDRY-SAFE-PUSH-LINEAGE-INTEGRATION
+status: COMPLETE
+exact_next_action: Coordinator review remediation complete; branch-root WS-A1D state
+  restored byte-identical to audit base. WS61 is ready for Coordinator PR review.
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+current_reasoning_tier: high
+artifacts:
+- research/foundry/ws61-safe-push-lineage-integration/WS61_INTEGRATION_REPORT.md
+- research/foundry/ws61-safe-push-lineage-integration/ws57-provenance/ (6 verbatim
+  WS57 evidence files)
+- research/foundry/ws61-safe-push-lineage-integration/WS61_COORDINATOR_REVIEW_REMEDIATION.md
+evidence:
+- 'tests/foundry/test_safe_push.py: 30 passed on clean HEAD fc4c451787fc2ff3d8d3315373099a4a21a7f9f7
+  (15 pre-existing + 15 lineage)'
+- 'full tests/foundry/: 184 passed, 1 skipped (pre-existing live-snapshot conditional
+  skip)'
+- 'ruff check + ruff format --check on both changed files: clean'
+- 'state.py/bootstrap.py/test_state_writer.py: empty diff vs main (WS58R hardening
+  preserved)'
+- 'Coordinator-review ownership defect proven: audit-base .foundry/WORKSTREAM_STATE.yaml
+  belongs to WS-A1D; WS61 rebound it without authority'
+- .foundry/WORKSTREAM_STATE.yaml restored byte-for-byte from audit base 55fd87f9 (diff
+  vs audit base EMPTY)
+files_modified:
+- tools/foundry/safe_push.py
+- tests/foundry/test_safe_push.py
+remaining_scope: []
+technical_decisions:
+- branch-root .foundry/WORKSTREAM_STATE.yaml is owned by WS-A1D and was incorrectly
+  rebound by WS61 (Coordinator-review finding)
+- branch-root state restored exactly from audit base 55fd87f9; it is not edited, migrated,
+  or reinterpreted
+- research/foundry/ws61-safe-push-lineage-integration/WORKSTREAM_STATE.yaml is the
+  canonical WS61 operational state
+- this remediation changes state/evidence only; code validation credit remains fc4c451787fc2ff3d8d3315373099a4a21a7f9f7
+  and is not promoted
+tests_run:
+- python3 -m pytest tests/foundry/test_safe_push.py -q -> 30 passed (on validated
+  code HEAD fc4c4517)
+- python3 -m pytest tests/foundry/ -q -> 184 passed, 1 skipped
+- ruff check + ruff format --check on changed files -> clean
+- safe_push --dry-run (tested branch tool, launcher-held lock) -> DRY_RUN_OK rc 0;
+  terminal safe_push -> PUSHED ebf94e68, remote ref verified equal
+validated_gates:
+- strict source branch-name validation
+- literal exact remote lookup
+- source branch must already exist
+- audit_base equal-or-ancestor of remote tip
+- target creation fail closed
+- existing target fast-forward-only
+- safe_push never fetches
+- protected/unsafe target rules unchanged
+- writer-lock ancestor proof unchanged
+- validation-credit gates unchanged
+- WS58R state-writer invariants green

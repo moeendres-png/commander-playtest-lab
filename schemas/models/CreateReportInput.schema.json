@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "output_name": {
+      "default": "report.md",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "tool_responses": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Tool Responses",
+      "type": "array"
+    }
+  },
+  "required": [
+    "title",
+    "tool_responses"
+  ],
+  "title": "CreateReportInput",
+  "type": "object"
+}

@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "card_name": {
+      "title": "Card Name",
+      "type": "string"
+    },
+    "confidence_intervals": {
+      "additionalProperties": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Confidence Intervals",
+      "type": "object"
+    },
+    "deck_hash": {
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "matchup_scope": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Matchup Scope",
+      "type": "array"
+    },
+    "method": {
+      "title": "Method",
+      "type": "string"
+    },
+    "metric_deltas": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Metric Deltas",
+      "type": "object"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "sample_size": {
+      "minimum": 1,
+      "title": "Sample Size",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "card_name",
+    "deck_hash",
+    "method",
+    "sample_size",
+    "metric_deltas"
+  ],
+  "title": "CardContribution",
+  "type": "object"
+}

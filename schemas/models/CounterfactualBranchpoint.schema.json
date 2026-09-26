@@ -1,0 +1,241 @@
+{
+  "$defs": {
+    "CounterfactualAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "action_kind": {
+          "default": "structural_action",
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "legal": {
+          "default": true,
+          "title": "Legal",
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "public_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Public Description"
+        },
+        "tactical_input": {
+          "additionalProperties": true,
+          "title": "Tactical Input",
+          "type": "object"
+        },
+        "tactical_rule": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tactical Rule"
+        },
+        "target_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Ids",
+          "type": "array"
+        },
+        "utility": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Utility"
+        }
+      },
+      "required": [
+        "action_id"
+      ],
+      "title": "CounterfactualAction",
+      "type": "object"
+    },
+    "CounterfactualEngineMode": {
+      "enum": [
+        "structural",
+        "tactical_oracle",
+        "external_engine"
+      ],
+      "title": "CounterfactualEngineMode",
+      "type": "string"
+    },
+    "HiddenInformationPolicy": {
+      "enum": [
+        "same_realized_future",
+        "resampled_unknown_future",
+        "multiple_future_samples",
+        "public_information_only"
+      ],
+      "title": "HiddenInformationPolicy",
+      "type": "string"
+    },
+    "SeedPolicy": {
+      "enum": [
+        "same_seed",
+        "derived_seeds",
+        "explicit_seeds"
+      ],
+      "title": "SeedPolicy",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "actor_id": {
+      "title": "Actor Id",
+      "type": "string"
+    },
+    "alternative_action": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Alternative Action"
+    },
+    "available_actions": {
+      "items": {
+        "$ref": "#/$defs/CounterfactualAction"
+      },
+      "title": "Available Actions",
+      "type": "array"
+    },
+    "branchpoint_id": {
+      "title": "Branchpoint Id",
+      "type": "string"
+    },
+    "chosen_action": {
+      "title": "Chosen Action",
+      "type": "string"
+    },
+    "engine_mode": {
+      "$ref": "#/$defs/CounterfactualEngineMode",
+      "default": "structural"
+    },
+    "event_offset": {
+      "minimum": 0,
+      "title": "Event Offset",
+      "type": "integer"
+    },
+    "event_type": {
+      "default": "pilot_decision",
+      "title": "Event Type",
+      "type": "string"
+    },
+    "game_id": {
+      "title": "Game Id",
+      "type": "string"
+    },
+    "hidden_information_policy": {
+      "$ref": "#/$defs/HiddenInformationPolicy",
+      "default": "public_information_only"
+    },
+    "phase": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Phase"
+    },
+    "player_eliminated": {
+      "default": false,
+      "title": "Player Eliminated",
+      "type": "boolean"
+    },
+    "public_state_before": {
+      "additionalProperties": true,
+      "title": "Public State Before",
+      "type": "object"
+    },
+    "realized_future_summary": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Realized Future Summary",
+      "type": "object"
+    },
+    "replay_prefix_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Replay Prefix Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "seed_policy": {
+      "$ref": "#/$defs/SeedPolicy",
+      "default": "same_seed"
+    },
+    "source_path": {
+      "title": "Source Path",
+      "type": "string"
+    },
+    "source_run_id": {
+      "title": "Source Run Id",
+      "type": "string"
+    },
+    "state_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "State Hash",
+      "type": "string"
+    },
+    "validation_level": {
+      "default": "structural_model_estimates",
+      "title": "Validation Level",
+      "type": "string"
+    }
+  },
+  "required": [
+    "branchpoint_id",
+    "source_run_id",
+    "source_path",
+    "game_id",
+    "event_offset",
+    "actor_id",
+    "state_hash",
+    "replay_prefix_hash",
+    "available_actions",
+    "chosen_action"
+  ],
+  "title": "CounterfactualBranchpoint",
+  "type": "object"
+}

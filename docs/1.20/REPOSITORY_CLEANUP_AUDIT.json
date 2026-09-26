@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0.0",
+  "audit_date": "2026-08-14",
+  "scope": "Commander Playtest Lab 1.20 root-cause cleanup",
+  "decisions": [
+    {
+      "path": "src/commander_lab/tools/whole_deck_public.py",
+      "classification": "DELETE_SAFE",
+      "action": "REMOVED",
+      "evidence": "Import-time public-service/registry monkeypatch; explicit service and registry wiring now replaces it; cold-import tests cover the replacement."
+    },
+    {
+      "path": "src/commander_lab/tools/current_candidates.py",
+      "classification": "KEEP_ACTIVE",
+      "action": "RETAIN_COMPATIBILITY_ADAPTER",
+      "evidence": "No longer mutates the legacy loader; existing imports/tests may use the adapter while canonical logic lives in repositories/candidates.py."
+    },
+    {
+      "path": "src/commander_lab/first_run_preparation.py",
+      "classification": "KEEP_PROVENANCE",
+      "action": "RETAIN_NOT_OFFICIAL_CAMPAIGN_SURFACE",
+      "evidence": "Historical first-run authorization/spec tooling remains covered by tests; 1.20 WholeDeckCampaignOrchestrator is the current generic campaign path."
+    },
+    {
+      "path": "artifacts/",
+      "classification": "GENERATED_NOT_SOURCE",
+      "action": "RETAIN_CURRENT_AUDIT_EVIDENCE",
+      "evidence": "268 tracked audit/evidence files include inputs referenced by audit/recovery tests; bulk deletion would destroy useful provenance without decision benefit."
+    },
+    {
+      "path": "PHASE5_DEMO_OUTPUT.json",
+      "classification": "KEEP_PROVENANCE",
+      "action": "RETAIN",
+      "evidence": "Demo generator still names this artifact; not used as current Whole-Deck truth."
+    },
+    {
+      "path": "PHASE85_VALIDATION_OUTPUT.json",
+      "classification": "KEEP_PROVENANCE",
+      "action": "RETAIN",
+      "evidence": "Audit runner explicitly reads the Phase 8.5 validation artifact."
+    },
+    {
+      "path": "PHASE86_VALIDATION_OUTPUT.json",
+      "classification": "KEEP_ACTIVE",
+      "action": "RETAIN",
+      "evidence": "Audit runner/runtime and tests explicitly produce/read this artifact."
+    },
+    {
+      "path": ".github/workflows/j-p3b-xmage-fixtures.yml",
+      "classification": "KEEP_PROVENANCE",
+      "action": "RETAIN_MANUAL",
+      "evidence": "Manual-only provider evidence workflow; NO_PROVIDER_READY remains current and no production gate depends on promoting this evidence."
+    },
+    {
+      "path": ".github/workflows/j-p3b-xmage-real-spike.yml",
+      "classification": "KEEP_PROVENANCE",
+      "action": "RETAIN_MANUAL",
+      "evidence": "Manual-only real provider spike retained for reproducibility of PARTIAL evidence."
+    },
+    {
+      "path": ".github/workflows/j-p3c-forge-real-spike.yml",
+      "classification": "KEEP_PROVENANCE",
+      "action": "RETAIN_MANUAL_OR_HISTORICAL_BRANCH",
+      "evidence": "Provider spike remains reproducibility evidence; consolidating it during Whole-Deck refactor adds risk without deck-decision benefit."
+    },
+    {
+      "path": ".github/workflows/j-p3c-forge-runtime-xvfb.yml",
+      "classification": "KEEP_PROVENANCE",
+      "action": "RETAIN_HISTORICAL_BRANCH_TRIGGER",
+      "evidence": "Branch-scoped provider runtime evidence; intentionally not a production gate."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "classification": "KEEP_ACTIVE",
+      "action": "RETAIN_MANDATORY",
+      "evidence": "Quality and security production gates."
+    },
+    {
+      "path": ".github/workflows/windows-runtime.yml",
+      "classification": "KEEP_ACTIVE",
+      "action": "RETAIN_MANDATORY",
+      "evidence": "Windows runtime production gate."
+    },
+    {
+      "path": ".github/workflows/jp6-acceptance.yml",
+      "classification": "KEEP_ACTIVE",
+      "action": "RETAIN_MANDATORY",
+      "evidence": "Performance/acceptance production gate."
+    },
+    {
+      "path": ".github/workflows/j-final-acceptance.yml",
+      "classification": "KEEP_ACTIVE",
+      "action": "RETAIN_MANDATORY",
+      "evidence": "Final acceptance production gate."
+    },
+    {
+      "path": ".github/workflows/release-artifacts.yml",
+      "classification": "KEEP_ACTIVE",
+      "action": "RETAIN_MANDATORY",
+      "evidence": "Release/recovery package production gate."
+    }
+  ],
+  "remote_branch_audit_note": "Remote branches were inventoried before the refactor. No branch was deleted automatically because unique-commit/provenance checks were not yet strong enough to classify any as DELETE_SAFE through the available connector path.",
+  "bulk_delete_performed": false,
+  "current_truth_rule": "Historical run files and provider spikes are provenance/control only; the generic 1.20 Whole-Deck campaign path is authoritative for new Whole-Deck benchmarking."
+}

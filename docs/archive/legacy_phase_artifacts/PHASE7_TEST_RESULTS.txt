@@ -1,0 +1,22 @@
+Phase 7 final verification
+==========================
+
+$ pytest -q
+......s................................................................. [ 66%]
+.....................................                                    [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/differential/test_phase6_differential.py:56: requires configured XMage or Forge differential command
+108 passed, 1 skipped in 19.78s
+
+$ python -m compileall -q src
+compileall: passed
+
+$ wheel isolated target import
+WARNING: The directory '/home/oai/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Looking in indexes: https://reader:****@packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/pypi/pypi-public/simple
+Processing ./dist/commander_playtest_lab-0.7.0-py3-none-any.whl
+Installing collected packages: commander-playtest-lab
+Successfully installed commander-playtest-lab-0.7.0
+version: 0.7.0
+tool_count: 23
+optimization_model: OptimizationConstraints

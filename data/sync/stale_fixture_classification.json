@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "data_as_of": "2026-08-08",
+  "current_deck_hashes": {
+    "korvold/current": "72c0cb6a804cfb97b5cb048ca5e2b261782037044f6360b98a6b7df51c79bf1f",
+    "rogshai/current": "3827c35995e280753c4e714e391b9baf0a34e2c019e9df519ea1db0260ff9932"
+  },
+  "pilots": {
+    "profiles_total": 12,
+    "migrated_current_hash_compatible": 12,
+    "stale": 0
+  },
+  "primer_rules": {
+    "active_current_compatible": 13,
+    "inactive_stale": 1,
+    "inactive_rule_ids": [
+      "rogshai.current.aura-protection-window"
+    ],
+    "needs_review_historical_candidates": 8
+  },
+  "packages": {
+    "records_total": 20,
+    "current_compatible": 14,
+    "historical_stale": 6,
+    "historical_stale_ids": [
+      "korvold-treasure-clue-food",
+      "korvold-mazirek-szarel-counters",
+      "rogshai-combat-draw",
+      "rogshai-independent-draw",
+      "rogshai-wipe-protection",
+      "rogshai-rograkh-resource"
+    ]
+  },
+  "technical_smoke_candidates": {
+    "status": "technical_fixture_only_not_recommendations",
+    "candidate_ids": [
+      "korvold/mazirek-smoke",
+      "korvold/szarel-smoke",
+      "rogshai/curiosity-smoke"
+    ]
+  },
+  "historical_generated_outputs": [
+    {
+      "path": "data/opponent_ensembles/ENSEMBLE_MATCHUP_SMOKE.json",
+      "classification": "historical_generated_output_old_deck_hashes"
+    },
+    {
+      "path": "data/mulligan_lab/policies/korvold_mulligan_keep_rules.json",
+      "classification": "historical_generated_output_old_deck_hash"
+    },
+    {
+      "path": "data/mulligan_lab/policies/rogshai_mulligan_keep_rules.json",
+      "classification": "historical_generated_output_old_deck_hash"
+    },
+    {
+      "path": "data/mulligan_lab/golden_hands/korvold_golden_hands.json",
+      "classification": "historical_golden_output_old_deck_hash"
+    },
+    {
+      "path": "data/mulligan_lab/golden_hands/rogshai_golden_hands.json",
+      "classification": "historical_golden_output_old_deck_hash"
+    },
+    {
+      "path": "data/mulligan_lab/results/korvold_mulligan_lab.json",
+      "classification": "historical_result_old_deck_hash"
+    },
+    {
+      "path": "data/mulligan_lab/results/rogshai_mulligan_lab.json",
+      "classification": "historical_result_old_deck_hash"
+    }
+  ],
+  "policy": "Historical/stale artifacts remain for provenance and regression only and must not be silently interpreted as current deck evidence."
+}

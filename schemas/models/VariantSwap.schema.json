@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "add_candidate_id": {
+      "title": "Add Candidate Id",
+      "type": "string"
+    },
+    "remove": {
+      "title": "Remove",
+      "type": "string"
+    }
+  },
+  "required": [
+    "remove",
+    "add_candidate_id"
+  ],
+  "title": "VariantSwap",
+  "type": "object"
+}

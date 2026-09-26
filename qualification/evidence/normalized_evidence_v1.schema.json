@@ -1,0 +1,99 @@
+{
+  "$id": "https://commander-lab.local/schemas/normalized_evidence_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "adapter_identity": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "artifact_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "artifacts": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "authority_lock_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "build_identity": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "candidate": {
+      "type": "string"
+    },
+    "classification": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_class": {
+      "enum": [
+        "RUNTIME_VERIFIED",
+        "DIRECT_CODE_FAIL",
+        "CODE_DERIVED",
+        "SOURCE_DERIVED",
+        "NOT_RUN"
+      ]
+    },
+    "fixture_id": {
+      "type": "string"
+    },
+    "omission_reason_code": {
+      "enum": [
+        "PROTOCOL_ADAPTER_MISSING",
+        "REMEDIATION_REQUIRED",
+        "AUTHORITY_BLOCKED",
+        "PROVIDER_ABSENT",
+        "RUNTIME_UNAVAILABLE",
+        null
+      ],
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "source_lock": {
+      "type": "object"
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "UNKNOWN",
+        "NOT_RUN",
+        "PARTIAL",
+        "UNSUPPORTED",
+        "NOT_APPLICABLE"
+      ]
+    }
+  },
+  "required": [
+    "fixture_id",
+    "candidate",
+    "source_lock",
+    "verdict",
+    "evidence_class",
+    "reason",
+    "artifact_hashes"
+  ],
+  "type": "object"
+}

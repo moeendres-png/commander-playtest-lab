@@ -1,0 +1,145 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "alternative_lines": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Alternative Lines",
+      "type": "array"
+    },
+    "average_turn_played": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Average Turn Played"
+    },
+    "card_name": {
+      "title": "Card Name",
+      "type": "string"
+    },
+    "counterfactual_outcome_delta": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Counterfactual Outcome Delta"
+    },
+    "dead_in_hand": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Dead In Hand",
+      "type": "integer"
+    },
+    "discarded": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Discarded",
+      "type": "integer"
+    },
+    "drawn": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Drawn",
+      "type": "integer"
+    },
+    "kept": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Kept",
+      "type": "integer"
+    },
+    "mana_efficiency": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mana Efficiency"
+    },
+    "mulliganed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Mulliganed",
+      "type": "integer"
+    },
+    "opening_hand": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Opening Hand",
+      "type": "integer"
+    },
+    "pilot_decisions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Pilot Decisions",
+      "type": "array"
+    },
+    "played": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Played",
+      "type": "integer"
+    },
+    "removed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Removed",
+      "type": "integer"
+    },
+    "sample_size": {
+      "minimum": 0,
+      "title": "Sample Size",
+      "type": "integer"
+    },
+    "successful": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Successful",
+      "type": "integer"
+    },
+    "synergy_partner_present": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Synergy Partner Present",
+      "type": "integer"
+    },
+    "unplayable": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Unplayable",
+      "type": "integer"
+    },
+    "without_value": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Without Value",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "card_name",
+    "sample_size"
+  ],
+  "title": "CardPerformanceInstrumentation",
+  "type": "object"
+}

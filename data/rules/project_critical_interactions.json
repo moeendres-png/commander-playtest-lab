@@ -1,0 +1,2066 @@
+{
+  "schema_version": 1,
+  "catalog_name": "phase8_project_critical_interactions",
+  "interaction_count": 73,
+  "interactions": [
+    {
+      "interaction_id": "commander_tax_third_cast",
+      "description": "A five-mana commander cast for the third time costs nine mana.",
+      "category": "commander",
+      "cards": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "rule": "commander_tax",
+      "input_state": {
+        "printed_mana_value": 5,
+        "prior_command_zone_casts": 2
+      },
+      "expected_normalized": {
+        "commander_tax": 4,
+        "total_cast_cost": 9,
+        "legal": true
+      },
+      "comparison_keys": [
+        "commander_tax",
+        "total_cast_cost",
+        "legal"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "commander_damage_not_combined",
+      "description": "Commander damage from different commanders is tracked separately.",
+      "category": "commander",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "rule": "commander_damage_check",
+      "input_state": {
+        "commander_damage": {
+          "Ishai, Ojutai Dragonspeaker": 12,
+          "Rograkh, Son of Rohgahh": 10
+        }
+      },
+      "expected_normalized": {
+        "player_loses": false,
+        "loss_reason": null,
+        "maximum_single_commander_damage": 12
+      },
+      "comparison_keys": [
+        "player_loses",
+        "loss_reason",
+        "maximum_single_commander_damage"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "commander_damage_exactly_twenty_one",
+      "description": "Twenty-one combat damage from one commander causes loss.",
+      "category": "commander",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "rule": "commander_damage_check",
+      "input_state": {
+        "commander_damage": {
+          "Ishai, Ojutai Dragonspeaker": 21
+        }
+      },
+      "expected_normalized": {
+        "player_loses": true,
+        "loss_reason": "commander_damage",
+        "maximum_single_commander_damage": 21
+      },
+      "comparison_keys": [
+        "player_loses",
+        "loss_reason",
+        "maximum_single_commander_damage"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "normal_damage_zero_life",
+      "description": "Normal damage reducing life to zero causes loss.",
+      "category": "combat",
+      "cards": [],
+      "rule": "normal_damage_check",
+      "input_state": {
+        "life_before": 7,
+        "damage": 7
+      },
+      "expected_normalized": {
+        "life_after": 0,
+        "player_loses": true,
+        "loss_reason": "life_total"
+      },
+      "comparison_keys": [
+        "life_after",
+        "player_loses",
+        "loss_reason"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "kediss_damage_is_not_commander_damage",
+      "description": "Kediss damages each other opponent but does not add commander damage.",
+      "category": "combat",
+      "cards": [
+        "Kediss, Emberclaw Familiar",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "rule": "kediss_trigger",
+      "input_state": {
+        "commander_combat_damage": 8,
+        "opponent_count": 3
+      },
+      "expected_normalized": {
+        "triggered": true,
+        "other_opponents_hit": 2,
+        "normal_damage_each": 8,
+        "additional_commander_damage": 0
+      },
+      "comparison_keys": [
+        "triggered",
+        "other_opponents_hit",
+        "normal_damage_each",
+        "additional_commander_damage"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "jeska_triples_commander_combat_damage",
+      "description": "Jeska triples actual commander combat damage.",
+      "category": "combat",
+      "cards": [
+        "Jeska, Thrice Reborn",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "rule": "jeska_triple",
+      "input_state": {
+        "combat_damage": 7,
+        "is_commander": true
+      },
+      "expected_normalized": {
+        "damage": 21,
+        "commander_damage": 21
+      },
+      "comparison_keys": [
+        "damage",
+        "commander_damage"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "double_strike_counts_both_hits",
+      "description": "An unblocked commander with double strike deals two combat-damage events.",
+      "category": "combat",
+      "cards": [
+        "Duelist's Heritage",
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "rule": "double_strike",
+      "input_state": {
+        "power": 6,
+        "is_commander": true
+      },
+      "expected_normalized": {
+        "first_strike_damage": 6,
+        "regular_damage": 6,
+        "total_damage": 12,
+        "commander_damage": 12
+      },
+      "comparison_keys": [
+        "first_strike_damage",
+        "regular_damage",
+        "total_damage",
+        "commander_damage"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "kaervek_trigger_survives_counter",
+      "description": "Kaervek triggers on casting; countering the spell does not remove that trigger.",
+      "category": "stack",
+      "cards": [
+        "Kaervek the Merciless",
+        "Counterspell"
+      ],
+      "rule": "cast_trigger_survives_counter",
+      "input_state": {
+        "trigger_on_cast": true,
+        "spell_countered": true
+      },
+      "expected_normalized": {
+        "trigger_created": true,
+        "spell_countered": true,
+        "trigger_remains_on_stack": true
+      },
+      "comparison_keys": [
+        "trigger_created",
+        "spell_countered",
+        "trigger_remains_on_stack"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "silence_blocks_spells_not_abilities",
+      "description": "After Silence resolves, the affected player cannot cast spells that turn but may activate abilities.",
+      "category": "stack",
+      "cards": [
+        "Silence"
+      ],
+      "rule": "silence_restriction",
+      "input_state": {
+        "silence_resolved": true,
+        "same_turn": true
+      },
+      "expected_normalized": {
+        "can_cast_spell": false,
+        "can_activate_ability": true,
+        "can_play_land": true
+      },
+      "comparison_keys": [
+        "can_cast_spell",
+        "can_activate_ability",
+        "can_play_land"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "indestructible_survives_destroy",
+      "description": "Indestructible survives a destroy effect.",
+      "category": "protection",
+      "cards": [
+        "Boros Charm"
+      ],
+      "rule": "indestructible_interaction",
+      "input_state": {
+        "effect": "destroy",
+        "indestructible": true
+      },
+      "expected_normalized": {
+        "survives": true,
+        "destination": "battlefield"
+      },
+      "comparison_keys": [
+        "survives",
+        "destination"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "indestructible_fails_minus_toughness",
+      "description": "Indestructible does not prevent zero or negative toughness.",
+      "category": "protection",
+      "cards": [
+        "Bastion Protector",
+        "Toxic Deluge"
+      ],
+      "rule": "indestructible_interaction",
+      "input_state": {
+        "effect": "minus",
+        "indestructible": true,
+        "toughness": 3,
+        "minus_toughness": 3
+      },
+      "expected_normalized": {
+        "survives": false,
+        "destination": "minus"
+      },
+      "comparison_keys": [
+        "survives",
+        "destination"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "indestructible_fails_exile",
+      "description": "Indestructible does not prevent exile.",
+      "category": "protection",
+      "cards": [
+        "Boros Charm",
+        "Farewell"
+      ],
+      "rule": "indestructible_interaction",
+      "input_state": {
+        "effect": "exile",
+        "indestructible": true
+      },
+      "expected_normalized": {
+        "survives": false,
+        "destination": "exile"
+      },
+      "comparison_keys": [
+        "survives",
+        "destination"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "boros_charm_protects_from_destroy_wipe",
+      "description": "Boros Charm can preserve your creatures through a destroy wipe.",
+      "category": "wipe",
+      "cards": [
+        "Boros Charm",
+        "Blasphemous Act"
+      ],
+      "rule": "boros_charm_wipe",
+      "input_state": {
+        "own_creatures": 4,
+        "opponent_creatures": 9,
+        "boros_charm_resolved": true
+      },
+      "expected_normalized": {
+        "own_creatures_survive": 4,
+        "opponent_creatures_survive": 0,
+        "creatures_destroyed": 9
+      },
+      "comparison_keys": [
+        "own_creatures_survive",
+        "opponent_creatures_survive",
+        "creatures_destroyed"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "toxic_deluge_ignores_indestructible",
+      "description": "Toxic Deluge applies -X/-X and can remove indestructible creatures.",
+      "category": "wipe",
+      "cards": [
+        "Toxic Deluge"
+      ],
+      "rule": "toxic_deluge",
+      "input_state": {
+        "x": 4,
+        "toughnesses": [
+          1,
+          3,
+          4,
+          5
+        ]
+      },
+      "expected_normalized": {
+        "life_paid": 4,
+        "creatures_died": 3,
+        "survivor_toughnesses": [
+          1
+        ],
+        "indestructible_relevant": false
+      },
+      "comparison_keys": [
+        "life_paid",
+        "creatures_died",
+        "survivor_toughnesses",
+        "indestructible_relevant"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "fire_covenant_pays_total_life",
+      "description": "Fire Covenant pays life equal to assigned damage and indestructible survives lethal damage.",
+      "category": "wipe",
+      "cards": [
+        "Fire Covenant"
+      ],
+      "rule": "fire_covenant",
+      "input_state": {
+        "damage_assignments": [
+          2,
+          4,
+          5
+        ],
+        "toughnesses": [
+          2,
+          4,
+          5
+        ],
+        "indestructible": [
+          false,
+          true,
+          false
+        ]
+      },
+      "expected_normalized": {
+        "life_paid": 11,
+        "creatures_died": 2
+      },
+      "comparison_keys": [
+        "life_paid",
+        "creatures_died"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "massacre_wurm_counts_opponent_deaths",
+      "description": "Massacre Wurm gives opposing creatures -2/-2 and drains for creatures that die.",
+      "category": "wipe",
+      "cards": [
+        "Massacre Wurm"
+      ],
+      "rule": "massacre_wurm",
+      "input_state": {
+        "opponent_toughnesses": [
+          1,
+          2,
+          3,
+          5
+        ]
+      },
+      "expected_normalized": {
+        "creatures_died": 2,
+        "controller_life_loss": 4
+      },
+      "comparison_keys": [
+        "creatures_died",
+        "controller_life_loss"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "culling_ritual_mana_per_destroyed_permanent",
+      "description": "Culling Ritual destroys qualifying nonlands and adds one mana per permanent destroyed.",
+      "category": "wipe",
+      "cards": [
+        "Culling Ritual"
+      ],
+      "rule": "culling_ritual",
+      "input_state": {
+        "permanents": [
+          {
+            "mana_value": 0,
+            "is_land": false
+          },
+          {
+            "mana_value": 2,
+            "is_land": false
+          },
+          {
+            "mana_value": 3,
+            "is_land": false
+          },
+          {
+            "mana_value": 0,
+            "is_land": true
+          }
+        ]
+      },
+      "expected_normalized": {
+        "destroyed": 2,
+        "mana_generated": 2
+      },
+      "comparison_keys": [
+        "destroyed",
+        "mana_generated"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "farewell_selected_modes_exile",
+      "description": "Farewell exiles only chosen categories and ignores indestructible.",
+      "category": "wipe",
+      "cards": [
+        "Farewell"
+      ],
+      "rule": "farewell",
+      "input_state": {
+        "modes": [
+          "creatures",
+          "graveyards"
+        ],
+        "creatures": 7,
+        "artifacts": 4,
+        "enchantments": 3,
+        "graveyard_cards": 18
+      },
+      "expected_normalized": {
+        "creatures_exiled": 7,
+        "artifacts_exiled": 0,
+        "enchantments_exiled": 0,
+        "graveyards_exiled": 18,
+        "indestructible_relevant": false
+      },
+      "comparison_keys": [
+        "creatures_exiled",
+        "artifacts_exiled",
+        "enchantments_exiled",
+        "graveyards_exiled",
+        "indestructible_relevant"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "vandalblast_overload_has_no_targets",
+      "description": "Overloaded Vandalblast affects each artifact you do not control and does not target.",
+      "category": "interaction",
+      "cards": [
+        "Vandalblast"
+      ],
+      "rule": "vandalblast",
+      "input_state": {
+        "overloaded": true,
+        "opponent_artifacts": 8,
+        "own_artifacts": 3
+      },
+      "expected_normalized": {
+        "destroyed": 8,
+        "own_artifacts_destroyed": 0,
+        "uses_targets": false
+      },
+      "comparison_keys": [
+        "destroyed",
+        "own_artifacts_destroyed",
+        "uses_targets"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "wear_tear_fuse_from_hand",
+      "description": "Wear // Tear may be fused when cast from hand and remains one spell.",
+      "category": "interaction",
+      "cards": [
+        "Wear // Tear"
+      ],
+      "rule": "wear_tear",
+      "input_state": {
+        "fused": true,
+        "cast_from_hand": true,
+        "artifact_target": true,
+        "enchantment_target": true
+      },
+      "expected_normalized": {
+        "legal": true,
+        "artifact_destroyed": true,
+        "enchantment_destroyed": true,
+        "spells_cast": 1
+      },
+      "comparison_keys": [
+        "legal",
+        "artifact_destroyed",
+        "enchantment_destroyed",
+        "spells_cast"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "countered_commander_can_return_to_command",
+      "description": "A countered commander enters the graveyard before its owner may move it to command.",
+      "category": "commander",
+      "cards": [
+        "Counterspell",
+        "Korvold, Fae-Cursed King"
+      ],
+      "rule": "counter_commander",
+      "input_state": {
+        "move_to_command_zone": true
+      },
+      "expected_normalized": {
+        "spell_countered": true,
+        "graveyard_entry": true,
+        "final_zone": "command",
+        "commander_tax_increments": false
+      },
+      "comparison_keys": [
+        "spell_countered",
+        "graveyard_entry",
+        "final_zone",
+        "commander_tax_increments"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "commander_dies_before_command_move",
+      "description": "A commander put into the graveyard dies before the state-based command-zone move.",
+      "category": "commander",
+      "cards": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "rule": "commander_zone_change",
+      "input_state": {
+        "from_zone": "battlefield",
+        "to_zone": "graveyard",
+        "choose_command_zone": true
+      },
+      "expected_normalized": {
+        "dies_triggered": true,
+        "final_zone": "command",
+        "command_move_method": "state_based_action"
+      },
+      "comparison_keys": [
+        "dies_triggered",
+        "final_zone",
+        "command_move_method"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "commander_bounce_uses_replacement",
+      "description": "A commander moving to hand may instead move to command via replacement effect.",
+      "category": "commander",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "rule": "commander_zone_change",
+      "input_state": {
+        "from_zone": "battlefield",
+        "to_zone": "hand",
+        "choose_command_zone": true
+      },
+      "expected_normalized": {
+        "dies_triggered": false,
+        "final_zone": "command",
+        "command_move_method": "replacement"
+      },
+      "comparison_keys": [
+        "dies_triggered",
+        "final_zone",
+        "command_move_method"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "korvold_etb_sacrifice_generates_value",
+      "description": "Korvold entering with another permanent available produces a sacrifice, draw, and counter.",
+      "category": "korvold",
+      "cards": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "rule": "korvold_sacrifice",
+      "input_state": {
+        "other_permanents": 3
+      },
+      "expected_normalized": {
+        "permanents_sacrificed": 1,
+        "cards_drawn": 1,
+        "counters_added": 1,
+        "trigger_fizzles": false
+      },
+      "comparison_keys": [
+        "permanents_sacrificed",
+        "cards_drawn",
+        "counters_added",
+        "trigger_fizzles"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "korvold_no_other_permanent",
+      "description": "Korvold cannot sacrifice itself to its own another-permanent trigger.",
+      "category": "korvold",
+      "cards": [
+        "Korvold, Fae-Cursed King"
+      ],
+      "rule": "korvold_sacrifice",
+      "input_state": {
+        "other_permanents": 0
+      },
+      "expected_normalized": {
+        "permanents_sacrificed": 0,
+        "cards_drawn": 0,
+        "counters_added": 0,
+        "trigger_fizzles": false
+      },
+      "comparison_keys": [
+        "permanents_sacrificed",
+        "cards_drawn",
+        "counters_added",
+        "trigger_fizzles"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "zuran_orb_sacrifice_is_cost",
+      "description": "A land sacrificed to Zuran Orb is gone before players receive priority.",
+      "category": "cost",
+      "cards": [
+        "Zuran Orb"
+      ],
+      "rule": "sacrifice_cost",
+      "input_state": {},
+      "expected_normalized": {
+        "cost_paid_before_priority": true,
+        "sacrificed_permanent_zone": "graveyard",
+        "ability_on_stack": true,
+        "can_prevent_cost_with_response": false
+      },
+      "comparison_keys": [
+        "cost_paid_before_priority",
+        "sacrificed_permanent_zone",
+        "ability_on_stack",
+        "can_prevent_cost_with_response"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "academy_manufactor_replaces_each_token",
+      "description": "Manufactor replaces two qualifying tokens with two Clues, Foods, and Treasures.",
+      "category": "tokens",
+      "cards": [
+        "Academy Manufactor"
+      ],
+      "rule": "academy_manufactor",
+      "input_state": {
+        "quantity": 2
+      },
+      "expected_normalized": {
+        "clues": 2,
+        "foods": 2,
+        "treasures": 2
+      },
+      "comparison_keys": [
+        "clues",
+        "foods",
+        "treasures"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "killer_service_scales_with_opponents",
+      "description": "Killer Service creates one Food per opponent.",
+      "category": "tokens",
+      "cards": [
+        "Killer Service"
+      ],
+      "rule": "killer_service",
+      "input_state": {
+        "opponent_count": 3,
+        "academy_manufactor": false
+      },
+      "expected_normalized": {
+        "foods": 3,
+        "clues": 0,
+        "treasures": 0,
+        "total_tokens": 3
+      },
+      "comparison_keys": [
+        "foods",
+        "clues",
+        "treasures",
+        "total_tokens"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "killer_service_with_manufactor",
+      "description": "Killer Service plus Manufactor creates three of each token in a four-player pod.",
+      "category": "tokens",
+      "cards": [
+        "Killer Service",
+        "Academy Manufactor"
+      ],
+      "rule": "killer_service",
+      "input_state": {
+        "opponent_count": 3,
+        "academy_manufactor": true
+      },
+      "expected_normalized": {
+        "foods": 3,
+        "clues": 3,
+        "treasures": 3,
+        "total_tokens": 9
+      },
+      "comparison_keys": [
+        "foods",
+        "clues",
+        "treasures",
+        "total_tokens"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "ophiomancer_creates_snake_when_none",
+      "description": "Ophiomancer creates one Snake at upkeep when you control none.",
+      "category": "tokens",
+      "cards": [
+        "Ophiomancer"
+      ],
+      "rule": "ophiomancer",
+      "input_state": {
+        "has_snake": false
+      },
+      "expected_normalized": {
+        "snakes_created": 1
+      },
+      "comparison_keys": [
+        "snakes_created"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "ophiomancer_does_not_duplicate_snake",
+      "description": "Ophiomancer creates no Snake when one is already controlled.",
+      "category": "tokens",
+      "cards": [
+        "Ophiomancer"
+      ],
+      "rule": "ophiomancer",
+      "input_state": {
+        "has_snake": true
+      },
+      "expected_normalized": {
+        "snakes_created": 0
+      },
+      "comparison_keys": [
+        "snakes_created"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "idol_requires_token_this_turn",
+      "description": "Idol of Oblivion may draw only after a token was created that turn.",
+      "category": "draw",
+      "cards": [
+        "Idol of Oblivion"
+      ],
+      "rule": "idol_of_oblivion",
+      "input_state": {
+        "created_token_this_turn": true
+      },
+      "expected_normalized": {
+        "can_activate_draw": true,
+        "cards_drawn": 1
+      },
+      "comparison_keys": [
+        "can_activate_draw",
+        "cards_drawn"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "titania_land_death_creates_elemental",
+      "description": "Titania returns one land and creates one 5/3 per land put from battlefield to graveyard.",
+      "category": "lands",
+      "cards": [
+        "Titania, Protector of Argoth"
+      ],
+      "rule": "titania",
+      "input_state": {
+        "land_in_graveyard": true,
+        "lands_from_battlefield_to_graveyard": 2
+      },
+      "expected_normalized": {
+        "land_returned": 1,
+        "elementals_created": 2,
+        "elemental_power": 5,
+        "elemental_toughness": 3
+      },
+      "comparison_keys": [
+        "land_returned",
+        "elementals_created",
+        "elemental_power",
+        "elemental_toughness"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "ramunap_uses_land_play",
+      "description": "Ramunap permits a land play from graveyard but consumes the normal land play.",
+      "category": "lands",
+      "cards": [
+        "Ramunap Excavator"
+      ],
+      "rule": "ramunap",
+      "input_state": {
+        "land_in_graveyard": true,
+        "land_plays_remaining": 1
+      },
+      "expected_normalized": {
+        "can_play_land_from_graveyard": true,
+        "uses_land_play": true
+      },
+      "comparison_keys": [
+        "can_play_land_from_graveyard",
+        "uses_land_play"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "splendid_reclamation_returns_tapped",
+      "description": "Splendid Reclamation returns all your graveyard lands tapped.",
+      "category": "lands",
+      "cards": [
+        "Splendid Reclamation"
+      ],
+      "rule": "splendid_reclamation",
+      "input_state": {
+        "lands_in_graveyard": 7
+      },
+      "expected_normalized": {
+        "lands_returned": 7,
+        "enter_tapped": true
+      },
+      "comparison_keys": [
+        "lands_returned",
+        "enter_tapped"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "aftermath_analyst_sacrifices_and_returns_lands",
+      "description": "Aftermath Analyst sacrifices itself and returns your graveyard lands tapped.",
+      "category": "lands",
+      "cards": [
+        "Aftermath Analyst"
+      ],
+      "rule": "aftermath_analyst",
+      "input_state": {
+        "lands_in_graveyard": 5
+      },
+      "expected_normalized": {
+        "analyst_sacrificed": true,
+        "lands_returned": 5,
+        "enter_tapped": true
+      },
+      "comparison_keys": [
+        "analyst_sacrificed",
+        "lands_returned",
+        "enter_tapped"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "tireless_provisioner_treasure_choice",
+      "description": "Provisioner creates one chosen token for each landfall event.",
+      "category": "lands",
+      "cards": [
+        "Tireless Provisioner"
+      ],
+      "rule": "tireless_provisioner",
+      "input_state": {
+        "landfall_events": 3,
+        "choice": "treasure"
+      },
+      "expected_normalized": {
+        "foods": 0,
+        "treasures": 3
+      },
+      "comparison_keys": [
+        "foods",
+        "treasures"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "tireless_tracker_clue_and_counter",
+      "description": "Tracker creates Clues on landfall and gets counters when Clues are sacrificed.",
+      "category": "lands",
+      "cards": [
+        "Tireless Tracker"
+      ],
+      "rule": "tireless_tracker",
+      "input_state": {
+        "landfall_events": 2,
+        "clues_sacrificed": 2
+      },
+      "expected_normalized": {
+        "clues_created": 2,
+        "counters_added": 2,
+        "cards_drawn": 2
+      },
+      "comparison_keys": [
+        "clues_created",
+        "counters_added",
+        "cards_drawn"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "mirkwood_bats_counts_created_and_sacrificed_tokens",
+      "description": "Mirkwood Bats drains each opponent once per token created or sacrificed.",
+      "category": "damage",
+      "cards": [
+        "Mirkwood Bats"
+      ],
+      "rule": "mirkwood_bats",
+      "input_state": {
+        "tokens_created": 3,
+        "tokens_sacrificed": 2,
+        "opponent_count": 3
+      },
+      "expected_normalized": {
+        "triggers": 5,
+        "life_loss_each_opponent": 5,
+        "total_life_loss": 15
+      },
+      "comparison_keys": [
+        "triggers",
+        "life_loss_each_opponent",
+        "total_life_loss"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "mayhem_devil_triggers_for_any_player",
+      "description": "Mayhem Devil triggers for each permanent sacrificed by any player.",
+      "category": "damage",
+      "cards": [
+        "Mayhem Devil"
+      ],
+      "rule": "mayhem_devil",
+      "input_state": {
+        "permanents_sacrificed": 4
+      },
+      "expected_normalized": {
+        "triggers": 4,
+        "damage_available": 4
+      },
+      "comparison_keys": [
+        "triggers",
+        "damage_available"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "mazirek_counters_all_your_creatures",
+      "description": "Mazirek adds a counter to each creature you control per sacrifice event.",
+      "category": "counters",
+      "cards": [
+        "Mazirek, Kraul Death Priest"
+      ],
+      "rule": "mazirek",
+      "input_state": {
+        "sacrifice_events": 3,
+        "creatures_controlled": 5
+      },
+      "expected_normalized": {
+        "triggers": 3,
+        "counters_each": 3,
+        "total_counters": 15
+      },
+      "comparison_keys": [
+        "triggers",
+        "counters_each",
+        "total_counters"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "braids_draws_for_each_decline",
+      "description": "Braids draws and drains for each opponent who declines the matching sacrifice.",
+      "category": "sacrifice",
+      "cards": [
+        "Braids, Arisen Nightmare"
+      ],
+      "rule": "braids",
+      "input_state": {
+        "opponents_sacrifice_same_type": [
+          false,
+          true,
+          false
+        ]
+      },
+      "expected_normalized": {
+        "opponents_lost_life": 2,
+        "life_loss_each": 2,
+        "cards_drawn": 2
+      },
+      "comparison_keys": [
+        "opponents_lost_life",
+        "life_loss_each",
+        "cards_drawn"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "bontu_draws_per_sacrifice",
+      "description": "God-Eternal Bontu draws one card per permanent sacrificed to its ETB.",
+      "category": "sacrifice",
+      "cards": [
+        "God-Eternal Bontu"
+      ],
+      "rule": "bontu",
+      "input_state": {
+        "permanents_sacrificed": 6
+      },
+      "expected_normalized": {
+        "permanents_sacrificed": 6,
+        "cards_drawn": 6
+      },
+      "comparison_keys": [
+        "permanents_sacrificed",
+        "cards_drawn"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "pitiless_plunderer_ignores_tokens_and_self",
+      "description": "Pitiless Plunderer creates Treasures for other nontoken creatures you control that die.",
+      "category": "tokens",
+      "cards": [
+        "Pitiless Plunderer"
+      ],
+      "rule": "pitiless_plunderer",
+      "input_state": {
+        "other_nontoken_creatures_you_control_died": 3
+      },
+      "expected_normalized": {
+        "treasures_created": 3
+      },
+      "comparison_keys": [
+        "treasures_created"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "goblin_bombardment_sacrifices_as_cost",
+      "description": "Bombardment sacrifices creatures as costs and deals one damage per activation.",
+      "category": "cost",
+      "cards": [
+        "Goblin Bombardment"
+      ],
+      "rule": "goblin_bombardment",
+      "input_state": {
+        "creatures_sacrificed": 3
+      },
+      "expected_normalized": {
+        "creatures_sacrificed": 3,
+        "damage": 3,
+        "targets": 3
+      },
+      "comparison_keys": [
+        "creatures_sacrificed",
+        "damage",
+        "targets"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "rakdos_charm_creature_mode",
+      "description": "Rakdos Charm makes each creature deal one damage to its controller.",
+      "category": "damage",
+      "cards": [
+        "Rakdos Charm"
+      ],
+      "rule": "rakdos_charm",
+      "input_state": {
+        "mode": "creatures",
+        "creatures_controlled": 14
+      },
+      "expected_normalized": {
+        "artifact_destroyed": false,
+        "graveyard_cards_exiled": 0,
+        "creature_damage_to_controller": 14
+      },
+      "comparison_keys": [
+        "artifact_destroyed",
+        "graveyard_cards_exiled",
+        "creature_damage_to_controller"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "rakdos_charm_graveyard_mode",
+      "description": "Rakdos Charm exiles all cards from one graveyard.",
+      "category": "graveyard",
+      "cards": [
+        "Rakdos Charm"
+      ],
+      "rule": "rakdos_charm",
+      "input_state": {
+        "mode": "graveyard",
+        "graveyard_cards": 22
+      },
+      "expected_normalized": {
+        "artifact_destroyed": false,
+        "graveyard_cards_exiled": 22,
+        "creature_damage_to_controller": 0
+      },
+      "comparison_keys": [
+        "artifact_destroyed",
+        "graveyard_cards_exiled",
+        "creature_damage_to_controller"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "soul_guide_lantern_mass_exile",
+      "description": "Soul-Guide Lantern can be sacrificed to exile opponents' graveyards.",
+      "category": "graveyard",
+      "cards": [
+        "Soul-Guide Lantern"
+      ],
+      "rule": "soul_guide_lantern",
+      "input_state": {
+        "mode": "mass_exile",
+        "opponent_graveyard_cards": 27
+      },
+      "expected_normalized": {
+        "single_card_exiled": 0,
+        "opponent_graveyards_exiled": 27,
+        "cards_drawn": 0,
+        "lantern_sacrificed": true
+      },
+      "comparison_keys": [
+        "single_card_exiled",
+        "opponent_graveyards_exiled",
+        "cards_drawn",
+        "lantern_sacrificed"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "bojuka_bog_exiles_target_graveyard",
+      "description": "Bojuka Bog enters tapped and exiles the target player's graveyard.",
+      "category": "graveyard",
+      "cards": [
+        "Bojuka Bog"
+      ],
+      "rule": "bojuka_bog",
+      "input_state": {
+        "target_graveyard_cards": 13
+      },
+      "expected_normalized": {
+        "enters_tapped": true,
+        "graveyard_cards_exiled": 13
+      },
+      "comparison_keys": [
+        "enters_tapped",
+        "graveyard_cards_exiled"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "combat_research_draw_trigger",
+      "description": "Combat Research draws on combat damage to a player.",
+      "category": "combat",
+      "cards": [
+        "Combat Research"
+      ],
+      "rule": "combat_draw",
+      "input_state": {
+        "combat_damage_events_to_player": 1,
+        "damage": 7,
+        "lifelink": false
+      },
+      "expected_normalized": {
+        "cards_drawn": 1,
+        "life_gained": 0
+      },
+      "comparison_keys": [
+        "cards_drawn",
+        "life_gained"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "staggering_insight_draw_and_lifelink",
+      "description": "Staggering Insight draws and gains life from combat damage.",
+      "category": "combat",
+      "cards": [
+        "Staggering Insight"
+      ],
+      "rule": "combat_draw",
+      "input_state": {
+        "combat_damage_events_to_player": 1,
+        "damage": 8,
+        "lifelink": true
+      },
+      "expected_normalized": {
+        "cards_drawn": 1,
+        "life_gained": 8
+      },
+      "comparison_keys": [
+        "cards_drawn",
+        "life_gained"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "ishai_only_opponent_spells_trigger",
+      "description": "Ishai grows for spells opponents cast, not your own spells.",
+      "category": "counters",
+      "cards": [
+        "Ishai, Ojutai Dragonspeaker"
+      ],
+      "rule": "ishai_trigger",
+      "input_state": {
+        "opponent_spells_cast": 5,
+        "own_spells_cast": 3
+      },
+      "expected_normalized": {
+        "counters_added": 5,
+        "own_spells_trigger": false
+      },
+      "comparison_keys": [
+        "counters_added",
+        "own_spells_trigger"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "veyran_repeats_magecraft_trigger",
+      "description": "Veyran causes relevant cast/copy triggers to trigger an additional time.",
+      "category": "spellslinger",
+      "cards": [
+        "Veyran, Voice of Duality",
+        "Archmage Emeritus"
+      ],
+      "rule": "veyran_trigger",
+      "input_state": {
+        "base_triggers": 1,
+        "instant_sorcery_cast_or_copied": 2
+      },
+      "expected_normalized": {
+        "total_triggers": 4
+      },
+      "comparison_keys": [
+        "total_triggers"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "guttersnipe_hits_each_opponent",
+      "description": "Guttersnipe deals two damage to each opponent for each instant or sorcery cast.",
+      "category": "spellslinger",
+      "cards": [
+        "Guttersnipe"
+      ],
+      "rule": "guttersnipe",
+      "input_state": {
+        "instant_sorcery_casts": 2,
+        "opponent_count": 3
+      },
+      "expected_normalized": {
+        "damage_each_opponent": 4,
+        "total_damage": 12
+      },
+      "comparison_keys": [
+        "damage_each_opponent",
+        "total_damage"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "kykar_creates_and_sacrifices_spirits",
+      "description": "Kykar creates Spirits for noncreature spells and Spirits can be sacrificed for red mana.",
+      "category": "spellslinger",
+      "cards": [
+        "Kykar, Wind's Fury"
+      ],
+      "rule": "kykar",
+      "input_state": {
+        "noncreature_spells_cast": 3,
+        "spirits_available": 3,
+        "spirits_sacrificed": 2
+      },
+      "expected_normalized": {
+        "spirits_created": 3,
+        "red_mana_generated": 2
+      },
+      "comparison_keys": [
+        "spirits_created",
+        "red_mana_generated"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "storm_kiln_artist_counts_casts_and_copies",
+      "description": "Storm-Kiln Artist creates a Treasure for each instant or sorcery cast or copied.",
+      "category": "spellslinger",
+      "cards": [
+        "Storm-Kiln Artist"
+      ],
+      "rule": "storm_kiln_artist",
+      "input_state": {
+        "instant_sorcery_cast_or_copied": 4
+      },
+      "expected_normalized": {
+        "treasures_created": 4
+      },
+      "comparison_keys": [
+        "treasures_created"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "archmage_emeritus_counts_casts_and_copies",
+      "description": "Archmage Emeritus draws for each instant or sorcery cast or copied.",
+      "category": "spellslinger",
+      "cards": [
+        "Archmage Emeritus"
+      ],
+      "rule": "archmage_emeritus",
+      "input_state": {
+        "instant_sorcery_cast_or_copied": 3
+      },
+      "expected_normalized": {
+        "cards_drawn": 3
+      },
+      "comparison_keys": [
+        "cards_drawn"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "whirlwind_triggers_on_cast_not_copy",
+      "description": "Whirlwind of Thought draws for noncreature spells cast, not spell copies.",
+      "category": "spellslinger",
+      "cards": [
+        "Whirlwind of Thought"
+      ],
+      "rule": "whirlwind_of_thought",
+      "input_state": {
+        "noncreature_spells_cast": 2,
+        "spell_copies": 4
+      },
+      "expected_normalized": {
+        "cards_drawn": 2,
+        "copies_trigger": false
+      },
+      "comparison_keys": [
+        "cards_drawn",
+        "copies_trigger"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "narset_limits_opponent_draws",
+      "description": "Narset permits an opponent only one card draw per turn.",
+      "category": "draw",
+      "cards": [
+        "Narset, Parter of Veils"
+      ],
+      "rule": "narset_draw_limit",
+      "input_state": {
+        "cards_drawn_this_turn": 1,
+        "attempted_additional_draws": 3
+      },
+      "expected_normalized": {
+        "additional_draws_allowed": 0,
+        "additional_draws_prevented": 3
+      },
+      "comparison_keys": [
+        "additional_draws_allowed",
+        "additional_draws_prevented"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "esior_taxes_opponent_targeting",
+      "description": "Esior taxes spells and abilities opponents use to target your commanders.",
+      "category": "protection",
+      "cards": [
+        "Esior, Wardwing Familiar"
+      ],
+      "rule": "esior_tax",
+      "input_state": {
+        "source_controlled_by_opponent": true,
+        "targets_your_commander": true
+      },
+      "expected_normalized": {
+        "additional_cost": 3,
+        "legal_if_paid": true
+      },
+      "comparison_keys": [
+        "additional_cost",
+        "legal_if_paid"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "slip_out_avoids_wipe",
+      "description": "A phased-out permanent is ignored by a resolving wipe and returns at the next untap.",
+      "category": "protection",
+      "cards": [
+        "Slip Out the Back"
+      ],
+      "rule": "phase_out",
+      "input_state": {
+        "wipe_resolves": true
+      },
+      "expected_normalized": {
+        "affected_by_wipe": false,
+        "returns_next_untap": true,
+        "attachments_phase_out": true
+      },
+      "comparison_keys": [
+        "affected_by_wipe",
+        "returns_next_untap",
+        "attachments_phase_out"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "lofty_denial_tax_with_flyer",
+      "description": "Lofty Denial taxes four when you control a flying creature.",
+      "category": "counter",
+      "cards": [
+        "Lofty Denial"
+      ],
+      "rule": "lofty_denial",
+      "input_state": {
+        "control_flying_creature": true,
+        "mana_paid": 3
+      },
+      "expected_normalized": {
+        "tax": 4,
+        "spell_countered": true
+      },
+      "comparison_keys": [
+        "tax",
+        "spell_countered"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "wash_away_uncleaved_counters_commander",
+      "description": "Uncleaved Wash Away can target a commander spell cast from the command zone.",
+      "category": "counter",
+      "cards": [
+        "Wash Away"
+      ],
+      "rule": "wash_away",
+      "input_state": {
+        "cleaved": false,
+        "target_cast_from_hand": false
+      },
+      "expected_normalized": {
+        "legal_target": true,
+        "spell_countered": true
+      },
+      "comparison_keys": [
+        "legal_target",
+        "spell_countered"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "offer_counters_noncreature_and_gives_treasures",
+      "description": "An Offer You Can't Refuse counters a noncreature spell and creates two Treasures for its controller.",
+      "category": "counter",
+      "cards": [
+        "An Offer You Can't Refuse"
+      ],
+      "rule": "offer",
+      "input_state": {
+        "target_is_noncreature_spell": true
+      },
+      "expected_normalized": {
+        "spell_countered": true,
+        "treasures_created_for_controller": 2
+      },
+      "comparison_keys": [
+        "spell_countered",
+        "treasures_created_for_controller"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "dovins_veto_cannot_be_countered",
+      "description": "Dovin's Veto counters a noncreature spell and cannot itself be countered.",
+      "category": "counter",
+      "cards": [
+        "Dovin's Veto"
+      ],
+      "rule": "dovins_veto",
+      "input_state": {
+        "target_is_noncreature_spell": true
+      },
+      "expected_normalized": {
+        "legal_target": true,
+        "spell_countered": true,
+        "veto_can_be_countered": false
+      },
+      "comparison_keys": [
+        "legal_target",
+        "spell_countered",
+        "veto_can_be_countered"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "winds_of_rath_preserves_enchanted_creatures",
+      "description": "Winds of Rath destroys unenchanted creatures and preserves enchanted creatures.",
+      "category": "wipe",
+      "cards": [
+        "Winds of Rath"
+      ],
+      "rule": "winds_of_rath",
+      "input_state": {
+        "enchanted_creatures": 2,
+        "unenchanted_creatures": 7
+      },
+      "expected_normalized": {
+        "enchanted_survive": 2,
+        "unenchanted_destroyed": 7
+      },
+      "comparison_keys": [
+        "enchanted_survive",
+        "unenchanted_destroyed"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "lorans_escape_protection_package",
+      "description": "Loran's Escape grants hexproof and indestructible and scries one.",
+      "category": "protection",
+      "cards": [
+        "Loran's Escape"
+      ],
+      "rule": "lorans_escape",
+      "input_state": {},
+      "expected_normalized": {
+        "hexproof": true,
+        "indestructible": true,
+        "scry": 1,
+        "counter_added": 0
+      },
+      "comparison_keys": [
+        "hexproof",
+        "indestructible",
+        "scry",
+        "counter_added"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "lightning_greaves_shroud_blocks_own_target",
+      "description": "Lightning Greaves shroud prevents even your own targeted protection spell.",
+      "category": "protection",
+      "cards": [
+        "Lightning Greaves"
+      ],
+      "rule": "equipment_shroud_hexproof",
+      "input_state": {
+        "equipment": "Lightning Greaves",
+        "own_targeted_spell": true
+      },
+      "expected_normalized": {
+        "can_target_with_own_spell": false,
+        "protection": "shroud",
+        "equip_cost": 0
+      },
+      "comparison_keys": [
+        "can_target_with_own_spell",
+        "protection",
+        "equip_cost"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "swiftfoot_boots_hexproof_allows_own_target",
+      "description": "Swiftfoot Boots hexproof still permits your own targeted spell.",
+      "category": "protection",
+      "cards": [
+        "Swiftfoot Boots"
+      ],
+      "rule": "equipment_shroud_hexproof",
+      "input_state": {
+        "equipment": "Swiftfoot Boots",
+        "own_targeted_spell": true
+      },
+      "expected_normalized": {
+        "can_target_with_own_spell": true,
+        "protection": "hexproof",
+        "equip_cost": 1
+      },
+      "comparison_keys": [
+        "can_target_with_own_spell",
+        "protection",
+        "equip_cost"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "apnap_trigger_order_four_player",
+      "description": "Simultaneous triggers are stacked active player first, then nonactive players in turn order.",
+      "category": "triggers",
+      "cards": [],
+      "rule": "apnap_trigger_order",
+      "input_state": {
+        "active_player_triggers": [
+          "A1",
+          "A2"
+        ],
+        "nonactive_player_triggers_in_turn_order": [
+          [
+            "B1"
+          ],
+          [
+            "C1",
+            "C2"
+          ],
+          [
+            "D1"
+          ]
+        ]
+      },
+      "expected_normalized": {
+        "stack_bottom_to_top": [
+          "A1",
+          "A2",
+          "B1",
+          "C1",
+          "C2",
+          "D1"
+        ],
+        "resolves_first": "D1"
+      },
+      "comparison_keys": [
+        "stack_bottom_to_top",
+        "resolves_first"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "stack_resolves_last_in_first_out",
+      "description": "The top object on the stack resolves first.",
+      "category": "stack",
+      "cards": [],
+      "rule": "stack_lifo",
+      "input_state": {
+        "stack_bottom_to_top": [
+          "spell-A",
+          "trigger-B",
+          "counter-C"
+        ]
+      },
+      "expected_normalized": {
+        "resolution_order": [
+          "counter-C",
+          "trigger-B",
+          "spell-A"
+        ]
+      },
+      "comparison_keys": [
+        "resolution_order"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "zero_toughness_is_not_destroy",
+      "description": "A creature with zero toughness is put into a graveyard without being destroyed.",
+      "category": "state_based",
+      "cards": [
+        "Toxic Deluge"
+      ],
+      "rule": "zero_toughness",
+      "input_state": {
+        "toughness": 0,
+        "indestructible": true
+      },
+      "expected_normalized": {
+        "put_into_graveyard": true,
+        "is_destroyed": false,
+        "indestructible_relevant": false
+      },
+      "comparison_keys": [
+        "put_into_graveyard",
+        "is_destroyed",
+        "indestructible_relevant"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    },
+    {
+      "interaction_id": "token_ceases_after_zone_change",
+      "description": "A token may enter another zone and then ceases to exist at the next state-based action.",
+      "category": "state_based",
+      "cards": [],
+      "rule": "token_zone_change",
+      "input_state": {
+        "destination": "graveyard"
+      },
+      "expected_normalized": {
+        "enters_destination": true,
+        "ceases_to_exist_next_sba": true
+      },
+      "comparison_keys": [
+        "enters_destination",
+        "ceases_to_exist_next_sba"
+      ],
+      "critical": true,
+      "preferred_backend": "either",
+      "source_notes": [
+        "Project-critical bounded tactical case; external validation required for rules_engine_validated."
+      ]
+    }
+  ]
+}

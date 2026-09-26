@@ -1,0 +1,20 @@
+{
+  "AF07_GRANTED": false,
+  "ARCHITECTURE_FREEZE": false,
+  "G47_14": "PASS",
+  "G47_15": "PASS_POSTFREEZE_REGENERATION",
+  "artifact_version": "commander-lab.ws47-postfreeze-attestation/1.0.0",
+  "canonical_bundle_digest": "631da205c4889929b87e1a3bbf342e8a5bd168e678c7551aaf6ca7a901901e01",
+  "freeze_commit": "192e2b77c0625ad26905bd0ee8dcc3f44a5796c8",
+  "freeze_tree": "f596c54d2cb229b9827c6c94a278175e8312c65c",
+  "independent_validation": "PASS",
+  "materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+  "namespace_tree": "12af73695c801a42a0193ee895d5fc0843d16b0c",
+  "predecessor_namespace_integrity": "PASS",
+  "provider_pass_imported": false,
+  "provider_runtime_executed": false,
+  "regeneration_diff": "PASS_BYTE_IDENTICAL",
+  "terminal_status": "PASS",
+  "workflow_run_attempt": "1",
+  "workflow_run_id": "34235080565"
+}

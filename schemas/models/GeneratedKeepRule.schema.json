@@ -1,0 +1,263 @@
+{
+  "$defs": {
+    "KeepRuleClause": {
+      "additionalProperties": false,
+      "properties": {
+        "feature": {
+          "title": "Feature",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "ge",
+            "le",
+            "eq",
+            "between",
+            "true",
+            "false"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "feature",
+        "operator",
+        "value",
+        "rationale"
+      ],
+      "title": "KeepRuleClause",
+      "type": "object"
+    },
+    "KeepRuleValidationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "average_placement": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Placement"
+        },
+        "baseline_average_placement": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline Average Placement"
+        },
+        "context_id": {
+          "title": "Context Id",
+          "type": "string"
+        },
+        "context_kind": {
+          "enum": [
+            "primary_pod",
+            "holdout_pod",
+            "opponent_ensemble",
+            "pilot_profile"
+          ],
+          "title": "Context Kind",
+          "type": "string"
+        },
+        "estimate_level": {
+          "$ref": "#/$defs/MulliganEstimateLevel",
+          "default": "structural_followup"
+        },
+        "keep_agreement_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Keep Agreement Rate",
+          "type": "number"
+        },
+        "opponent_deck_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Opponent Deck Ids",
+          "type": "array"
+        },
+        "pilot_profile_id": {
+          "title": "Pilot Profile Id",
+          "type": "string"
+        },
+        "placement_delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placement Delta"
+        },
+        "samples": {
+          "minimum": 1,
+          "title": "Samples",
+          "type": "integer"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "context_id",
+        "context_kind",
+        "pilot_profile_id",
+        "opponent_deck_ids",
+        "samples",
+        "keep_agreement_rate",
+        "supported"
+      ],
+      "title": "KeepRuleValidationResult",
+      "type": "object"
+    },
+    "MulliganEstimateLevel": {
+      "enum": [
+        "exact_hypergeometric",
+        "monte_carlo_hand_quality",
+        "structural_followup"
+      ],
+      "title": "MulliganEstimateLevel",
+      "type": "string"
+    },
+    "MulliganPolicyName": {
+      "enum": [
+        "conservative",
+        "curve_oriented",
+        "commander_oriented",
+        "interaction_oriented",
+        "matchup_oriented",
+        "primer_policy",
+        "current_pilot",
+        "learned_policy"
+      ],
+      "title": "MulliganPolicyName",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "absolute_rule": {
+      "default": false,
+      "title": "Absolute Rule",
+      "type": "boolean"
+    },
+    "clauses": {
+      "items": {
+        "$ref": "#/$defs/KeepRuleClause"
+      },
+      "title": "Clauses",
+      "type": "array"
+    },
+    "deck_hash": {
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "exceptions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Exceptions",
+      "type": "array"
+    },
+    "model_based": {
+      "default": true,
+      "title": "Model Based",
+      "type": "boolean"
+    },
+    "policy": {
+      "$ref": "#/$defs/MulliganPolicyName"
+    },
+    "rule_id": {
+      "title": "Rule Id",
+      "type": "string"
+    },
+    "source_run_hash": {
+      "title": "Source Run Hash",
+      "type": "string"
+    },
+    "validation_contexts": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Contexts",
+      "type": "array"
+    },
+    "validation_results": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/KeepRuleValidationResult"
+      },
+      "title": "Validation Results",
+      "type": "array"
+    },
+    "validation_status": {
+      "default": "candidate",
+      "enum": [
+        "candidate",
+        "holdout_checked",
+        "rejected"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rule_id",
+    "deck_id",
+    "deck_hash",
+    "policy",
+    "clauses",
+    "source_run_hash"
+  ],
+  "title": "GeneratedKeepRule",
+  "type": "object"
+}

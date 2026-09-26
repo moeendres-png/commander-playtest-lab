@@ -1,0 +1,184 @@
+{
+  "korvold/current": {
+    "automatic_deck_changes": false,
+    "deck_pilot_interaction": {
+      "KorvoldAggressivePilot": {
+        "average_placement": 0.0,
+        "commander_damage": -6.0605065000000025,
+        "engine_value": -0.46562499999999996,
+        "place_1_share": 0.0,
+        "political_visibility": -0.03750000000000009
+      },
+      "KorvoldConservativePilot": {
+        "average_placement": 0.0,
+        "commander_damage": 5.642759999999996,
+        "engine_value": 0.7093750000000001,
+        "place_1_share": 0.0,
+        "political_visibility": 0.012499999999999956
+      },
+      "KorvoldLandRebuildPilot": {
+        "average_placement": 0.25,
+        "commander_damage": -4.169737500000004,
+        "engine_value": -1.3093749999999997,
+        "place_1_share": -0.25,
+        "political_visibility": -0.012500000000000178
+      },
+      "KorvoldSacrificePilot": {
+        "average_placement": 0.0,
+        "commander_damage": -4.703982499999995,
+        "engine_value": 0.0,
+        "place_1_share": 0.0,
+        "political_visibility": -0.02499999999999991
+      },
+      "KorvoldValuePilot": {
+        "average_placement": 0.0,
+        "commander_damage": -3.5210849999999994,
+        "engine_value": 1.1093750000000004,
+        "place_1_share": 0.0,
+        "political_visibility": 0.02499999999999991
+      }
+    },
+    "ensemble": {
+      "deck_id": "korvold/current",
+      "ensemble_id": "korvold.equal.v1",
+      "estimate_type": "structural_model_estimates",
+      "members": [
+        {
+          "pilot_name": "KorvoldValuePilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldSacrificePilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldLandRebuildPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldAggressivePilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "KorvoldConservativePilot",
+          "weight": 0.2
+        }
+      ],
+      "version": "1.0.0"
+    },
+    "estimate_type": "structural_model_estimates",
+    "median_pilot": {
+      "average_placement": 1.0,
+      "pilot_name": "KorvoldAggressivePilot"
+    },
+    "pilot_robustness": {
+      "criterion": "structural placement spread <= 0.75 across the ensemble",
+      "placement_spread": 0.25,
+      "robust": true
+    },
+    "result_path": "/mnt/data/phase12_3_12_4/repo_extract/commander-playtest-lab/data/runs/pilot_ensembles/phase12_3-korvold-ensemble/ensemble_summary.json",
+    "weighted_metrics": {
+      "average_commander_damage": 39.7196597,
+      "average_engine_value": 1.5181250000000002,
+      "average_normal_damage": 32.5089769232,
+      "average_placement": 1.05,
+      "place_1_share": 0.9500000000000001,
+      "political_visibility": 1.28
+    },
+    "worst_pilot": {
+      "average_placement": 1.25,
+      "pilot_name": "KorvoldLandRebuildPilot"
+    }
+  },
+  "rogshai/current": {
+    "automatic_deck_changes": false,
+    "deck_pilot_interaction": {
+      "RogShaiControlPilot": {
+        "average_placement": 0.0,
+        "commander_damage": 6.989199999999997,
+        "engine_value": 2.2475,
+        "place_1_share": 0.0,
+        "political_visibility": 0.025000000000000022
+      },
+      "RogShaiProtectedFinishPilot": {
+        "average_placement": 0.5,
+        "commander_damage": -4.295830000000002,
+        "engine_value": 0.221875,
+        "place_1_share": -0.5,
+        "political_visibility": -0.4875
+      },
+      "RogShaiSpellslingerPilot": {
+        "average_placement": 0.0,
+        "commander_damage": -15.853216999999994,
+        "engine_value": 0.0,
+        "place_1_share": 0.0,
+        "political_visibility": -0.26249999999999996
+      },
+      "RogShaiTempoPilot": {
+        "average_placement": 0.0,
+        "commander_damage": 12.694439199999998,
+        "engine_value": 0.221875,
+        "place_1_share": 0.0,
+        "political_visibility": 0.050000000000000044
+      },
+      "RogShaiVoltronPilot": {
+        "average_placement": 0.25,
+        "commander_damage": -6.294374999999995,
+        "engine_value": 0.561875,
+        "place_1_share": -0.25,
+        "political_visibility": 0.012500000000000067
+      }
+    },
+    "ensemble": {
+      "deck_id": "rogshai/current",
+      "ensemble_id": "rogshai.equal.v1",
+      "estimate_type": "structural_model_estimates",
+      "members": [
+        {
+          "pilot_name": "RogShaiTempoPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiVoltronPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiSpellslingerPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiControlPilot",
+          "weight": 0.2
+        },
+        {
+          "pilot_name": "RogShaiProtectedFinishPilot",
+          "weight": 0.2
+        }
+      ],
+      "version": "1.0.0"
+    },
+    "estimate_type": "structural_model_estimates",
+    "median_pilot": {
+      "average_placement": 1.0,
+      "pilot_name": "RogShaiControlPilot"
+    },
+    "pilot_robustness": {
+      "criterion": "structural placement spread <= 0.75 across the ensemble",
+      "placement_spread": 0.5,
+      "robust": true
+    },
+    "result_path": "/mnt/data/phase12_3_12_4/repo_extract/commander-playtest-lab/data/runs/pilot_ensembles/phase12_3-rogshai-ensemble/ensemble_summary.json",
+    "weighted_metrics": {
+      "average_commander_damage": 48.14004344,
+      "average_engine_value": 0.650625,
+      "average_normal_damage": 6.145138168,
+      "average_placement": 1.1500000000000001,
+      "place_1_share": 0.8500000000000001,
+      "political_visibility": 0.755
+    },
+    "worst_pilot": {
+      "average_placement": 1.5,
+      "pilot_name": "RogShaiProtectedFinishPilot"
+    }
+  }
+}

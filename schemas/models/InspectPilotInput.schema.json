@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "pilot_name": {
+      "title": "Pilot Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pilot_name"
+  ],
+  "title": "InspectPilotInput",
+  "type": "object"
+}

@@ -1,0 +1,233 @@
+{
+  "$defs": {
+    "BudgetBand": {
+      "enum": [
+        "unknown",
+        "budget",
+        "mid_budget",
+        "high_power",
+        "cedh",
+        "proxy_friendly"
+      ],
+      "title": "BudgetBand",
+      "type": "string"
+    },
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    },
+    "MetaCategory": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "MetaCategory",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "budget_band": {
+      "$ref": "#/$defs/BudgetBand",
+      "default": "unknown"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/MetaCategory"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "confidence": {
+      "default": 0.5,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "deck_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Deck Hash",
+      "type": "string"
+    },
+    "decklist": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Decklist",
+      "type": "array"
+    },
+    "event_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Event Name"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "interaction_profile": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "title": "Interaction Profile",
+      "type": "object"
+    },
+    "license_notes": {
+      "default": "reference metadata and card-name extraction only",
+      "title": "License Notes",
+      "type": "string"
+    },
+    "packages": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Packages",
+      "type": "array"
+    },
+    "placement": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Placement"
+    },
+    "player_count": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Player Count"
+    },
+    "pod_size": {
+      "anyOf": [
+        {
+          "maximum": 10,
+          "minimum": 2,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": 4,
+      "title": "Pod Size"
+    },
+    "primary_plan": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Primary Plan"
+    },
+    "provenance": {
+      "additionalProperties": true,
+      "title": "Provenance",
+      "type": "object"
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Published At"
+    },
+    "retrieved_at": {
+      "format": "date-time",
+      "title": "Retrieved At",
+      "type": "string"
+    },
+    "secondary_plan": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Secondary Plan"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "win_conditions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Win Conditions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source_id",
+    "commander",
+    "deck_hash",
+    "retrieved_at",
+    "format_band",
+    "categories",
+    "decklist"
+  ],
+  "title": "MetaDeckSnapshot",
+  "type": "object"
+}

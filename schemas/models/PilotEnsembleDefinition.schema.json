@@ -1,0 +1,63 @@
+{
+  "$defs": {
+    "PilotEnsembleMember": {
+      "additionalProperties": false,
+      "properties": {
+        "pilot_name": {
+          "title": "Pilot Name",
+          "type": "string"
+        },
+        "weight": {
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "pilot_name",
+        "weight"
+      ],
+      "title": "PilotEnsembleMember",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "deck_id": {
+      "title": "Deck Id",
+      "type": "string"
+    },
+    "ensemble_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{2,127}$",
+      "title": "Ensemble Id",
+      "type": "string"
+    },
+    "estimate_type": {
+      "const": "structural_model_estimates",
+      "default": "structural_model_estimates",
+      "title": "Estimate Type",
+      "type": "string"
+    },
+    "members": {
+      "items": {
+        "$ref": "#/$defs/PilotEnsembleMember"
+      },
+      "title": "Members",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ensemble_id",
+    "version",
+    "deck_id",
+    "members"
+  ],
+  "title": "PilotEnsembleDefinition",
+  "type": "object"
+}

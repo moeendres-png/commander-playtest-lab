@@ -1,0 +1,112 @@
+{
+  "$defs": {
+    "SimulationMode": {
+      "enum": [
+        "structural",
+        "tactical",
+        "rules_validated"
+      ],
+      "title": "SimulationMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "card_data_hash": {
+      "title": "Card Data Hash",
+      "type": "string"
+    },
+    "deck_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deck Ids",
+      "type": "array"
+    },
+    "engine_version": {
+      "default": "unimplemented",
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "iterations": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 30,
+      "minimum": 1,
+      "title": "Max Turns",
+      "type": "integer"
+    },
+    "mode": {
+      "$ref": "#/$defs/SimulationMode",
+      "default": "structural"
+    },
+    "model_configuration": {
+      "additionalProperties": true,
+      "title": "Model Configuration",
+      "type": "object"
+    },
+    "opponent_profile_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Opponent Profile Ids",
+      "type": "array"
+    },
+    "paired_seed_group": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Paired Seed Group"
+    },
+    "pilot_configs": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Pilot Configs",
+      "type": "object"
+    },
+    "pod_size": {
+      "default": 4,
+      "maximum": 10,
+      "minimum": 2,
+      "title": "Pod Size",
+      "type": "integer"
+    },
+    "scenario_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Hash"
+    },
+    "seed": {
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "seed",
+    "deck_ids",
+    "card_data_hash"
+  ],
+  "title": "SimulationConfig",
+  "type": "object"
+}

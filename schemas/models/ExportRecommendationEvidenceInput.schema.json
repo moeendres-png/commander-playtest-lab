@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "evidence": {
+      "additionalProperties": true,
+      "title": "Evidence",
+      "type": "object"
+    },
+    "output_name": {
+      "default": "recommendation-evidence.json",
+      "title": "Output Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "evidence"
+  ],
+  "title": "ExportRecommendationEvidenceInput",
+  "type": "object"
+}

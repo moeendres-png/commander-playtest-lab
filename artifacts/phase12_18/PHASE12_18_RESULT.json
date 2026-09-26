@@ -1,0 +1,24 @@
+{
+  "canonical_files_modified": false,
+  "completion_status": "statistical_decision_protocol_ready",
+  "execution_status": "passed_with_limitations",
+  "focused_tests": {
+    "failed": 0,
+    "passed": 12
+  },
+  "methods": [
+    "paired_mean_differences",
+    "paired_placement_differences",
+    "deterministic_percentile_bootstrap",
+    "standardized_paired_effect",
+    "bayesian_shrinkage",
+    "Holm_multiple_testing_correction",
+    "Pareto_front",
+    "worst_case_and_quantile_summary",
+    "distributionally_robust_lower_bound",
+    "seed_scenario_pilot_provider_sensitivity"
+  ],
+  "phase": "12.18",
+  "small_samples_can_recommend": false,
+  "validation_level": "structural_only"
+}

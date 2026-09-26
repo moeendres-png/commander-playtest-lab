@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_deck_id": {
+      "title": "Baseline Deck Id",
+      "type": "string"
+    },
+    "iterations": {
+      "default": 8,
+      "maximum": 500,
+      "minimum": 1,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "max_turns": {
+      "default": 24,
+      "maximum": 100,
+      "minimum": 5,
+      "title": "Max Turns",
+      "type": "integer"
+    },
+    "opponent_deck_ids": {
+      "default": [
+        "opponent/morcant-elves",
+        "opponent/blight-curse-precon",
+        "opponent/doom-prevails-precon"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Opponent Deck Ids",
+      "type": "array"
+    },
+    "output_name": {
+      "default": "latest_variant_across_pilots",
+      "title": "Output Name",
+      "type": "string"
+    },
+    "pilot_names": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Pilot Names",
+      "type": "array"
+    },
+    "seed": {
+      "default": 20260806,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "variant_deck_id": {
+      "title": "Variant Deck Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "baseline_deck_id",
+    "variant_deck_id",
+    "pilot_names"
+  ],
+  "title": "TestVariantAcrossPilotsInput",
+  "type": "object"
+}

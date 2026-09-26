@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "audit_date": "2026-08-15",
+  "baseline": {
+    "main_commit": "256f3a1b418afef274a98e6dfdbed3d26bcc28ad",
+    "tree": "07a045c3aa8b57999ba533c5d759add53fd60a51",
+    "package": "1.21.0",
+    "structural_engine": "structural-0.6.0",
+    "optimizer_v2_merged": true,
+    "optimizer_v2_ready": true
+  },
+  "target_package": "1.22.0",
+  "gaps": [
+    {
+      "gap_id": "DQ-REPRESENTATION-INVARIANT",
+      "prior_status": "OPEN",
+      "target_status": "IMPLEMENTED_PENDING_CI",
+      "implementation": [
+        "StructuralDeckProfile requires non-empty unique commander identities",
+        "each commander requires exactly one StructuralCardProfile",
+        "production Commander profile validator requires 100 profiles including commanders",
+        "project loader validates own, synthetic and current-opponent production profiles"
+      ],
+      "automatic_deck_change": false
+    },
+    {
+      "gap_id": "DQ-DOMAIN-INPUT-VALIDITY",
+      "prior_status": "OPEN",
+      "target_status": "IMPLEMENTED_PENDING_CI",
+      "implementation": [
+        "separates official baseline, current local matchup and structural stress-test scopes",
+        "partial/synthetic/unknown local evidence cannot support a strong local-matchup decision",
+        "no numeric opponent-frequency or completion probability is invented"
+      ],
+      "evidence_boundary": "input validity, not empirical performance"
+    },
+    {
+      "gap_id": "DQ-OPPONENT-AMBIGUITY",
+      "prior_status": "OPEN",
+      "target_status": "IMPLEMENTED_PRIMITIVE_PENDING_CI",
+      "implementation": [
+        "OpponentAmbiguitySet stores multiple provenance-bound plausible variants",
+        "probability_weights are intentionally absent",
+        "external archetype priors remain synthetic scenario provenance, not local observation"
+      ]
+    },
+    {
+      "gap_id": "DQ-BENCHMARK-INFORMATION-GATE",
+      "prior_status": "PARTIAL",
+      "target_status": "INTEGRATED_PENDING_CI",
+      "implementation": [
+        "MODEL_INFORMATION_LIMIT is evaluated before effect, degradation or equivalence decisions",
+        "additional same-model seeds are not the default response to a saturated/non-separable model"
+      ]
+    },
+    {
+      "gap_id": "DQ-STRUCTURAL-FIDELITY",
+      "prior_status": "PARTIAL",
+      "target_status": "INTEGRATED_PENDING_CI",
+      "implementation": [
+        "HIGH_FIDELITY_FOR_QUESTION",
+        "MEDIUM_FIDELITY_FOR_QUESTION",
+        "LOW_FIDELITY_FOR_QUESTION",
+        "UNSUPPORTED_FOR_QUESTION",
+        "required, represented, approximated and unsupported functions are reported separately"
+      ],
+      "evidence_boundary": "question-specific structural coverage, not external rules-engine validation"
+    },
+    {
+      "gap_id": "DQ-MODEL-RESOLUTION",
+      "prior_status": "BLOCKED_BY_OPTIMIZER_V2",
+      "target_status": "INTEGRATED_POLICY_PENDING_MEASUREMENT_DATA",
+      "implementation": [
+        "synthetic calibrated SESOI alone yields NEEDS_MEASUREMENT",
+        "measured structural axis spreads are required for MEASURED status",
+        "effective resolution is conservative over calibrated SESOI and supplied same-metric spreads",
+        "DecisionInformation can use measured resolution instead of a fixed 0.025 threshold"
+      ],
+      "remaining_data_need": "run bounded structural null/seed/seat/scenario/pilot/compression resolution experiments before claiming a measured current profile"
+    },
+    {
+      "gap_id": "DQ-SEEDBLOCK-EPISTEMICS",
+      "prior_status": "PARTIAL",
+      "target_status": "IMPLEMENTED_PENDING_CI",
+      "implementation": [
+        "same model + same input model + same metric = PRECISION_ONLY_SAME_MODEL",
+        "changed evidence axis is distinguished without promoting it to empirical replication"
+      ]
+    },
+    {
+      "gap_id": "DQ-CLOSURE-DIAGNOSTICS",
+      "prior_status": "OPEN",
+      "target_status": "IMPLEMENTED_FOR_SUPPORTED_TELEMETRY_PENDING_CI",
+      "implementation": [
+        "RESOURCE_GAIN_WITH_CLOSURE",
+        "RESOURCE_GAIN_WITHOUT_CLOSURE",
+        "COMMANDER_DAMAGE_STALL",
+        "VALUE_ENGINE_STALL",
+        "MANA_STALL",
+        "INTERACTION_OVERLOAD",
+        "unavailable recast/unused-mana/stranded-spell/restore-pressure telemetry is explicitly UNSUPPORTED_BY_STRUCTURAL_MODEL"
+      ],
+      "remaining_model_gap": "RECAST_STALL cannot be directly identified until recast-affordability/pressure-restoration telemetry exists"
+    },
+    {
+      "gap_id": "DQ-CAUSAL-EXPERIMENT-SEMANTICS",
+      "prior_status": "PARTIAL",
+      "target_status": "IMPLEMENTED_PENDING_CI",
+      "implementation": [
+        "CUT",
+        "ADD",
+        "REPLACEMENT",
+        "PACKAGE",
+        "CONDITIONAL_EFFECT",
+        "INTERACTION",
+        "ordinary one-for-one swap supports REPLACEMENT and not independent cut/add causality",
+        "cut/add claims require explicit neutral-control isolation"
+      ]
+    },
+    {
+      "gap_id": "DQ-MULTI-AXIS-ROBUST-DECISION",
+      "prior_status": "PARTIAL",
+      "target_status": "INTEGRATED_PENDING_CI",
+      "implementation": [
+        "strict fail-closed gate order for comparison validity, domain validity, fidelity, tactical dependency, information limit and model resolution",
+        "declared robustness axes remain separate booleans rather than a universal super-score",
+        "exploratory directional evidence requires fresh confirmatory evidence",
+        "FINAL status requires authorized sealed holdout confirmation"
+      ]
+    },
+    {
+      "gap_id": "DQ-PARETO-PRIMITIVES",
+      "prior_status": "ALREADY_PRESENT",
+      "target_status": "REUSED",
+      "implementation": [
+        "existing ObjectiveVector/Pareto/Search primitives remain authoritative",
+        "no second multi-objective score layer is introduced"
+      ]
+    }
+  ],
+  "protected_state": {
+    "new_rogshai_optimizer_run_started": false,
+    "canonical_rogshai_changed": false,
+    "inventory_changed": false,
+    "physical_allocation_changed": false,
+    "purchase_decision_changed": false,
+    "opponent_observation_evidence_changed": false,
+    "kaervek_changed": false
+  }
+}

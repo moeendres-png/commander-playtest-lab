@@ -1,0 +1,93 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "code_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Code Hash",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "deterministic": {
+      "default": true,
+      "title": "Deterministic",
+      "type": "boolean"
+    },
+    "executed_at": {
+      "format": "date-time",
+      "title": "Executed At",
+      "type": "string"
+    },
+    "git_commit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Git Commit"
+    },
+    "input_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Ids",
+      "type": "array"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "output_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Ids",
+      "type": "array"
+    },
+    "package_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Package Version"
+    },
+    "parameters_hash": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parameters Hash"
+    },
+    "transformation_id": {
+      "title": "Transformation Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "transformation_id",
+    "name",
+    "description",
+    "input_ids",
+    "output_ids",
+    "code_hash"
+  ],
+  "title": "TransformationRecord",
+  "type": "object"
+}

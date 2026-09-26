@@ -1,0 +1,60 @@
+{
+  "$defs": {
+    "FormatBand": {
+      "enum": [
+        "local_meta",
+        "normal_four_player",
+        "high_power",
+        "cedh_tournament",
+        "large_pod",
+        "historical_reference",
+        "synthetic_assumption"
+      ],
+      "title": "FormatBand",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "card_counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Card Counts",
+      "type": "object"
+    },
+    "card_frequencies": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Card Frequencies",
+      "type": "object"
+    },
+    "commander": {
+      "title": "Commander",
+      "type": "string"
+    },
+    "format_band": {
+      "$ref": "#/$defs/FormatBand"
+    },
+    "sample_size": {
+      "minimum": 1,
+      "title": "Sample Size",
+      "type": "integer"
+    },
+    "small_sample": {
+      "title": "Small Sample",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "commander",
+    "format_band",
+    "sample_size",
+    "card_counts",
+    "card_frequencies",
+    "small_sample"
+  ],
+  "title": "MetaCardFrequency",
+  "type": "object"
+}

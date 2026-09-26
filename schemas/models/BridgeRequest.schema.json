@@ -1,0 +1,24 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "method": {
+      "title": "Method",
+      "type": "string"
+    },
+    "params": {
+      "additionalProperties": true,
+      "title": "Params",
+      "type": "object"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "method"
+  ],
+  "title": "BridgeRequest",
+  "type": "object"
+}

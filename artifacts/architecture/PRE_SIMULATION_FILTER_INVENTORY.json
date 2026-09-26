@@ -1,0 +1,273 @@
+{
+  "schema_version": "pre-simulation-filter-inventory-1.0.0",
+  "audited_main_commit": "63d48bc635118e255d7585db0697694811dd849b",
+  "audited_main_tree": "92485bf41d5c515002fcb623423016fbde9ca5ac",
+  "purpose": "Inventory every known mechanism that could shape, rank, route, shortlist, or eliminate complete candidate decks before official gameplay evidence.",
+  "new_productive_rule": "Only objective hard validity and exact identical-deck deduplication may reduce an externally supplied complete candidate set before gameplay.",
+  "mechanisms": [
+    {
+      "id": "objective_prior",
+      "file": "src/commander_lab/whole_deck/search_score.py; src/commander_lab/whole_deck/optimizer_search.py",
+      "function/class": "objective prior scoring; HypothesisCoverageArchive.admit",
+      "current_behavior": "Historically ranked constructed candidates and could affect bounded archive retention.",
+      "input": "complete WholeDeckVariant plus construction/feature signals",
+      "output": "score/order/archive retention",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "bounded heuristic search",
+      "future_disposition": "RETAIN_AS_DIAGNOSTIC"
+    },
+    {
+      "id": "contextual_card_utility",
+      "file": "src/commander_lab/whole_deck/features.py; src/commander_lab/whole_deck/search_construct.py",
+      "function/class": "contextual_card_utility / construction ranking",
+      "current_behavior": "Historically influenced which cards were selected into generated whole decks.",
+      "input": "card features and policy context",
+      "output": "construction utility",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "heuristic deck construction",
+      "future_disposition": "KEEP_FOR_DECKBUILDING_REFERENCE"
+    },
+    {
+      "id": "construction_ranking",
+      "file": "src/commander_lab/whole_deck/search_construct.py",
+      "function/class": "constructive deck assembly ranking",
+      "current_behavior": "Selects cards while constructing starts from the physical pool.",
+      "input": "owned pool, policy, card utility",
+      "output": "constructed deck",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "finite whole-deck search",
+      "future_disposition": "DEPRECATE"
+    },
+    {
+      "id": "constructive_start",
+      "file": "src/commander_lab/whole_deck/search_starts.py; src/commander_lab/whole_deck/search_run.py",
+      "function/class": "constructive starts",
+      "current_behavior": "Creates a bounded subset of possible starting decks.",
+      "input": "construction engines and pool",
+      "output": "initial variants",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "search initialization",
+      "future_disposition": "DEPRECATE"
+    },
+    {
+      "id": "diversified_start",
+      "file": "src/commander_lab/whole_deck/search_starts.py",
+      "function/class": "diversified starts",
+      "current_behavior": "Selects a limited diversity sample of constructed starts.",
+      "input": "candidate starts",
+      "output": "bounded start set",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "search diversity under finite budget",
+      "future_disposition": "DEPRECATE"
+    },
+    {
+      "id": "search_temperature",
+      "file": "src/commander_lab/whole_deck/search_step.py; src/commander_lab/whole_deck/search_acceptance.py",
+      "function/class": "stochastic search acceptance temperature",
+      "current_behavior": "Controls whether proposals survive exploratory search steps.",
+      "input": "proposal and score delta",
+      "output": "accept/reject",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "stochastic local search",
+      "future_disposition": "DEPRECATE"
+    },
+    {
+      "id": "search_acceptance",
+      "file": "src/commander_lab/whole_deck/search_acceptance.py; src/commander_lab/whole_deck/search_step.py",
+      "function/class": "proposal acceptance",
+      "current_behavior": "Historically rejects legal proposals based on search state/score.",
+      "input": "legal proposal and search objective",
+      "output": "accepted/rejected proposal",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "bounded optimizer exploration",
+      "future_disposition": "DEPRECATE"
+    },
+    {
+      "id": "archive_limit",
+      "file": "src/commander_lab/whole_deck/search_finalize.py; src/commander_lab/whole_deck/optimizer_v2.py",
+      "function/class": "bounded archives",
+      "current_behavior": "Keeps only a bounded subset of legal candidates.",
+      "input": "candidate/evaluation collection",
+      "output": "retained archive",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "memory/evidence budget control",
+      "future_disposition": "RETAIN_AS_POST_SIMULATION_TOOL"
+    },
+    {
+      "id": "finalist_limit",
+      "file": "src/commander_lab/whole_deck/search_finalize.py",
+      "function/class": "finalist selection",
+      "current_behavior": "Historically reduced search results to a small finalist set.",
+      "input": "search archive",
+      "output": "finalists",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "bounded downstream evaluation",
+      "future_disposition": "DEPRECATE"
+    },
+    {
+      "id": "current_control_search_start",
+      "file": "src/commander_lab/whole_deck/search.py; src/commander_lab/whole_deck/optimizer_search.py",
+      "function/class": "CURRENT_CONTROL construction/search anchor",
+      "current_behavior": "Historically seeded search and acted as a privileged anchor.",
+      "input": "current canonical deck",
+      "output": "search start/anchor",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "local improvement search around Current",
+      "future_disposition": "RETAIN_AS_METADATA"
+    },
+    {
+      "id": "current_anchored_repair",
+      "file": "src/commander_lab/whole_deck/optimizer_search.py",
+      "function/class": "AdaptiveWholeDeckSearch._fidelity_repair_proposals",
+      "current_behavior": "Creates local Current-anchored variants and keeps only fidelity-safe repair outputs.",
+      "input": "Current control, pool, fidelity state",
+      "output": "repair proposals",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "decision-safe reachability for Structural evidence",
+      "future_disposition": "DEPRECATE"
+    },
+    {
+      "id": "coverage_debt_proposal_selection",
+      "file": "src/commander_lab/whole_deck/optimizer_search.py",
+      "function/class": "AdaptiveWholeDeckSearch._coverage_debt_proposals",
+      "current_behavior": "Selects a bounded outcome-independent subset for search exposure.",
+      "input": "Current, pool, exposure counts",
+      "output": "coverage hypotheses",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "finite search coverage",
+      "future_disposition": "KEEP_FOR_DECKBUILDING_REFERENCE"
+    },
+    {
+      "id": "meta_distance",
+      "file": "src/commander_lab/whole_deck/meta.py; src/commander_lab/whole_deck/search_meta_score.py",
+      "function/class": "functional_meta_distance / meta scoring",
+      "current_behavior": "Historically contributed to search/construction quality signals.",
+      "input": "deck functional profile and benchmark profiles",
+      "output": "distance/score",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "meta-shape benchmark search",
+      "future_disposition": "RETAIN_AS_DIAGNOSTIC"
+    },
+    {
+      "id": "mana_soft_score",
+      "file": "src/commander_lab/whole_deck/mana.py; src/commander_lab/whole_deck/search_score.py",
+      "function/class": "mana diagnostics / soft scoring",
+      "current_behavior": "Historically affected search quality without being a Commander legality rule.",
+      "input": "mana base and curve features",
+      "output": "mana diagnostic/soft score",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "deck-quality heuristic",
+      "future_disposition": "RETAIN_AS_DIAGNOSTIC"
+    },
+    {
+      "id": "package_bonus",
+      "file": "src/commander_lab/whole_deck/search_packages.py; src/commander_lab/whole_deck/search_score.py",
+      "function/class": "package/coherence scoring",
+      "current_behavior": "Historically influenced construction and search ranking.",
+      "input": "package memberships and densities",
+      "output": "package quality signal",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "coherent whole-deck search",
+      "future_disposition": "RETAIN_AS_DIAGNOSTIC"
+    },
+    {
+      "id": "structural_screening_rank",
+      "file": "src/commander_lab/whole_deck/optimizer_v2_evaluator.py; src/commander_lab/whole_deck/optimizer_search.py",
+      "function/class": "Structural exploratory evaluation / racing priority",
+      "current_behavior": "Ranks candidates using structural_model_estimates and determines later Structural budgets.",
+      "input": "candidate plus Structural scenario budget",
+      "output": "score, interval, robust lower bound",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "adaptive Structural evidence allocation",
+      "future_disposition": "RETAIN_AS_DIAGNOSTIC"
+    },
+    {
+      "id": "structural_decision_safe_gating",
+      "file": "src/commander_lab/whole_deck/optimizer_search.py; src/commander_lab/whole_deck/mechanics_fidelity.py",
+      "function/class": "_evaluator_mechanics_gate / assess_variant_mechanics",
+      "current_behavior": "Historically permits only decision-safe variants to receive later Structural racing/decision-QD budgets.",
+      "input": "candidate mechanics vs Structural capabilities",
+      "output": "pass/fail and next evidence layer",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "prevent Structural overclaim",
+      "future_disposition": "RETAIN_AS_DIAGNOSTIC"
+    },
+    {
+      "id": "fidelity_routing_queues",
+      "file": "src/commander_lab/whole_deck/mechanics_fidelity.py; src/commander_lab/whole_deck/optimizer_search.py",
+      "function/class": "STRUCTURAL/TACTICAL/EXTERNAL/SCREENING_ONLY/UNSUPPORTED routing",
+      "current_behavior": "Historically routed some legal candidates away from Structural decision evidence.",
+      "input": "mechanics capability assessment",
+      "output": "evidence route",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "evidence-fidelity safety",
+      "future_disposition": "RETAIN_AS_METADATA"
+    },
+    {
+      "id": "qd_archive_admission",
+      "file": "src/commander_lab/whole_deck/optimizer_v2.py",
+      "function/class": "QualityDiversityArchive.admit",
+      "current_behavior": "Keeps only bounded elites per QD cell based on Structural evidence and novelty.",
+      "input": "legal variant plus exploratory evaluation",
+      "output": "admitted/not admitted",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "quality-diversity search under finite evidence budget",
+      "future_disposition": "RETAIN_AS_POST_SIMULATION_TOOL"
+    },
+    {
+      "id": "elite_selection",
+      "file": "src/commander_lab/whole_deck/optimizer_v2.py; src/commander_lab/whole_deck/optimizer_v2_release.py",
+      "function/class": "QD elite/frontier materialization",
+      "current_behavior": "Only selected elites continue into later decision paths.",
+      "input": "QD archive evaluations",
+      "output": "elite set",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "frontier compression",
+      "future_disposition": "RETAIN_AS_POST_SIMULATION_TOOL"
+    },
+    {
+      "id": "frontier_selection",
+      "file": "src/commander_lab/whole_deck/optimizer_v2_release.py; src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py",
+      "function/class": "frontier handoff",
+      "current_behavior": "Historically handed only selected Structural frontier candidates to later evidence stages.",
+      "input": "search/QD archive",
+      "output": "frontier handoff",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "bounded confirmatory campaign",
+      "future_disposition": "RETAIN_AS_POST_SIMULATION_TOOL"
+    },
+    {
+      "id": "confirmatory_shortlist_construction",
+      "file": "src/commander_lab/whole_deck/optimizer_v2_decision_runtime.py",
+      "function/class": "_shortlist / SHORTLIST_LIMIT",
+      "current_behavior": "Historically selects at most a small Structural elite subset for confirmatory evidence.",
+      "input": "FrontierHandoff elites",
+      "output": "confirmatory shortlist",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "family-wise error and compute budget control",
+      "future_disposition": "RETAIN_AS_POST_SIMULATION_TOOL"
+    },
+    {
+      "id": "hard_validity",
+      "file": "src/commander_lab/candidates/validation.py",
+      "function/class": "validate_candidate_set",
+      "current_behavior": "Objectively validates complete external decks against current Commander scope, legality, colors, singleton, physical quantities and allocation availability.",
+      "input": "complete DeckCandidateSet plus canonical read-only project truth",
+      "output": "PASS/FAIL hard validity with reasons",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "objective invalidity only",
+      "future_disposition": "HARD_VALIDITY_ONLY"
+    },
+    {
+      "id": "identical_deck_deduplication",
+      "file": "src/commander_lab/candidates/validation.py",
+      "function/class": "canonical deck-hash deduplication",
+      "current_behavior": "Collapses byte-independent canonical identical deck identities while preserving every source candidate ID.",
+      "input": "hard-valid candidates",
+      "output": "unique hard-valid candidates plus duplicate provenance",
+      "can_eliminate_candidate_before_gameplay": "yes",
+      "reason_for_existing_behavior": "avoid simulating the exact same deck more than once",
+      "future_disposition": "HARD_VALIDITY_ONLY"
+    }
+  ]
+}

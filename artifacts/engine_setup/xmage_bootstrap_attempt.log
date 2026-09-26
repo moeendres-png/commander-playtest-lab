@@ -1,0 +1,3 @@
+Cloning pinned xmage source into /mnt/data/commander-playtest-lab-phase8-work/artifacts/engine_setup/xmage-source-attempt
+Cloning into '/mnt/data/commander-playtest-lab-phase8-work/artifacts/engine_setup/xmage-source-attempt'...
+fatal: unable to access 'https://github.com/magefree/mage.git/': Could not resolve host: github.com

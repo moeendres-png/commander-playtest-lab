@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0.0",
+  "deck_id": "kaervek/current",
+  "deck_hash": "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a",
+  "status": "verified_full_deck",
+  "strategy": "kaervek",
+  "land_count": 38,
+  "roles": {
+    "ramp": 14,
+    "draw": 11,
+    "selection": 3,
+    "removal": 13,
+    "wipe": 6,
+    "recursion": 7,
+    "graveyard_hate": 4,
+    "protection": 2,
+    "engine": 14,
+    "payoff": 14,
+    "finisher": 16,
+    "sacrifice_outlet": 5
+  },
+  "pilot_policy": {
+    "early_game": [
+      "develop mana",
+      "draw cards",
+      "use cheap removal only on engines/commanders/escalating threats"
+    ],
+    "midgame": [
+      "hold wipes for developed boards",
+      "deploy Tor Wauki/planeswalkers when exposure is acceptable",
+      "treat Warstorm Surge as an independent top-end damage engine and recursion payoff",
+      "set up recursion"
+    ],
+    "kaervek_window": [
+      "prefer sufficient mana development",
+      "prefer likely multiple opponent spells before next turn",
+      "avoid obvious zero-value exposure"
+    ],
+    "priority_against_korvold": [
+      "Korvold at high-value window",
+      "Warstorm Surge before a large creature/reanimation sequence",
+      "sacrifice/table-damage engines",
+      "rebuild engines"
+    ],
+    "priority_against_rogshai": [
+      "Ishai near commander-damage kill",
+      "Jeska finish window",
+      "Warstorm Surge before large ETB/reanimation pressure",
+      "spellslinger/draw engines",
+      "table finishers"
+    ],
+    "rules": [
+      "Kaervek trigger is created when opponent casts a spell; countering that spell later does not remove the already-created trigger"
+    ]
+  }
+}

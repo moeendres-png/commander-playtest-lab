@@ -1,0 +1,66 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "deck_handles": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deck Handles",
+      "type": "array"
+    },
+    "deterministic_starting_state": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deterministic Starting State"
+    },
+    "format": {
+      "const": "commander",
+      "default": "commander",
+      "title": "Format",
+      "type": "string"
+    },
+    "game_id": {
+      "title": "Game Id",
+      "type": "string"
+    },
+    "seed": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seed"
+    },
+    "starting_life": {
+      "default": 40,
+      "minimum": 1,
+      "title": "Starting Life",
+      "type": "integer"
+    },
+    "starting_player_seat": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Starting Player Seat",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "game_id",
+    "deck_handles"
+  ],
+  "title": "RulesGameRequest",
+  "type": "object"
+}

@@ -1,0 +1,1752 @@
+{
+  "korvold/current": {
+    "tool_status": "completed",
+    "result": {
+      "validation_level": "structural_only",
+      "policies": [
+        "current_pilot",
+        "commander_oriented"
+      ],
+      "comparison": {
+        "schema_version": "1.0.0",
+        "context": {
+          "deck_id": "korvold/current",
+          "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+          "opponent_ensemble_id": null,
+          "opponent_ensemble_hash": null,
+          "seat_position": 1,
+          "starting_player": false,
+          "pod_size": 4,
+          "pilot_profile_id": "baseline",
+          "pilot_version": "unspecified",
+          "game_plan": "balanced",
+          "seed": 20260807
+        },
+        "sample_count": 40,
+        "policies": [
+          {
+            "policy": "current_pilot",
+            "samples": 40,
+            "keep_rate_first_seven": 0.5,
+            "final_keep_rate": 1.0,
+            "mulligan_rate": 0.5,
+            "average_mulligans": 0.7,
+            "color_problem_rate": 0.025,
+            "average_dead_cards": 0.525,
+            "median_hand_score": 5.6,
+            "first_ramp_turn_mean": 2.175,
+            "commander_cast_turn_mean": 5.125,
+            "first_draw_engine_turn_mean": 4.0,
+            "structural_placement_mean": 1.075,
+            "uncertainty_half_width_95": 0.14800473066534617,
+            "full_followup_games": 40,
+            "completed_followup_games": 40,
+            "hand_type_summaries": [
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 3.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 7.0,
+                "commander_cast_turn_mean": 6.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 2.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=ramp",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=ramp",
+                "samples": 6,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.6666666666666667,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.3333333333333333,
+                "first_ramp_turn_mean": 2.1666666666666665,
+                "commander_cast_turn_mean": 5.833333333333333,
+                "first_draw_engine_turn_mean": 4.666666666666667,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.19516714395108264
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 3.0,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 4.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 3.0,
+                "first_draw_engine_turn_mean": 4.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=ramp",
+                "samples": 4,
+                "keep_rate": 0.75,
+                "mulligan_rate": 0.25,
+                "average_mulligans": 0.25,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.75,
+                "first_ramp_turn_mean": 1.75,
+                "commander_cast_turn_mean": 4.0,
+                "first_draw_engine_turn_mean": 4.25,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3268854483039488
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 8.0,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 4.0,
+                "commander_cast_turn_mean": 6.0,
+                "first_draw_engine_turn_mean": 7.0,
+                "structural_placement_mean": 2.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=ramp",
+                "samples": 8,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.625,
+                "first_ramp_turn_mean": 1.5,
+                "commander_cast_turn_mean": 4.875,
+                "first_draw_engine_turn_mean": 3.75,
+                "structural_placement_mean": 1.125,
+                "uncertainty_half_width_95": 0.16220378244194011
+              },
+              {
+                "hand_type": "lands=3|colors=unstable|plan=ramp",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 1.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 6.0,
+                "first_draw_engine_turn_mean": 5.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=interaction",
+                "samples": 3,
+                "keep_rate": 0.3333333333333333,
+                "mulligan_rate": 0.6666666666666666,
+                "average_mulligans": 0.6666666666666666,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.3333333333333333,
+                "first_ramp_turn_mean": 2.6666666666666665,
+                "commander_cast_turn_mean": 6.0,
+                "first_draw_engine_turn_mean": 5.333333333333333,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.365424227238778
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=ramp",
+                "samples": 5,
+                "keep_rate": 0.8,
+                "mulligan_rate": 0.2,
+                "average_mulligans": 0.2,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.6,
+                "first_ramp_turn_mean": 1.8,
+                "commander_cast_turn_mean": 4.8,
+                "first_draw_engine_turn_mean": 3.2,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.2941206308025222
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 3.0,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 2.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=other",
+                "samples": 2,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 5.5,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=ramp",
+                "samples": 3,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.3333333333333333,
+                "first_ramp_turn_mean": 1.6666666666666667,
+                "commander_cast_turn_mean": 5.333333333333333,
+                "first_draw_engine_turn_mean": 4.333333333333333,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.2807485158775227
+              }
+            ],
+            "validation_contexts": [
+              "primary_pod",
+              "holdout_pod_a",
+              "holdout_pod_b",
+              "opponent_ensemble",
+              "multiple_pilots"
+            ],
+            "estimate_level": "structural_followup"
+          },
+          {
+            "policy": "commander_oriented",
+            "samples": 40,
+            "keep_rate_first_seven": 0.55,
+            "final_keep_rate": 1.0,
+            "mulligan_rate": 0.45,
+            "average_mulligans": 0.575,
+            "color_problem_rate": 0.075,
+            "average_dead_cards": 0.5,
+            "median_hand_score": 6.725,
+            "first_ramp_turn_mean": 2.375,
+            "commander_cast_turn_mean": 5.85,
+            "first_draw_engine_turn_mean": 4.175,
+            "structural_placement_mean": 1.075,
+            "uncertainty_half_width_95": 0.14732800195081514,
+            "full_followup_games": 40,
+            "completed_followup_games": 40,
+            "hand_type_summaries": [
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 3.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 5.0,
+                "commander_cast_turn_mean": 9.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=ramp",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 7.0,
+                "first_draw_engine_turn_mean": 5.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 4.0,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=ramp",
+                "samples": 6,
+                "keep_rate": 0.16666666666666666,
+                "mulligan_rate": 0.8333333333333334,
+                "average_mulligans": 0.8333333333333334,
+                "color_problem_rate": 0.3333333333333333,
+                "average_dead_cards": 0.16666666666666666,
+                "first_ramp_turn_mean": 1.3333333333333333,
+                "commander_cast_turn_mean": 5.833333333333333,
+                "first_draw_engine_turn_mean": 3.6666666666666665,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.2667247262190818
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 5.0,
+                "commander_cast_turn_mean": 7.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 3.0,
+                "first_draw_engine_turn_mean": 6.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=ramp",
+                "samples": 4,
+                "keep_rate": 0.5,
+                "mulligan_rate": 0.5,
+                "average_mulligans": 0.5,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.75,
+                "first_ramp_turn_mean": 3.25,
+                "commander_cast_turn_mean": 8.0,
+                "first_draw_engine_turn_mean": 5.5,
+                "structural_placement_mean": 1.25,
+                "uncertainty_half_width_95": 0.34996101084785053
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 4.0,
+                "commander_cast_turn_mean": 6.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 3.0,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 6.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=ramp",
+                "samples": 8,
+                "keep_rate": 0.875,
+                "mulligan_rate": 0.125,
+                "average_mulligans": 0.125,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.625,
+                "first_ramp_turn_mean": 2.5,
+                "commander_cast_turn_mean": 5.5,
+                "first_draw_engine_turn_mean": 3.625,
+                "structural_placement_mean": 1.125,
+                "uncertainty_half_width_95": 0.22423534538139842
+              },
+              {
+                "hand_type": "lands=3|colors=unstable|plan=ramp",
+                "samples": 1,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 1.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 7.0,
+                "first_draw_engine_turn_mean": 5.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=interaction",
+                "samples": 3,
+                "keep_rate": 0.6666666666666666,
+                "mulligan_rate": 0.3333333333333333,
+                "average_mulligans": 0.3333333333333333,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.6666666666666665,
+                "commander_cast_turn_mean": 4.666666666666667,
+                "first_draw_engine_turn_mean": 3.6666666666666665,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.365424227238778
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=ramp",
+                "samples": 5,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.6,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 4.6,
+                "first_draw_engine_turn_mean": 5.0,
+                "structural_placement_mean": 1.2,
+                "uncertainty_half_width_95": 0.21724123239158738
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 4.0,
+                "commander_cast_turn_mean": 6.0,
+                "first_draw_engine_turn_mean": 4.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=other",
+                "samples": 2,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 1.5,
+                "commander_cast_turn_mean": 8.0,
+                "first_draw_engine_turn_mean": 5.5,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=ramp",
+                "samples": 3,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.3333333333333333,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.3333333333333333,
+                "first_ramp_turn_mean": 1.3333333333333333,
+                "commander_cast_turn_mean": 5.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.2807485158775227
+              }
+            ],
+            "validation_contexts": [
+              "primary_pod",
+              "holdout_pod_a",
+              "holdout_pod_b",
+              "opponent_ensemble",
+              "multiple_pilots"
+            ],
+            "estimate_level": "structural_followup"
+          }
+        ],
+        "hypergeometric_baselines": [
+          {
+            "population_size": 99,
+            "category_size": 39,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.9740574930026493,
+              "2": 0.8429037076271543,
+              "3": 0.5710576797579465,
+              "4": 0.27170342287816407
+            },
+            "category": "lands"
+          },
+          {
+            "population_size": 99,
+            "category_size": 14,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.6684465062486334,
+              "2": 0.2571522988102295,
+              "3": 0.056646372684007525,
+              "4": 0.007138736603458895
+            },
+            "category": "early_ramp"
+          },
+          {
+            "population_size": 99,
+            "category_size": 10,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.5371630300080191,
+              "2": 0.14681859748466186,
+              "3": 0.02135074417358271,
+              "4": 0.0016695122816487264
+            },
+            "category": "interaction"
+          },
+          {
+            "population_size": 99,
+            "category_size": 4,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.2577375373767126,
+              "2": 0.024216762618824477,
+              "3": 0.0008646851430356585,
+              "4": 9.297689710060844e-06
+            },
+            "category": "protection"
+          },
+          {
+            "population_size": 99,
+            "category_size": 18,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.766426463884169,
+              "2": 0.3740229232095728,
+              "3": 0.11069949459898855,
+              "4": 0.019505233608310007
+            },
+            "category": "independent_draw_engine"
+          }
+        ],
+        "common_random_numbers": true,
+        "full_matchup_performance_separate": true,
+        "generated_rules": [
+          {
+            "rule_id": "korvold.current.commander_oriented.candidate-v1",
+            "deck_id": "korvold/current",
+            "deck_hash": "4af053a36d9cf4e84ff5ac2c2e5372daba5336c3cdfb48914ea4d72ea495677d",
+            "policy": "commander_oriented",
+            "clauses": [
+              {
+                "feature": "land_count",
+                "operator": "between",
+                "value": [
+                  2.0,
+                  4.0
+                ],
+                "rationale": "current Korvold land band"
+              },
+              {
+                "feature": "colored_sources.G",
+                "operator": "ge",
+                "value": 1.0,
+                "rationale": "green is required for early ramp"
+              },
+              {
+                "feature": "ramp_count",
+                "operator": "ge",
+                "value": 1.0,
+                "rationale": "supports a timely value window"
+              },
+              {
+                "feature": "sacrifice_resource_count",
+                "operator": "ge",
+                "value": 1.0,
+                "rationale": "avoids ramp-only hands without sacrifice material"
+              }
+            ],
+            "exceptions": [
+              "Two-land hands require functional acceleration or selection.",
+              "Visible graveyard hate reduces graveyard-only keeps."
+            ],
+            "source_run_hash": "5a260cb1b3b84f960a0c5859c288948af9636282527aff42fbb62d16e6e689b4",
+            "validation_contexts": [
+              "primary",
+              "holdout-a",
+              "holdout-b",
+              "ensemble",
+              "pilot-KorvoldPilot",
+              "pilot-KorvoldSacrificePilot",
+              "pilot-KorvoldConservativePilot"
+            ],
+            "validation_status": "holdout_checked",
+            "validation_results": [
+              {
+                "context_id": "primary",
+                "context_kind": "primary_pod",
+                "pilot_profile_id": "KorvoldPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.75,
+                "average_placement": 1.125,
+                "baseline_average_placement": 1.0,
+                "placement_delta": 0.125,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "holdout-a",
+                "context_kind": "holdout_pod",
+                "pilot_profile_id": "KorvoldPilot",
+                "opponent_deck_ids": [
+                  "opponent/kaervek-reference",
+                  "opponent/doom-prevails-precon",
+                  "opponent/dance-elements-precon"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.75,
+                "average_placement": 1.0,
+                "baseline_average_placement": 1.0,
+                "placement_delta": 0.0,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "holdout-b",
+                "context_kind": "holdout_pod",
+                "pilot_profile_id": "KorvoldPilot",
+                "opponent_deck_ids": [
+                  "opponent/wakanda-forever-precon",
+                  "opponent/cosmic-spiderman-midbudget",
+                  "opponent/blight-curse-precon"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.75,
+                "average_placement": 1.125,
+                "baseline_average_placement": 1.1666666666666667,
+                "placement_delta": -0.04166666666666674,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "ensemble",
+                "context_kind": "opponent_ensemble",
+                "pilot_profile_id": "KorvoldPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.75,
+                "average_placement": 1.125,
+                "baseline_average_placement": 1.0,
+                "placement_delta": 0.125,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "pilot-KorvoldPilot",
+                "context_kind": "pilot_profile",
+                "pilot_profile_id": "KorvoldPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.75,
+                "average_placement": 1.125,
+                "baseline_average_placement": 1.0,
+                "placement_delta": 0.125,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "pilot-KorvoldSacrificePilot",
+                "context_kind": "pilot_profile",
+                "pilot_profile_id": "KorvoldSacrificePilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.75,
+                "average_placement": 1.125,
+                "baseline_average_placement": 1.1666666666666667,
+                "placement_delta": -0.04166666666666674,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "pilot-KorvoldConservativePilot",
+                "context_kind": "pilot_profile",
+                "pilot_profile_id": "KorvoldConservativePilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.75,
+                "average_placement": 1.125,
+                "baseline_average_placement": 1.25,
+                "placement_delta": -0.125,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              }
+            ],
+            "model_based": true,
+            "absolute_rule": false
+          }
+        ],
+        "overfitting_validation": [
+          {
+            "context_id": "primary",
+            "context_kind": "primary_pod",
+            "pilot_profile_id": "KorvoldPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.75,
+            "average_placement": 1.125,
+            "baseline_average_placement": 1.0,
+            "placement_delta": 0.125,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "holdout-a",
+            "context_kind": "holdout_pod",
+            "pilot_profile_id": "KorvoldPilot",
+            "opponent_deck_ids": [
+              "opponent/kaervek-reference",
+              "opponent/doom-prevails-precon",
+              "opponent/dance-elements-precon"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.75,
+            "average_placement": 1.0,
+            "baseline_average_placement": 1.0,
+            "placement_delta": 0.0,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "holdout-b",
+            "context_kind": "holdout_pod",
+            "pilot_profile_id": "KorvoldPilot",
+            "opponent_deck_ids": [
+              "opponent/wakanda-forever-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "opponent/blight-curse-precon"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.75,
+            "average_placement": 1.125,
+            "baseline_average_placement": 1.1666666666666667,
+            "placement_delta": -0.04166666666666674,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "ensemble",
+            "context_kind": "opponent_ensemble",
+            "pilot_profile_id": "KorvoldPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.75,
+            "average_placement": 1.125,
+            "baseline_average_placement": 1.0,
+            "placement_delta": 0.125,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "pilot-KorvoldPilot",
+            "context_kind": "pilot_profile",
+            "pilot_profile_id": "KorvoldPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.75,
+            "average_placement": 1.125,
+            "baseline_average_placement": 1.0,
+            "placement_delta": 0.125,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "pilot-KorvoldSacrificePilot",
+            "context_kind": "pilot_profile",
+            "pilot_profile_id": "KorvoldSacrificePilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.75,
+            "average_placement": 1.125,
+            "baseline_average_placement": 1.1666666666666667,
+            "placement_delta": -0.04166666666666674,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "pilot-KorvoldConservativePilot",
+            "context_kind": "pilot_profile",
+            "pilot_profile_id": "KorvoldConservativePilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.75,
+            "average_placement": 1.125,
+            "baseline_average_placement": 1.25,
+            "placement_delta": -0.125,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          }
+        ],
+        "warnings": [
+          "Keep rules are model-based candidates, not universal or empirical facts.",
+          "Follow-up placement comes from complete Structural Simulator games with forced public opening hands.",
+          "Structural follow-up games are not comprehensive MTG rules-engine games.",
+          "No external engine validation was performed."
+        ],
+        "estimate_type": "structural_model_estimates"
+      },
+      "recommendation_status": "structurally_supported",
+      "automatic_application": false
+    },
+    "errors": []
+  },
+  "rogshai/current": {
+    "tool_status": "completed",
+    "result": {
+      "validation_level": "structural_only",
+      "policies": [
+        "current_pilot",
+        "commander_oriented"
+      ],
+      "comparison": {
+        "schema_version": "1.0.0",
+        "context": {
+          "deck_id": "rogshai/current",
+          "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+          "opponent_ensemble_id": null,
+          "opponent_ensemble_hash": null,
+          "seat_position": 1,
+          "starting_player": false,
+          "pod_size": 4,
+          "pilot_profile_id": "baseline",
+          "pilot_version": "unspecified",
+          "game_plan": "balanced",
+          "seed": 20260807
+        },
+        "sample_count": 40,
+        "policies": [
+          {
+            "policy": "current_pilot",
+            "samples": 40,
+            "keep_rate_first_seven": 0.45,
+            "final_keep_rate": 1.0,
+            "mulligan_rate": 0.55,
+            "average_mulligans": 1.1,
+            "color_problem_rate": 0.025,
+            "average_dead_cards": 0.1,
+            "median_hand_score": 5.225,
+            "first_ramp_turn_mean": 3.27027027027027,
+            "commander_cast_turn_mean": 1.0,
+            "first_draw_engine_turn_mean": 4.617647058823529,
+            "structural_placement_mean": 1.0,
+            "uncertainty_half_width_95": 0.14732800195081514,
+            "full_followup_games": 40,
+            "completed_followup_games": 40,
+            "hand_type_summaries": [
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 4.0,
+                "color_problem_rate": 1.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 11.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=ramp",
+                "samples": 2,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 3.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.5,
+                "first_ramp_turn_mean": 3.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 6.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=interaction",
+                "samples": 2,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 7.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 9.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=ramp",
+                "samples": 3,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.6666666666666665,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 3.6666666666666665,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.2807485158775227
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 5.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=interaction",
+                "samples": 2,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 3.5,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 1.5,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=ramp",
+                "samples": 4,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.25,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 6.25,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.24494541822729865
+              },
+              {
+                "hand_type": "lands=2|colors=unstable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": null,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=interaction",
+                "samples": 6,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 4.4,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 3.8333333333333335,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.19516714395108264
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=ramp",
+                "samples": 6,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.16666666666666666,
+                "first_ramp_turn_mean": 2.8333333333333335,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 3.8,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.19516714395108264
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 3.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 1.0,
+                "first_ramp_turn_mean": 5.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": null,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=interaction",
+                "samples": 8,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.125,
+                "first_ramp_turn_mean": 3.875,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 4.166666666666667,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.16220378244194011
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=ramp",
+                "samples": 2,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 1.5,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 4.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 6.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              }
+            ],
+            "validation_contexts": [
+              "primary_pod",
+              "holdout_pod_a",
+              "holdout_pod_b",
+              "opponent_ensemble",
+              "multiple_pilots"
+            ],
+            "estimate_level": "structural_followup"
+          },
+          {
+            "policy": "commander_oriented",
+            "samples": 40,
+            "keep_rate_first_seven": 0.475,
+            "final_keep_rate": 1.0,
+            "mulligan_rate": 0.525,
+            "average_mulligans": 0.9,
+            "color_problem_rate": 0.0,
+            "average_dead_cards": 0.05,
+            "median_hand_score": 6.125,
+            "first_ramp_turn_mean": 4.783783783783784,
+            "commander_cast_turn_mean": 1.0,
+            "first_draw_engine_turn_mean": 4.594594594594595,
+            "structural_placement_mean": 1.0,
+            "uncertainty_half_width_95": 0.14783583890314314,
+            "full_followup_games": 40,
+            "completed_followup_games": 40,
+            "hand_type_summaries": [
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 5.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 1.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=0-1|colors=stable|plan=ramp",
+                "samples": 2,
+                "keep_rate": 0.5,
+                "mulligan_rate": 0.5,
+                "average_mulligans": 2.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 3.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 1.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.40546879426576926
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=interaction",
+                "samples": 2,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 3.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 5.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=0-1|colors=unstable|plan=ramp",
+                "samples": 3,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.3333333333333335,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 3.3333333333333335,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.2807485158775227
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 5.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 5.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=interaction",
+                "samples": 2,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 7.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 1.5,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=2|colors=stable|plan=ramp",
+                "samples": 4,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 6.75,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 3.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.24494541822729865
+              },
+              {
+                "hand_type": "lands=2|colors=unstable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 3.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 7.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=interaction",
+                "samples": 6,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 6.5,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 5.666666666666667,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.19516714395108264
+              },
+              {
+                "hand_type": "lands=3|colors=stable|plan=ramp",
+                "samples": 6,
+                "keep_rate": 1.0,
+                "mulligan_rate": 0.0,
+                "average_mulligans": 0.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.16666666666666666,
+                "first_ramp_turn_mean": 3.6666666666666665,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 3.4,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.19516714395108264
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=engine",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 4.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 9.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=interaction",
+                "samples": 8,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 2.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.125,
+                "first_ramp_turn_mean": 5.875,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 6.571428571428571,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.16220378244194011
+              },
+              {
+                "hand_type": "lands=4|colors=stable|plan=ramp",
+                "samples": 2,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 2.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 5.5,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.32880988624667346
+              },
+              {
+                "hand_type": "lands=5+|colors=stable|plan=interaction",
+                "samples": 1,
+                "keep_rate": 0.0,
+                "mulligan_rate": 1.0,
+                "average_mulligans": 1.0,
+                "color_problem_rate": 0.0,
+                "average_dead_cards": 0.0,
+                "first_ramp_turn_mean": 1.0,
+                "commander_cast_turn_mean": 1.0,
+                "first_draw_engine_turn_mean": 4.0,
+                "structural_placement_mean": 1.0,
+                "uncertainty_half_width_95": 0.3967253428113813
+              }
+            ],
+            "validation_contexts": [
+              "primary_pod",
+              "holdout_pod_a",
+              "holdout_pod_b",
+              "opponent_ensemble",
+              "multiple_pilots"
+            ],
+            "estimate_level": "structural_followup"
+          }
+        ],
+        "hypergeometric_baselines": [
+          {
+            "population_size": 98,
+            "category_size": 37,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.9684648148637277,
+              "2": 0.8199627612220092,
+              "3": 0.5335659434844092,
+              "4": 0.24046978498101745
+            },
+            "category": "lands"
+          },
+          {
+            "population_size": 98,
+            "category_size": 8,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.4599427183566594,
+              "2": 0.09990453059443226,
+              "3": 0.010953919500234974,
+              "4": 0.0006108251869562207
+            },
+            "category": "early_ramp"
+          },
+          {
+            "population_size": 98,
+            "category_size": 20,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.8090340305025466,
+              "2": 0.43771131203527613,
+              "3": 0.14777439487590055,
+              "4": 0.030232401432910453
+            },
+            "category": "interaction"
+          },
+          {
+            "population_size": 98,
+            "category_size": 8,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.4599427183566594,
+              "2": 0.09990453059443226,
+              "3": 0.010953919500234974,
+              "4": 0.0006108251869562207
+            },
+            "category": "protection"
+          },
+          {
+            "population_size": 98,
+            "category_size": 11,
+            "draws": 7,
+            "probability_at_least": {
+              "1": 0.577621696504326,
+              "2": 0.17610158083559888,
+              "3": 0.0292039775421621,
+              "4": 0.0026562179108181086
+            },
+            "category": "independent_draw_engine"
+          }
+        ],
+        "common_random_numbers": true,
+        "full_matchup_performance_separate": true,
+        "generated_rules": [
+          {
+            "rule_id": "rogshai.current.commander_oriented.candidate-v1",
+            "deck_id": "rogshai/current",
+            "deck_hash": "2f2dab2a26e3889aa5399504295d2c6e485c8922397c6736bd4e6fa72f6b6656",
+            "policy": "commander_oriented",
+            "clauses": [
+              {
+                "feature": "land_count",
+                "operator": "between",
+                "value": [
+                  2.0,
+                  3.0
+                ],
+                "rationale": "current RogShai land band"
+              },
+              {
+                "feature": "early_blue_source_count",
+                "operator": "ge",
+                "value": 1.0,
+                "rationale": "blue enables early interaction and Ishai support"
+              },
+              {
+                "feature": "cheap_noncreature_count",
+                "operator": "ge",
+                "value": 1.0,
+                "rationale": "supports tempo and Ishai growth"
+              },
+              {
+                "feature": "color_stability_score",
+                "operator": "ge",
+                "value": 0.66,
+                "rationale": "avoids unstable Jeskai starts"
+              }
+            ],
+            "exceptions": [
+              "Offensive aura/payoff clusters need a protected Ishai window.",
+              "Interaction-heavy matchups may keep slower hands with reserve counters."
+            ],
+            "source_run_hash": "4a63c91fa95473af7808ccc5664475b34b21ae438aa0284d7024177d5dc398d2",
+            "validation_contexts": [
+              "primary",
+              "holdout-a",
+              "holdout-b",
+              "ensemble",
+              "pilot-RogShaiPilot",
+              "pilot-RogShaiTempoPilot",
+              "pilot-RogShaiControlPilot"
+            ],
+            "validation_status": "holdout_checked",
+            "validation_results": [
+              {
+                "context_id": "primary",
+                "context_kind": "primary_pod",
+                "pilot_profile_id": "RogShaiPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.6666666666666666,
+                "average_placement": 1.1666666666666667,
+                "baseline_average_placement": 1.0833333333333333,
+                "placement_delta": 0.08333333333333348,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "holdout-a",
+                "context_kind": "holdout_pod",
+                "pilot_profile_id": "RogShaiPilot",
+                "opponent_deck_ids": [
+                  "opponent/kaervek-reference",
+                  "opponent/doom-prevails-precon",
+                  "opponent/dance-elements-precon"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.6666666666666666,
+                "average_placement": 1.0,
+                "baseline_average_placement": 1.0833333333333333,
+                "placement_delta": -0.08333333333333326,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "holdout-b",
+                "context_kind": "holdout_pod",
+                "pilot_profile_id": "RogShaiPilot",
+                "opponent_deck_ids": [
+                  "opponent/wakanda-forever-precon",
+                  "opponent/cosmic-spiderman-midbudget",
+                  "opponent/blight-curse-precon"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.6666666666666666,
+                "average_placement": 1.0,
+                "baseline_average_placement": 1.0,
+                "placement_delta": 0.0,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "ensemble",
+                "context_kind": "opponent_ensemble",
+                "pilot_profile_id": "RogShaiPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.6666666666666666,
+                "average_placement": 1.1666666666666667,
+                "baseline_average_placement": 1.0833333333333333,
+                "placement_delta": 0.08333333333333348,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "pilot-RogShaiPilot",
+                "context_kind": "pilot_profile",
+                "pilot_profile_id": "RogShaiPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.6666666666666666,
+                "average_placement": 1.1666666666666667,
+                "baseline_average_placement": 1.0833333333333333,
+                "placement_delta": 0.08333333333333348,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "pilot-RogShaiTempoPilot",
+                "context_kind": "pilot_profile",
+                "pilot_profile_id": "RogShaiTempoPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.6666666666666666,
+                "average_placement": 1.1666666666666667,
+                "baseline_average_placement": 1.0833333333333333,
+                "placement_delta": 0.08333333333333348,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              },
+              {
+                "context_id": "pilot-RogShaiControlPilot",
+                "context_kind": "pilot_profile",
+                "pilot_profile_id": "RogShaiControlPilot",
+                "opponent_deck_ids": [
+                  "opponent/morcant-elves",
+                  "opponent/blight-curse-precon",
+                  "opponent/cosmic-spiderman-midbudget"
+                ],
+                "samples": 12,
+                "keep_agreement_rate": 0.6666666666666666,
+                "average_placement": 1.0,
+                "baseline_average_placement": 1.0,
+                "placement_delta": 0.0,
+                "supported": true,
+                "estimate_level": "structural_followup"
+              }
+            ],
+            "model_based": true,
+            "absolute_rule": false
+          }
+        ],
+        "overfitting_validation": [
+          {
+            "context_id": "primary",
+            "context_kind": "primary_pod",
+            "pilot_profile_id": "RogShaiPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.6666666666666666,
+            "average_placement": 1.1666666666666667,
+            "baseline_average_placement": 1.0833333333333333,
+            "placement_delta": 0.08333333333333348,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "holdout-a",
+            "context_kind": "holdout_pod",
+            "pilot_profile_id": "RogShaiPilot",
+            "opponent_deck_ids": [
+              "opponent/kaervek-reference",
+              "opponent/doom-prevails-precon",
+              "opponent/dance-elements-precon"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.6666666666666666,
+            "average_placement": 1.0,
+            "baseline_average_placement": 1.0833333333333333,
+            "placement_delta": -0.08333333333333326,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "holdout-b",
+            "context_kind": "holdout_pod",
+            "pilot_profile_id": "RogShaiPilot",
+            "opponent_deck_ids": [
+              "opponent/wakanda-forever-precon",
+              "opponent/cosmic-spiderman-midbudget",
+              "opponent/blight-curse-precon"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.6666666666666666,
+            "average_placement": 1.0,
+            "baseline_average_placement": 1.0,
+            "placement_delta": 0.0,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "ensemble",
+            "context_kind": "opponent_ensemble",
+            "pilot_profile_id": "RogShaiPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.6666666666666666,
+            "average_placement": 1.1666666666666667,
+            "baseline_average_placement": 1.0833333333333333,
+            "placement_delta": 0.08333333333333348,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "pilot-RogShaiPilot",
+            "context_kind": "pilot_profile",
+            "pilot_profile_id": "RogShaiPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.6666666666666666,
+            "average_placement": 1.1666666666666667,
+            "baseline_average_placement": 1.0833333333333333,
+            "placement_delta": 0.08333333333333348,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "pilot-RogShaiTempoPilot",
+            "context_kind": "pilot_profile",
+            "pilot_profile_id": "RogShaiTempoPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.6666666666666666,
+            "average_placement": 1.1666666666666667,
+            "baseline_average_placement": 1.0833333333333333,
+            "placement_delta": 0.08333333333333348,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          },
+          {
+            "context_id": "pilot-RogShaiControlPilot",
+            "context_kind": "pilot_profile",
+            "pilot_profile_id": "RogShaiControlPilot",
+            "opponent_deck_ids": [
+              "opponent/morcant-elves",
+              "opponent/blight-curse-precon",
+              "opponent/cosmic-spiderman-midbudget"
+            ],
+            "samples": 12,
+            "keep_agreement_rate": 0.6666666666666666,
+            "average_placement": 1.0,
+            "baseline_average_placement": 1.0,
+            "placement_delta": 0.0,
+            "supported": true,
+            "estimate_level": "structural_followup"
+          }
+        ],
+        "warnings": [
+          "Keep rules are model-based candidates, not universal or empirical facts.",
+          "Follow-up placement comes from complete Structural Simulator games with forced public opening hands.",
+          "Structural follow-up games are not comprehensive MTG rules-engine games.",
+          "No external engine validation was performed."
+        ],
+        "estimate_type": "structural_model_estimates"
+      },
+      "recommendation_status": "structurally_supported",
+      "automatic_application": false
+    },
+    "errors": []
+  }
+}

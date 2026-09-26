@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "result_summary": {
+      "title": "Result Summary",
+      "type": "string"
+    },
+    "source_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Hashes",
+      "type": "array"
+    },
+    "source_paths": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Paths",
+      "type": "array"
+    },
+    "status": {
+      "title": "Status",
+      "type": "string"
+    },
+    "step": {
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Step",
+      "type": "integer"
+    },
+    "validation_level": {
+      "title": "Validation Level",
+      "type": "string"
+    }
+  },
+  "required": [
+    "step",
+    "name",
+    "status",
+    "source_paths",
+    "source_hashes",
+    "validation_level",
+    "result_summary"
+  ],
+  "title": "IntegratedSmokeStep",
+  "type": "object"
+}

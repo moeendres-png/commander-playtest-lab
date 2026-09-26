@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "newer_policy_path": {
+      "title": "Newer Policy Path",
+      "type": "string"
+    },
+    "older_policy_path": {
+      "title": "Older Policy Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "older_policy_path",
+    "newer_policy_path"
+  ],
+  "title": "ComparePolicyVersionsInput",
+  "type": "object"
+}

@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "dataset_path": {
+      "title": "Dataset Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataset_path"
+  ],
+  "title": "CompareDeckAndPilotEffectsInput",
+  "type": "object"
+}

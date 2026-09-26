@@ -1,0 +1,79 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "completed": {
+      "default": true,
+      "title": "Completed",
+      "type": "boolean"
+    },
+    "end_reason": {
+      "title": "End Reason",
+      "type": "string"
+    },
+    "event_log_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Event Log Path"
+    },
+    "match_id": {
+      "title": "Match Id",
+      "type": "string"
+    },
+    "placements": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Placements",
+      "type": "object"
+    },
+    "player_metrics": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "number"
+        },
+        "type": "object"
+      },
+      "title": "Player Metrics",
+      "type": "object"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "seed": {
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "turns": {
+      "minimum": 0,
+      "title": "Turns",
+      "type": "integer"
+    },
+    "winner_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Winner Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "match_id",
+    "seed",
+    "placements",
+    "winner_ids",
+    "turns",
+    "end_reason"
+  ],
+  "title": "MatchResult",
+  "type": "object"
+}

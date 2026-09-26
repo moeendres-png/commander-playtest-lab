@@ -1,0 +1,64 @@
+{
+  "$defs": {
+    "ConditionOperator": {
+      "enum": [
+        "all",
+        "any",
+        "not",
+        "eq",
+        "ne",
+        "gt",
+        "ge",
+        "lt",
+        "le",
+        "contains",
+        "not_contains",
+        "contains_any",
+        "contains_all",
+        "intersects",
+        "truthy",
+        "falsy"
+      ],
+      "title": "ConditionOperator",
+      "type": "string"
+    },
+    "PilotRuleCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "clauses": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PilotRuleCondition"
+          },
+          "title": "Clauses",
+          "type": "array"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "op": {
+          "$ref": "#/$defs/ConditionOperator"
+        },
+        "value": {
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "title": "PilotRuleCondition",
+      "type": "object"
+    }
+  },
+  "$ref": "#/$defs/PilotRuleCondition"
+}
