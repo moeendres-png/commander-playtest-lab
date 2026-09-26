@@ -258,6 +258,15 @@ final class XmageFullGameStateRedactor {
         return -1;
     }
 
+    /**
+     * Historical internal public-board projection seam retained for WS92
+     * reflection-based qualification. Passing no viewer must never expose a
+     * restored face-down private identity.
+     */
+    private static JsonObject publicPermanent(Permanent permanent, Game game) {
+        return publicPermanent(permanent, game, null);
+    }
+
     private static JsonObject publicPermanent(Permanent permanent, Game game, Player viewer) {
         JsonObject item = new JsonObject();
         item.addProperty("object_id", permanent.getId().toString());
