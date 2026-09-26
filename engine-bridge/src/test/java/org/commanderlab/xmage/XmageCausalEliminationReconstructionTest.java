@@ -116,13 +116,20 @@ class XmageCausalEliminationReconstructionTest {
         assertTrue(arrived.seats().get("P2").hasLeft(),
                 "P2 must leave the game after losing on its own turn");
 
-        // C: the current turn is NOT silently reassigned (CR 800.4j): XMage
-        // keeps the departed slot as active while routing priority onward.
+        // C: the current turn is NOT silently reassigned. The readback's
+        // active_player field exposes XMage's native scheduling slot, which
+        // intentionally retains the departed UUID until the next playTurn
+        // assigns it (verified at pinned source: GameImpl.playTurn is the
+        // sole writer; no null-signal exists). Asserting slot stability here
+        // is an ANTI-REASSIGNMENT tripwire only — it is NOT claimed as CR
+        // 800.4j conformance. Conformance is carried by the behavioral
+        // predicates below (turn-number continuity, survivor-only priority,
+        // turn completion, next-turn rotation, future-turn skip).
         JsonObject atLoss = XmageNativeStateRestoration.readback(
                 arrived.session().restorationGame(), arrived.seats());
         assertEquals(3, atLoss.get("turn_number").getAsInt());
         assertEquals("P2", atLoss.get("active_player").getAsString(),
-                "the turn must continue under the departed slot, not jump to P3");
+                "scheduling slot must not be silently reassigned to P3");
 
         // D/E: the turn completes natively with decisions flowing only to
         // survivors. Transition frames may still name departed P2 once (its
@@ -137,8 +144,12 @@ class XmageCausalEliminationReconstructionTest {
         // with an explicit pass — the sole offered option, no discretion for
         // P2. Any multi-option frame for P2, any non-priority/non-discard
         // class, or any P2 frame after handoff fails closed. A cleanup
-        // discard naming P2 is answered only through the deterministic
-        // helper (P2's zones were cleared on leave; no live card is at stake).
+        // discard naming P2 is answered only through the caller-owned helper
+        // (P2's zones were cleared on leave; no live card is at stake, and
+        // CR 800.4g/800.4h redirection has no live choice to redirect here).
+        // Recorded bridge observation (not changed in L6): the submit path
+        // performs no departed-principal liveness gate; hardening that gate
+        // is follow-up work with its own impact adjudication.
         XmageTemporalProgressionDriver.DecisionSource guarded = (pending, legal, index) -> {
             String actor = pending.get("actor_id").getAsString();
             String dc = pending.get("decision_class").getAsString();
@@ -818,7 +829,13 @@ class XmageCausalEliminationReconstructionTest {
                 if (!targetName.endsWith("to discard")) {
                     return null;
                 }
-                List<JsonObject> picked = resolveDiscardSelection(pending, legal);
+                // Scenario-explicit expendable set for every L6 drive: only
+                // Mountain filler is ever discardable at cleanup on these
+                // boards (all needed spells are structurally unselectable
+                // here; their later casts prove survival). Any board
+                // violating this invariant fails closed (missing identity).
+                List<JsonObject> picked = resolveDiscardSelection(
+                        pending, legal, List.of("Mountain"));
                 if (picked == null) {
                     return null;
                 }
@@ -833,20 +850,26 @@ class XmageCausalEliminationReconstructionTest {
     }
 
     /**
-     * Deterministic cleanup-discard transport.
+     * Cleanup-discard binder with caller-owned expendable names (no ranking).
      *
-     * <p>The intended qualification choice is explicit: discard exactly the
-     * native required count, preferring the highest stable semantic key
-     * ({@code name|zone_index} from the authoritative offer, descending).
-     * Fixture boards place expendable filler lands so needed spells sort
-     * below the discard line, and each test asserts its needed cards
-     * survive. Returns {@code null} (fail closed) when the pending decision
-     * is not an exact-count discard. Throws when the semantic identity is
-     * ambiguous or the keyed offer cannot satisfy the native cardinality.
-     * Never a positional default: every selected option is bound by its
-     * engine-exposed semantic key.</p>
+     * <p>Authority split, stated exactly. The CALLER names the expendable
+     * card names for the drive ({@code discardableNames}); the native
+     * decision supplies the exact required count. This helper ONLY binds
+     * options whose engine-exposed name is in the caller set, 1:1 per slot,
+     * and verifies exact native cardinality. An option whose name the caller
+     * did not request can never be selected, no matter its position or key.
+     * Within the caller-named set, slots fill in caller-name order and, for
+     * identical fungible filler, lowest {@code zone_index} first — declared
+     * deterministic transport (Rules-indistinguishable futures on these
+     * boards: library order untouched, no miracle/topdeck mechanics;
+     * zone_index stable per Rules seed), with needed-card survival proven by
+     * each test's later casts. Returns {@code null} (fail closed) when the
+     * pending decision is not an exact-count discard. Throws on an empty
+     * caller set, exact-key duplicates (engine anomaly), or fewer matching
+     * options than the native count requires.</p>
      */
-    static List<JsonObject> resolveDiscardSelection(JsonObject pending, JsonObject legal) {
+    static List<JsonObject> resolveDiscardSelection(
+            JsonObject pending, JsonObject legal, List<String> discardableNames) {
         JsonObject context = pending.has("context") && pending.get("context").isJsonObject()
                 ? pending.getAsJsonObject("context") : new JsonObject();
         String targetName = context.has("target_name") && !context.get("target_name").isJsonNull()
@@ -861,7 +884,10 @@ class XmageCausalEliminationReconstructionTest {
         if (min < 0 || min != max) {
             return null;
         }
-        List<DiscardOption> keyed = new ArrayList<>();
+        if (discardableNames.isEmpty()) {
+            throw new AssertionError("caller must name expendable discard identities");
+        }
+        List<DiscardOption> pool = new ArrayList<>();
         for (JsonElement element : legal.getAsJsonArray("actions")) {
             JsonObject action = element.getAsJsonObject();
             JsonObject nativeMeta = nativeMeta(action);
@@ -872,30 +898,40 @@ class XmageCausalEliminationReconstructionTest {
             if (!zoneIndex.isJsonPrimitive() || !zoneIndex.getAsJsonPrimitive().isNumber()) {
                 continue;
             }
-            keyed.add(new DiscardOption(
-                    nativeMeta.get("name").getAsString() + "|"
-                            + zoneIndex.getAsJsonPrimitive().getAsInt(),
+            if (!discardableNames.contains(nativeMeta.get("name").getAsString())) {
+                continue;
+            }
+            pool.add(new DiscardOption(
+                    discardableNames.indexOf(nativeMeta.get("name").getAsString()),
+                    zoneIndex.getAsJsonPrimitive().getAsInt(),
                     action));
         }
-        keyed.sort((left, right) -> right.key().compareTo(left.key()));
-        for (int i = 1; i < keyed.size(); i++) {
-            if (keyed.get(i - 1).key().equals(keyed.get(i).key())) {
-                throw new AssertionError(
-                        "cleanup discard semantic key is ambiguous: " + keyed.get(i).key());
+        for (int i = 0; i < pool.size(); i++) {
+            for (int j = i + 1; j < pool.size(); j++) {
+                if (pool.get(i).nameRank() == pool.get(j).nameRank()
+                        && pool.get(i).zoneIndex() == pool.get(j).zoneIndex()) {
+                    throw new AssertionError(
+                            "cleanup discard semantic key is ambiguous: rank "
+                                    + pool.get(i).nameRank() + "|" + pool.get(i).zoneIndex());
+                }
             }
         }
-        if (keyed.size() < min) {
+        if (pool.size() < min) {
             throw new AssertionError("cleanup discard cannot satisfy exact native cardinality "
-                    + min + " from " + keyed.size() + " semantically keyed options");
+                    + min + " from " + pool.size() + " caller-named options");
         }
+        pool.sort((left, right) -> {
+            int byName = Integer.compare(left.nameRank(), right.nameRank());
+            return byName != 0 ? byName : Integer.compare(left.zoneIndex(), right.zoneIndex());
+        });
         List<JsonObject> picked = new ArrayList<>();
         for (int i = 0; i < min; i++) {
-            picked.add(keyed.get(i).action());
+            picked.add(pool.get(i).action());
         }
         return picked;
     }
 
-    private record DiscardOption(String key, JsonObject action) {}
+    private record DiscardOption(int nameRank, int zoneIndex, JsonObject action) {}
 
     private static final class Script
             implements XmageControlDivergenceReconstruction.DecisionSource {
@@ -1005,17 +1041,35 @@ class XmageCausalEliminationReconstructionTest {
     }
 
     @Test
-    void discardSelectionPrefersHighestSemanticKey() {
+    void discardBindsCallerNamesIndependentOfOfferOrder() {
         JsonObject pending = discardFrame(2, 2, "card to discard");
         JsonObject legal = discardLegal(
-                discardOption("a1", "Mountain", 5),
-                discardOption("a2", "Mountain", 3),
-                discardOption("a3", "Control Magic", 1));
-        List<JsonObject> picked = resolveDiscardSelection(pending, legal);
+                discardOption("spell", "Control Magic", 1),
+                discardOption("m-high", "Mountain", 9),
+                discardOption("m-low", "Mountain", 2));
+        List<JsonObject> picked =
+                resolveDiscardSelection(pending, legal, List.of("Mountain"));
         assertNotNull(picked);
         assertEquals(2, picked.size());
-        assertEquals("a1", picked.get(0).get("action_id").getAsString());
-        assertEquals("a2", picked.get(1).get("action_id").getAsString());
+        assertEquals("m-low", picked.get(0).get("action_id").getAsString());
+        assertEquals("m-high", picked.get(1).get("action_id").getAsString());
+        for (JsonObject action : picked) {
+            assertNotEquals("spell", action.get("action_id").getAsString(),
+                    "an unrequested legal option must never be substituted");
+        }
+    }
+
+    @Test
+    void discardCallerNameOrderDominatesAcrossNames() {
+        JsonObject pending = discardFrame(2, 2, "card to discard");
+        JsonObject legal = discardLegal(
+                discardOption("s1", "Swamp", 1),
+                discardOption("m1", "Mountain", 9));
+        List<JsonObject> picked =
+                resolveDiscardSelection(pending, legal, List.of("Swamp", "Mountain"));
+        assertNotNull(picked);
+        assertEquals("s1", picked.get(0).get("action_id").getAsString());
+        assertEquals("m1", picked.get(1).get("action_id").getAsString());
     }
 
     @Test
@@ -1025,10 +1079,23 @@ class XmageCausalEliminationReconstructionTest {
                 discardOption("a1", "Mountain", 5),
                 discardOption("a2", "Mountain", 5));
         try {
-            resolveDiscardSelection(pending, legal);
+            resolveDiscardSelection(pending, legal, List.of("Mountain"));
             throw new AssertionError("ambiguous semantic identity must fail closed");
         } catch (AssertionError expected) {
             assertTrue(expected.getMessage().contains("ambiguous"),
+                    "unexpected failure: " + expected.getMessage());
+        }
+    }
+
+    @Test
+    void discardSelectionFailsClosedOnMissingName() {
+        JsonObject pending = discardFrame(1, 1, "card to discard");
+        JsonObject legal = discardLegal(discardOption("a1", "Mountain", 5));
+        try {
+            resolveDiscardSelection(pending, legal, List.of("Swamp"));
+            throw new AssertionError("missing requested identity must fail closed");
+        } catch (AssertionError expected) {
+            assertTrue(expected.getMessage().contains("cardinality"),
                     "unexpected failure: " + expected.getMessage());
         }
     }
@@ -1038,7 +1105,7 @@ class XmageCausalEliminationReconstructionTest {
         JsonObject pending = discardFrame(2, 2, "card to discard");
         JsonObject legal = discardLegal(discardOption("a1", "Mountain", 5));
         try {
-            resolveDiscardSelection(pending, legal);
+            resolveDiscardSelection(pending, legal, List.of("Mountain"));
             throw new AssertionError("insufficient cardinality must fail closed");
         } catch (AssertionError expected) {
             assertTrue(expected.getMessage().contains("cardinality"),
@@ -1049,9 +1116,22 @@ class XmageCausalEliminationReconstructionTest {
     @Test
     void discardSelectionFailsClosedOnNonExactShape() {
         assertNull(resolveDiscardSelection(discardFrame(0, 2, "card to discard"),
-                discardLegal(discardOption("a1", "Mountain", 5))));
-        assertNull(resolveDiscardSelection(discardFrame(1, 1, "something else"),
-                discardLegal(discardOption("a1", "Mountain", 5))));
+                discardLegal(discardOption("a1", "Mountain", 5)), List.of("Mountain")));
+        assertNull(resolveDiscardSelection(discardFrame(1, 1, "something else"), discardLegal(
+                discardOption("a1", "Mountain", 5)), List.of("Mountain")));
+    }
+
+    @Test
+    void discardSelectionFailsClosedOnEmptyCallerSet() {
+        JsonObject pending = discardFrame(1, 1, "card to discard");
+        JsonObject legal = discardLegal(discardOption("a1", "Mountain", 5));
+        try {
+            resolveDiscardSelection(pending, legal, List.of());
+            throw new AssertionError("empty caller set must fail closed");
+        } catch (AssertionError expected) {
+            assertTrue(expected.getMessage().contains("expendable"),
+                    "unexpected failure: " + expected.getMessage());
+        }
     }
 
     private static JsonObject discardFrame(int min, int max, String targetName) {
