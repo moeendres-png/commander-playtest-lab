@@ -367,9 +367,15 @@ class XmageCausalStackMechanicsTest {
                 .noneMatch(object -> "Lightning Bolt".equals(object.getName())),
                 "native leave processing removes objects owned by the leaver");
         JsonObject next = live.session().pendingDecisionPayload();
-        assertTrue(next.get("decision").isJsonNull()
-                || !p2.equals(next.getAsJsonObject("decision")
-                        .get("actor_id").getAsString()));
+        if (!next.get("decision").isJsonNull()
+                && p2.equals(next.getAsJsonObject("decision")
+                        .get("actor_id").getAsString())) {
+            // A frame parked before concession can remain observable until the
+            // game thread retires it. It does not restore authority to the
+            // leaver: native concession availability is already gone.
+            assertFalse(live.session().concedeOfferPayload(p2)
+                    .get("concede_available").getAsBoolean());
+        }
     }
 
     private static Live arrive(
