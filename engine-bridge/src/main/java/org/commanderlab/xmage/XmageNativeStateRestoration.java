@@ -1041,14 +1041,18 @@ final class XmageNativeStateRestoration {
                 + "arrival requires XmageTemporalProgressionDriver native progression");
         supported.add("explicit Rules-seed binding with replay determinism");
         supported.add("strict native readback with field-level compare and digests");
+        supported.add("explicit L7 lossless hidden-state requests: complete live-library "
+                + "identity order plus one explicitly typed face-down battlefield object; "
+                + "delegated to native RG-06A game-load APIs");
         supported.add("frozen requested_state_digest equality for constructed states "
                 + "in the v1 subset (canonical projection per the recovered spec, "
                 + "verified per fixture; see requestedDigest/constructedDigest)");
         payload.add("supported_dimensions", supported);
         JsonArray unsupported = new JsonArray();
         unsupported.add("stack spells (casting requires real costs/timing: executor scope)");
-        unsupported.add("library identity (hidden information: fail closed)");
-        unsupported.add("revealed and facedown objects");
+        unsupported.add("legacy/frozen partial library identity: no complete permutation, fail closed");
+        unsupported.add("legacy/frozen face_down=true without explicit native type: fail closed");
+        unsupported.add("revealed-zone restoration");
         unsupported.add("controller/owner divergence (engine layers re-derive control)");
         unsupported.add("attachments and counters");
         unsupported.add("tapped permanents (unqualified dimension)");
