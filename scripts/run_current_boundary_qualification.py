@@ -37,6 +37,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     XMAGE_CANDIDATE_COMMIT,
     XMAGE_LAB_RUNTIME_AUTHORITY,
     boundary_receipt,
+    build_deck,
     build_launch_plan,
     cardinality_row,
     drive_commander_game,
@@ -46,6 +47,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     non_executed_row,
     observe_principal_state,
     run_af01,
+    run_af03,
     start2_row,
 )
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
@@ -376,6 +378,15 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
         }
         write(f"AF01_{candidate.upper()}.json", af01_doc)
         probes["af01_verdict"] = af01.verdict
+
+        # ---- AF03 RULES_AUTHORITY: negative deck-import probes ----------
+        af03 = run_af03(
+            proc,
+            candidate=candidate,
+            legal_deck=build_deck("af03-control"),
+        )
+        write(f"AF03_{candidate.upper()}.json", af03.to_document())
+        probes["af03_verdict"] = af03.verdict
 
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
         cardinality: dict[str, Any] = {}

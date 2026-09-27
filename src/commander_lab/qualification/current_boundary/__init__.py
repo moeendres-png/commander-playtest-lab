@@ -26,6 +26,7 @@ paths fail closed.
 from __future__ import annotations
 
 from .af01 import AF01_INVARIANTS, run_af01
+from .af03 import AF03Report, run_af03
 from .bridge_launcher import (
     BridgeLaunchError,
     BridgeProcess,
@@ -81,6 +82,7 @@ __all__ = [
     "REPLAY_ROWS",
     "XMAGE_CANDIDATE_COMMIT",
     "XMAGE_LAB_RUNTIME_AUTHORITY",
+    "AF03Report",
     "BridgeLaunchError",
     "BridgeProcess",
     "CandidateId",
@@ -96,6 +98,7 @@ __all__ = [
     "non_executed_row",
     "observe_principal_state",
     "run_af01",
+    "run_af03",
     "run_cardinality",
     "start2_row",
     "summarize",

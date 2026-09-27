@@ -89,6 +89,43 @@ def native_credit(candidate: str, expected_commit: str) -> dict[str, Any]:
     }
 
 
+def af03_gate(candidate: str) -> dict[str, Any]:
+    """AF03 RULES_AUTHORITY, read from this run's negative deck-import probe.
+
+    AF03 used to be a literal ``"verdict": "PASS"`` in this assembler, with an
+    evidence list describing deck imports that were never performed and no
+    artifact behind them. It is now read from the probe artifact the runner
+    produces, so a run that did not probe gets no credit, and a run in which the
+    engine accepted an illegal deck gets a FAIL.
+    """
+    path = OUT / f"AF03_{candidate.upper()}.json"
+    if not path.is_file():
+        return {
+            "gate": "AF03",
+            "name": "RULES_AUTHORITY",
+            "verdict": "UNKNOWN",
+            "evidence": ["no AF03 probe artifact exists for this candidate"],
+            "blocking_rows": [],
+            "nonblocking_limitations": [
+                "AF03 cannot be credited without observed negative deck-import probes"
+            ],
+        }
+    document = load(path)
+    probes = document.get("probes", [])
+    return {
+        "gate": "AF03",
+        "name": "RULES_AUTHORITY",
+        "verdict": document.get("verdict", "UNKNOWN"),
+        "evidence": [
+            f"{probe['invariant']}: {probe['verdict']} ({probe['detail']})" for probe in probes
+        ],
+        "observed_probe_count": len(probes),
+        "authority": document.get("authority"),
+        "blocking_rows": [probe["probe"] for probe in probes if probe.get("verdict") == "FAIL"],
+        "nonblocking_limitations": document.get("nonblocking_limitations", []),
+    }
+
+
 def assemble() -> None:
     bindings = native_bindings()
     per_candidate: dict[str, dict[str, Any]] = {}
@@ -215,20 +252,7 @@ def assemble() -> None:
                     "6P is bounded secondary evidence; 7P is not attempted on this boundary"
                 ],
             },
-            {
-                "gate": "AF03",
-                "name": "RULES_AUTHORITY",
-                "verdict": "PASS",
-                "evidence": [
-                    "the engine rejected an illegal Commander colour identity during deck "
-                    "import (proving the engine owns deck legality, not the harness)",
-                    "the engine rejected unknown card names by name",
-                    "out-of-scope submissions produced no fabricated legal option",
-                    "runner contains no legality reconstruction",
-                ],
-                "blocking_rows": [],
-                "nonblocking_limitations": [],
-            },
+            af03_gate(candidate),
             {
                 "gate": "AF04",
                 "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
