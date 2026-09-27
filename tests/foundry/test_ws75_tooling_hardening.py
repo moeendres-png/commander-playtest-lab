@@ -11,11 +11,11 @@ and real file-remotes:
   run-dir/mode/effort exposed, no secrets);
 - REFERENCE_ROOT contract (exact slug/HEAD/tree, mismatch fail closed,
   mutation detection, bootstrap + launcher wiring);
-- TOOL_PERMISSION_BATTERY (git push / git -C / sibling denies,
-  doom_loop deny, no broad /home/moeen/code write);
+- TOOL_PERMISSION_BATTERY (project git/GitHub authority, sibling denies,
+  doom_loop deny, reserved secret/system boundaries);
 - OPENCODE_1_18_30_PIN (exact pin passes, drift/unparseable fail closed,
   bounded audit mode);
-- SAFE_PUSH_REGRESSION (sole remote-write path under ancestor-held lock).
+- SAFE_PUSH_REGRESSION (optional hardened remote-write helper under ancestor-held lock).
 """
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ def canon(tmp_path: Path) -> Path:
     (root / ".opencode" / "skills").mkdir(parents=True)
     (root / "AGENTS.md").write_text("# canonical policy\n", encoding="utf-8")
     (root / ".opencode" / "agents" / "foundry-implementer.md").write_text(
-        "---\nvariant: high\n---\n", encoding="utf-8"
+        "---\nvariant: max\n---\n", encoding="utf-8"
     )
     real = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))
     (root / "opencode.json").write_text(
@@ -187,7 +187,7 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         "workstream": "TEST-WS",
         "branch": "project/test",
         "audit_base_sha": target["base"],
-        "effort": "high",
+        "effort": "max",
         "mode": "writer",
         "session": "ses-t",
         "state_path": str(target["state"]),
@@ -233,7 +233,7 @@ def test_headless_launch_execs_run_auto_first(
     stub = _version_stub(tmp_path, exit_code=7)
     plan = _plan(target, canon, ui_mode="headless", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
-    rc = launcher_mod.launch(plan, ["do the thing"], str(target["wt"]), "TEST-WS", "high")
+    rc = launcher_mod.launch(plan, ["do the thing"], str(target["wt"]), "TEST-WS", "max")
     assert rc == 7
     lines = record.read_text(encoding="utf-8").strip().splitlines()
     assert len(lines) == 1
@@ -252,7 +252,7 @@ def test_tui_launch_execs_without_run(
     stub = _version_stub(tmp_path, exit_code=7)
     plan = _plan(target, canon, ui_mode="tui", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
-    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high")
+    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "max")
     assert rc == 7
     parts = record.read_text(encoding="utf-8").strip().split(" ")
     assert parts[1] == "--auto"
@@ -280,7 +280,7 @@ def test_telemetry_under_run_dir_and_tree_stays_clean(
     stub = _version_stub(tmp_path, exit_code=0)
     plan = _plan(target, canon, ui_mode="headless", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
-    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high")
+    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "max")
     assert rc == 0
     metrics_file = Path(plan["run_dir"]) / "metrics.jsonl"
     assert metrics_file.is_file()
@@ -310,7 +310,7 @@ def test_state_path_context_exposed_without_secrets(
     assert env["FOUNDRY_WORKSTREAM"] == "TEST-WS"
     assert env["FOUNDRY_RUN_DIR"] == str(target["rundir"])
     assert env["FOUNDRY_MODE"] == "writer"
-    assert env["FOUNDRY_EFFORT"] == "high"
+    assert env["FOUNDRY_EFFORT"] == "max"
     context = json.loads(Path(plan["context_path"]).read_text(encoding="utf-8"))
     assert context["state_path"] == str(target["state"])
     assert context["run_dir"] == str(target["rundir"])
@@ -495,29 +495,29 @@ def test_doom_loop_deny() -> None:
     assert config["permission"]["doom_loop"] == "deny"
 
 
-def test_direct_git_push_denied() -> None:
+
+def test_direct_git_push_allowed_for_project_execution() -> None:
     rules = _config_bash_rules()
     for cmd in ("git push origin test/ws", "git push --force origin test/ws", "git push"):
         verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
-        assert verdict == "DENIED", (cmd, matched)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
 
 
-def test_git_C_remains_denied() -> None:
+def test_git_C_allowed_for_project_execution() -> None:
     rules = _config_bash_rules()
     for cmd in ("git -C /tmp/wt status", "git -C /tmp/wt push origin x"):
         verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
-        assert verdict == "DENIED", (cmd, matched)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
 
 
-def test_no_broad_home_code_write_access() -> None:
+def test_project_code_root_access_allowed() -> None:
     rules = _config_ext_rules()
     for probe in (
         "/home/moeen/code/ws75-foundry-opencode-tooling-hardening/tools/foundry/launcher.py",
         "/home/moeen/code/some-other-checkout/file.txt",
     ):
         verdict, matched = battery_mod.evaluate_rule(rules, "external_directory", probe)
-        assert verdict != "ENFORCED_ALLOW", (probe, matched)
-
+        assert verdict == "ENFORCED_ALLOW", (probe, matched)
 
 def test_sibling_worktree_denied_in_bundle(target: dict, canon: Path, tmp_path: Path) -> None:
     _git(
