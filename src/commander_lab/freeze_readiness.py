@@ -14,6 +14,8 @@ capability flag is true. Anything else MUST evaluate to not-eligible.
 
 from __future__ import annotations
 
+from typing import Any
+
 REQUIRED_GATES = [
     "AF00",
     "AF01",
@@ -51,9 +53,9 @@ BANNED_RANKING_KEYS = ("score", "rank", "ranking", "winner", "selected_provider"
 
 
 def check_freeze_eligibility(
-    gate_results: list[dict],
-    capabilities: dict,
-    missing_required_capabilities: list,
+    gate_results: list[dict[str, Any]],
+    capabilities: dict[str, Any],
+    missing_required_capabilities: list[Any],
 ) -> tuple[bool, list[str]]:
     """Return ``(eligible, reasons)``.
 
@@ -107,7 +109,7 @@ def check_freeze_eligibility(
     return (len(reasons) == 0, reasons)
 
 
-def validate_readiness_packet(packet: dict) -> list[str]:
+def validate_readiness_packet(packet: dict[str, Any]) -> list[str]:
     """Structural check for a WSR24 freeze-readiness packet.
 
     Verifies the 12-gate skeleton, verdict vocabulary, and the honesty rule:
@@ -150,7 +152,9 @@ def validate_readiness_packet(packet: dict) -> list[str]:
     return errors
 
 
-def packet_shape(packet: dict) -> tuple:
+def packet_shape(
+    packet: dict[str, Any],
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[tuple[Any, tuple[str, ...]], ...]]:
     """Structural shape used for cross-candidate symmetry checks.
 
     Two readiness packets are symmetric when their shapes are equal: same
@@ -164,7 +168,7 @@ def packet_shape(packet: dict) -> tuple:
     return (top_shape, elig_shape, gate_shape)
 
 
-def find_banned_keys(node, banned: tuple = BANNED_RANKING_KEYS) -> list[str]:
+def find_banned_keys(node: Any, banned: tuple[str, ...] = BANNED_RANKING_KEYS) -> list[str]:
     """Recursively collect dotted paths of banned ranking/score keys."""
     hits: list[str] = []
     if isinstance(node, dict):
