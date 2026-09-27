@@ -43,6 +43,9 @@ WS75 hardening:
 - Explicit ``--workspace-access`` surfaces may be read-only or owned-write; writable
   surfaces bind repo/branch/HEAD/tree/state/ownership and are multi-locked for the
   complete child lifetime.
+- Any run with cross-workstream references/access is executed under an unprivileged
+  Linux Landlock write boundary. Only the primary worktree, explicit owned-write roots,
+  run/temp state and narrow tool caches are writable; sandbox setup failure refuses launch.
 - The installed OpenCode CLI must equal the canonical qualified version
   (``tools/foundry/opencode_cli_version.py``) unless explicit
   ``--version-audit-mode`` bounds the drift for migration/audit runs.
@@ -200,6 +203,59 @@ def _git_dir(worktree: str) -> str:
     common = _git(["rev-parse", "--git-common-dir"], worktree)
     path = Path(common)
     return str(path if path.is_absolute() else Path(worktree) / common)
+
+
+def _sandbox_write_roots(plan: dict, worktree: str, run_dir: str) -> list[str]:
+    """Exact paths the cross-WS child may mutate under Landlock."""
+    roots = {
+        os.path.realpath(worktree),
+        os.path.realpath(run_dir),
+        os.path.realpath(_git_dir(worktree)),
+    }
+    state_path = plan.get("state_path")
+    if state_path:
+        roots.add(os.path.realpath(str(Path(state_path).parent)))
+    for spec in plan.get("workspace_access", []):
+        if spec.get("access") != "owned-write":
+            continue
+        root = os.path.realpath(spec["root"])
+        roots.add(root)
+        roots.add(os.path.realpath(_git_dir(root)))
+        other_state = spec.get("state_path")
+        if other_state:
+            roots.add(os.path.realpath(str(Path(other_state).parent)))
+
+    home = Path(os.environ.get("HOME", str(Path.home())))
+    cache_candidates = [
+        home / ".cache" / "opencode",
+        home / ".local" / "share" / "opencode",
+        home / ".local" / "state" / "opencode",
+        home / ".m2",
+        home / ".gradle",
+        home / ".npm",
+    ]
+    for path in cache_candidates:
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            continue
+        roots.add(os.path.realpath(str(path)))
+    if Path("/dev/shm").is_dir():
+        roots.add("/dev/shm")
+    return sorted(roots)
+
+
+def _sandbox_command(plan: dict, argv: list[str], worktree: str, run_dir: str) -> list[str]:
+    """Wrap cross-WS execution in the fail-closed Landlock helper."""
+    if not plan.get("references") and not plan.get("workspace_access"):
+        return argv
+    sandbox = Path(__file__).resolve().parent / "fs_sandbox.py"
+    if not sandbox.is_file():
+        raise ValueError(f"cross-workstream sandbox helper missing: {sandbox}")
+    command = [sys.executable, str(sandbox)]
+    for root in _sandbox_write_roots(plan, worktree, run_dir):
+        command.extend(["--allow-write", root])
+    return [*command, "--", *argv]
 
 
 def install_hook(worktree: str, branch: str) -> str:
@@ -958,7 +1014,13 @@ def _launch_locked(
         # explicit non-default executor. Caller model flags are rejected.
         selected = ["--model", execution["model"]] if execution["override"] != "canonical" else []
         argv = build_argv(binary, mode, [*selected, *argv_extra])
-    except ValueError as exc:
+        argv = _sandbox_command(plan, argv, worktree, run_dir)
+        if plan.get("references") or plan.get("workspace_access"):
+            tmp_dir = Path(run_dir) / "tmp"
+            tmp_dir.mkdir(parents=True, exist_ok=True)
+            env["TMPDIR"] = str(tmp_dir)
+            env["FOUNDRY_FS_SANDBOX"] = "landlock-write-boundary"
+    except (OSError, RuntimeError, ValueError) as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
         return 1
     print(f"LAUNCH: holding writer lock; exec {' '.join(argv)} (cwd={worktree})")
