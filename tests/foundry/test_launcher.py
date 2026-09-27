@@ -25,6 +25,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from foundry import bootstrap as bootstrap_mod  # noqa: E402
 from foundry import launcher as launcher_mod  # noqa: E402
 from foundry import opencode_cli_version as version_mod  # noqa: E402
+from foundry import permission_battery as permission_battery_mod  # noqa: E402
 
 CPL_SLUG = "moeendres-png/commander-playtest-lab"
 
@@ -1121,7 +1122,7 @@ def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):
 # --- explicit cross-workstream access ---------------------------------------
 
 
-def _workspace_surface(tmp_path: Path, *, ownership: str = "SIDE-WS") -> tuple[Path, Path, dict]:
+def _workspace_surface(tmp_path: Path, *, ownership: str = "TEST-WS") -> tuple[Path, Path, dict]:
     root = tmp_path / "side-wt"
     root.mkdir()
     env = _env()
@@ -1166,7 +1167,7 @@ def _workspace_surface(tmp_path: Path, *, ownership: str = "SIDE-WS") -> tuple[P
     return root, state_path, spec
 
 
-def test_workspace_access_read_only_is_runtime_readable_edit_denied(
+def test_workspace_access_read_only_uses_disposable_snapshot(
     target: dict, canon: Path, tmp_path: Path
 ) -> None:
     root, _, owned = _workspace_surface(tmp_path)
@@ -1178,14 +1179,32 @@ def test_workspace_access_read_only_is_runtime_readable_edit_denied(
     spec["access"] = "read-only"
     plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
     assert plan["verdict"] == "LAUNCH_READY", plan
+    runtime = plan["workspace_access"][0]
+    snapshot = Path(runtime["root"])
+    assert snapshot != root
+    assert snapshot.is_dir()
+    assert "source_root" not in runtime
+    assert _git(["rev-parse", "HEAD"], snapshot) == owned["commit"]
+
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    pattern = f"{root}*"
-    assert bundle["permission"]["external_directory"][pattern] == "allow"
-    assert bundle["permission"]["edit"][pattern] == "deny"
-    assert json.loads(plan["_env"]["FOUNDRY_WORKSPACE_ACCESS"])[0]["access"] == "read-only"
+    ext = bundle["permission"]["external_directory"]
+    edit = bundle["permission"]["edit"]
+    for pattern in launcher_mod._root_patterns(str(root)):
+        assert ext[pattern] == "deny"
+        assert edit[pattern] == "deny"
+    for pattern in launcher_mod._root_patterns(str(snapshot)):
+        assert ext[pattern] == "allow"
+        assert edit[pattern] == "deny"
+
+    # Build/tool output may mutate the disposable snapshot, never authoritative source.
+    (snapshot / "side.txt").write_text("snapshot-only\n", encoding="utf-8")
+    assert (root / "side.txt").read_text(encoding="utf-8") == "side\n"
+    injected = json.loads(plan["_env"]["FOUNDRY_WORKSPACE_ACCESS"])
+    assert injected[0]["root"] == str(snapshot)
+    assert "source_root" not in injected[0]
 
 
-def test_legacy_reference_is_runtime_readable_edit_denied(
+def test_legacy_reference_uses_disposable_snapshot(
     target: dict, canon: Path, tmp_path: Path
 ) -> None:
     root, _, owned = _workspace_surface(tmp_path)
@@ -1200,10 +1219,17 @@ def test_legacy_reference_is_runtime_readable_edit_denied(
     }
     plan = _plan(target, canon, references=[json.dumps(ref)])
     assert plan["verdict"] == "LAUNCH_READY", plan
+    runtime = plan["references"][0]
+    snapshot = Path(runtime["root"])
+    assert snapshot != root
+    assert _git(["rev-parse", "HEAD"], snapshot) == owned["commit"]
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    pattern = f"{root}*"
-    assert bundle["permission"]["external_directory"][pattern] == "allow"
-    assert bundle["permission"]["edit"][pattern] == "deny"
+    for pattern in launcher_mod._root_patterns(str(root)):
+        assert bundle["permission"]["external_directory"][pattern] == "deny"
+        assert bundle["permission"]["edit"][pattern] == "deny"
+    for pattern in launcher_mod._root_patterns(str(snapshot)):
+        assert bundle["permission"]["external_directory"][pattern] == "allow"
+        assert bundle["permission"]["edit"][pattern] == "deny"
 
 
 def test_workspace_access_owned_write_requires_matching_state_and_injects_write(
@@ -1213,11 +1239,39 @@ def test_workspace_access_owned_write_requires_matching_state_and_injects_write(
     plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    pattern = f"{root}*"
-    assert bundle["permission"]["external_directory"][pattern] == "allow"
-    assert bundle["permission"]["edit"][pattern] == "allow"
+    for pattern in launcher_mod._root_patterns(str(root)):
+        assert bundle["permission"]["external_directory"][pattern] == "allow"
+        assert bundle["permission"]["edit"][pattern] == "allow"
     assert plan["worktree_states"][str(root)] == spec["state_path"]
     assert plan["workspace_access"][0]["ownership"] == "SIDE-WS"
+
+
+def test_owned_write_refuses_state_owned_by_other_workstream(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    _, _, spec = _workspace_surface(tmp_path, ownership="SIDE-WS")
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "current workstream" in str(plan.get("error", ""))
+
+
+def test_workspace_path_rules_do_not_match_same_prefix_sibling(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    evil = Path(str(root) + "-evil")
+    evil.mkdir()
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    rules = [
+        {"permission": "external_directory", "pattern": pattern, "action": action}
+        for pattern, action in bundle["permission"]["external_directory"].items()
+    ]
+    verdict, matched = permission_battery_mod.evaluate_rule(
+        rules, "external_directory", str(evil / "payload.txt")
+    )
+    assert verdict != "ENFORCED_ALLOW", matched
 
 
 def test_workspace_access_owned_write_refuses_wrong_ownership(
