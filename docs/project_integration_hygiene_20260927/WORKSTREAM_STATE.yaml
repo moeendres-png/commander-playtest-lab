@@ -7,24 +7,25 @@ authority_gates:
 - ARCHITECTURE_FREEZE = NOT CLAIMED (Coordinator authority; unchanged by WSR23)
 - MTG Rules adjudication remains with GPT-5.6 Sol High; WSR23 made no Rules ruling
 branch: wsr23/project-integration-hygiene-20260927
-current_failure: 'NO_TECHNICAL_BLOCKER. Execution authority is active and verified
-  live: git push reached the remote in this session. The previous session''s only
-  pending item, an OpenCode session restart to load the widened policy, is complete.
-  WSR23 is now integrated onto current main f5941985811ef3d670e27ee7e2201a0b2a4fc534
-  (PR #266 multi-workstream access + PR #272 delegated Git integration authority)
-  with both sides preserved. The remaining campaign steps are publication, governance
-  disposition, the WSR22 successor, PB-09, PB-03, PB-06/07/08 and the final comparison
-  package.'
+current_failure: 'NONE. WSR23 is integrated. PR #275 merged as 7d50937d4d3234589a59dce2cef88e6465096bae;
+  post-merge main HEAD 7d50937d TREE 15c47157e05518e1529543dbdb92e61b735380cd. Issue
+  #263 closed with a terminal receipt. Redundant governance surfaces closed: PR #271
+  and both governance/* branches superseded by merged WSR23, with the unique valid
+  content adopted first and itemised in docs/pre_freeze_completion_20260927/GOVERNANCE_SUPERSESSION_271.md.
+  Branch deletion deliberately not performed.'
 current_hypothesis: NONE. No defect outstanding on this branch.
-current_reasoning: 'Stage A complete and published. PR #275 opened against main, then
-  main advanced twice more: PR #270 (WSR25 RG-07/RG-08 evidence port) merged as 425a9af2
-  and PR #273 (its handoff receipt) as 4a3abd34. The Coordinator had already integrated
-  the RG-07/RG-08 port, so campaign step 9 is done by them. Adjudicated that drift:
-  13 paths, ZERO intersection with this branch''s mutation surface, so NO_IMPACT.
-  Merged current main in cleanly and re-validated at the new tip: 1667 passed / 5
-  skipped / 0 failed, ruff, mypy strict, compileall and the invariant audit all clean.
-  No Rules semantics, qualification contract, FULL107 denominator or engine-candidate
-  source is touched by this branch.'
+current_reasoning: 'Stages 1-5 complete: policy reload verified, WSR23 finished on
+  top of PR #266, published, CI-repaired, integrated, post-merge verified, Issue #263
+  closed, and the redundant governance surfaces adjudicated and closed. Main moved
+  three times during publication and each drift was enumerated and intersected before
+  merging; all three were NO_IMPACT on this branch''s surface and the suite was re-run
+  green after each. NEW FINDING recorded for the next stage: WSR24''s merged freeze-readiness
+  artifacts (docs/architecture_freeze_readiness_20260927/) name the Forge candidate
+  as engine_candidate_commit ef958ee9 with no field distinguishing it from pristine
+  upstream Forge, while XMAGE_FREEZE_READINESS names b1959698 which does equal its
+  pin. That is PB-09''s failure mode now materialized on main: upstream and fork identity
+  cannot be distinguished by the artifact, even though the asymmetry is visible in
+  the two commit values.'
 current_reasoning_tier: high
 dependencies:
 - WSR22 must finish before any provider adjudication; WSR23 depends on nothing from
@@ -50,15 +51,19 @@ evidence:
 - docs/pre_freeze_completion_20260927/PB09_FORGE_CANDIDATE_IDENTITY.md
 - docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md
 - docs/pre_freeze_completion_20260927/RESUMPTION_KIT.md
-exact_next_action: 'Finish Stage A: inspect PR #275 exact-head CI, repair any failure
-  attributable to this branch, merge, re-read post-merge main HEAD/TREE, persist the
-  receipt, then close Issue #263 with a terminal receipt. Campaign step 9 (PR #270)
-  is already satisfied: the Coordinator merged the WSR25 RG-07/RG-08 port as 425a9af2
-  and its handoff receipt as 4a3abd34. Then: disposition the redundant governance
-  surfaces (PR #271 and the two governance/* branches) against merged WSR23; create
-  the current-main WSR22 successor from fresh main; then PB-09 (Coordinator decision)
-  before PB-03; then PB-06/PB-07/PB-08; then the final current-boundary comparison
-  and AF00-AF11. ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT SELECTED.'
+- docs/pre_freeze_completion_20260927/GOVERNANCE_SUPERSESSION_271.md
+exact_next_action: 'Open the next mutation battlefield: a current-main WSR22 successor.
+  Cut from fresh origin/main 7d50937d4d3234589a59dce2cef88e6465096bae in a dedicated
+  worktree (never from the stale local main 586914ea), then follow docs/pre_freeze_completion_20260927/WSR22_IMPACT_ADJUDICATION.md
+  section 5: transplant the valid WSR22 surfaces as whole files from the immutable
+  evidence head 208341c6124674046787f3a4b1d699c98c286a27, adopt the 2026-09-25 Rules
+  receipt, regenerate qualification/SHA256SUMS and WS17_SHA256SUMS from the integrated
+  tree, update the affected assertions in tests/qualification/test_pre_freeze_contract_successor.py,
+  run only impact-required checks, keep the FULL107 denominator at 107, then PR and
+  merge. After that, PB-09: make upstream-versus-fork identity impossible to confuse
+  in docs/architecture_freeze_readiness_20260927/*_FREEZE_READINESS.json and in config/rules_engines.json,
+  reconcile the affected evidence, and reseal. Then PB-03. ARCHITECTURE_FREEZE = NOT
+  CLAIMED; PRODUCTION_PROVIDER = NOT SELECTED.'
 failed_gates: []
 failure_class: INFRASTRUCTURE_DEFECT
 files_modified:
@@ -167,8 +172,8 @@ remaining_scope:
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: INFRASTRUCTURE_DEFECT
 schema_version: '2.0'
-state_written_against_head: 715c4737bf0ce376e628c5a6cd1fcd1b2a3cb1fa
-status: WAITING
+state_written_against_head: ed726cc378beee5582cdb9c9791ae573e5c7021b
+status: COMPLETE
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
 - 'STATE_REPAIR (2026-09-27, identity field): the `ownership` field held the descriptive
@@ -249,5 +254,13 @@ validated_gates:
 - ruff lint and format clean
 - 'project invariant audit: 6 pass, 0 fail'
 - WORKSTREAM_STATE STATE_OK schema 2.0; bootstrap gate BOOTSTRAP_PASS
-validated_head: 715c4737bf0ce376e628c5a6cd1fcd1b2a3cb1fa
+- 'PR #275 merged; exact-head CI green on ed726cc3 (quality/security/infrastructure
+  success, exact-main-admission skipped)'
+- Post-merge main verified to carry the WSR23 content and the correct routing identity
+  (model space-bunny-free, bash default allow, space-bunny=[max] and muse=[xhigh])
+- 'Issue #263 closed with a terminal receipt; PR #271 closed against the supersession
+  receipt'
+- 'Main drift adjudicated three times with an explicit path intersection each time:
+  13 paths / 0 intersection, then 21 paths / 0 intersection'
+validated_head: ed726cc378beee5582cdb9c9791ae573e5c7021b
 worktree: /home/moeen/code/wsr23-project-integration-hygiene
