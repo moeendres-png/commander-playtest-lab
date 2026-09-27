@@ -25,6 +25,14 @@ PROJECTION_KEYS = (
     "zone_move_event",
     "setup_validation",
 )
+OBLIGATION_KEYS = (
+    "fixture_id",
+    "fixture_family",
+    "frozen_contract_binding",
+    "card_authority_binding",
+    "expected_events",
+    "terminal_postconditions",
+)
 
 
 class ContractError(RuntimeError):
@@ -48,6 +56,23 @@ def requested_state_digest(record: dict[str, Any]) -> str:
     return hashlib.sha256(canonical_json(projected).encode("utf-8")).hexdigest()
 
 
+def obligation_digest(record: dict[str, Any]) -> str:
+    projected = {key: record.get(key) for key in OBLIGATION_KEYS}
+    return hashlib.sha256(canonical_json(projected).encode("utf-8")).hexdigest()
+
+
+def materialization_digest(record: dict[str, Any]) -> str:
+    projected = copy.deepcopy(record)
+    projected.pop("materialization_digest", None)
+    return hashlib.sha256(canonical_json(projected).encode("utf-8")).hexdigest()
+
+
+def canonical_bundle_digest(bundle: dict[str, Any]) -> str:
+    projected = copy.deepcopy(bundle)
+    projected.pop("canonical_bundle_digest", None)
+    return hashlib.sha256(canonical_json(projected).encode("utf-8")).hexdigest()
+
+
 def load_effective_materialization() -> dict[str, Any]:
     authority = _load(AUTHORITY_PATH)
     full107 = authority["full107"]
@@ -64,26 +89,27 @@ def load_effective_materialization() -> dict[str, Any]:
         raise ContractError("successor patch set differs from current authority")
 
     effective = copy.deepcopy(bundle)
-    historical_authority_lock = effective.pop("authority_lock", None)
+    historical_authority_lock = copy.deepcopy(effective.get("authority_lock"))
     historical_bundle_digest = effective.pop("canonical_bundle_digest", None)
-    historical_manifest_digest = effective.pop("common_fixture_manifest_sha256", None)
-    historical_supersedes = effective.get("supersedes")
+    historical_supersedes = copy.deepcopy(effective.get("supersedes"))
 
-    effective["schema_version"] = successor["contract_id"]
-    effective["protocol"] = "commander-lab.pre-freeze-qualification/2.0.0"
-    effective["protocol_version"] = "2.0.0"
+    effective["schema_version"] = (
+        "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+    )
+    effective["contract_id"] = successor["contract_id"]
+    effective["qualification_boundary"] = (
+        "commander-lab.pre-freeze-qualification/2.0.0"
+    )
+    effective["qualification_protocol_version"] = "2.0.0"
+    effective["protocol_role"] = "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     effective["authority_lock"] = {
-        "lock_id": "AUTHORITY_LOCK_v2",
-        "path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
-        "comprehensive_rules_effective_date": successor["rules_authority"]["effective_date"],
-        "applicable_successor_rule": successor["rules_authority"]["rule"],
+        "receipt_path": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+        "effective_date": successor["rules_authority"]["effective_date"],
+        "rule": successor["rules_authority"]["rule"],
     }
+    effective["current_rules_authority"] = copy.deepcopy(effective["authority_lock"])
     effective["historical_authority_lock"] = historical_authority_lock
-    effective["fixture_denominator_source"] = {
-        "historical_common_fixture_manifest_sha256": historical_manifest_digest,
-        "role": "HISTORICAL_FIXTURE_DENOMINATOR_SOURCE_ONLY",
-        "successor_contract": full107["successor_contract"],
-    }
+    effective["evidence_migration"] = copy.deepcopy(full107["evidence_migration"])
     effective["supersedes"] = {
         "historical_schema_version": bundle.get("schema_version"),
         "historical_canonical_bundle_digest": historical_bundle_digest,
@@ -104,8 +130,11 @@ def load_effective_materialization() -> dict[str, Any]:
         historical_digests = {}
         for key in ("materialization_digest", "obligation_digest", "supersedes_record_digest"):
             if key in record:
-                historical_digests[key] = record.pop(key)
+                historical_digests[key] = record[key]
         record["historical_digests"] = historical_digests
+        predecessor_materialization_digest = record.pop("materialization_digest", None)
+        record.pop("obligation_digest", None)
+        record.pop("supersedes_record_digest", None)
 
         for key, value in patch["replace"].items():
             record[key] = copy.deepcopy(value)
@@ -121,21 +150,30 @@ def load_effective_materialization() -> dict[str, Any]:
         provenance.update(overlay)
 
         record["materialization_status"] = "AUTHORITY_CORRECTED_SUCCESSOR"
-        record["materialization_version"] = successor["contract_id"]
+        record["materialization_version"] = (
+            "commander-lab.semantic-fixture-materialization/1.0.6-successor"
+        )
         record["repair_provenance"] = {
             "predecessor_version": bundle.get("schema_version"),
             "predecessor_requested_state_digest": patch["predecessor_requested_state_digest"],
             "correction_class": successor["change_accounting"]["change_class"],
             "provider_semantics_used": False,
             "historical_record_preserved": True,
+            "current_boundary_runtime_credit": "NOT_GRANTED_BY_MATERIALIZATION",
         }
         digest = requested_state_digest(record)
         if digest != patch["successor_requested_state_digest"]:
             raise ContractError(f"successor requested-state digest mismatch for {fixture_id}")
         record["requested_state_digest"] = digest
+        record["obligation_digest"] = obligation_digest(record)
+        if predecessor_materialization_digest is None:
+            raise ContractError(f"predecessor materialization digest missing for {fixture_id}")
+        record["supersedes_record_digest"] = predecessor_materialization_digest
+        record["materialization_digest"] = materialization_digest(record)
 
     if seen != expected_changed:
         raise ContractError("not every successor fixture was found in historical materialization")
+    effective["canonical_bundle_digest"] = canonical_bundle_digest(effective)
     return effective
 
 
