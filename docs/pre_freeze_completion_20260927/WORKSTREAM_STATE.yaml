@@ -5,7 +5,40 @@ authority_gates:
 - ARCHITECTURE_FREEZE = NOT CLAIMED (Coordinator authority; unchanged)
 - MTG Rules adjudication remains with GPT-5.6 Sol High; this successor adopts a Coordinator
   adjudication and makes no Rules ruling of its own
+blocked_gates:
+- 'PR #278 merge: blocked by required_review_thread_resolution on 8 P1 findings, 6
+  of which change what the evidence proves'
+- 'PR #269 supersession: forbidden while the evidence set contains unobserved PASS
+  promotions, because superseding would destroy the only honest record'
+- 'Provider comparison: inadmissible; the 25/107 same-semantics figure is an upper
+  bound, not a measurement, and the 30/79 PASS counts are upper bounds'
+- 'AF10 RUNTIME_EVIDENCE_RELIABILITY: must be re-derived; it rests on the fabricated
+  NATIVE_RUNS'
 branch: wsr22-successor/current-boundary-freeze-20260927
+current_failure: 'EVIDENCE_INTEGRITY_BLOCKER on the WSR22 successor (PR #278). Eight
+  P1 findings were raised by the automated review against the WSR22 evidence-generation
+  path; the two most consequential were re-verified in source and CONFIRMED. (1) scripts/assemble_current_boundary_evidence.py:27
+  defines NATIVE_RUNS as a hard-coded literal and run_native_suite() is never called
+  anywhere, so the assembler promotes rows from UNKNOWN/BLOCKED to PASS without executing
+  a native suite. (2) game_driver.py accepts a seed parameter that never reaches the
+  create-game request while the artifacts record requested_seed=424242 and engine_owned=true,
+  so the Rules-RNG binding is claimed but not established. Plus three verifications
+  that do not observe the engine (AF01 action probes omit game_id and precede game
+  creation; START-2 reads the fixture''s required-event list; AF03 is PASS unconditionally
+  with no negative deck-import probe), a fixture-ID regex that promotes rows on any
+  mention (its own example promotes HIDDEN_02 from UNKNOWN to PASS while the cited
+  test asserts it FAILS), and an unenforced per-request bridge timeout. PR #278 is
+  NOT merged and its threads are NOT resolved; PR #269 is NOT superseded; --admin
+  was NOT used.'
+current_hypothesis: NONE - no further diagnosis is needed. The defect is proven, not
+  suspected. The remediation is a bounded workstream, not a further hypothesis.
+current_reasoning: 'The successor is complete and validated locally. The transplant
+  is whole-file from the immutable evidence head for 41 paths that are all new to
+  main, so it cannot regress newer content. The five paths WSR22 also modified were
+  handled deliberately: the receipt was written fresh with an explicit supersession
+  record, the live effective-date pins moved with their subject rather than being
+  loosened, and both manifests were recomputed. Four strict-mypy errors inherited
+  from the transplant were fixed by narrowing.'
 evidence:
 - qualification/final-current-boundary-20260927/SOURCE_LOCK.json
 - qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json
@@ -14,11 +47,26 @@ evidence:
 - qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json
 - docs/pre_freeze_completion_20260927/WSR22_IMPACT_ADJUDICATION.md
 - docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md
-exact_next_action: 'Run the impact-required gate set on this branch, bind validation
-  credit to the exact head, push, open one PR against main, inspect exact-head CI,
-  repair only attributable failures, merge, re-read post-merge main, and only then
-  mark PR #269 superseded - which requires proving every WSR22 evidence family is
-  present on main with the successor''s provenance intact.'
+- docs/pre_freeze_completion_20260927/WSR22_EVIDENCE_INTEGRITY.md
+- qualification/final-current-boundary-20260927/SOURCE_LOCK.json#known_evidence_defects
+exact_next_action: 'Do NOT merge PR #278 and do NOT supersede PR #269; both dispositions
+  are already recorded. Open a bounded evidence-integrity remediation workstream from
+  current main with its own branch, and do these five things: (1) make run_native_suite()
+  actually execute and persist receipts, failing closed when a receipt is absent instead
+  of falling back to a literal; (2) bind the seed through the provider''s authoritative
+  seed API and confirm the returned binding before recording RNG credit; (3) replace
+  the fixture-ID regex with explicit positive fixture-to-test receipts; (4) derive
+  AF01, AF03 and START-2 from recorded probe responses, event-log observations and
+  principal-state snapshots; (5) enforce the per-request deadline around response
+  reads and terminate a stalled process on expiry. Then re-run the affected rows,
+  recompute the comparison, re-seal the manifests, and only then re-attempt the WSR22
+  successor merge and consider superseding #269. PB-09 (Forge candidate identity)
+  remains a separate Coordinator decision. ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER
+  = NOT SELECTED.'
+failure_class: EVIDENCE_PIPELINE_DEFECT
+first_failing_boundary: scripts/assemble_current_boundary_evidence.py:27 (hard-coded
+  NATIVE_RUNS consumed at lines 142, 156, 214 and 219 while run_native_suite() at
+  scripts/run_current_boundary_qualification.py:189 has no callers).
 forbidden_shortcuts:
 - Transplanting a generated manifest instead of recomputing it
 - Loosening the semantic fixture schema const into a pattern rather than moving it
@@ -32,6 +80,20 @@ hard_gates:
 - FULL107 denominator stays 107 with denominator_decreased_to_bypass_blocker false
 - Generated manifests are computed from the integrated tree, never transplanted
 - No expected value weakened to obtain green
+hypotheses_rejected:
+- 'The PR #278 findings were a style review that could be resolved and merged. Rejected:
+  two were re-verified in source and are confirmed fabrications, and AGENTS.md section
+  10 forbids merging with an unresolved non-outdated P1/P2.'
+- 'The findings could be dismissed because the native suites genuinely did run once,
+  historically. Rejected: the artifacts must be reproducible from the committed code.
+  Re-running the documented scripts re-applies the literals, so a reader cannot distinguish
+  a real run from a fabricated one.'
+- 'Using --admin would unblock the merge. Rejected: it bypasses the ''CPL - Canonical
+  Main Protection'' ruleset, which the delegated authority explicitly forbids.'
+- 'The seed may be bound inside the provider rather than in the request. Rejected:
+  the finding is that the run cannot be shown to be seeded, and the claim is recorded
+  as engine_owned=true regardless, which is the defect whether or not a default happens
+  to match.'
 in_scope:
 - Transplant qualification/final-current-boundary-20260927/, src/commander_lab/qualification/current_boundary/,
   the two current-boundary runner scripts and test_wsr22_current_boundary.py as whole
@@ -67,9 +129,10 @@ out_of_scope:
 - Provider selection and ARCHITECTURE_FREEZE, which remain Coordinator decisions
 ownership: wsr22-successor-current-boundary-freeze-20260927
 repository: moeendres-png/commander-playtest-lab
+root_cause_class: EVIDENCE_PIPELINE_DEFECT
 schema_version: '2.0'
 state_written_against_head: 46c43b4b1af2abfd2b27b70052193bee000720ca
-status: WAITING
+status: BLOCKED
 technical_decisions:
 - Main was merged as the base and main moved three times during the WSR23 stage, so
   this branch binds the exact post-merge main 7d50937d TREE 15c47157 rather than the
@@ -85,8 +148,13 @@ technical_decisions:
   the correction is auditable rather than silent.
 - The 4 strict-mypy errors in the transplanted package are fixed by narrowing. Suppressing
   them would have hidden exactly the kind of gap CI exists to catch.
-validated_head: 46c43b4b1af2abfd2b27b70052193bee000720ca
-worktree: /home/moeen/code/wsr22-successor-current-boundary
+- Did not resolve the P1 threads to force a merge. The ruleset requires thread resolution
+  and section 10 forbids an unresolved P1/P2 at merge; resolving them dishonestly
+  would integrate fabricated evidence into canonical main, which is a far worse outcome
+  than an unmerged PR.
+- Resealed the three SOURCE_LOCK contract_blobs I invalidated, and recorded a known_evidence_defects
+  block inside the lock itself, so the defect travels with the artifact instead of
+  living only in a PR comment that a later session might never read.
 tests_run:
 - 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at 35ed98b539eb05bc5af2e7381ba12dedcd9020e6):
   1713 passed, 5 skipped, 0 failed'
@@ -116,10 +184,5 @@ validated_gates:
 - 'project invariant audit: 6 pass, 0 fail'
 - WORKSTREAM_STATE STATE_OK schema 2.0; bootstrap gate BOOTSTRAP_PASS
 - 'Evidence provenance bound: WSR22 evidence head 208341c6 recorded and untouched'
-current_reasoning: 'The successor is complete and validated locally. The transplant
-  is whole-file from the immutable evidence head for 41 paths that are all new to
-  main, so it cannot regress newer content. The five paths WSR22 also modified were
-  handled deliberately: the receipt was written fresh with an explicit supersession
-  record, the live effective-date pins moved with their subject rather than being
-  loosened, and both manifests were recomputed. Four strict-mypy errors inherited
-  from the transplant were fixed by narrowing.'
+validated_head: 46c43b4b1af2abfd2b27b70052193bee000720ca
+worktree: /home/moeen/code/wsr22-successor-current-boundary
