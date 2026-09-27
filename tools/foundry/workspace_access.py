@@ -16,12 +16,14 @@ import subprocess
 from pathlib import Path
 
 import reference_roots as reference_mod
+import safe_push as safe_push_mod
 import state as state_mod
 import yaml
 
 ACCESS_MODES = ("read-only", "owned-write")
 COMMON_KEYS = ("label", "root", "repo_slug", "commit", "tree", "cleanliness", "access")
 WRITE_KEYS = ("branch", "state_path", "ownership")
+PROTECTED_BRANCHES = {"main", "master", "HEAD"}
 
 
 class WorkspaceAccessError(ValueError):
@@ -81,6 +83,10 @@ def parse_spec(raw: str) -> dict:
             if not isinstance(value, str) or not value.strip():
                 raise WorkspaceAccessError(f"owned-write {key} must be a non-empty string")
             out[key] = value
+        if out["branch"] in PROTECTED_BRANCHES:
+            raise WorkspaceAccessError(
+                f"owned-write branch {out['branch']!r} is protected and cannot be mutated"
+            )
         if not os.path.isabs(out["state_path"]):
             raise WorkspaceAccessError("owned-write state_path must be absolute")
         out["state_path"] = os.path.realpath(os.path.abspath(out["state_path"]))
@@ -106,6 +112,12 @@ def verify(spec: dict) -> list[str]:
         return failures
 
     root = os.path.realpath(spec["root"])
+    remote_error = safe_push_mod._verify_push_target(root, "origin", spec["repo_slug"])
+    if remote_error is not None:
+        failures.append(
+            f"workspace {spec['label']!r}: exact remote identity rejected ({remote_error})"
+        )
+        return failures
     try:
         branch = _git(["branch", "--show-current"], root)
     except RuntimeError as exc:
