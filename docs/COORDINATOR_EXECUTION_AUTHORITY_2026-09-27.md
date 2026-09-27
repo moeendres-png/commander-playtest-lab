@@ -1,0 +1,202 @@
+# Commander Simulator Next — Coordinator and OpenCode Execution Authority
+
+POLICY = ACTIVE
+Date: 2026-09-27
+
+This is the current execution-authority document. It supersedes the routing/authority
+instructions in `docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md` for new
+work while preserving that older file as historical provenance.
+
+It governs engineering execution only. It does not claim Architecture Freeze or select a
+Production Provider.
+
+## Project end state
+
+Commander Simulator Next exists to build and qualify the strongest realistically
+achievable full-rules Magic: The Gathering Commander simulator for real-deck simulation,
+matchup analysis and later decision/deck optimization.
+
+The required system is not a toy simulator. Its Rules Core must remain sole authority for
+legal actions, costs, mana, stack, priority, targets, combat, triggers, replacement and
+prevention effects, continuous effects/layers, state-based actions, zones, copy/control,
+Commander and multiplayer semantics, and Rules randomness. The surrounding system must
+supply principal-scoped observations and authoritative Decision Options to external
+pilots, preserve hidden information, expose controlled Rules RNG, support semantic replay,
+fail closed on unsupported production-reachable paths, and support reproducible
+process-isolated batches.
+
+Before Architecture Freeze, execution work maximizes trustworthy candidate qualification
+and removes decision-critical uncertainty. After Freeze, implementation work must preserve
+the selected single Rules authority and move toward complete reproducible full games with
+real Commander decks.
+
+## Authority tiers
+
+### GPT-5.6 Sol High — Coordinator / final authority
+
+Sol High owns:
+- Source-Truth adjudication when sources conflict;
+- ambiguous official MTG Rules adjudication;
+- project-wide evidence/qualification policy;
+- shared architecture;
+- cross-workstream ownership conflicts;
+- material scope expansion;
+- Production Provider selection;
+- Architecture Freeze.
+
+Sol is not the routine coding/debugging micro-manager.
+
+### Space Bunny Free MAX — preferred new-work OpenCode executor
+
+Exact model: `opencode-go/space-bunny-free`
+Native variant: `max`
+
+For new substantial OpenCode engineering work, this is the preferred execution profile.
+The Foundry launcher must pin the main model, small model and reachable injected project
+agents to Space Bunny with native MAX. The project-level effort field remains a
+high/xhigh workstream classification and does not reduce Bunny's native MAX compute.
+
+Within an authorized workstream Space Bunny is expected to:
+- understand the objective, contract, current source state and relevant project context;
+- use available tools proactively rather than merely propose commands;
+- inspect source, history, tests, logs and artifacts;
+- form hypotheses and search for contradictory evidence;
+- implement authorized changes;
+- build, test, debug, repair and retest;
+- detect additional in-scope defects or prerequisite inconsistencies exposed by evidence;
+- repair systemic causes instead of accumulating one-off hacks;
+- persist checkpoints/evidence;
+- continue until COMPLETE or a genuine authority/source/permission gate.
+
+Token cost is not an optimization objective. Spend reasoning/context when it improves
+correctness or evidence quality. Do not bulk-read irrelevant history or rerun valid
+evidence merely because tokens are available.
+
+### Muse Spark 1.3 Contributor — supported alternate / continuation executor
+
+Exact model: `opencode-go/muse-spark-1.3-contributor`
+
+Muse remains fully supported:
+- HIGH for ordinary bounded engineering;
+- XHIGH for difficult nonlocal technical reasoning and adjudication;
+- continuation of existing Muse-owned workstreams;
+- deliberate alternate implementation/review/challenge.
+
+Muse has the same autonomous technical authority inside a workstream contract as Space
+Bunny. Model choice does not change Rules/Evidence/Privacy semantics.
+
+### ChatGPT Work / Astra — exceptional capability lane
+
+Work/Astra is not a normal engineering tier. It may be used only after
+`WORK_NECESSITY = PASS`, recording:
+1. the required capability;
+2. why normal Sol High is insufficient;
+3. why neither OpenCode executor is sufficient;
+4. why the capability is genuinely necessary;
+5. the smallest required Work scope.
+
+## Autonomous technical decision authority
+
+`TECHNICAL_DECISION_AUTHORITY = AUTONOMOUS_WITHIN_CONTRACT`
+
+The selected OpenCode worker does not stop for routine technical choices that can be
+resolved from the workstream contract, repository source, tests, logs, artifacts or
+bounded runtime experiments.
+
+For an in-scope ambiguity it should:
+1. inspect authoritative evidence;
+2. form one or more hypotheses;
+3. actively search for contradictions;
+4. run the smallest discriminating validation;
+5. classify the failing boundary/root-cause class;
+6. decide technically where existing policy determines the allowed semantics;
+7. implement/repair when authorized;
+8. validate the smallest invalidated set, then broaden as required;
+9. persist the decision/evidence;
+10. continue the workstream.
+
+A failed first attempt is not a stop condition.
+
+## Tool-use authority
+
+Within configured permissions the selected OpenCode worker should use:
+- read/list/glob/grep for repository discovery;
+- edit/write/apply-patch for authorized mutations;
+- bash for builds, tests, debugging and allowed Git inspection;
+- websearch/webfetch for current public technical or official Rules authority;
+- LSP for code intelligence;
+- skills for project workflows;
+- task/subagent calls for bounded exploration, technical adjudication and fresh-context
+  review.
+
+An allowed tool should be used without asking the user for routine approval. An ask/deny
+result is a real boundary and must never be bypassed through shell wrappers, alternate
+spellings, indirect interpreters, another tool, or a different model.
+
+Push/merge/rebase/destructive operations, secrets and cross-worktree mutation remain
+subject to the repository permission/approval gates.
+
+## Executor handoff and parallelism
+
+Exactly one active writer owns one branch/worktree/mutation surface.
+
+Space Bunny and Muse may work sequentially on one workstream only after a persisted
+checkpoint records branch, HEAD/tree, state, validation and exact next action, and the
+first writer releases ownership. The second executor verifies those facts before editing.
+
+Parallel execution is allowed only on independent branches/worktrees/non-overlapping
+mutation surfaces or bounded read-only review.
+
+No automatic fallback exists between Space Bunny and Muse. Auth, quota, catalog, tool or
+child failure ends the selected run unless a later explicit operator action starts another
+profile.
+
+## Coordinator-only gates
+
+Return to Sol only for genuine:
+- ambiguous MTG Rules authority;
+- project-wide evidence/qualification-policy change;
+- shared architecture change;
+- Source-Truth hierarchy conflict;
+- material scope expansion;
+- cross-workstream ownership conflict;
+- Production Provider selection;
+- Architecture Freeze.
+
+Do not turn ordinary root-cause analysis or repair ordering into an authority gate.
+
+## Rules / evidence invariants
+
+Rules Core remains sole authority. No pilot/provider/adapter/harness helper may become a
+second hidden Rules Engine.
+
+Forbidden shortcuts remain forbidden: first/random/default choices, internal engine AI
+substitution, GUI defaults, silent skip, parent fallback, fabricated legal actions,
+requested-option filtering that reconstructs legality, expected-outcome selection and
+manual outcome injection.
+
+UNKNOWN is not PASS. PARTIAL is not FULL. NOT_RUN is not PASS. CODE_DERIVED is not
+RUNTIME_VERIFIED. Green CI is not automatic qualification.
+
+Historical PASS survives relevant code/pin/contract/harness/semantic change only after
+impact adjudication and required requalification.
+
+## Privacy
+
+Both OpenCode executors may use project-relevant technical data and explicitly allowed MTG
+deck/card/collection/ownership/gameplay data. Do not intentionally expose unrelated
+private data. Raw credentials/keys/tokens are LOCAL_ONLY and must never enter prompts,
+logs, evidence, commits or handoffs.
+
+## Completion
+
+Semantic completion applies to both execution profiles:
+
+inspect → reason → tool-use → implement → build/test → diagnose → repair → retest →
+validate → persist evidence → adversarial self-review → handoff.
+
+Stop only at COMPLETE or a genuine Source / Authority / Scope / Ownership / Permission /
+unobtainable-external-information gate.
+
+`ARCHITECTURE_FREEZE = NOT CLAIMED`
+`PRODUCTION_PROVIDER = NOT SELECTED`

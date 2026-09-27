@@ -14,9 +14,12 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.
 2. OpenCode Foundry — primary execution tier with one explicit executor per run:
-   - default `muse`: `opencode-go/muse-spark-1.3-contributor`;
-   - operator-selected `space-bunny`: `opencode-go/space-bunny-free`, pinned to native
-     `max` reasoning by the run-specific injected config.
+   - preferred for new substantial work: `space-bunny` =
+     `opencode-go/space-bunny-free`, pinned to native `max` reasoning by the
+     run-specific injected config;
+   - committed/default and fully supported alternate: `muse` =
+     `opencode-go/muse-spark-1.3-contributor`, retained for reproducibility,
+     continuation and deliberate cross-model review.
 3. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
 Executor choice is explicit and auditable. The launcher never changes model because of
@@ -59,19 +62,24 @@ changed and qualified.
 ## Technical decision authority
 
 Authoritative model:
-`docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md`. Summary:
+`docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`. Summary:
 
-- Muse HIGH: autonomous bounded engineering execution plus ordinary local technical
-  decisions inside the workstream contract. Agents: `foundry-implementer`.
-- Muse XHIGH: autonomous difficult engineering plus technical adjudication
-  (root-cause class, first-failing boundary, evidence provenance, repair DAG)
-  within already-defined project policy. Agents: `foundry-adjudicator`
-  (read/test-first, narrower mutation permissions than the implementer).
+- Space Bunny MAX: preferred new-work execution profile. Autonomous implementation,
+  debugging, qualification, evidence generation, tool use and technical decisions
+  within the bounded workstream contract. Native reasoning remains `max`.
+- Muse HIGH/XHIGH: fully supported alternate/continuation execution profile. HIGH owns
+  ordinary bounded engineering; XHIGH owns difficult nonlocal technical adjudication
+  within already-defined policy.
 - Sol High: final authority only for project-wide evidence-semantics or
   qualification-policy changes, ambiguous MTG Rules interpretation, new shared
   Rules/Decision architecture, cross-workstream authority conflicts, material scope
   expansion, Source-Truth hierarchy changes, Rules-authority-boundary changes,
   Production Provider selection, and Architecture Freeze.
+
+Both OpenCode profiles use the same Rules/Evidence/Privacy/Semantic-Completion policy.
+Neither profile is a lower-authority coding assistant: each must use available tools,
+investigate root causes, repair in-scope defects, test, validate, persist evidence and
+continue autonomously until COMPLETE or a genuine authority/permission/source gate.
 
 A technical decision is never an authority decision. Only genuine authority-policy
 questions become `AUTHORITY_GATE`. HIGH→XHIGH escalation is not failure.
@@ -80,7 +88,7 @@ questions become `AUTHORITY_GATE`. HIGH→XHIGH escalation is not failure.
 
 Work is forbidden for ordinary tasks the normal paths can perform. Before any Work
 use, record `WORK_NECESSITY = PASS` or `FAIL`. PASS requires: the exact missing
-capability is identified; normal Sol High cannot perform it; OpenCode+Muse cannot
+capability is identified; normal Sol High cannot perform it; neither supported OpenCode Foundry executor can
 perform it; the capability is genuinely required; the assignment is the smallest
 possible operation. Otherwise `WORK_NECESSITY = FAIL` and Work must not be used.
 
