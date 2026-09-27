@@ -1337,5 +1337,68 @@ def test_multi_surface_launch_fails_before_child_when_secondary_lock_held(
         held.release()
 
 
+def test_cross_workspace_launch_is_wrapped_in_landlock(
+    target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _, _, spec = _workspace_surface(tmp_path)
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    captured: list[list[str]] = []
+    real_run = subprocess.run
+
+    def child(args, **kwargs):
+        if args[0] == "git":
+            return real_run(args, **kwargs)
+        captured.append(list(args))
+        return subprocess.CompletedProcess(args, 0)
+
+    monkeypatch.setattr(launcher_mod.subprocess, "run", child)
+    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 0
+    assert len(captured) == 1
+    argv = captured[0]
+    assert argv[0] == sys.executable
+    assert argv[1].endswith("tools/foundry/fs_sandbox.py")
+    assert "--allow-write" in argv
+    assert str(target["wt"]) in argv
+    assert spec["root"] in argv
+    assert "--" in argv
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Landlock is Linux-only")
+def test_landlock_wrapper_blocks_out_of_scope_write(tmp_path: Path) -> None:
+    allowed = tmp_path / "allowed"
+    blocked = tmp_path / "blocked"
+    allowed.mkdir()
+    blocked.mkdir()
+    wrapper = TOOLS / "fs_sandbox.py"
+    code = (
+        "from pathlib import Path; "
+        f"Path({str(allowed / 'ok.txt')!r}).write_text('ok'); "
+        "blocked=False; "
+        f"\ntry:\n Path({str(blocked / 'no.txt')!r}).write_text('no')\n"
+        "except PermissionError:\n blocked=True\n"
+        "raise SystemExit(0 if blocked else 9)"
+    )
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(wrapper),
+            "--allow-write",
+            str(allowed),
+            "--",
+            sys.executable,
+            "-c",
+            code,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert (allowed / "ok.txt").read_text(encoding="utf-8") == "ok"
+    assert not (blocked / "no.txt").exists()
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
