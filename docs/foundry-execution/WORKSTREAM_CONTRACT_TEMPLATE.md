@@ -57,7 +57,7 @@ Declare additional project surfaces explicitly:
 - FOREIGN_ACTIVE: read-only; never take writer ownership.
 - UNKNOWN_OWNER: read-only / fail closed for mutation.
 
-A cross-WS assignment may own N writable surfaces only when each is explicitly contracted and verified. Undeclared sibling worktrees are not writable.
+A cross-WS assignment may own N writable surfaces only when each is explicitly contracted and verified. Undeclared sibling worktrees are not writable. Cross-WS launch additionally requires the Linux Landlock write boundary; absence/failure is a hard launch gate.
 
 [list exact roots / branch / access / ownership / state path]
 
