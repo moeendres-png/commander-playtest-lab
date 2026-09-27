@@ -207,7 +207,8 @@ def test_safe_push_emits_metrics(tmp_path: Path) -> None:
         "lock.acquire(); "
         f"p = subprocess.run([sys.executable, {str(ROOT / 'tools' / 'foundry' / 'safe_push.py')!r}, "
         "'--worktree', sys.argv[1], '--expected-branch', 'project/m', "
-        "'--state', sys.argv[2], '--expected-slug', 'slug-here', "
+        "'--state', sys.argv[2], '--expected-slug', 'slug-here/r', "
+        "'--allow-local-path-target', "
         "'--dry-run', '--metrics', sys.argv[3]], capture_output=True, text=True); "
         "sys.stdout.write(p.stdout); sys.stderr.write(p.stderr); "
         "lock.release(); sys.exit(p.returncode)"
@@ -320,8 +321,11 @@ def test_push_reject_redacts_credentialed_remote(
     rc = safe_push_mod.safe_push(str(wt), "project/x", str(state_path), "origin", "no-such-slug")
     assert rc == 2
     captured = capsys.readouterr()
+    # WS241: reject reasons carry no URL material at all (stronger than the
+    # old redacted-URL echo): neither credentials, userinfo, nor host/path.
     assert "s3cret-token" not in captured.err
-    assert "<redacted>@" in captured.err
+    assert "user@" not in captured.err
+    assert "github.com/other/repo" not in captured.err
 
 
 def test_session_stats_ignores_secret_shaped_content(tmp_path: Path) -> None:
