@@ -67,7 +67,14 @@ def test_start2_successor_matches_cr1038a_shape_and_new_digest() -> None:
     assert "draw_step_started:P1:turn1" in record["expected_events"]["forbidden_events"]
     assert "draw_step_draw:P1:turn1" in record["expected_events"]["forbidden_events"]
     assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
-    assert resolver.requested_state_digest(record) == "f9a753ae652f0f84830308f585d339f49cdf40a8115c091615f67c4beb72b6f2"
+    assert resolver.requested_state_digest(record) == "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342"
+    assert "RSP" not in record["knowledge_state"]["channel_policy"]
+    assert record["knowledge_state"]["channel_policy"].startswith(
+        "Current candidate-neutral qualification-boundary"
+    )
+    for stale_key in ("materialization_digest", "obligation_digest", "supersedes_record_digest"):
+        assert stale_key not in record
+        assert stale_key in record["historical_digests"]
 
 
 def test_successor_overlay_does_not_mutate_other_records() -> None:
