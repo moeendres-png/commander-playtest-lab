@@ -58,7 +58,6 @@ import argparse
 import hashlib
 import json
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -285,9 +284,7 @@ def _validate_cross_ws_topology(
 
     writable = {os.path.realpath(primary)}
     writable.update(
-        os.path.realpath(spec["root"])
-        for spec in access
-        if spec.get("access") == "owned-write"
+        os.path.realpath(spec["root"]) for spec in access if spec.get("access") == "owned-write"
     )
     readonly = {
         os.path.realpath(ref["root"]) for ref in refs
@@ -1155,10 +1152,7 @@ def _revalidate_locked_surfaces(
             )
         reasons = workspace_access_mod.verify(spec)
         if reasons:
-            return (
-                f"owned-write surface {spec.get('label')!r} changed after init: "
-                f"{reasons[0]}"
-            )
+            return f"owned-write surface {spec.get('label')!r} changed after init: {reasons[0]}"
     return None
 
 
