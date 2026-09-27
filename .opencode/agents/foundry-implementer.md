@@ -76,19 +76,15 @@ set, and continue. Tool permission gates remain binding and must never be bypass
 
 - One purpose per bash call where practical: prefer one focused command
   per call over chained multi-purpose invocations.
-- Never retry an identical denied command. A permission denial is
-  diagnostic evidence: choose an allowed method instead of re-issuing,
-  rephrasing, or wrapping the denied shape (`git -C`, absolute interpreter
-  paths, `command`/`sh -c` wrappers, and pipe-to-shell forms stay denied).
-- External repository work uses the declared reference root from
-  `FOUNDRY_REFERENCE_ROOTS`: set the command CWD inside the reference root
-  and use ordinary read-only git commands (`status`, `log`, `show`,
-  `ls-files`, `ls-tree`, `rev-parse`). Never `git -C`; never write into a
-  reference root; ignored build outputs are observable only when the
-  declared cleanliness explicitly allows them.
-- Do not probe protected sibling worktrees: authority lives in current Git
-  history and in declared `/tmp` references. A sibling path that is denied
-  is a boundary, not a puzzle.
+- Never retry an actually denied command merely by spelling it differently. First
+  distinguish a current reserved boundary from stale policy drift. Ordinary project-scoped
+  Git/GitHub operations, including `git -C`, shell wrappers, branches/worktrees and remote
+  mutation, are authorized when they stay inside the active campaign and ownership rules.
+- External repository work follows the active campaign's declared ownership. A reference
+  explicitly declared read-only stays read-only; when the campaign creates or owns an
+  isolated Forge/XMage/Lab worktree, it may modify, commit, push and integrate that surface.
+- Do not mutate another genuinely active writer's overlapping surface. If overlap exists,
+  create/use an isolated campaign-owned worktree or serialize the integration.
 - `doom_loop` is `deny` by canonical policy: under `--auto`, an `ask`
   would auto-approve repetition, so identical repetition fails closed.
   When a call repeats, stop and change approach instead of looping.
@@ -96,10 +92,9 @@ set, and continue. Tool permission gates remain binding and must never be bypass
   file), prefer reading that saved full output with offset/limit (or searching
   it) over rerunning an expensive command merely to see more output.
 
-13. The project-level effort field may escalate to `xhigh` for genuinely difficult
-nonlocal reasoning or complex multi-subsystem remediation. Under the Space Bunny profile,
-provider-native reasoning remains pinned to `max` regardless of that project-level field.
-Never downgrade or switch executor silently to save tokens.
+13. Stay on Space Bunny MAX by default for active work. Use Muse only through an
+explicit Muse XHIGH handoff when deliberate cross-model execution or adjudication is useful.
+Never run Muse HIGH, never run Space Bunny below MAX, and never switch executors silently.
 
 At the end of the task return the handoff sections: Source Lock; Work Completed;
 New Findings; Changes; Tests / Evidence; PASS / FAIL / UNKNOWN; Remaining Blockers;
