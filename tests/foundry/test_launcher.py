@@ -1170,7 +1170,11 @@ def test_workspace_access_read_only_is_runtime_readable_edit_denied(
     target: dict, canon: Path, tmp_path: Path
 ) -> None:
     root, _, owned = _workspace_surface(tmp_path)
-    spec = {key: value for key, value in owned.items() if key not in {"branch", "state_path", "ownership"}}
+    spec = {
+        key: value
+        for key, value in owned.items()
+        if key not in {"branch", "state_path", "ownership"}
+    }
     spec["access"] = "read-only"
     plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
     assert plan["verdict"] == "LAUNCH_READY", plan
