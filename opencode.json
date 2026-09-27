@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/muse-spark-1.3-contributor",
+  "model": "opencode-go/space-bunny-free",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -154,12 +154,13 @@
   "provider": {
     "opencode-go": {
       "whitelist": [
+        "space-bunny-free",
         "muse-spark-1.3-contributor"
       ],
       "models": {
-        "muse-spark-1.3-contributor": {
+        "space-bunny-free": {
           "options": {
-            "reasoningEffort": "high"
+            "reasoningEffort": "max"
           },
           "variants": {
             "none": {
@@ -177,7 +178,38 @@
             "medium": {
               "disabled": true
             },
-            "high": {},
+            "high": {
+              "disabled": true
+            },
+            "xhigh": {
+              "disabled": true
+            },
+            "max": {}
+          }
+        },
+        "muse-spark-1.3-contributor": {
+          "options": {
+            "reasoningEffort": "xhigh"
+          },
+          "variants": {
+            "none": {
+              "disabled": true
+            },
+            "off": {
+              "disabled": true
+            },
+            "minimal": {
+              "disabled": true
+            },
+            "low": {
+              "disabled": true
+            },
+            "medium": {
+              "disabled": true
+            },
+            "high": {
+              "disabled": true
+            },
             "xhigh": {}
           }
         }
@@ -186,7 +218,8 @@
   },
   "agent": {
     "build": {
-      "variant": "high"
+      "model": "opencode-go/space-bunny-free",
+      "variant": "max"
     }
   },
   "experimental": {
