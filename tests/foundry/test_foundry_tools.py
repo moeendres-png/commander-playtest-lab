@@ -337,6 +337,7 @@ def test_state_accepts_adjudication_extension_fields() -> None:
         {
             "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
             "current_reasoning_tier": "max",
+            "current_execution_model": "opencode-go/space-bunny-free",
             "hypotheses_rejected": ["harness-only cause"],
             "technical_decisions": [{"decision": "root cause is adapter", "evidence": "log1"}],
             "authority_gates": [],
@@ -351,9 +352,11 @@ def test_state_accepts_adjudication_extension_fields() -> None:
 def test_state_rejects_bad_tier_and_root_cause() -> None:
     state = _valid_state()
     state["current_reasoning_tier"] = "medium"
+    state["current_execution_model"] = "not/a-project-model"
     state["root_cause_class"] = "MAYBE_ENGINE"
     errors = state_mod.validate(state)
     assert any("current_reasoning_tier" in e for e in errors)
+    assert any("current_execution_model" in e for e in errors)
     assert any("root_cause_class" in e for e in errors)
 
 

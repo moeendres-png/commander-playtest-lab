@@ -860,6 +860,9 @@ def test_execution_model_identity(target, canon, execution_model, effort, model,
     assert context["execution"]["agent"] == agent
     assert context["execution"]["requested_effort"] == effort
     assert context["execution"]["effective_variant"] == effort
+    assert plan["_env"]["FOUNDRY_EXECUTION_MODEL"] == model
+    assert plan["_env"]["FOUNDRY_EXECUTION_LANE"] == execution_model
+    assert plan["_env"]["FOUNDRY_EFFORT"] == effort
     assert (canon / "opencode.json").read_bytes() == before
 
 

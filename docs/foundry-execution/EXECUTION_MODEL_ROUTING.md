@@ -63,6 +63,24 @@ A useful pattern is writer → read-only alternate-model reviewer → same write
 Cross-model agreement is not external Rules validation. Disagreement is resolved from
 source/runtime evidence or escalated to Sol only if it reaches a genuine authority gate.
 
+## Foundry launcher selection
+
+Preferred Bunny lane:
+
+```text
+--execution-model bunny --effort max
+```
+
+Muse lane:
+
+```text
+--execution-model muse --effort xhigh
+```
+
+The launcher exports the exact resolved identity as `FOUNDRY_EXECUTION_MODEL` and
+`FOUNDRY_EXECUTION_LANE`. Persist it at checkpoints; do not infer model identity from
+conversation history.
+
 ## Prompt header
 
 Every substantial OpenCode assignment should state:

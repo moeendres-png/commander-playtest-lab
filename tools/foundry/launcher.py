@@ -22,10 +22,10 @@ Injection (all officially supported, verified Checkpoint A):
   CWD is CPL. For engine CWDs the launcher FAILS CLOSED on reachable stale
   routing unless suppression is explicit.
 
-Effort: --effort must be high|xhigh (below-HIGH rejected). TUI sessions run
-the HIGH implementer by config default; xhigh work routes to the
-foundry-adjudicator subagent (variant xhigh). The launcher records effort in
-telemetry and lock metadata; it invents no OpenCode flags.
+Execution model: --execution-model bunny|muse is explicit. Bunny requires --effort max;
+Muse requires --effort xhigh. Any mismatched or unknown lane/effort fails closed.
+The launcher binds the exact model-matched agent, records model/lane/effort in launch
+context and telemetry, and never silently falls back to another model or provider.
 
 WS75 hardening:
 
@@ -37,8 +37,8 @@ WS75 hardening:
 - Runtime telemetry lives under ``run_dir`` (outside the Git worktree);
   launcher execution leaves the worktree clean.
 - The exact ``--state`` path plus worktree/branch/workstream/run-dir/
-  mode/effort reach Muse as ``FOUNDRY_*`` env (no secrets) and as
-  ``run_dir/launch-context.json``.
+  mode/effort/execution-model reach the worker as ``FOUNDRY_*`` env (no secrets)
+  and as ``run_dir/launch-context.json``.
 - Declared read-only reference roots (``--reference`` JSON, repeatable)
   are verified at bootstrap and exposed as ``FOUNDRY_REFERENCE_ROOTS``.
 - The installed OpenCode CLI must equal the canonical qualified version
@@ -408,7 +408,7 @@ def resolve_environment(
     execution_model: str | None = None,
 ) -> dict:
     """Build the child environment. Raises ValueError fail-closed."""
-    execution_identity(execution_provider, effort, execution_model)
+    execution = execution_identity(execution_provider, effort, execution_model)
     canonical = Path(canonical_root)
     if not (canonical / "opencode.json").is_file() or not (canonical / "AGENTS.md").is_file():
         raise ValueError(f"canonical root {canonical_root!r} lacks policy files")
@@ -440,6 +440,8 @@ def resolve_environment(
     env["FOUNDRY_BRANCH"] = branch
     env["FOUNDRY_SESSION"] = session
     env["FOUNDRY_EFFORT"] = effort
+    env["FOUNDRY_EXECUTION_MODEL"] = execution["model"]
+    env["FOUNDRY_EXECUTION_LANE"] = execution["execution_model"]
     # WS75 state-path context, hardened by ROOT_STATE_SEMANTICS: the exact
     # explicit launcher state path is mandatory. There is no implicit active
     # repository-root state and no silent fallback, so the worker never guesses

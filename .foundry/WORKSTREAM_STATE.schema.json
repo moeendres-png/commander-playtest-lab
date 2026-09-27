@@ -236,6 +236,15 @@
     "exact_next_action": {
       "type": "string",
       "minLength": 1
+    },
+    "current_execution_model": {
+      "type": "string",
+      "enum": [
+        "opencode-go/space-bunny-free",
+        "opencode-go/muse-spark-1.3-contributor",
+        "opencode/muse-spark-1.3-contributor-free"
+      ],
+      "description": "Exact execution-model identity at the latest persisted checkpoint; optional for historical states."
     }
   },
   "additionalProperties": false

@@ -108,6 +108,11 @@ FAILURE_CLASSES = {
 }
 
 REASONING_TIERS = {"high", "xhigh", "max"}
+EXECUTION_MODELS = {
+    "opencode-go/space-bunny-free",
+    "opencode-go/muse-spark-1.3-contributor",
+    "opencode/muse-spark-1.3-contributor-free",
+}
 
 
 def _git(args: list[str], cwd: str) -> str:
@@ -137,6 +142,9 @@ def _check_common(data: dict, errors: list[str], sha_fields: list[str]) -> None:
     tier = data.get("current_reasoning_tier")
     if tier is not None and tier not in REASONING_TIERS:
         errors.append(f"bad current_reasoning_tier: {tier!r}")
+    execution_model = data.get("current_execution_model")
+    if execution_model is not None and execution_model not in EXECUTION_MODELS:
+        errors.append(f"bad current_execution_model: {execution_model!r}")
     for field in ("technical_decision_authority", "first_failing_boundary", "next_action"):
         if field in data and data[field] is not None and not str(data[field]).strip():
             errors.append(f"{field} must be a non-empty string when present")

@@ -52,6 +52,7 @@ The launcher injects exact run context as `FOUNDRY_*` environment plus
   context). Keep runtime outputs here, never inside the Git worktree.
 - `FOUNDRY_MODE` — `writer` (this session) or `reader` (audit-only).
 - `FOUNDRY_EFFORT` — `max` for Space Bunny. Keep MAX throughout the run; route read/test-first technical adjudication to `foundry-adjudicator` without lowering effort.
+- `FOUNDRY_EXECUTION_MODEL` / `FOUNDRY_EXECUTION_LANE` — launcher-verified execution identity. At every material checkpoint, persist `current_execution_model` from this exact value and `current_reasoning_tier` from `FOUNDRY_EFFORT`; never infer either from chat history.
 - `FOUNDRY_REFERENCE_ROOTS` — JSON list of verified read-only reference
   roots (label/root/slug/commit/tree/cleanliness), if the run declares any.
 
