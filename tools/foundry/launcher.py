@@ -497,7 +497,8 @@ def resolve_environment(
     source_roots = {
         os.path.realpath(ref.get("source_root", ref["root"])) for ref in references
     } | {
-        os.path.realpath(spec.get("source_root", spec["root"])) for spec in workspace_access
+        os.path.realpath(spec.get("source_root", spec["root"]))
+        for spec in workspace_access
     }
     for root in sorted(source_roots):
         for pattern in static_denies_only:
@@ -830,6 +831,7 @@ def init(
         "run_dir": run_dir,
         "state_path": resolved_state,
         "worktree_states": state_map,
+        "references": public_refs,
         "workspace_access": public_access,
         "opencode_binary": binary,
         "opencode_version": version,
