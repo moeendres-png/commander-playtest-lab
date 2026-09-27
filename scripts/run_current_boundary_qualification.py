@@ -48,6 +48,7 @@ from commander_lab.qualification.current_boundary import (  # noqa: E402
     run_af01,
     start2_row,
 )
+from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
 from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
     HIDDEN_SCENARIO_ROWS,
     NATIVE_MICRO_ROWS,
@@ -57,10 +58,37 @@ from commander_lab.qualification.current_boundary.full107 import (  # noqa: E402
 )
 
 OUT_DIR = REPO_ROOT / "qualification" / "final-current-boundary-20260927"
+# Execution receipts live beside the evidence they justify. The assembler reads
+# only what is persisted here, so an unexecuted suite can never be credited.
+RECEIPT_DIR = OUT_DIR / "receipts"
 FORGE_WORKSPACE = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
+
 
 # Native harness suites that bind FULL107 fixture ids. Each entry is executed
 # fresh in this workstream; historical PASS is never transferred.
+def _native_identity(candidate: str) -> dict[str, str]:
+    """Exact engine identity for a native suite, resolved live from the checkout.
+
+    A receipt must be able to name the candidate it actually ran, so the commit
+    and tree are read from the suite's own root rather than asserted.
+    """
+    if candidate == "xmage":
+        return {
+            "repository": "https://github.com/moeendres-png/mage",
+            "expected_engine_commit": XMAGE_CANDIDATE_COMMIT,
+            "build_identity": json.dumps(
+                {"lab_adapter": "engine-bridge", "lane": "maven-surefire"}
+            ),
+        }
+    return {
+        "repository": "https://github.com/moeendres-png/forge",
+        "expected_engine_commit": FORGE_CANDIDATE_COMMIT,
+        "build_identity": json.dumps(
+            {"bridge": "forge-protocol2-bridge", "lane": "maven-surefire"}
+        ),
+    }
+
+
 NATIVE_SUITE_BINDING = {
     "xmage": {
         "root": REPO_ROOT / "engine-bridge",
@@ -156,6 +184,14 @@ def git(*args: str, cwd: Path | None = None) -> str:
     ).stdout.strip()
 
 
+for _candidate in NATIVE_SUITE_BINDING:
+    NATIVE_SUITE_BINDING[_candidate].update(_native_identity(_candidate))
+    NATIVE_SUITE_BINDING[_candidate]["engine_tree"] = (
+        git("rev-parse", "HEAD^{tree}", cwd=NATIVE_SUITE_BINDING[_candidate]["root"])
+        or "UNCONFIGURED"
+    )
+
+
 def runtime_identity(candidate: str) -> dict[str, Any]:
     """Exact runtime identity for every row produced in this workstream."""
     base = {
@@ -186,26 +222,88 @@ def runtime_identity(candidate: str) -> dict[str, Any]:
     return base
 
 
-def run_native_suite(candidate: str, group: str) -> dict[str, Any]:
-    """Execute a native harness suite fresh under this boundary."""
+def run_native_suite(
+    candidate: str, group: str, *, runner: receipt_mod.RunnerIdentity
+) -> dict[str, Any]:
+    """Execute a native harness suite fresh and persist a receipt for it.
+
+    This used to be dead code: the assembler consumed a hand-written literal, so
+    rows and AF10 could be credited from text rather than from an observed run.
+    It is now on the execution path, and it refuses to run unless the executing
+    qualification code is committed and clean - otherwise the receipt would name a
+    provenance the executing bytes do not have.
+
+    The receipt records the exact command, candidate repository, commit, tree,
+    build identity, wall-clock window, return code, test/pass/fail/error/skip
+    counts, environment identity, the bound runner identity and a content digest.
+    """
+    receipt_mod.require_clean_runner(runner)
     spec = NATIVE_SUITE_BINDING[candidate]
+    # Resolve the executing engine head from the suite's own checkout and refuse
+    # to proceed when it is not the recorded candidate. This is what surfaced the
+    # ef958ee9-recorded / 18bba95a-executed divergence.
+    actual_engine_commit = git("rev-parse", "HEAD", cwd=spec["root"])
+    receipt_mod.verify_candidate_identity(
+        recorded_commit=spec["expected_engine_commit"],
+        actual_commit=actual_engine_commit,
+        recorded_label=f"native suite {candidate}:{group}",
+    )
     tests = ",".join(spec["classes"][group])
     argv = [item.replace("{tests}", tests) for item in spec["argv"]]
+    started = receipt_mod._now()
     completed = subprocess.run(
         argv, cwd=str(spec["root"]), capture_output=True, text=True, check=False, timeout=7200
     )
     text = completed.stdout + completed.stderr
-    return {
-        "candidate": candidate,
-        "group": group,
-        "command": " ".join(argv),
-        "cwd": str(spec["root"]),
-        "returncode": completed.returncode,
-        "classes": spec["classes"][group],
-        "result_lines": [line.strip() for line in text.splitlines() if "Tests run:" in line][-12:],
-        "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
-        "note": "executed now; historical PASS is not transferred",
-    }
+    try:
+        summary = receipt_mod.parse_maven_summary(text)
+    except receipt_mod.ReceiptError as exc:
+        # A suite with no parseable summary cannot be credited. The failure is
+        # still recorded so the run stays auditable.
+        print(f"native suite {candidate}:{group}: {exc}")
+        summary = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
+    receipt_mod.verify_runner_unchanged(REPO_ROOT, runner)
+    receipt = receipt_mod.NativeSuiteReceipt(
+        candidate=candidate,
+        group=group,
+        command=" ".join(argv),
+        candidate_repository=spec.get("repository", "UNCONFIGURED"),
+        candidate_commit=spec["expected_engine_commit"],
+        candidate_tree=spec.get("engine_tree", "UNCONFIGURED"),
+        build_identity=json.dumps(spec.get("build_identity", {}), sort_keys=True),
+        started_utc=started,
+        ended_utc=receipt_mod._now(),
+        returncode=completed.returncode,
+        tests=summary["tests"],
+        passed=max(
+            0, summary["tests"] - summary["failures"] - summary["errors"] - summary["skipped"]
+        ),
+        failed=summary["failures"],
+        errors=summary["errors"],
+        skipped=summary["skipped"],
+        environment=receipt_mod.environment_identity(),
+        runner=runner,
+        classes=tuple(spec["classes"][group]),
+    )
+    document = receipt.to_document()
+    document["result_lines"] = [line.strip() for line in text.splitlines() if "Tests run:" in line][
+        -12:
+    ]
+    document.pop("receipt_digest", None)
+    document["receipt_digest"] = receipt_mod._digest(document)
+    path = RECEIPT_DIR / f"native-{candidate}-{group}.json"
+    receipt_mod.persist(path, document)
+    print(f"native receipt {candidate}:{group} -> {path.name} rc={completed.returncode}")
+    return document
+
+
+def run_all_native_suites(runner: receipt_mod.RunnerIdentity) -> list[dict[str, Any]]:
+    """Execute every bound native suite; return only the persisted receipts."""
+    receipts: list[dict[str, Any]] = []
+    for candidate in ("xmage", "forge"):
+        for group in NATIVE_SUITE_BINDING[candidate]["classes"]:
+            receipts.append(run_native_suite(candidate, group, runner=runner))
+    return receipts
 
 
 def write(name: str, payload: Any) -> None:
