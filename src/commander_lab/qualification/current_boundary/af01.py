@@ -8,8 +8,12 @@ capability is recorded as missing rather than promoted.
 
 from __future__ import annotations
 
+import io
+import re
+import tokenize
 import uuid
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from .bridge_launcher import BridgeProcess
@@ -144,6 +148,79 @@ def _fails_closed(response: dict[str, Any]) -> bool:
     return _status(response) in _FAIL_CLOSED_VERDICT or response.get("success") is False
 
 
+# Patterns that would indicate a second, harness-side source of legality. Their
+# presence in bound source is a failure of the single-Rules-authority invariant.
+LEGALITY_RECONSTRUCTION_PATTERNS: tuple[tuple[str, str], ...] = (
+    (r"\bfirst_option\b", "first-option selection"),
+    (r"\brandom_option\b", "random-option selection"),
+    (r"\bdefault_yes\b", "default yes/no selection"),
+    (r"\brequested_options\b", "requested-option filtering"),
+    (r"\bfabricate_legal\w*", "fabricated legal actions"),
+    (r"\bchoose_legal\w*", "harness-side legality choice"),
+    (r"\binvent_legal\w*", "invented legal actions"),
+)
+
+
+def _code_lines(source: str) -> list[tuple[int, str]]:
+    """Return (lineno, code) for real code only, with comments and strings blanked.
+
+    A policy scan must not fire on the very documentation that states the
+    policy, nor on a forbidden name that only ever appears in a docstring or
+    comment. Tokenizing and blanking every COMMENT and STRING token makes the
+    scan about code rather than about prose. Line numbers are preserved so a hit
+    stays actionable, and unparsable source falls back to raw lines rather than
+    silently passing.
+    """
+    try:
+        tokens = list(tokenize.generate_tokens(io.StringIO(source).readline))
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        return list(enumerate(source.splitlines(), start=1))
+    lines = [list(line) for line in source.splitlines()]
+    for tok in tokens:
+        if tok.type not in (tokenize.COMMENT, tokenize.STRING):
+            continue
+        (row, col), (end_row, end_col) = tok.start, tok.end
+        for line_no in range(row, end_row + 1):
+            index = line_no - 1
+            if not 0 <= index < len(lines):
+                continue
+            line = lines[index]
+            start = col if line_no == row else 0
+            stop = end_col if line_no == end_row else len(line)
+            for offset in range(start, min(stop, len(line))):
+                line[offset] = " "
+    return [(number, "".join(line)) for number, line in enumerate(lines, start=1)]
+
+
+def observe_no_legality_reconstruction(runner_root: Path) -> dict[str, Any]:
+    """Scan the executing runner for a second source of legality.
+
+    This is a real observation, not an assertion: it reads the bound source that
+    is about to produce evidence and reports exactly what it found. A previously
+    unconditional PASS is now derived from this scan, and the scan result is
+    carried as evidence so the verdict is auditable. Absence of a pattern is
+    weaker than presence of correct behaviour, so the detail says so.
+    """
+    hits: list[dict[str, str]] = []
+    scanned: list[str] = []
+    for rel in sorted(
+        p.relative_to(runner_root).as_posix()
+        for p in (runner_root / "src/commander_lab/qualification/current_boundary").rglob("*.py")
+    ):
+        scanned.append(rel)
+        for lineno, code in _code_lines(
+            (runner_root / rel).read_text(encoding="utf-8", errors="replace")
+        ):
+            for pattern, label in LEGALITY_RECONSTRUCTION_PATTERNS:
+                if re.search(pattern, code):
+                    hits.append({"file": rel, "line": str(lineno), "pattern": label})
+    return {
+        "scanned_files": len(scanned),
+        "hits": hits,
+        "complete": bool(scanned),
+    }
+
+
 def run_af01(
     proc: BridgeProcess,
     *,
@@ -151,8 +228,23 @@ def run_af01(
     expected_commit: str,
     runner_commit: str,
     runner_tree: str,
+    game_id: str | None = None,
+    runner_root: Path | None = None,
 ) -> AF01Report:
-    """Execute the AF01 v2 invariants against a live candidate bridge."""
+    """Execute the AF01 v2 invariants against a live candidate bridge.
+
+    ``game_id`` must name a live game. Decision-time invariants are only
+    credited against a real game: a provider asked to fail closed on a
+    submission for a game that does not exist will refuse for reasons that have
+    nothing to do with decision-time legality, so crediting that as evidence
+    would be a pass for the wrong reason.
+    """
+    game_bound = bool(game_id)
+    if not game_bound:
+        raise ValueError(
+            "run_af01 requires a live game_id. Decision-time invariants must be "
+            "observed against a real game or they are UNKNOWN, not PASS."
+        )
     results: list[InvariantResult] = []
 
     def add(name: str, verdict: str, detail: str, evidence: dict[str, Any] | None = None) -> None:
@@ -328,12 +420,34 @@ def run_af01(
         legacy_used = legacy.get("success") is True
     except Exception as exc:
         alias_evidence["engine_hello_error"] = str(exc)
+    # This used to be an unconditional PASS asserting AF01's own accounting.
+    # It is now derived from the data actually used: credit-bearing payloads are
+    # the canonical protocol-2 responses, so the invariant holds only if the
+    # legacy alias response is absent from them and the probe actually ran.
+    alias_in_credit = "engine_hello" in payloads
+    alias_probed = "engine_hello" in alias_evidence or "engine_hello_error" in alias_evidence
+    if not alias_probed:
+        alias_verdict = "UNKNOWN"
+        alias_detail = "the legacy alias was never probed, so its exclusion is unproven"
+    elif alias_in_credit:
+        alias_verdict = "FAIL"
+        alias_detail = "a legacy alias response reached the credit-bearing payload set"
+    else:
+        alias_verdict = "PASS"
+        alias_detail = (
+            "the legacy alias handshake was probed and its response recorded, and the "
+            "credit-bearing payload set contains only the canonical protocol-2 responses"
+        )
     add(
         "legacy_alias_handshake_not_accepted",
-        "PASS",
-        "AF01 credit was taken only from the canonical protocol-2 messages; any legacy alias "
-        "response observed during probing was recorded but never used for credit",
-        {"legacy_alias_responded": legacy_used, **alias_evidence},
+        alias_verdict,
+        alias_detail,
+        {
+            "legacy_alias_responded": legacy_used,
+            "legacy_alias_in_credit_set": alias_in_credit,
+            "credit_bearing_messages": sorted(payloads),
+            **alias_evidence,
+        },
     )
 
     # --- fail-closed invariants ----------------------------------------
@@ -357,48 +471,61 @@ def run_af01(
         unknown,
     )
 
+    # Decision-time probes are scoped to the live game. Actor identity is
+    # carried alongside the action so a provider cannot satisfy them by treating
+    # the request as malformed for an unrelated reason.
     illegal = proc.request(
-        "submit_action", {"actor": "P1", "legal_action_id": "wsr22-not-a-real-option"}
+        "submit_action",
+        {
+            "game_id": game_id,
+            "actor": "P1",
+            "legal_action_id": "wsr22-not-a-real-option",
+        },
+        game_id=game_id,
     )
     add(
         "fail_closed_illegal_action",
         "PASS" if _fails_closed(illegal) else "FAIL",
-        "provider rejected an unrecognised legal_action_id"
+        "provider rejected an unrecognised legal_action_id for a live game"
         if _fails_closed(illegal)
-        else "provider accepted an unrecognised legal_action_id",
-        illegal,
+        else "provider accepted an unrecognised legal_action_id for a live game",
+        {"game_id": game_id, "response": illegal},
     )
 
     stale = proc.request(
         "submit_action",
         {
+            "game_id": game_id,
             "actor": "P1",
             "legal_action_id": "wsr22-not-a-real-option",
             "decision_id": "wsr22-stale-decision-id",
         },
+        game_id=game_id,
     )
     add(
         "fail_closed_stale_or_unknown_decision",
         "PASS" if _fails_closed(stale) else "FAIL",
-        "provider rejected an unknown decision identity"
+        "provider rejected an unknown decision identity for a live game"
         if _fails_closed(stale)
-        else "provider accepted an unknown decision identity",
-        stale,
+        else "provider accepted an unknown decision identity for a live game",
+        {"game_id": game_id, "response": stale},
     )
 
     unsupported = proc.request(
         "get_legal_actions",
         {
+            "game_id": game_id,
             "decision_class": "wsr22_unsupported_decision_class",
         },
+        game_id=game_id,
     )
     add(
         "fail_closed_unsupported_decision",
         "PASS" if _fails_closed(unsupported) else "FAIL",
-        "an unsupported decision class failed closed without a default option"
+        "an unsupported decision class failed closed for a live game without a default option"
         if _fails_closed(unsupported)
-        else "an unsupported decision class did not fail closed",
-        unsupported,
+        else "an unsupported decision class did not fail closed for a live game",
+        {"game_id": game_id, "response": unsupported},
     )
 
     # --- rules-authority invariants ------------------------------------
@@ -414,21 +541,65 @@ def run_af01(
         {"fabricated_options": len(illegal_invariants)},
     )
 
-    add(
-        "no_adapter_legality_reconstruction",
-        "PASS",
-        "the Lab qualification runner contains no legality reconstruction: it only transports "
-        "the request, reads the provider response, and classifies it",
-        {"runner_commit": runner_commit, "runner_tree": runner_tree},
-    )
-
-    add(
-        "no_fabricated_legal_options",
-        "PASS",
-        "no legal option is ever synthesised by the runner; option sets are only ever read "
-        "from get_legal_actions/get_capabilities payloads",
-        {"probe": "illegal action probe returned no options"},
-    )
+    # These two invariants were previously credited as unconditional PASS. They
+    # are now derived from an actual scan of the bound source, and the scan
+    # evidence is recorded so the verdict can be audited rather than trusted.
+    if runner_root is None:
+        add(
+            "no_adapter_legality_reconstruction",
+            "UNKNOWN",
+            "no bound runner source was supplied, so a second source of legality "
+            "cannot be excluded from evidence",
+            {"runner_commit": runner_commit, "runner_tree": runner_tree},
+        )
+        add(
+            "no_fabricated_legal_options",
+            "UNKNOWN",
+            "no bound runner source was supplied, so synthesis of legal options "
+            "cannot be excluded from evidence",
+            {"probe": "illegal action probe returned no options"},
+        )
+    else:
+        scan = observe_no_legality_reconstruction(runner_root)
+        hits = scan["hits"]
+        if not scan["complete"]:
+            verdict = "UNKNOWN"
+            detail = "the bound runner source could not be scanned, so the invariant is unproven"
+        elif hits:
+            verdict = "FAIL"
+            detail = (
+                "the bound runner source contains legality-reconstruction patterns: "
+                + ", ".join(sorted({str(hit["pattern"]) for hit in hits}))
+            )
+        else:
+            verdict = "PASS"
+            detail = (
+                f"a scan of {scan['scanned_files']} bound runner source files found no "
+                "legality-reconstruction pattern. This is absence of a second legality "
+                "source, which is weaker than positive demonstration, and it does not "
+                "extend to code outside the scanned path"
+            )
+        add(
+            "no_adapter_legality_reconstruction",
+            verdict,
+            detail,
+            {
+                "runner_commit": runner_commit,
+                "runner_tree": runner_tree,
+                "scan": scan,
+            },
+        )
+        add(
+            "no_fabricated_legal_options",
+            verdict,
+            "the same bound-source scan is the evidence; option sets are only ever "
+            "read from provider payloads, and the live illegal-action probe returned "
+            + ("no options" if not illegal_invariants else "options, which is a FAIL"),
+            {
+                "fabricated_options": len(illegal_invariants),
+                "scan": scan,
+            },
+        )
 
     seed_supported = capabilities.get("seed_supported")
     seed_payload = capabilities_payload.get("rules_seed_binding")

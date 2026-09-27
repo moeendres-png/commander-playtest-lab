@@ -86,12 +86,12 @@ def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:
     driver, which must pass the seed to the provider and derive control from the
     acknowledgement rather than from the request.
     """
-    driver = (
-        REPO / "src/commander_lab/qualification/current_boundary/game_driver.py"
-    ).read_text(encoding="utf-8")
-    receipts = (
-        REPO / "src/commander_lab/qualification/current_boundary/receipts.py"
-    ).read_text(encoding="utf-8")
+    driver = (REPO / "src/commander_lab/qualification/current_boundary/game_driver.py").read_text(
+        encoding="utf-8"
+    )
+    receipts = (REPO / "src/commander_lab/qualification/current_boundary/receipts.py").read_text(
+        encoding="utf-8"
+    )
 
     # Control is derived from an observed acknowledgement.
     assert "classify_seed_binding" in driver

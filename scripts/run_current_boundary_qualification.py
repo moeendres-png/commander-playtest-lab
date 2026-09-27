@@ -327,6 +327,35 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
     probes: dict[str, Any] = {}
 
     with launch(plan) as proc:
+        # ---- a real live game for the decision-time invariants -----------
+        # AF01's fail-closed decision probes were previously issued with no
+        # game at all. A provider asked to fail closed on a submission for a
+        # game that does not exist refuses for reasons unrelated to
+        # decision-time legality, so those results were passes for the wrong
+        # reason. Drive a real Commander game to its first priority decision
+        # and probe against that game instead.
+        af01_live = drive_commander_game(
+            proc,
+            candidate=candidate,
+            player_count=2,
+            seed=int(identity.get("af01_probe_seed", 20260927)),
+            drive_to="priority",
+        )
+        af01_game_id = af01_live.game_id
+        probes["af01_live_game"] = {
+            "game_id": af01_game_id,
+            "player_count": af01_live.player_count,
+            "steps_completed": list(af01_live.steps_completed),
+            "decisions_observed": len(af01_live.decision_tape),
+            "failure": af01_live.failure,
+        }
+        if af01_live.failure is not None or not af01_live.steps_completed:
+            raise SystemExit(
+                "AF01 requires a live game to probe decision-time invariants, and no live "
+                f"game was established: failure={af01_live.failure!r} "
+                f"steps={af01_live.steps_completed!r}. AF01 evidence is not produced."
+            )
+
         # ---- AF01 v2 -----------------------------------------------------
         af01 = run_af01(
             proc,
@@ -334,8 +363,18 @@ def execute_candidate(candidate: str, materialization) -> dict[str, Any]:
             expected_commit=plan.expected_engine_commit,
             runner_commit=identity["runner_commit"],
             runner_tree=identity["runner_tree"],
+            game_id=af01_game_id,
+            runner_root=REPO_ROOT,
         )
-        write(f"AF01_{candidate.upper()}.json", af01.to_document())
+        af01_doc = af01.to_document()
+        af01_doc["decision_probe_game"] = {
+            "game_id": af01_game_id,
+            "player_count": af01_live.player_count,
+            "steps_completed": list(af01_live.steps_completed),
+            "decisions_observed": len(af01_live.decision_tape),
+            "binding": "LIVE_GAME_REQUIRED_FOR_DECISION_TIME_INVARIANTS",
+        }
+        write(f"AF01_{candidate.upper()}.json", af01_doc)
         probes["af01_verdict"] = af01.verdict
 
         # ---- player cardinality 2P..5P (+ bounded 6P) --------------------
