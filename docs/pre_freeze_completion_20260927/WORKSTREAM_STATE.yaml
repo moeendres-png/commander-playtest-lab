@@ -175,5 +175,95 @@ validated_gates:
   WS17 manifest gate
 - FULL107 denominator preserved at exactly 107; no row removed or duplicated
 - Strict mypy, ruff, compileall, invariant audit, STATE_OK all clean
-validated_head: f9100650ab5e76b56c7d2ef475cd707e6e9b4f5e
+validated_head: 2a24180028f7dc88d8d863c5aba5562d58894e81
 worktree: /home/moeen/code/wsr22-successor-current-boundary
+evidence_integrity_remediation:
+  status: GATES_1_TO_9_IMPLEMENTED_AND_GREEN__GATES_10_11_AND_PB_OPEN
+  validated_head: 2a24180028f7dc88d8d863c5aba5562d58894e81
+  validated_tree: e5a439a0cdc053715282739ca585a06ef2c8fd8b
+  pre_remediation_checkpoint: b1a5c2b4095a831a28c699ae5111c0e6c2625918
+  branch: wsr22-successor/current-boundary-freeze-20260927
+  pr: 278
+  gates_closed:
+    gate_1_native_suite_receipts: DONE. New receipts module. run_native_suite was
+      dead code and is now on the execution path via run_all_native_suites. Every
+      suite writes a persisted, digested receipt naming exact command, candidate repo/commit/tree,
+      build identity, wall-clock window, return code, counts, environment and the
+      bound runner. No receipt, non-zero exit, reported failures or errors, wrong
+      schema, truncated, unparsable or digest-mismatched all yield NO_CREDIT.
+    gate_2_positive_fixture_receipts: DONE. Source-regex fixture promotion deleted
+      outright. positive_fixture_credit credits a fixture only from a positive receipt
+      with a real observed assertion. Adversarial coverage includes the exact HIDDEN_02
+      defect.
+    gate_3_seed_binding: 'DONE. The seed now reaches the authoritative create_commander_game
+      request and control is derived by classify_seed_binding from what the engine
+      acknowledged, never from caller intent. Two hard-coded engine_owned: true sites
+      found and fixed, in START-2 and in the player-cardinality row.'
+    gate_4_clean_runner_identity: 'DONE. The runner binds real commit, tree, branch,
+      dirty state and per-input digests before producing evidence and refuses to run
+      dirty. Confirmed to bite: an uncommitted tree fails the pilot toolchain test.'
+    gate_5_bridge_deadlines: DONE. The blocking readline that ignored timeout_s now
+      runs under a real wall-clock deadline via a bounded reader thread, because the
+      stream is a buffered TextIOWrapper whose fd readiness does not imply a complete
+      line. On expiry the child is terminated and reaped, TIMEOUT is recorded, and
+      BridgeTimeout is raised as a BridgeLaunchError subclass.
+    gate_6_af01_live_game: DONE. run_af01 requires a live game_id and raises rather
+      than downgrading. The runner drives a real Commander game to its first priority
+      decision and refuses to emit AF01 evidence if no live game exists. Three unobserved
+      invariants are now derived from a token-aware bound-source scan or are UNKNOWN.
+      A test fails the build on any literal PASS not under an if.
+    gate_7_start2_observed_state: DONE. START-2 no longer reads the fixture's required_events
+      to decide its verdict and no longer claims engine_owned. The driver observes
+      engine-reported principal-scoped zone counts after the skipped step, and the
+      row judges observed draw events, observed zone counts, the observed acting principal
+      and the absence of a draw checkpoint. Missing observations are UNKNOWN, not
+      PASS.
+    gate_8_af03_probed: DONE. AF03 was a literal PASS describing deck imports that
+      were never performed, with no artifact. A new af03 module runs five negative
+      deck-import probes against a live bridge with a legal control first, and derives
+      the verdict from the responses. The assembler reads the artifact and returns
+      UNKNOWN when absent; a test fails if any AF03 dict carries a literal PASS.
+    gate_9_hidden_information: DONE. The xmage package emitted every seat's real player_id,
+      plus the damage table, active_player_id and priority_player_id. New ActorSafeIdentity
+      masks every non-viewer principal as a seat-derived opaque token, applied to
+      the players array, damage rows, active/priority player, zone counts, game-result
+      outcomes and XmageGameManager.playerState. The token is seat-derived rather
+      than a salted hash because a per-session salt breaks semantic replay; the trade
+      is recorded in the class docstring.
+  gates_still_open:
+    gate_10_af02_lifecycle: OPEN. AF02 must be all-or-nothing; partial step credit
+      is still possible.
+    gate_11_semantic_equality: OPEN. PASS/PASS label comparison must become normalized
+      state comparison.
+  findings_recorded_not_yet_fixed:
+    third_forge_identity: The bound Forge native suites execute at 18bba95a4528f6ab5910633f1f87f603b8c4ddf8
+      (tree 56209bb72b84fc845ad00433b4471e723ecc8a01, the WSR20/WSR24 descendant),
+      while runtime_identity records ef958ee9. ef958ee9 is an ancestor, but ancestry
+      is not identity. This is PB-09's failure class reproduced in the Lab's own harness.
+      verify_candidate_identity now fails closed on the divergence and the runner
+      cross-checks recorded against executing before running a suite.
+  test_evidence_at_validated_head:
+  - 'pytest -q (clean tree at 2a241800): 1809 passed, 6 skipped, 0 failed'
+  - 'pytest tests/qualification -q: 183 passed, 3 skipped'
+  - 'mvn -o -f engine-bridge/pom.xml test: Tests run 322, Failures 0, Errors 0, Skipped
+    1'
+  - 'ruff check: All checks passed'
+  - 'ruff format --check: 1019 files already formatted'
+  - 'mypy src/commander_lab (strict): Success, no issues found in 272 source files'
+  honest_current_state:
+  - The historical FULL107 figures remain upper bounds, not measurements.
+  - No receipt directory exists yet, so the assembler currently yields zero fixture
+    credit and zero native-suite credit. That is the intended fail-closed behaviour,
+    not a regression.
+  - No AF03 artifact exists yet, so AF03 is UNKNOWN until a live probe runs.
+  - A full bound-source candidate qualification run has NOT been performed at this
+    head, so no current PASS count may be claimed for either candidate.
+  - PB-09 and PB-03 remain open. Provider comparison is not decision-grade.
+  - ARCHITECTURE_FREEZE = NOT CLAIMED. PRODUCTION_PROVIDER = NOT SELECTED.
+last_verified_summary: 'Evidence-integrity remediation gates 1-9 implemented, committed
+  and green on a clean tree at 2a241800. Python 1809 passed / 6 skipped / 0 failed;
+  Java bridge 322 tests, 0 failures. Gates 10 (AF02 all-or-nothing) and 11 (normalized
+  semantic equality) remain open, as do PB-09 and PB-03. No current candidate PASS
+  count exists yet: no receipt directory and no AF03 artifact exist, so the assembler
+  fails closed to zero credit. Pre-remediation checkpoint b1a5c2b4 preserved as the
+  parent of this work.'
