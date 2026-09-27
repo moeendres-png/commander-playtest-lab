@@ -298,7 +298,7 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         "workstream": "TEST-WS",
         "branch": "project/test",
         "audit_base_sha": target["base"],
-        "effort": "high",
+        "effort": "max",
         "mode": "writer",
         "session": "ses-t",
         "state_path": str(target["state"]),
@@ -325,11 +325,11 @@ def test_init_cpl_ready_with_dynamic_denies(target: dict, canon: Path) -> None:
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
     bundle = json.loads(env["OPENCODE_CONFIG_CONTENT"])
-    assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert bundle["model"] == "opencode-go/space-bunny-free"
     assert bundle["permission"]["bash"]["git push*"] == "deny"
     sib_deny = f"{target['wt'].parent / 'sib'}*"
     assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
-    assert env["FOUNDRY_EFFORT"] == "high"
+    assert env["FOUNDRY_EFFORT"] == "max"
     assert env["FOUNDRY_SESSION"] == "ses-t"
     assert len(env["FOUNDRY_CANONICAL_POLICY_HASH"]) == 64
     assert (Path(env["OPENCODE_CONFIG_DIR"]) / "agents" / "foundry-implementer.md").is_file()
@@ -466,9 +466,9 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         "sys.path.insert(0, os.environ['FOUNDARY_TOOLS'])\n"
         "from foundry import writer_lock\n"
         "bundle = json.loads(os.environ['OPENCODE_CONFIG_CONTENT'])\n"
-        "assert bundle['model'] == 'opencode-go/muse-spark-1.3-contributor', 'model lock missing'\n"
+        "assert bundle['model'] == 'opencode-go/space-bunny-free', 'model lock missing'\n"
         "assert bundle['permission']['bash']['git push*'] == 'deny', 'deny lock missing'\n"
-        "assert os.environ.get('FOUNDRY_EFFORT') == 'xhigh', 'effort missing'\n"
+        "assert os.environ.get('FOUNDRY_EFFORT') == 'max', 'effort missing'\n"
         "assert os.path.isdir(os.environ['OPENCODE_CONFIG_DIR']), 'config dir missing'\n"
         "lock = writer_lock.WriterLock(os.environ['FOUNDARY_WT'], 'INTRUDER', 'project/test', '')\n"
         "try:\n"
@@ -481,7 +481,7 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         encoding="utf-8",
     )
     stub.chmod(0o755)
-    plan = _plan(target, canon, effort="xhigh", opencode_bin=str(stub))
+    plan = _plan(target, canon, effort="max", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
     env["FOUNDARY_TOOLS"] = str(ROOT / "tools")
@@ -489,7 +489,7 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
     env["FOUNDRY_LOCK_DIR"] = str(target["locks"])
     os.environ["FOUNDRY_LOCK_DIR"] = str(target["locks"])
     try:
-        rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "xhigh")
+        rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "max")
     finally:
         del os.environ["FOUNDRY_LOCK_DIR"]
     assert rc == 7
@@ -500,7 +500,7 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
     records = [json.loads(line) for line in metrics_file.read_text(encoding="utf-8").splitlines()]
     assert len(records) == 2
     assert records[0]["task_id"] == "TEST-WS"
-    assert records[0]["reasoning_effort"] == "xhigh"
+    assert records[0]["reasoning_effort"] == "max"
     assert "token_usage" not in records[0] and "tool_calls" not in records[0]
     assert records[1]["completed"] is False
     assert isinstance(records[1]["elapsed_seconds"], (int, float))
@@ -578,7 +578,7 @@ def test_init_ready_for_all_three_profiles(
         workstream=f"TEST-{profile.upper()}",
         branch="main",
         audit_base_sha=base,
-        effort="high",
+        effort="max",
         mode="writer",
         session="",
         state_path=explicit_state,
@@ -591,7 +591,7 @@ def test_init_ready_for_all_three_profiles(
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert bundle["model"] == "opencode-go/space-bunny-free"
     assert bundle["permission"]["bash"]["git push*"] == "deny"
 
 
@@ -830,63 +830,87 @@ def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
 
 
 @pytest.mark.parametrize(
-    "override,provider,model",
+    "execution_model,effort,model,agent",
     [
-        (None, "opencode-go", "opencode-go/muse-spark-1.3-contributor"),
-        ("zen", "opencode", "opencode/muse-spark-1.3-contributor-free"),
+        ("bunny", "max", "opencode-go/space-bunny-free", "foundry-implementer"),
+        (
+            "muse",
+            "xhigh",
+            "opencode-go/muse-spark-1.3-contributor",
+            "foundry-implementer-muse",
+        ),
     ],
 )
-def test_ws190_execution_identity(target, canon, override, provider, model):
+def test_execution_model_identity(target, canon, execution_model, effort, model, agent):
     before = (canon / "opencode.json").read_bytes()
-    plan = _plan(target, canon, execution_provider=override)
+    plan = _plan(target, canon, execution_model=execution_model, effort=effort)
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
     assert bundle["model"] == model
-    assert bundle["enabled_providers"] == [provider]
+    assert bundle["small_model"] == model
+    assert bundle["enabled_providers"] == ["opencode-go"]
     assert bundle["share"] == "disabled"
+    assert bundle["default_agent"] == agent
     original = json.loads(before)
     assert bundle["permission"] == original["permission"]
-    assert bundle["experimental"]["policies"][-1] == {
-        "action": "provider.use",
-        "effect": "allow",
-        "resource": provider,
-    }
     context = json.loads(Path(plan["context_path"]).read_text())
-    assert context["execution"]["provider"] == provider
+    assert context["execution"]["execution_model"] == execution_model
+    assert context["execution"]["provider"] == "opencode-go"
     assert context["execution"]["model"] == model
-    assert context["execution"]["override"] == (override or "canonical")
-    assert context["execution"]["requested_effort"] == "high"
-    if override:
-        assert bundle["disabled_providers"] == ["opencode-go"]
-        assert bundle["small_model"] == model
-        variants = bundle["provider"][provider]["models"][model.split("/")[1]]["variants"]
-        assert all(v == {"disabled": True} for v in variants.values())
-        assert "reasoningEffort" not in json.dumps(bundle["provider"][provider])
-        for agent in bundle["agent"].values():
-            assert agent["model"] == model
-            assert agent["variant"] == ""
-    else:
-        assert "opencode" not in bundle["provider"]
+    assert context["execution"]["agent"] == agent
+    assert context["execution"]["requested_effort"] == effort
+    assert context["execution"]["effective_variant"] == effort
     assert (canon / "opencode.json").read_bytes() == before
 
 
-@pytest.mark.parametrize("override", ["auto", "openai", "", "opencode"])
-def test_ws190_unknown_override_refused(target, canon, override):
-    plan = _plan(target, canon, execution_provider=override)
+@pytest.mark.parametrize(
+    "execution_model,effort",
+    [
+        ("bunny", "xhigh"),
+        ("bunny", "high"),
+        ("muse", "max"),
+        ("muse", "high"),
+        ("muse", "medium"),
+    ],
+)
+def test_execution_model_effort_mismatch_refused(target, canon, execution_model, effort):
+    plan = _plan(target, canon, execution_model=execution_model, effort=effort)
     assert plan["verdict"] == "LAUNCH_REFUSED"
 
 
-@pytest.mark.parametrize("effort", ["medium", "low", "minimal", "none", "off"])
-def test_ws190_zen_below_high_refused(target, canon, effort):
+@pytest.mark.parametrize("execution_model", ["auto", "space-bunny", "muse-high", ""])
+def test_unknown_execution_model_refused(target, canon, execution_model):
+    plan = _plan(target, canon, execution_model=execution_model)
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+
+
+def test_legacy_zen_override_remains_explicit_and_bounded(target, canon):
+    plan = _plan(target, canon, execution_provider="zen", effort="high")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["execution"]["provider"] == "opencode"
+    assert plan["execution"]["model"] == launcher_mod.ZEN_MODEL
+    assert plan["execution"]["execution_model"] == "legacy-zen-muse"
+
+
+@pytest.mark.parametrize("effort", ["medium", "low", "minimal", "none", "off", "max"])
+def test_legacy_zen_invalid_effort_refused(target, canon, effort):
     assert (
         _plan(target, canon, execution_provider="zen", effort=effort)["verdict"] == "LAUNCH_REFUSED"
     )
 
 
 @pytest.mark.parametrize("result", [0, 7, 130, -2, "interrupt", "spawn-error"])
-@pytest.mark.parametrize("override", [None, "zen"])
-def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
-    plan = _plan(target, canon, **({"execution_provider": override} if override else {}))
+@pytest.mark.parametrize(
+    "execution_model,effort,expected_agent",
+    [
+        ("bunny", "max", "foundry-implementer"),
+        ("muse", "xhigh", "foundry-implementer-muse"),
+    ],
+)
+def test_execution_model_child_lifecycle(
+    target, canon, monkeypatch, result, execution_model, effort, expected_agent
+):
+    plan = _plan(target, canon, execution_model=execution_model, effort=effort)
     assert plan["verdict"] == "LAUNCH_READY", plan
     monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
     real_run = subprocess.run
@@ -907,44 +931,50 @@ def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
 
     monkeypatch.setattr(launcher_mod.subprocess, "run", child)
     expected = 130 if result in ("interrupt", -2) else 127 if result == "spawn-error" else result
-    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == expected
-    assert len(calls) == 1  # no fallback/retry, including provider failure
-    if override:
-        assert calls[0][3:5] == ["--model", launcher_mod.ZEN_MODEL]
+    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", effort) == expected
+    assert len(calls) == 1
+    assert "--agent" in calls[0]
+    assert calls[0][calls[0].index("--agent") + 1] == expected_agent
     records = [
         json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
     ]
     assert len(records) == 2
     for record in records:
         assert record["model"] == plan["execution"]["model"]
-        assert record["execution_provider"] == plan["execution"]["provider"]
-        assert record["execution_override"] == (override or "canonical")
+        assert record["execution_provider"] == "opencode-go"
+        assert record["execution_override"] == execution_model
+        assert record["reasoning_effort"] == effort
     assert records[-1]["exit_status"] == expected
     assert records[-1]["completed"] is (result == 0)
     assert records[-1]["interrupted"] is (result in ("interrupt", -2, 130))
-    contender = launcher_mod.writer_lock_mod.WriterLock(str(target["wt"]), "NEXT", "b", "s")
-    contender.acquire()
-    contender.release()
 
 
 @pytest.mark.parametrize(
-    "extra", [["--model", "other/x"], ["-mother/x"], ["--variant=low"], ["--continue"], ["-c"]]
+    "extra",
+    [
+        ["--model", "other/x"],
+        ["-mother/x"],
+        ["--variant=low"],
+        ["--agent", "other"],
+        ["--continue"],
+        ["-c"],
+    ],
 )
-def test_ws190_child_cannot_override_policy(target, canon, extra, monkeypatch):
-    plan = _plan(target, canon, execution_provider="zen")
+def test_child_cannot_override_execution_policy(target, canon, extra, monkeypatch):
+    plan = _plan(target, canon)
     monkeypatch.setattr(
         launcher_mod.subprocess, "run", lambda *a, **k: pytest.fail("must not execute")
     )
-    assert launcher_mod.launch(plan, extra, str(target["wt"]), "TEST-WS", "high") == 1
+    assert launcher_mod.launch(plan, extra, str(target["wt"]), "TEST-WS", "max") == 1
 
 
-def test_ws190_ambient_permission_override_removed(target, canon, monkeypatch):
+def test_ambient_permission_override_removed(target, canon, monkeypatch):
     monkeypatch.setenv("OPENCODE_PERMISSION", '{"bash":"allow"}')
-    plan = _plan(target, canon, execution_provider="zen")
+    plan = _plan(target, canon)
     assert "OPENCODE_PERMISSION" not in plan["_env"]
 
 
-def test_ws190_end_telemetry_failure_still_releases(target, canon, monkeypatch):
+def test_end_telemetry_failure_still_releases(target, canon, monkeypatch):
     plan = _plan(target, canon)
     monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
     real_record = launcher_mod.metrics_mod.record
@@ -956,13 +986,13 @@ def test_ws190_end_telemetry_failure_still_releases(target, canon, monkeypatch):
 
     monkeypatch.setattr(launcher_mod.metrics_mod, "record", record)
     with pytest.raises(ValueError, match="telemetry defect"):
-        launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high")
+        launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "max")
     lock = launcher_mod.writer_lock_mod.WriterLock(str(target["wt"]), "NEXT", "b", "s")
     lock.acquire()
     lock.release()
 
 
-def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys):
+def test_cli_consumes_execution_model(target, canon, monkeypatch, capsys):
     captured = {}
 
     def fake_init(**kwargs):
@@ -980,14 +1010,17 @@ def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys
             "cpl",
             "--canonical-root",
             str(canon),
-            "--execution-provider",
-            "zen",
+            "--execution-model",
+            "muse",
+            "--effort",
+            "xhigh",
             "--run-dir",
             str(target["wt"].parent / "cli-run"),
         ]
     )
     assert rc == 0
-    assert captured["execution_provider"] == "zen"
+    assert captured["execution_model"] == "muse"
+    assert captured["effort"] == "xhigh"
 
 
 if __name__ == "__main__":

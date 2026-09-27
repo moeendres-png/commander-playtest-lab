@@ -1,21 +1,23 @@
 # Foundry Execution System — Canonical Index
 
-Single coherent entry point for the OpenCode/Muse execution system on
+Single coherent entry point for the dual-model OpenCode execution system on
 `moeendres-png/commander-playtest-lab`.
 
 | Surface | Canonical path | Role |
 |---|---|---|
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
-| Machine config | `opencode.json` (root) | Model, HIGH default, permissions, sharing off |
-| Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
-| Explicit execution override | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Operator-selected Zen launch, interruption and unchanged Go default |
-| Technical authority | `docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md` | Coordinator autonomy/adjudication model |
+| Machine config | `opencode.json` (root) | Space Bunny MAX default, Muse XHIGH alternate, permissions, sharing off |
+| Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, model lanes, effort, Work gate |
+| Exact execution models | `docs/foundry-execution/EXECUTION_MODEL_ROUTING.md` | Bunny MAX / Muse XHIGH identities, handoff and parallelism rules |
+| Legacy provider override | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Historical/bounded Zen compatibility; not normal routing |
+| Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol/Bunny/Muse/Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
 | Governance supersession | `docs/foundry-execution/GOVERNANCE_SUPERSESSION.md` | PR #161/#166/#167 dispositions |
 | Governance propagation | `docs/foundry-execution/GOVERNANCE_PROPAGATION.md` | Post-PR172 merge procedure; `RETAINED_EVIDENCE_IMPACT = NO_SEMANTIC_IMPACT` when governance-only |
-| Implementer agent | `.opencode/agents/foundry-implementer.md` | Primary long-running worker (HIGH) |
-| Adjudicator agent | `.opencode/agents/foundry-adjudicator.md` | Read/test-first technical adjudicator (XHIGH) |
-| Reviewer agent | `.opencode/agents/foundry-reviewer.md` | Fresh-context read-only review |
+| Implementer agent | `.opencode/agents/foundry-implementer.md` | Preferred Space Bunny MAX writer |
+| Muse implementer | `.opencode/agents/foundry-implementer-muse.md` | Alternate Muse XHIGH writer |
+| Adjudicator agents | `.opencode/agents/foundry-adjudicator.md`, `foundry-adjudicator-muse.md` | Model-matched read/test-first adjudication |
+| Reviewer agents | `.opencode/agents/foundry-reviewer.md`, `foundry-reviewer-muse.md` | Model-matched fresh-context read-only review |
 | Skills | `.opencode/skills/*/SKILL.md` | workstream-bootstrap, failure-classification, test-impact, evidence-seal, continuation |
 | Workstream state | Explicit dedicated state path per workstream (`--state`, exposed as `FOUNDRY_STATE_PATH`) + `.foundry/WORKSTREAM_STATE.schema.json` | Resumable index + validator |
 | Deterministic tools | `tools/foundry/` | source_lock, worktree_inventory, cluster_failures, evidence, state, metrics |

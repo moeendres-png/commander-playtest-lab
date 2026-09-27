@@ -265,12 +265,23 @@ def test_repo_root_state_absent_schema_kept() -> None:
 
 def test_opencode_config_schema_conformance() -> None:
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert config["model"] == "opencode-go/space-bunny-free"
     assert config["share"] == "disabled"
-    variants = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]["variants"]
-    for effort in ("none", "off", "minimal", "low", "medium"):
-        assert variants[effort] == {"disabled": True}
-    assert set(variants) == {"none", "off", "minimal", "low", "medium", "high", "xhigh"}
+    models = config["provider"]["opencode-go"]["models"]
+    assert set(config["provider"]["opencode-go"]["whitelist"]) == {
+        "space-bunny-free",
+        "muse-spark-1.3-contributor",
+    }
+    bunny = models["space-bunny-free"]
+    muse = models["muse-spark-1.3-contributor"]
+    assert bunny["options"] == {"reasoningEffort": "max"}
+    assert muse["options"] == {"reasoningEffort": "xhigh"}
+    assert bunny["variants"]["max"] == {}
+    assert muse["variants"]["xhigh"] == {}
+    for effort in ("none", "off", "minimal", "low", "medium", "high", "xhigh"):
+        assert bunny["variants"][effort] == {"disabled": True}
+    for effort in ("none", "off", "minimal", "low", "medium", "high", "max"):
+        assert muse["variants"][effort] == {"disabled": True}
     assert "permissions" not in config
     assert isinstance(config["permission"], dict)
 
@@ -280,21 +291,25 @@ def _agent_frontmatter(name: str) -> dict:
     return yaml.safe_load(text.split("---")[1])
 
 
-def test_high_default_retained() -> None:
+def test_dual_execution_defaults_retained() -> None:
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    provider_model = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]
-    assert provider_model["options"] == {"reasoningEffort": "high"}
-    assert config["agent"]["build"] == {"variant": "high"}
+    assert config["agent"]["build"] == {
+        "model": "opencode-go/space-bunny-free",
+        "variant": "max",
+    }
     implementer = _agent_frontmatter("foundry-implementer.md")
-    assert implementer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert implementer["variant"] == "high"
+    assert implementer["model"] == "opencode-go/space-bunny-free"
+    assert implementer["variant"] == "max"
+    muse = _agent_frontmatter("foundry-implementer-muse.md")
+    assert muse["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert muse["variant"] == "xhigh"
 
 
 def test_adjudicator_exists_and_configured() -> None:
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["mode"] == "subagent"
-    assert adjudicator["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert adjudicator["variant"] == "xhigh"
+    assert adjudicator["model"] == "opencode-go/space-bunny-free"
+    assert adjudicator["variant"] == "max"
     assert adjudicator["permission"]["edit"] == "deny"
     bash = adjudicator["permission"]["bash"]
     assert bash["*"] == "ask"
@@ -348,14 +363,15 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     assert "technical_decision_authority = autonomous_within_contract" in flat
     assert "do not stop or ask the coordinator for routine technical decisions" in flat
     assert "muse xhigh" in flat
+    assert "space bunny max" in flat
     assert "authority_gate" in flat
 
 
 def test_reviewer_remains_high_and_read_only() -> None:
     reviewer = _agent_frontmatter("foundry-reviewer.md")
     assert reviewer["mode"] == "subagent"
-    assert reviewer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert reviewer["variant"] == "high"
+    assert reviewer["model"] == "opencode-go/space-bunny-free"
+    assert reviewer["variant"] == "max"
     assert reviewer["permission"]["edit"] == "deny"
 
 

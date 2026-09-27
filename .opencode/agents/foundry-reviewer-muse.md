@@ -1,8 +1,8 @@
 ---
-description: Read-only fresh-context reviewer for Foundry implementation and evidence
+description: Muse XHIGH read-only fresh-context reviewer for Foundry implementation and evidence
 mode: subagent
-model: opencode-go/space-bunny-free
-variant: max
+model: opencode-go/muse-spark-1.3-contributor
+variant: xhigh
 permission:
   edit: deny
   bash:

@@ -310,7 +310,7 @@ def test_state_path_context_exposed_without_secrets(
     assert env["FOUNDRY_WORKSTREAM"] == "TEST-WS"
     assert env["FOUNDRY_RUN_DIR"] == str(target["rundir"])
     assert env["FOUNDRY_MODE"] == "writer"
-    assert env["FOUNDRY_EFFORT"] == "high"
+    assert env["FOUNDRY_EFFORT"] == "max"
     context = json.loads(Path(plan["context_path"]).read_text(encoding="utf-8"))
     assert context["state_path"] == str(target["state"])
     assert context["run_dir"] == str(target["rundir"])

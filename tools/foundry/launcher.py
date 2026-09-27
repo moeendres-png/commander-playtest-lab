@@ -66,29 +66,72 @@ import opencode_cli_version as version_mod
 import reference_roots as reference_mod
 import writer_lock as writer_lock_mod
 
-CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
+BUNNY_MODEL = "opencode-go/space-bunny-free"
+MUSE_MODEL = "opencode-go/muse-spark-1.3-contributor"
+CANONICAL_MODEL = BUNNY_MODEL
 CANONICAL_PROVIDER = "opencode-go"
 ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
-ALLOWED_EFFORTS = ("high", "xhigh")
+EXECUTION_LANES = {
+    "bunny": {
+        "model": BUNNY_MODEL,
+        "effort": "max",
+        "agent": "foundry-implementer",
+        "variant": "max",
+    },
+    "muse": {
+        "model": MUSE_MODEL,
+        "effort": "xhigh",
+        "agent": "foundry-implementer-muse",
+        "variant": "xhigh",
+    },
+}
+ALLOWED_EFFORTS = ("max", "xhigh", "high")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
 UI_MODES = ("headless", "tui")
 
 
-def execution_identity(override: str | None, effort: str) -> dict:
-    """Operator selection, never inferred from quota, credentials or environment."""
+def execution_identity(
+    override: str | None, effort: str, execution_model: str | None = None
+) -> dict:
+    """Explicit lane selection; never inferred from quota, credentials or environment."""
     if override not in (None, "zen"):
         raise ValueError(f"unknown execution provider override {override!r}")
-    if effort not in ALLOWED_EFFORTS:
-        raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
+
+    # Historical bounded Zen override remains available for reproducibility only.
+    if override == "zen":
+        if execution_model not in (None, "bunny"):
+            raise ValueError("legacy zen override cannot be combined with --execution-model")
+        if effort not in ("high", "xhigh"):
+            raise ValueError("legacy zen effort must be high or xhigh")
+        return {
+            "override": "zen",
+            "execution_model": "legacy-zen-muse",
+            "provider": "opencode",
+            "model": ZEN_MODEL,
+            "agent": "",
+            "requested_effort": effort,
+            "effective_variant": "provider-default-unverified",
+            "variant_resolution": "provider_default_unverified",
+        }
+
+    lane = execution_model or "bunny"
+    if lane not in EXECUTION_LANES:
+        raise ValueError(f"unknown execution model {lane!r}")
+    spec = EXECUTION_LANES[lane]
+    if effort != spec["effort"]:
+        raise ValueError(
+            f"execution model {lane!r} requires effort {spec['effort']!r}; got {effort!r}"
+        )
     return {
-        "override": override or "canonical",
-        "provider": "opencode" if override else CANONICAL_PROVIDER,
-        "model": ZEN_MODEL if override else CANONICAL_MODEL,
+        "override": lane,
+        "execution_model": lane,
+        "provider": CANONICAL_PROVIDER,
+        "model": spec["model"],
+        "agent": spec["agent"],
         "requested_effort": effort,
-        "variant_resolution": "provider_default_unverified"
-        if override
-        else "canonical_agent_variant",
+        "effective_variant": spec["variant"],
+        "variant_resolution": "explicit_agent_variant",
     }
 
 
@@ -99,11 +142,11 @@ def validate_child_options(extra: list[str]) -> None:
             break  # Remaining words are literal prompt text, not CLI options.
         key = arg.split("=", 1)[0]
         if (
-            key in ("--model", "--variant", "--continue")
+            key in ("--model", "--variant", "--agent", "--continue")
             or (arg.startswith("-m") and not arg.startswith("--"))
             or arg == "-c"
         ):
-            raise ValueError("model/variant/continue child flags are launcher-controlled")
+            raise ValueError("model/variant/agent/continue child flags are launcher-controlled")
 
 
 HOOK_MARKER = "# foundry-launcher-managed pre-push hook"
@@ -217,11 +260,15 @@ def _validated_tool_output(value: object) -> dict:
 
 
 def build_content_bundle(
-    canonical_root: str, extra_denies: list[str], execution_provider: str | None = None
+    canonical_root: str,
+    extra_denies: list[str],
+    execution_provider: str | None = None,
+    execution_model: str | None = None,
+    effort: str = "max",
 ) -> dict:
     """Canonical model/permission lock for OPENCODE_CONFIG_CONTENT."""
     config_path = Path(canonical_root) / "opencode.json"
-    execution = execution_identity(execution_provider, "high")
+    execution = execution_identity(execution_provider, effort, execution_model)
     try:
         config = json.loads(config_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
@@ -231,20 +278,33 @@ def build_content_bundle(
     providers = config.get("enabled_providers", [])
     if providers != [CANONICAL_PROVIDER]:
         raise ValueError(f"canonical provider drift: {providers!r}")
-    # NOTE: provider.models is keyed by SHORT model name (verified against the
-    # resolved config); the provider/model pair lives in top-level "model".
-    short_model = CANONICAL_MODEL.split("/", 1)[1]
-    try:
-        variants = config["provider"][CANONICAL_PROVIDER]["models"][short_model]["variants"]
-    except KeyError as exc:
-        raise ValueError(f"canonical model entry missing: {exc}") from exc
-    for effort in BELOW_HIGH:
-        if variants.get(effort) != {"disabled": True}:
-            raise ValueError(f"canonical below-HIGH variant {effort!r} not disabled")
+
+    provider_cfg = config.get("provider", {}).get(CANONICAL_PROVIDER, {})
+    expected_models = {BUNNY_MODEL.split("/", 1)[1], MUSE_MODEL.split("/", 1)[1]}
+    if set(provider_cfg.get("whitelist", [])) != expected_models:
+        raise ValueError("canonical execution-model whitelist drift")
+
+    for lane, spec in EXECUTION_LANES.items():
+        short = spec["model"].split("/", 1)[1]
+        try:
+            model_cfg = provider_cfg["models"][short]
+            variants = model_cfg["variants"]
+        except KeyError as exc:
+            raise ValueError(f"canonical execution model entry missing for {lane}: {exc}") from exc
+        for name in ("none", "off", "minimal", "low", "medium", "high", "xhigh", "max"):
+            expected = {} if name == spec["variant"] else {"disabled": True}
+            if variants.get(name) != expected:
+                raise ValueError(
+                    f"canonical {lane} variant {name!r} mismatch: {variants.get(name)!r}"
+                )
+        if model_cfg.get("options", {}).get("reasoningEffort") != spec["effort"]:
+            raise ValueError(f"canonical {lane} reasoning effort drift")
+
     if config.get("share", "disabled") != "disabled":
         raise ValueError("canonical share must remain disabled")
     bundle = {
-        "model": config["model"],
+        "model": execution["model"],
+        "small_model": execution["model"],
         "share": config.get("share", "disabled"),
         "enabled_providers": providers,
         "provider": config["provider"],
@@ -257,7 +317,7 @@ def build_content_bundle(
         bundle["instructions"] = config["instructions"]
     if "tool_output" in config:
         bundle["tool_output"] = _validated_tool_output(config["tool_output"])
-    # Copy all non-provider policies, replacing only the execution allowlist.
+
     experimental = json.loads(json.dumps(config.get("experimental", {})))
     policies = [p for p in experimental.get("policies", []) if p.get("action") != "provider.use"]
     experimental["policies"] = [
@@ -267,7 +327,8 @@ def build_content_bundle(
     ]
     bundle["experimental"] = experimental
     if "default_agent" in config:
-        bundle["default_agent"] = config["default_agent"]
+        bundle["default_agent"] = execution["agent"] or config["default_agent"]
+
     if execution_provider == "zen":
         bundle["model"] = ZEN_MODEL
         bundle["small_model"] = ZEN_MODEL
@@ -280,15 +341,13 @@ def build_content_bundle(
                 "models": {
                     short: {
                         "variants": {
-                            name: {"disabled": True} for name in (*BELOW_HIGH, *ALLOWED_EFFORTS)
+                            name: {"disabled": True}
+                            for name in ("none", "off", "minimal", "low", "medium", "high", "xhigh", "max")
                         }
                     }
                 },
             }
         }
-        # Inline agent values override the unchanged canonical Markdown snapshot.
-        # Empty variant clears Go's inherited value (pinned agent.ts uses ??),
-        # without inventing a supported Zen HIGH/XHIGH variant or reasoning option.
         names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
         names.update(config.get("agent", {}))
         names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
@@ -335,10 +394,10 @@ def resolve_environment(
     references: list[dict],
     opencode_binary: str,
     execution_provider: str | None = None,
+    execution_model: str | None = None,
 ) -> dict:
     """Build the child environment. Raises ValueError fail-closed."""
-    if effort in BELOW_HIGH or effort not in ALLOWED_EFFORTS:
-        raise ValueError(f"effort {effort!r} rejected (allowed: {ALLOWED_EFFORTS})")
+    execution_identity(execution_provider, effort, execution_model)
     canonical = Path(canonical_root)
     if not (canonical / "opencode.json").is_file() or not (canonical / "AGENTS.md").is_file():
         raise ValueError(f"canonical root {canonical_root!r} lacks policy files")
@@ -347,7 +406,13 @@ def resolve_environment(
         "permission"
     ]["external_directory"]
     denies += [k for k, v in static_denies.items() if v == "deny"]
-    bundle = build_content_bundle(canonical_root, sorted(set(denies)), execution_provider)
+    bundle = build_content_bundle(
+        canonical_root,
+        sorted(set(denies)),
+        execution_provider,
+        execution_model,
+        effort,
+    )
     env = dict(os.environ)
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
@@ -366,7 +431,7 @@ def resolve_environment(
     env["FOUNDRY_EFFORT"] = effort
     # WS75 state-path context, hardened by ROOT_STATE_SEMANTICS: the exact
     # explicit launcher state path is mandatory. There is no implicit active
-    # repository-root state and no silent fallback, so Muse never guesses
+    # repository-root state and no silent fallback, so the worker never guesses
     # `.foundry/WORKSTREAM_STATE.yaml`.
     # Values are paths/identities only — never secrets.
     if not state_path:
@@ -390,7 +455,7 @@ def _metrics_path(run_dir: str) -> str:
 
 
 def write_launch_context(run_dir: str, context: dict) -> str:
-    """Persist non-secret launch context for Muse/audit. Returns path."""
+    """Persist non-secret launch context for worker/audit. Returns path."""
     path = Path(run_dir) / "launch-context.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(context, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -419,10 +484,11 @@ def init(
     version_audit_mode: bool = False,
     worktree_states: list[str] | None = None,
     execution_provider: str | None = None,
+    execution_model: str | None = "bunny",
 ) -> dict:
     """Validate + prepare. Returns the launch plan (never execs)."""
     try:
-        execution = execution_identity(execution_provider, effort)
+        execution = execution_identity(execution_provider, effort, execution_model)
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "error": str(exc)}
     if not state_path:
@@ -514,6 +580,7 @@ def init(
             references=parsed_refs,
             opencode_binary=binary,
             execution_provider=execution_provider,
+            execution_model=execution_model,
         )
     except ValueError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": str(exc)}
@@ -592,7 +659,7 @@ def launch(
         return 1
     try:
         validate_child_options(argv_extra)
-        execution = plan.get("execution") or execution_identity(None, effort)
+        execution = plan.get("execution") or execution_identity(None, effort, "bunny")
         if effort not in ALLOWED_EFFORTS or execution["requested_effort"] != effort:
             raise ValueError("launch effort differs from validated plan")
     except ValueError as exc:
@@ -662,7 +729,11 @@ def _launch_locked(
     try:
         # CLI selection outranks persisted session/model history on an explicit
         # Zen launch. Caller model flags were rejected before taking the lock.
-        selected = ["--model", execution["model"]] if execution["override"] == "zen" else []
+        selected = (
+            ["--model", execution["model"]]
+            if execution["override"] == "zen"
+            else ["--agent", execution["agent"]]
+        )
         argv = build_argv(binary, mode, [*selected, *argv_extra])
     except ValueError as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
@@ -734,12 +805,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--workstream", required=True)
     parser.add_argument("--branch", required=True)
     parser.add_argument("--audit-base-sha", required=True)
-    parser.add_argument("--effort", default="high")
+    parser.add_argument("--effort", default="max")
+    parser.add_argument(
+        "--execution-model",
+        choices=("bunny", "muse"),
+        default="bunny",
+        help="Explicit OpenCode execution lane: Space Bunny MAX (default) or Muse XHIGH.",
+    )
     parser.add_argument(
         "--execution-provider",
         choices=("zen",),
         default=None,
-        help="Explicit operator-authorized Zen execution only; omitted keeps OpenCode Go.",
+        help="Legacy explicit Zen compatibility override; new project work uses --execution-model.",
     )
     parser.add_argument("--mode", default="writer", choices=("writer", "reader"))
     parser.add_argument("--session", default="")
@@ -808,6 +885,7 @@ def main(argv: list[str] | None = None) -> int:
         version_audit_mode=args.version_audit_mode,
         worktree_states=args.worktree_state,
         execution_provider=args.execution_provider,
+        execution_model=args.execution_model,
     )
     printable = {k: v for k, v in plan.items() if k != "_env"}
     print(json.dumps(printable, indent=2, sort_keys=True, default=str))
