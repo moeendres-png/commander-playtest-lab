@@ -408,9 +408,7 @@ def resolve_environment(
     canonical = Path(canonical_root)
     if not (canonical / "opencode.json").is_file() or not (canonical / "AGENTS.md").is_file():
         raise ValueError(f"canonical root {canonical_root!r} lacks policy files")
-    declared_roots = {
-        os.path.realpath(ref["root"]) for ref in references
-    } | {
+    declared_roots = {os.path.realpath(ref["root"]) for ref in references} | {
         os.path.realpath(spec["root"]) for spec in workspace_access
     }
     denies = sibling_denies(worktree, declared_roots)
