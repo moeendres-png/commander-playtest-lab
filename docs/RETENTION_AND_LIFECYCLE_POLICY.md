@@ -211,3 +211,5 @@ gates owned elsewhere.
   `src/commander_lab/technical_truth.py`, `scripts/run_external_b4f_*.py`,
   `.github/workflows/release-artifacts.yml`); terminology is clarified in
   `authority_note.role_terminology` instead. Rename only with contract migration.
+
+- WSR25 successor-note addendum (2026-09-27, additive only; historical text above preserved): canonical XMage pin lineage is now `77d7646d` → `cfc36f44` (WS88) → `db134b97` (WS213) → `b1959698` (M1-M4 residual candidate RG-02/RG-07/RG-08/RG-06A, PR #242 `c491528c`). Machine-readable authority remains `config/rules_engines.json`. Sealed evidence bound to earlier pins is superseded, never rewritten.

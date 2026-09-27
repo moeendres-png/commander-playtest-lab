@@ -1,0 +1,157 @@
+diff --git a/Mage.Sets/src/mage/cards/e/ExposeTheCulprit.java b/Mage.Sets/src/mage/cards/e/ExposeTheCulprit.java
+index db51939cf8..d6b5956d31 100644
+--- a/Mage.Sets/src/mage/cards/e/ExposeTheCulprit.java
++++ b/Mage.Sets/src/mage/cards/e/ExposeTheCulprit.java
+@@ -103,7 +103,7 @@ class ExposeTheCulpritEffect extends OneShotEffect {
+                     }
+             ).filter(Objects::nonNull).collect(Collectors.toList());
+             if (controller.moveCards(new HashSet<>(cardsToCloak), Zone.EXILED, source, game)) {
+-                Collections.shuffle(cardsToCloak);
++                Collections.shuffle(cardsToCloak, mage.util.RandomUtil.getRandom());
+                 game.informPlayers(controller.getLogName() + " shuffles the face-down pile");
+                 game.processAction();
+                 ManifestEffect.doManifestCards(game, source, controller, new LinkedHashSet<>(cardsToCloak), true);
+diff --git a/Mage.Sets/src/mage/cards/g/GhastlyConscription.java b/Mage.Sets/src/mage/cards/g/GhastlyConscription.java
+index beb8e2ebe4..2a789e5a20 100644
+--- a/Mage.Sets/src/mage/cards/g/GhastlyConscription.java
++++ b/Mage.Sets/src/mage/cards/g/GhastlyConscription.java
+@@ -75,7 +75,7 @@ class GhastlyConscriptionEffect extends OneShotEffect {
+         if (cardsToManifest.isEmpty()) {
+             return true;
+         }
+-        Collections.shuffle(cardsToManifest);
++        Collections.shuffle(cardsToManifest, mage.util.RandomUtil.getRandom());
+         game.informPlayers(controller.getLogName() + " shuffles the face-down pile");
+         game.processAction();
+         ManifestEffect.doManifestCards(game, source, controller, new LinkedHashSet<>(cardsToManifest));
+diff --git a/Mage.Sets/src/mage/cards/j/JalumGrifter.java b/Mage.Sets/src/mage/cards/j/JalumGrifter.java
+index a8d4010dc4..da025bda4d 100644
+--- a/Mage.Sets/src/mage/cards/j/JalumGrifter.java
++++ b/Mage.Sets/src/mage/cards/j/JalumGrifter.java
+@@ -108,7 +108,7 @@ class JalumGrifterEffect extends OneShotEffect {
+             if (shellGamePile.isEmpty()) {
+                 return true;
+             }
+-            Collections.shuffle(shellGamePile);
++            Collections.shuffle(shellGamePile, mage.util.RandomUtil.getRandom());
+             game.informPlayers(controller.getLogName() + " shuffles the face-down pile");
+             TargetCard targetCard = new TargetCard(Zone.HAND, new FilterCard());
+             CardsImpl cards = new CardsImpl();
+diff --git a/Mage.Sets/src/mage/cards/j/JeskaiInfiltrator.java b/Mage.Sets/src/mage/cards/j/JeskaiInfiltrator.java
+index 5fac4f4ff9..f43706303e 100644
+--- a/Mage.Sets/src/mage/cards/j/JeskaiInfiltrator.java
++++ b/Mage.Sets/src/mage/cards/j/JeskaiInfiltrator.java
+@@ -91,7 +91,7 @@ class JeskaiInfiltratorEffect extends OneShotEffect {
+         for (Card card : cardsToManifest) {
+             card.setFaceDown(true, game);
+         }
+-        Collections.shuffle(cardsToManifest);
++        Collections.shuffle(cardsToManifest, mage.util.RandomUtil.getRandom());
+         game.informPlayers(controller.getLogName() + " shuffles the face-down pile");
+         game.processAction();
+         ManifestEffect.doManifestCards(game, source, controller, new LinkedHashSet<>(cardsToManifest));
+diff --git a/Mage.Sets/src/mage/cards/v/VialSmasherTheFierce.java b/Mage.Sets/src/mage/cards/v/VialSmasherTheFierce.java
+index 23f65adef0..68d2c3f62d 100644
+--- a/Mage.Sets/src/mage/cards/v/VialSmasherTheFierce.java
++++ b/Mage.Sets/src/mage/cards/v/VialSmasherTheFierce.java
+@@ -130,7 +130,7 @@ class VialSmasherTheFierceEffect extends OneShotEffect {
+                 if(opponents.isEmpty()){
+                     return false;
+                 }
+-                Collections.shuffle(opponents);
++                Collections.shuffle(opponents, mage.util.RandomUtil.getRandom());
+                 Player opponent = opponents.get(0);
+                 game.informPlayers(opponent.getLogName() + " was chosen at random.");
+                 if (!game.getBattlefield().getAllActivePermanents(new FilterPlaneswalkerPermanent(), opponent.getId(), game).isEmpty()) {
+diff --git a/Mage/src/main/java/mage/players/PlayerImpl.java b/Mage/src/main/java/mage/players/PlayerImpl.java
+index 1976cfdfc0..af4090ee23 100644
+--- a/Mage/src/main/java/mage/players/PlayerImpl.java
++++ b/Mage/src/main/java/mage/players/PlayerImpl.java
+@@ -1058,7 +1058,7 @@ public abstract class PlayerImpl implements Player, Serializable {
+             if (!anyOrder) {
+                 // random order
+                 List<UUID> ids = new ArrayList<>(cards);
+-                Collections.shuffle(ids);
++                Collections.shuffle(ids, mage.util.RandomUtil.getRandom());
+                 for (UUID id : ids) {
+                     moveObjectToLibrary(id, source, game, false);
+                 }
+@@ -1201,7 +1201,7 @@ public abstract class PlayerImpl implements Player, Serializable {
+             if (!anyOrder) {
+                 // random order
+                 List<UUID> ids = new ArrayList<>(cards);
+-                Collections.shuffle(ids);
++                Collections.shuffle(ids, mage.util.RandomUtil.getRandom());
+                 for (UUID id : ids) {
+                     moveObjectToLibrary(id, source, game, true);
+                 }
+diff --git a/Mage/src/main/java/mage/util/RandomUtil.java b/Mage/src/main/java/mage/util/RandomUtil.java
+index b042486345..8b5c620f36 100644
+--- a/Mage/src/main/java/mage/util/RandomUtil.java
++++ b/Mage/src/main/java/mage/util/RandomUtil.java
+@@ -1,7 +1,10 @@
+ package mage.util;
+ 
+ import java.awt.*;
++import java.util.ArrayList;
+ import java.util.Collection;
++import java.util.Collections;
++import java.util.List;
+ import java.util.Random;
+ import java.util.Set;
+ import java.util.UUID;
+@@ -11,7 +14,38 @@ import java.util.UUID;
+  */
+ public final class RandomUtil {
+ 
+-    private static final Random random = new Random(); // thread safe with seed support
++    /**
++     * WS-39 qualification instrumentation. Recording happens at Random.next(bits)
++     * so RandomUtil callers and Collections.shuffle(..., Random) share one
++     * attributable Rules-RNG tape.
++     */
++    private static final class RecordingRandom extends Random {
++        private final List<String> tape = new ArrayList<>();
++        private boolean recording;
++        private long drawIndex;
++
++        @Override
++        protected synchronized int next(int bits) {
++            int value = super.next(bits);
++            if (recording) {
++                drawIndex++;
++                tape.add(drawIndex + ":next_bits:" + bits + ":" + value);
++            }
++            return value;
++        }
++
++        synchronized void beginTape() {
++            tape.clear();
++            drawIndex = 0L;
++            recording = true;
++        }
++
++        synchronized List<String> snapshotTape() {
++            return Collections.unmodifiableList(new ArrayList<>(tape));
++        }
++    }
++
++    private static final RecordingRandom random = new RecordingRandom(); // thread safe with seed support
+ 
+     private RandomUtil() {
+     }
+@@ -44,6 +78,14 @@ public final class RandomUtil {
+         random.setSeed(newSeed);
+     }
+ 
++    public static void beginRulesRngTape() {
++        random.beginTape();
++    }
++
++    public static List<String> getRulesRngTape() {
++        return random.snapshotTape();
++    }
++
+     public static <T> T randomFromCollection(Collection<T> collection) {
+         if (collection.size() < 2) {
+             return collection.stream().findFirst().orElse(null);
