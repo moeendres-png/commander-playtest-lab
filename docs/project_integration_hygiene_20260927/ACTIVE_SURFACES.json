@@ -1,0 +1,138 @@
+{
+  "active_surfaces": [
+    {
+      "branch": "wsr22/final-current-boundary-freeze-qualification-20260927",
+      "changed_paths": [
+        "qualification/final-current-boundary-20260927/*.json (18 files)",
+        "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+        "scripts/run_current_boundary_qualification.py",
+        "src/commander_lab/qualification/current_boundary/*.py (8 files)",
+        "tests/qualification/test_pre_freeze_contract_successor.py",
+        ".gitignore"
+      ],
+      "id": "WSR22",
+      "kind": "workstream",
+      "latest_commit": "2026-09-27T16:55:27+02:00 WSR22: current-boundary runner + AF01/cardinality/START-2 execution on both candidates",
+      "local_head": "8e30dda0",
+      "merge_base_with_main": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+      "note": "WSR22 surface OVERLAPS PR #260 on two paths (qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json, tests/qualification/test_pre_freeze_contract_successor.py). Recorded as an integration risk for the Coordinator; WSR23 does not adjudicate it.",
+      "ownership": "ACTIVE_OWNER",
+      "process_evidence": "PID 71804 cwd == worktree",
+      "remote_branch": null,
+      "repo": "moeendres-png/commander-playtest-lab",
+      "state": "ACTIVE",
+      "title": "Final current-boundary provider qualification",
+      "unpublished_local_commits": 2,
+      "worktree": "/home/moeen/code/wsr22-final-current-boundary-freeze",
+      "wsr23_treatment": "READ_ONLY - not inspected beyond the above, not modified, not pushed"
+    },
+    {
+      "changed_paths": [
+        "WS17_SHA256SUMS",
+        "docs/workstream_pre_freeze_contract_successor_20260927/HANDOFF.md",
+        "qualification/SHA256SUMS",
+        "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+        "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
+        "tests/qualification/test_pre_freeze_contract_successor.py"
+      ],
+      "head_branch": "sol/pre-freeze-rules-authority-freshness-20260927",
+      "head_sha": "944968f08a556c17a5e51230f79e380516a1a8d2",
+      "id": "PR-260",
+      "kind": "pull_request",
+      "merge_state_status": "BLOCKED",
+      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
+      "state": "OPEN (not draft)",
+      "title": "Pre-Freeze follow-up: resolve current Rules authority freshness",
+      "wsr23_treatment": "READ_ONLY"
+    },
+    {
+      "changed_paths": [
+        ".foundry/repo-profiles/cpl.json",
+        ".opencode/agents/foundry-adjudicator.md",
+        ".opencode/agents/foundry-implementer.md",
+        ".opencode/agents/foundry-reviewer.md",
+        "AGENTS.md",
+        "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+        "docs/foundry-execution/README.md",
+        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
+        "tests/foundry/test_foundry_tools.py"
+      ],
+      "head_branch": "ops/dual-executor-governance-hardening-20260927",
+      "head_sha": "0699a5f269ab3c974937aa2a671d7c795d285943",
+      "id": "PR-261",
+      "kind": "pull_request",
+      "merge_state_status": "CLEAN",
+      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
+      "state": "OPEN (not draft)",
+      "title": "Governance: harden Space Bunny MAX + Muse dual-executor authority",
+      "wsr23_treatment": "READ_ONLY. This is why WSR23 did NOT touch AGENTS.md, opencode.json, docs/foundry-execution/README.md or docs/foundry-execution/ROUTING_AND_EFFORT.md, and did NOT add a test asserting AGENTS.md section numbers (that would create a new CI failure surface coupled to #261's in-flight AGENTS.md edits)."
+    },
+    {
+      "changed_paths": [
+        ".github/workflows/meta-qualification.yml",
+        "docs/workstream_meta_qualification_20260927/*",
+        "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameHiddenInformationTest.java",
+        "qualification/protocol/meta_verification_v1/*",
+        "scripts/run_meta_verification.py",
+        "src/commander_lab/meta_qualification.py",
+        "tests/qualification/test_meta_verification.py"
+      ],
+      "head_branch": "sol/meta-qualification-v1-20260927",
+      "head_sha": "a52300882c155627ed70cf76cf98e3a527369a6c",
+      "id": "PR-262",
+      "kind": "pull_request",
+      "merge_state_status": "BLOCKED",
+      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
+      "state": "OPEN (draft)",
+      "title": "Meta-Qualification v1: semantic mutation detection on real XMage replay",
+      "wsr23_treatment": "READ_ONLY"
+    },
+    {
+      "id": "XMAGE-FORGE-RULES",
+      "kind": "engine_semantics",
+      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
+      "state": "READ_ONLY_BY_CONTRACT",
+      "title": "XMage and Forge production Rules semantics",
+      "wsr23_treatment": "NOT REMEDIATED. Two engine defects were DISCOVERED and RECORDED (see REMAINING_BLOCKERS.md) but deliberately not fixed here."
+    },
+    {
+      "branch": "wsr23/project-integration-hygiene-20260927",
+      "id": "WSR23",
+      "issue": 263,
+      "kind": "workstream",
+      "ownership": "ACTIVE_OWNER",
+      "repo": "moeendres-png/commander-playtest-lab",
+      "state": "ACTIVE",
+      "title": "Project integration, hygiene, and publication closure",
+      "worktree": "/home/moeen/code/wsr23-project-integration-hygiene",
+      "wsr23_treatment": "SELF - the only surface WSR23 mutated"
+    }
+  ],
+  "authority": {
+    "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT SELECTED"
+  },
+  "branch": "wsr23/project-integration-hygiene-20260927",
+  "detection": {
+    "method": "/proc/<pid>/cwd and /proc/<pid>/cmdline; no process was killed or signalled",
+    "running_opencode_processes": [
+      {
+        "cwd": "/home/moeen/code/wsr22-final-current-boundary-freeze",
+        "pid": 71804,
+        "verdict": "WSR22 ACTIVE_OWNER"
+      },
+      {
+        "cwd": "/home/moeen/code",
+        "pid": 77022,
+        "verdict": "the WSR23 opencode session itself (not a workstream writer)"
+      }
+    ]
+  },
+  "evidence_semantics": "UNKNOWN != PASS; PARTIAL != FULL; NOT_RUN != PASS",
+  "generated_at": "2026-09-27T17:20:00+02:00",
+  "issue": "https://github.com/moeendres-png/commander-playtest-lab/issues/263",
+  "observed_main_sha": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+  "observed_main_tree": "610f93d81e3b7154731d95472be6dcac05057eac",
+  "workstream": "WSR23",
+  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
+}

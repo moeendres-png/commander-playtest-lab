@@ -1,0 +1,62 @@
+{
+  "branch": "wsr23/project-integration-hygiene-20260927",
+  "entries": [
+    {
+      "claim": "PR #161 (chore/foundry-agents-policy) is superseded with all unique content integrated.",
+      "evidence": "docs/foundry-execution/GOVERNANCE_SUPERSESSION.md:8-23 (on main) names head 26409b93 and recommends CLOSE_AFTER_CONSOLIDATION; opencode.jsonc's 'permissions' array key is schema-invalid per the same record; documentation concepts verified present on main.",
+      "id": "SUP-001",
+      "verified_by": "WSR23 (independent re-check)"
+    },
+    {
+      "claim": "PR #166 (ops/opencode-muse-primary-privacy-20260908) is superseded with all unique content integrated.",
+      "evidence": "GOVERNANCE_SUPERSESSION.md:25-39 (on main) names head 22e2a20f, forbids wholesale merge, and states the privacy concepts are already in AGENTS.md and opencode.json; AGENTS.md \u00a712 and opencode.json 'permission' block verified on main.",
+      "id": "SUP-002",
+      "verified_by": "WSR23 (independent re-check)"
+    },
+    {
+      "claim": "PR #167 (project/resource-constrained-execution-policy-20260908) is superseded with all unique content integrated.",
+      "evidence": "GOVERNANCE_SUPERSESSION.md:41-55 (on main) names head 633f51ae and recommends SUPERSEDE; every listed valid concept verified present in AGENTS.md \u00a76/\u00a77 and opencode.json (experimental.policies, variant 'disabled', share: disabled); merged PR #257 supersedes again.",
+      "id": "SUP-003",
+      "verified_by": "WSR23 (independent re-check)"
+    },
+    {
+      "claim": "PR #162 (ws47/successor-contract-v1.0.5-freeze) is superseded with the WS-47 deliverable fully integrated.",
+      "evidence": "17/17 qualification/ws47/ blobs byte-identical between head 5a2e4f46 and origin/main; added by 3448283b.",
+      "id": "SUP-004",
+      "verified_by": "WSR23 (corrected the delegated pass's over-broad claim)"
+    },
+    {
+      "claim": "Local branch camp/rg-closure-20260925 is a superseded parallel implementation of merged PR #249 for RG-01..RG-06, and remains the ONLY carrier of RG-07 and RG-08 evidence.",
+      "evidence": "git merge-base ca5164bf6 (PR #249 head) camp/rg-closure-20260925 == c491528c and neither is an ancestor of the other: divergent siblings. PR #249 landed XmageCausalStackReconstruction, XmageCausalEliminationReconstruction, XmageControlDivergenceReconstruction, XmageHiddenStateRestoration, XmageTemporalProgressionDriver plus 8 tests. camp/rg-closure contributes 10 files ABSENT from main (XmageFullGameStackExecutionTest, XmageFullGameTemporalProgressionTest, XmageFullGameTemporalDriver, XmageFullGameCommanderDamageTest, XmageFullGameControlDivergenceTest, XmageFullGameEliminationTest, XmageFullGameHexOfferTest, XmageFullGameReplacementTest, XmageFullGameHiddenRestorationTest, XmageFullGameWs05TemporalExecutionTest) plus docs/workstream_rg_closure_20260925/HANDOFF.md, and modifies the same production files XmageNativeStateRestoration.java and XmageFullGameDecisionController.java with different content. 'RG-07'/'RG-08' appear nowhere on origin/main except as strings in config/rules_engines.json and the residual-repin source lock.",
+      "id": "SUP-005",
+      "verified_by": "WSR23"
+    },
+    {
+      "claim": "PR #206 is the provenance donor for the merged WS241 publisher hardening and is now redundant as a PR.",
+      "evidence": "docs/workstream_publisher_reintegration_20260927/HANDOFF.md:17-21 records #206 (head 80abaae6) as NOT merged as-is and replaced by PR #253; PR #253 MERGED 2026-09-27T09:51:07Z. origin/main tools/foundry/safe_push.py is 800 lines with the full effective-target hardening.",
+      "id": "SUP-006",
+      "verified_by": "WSR23",
+      "wsr23_action": "NONE - #206 is already CLOSED; recorded for completeness"
+    },
+    {
+      "claim": "docs/foundry-execution/GOVERNANCE_SUPERSESSION.md is a stale current-authority pointer and contains one wrong section reference.",
+      "evidence": "The doc's line 3-6 declares branch project/opencode-execution-system-consolidation-20260910 'the single successor governance line'. Measured: that branch is 0 commits ahead of and 420 commits behind origin/main, and the current governance line is open PR #261. Line 38 routes the privacy concepts to 'AGENTS.md \u00a711'; \u00a711 is 'Git, worktree, ownership' and privacy is \u00a712.",
+      "id": "SUP-007",
+      "verified_by": "WSR23",
+      "wsr23_action": "REPAIRED on wsr23/project-integration-hygiene-20260927 (non-overlapping path; not in #261's diff)"
+    },
+    {
+      "claim": "The reference-integrity defect class (dead current links, scripts pointing at removed paths) is currently EMPTY in this repository.",
+      "evidence": "315 tracked markdown files scanned on origin/main: 0 broken relative markdown links. 48 backticked repository paths do not resolve, but every hit was triaged: external models.dev catalog identities (EXECUTION_PROVIDER_OVERRIDE.md:38 providers/opencode-go/models/space-bunny-free.toml), historical WORKSTREAM_STATE.yaml provenance records naming their own original worktree paths, or deliberately quoted nonexistent files describing a defect (GOVERNANCE_SUPERSESSION.md:34). A separate scan of 612 workflow/script files produced 143 hits, all of which are runtime output paths (artifacts/...) created by the workflow, not stale input references. A link checker was therefore considered and REJECTED under the reuse-first gate: it would add a maintenance surface to guard a class with zero live defects, and an AGENTS.md section-number guard would create a new CI failure coupled to open PR #261's in-flight AGENTS.md edits.",
+      "id": "SUP-008",
+      "verified_by": "WSR23",
+      "wsr23_action": "NO CODE CHANGE - deliberate, with recorded reason"
+    }
+  ],
+  "generated_at": "2026-09-27T17:20:00+02:00",
+  "issue": 263,
+  "observed_main_sha": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+  "purpose": "Every supersession relationship WSR23 asserted, with its exact evidence, so the Coordinator can re-check any single row.",
+  "repo": "moeendres-png/commander-playtest-lab",
+  "workstream": "WSR23"
+}

@@ -1,0 +1,76 @@
+{
+  "authority": {
+    "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+    "PRODUCTION_PROVIDER": "NOT SELECTED"
+  },
+  "branch": "wsr23/project-integration-hygiene-20260927",
+  "duplicate_clone_detected": {
+    "class": "DIRTY_UNKNOWN_OWNER",
+    "note": "Second independent clone of moeendres-png/forge. Not a registered worktree. No WSR23 action.",
+    "path": "/home/moeen/code/forge-candidate-h4f",
+    "slug": "moeendres-png/forge"
+  },
+  "evidence_semantics": "UNKNOWN != PASS; PARTIAL != FULL; NOT_RUN != PASS",
+  "generated_at": "2026-09-27T17:20:00+02:00",
+  "issue": "https://github.com/moeendres-png/commander-playtest-lab/issues/263",
+  "observed_main_sha": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+  "observed_main_tree": "610f93d81e3b7154731d95472be6dcac05057eac",
+  "project_repositories": [
+    {
+      "clone": "/home/moeen/code/commander-playtest-lab",
+      "default_branch": "main",
+      "local_branch_count": 174,
+      "local_main_dirty": "1 untracked path only: Datenpaket_19_09/ (DIRTY_UNKNOWN_OWNER, untouched)",
+      "local_main_head": "586914ea10caf1ede3e509908a6b177c4a20d5e7",
+      "local_main_state": "54 commits behind origin/main; fast-forward only, no divergence",
+      "origin_head": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+      "origin_head_date": "2026-09-27T15:41:06+02:00",
+      "role": "Lab / orchestration / Foundry tooling (WSR23 primary writable surface)",
+      "rules_semantics_writable_by_wsr23": false,
+      "slug": "moeendres-png/commander-playtest-lab",
+      "worktree_count": 173
+    },
+    {
+      "clone": "/home/moeen/code/forge",
+      "default_branch": "master",
+      "local_branch_count": "n/a (see BRANCH_INVENTORY)",
+      "role": "Production Rules provider (read-only to WSR23)",
+      "rules_semantics_writable_by_wsr23": false,
+      "slug": "moeendres-png/forge",
+      "worktree_count": 39
+    },
+    {
+      "clone": "/home/moeen/code/mage-ws33 (detached) /home/moeen/code/mage-d3q6",
+      "default_branch": "master",
+      "role": "Production Rules provider (read-only to WSR23)",
+      "rules_semantics_writable_by_wsr23": false,
+      "slug": "moeendres-png/mage",
+      "worktree_count": 13
+    }
+  ],
+  "reference_repositories_read_only": [
+    {
+      "class": "REFERENCE_ONLY",
+      "clone": "/home/moeen/code/ws219-ref-argentum-3f46367d",
+      "slug": "wingedsheep/argentum-engine.git"
+    },
+    {
+      "class": "REFERENCE_ONLY",
+      "clone": "/home/moeen/code/ws219-ref-quorune-64ef6569",
+      "slug": "NullPriority/quorune.git"
+    }
+  ],
+  "remote_hardening_checks": {
+    "cpl": {
+      "fetch_url_records": 1,
+      "insteadOf_or_pushInsteadOf_records": 0,
+      "mirror_config": false,
+      "pushurl_records": 0,
+      "receivepack_config": false,
+      "verdict": "PASS_HARDENED_EFFECTIVE_TARGET"
+    }
+  },
+  "scope_rule": "A directory belongs to WSR23 only if its git remote is one of the three Commander Simulator Next project repositories, or it is a registered git worktree of one of them. Everything else under /home/moeen/code is OUT_OF_SCOPE and untouched.",
+  "workstream": "WSR23",
+  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
+}
