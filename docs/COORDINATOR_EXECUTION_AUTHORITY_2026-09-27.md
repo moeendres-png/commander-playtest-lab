@@ -140,9 +140,24 @@ subject to the repository permission/approval gates.
 
 Project-wide understanding must not be confused with project-wide write authority.
 
-Both Space Bunny MAX and Muse may consume explicitly verified project references across /home/moeen/code. Read-only references are materialized as disposable detached runtime snapshots so builds/searches cannot mutate the authoritative source checkout through normal Foundry tool paths. A cross-workstream task may also receive multiple explicit owned-write mutation surfaces. Every writable surface must bind exact repository, branch, HEAD/tree, state path and ownership equal to the CURRENT workstream, and all writer locks are held concurrently for the complete child lifetime.
+Both Space Bunny MAX and Muse may consume explicitly verified project references across
+/home/moeen/code. Read-only references are materialized as disposable detached runtime
+snapshots so builds/searches do not operate on the authoritative source checkout. A
+cross-workstream task may also receive multiple explicit owned-write mutation surfaces.
+Every writable surface must bind exact repository, branch, HEAD/tree, a state path under
+ROOT/.foundry, ownership equal to the CURRENT workstream, and a standalone checkout with
+checkout-local Git metadata. Writable surfaces must be disjoint and all writer locks are
+held concurrently for the complete child lifetime.
 
-The authoritative roots behind read-only references remain denied; only their disposable snapshots are exposed to the OpenCode child. Snapshot build outputs are non-authoritative and may be discarded. Foreign active and unknown-owner worktrees are not mutation-authorized. Undeclared siblings remain denied. Cross-workstream child execution is additionally protected by an unprivileged Linux Landlock write boundary. Only the primary worktree, explicit owned-write roots, run/temp state and narrow tool caches are writable; if the kernel cannot install the boundary, launch fails closed. This lets Foundry perform real integration work without creating competing writers.
+The authoritative roots behind read-only references remain denied; only unique disposable
+snapshots are exposed to the OpenCode child. Snapshot build outputs are non-authoritative
+and may be discarded. Foreign-active and unknown-owner worktrees are not
+mutation-authorized. Undeclared siblings remain denied. Cross-workstream child execution
+uses Bubblewrap: the host root is mounted read-only, then only the primary standalone
+checkout, explicit standalone owned-write roots, one unique runtime directory and narrow
+tool caches are rebound read-write. If Bubblewrap is missing or namespace setup fails,
+launch fails closed. This lets Foundry perform real integration work without shared-Git
+metadata or shell/interpreter bypasses widening mutation authority.
 
 ## Executor handoff and parallelism
 
