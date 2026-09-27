@@ -8,7 +8,7 @@ Single coherent entry point for the OpenCode Foundry execution system on
 | Durable agent rules | `AGENTS.md` (root) | Non-negotiable invariants for every session |
 | Machine config | `opencode.json` (root) | Safe committed Muse default; launcher-selected Space Bunny MAX profile; permissions; sharing off |
 | Routing and effort | `docs/foundry-execution/ROUTING_AND_EFFORT.md` | Canonical routing, effort, Work gate |
-| Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Disposable verified reference snapshots + explicit current-workstream multi-surface owned-write access + Landlock write boundary |
+| Workspace access | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` + launcher `--workspace-access` | Unique verified reference snapshots + standalone current-workstream owned-write surfaces + Bubblewrap read-only-root boundary |
 | Explicit execution profiles | `docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md` | Muse default, Space Bunny Max profile, legacy Zen override, no fallback |
 | Technical authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` | Sol / Space Bunny MAX / Muse / Astra authority model |
 | Contract template | `docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md` | Task fields incl. decision authority |
@@ -74,3 +74,12 @@ paths. `foundry-reviewer` stays fully contained (`edit: deny`,
 roles because OpenCode glob semantics cannot reliably distinguish read
 (`GET`) from mutation (`POST`/`PATCH`/`PUT`/`DELETE`); no method-sensitive
 enforcement is claimed.
+
+
+### Bubblewrap prerequisite for cross-workstream runs
+
+Cross-workstream `--reference` / `--workspace-access` launches require Linux
+`bwrap` (Bubblewrap). The launcher fails closed if it is unavailable or cannot create
+the mount namespace. There is no Landlock-only or unsandboxed fallback. Installation is an
+operator/environment provisioning step; OpenCode workers must not bypass `sudo` policy
+or self-install privileged dependencies.
