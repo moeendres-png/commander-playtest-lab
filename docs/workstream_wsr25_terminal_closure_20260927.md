@@ -34,16 +34,45 @@ hygiene. Everything below is merged on `main`. No open workstream item remains.
 - `docs/REPOSITORY_TRIAGE_INDEX.md` — PR lanes, label semantics, issue states.
 - `docs/RETENTION_AND_LIFECYCLE_POLICY.md` — pin lineage `77d7646 → cfc36f44 → db134b97 → b1959698`.
 
+## Tests and evidence (classified)
+
+Classifications follow the repository evidence policy. `UNKNOWN != PASS`, and
+`CODE_DERIVED != RUNTIME_VERIFIED`.
+
+| Item | Classification | Basis at this audit base |
+| --- | --- | --- |
+| RG-07 exact-N target offering, 6/6 | `EXTERNALLY_RULE_VALIDATED` (bounded) | Lab runtime on the bridge against pin `b1959698`, Hex 5/6/7 baselines, distinct-target enforcement, hexproof pool reduction, fail-closed malformed input, seed 424242, explicit offered options only. `XmageFullGameHexOfferTest`, copied byte-for-byte from camp carrier `22121f8c` and re-run green. |
+| RG-08 replacement timing, 8/8 | `EXTERNALLY_RULE_VALIDATED` (bounded) | Lab runtime on the same pin, real replacement cards (Dredge accept/decline/multi-choice, Rest in Peace, Furnace + prevention ordering, commander-zone choice). `XmageFullGameReplacementTest` from camp carrier `684939fe`, minimally rewritten for current-main `DUPLICATE_SEMANTIC_OBJECT` strictness. |
+| Regression battery at port time | `DIRECTLY_VERIFIED` | `XmageCommanderDamageRestorationTest` 8/8, `XmageFull107ResidualRequalificationTest` 3/3, `XmageFullGameHiddenInformationTest` 2/2, combined 27/27. |
+| Foundry permission battery | `DIRECTLY_VERIFIED` | `tests/foundry/` 468 passed / 1 skipped (live-telemetry snapshot, pre-existing), plus 34-case positive/negative permission battery incl. last-match-wins ordering. |
+| Policy gates | `DIRECTLY_VERIFIED` | `test_ws17_qualification` 12/12; ruff check and format clean. |
+| Exact-head CI at merge | `DIRECTLY_VERIFIED` | quality, security, infrastructure (+ conformance, build-release, real-4p-smoke, recovery, windows-runtime, exact-main-admission on `main`) = success. |
+| Mage-native RG-07/RG-08 evidence | `CODE_DERIVED` for Lab purposes | Mage PRs #14/#15 remain open draft, `DO NOT MERGE TO MAGE MASTER`. Their pass is **not** inherited as Lab credit; all Lab credit above is fresh Lab runtime. |
+| Camp-carrier evidence not ported | `PROVENANCE_ONLY` | `camp/rg-closure-20260925 @ ca8950e5` retained; its production deltas are `SUPERSEDED_BY_CURRENT_MAIN`. |
+| Provider comparison completeness | `UNKNOWN` | `PROVIDER_COMPARISON_COMPLETE = NO`; PB-03/06/07/08/09 open, AF00–AF11 not established for either candidate. |
+| Architecture Freeze / Production Provider | `NOT_CLAIMED` / `NOT_SELECTED` | Unchanged by this campaign. |
+
+Historical PASS survives a relevant code/pin/contract/harness change only after impact
+adjudication and requalification: the scoped validations above are the adjudication that
+preserves RG-07/RG-08 at this audit base. Any later change to `config/rules_engines.json`,
+the bridge, the harness or these test families voids the corresponding row until re-run.
+
 ## Explicitly not done (other owners)
 
 - PB-03 starting-state injection and the WSR22 successor integration (Space Bunny MAX).
 - **PB-09 — `EVIDENCE_INTEGRITY_DEFECT`, owner Forge lane + Coordinator, and its decision is
-  ordered *before* PB-03.** Forge's Rules-Core pin is satisfied, its Lab bridge-source pin is
-  not: the Forge column measured a Lab Rules-Core fork rather than the pinned candidate. This
-  is the mechanical cause of the apparent Forge capability lead, and the reason its PASS
-  asymmetry is not a measured Rules difference. Source:
-  `docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md` §7.1 and the blocker
-  table (`PROVIDER_COMPARISON_COMPLETE = NO`, `PROVIDER_SELECTION_READY = NO`).
+  ordered *before* PB-03.** The executed Forge build `ef958ee91ac` is **not** the pinned Forge
+  candidate on either identity: `a37a865a` is an ancestor of the executed commit, but ancestry
+  proves the release is in the history, not that the executed tree equals it — `ef958ee9` carries
+  Lab's own Rules engineering (47 Rules-touching commits); and the Lab bridge-source pin
+  `4753bb7c` is likewise not what ran. Both the Rules-Core and the bridge-source identity are
+  therefore unreconciled, which is the mechanical cause of the apparent Forge capability lead.
+  Do not repin `secondary_engine` to `ef958ee9` and do not edit `ef958ee9` into provenance or
+  evidence fields. Source: `docs/pre_freeze_completion_20260927/PB09_FORGE_CANDIDATE_IDENTITY.md`
+  (which supersedes the earlier "Rules-Core pin satisfied" conclusion) and §7.1 of
+  `PRE_FREEZE_COMPARISON_PACKAGE.md` (`PROVIDER_COMPARISON_COMPLETE = NO`,
+  `PROVIDER_SELECTION_READY = NO`). AF00 and the provider comparison stay bound to the wrong
+  Rules Core until this is resolved.
 - **PB-06 / PB-07 / PB-08 are `both`-sided blockers, not Forge-only.** Per the same package:
   PB-06 per-scenario hidden channels, PB-07 the effective 29-card corpus, PB-08 the
   per-fixture clean-process replay twin are `UNKNOWN_IMPACT` and still open for **both**
