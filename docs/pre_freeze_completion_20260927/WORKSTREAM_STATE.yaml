@@ -68,7 +68,7 @@ out_of_scope:
 ownership: wsr22-successor-current-boundary-freeze-20260927
 repository: moeendres-png/commander-playtest-lab
 schema_version: '2.0'
-state_written_against_head: 35ed98b539eb05bc5af2e7381ba12dedcd9020e6
+state_written_against_head: 46c43b4b1af2abfd2b27b70052193bee000720ca
 status: WAITING
 technical_decisions:
 - Main was merged as the base and main moved three times during the WSR23 stage, so
@@ -85,7 +85,7 @@ technical_decisions:
   the correction is auditable rather than silent.
 - The 4 strict-mypy errors in the transplanted package are fixed by narrowing. Suppressing
   them would have hidden exactly the kind of gap CI exists to catch.
-validated_head: 35ed98b539eb05bc5af2e7381ba12dedcd9020e6
+validated_head: 46c43b4b1af2abfd2b27b70052193bee000720ca
 worktree: /home/moeen/code/wsr22-successor-current-boundary
 tests_run:
 - 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at 35ed98b539eb05bc5af2e7381ba12dedcd9020e6):
