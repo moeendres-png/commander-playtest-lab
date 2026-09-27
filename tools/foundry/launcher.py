@@ -867,6 +867,12 @@ def init(
                 "verdict": "LAUNCH_REFUSED",
                 "error": f"duplicate --reference root {root!r}",
             }
+        fetch_error = workspace_access_mod.exact_fetch_identity_error(root, ref["repo_slug"])
+        if fetch_error is not None:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"reference {ref['label']!r}: exact fetch identity rejected ({fetch_error})",
+            }
         seen_labels.add(ref["label"])
         seen_reference_roots.add(root)
         parsed_refs.append(ref)
