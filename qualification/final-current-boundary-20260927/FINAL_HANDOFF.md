@@ -309,14 +309,23 @@ and the repository contract), `SOURCE_LOCK.json`,
   (runner + fresh execution) -> `4bcfb10c` (matrix/comparison/handoff) ->
   `de08e928` (clean-tree baseline + manifest reseal) -> `f81561be`
   (final state binding).
-- Remote: NOT PUBLISHED in this session — `git push` is denied by the root tool
-  policy. No force push, no rebase, no tag, no settings change was attempted.
+- Remote: **NOT PUBLISHED**. Pre-push verification completed (fresh fetch, no
+  remote `wsr22/*` branch exists, remote URL verified as
+  `https://github.com/moeendres-png/commander-playtest-lab.git`, working tree
+  clean, dispatch main `c5f9418e` is the branch base). The single authorized
+  fast-forward push was attempted once and **denied by the root tool policy**
+  (`git push*` is `deny` in `opencode.json`). Per the governing policy the
+  denial was not retried, rephrased, or wrapped. No force push, no rebase, no
+  tag, no settings change was attempted.
+- Final local HEAD: `8e8782485d5f2b4017d93386241a268921edb7d9`
 
 ## PR / CI
 
-- PR: NONE yet (publication gate, see below).
+- PR: NONE (publication gate, see above).
 - Remote CI on the published tip: not triggered, because publication did not
-  occur. All local validation is green.
+  occur. All local validation is green locally, including 52 qualification
+  tests, 14 new current-boundary reconciliation tests, and 385 fresh native
+  engine tests.
 
 ## Dependencies Unblocked
 
