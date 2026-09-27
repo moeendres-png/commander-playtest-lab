@@ -309,14 +309,18 @@ def test_current_rules_authority_freshness_conflict_fails_closed() -> None:
     successor = _json(SUCCESSOR_PATH)
     assert receipt["authority"] == "Wizards of the Coast"
     assert receipt["authority_status"] == "FRESHNESS_CONFLICT_FAIL_CLOSED"
-    assert receipt["directly_retrieved_official_source"]["effective_date"] == "2026-08-07"
+    assert (
+        receipt["directly_retrieved_official_source"]["effective_date"] == "2026-08-07"
+    )
     assert receipt["directly_retrieved_official_source"]["rule_103_8a_observed"] is True
     assert receipt["newer_release_signal"]["effective_date"] == "2026-09-25"
     assert receipt["newer_release_signal"]["official_txt_url"] is None
     assert receipt["newer_release_signal"]["official_txt_sha256"] is None
     assert receipt["newer_release_signal"]["admission_credit"] is False
     assert receipt["reproduction"]["fail_closed_on_freshness_conflict"] is True
-    assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
+    assert (
+        successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
+    )
     assert successor["rules_authority"]["semantic_basis_effective_date"] == "2026-08-07"
 
 
