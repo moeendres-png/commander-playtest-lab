@@ -437,6 +437,63 @@ def test_battery_last_match_wins() -> None:
     assert permission_battery.evaluate_rule(rules, "bash", "git status")[0] == "ENFORCED_ALLOW"
 
 
+def _live_bash_rules() -> list[dict]:
+    perm = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))["permission"]
+    return [
+        {"permission": "bash", "pattern": pattern, "action": action}
+        for pattern, action in perm["bash"].items()
+    ]
+
+
+def test_delegated_git_allow_with_specific_denies() -> None:
+    """Live opencode.json resolution: owned-branch Git allowed, destructive denied."""
+    rules = _live_bash_rules()
+    for cmd in (
+        "git fetch origin",
+        "git push origin foundry/feature-20260927",
+        "git push",
+        "git merge origin/main",
+        "git pull --ff-only",
+        "git cherry-pick abc123",
+        "git checkout -b foundry/feature-20260927",
+        "git switch -c foundry/feature-20260927",
+        "git worktree add /tmp/wt -b foundry/feature-20260927",
+        "gh pr create --title x",
+        "gh pr merge 266",
+    ):
+        verdict, matched = permission_battery.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
+    for cmd in (
+        "git push --force origin foundry/feature-20260927",
+        "git push origin foundry/feature-20260927 --force",
+        "git push -f origin foundry/feature-20260927",
+        "git push --force-with-lease origin foundry/feature-20260927",
+        "git push origin foundry/feature-20260927 --delete",
+        "git push origin main",
+        "git push origin master",
+        "git push upstream main",
+        "git checkout -B foundry/feature-20260927",
+        "git switch -C foundry/feature-20260927",
+        "git rebase origin/main",
+        "git reset --hard HEAD",
+        "git clean -fd",
+        "git branch -D foundry/feature-20260927",
+        "git worktree remove /tmp/wt",
+        "git worktree remove --force /tmp/wt",
+    ):
+        verdict, matched = permission_battery.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "DENIED", (cmd, matched)
+
+
+def test_pr_merge_vs_raw_main_push_distinction() -> None:
+    """Guarded PR merge path is allowed; raw main push is denied."""
+    rules = _live_bash_rules()
+    verdict, _ = permission_battery.evaluate_rule(rules, "bash", "gh pr merge 266")
+    assert verdict == "ENFORCED_ALLOW"
+    verdict, matched = permission_battery.evaluate_rule(rules, "bash", "git push origin main")
+    assert verdict == "DENIED", matched
+
+
 def test_battery_env_deny_beats_allow_all() -> None:
     rules = [
         {"permission": "read", "pattern": "*", "action": "allow"},
@@ -477,30 +534,45 @@ def test_battery_full_probe_set_runs() -> None:
 
 
 def test_safe_auto_deny_set_pinned() -> None:
-    """Every SAFE_AUTO threat-model deny shape must stay deny in opencode.json.
+    """Destructive shapes must stay deny in opencode.json; owned-branch Git is allow.
 
+    Delegated integration authority (AGENTS.md): normal push/merge/branch/worktree
+    creation on the owned feature branch is ENFORCED_ALLOW, while force, main/master
+    and destructive shapes stay DENIED via later last-match-wins rules.
     Guards against silent ask-downgrades. Live resolution is proven separately
     by the adversarial battery against `opencode debug agent` output.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     bash = config["permission"]["bash"]
     for pattern in (
-        "git push*",
-        "git merge*",
+        "git push --force*",
+        "git push * --force*",
+        "git push -f*",
+        "git push * -f *",
+        "git push * -f",
+        "git push --force-with-lease*",
+        "git push * --force-with-lease*",
+        "git push --delete*",
+        "git push * --delete*",
+        "git push * :*",
+        "git push origin main*",
+        "git push origin master*",
+        "git push upstream main*",
+        "git push upstream master*",
         "git rebase*",
         "git reset --hard*",
         "git clean*",
         "git branch -D*",
         "git branch -d*",
-        "git worktree add*",
         "git worktree remove*",
         "git worktree move*",
+        "git worktree remove --force*",
         "git checkout main",
         "git checkout master",
-        "git checkout -b*",
+        "git checkout -B*",
         "git switch main",
         "git switch master",
-        "git switch -c*",
+        "git switch -C*",
         "git update-ref*",
         "git symbolic-ref*",
         "git filter-branch*",
@@ -544,6 +616,19 @@ def test_safe_auto_deny_set_pinned() -> None:
         "*|bash *",
     ):
         assert bash.get(pattern) == "deny", pattern
+    # Delegated owned-branch Git authority must stay allow.
+    for pattern in (
+        "git push*",
+        "git merge*",
+        "git pull --ff-only*",
+        "git cherry-pick*",
+        "git checkout -b*",
+        "git switch -c*",
+        "git worktree add*",
+        "gh pr create*",
+        "gh pr merge*",
+    ):
+        assert bash.get(pattern) == "allow", pattern
     # Routine engineering must still proceed unattended.
     for pattern in (
         "git status*",

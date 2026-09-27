@@ -300,7 +300,19 @@ def test_compaction_prune_stays_default(repo_root: Path):
 def test_safety_permissions_intact(repo_root: Path):
     permission = _config(repo_root)["permission"]
     assert permission["bash"]["*"] == "ask"
-    assert permission["bash"]["git push*"] == "deny"
+    # Delegated authority (AGENTS.md): owned-branch push allowed; force/main/master
+    # and destructive shapes stay denied via later last-match-wins rules.
+    assert permission["bash"]["git push*"] == "allow"
+    for denied in (
+        "git push --force*",
+        "git push --delete*",
+        "git push origin main*",
+        "git push origin master*",
+        "git rebase*",
+        "git reset --hard*",
+        "git clean*",
+    ):
+        assert permission["bash"][denied] == "deny", denied
     assert permission["doom_loop"] == "deny"
     assert permission["edit"]["*.env"] == "deny"
 
