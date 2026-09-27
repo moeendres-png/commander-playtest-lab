@@ -20,8 +20,55 @@
   },
   "generated_at": "2026-09-27T17:20:00+02:00",
   "issue": 263,
-  "observed_main_sha": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+  "main_drift": {
+    "action_taken": "git rebase origin/main onto the WSR23 branch; validation re-run on the rebased tip.",
+    "cause": "PRs #260 and #261 and then PR #268 merged into main while WSR23 was running.",
+    "classification": "NO_IMPACT",
+    "detected_at": "2026-09-27T17:06:06+02:00 (mid-run, after the first validation pass)",
+    "evidence": "git diff --name-only c5f9418e bbbb6b9c lists 15 paths. WSR23's mutation surface is docs/project_integration_hygiene_20260927/** and docs/foundry-execution/GOVERNANCE_SUPERSESSION.md. Intersection is empty. git diff c5f9418e bbbb6b9c -- docs/foundry-execution/GOVERNANCE_SUPERSESSION.md is empty, so the repair target was untouched by the merges. AGENTS.md section numbering is also unchanged by #261: \u00a711 is still 'Git, worktree, ownership' and \u00a712 is still 'Privacy', so repair R1's premise still holds. The rebase was therefore a clean, conflict-free replay, not a semantic adaptation.",
+    "initial_audit_base": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+    "revalidated_against": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719"
+  },
+  "observed_main_sha": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719",
+  "observed_main_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
   "open_pr_total": 41,
+  "post_closure_state": {
+    "closed_by_wsr23": [
+      {
+        "closed_at_utc": "2026-09-27T15:15:02Z",
+        "head_ref": "chore/foundry-agents-policy",
+        "head_sha": "26409b932d540ba823ccc70e2187227cdae52329",
+        "number": 161,
+        "terminal_comment": "https://github.com/moeendres-png/commander-playtest-lab/pull/161#issuecomment-5857087212"
+      },
+      {
+        "closed_at_utc": "2026-09-27T15:15:05Z",
+        "head_ref": "ws47/successor-contract-v1.0.5-freeze",
+        "head_sha": "5a2e4f462fd45bba25f2271153212aab9faf09f5",
+        "number": 162,
+        "terminal_comment": "https://github.com/moeendres-png/commander-playtest-lab/pull/162#issuecomment-5857091609"
+      },
+      {
+        "closed_at_utc": "2026-09-27T15:15:11Z",
+        "head_ref": "ops/opencode-muse-primary-privacy-20260908",
+        "head_sha": "22e2a20fe2fab595f0bc01e40cf00dbdd4af856e",
+        "number": 166,
+        "terminal_comment": "https://github.com/moeendres-png/commander-playtest-lab/pull/166#issuecomment-5857091730"
+      },
+      {
+        "closed_at_utc": "2026-09-27T15:15:15Z",
+        "head_ref": "project/resource-constrained-execution-policy-20260908",
+        "head_sha": "633f51ae68b4908228afdb4354029163e24b903c",
+        "number": 167,
+        "terminal_comment": "https://github.com/moeendres-png/commander-playtest-lab/pull/167#issuecomment-5857091862"
+      }
+    ],
+    "content_deleted": "none - all four branches and every commit on them are retained by GitHub",
+    "drift_note": "#260 and #261 merged and #268 merged while WSR23 ran; #266 opened; WSR24 appeared. See main_drift on every packet file and PUBLICATIONS.md.",
+    "open_pr_count_after": 36,
+    "open_pr_count_before": 41,
+    "untouched": "#259, #262 remain open and untouched. #163, #164 remain open and untouched (STALE_BUT_UNADJUDICATED). The 31 SUPERSEDED_BUT_UNIQUE_CONTENT_REMAINS PRs remain open and untouched."
+  },
   "prs": [
     {
       "base_ref": "main",

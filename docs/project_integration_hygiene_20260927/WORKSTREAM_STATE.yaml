@@ -2,17 +2,17 @@
   "artifacts": [
     "docs/project_integration_hygiene_20260927/ (durable integration packet)"
   ],
-  "audit_base_sha": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
-  "audit_base_tree": "610f93d81e3b7154731d95472be6dcac05057eac",
+  "audit_base_sha": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719",
+  "audit_base_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
   "authority_gates": [
     "PRODUCTION_PROVIDER = NOT SELECTED (Coordinator authority; unchanged by WSR23)",
     "ARCHITECTURE_FREEZE = NOT CLAIMED (Coordinator authority; unchanged by WSR23)",
     "MTG Rules adjudication remains with GPT-5.6 Sol High; WSR23 made no Rules ruling"
   ],
   "branch": "wsr23/project-integration-hygiene-20260927",
-  "current_failure": "NONE",
-  "current_hypothesis": "NONE",
-  "current_reasoning": "Audit, classification, one scoped repair, validation and packet are complete. Remaining work is remote publication and the terminal PR comments, both of which depend on the project permission layer.",
+  "current_failure": "BLOCKED_BY_PUSH_POLICY_GATE: tools/foundry/safe_push.py rejected with 'PUSH_REJECT: no writer lock (run inside the validated launcher)'. Gate 6 requires the kernel flock on the WSR23 writer-lock file to be held by a recorded holder whose PID is an ancestor of the pushing process. This session (PID 77022, cwd /home/moeen/code) is not launcher-spawned and holds no lock for /home/moeen/code/wsr23-project-integration-hygiene.",
+  "current_hypothesis": "NONE - not a defect and not a misconfiguration. Self-acquiring the writer lock would satisfy the gate but is precisely the bypass it exists to prevent, so it was not done. No raw git push was attempted, not even as a probe.",
+  "current_reasoning": "Inventory, classification, one scoped repair, drift adjudication and validation are COMPLETE. Remote hygiene (four terminal closures) is COMPLETE. The only remaining WSR23 action is the branch push and its PR, both blocked by the project writer-lock gate.",
   "current_reasoning_tier": "high",
   "dependencies": [
     "WSR22 must finish before any provider adjudication; WSR23 depends on nothing from it",
@@ -30,32 +30,33 @@
     "docs/project_integration_hygiene_20260927/REPAIRS_APPLIED.md",
     "docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json",
     "docs/project_integration_hygiene_20260927/UNPUBLISHED_BRANCHES.json",
-    "docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json"
+    "docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json",
+    "docs/project_integration_hygiene_20260927/PUBLICATIONS.md"
   ],
   "exact_next_action": "Coordinator: adjudicate REMAINING_BLOCKERS.md B1 (port RG-07/RG-08 evidence off the unpublished local branch camp/rg-closure-20260925) and B3 (unowned tracked modifications to Mage engine sources in xmage-ws49-baseline), then sequence PR #260 against WSR22 on their two shared paths. WSR23 requires no further local work; its remaining actions are remote and permission-gated.",
   "failed_gates": [],
-  "failure_class": "NONE",
+  "failure_class": "INFRASTRUCTURE_DEFECT",
   "files_modified": [
     "docs/foundry-execution/GOVERNANCE_SUPERSESSION.md",
-    "docs/project_integration_hygiene_20260927/WORKSTREAM_CONTRACT.md",
-    "docs/project_integration_hygiene_20260927/WORKSPACE_INVENTORY.json",
-    "docs/project_integration_hygiene_20260927/REPOSITORY_INVENTORY.json",
-    "docs/project_integration_hygiene_20260927/WORKTREE_INVENTORY.json",
     "docs/project_integration_hygiene_20260927/ACTIVE_SURFACES.json",
-    "docs/project_integration_hygiene_20260927/DIRTY_WORKTREES.json",
-    "docs/project_integration_hygiene_20260927/UNPUBLISHED_BRANCHES.json",
-    "docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json",
-    "docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json",
-    "docs/project_integration_hygiene_20260927/SUPERSESSION_LEDGER.json",
-    "docs/project_integration_hygiene_20260927/REPAIRS_APPLIED.md",
-    "docs/project_integration_hygiene_20260927/PUBLICATIONS.md",
     "docs/project_integration_hygiene_20260927/CI_VALIDATION.md",
     "docs/project_integration_hygiene_20260927/DELETION_CANDIDATES.md",
-    "docs/project_integration_hygiene_20260927/REMAINING_BLOCKERS.md",
+    "docs/project_integration_hygiene_20260927/DIRTY_WORKTREES.json",
     "docs/project_integration_hygiene_20260927/FINAL_HANDOFF.md",
-    "docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml"
+    "docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json",
+    "docs/project_integration_hygiene_20260927/PUBLICATIONS.md",
+    "docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json",
+    "docs/project_integration_hygiene_20260927/REMAINING_BLOCKERS.md",
+    "docs/project_integration_hygiene_20260927/REPAIRS_APPLIED.md",
+    "docs/project_integration_hygiene_20260927/REPOSITORY_INVENTORY.json",
+    "docs/project_integration_hygiene_20260927/SUPERSESSION_LEDGER.json",
+    "docs/project_integration_hygiene_20260927/UNPUBLISHED_BRANCHES.json",
+    "docs/project_integration_hygiene_20260927/WORKSPACE_INVENTORY.json",
+    "docs/project_integration_hygiene_20260927/WORKSTREAM_CONTRACT.md",
+    "docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml",
+    "docs/project_integration_hygiene_20260927/WORKTREE_INVENTORY.json"
   ],
-  "first_failing_boundary": "NONE",
+  "first_failing_boundary": "tools/foundry/safe_push.py gate 6 (_lock_held_by_ancestor), safe_push.py:485-509",
   "forbidden_shortcuts": [
     "Inferring supersession from PR age",
     "Using git rev-parse <rev>:<path> as an existence probe; it echoes its argument to stdout for a missing path, so git cat-file -e is used instead",
@@ -73,7 +74,8 @@
   "hypotheses_rejected": [
     "The three pytest collection errors seen under the ambient interpreter were a repository defect. Rejected: typer (a core dependency), httpx2 and pytest-asyncio are all pinned in requirements/lock.txt and installed by CI; the first failing boundary is the interpreter, not the repository.",
     "The repository has a dead-link or stale-script-path defect class needing repair. Rejected on measurement: 0 broken relative markdown links across 315 tracked files, and all 143 workflow/script path hits are runtime output paths, not stale input references.",
-    "camp/rg-closure-20260925 is publication-ready unpublished work. Rejected: it is a divergent sibling of merged PR #249 from the same base, 129 commits behind, conflicting on two production files, and its evidence is bound to a superseded engine pin."
+    "camp/rg-closure-20260925 is publication-ready unpublished work. Rejected: it is a divergent sibling of merged PR #249 from the same base, 129 commits behind, conflicting on two production files, and its evidence is bound to a superseded engine pin.",
+    "The WSR23 branch could be published with a raw git push because the session's permission layer permitted other gated operations such as git worktree add. Rejected: the committed opencode.json denies git push*, and \u00a712 requires the hardened path specifically. A push-intent against a real remote ref is a write and was never attempted."
   ],
   "in_scope": [
     "Read-only inventory of repositories, worktrees, branches, writer locks, processes, Foundry state, PRs, issues and CI under /home/moeen/code",
@@ -86,7 +88,7 @@
     "Terminal supersession comment plus closure for open PRs proven to satisfy all six section 10 conditions"
   ],
   "invalidated_gates": [],
-  "next_action": "Coordinator: adjudicate REMAINING_BLOCKERS.md B1 (port RG-07/RG-08 evidence off the unpublished local branch camp/rg-closure-20260925) and B3 (unowned tracked modifications to Mage engine sources in xmage-ws49-baseline), then sequence PR #260 against WSR22 on their two shared paths. WSR23 requires no further local work; its remaining actions are remote and permission-gated.",
+  "next_action": "Operator: from inside a launcher-spawned Foundry writer session for /home/moeen/code/wsr23-project-integration-hygiene on branch wsr23/project-integration-hygiene-20260927, run the safe-push command in PUBLICATIONS.md section 2, then open the WSR23 PR against main. Coordinator: adjudicate REMAINING_BLOCKERS.md B1 (port RG-07/RG-08 off the unpublished local branch camp/rg-closure-20260925) and B3 (unowned tracked modifications to Mage engine sources in xmage-ws49-baseline), and sequence WSR24 (issue #267) against the open WSR22 qualification.",
   "objective": "Inventory the /home/moeen/code Commander Simulator Next workspace, separate active from stale work, classify every open PR and every unpublished local branch, repair only free non-overlapping Lab integration and hygiene defects, validate, publish what is provably publishable, and leave a durable integration ledger.",
   "out_of_scope": [
     "Any mutation of WSR22, PR #260, PR #261, PR #262, PR #259 or issue #255",
@@ -98,15 +100,14 @@
   ],
   "ownership": "WSR23 is the sole writer of branch wsr23/project-integration-hygiene-20260927 in worktree /home/moeen/code/wsr23-project-integration-hygiene. Its mutation surface is docs/project_integration_hygiene_20260927/** plus exactly one existing file, docs/foundry-execution/GOVERNANCE_SUPERSESSION.md. Verified disjoint from the diffs of PR #260, #261, #262 and the WSR22 branch.",
   "remaining_scope": [
-    "Complete the WSR23 branch publication through the hardened safe-push path, or persist BLOCKED_BY_PUSH_POLICY_GATE with exactly one verified safe human command",
-    "Open the WSR23 pull request and attach source lock, validation and supersession information",
-    "Post terminal supersession comments and close PRs #161, #162, #166 and #167"
+    "Run the single verified safe-push command in PUBLICATIONS.md section 2 from inside a Foundry writer session for this worktree",
+    "Open the WSR23 pull request against main once the branch is on the remote"
   ],
   "repository": "moeendres-png/commander-playtest-lab",
-  "root_cause_class": "NONE",
+  "root_cause_class": "INFRASTRUCTURE_DEFECT",
   "schema_version": "2.0",
-  "state_written_against_head": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
-  "status": "ACTIVE",
+  "state_written_against_head": "240a8d40da13f2e7bc1d24e9eb87097d159629b0",
+  "status": "BLOCKED",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "technical_decisions": [
     "Built a lock-faithful venv outside the worktree instead of changing repository dependencies, so validation matches CI and the working tree stays clean.",
@@ -114,16 +115,21 @@
     "Declined to add a test asserting AGENTS.md section numbers, because open PR #261 is editing AGENTS.md right now and such a test would create a new CI failure on an active surface.",
     "Corrected the delegated PR audit's over-broad claim on PR #162 by re-running the blob comparison and narrowing the integrated scope to the WS-47 deliverable before classifying it.",
     "Downgraded PRs #163 and #164 from ACTIVE_CURRENT_WORK to STALE_BUT_UNADJUDICATED: their only 'active' evidence was a 2026-09-10 handoff sentence, and their branch heads are not descendants of their own PR heads.",
-    "Chose NOT_READY over PUBLICATION_READY for every foreign unpublished branch, because section 12 conditions 9 and 10 cannot be proven for any of them."
+    "Chose NOT_READY over PUBLICATION_READY for every foreign unpublished branch, because section 12 conditions 9 and 10 cannot be proven for any of them.",
+    "Did not self-acquire the Foundry writer lock to satisfy safe_push gate 6. Doing so would make this process the recorded holder and would let any process self-authorize as a worktree's exclusive writer, collapsing the single-writer guarantee the Foundry ownership model depends on. Recorded BLOCKED_BY_PUSH_POLICY_GATE with exactly one verified safe command instead.",
+    "Absorbed three mid-run main merges (#261, #260, #268) by fetching, adjudicating to NO_IMPACT on an empty path intersection, rebasing, and re-validating, rather than publishing a stale audit base."
   ],
   "tests_run": [
-    "pytest -q (lock-faithful venv): 1628 passed, 5 skipped, 0 failed on the main baseline",
+    "pytest -q (lock-faithful venv, audit base c5f9418e): 1628 passed, 5 skipped, 0 failed",
+    "pytest -q (lock-faithful venv, rebased tip on bbbb6b9c): 1631 passed, 5 skipped, 0 failed (3 new tests arrive with PR #260)",
     "pytest tests/foundry -q: 437 passed, 1 skipped",
     "ruff check: All checks passed",
-    "ruff format --check: 953 files already formatted",
+    "ruff format --check: 959 files already formatted",
     "mypy src/commander_lab (strict): no issues in 261 source files",
-    "python tools/foundry/state.py --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml --workdir . --check-validated",
-    "python tools/foundry/worktree_inventory.py --workdir . --fail-on-duplicate-writer"
+    "python -m compileall -q src tests: exit 0",
+    "python tools/foundry/state.py --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml --workdir . --check-validated: STATE_OK",
+    "python tools/foundry/worktree_inventory.py --workdir . --fail-on-duplicate-writer: exit 0, duplicate_writers=[] over 173 Lab worktrees",
+    "python3 tools/foundry/safe_push.py ... --dry-run: PUSH_REJECT (no writer lock) - the intended, fail-closed outcome"
   ],
   "validated_gates": [
     "Full python test suite green on the audit base in a lock-faithful venv",

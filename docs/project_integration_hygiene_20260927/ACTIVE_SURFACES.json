@@ -40,10 +40,10 @@
       "id": "PR-260",
       "kind": "pull_request",
       "merge_state_status": "BLOCKED",
-      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
-      "state": "OPEN (not draft)",
+      "ownership": "MERGED_READ_ONLY_REFERENCE",
+      "state": "MERGED at 2026-09-27T14:33:36Z (merge 60fc3c8a) - it was OPEN when WSR23 started",
       "title": "Pre-Freeze follow-up: resolve current Rules authority freshness",
-      "wsr23_treatment": "READ_ONLY"
+      "wsr23_treatment": "READ_ONLY throughout. Merged mid-run. WSR23 performed the \u00a721 impact adjudication: its 6 paths do not intersect WSR23's, and WSR23 re-validated on the rebased tip."
     },
     {
       "changed_paths": [
@@ -62,10 +62,10 @@
       "id": "PR-261",
       "kind": "pull_request",
       "merge_state_status": "CLEAN",
-      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
-      "state": "OPEN (not draft)",
+      "ownership": "MERGED_READ_ONLY_REFERENCE",
+      "state": "MERGED at 2026-09-27T14:24:01Z (merge 613cd57b) - it was OPEN when WSR23 started",
       "title": "Governance: harden Space Bunny MAX + Muse dual-executor authority",
-      "wsr23_treatment": "READ_ONLY. This is why WSR23 did NOT touch AGENTS.md, opencode.json, docs/foundry-execution/README.md or docs/foundry-execution/ROUTING_AND_EFFORT.md, and did NOT add a test asserting AGENTS.md section numbers (that would create a new CI failure surface coupled to #261's in-flight AGENTS.md edits)."
+      "wsr23_treatment": "READ_ONLY throughout. Merged mid-run. WSR23 re-checked its premise after the merge: AGENTS.md section numbering was NOT changed, so repair R1's \u00a711 -> \u00a712 correction remains correct. Its 9 paths do not intersect WSR23's."
     },
     {
       "changed_paths": [
@@ -78,10 +78,11 @@
         "tests/qualification/test_meta_verification.py"
       ],
       "head_branch": "sol/meta-qualification-v1-20260927",
-      "head_sha": "a52300882c155627ed70cf76cf98e3a527369a6c",
+      "head_sha": "35070e76",
       "id": "PR-262",
       "kind": "pull_request",
       "merge_state_status": "BLOCKED",
+      "note": "Branch advanced from a5230088 to 35070e76 during WSR23. Still open draft. WSR23 made no supersession claim and changed nothing.",
       "ownership": "ACTIVE_READ_ONLY_REFERENCE",
       "state": "OPEN (draft)",
       "title": "Meta-Qualification v1: semantic mutation detection on real XMage replay",
@@ -106,6 +107,42 @@
       "title": "Project integration, hygiene, and publication closure",
       "worktree": "/home/moeen/code/wsr23-project-integration-hygiene",
       "wsr23_treatment": "SELF - the only surface WSR23 mutated"
+    },
+    {
+      "changed_paths": [
+        "AGENTS.md",
+        "docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md",
+        "docs/foundry-execution/README.md",
+        "docs/foundry-execution/WORKSTREAM_CONTRACT_TEMPLATE.md",
+        "opencode.json",
+        "tests/foundry/test_launcher.py",
+        "tests/foundry/test_ws75_tooling_hardening.py",
+        "tools/foundry/fs_sandbox.py",
+        "tools/foundry/launcher.py",
+        "tools/foundry/workspace_access.py"
+      ],
+      "head_branch": "foundry/multi-workstream-access-20260927",
+      "head_sha": "5709a9a5",
+      "id": "PR-266",
+      "kind": "pull_request",
+      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
+      "state": "OPEN (not draft), created 2026-09-27T14:31:48Z",
+      "title": "Foundry: explicit multi-workstream workspace access",
+      "wsr23_treatment": "READ_ONLY. Appeared mid-run and was adjudicated before WSR23's final commit. No intersection with WSR23's mutation surface. Note: it edits opencode.json permissions and adds cross-workstream isolation, which is relevant to the WSR23 push gate (see PUBLICATIONS.md) but is not WSR23's surface."
+    },
+    {
+      "branch": "wsr24/freeze-production-bootstrap-readiness-20260927",
+      "changed_paths": "none unique (branch is 2 commits ahead of main but its diff against its merge-base is empty)",
+      "id": "WSR24",
+      "kind": "workstream",
+      "local_worktree": null,
+      "ownership": "ACTIVE_READ_ONLY_REFERENCE",
+      "process_evidence": "no local worktree and no process yet; remote-only at observation time",
+      "remote_head": "60fc3c8a",
+      "repo": "moeendres-png/commander-playtest-lab",
+      "state": "ACTIVE (issue #267 open, branch advancing)",
+      "title": "Architecture Freeze and production bootstrap readiness",
+      "wsr23_treatment": "READ_ONLY. WSR23 made no Architecture Freeze claim and no Production Provider selection. If WSR24 claims the Freeze, that is Coordinator-routed, not WSR23."
     }
   ],
   "authority": {
@@ -131,8 +168,17 @@
   "evidence_semantics": "UNKNOWN != PASS; PARTIAL != FULL; NOT_RUN != PASS",
   "generated_at": "2026-09-27T17:20:00+02:00",
   "issue": "https://github.com/moeendres-png/commander-playtest-lab/issues/263",
-  "observed_main_sha": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
-  "observed_main_tree": "610f93d81e3b7154731d95472be6dcac05057eac",
+  "main_drift": {
+    "action_taken": "git rebase origin/main onto the WSR23 branch; validation re-run on the rebased tip.",
+    "cause": "PRs #260 and #261 and then PR #268 merged into main while WSR23 was running.",
+    "classification": "NO_IMPACT",
+    "detected_at": "2026-09-27T17:06:06+02:00 (mid-run, after the first validation pass)",
+    "evidence": "git diff --name-only c5f9418e bbbb6b9c lists 15 paths. WSR23's mutation surface is docs/project_integration_hygiene_20260927/** and docs/foundry-execution/GOVERNANCE_SUPERSESSION.md. Intersection is empty. git diff c5f9418e bbbb6b9c -- docs/foundry-execution/GOVERNANCE_SUPERSESSION.md is empty, so the repair target was untouched by the merges. AGENTS.md section numbering is also unchanged by #261: \u00a711 is still 'Git, worktree, ownership' and \u00a712 is still 'Privacy', so repair R1's premise still holds. The rebase was therefore a clean, conflict-free replay, not a semantic adaptation.",
+    "initial_audit_base": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+    "revalidated_against": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719"
+  },
+  "observed_main_sha": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719",
+  "observed_main_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
   "workstream": "WSR23",
   "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
 }
