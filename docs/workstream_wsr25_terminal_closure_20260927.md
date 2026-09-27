@@ -8,8 +8,9 @@ hygiene. Everything below is merged on `main`. No open workstream item remains.
 
 ## Source Lock
 
-- Final `main`: `c771e3535125432ee0f25aed6496db33f0b44f33`
-  (tree `7ac8ed892cae3162a861c6a03fa610ad5332229b`).
+- Final `main` audit base: `c771e3535125432ee0f25aed6496db33f0b44f33`
+  (tree `7ac8ed892cae3162a861c6a03fa610ad5332229b`). This file is delivered in the merge
+  commit of its own pull request, so read it from the newest `main`, not from the audit base.
 - Canonical XMage pin: `b19596980f2734496ea1896504253e1bdd2756dd` (`config/rules_engines.json`).
 - Bridge: `xmage-engine-bridge 0.1.0-SNAPSHOT`, xmage `1.4.61`, Lab protocol `2.0.0`.
 
@@ -35,11 +36,21 @@ hygiene. Everything below is merged on `main`. No open workstream item remains.
 
 ## Explicitly not done (other owners)
 
-- PB-03 starting-state injection and the WSR22 successor integration (Space Bunny MAX),
-  which must also carry **PB-09** (Forge candidate identity: the executed `forge@ef958ee9`
-  is a Lab fork whose bridge-source pin `4753bb7c` is not the pinned candidate).
-  The pre-Freeze blocker register is `UNAFFECTED_REUSABLE`, extended by PB-09.
-- Forge PB-05/06/07/08 (Forge Muse).
+- PB-03 starting-state injection and the WSR22 successor integration (Space Bunny MAX).
+- **PB-09 — `EVIDENCE_INTEGRITY_DEFECT`, owner Forge lane + Coordinator, and its decision is
+  ordered *before* PB-03.** Forge's Rules-Core pin is satisfied, its Lab bridge-source pin is
+  not: the Forge column measured a Lab Rules-Core fork rather than the pinned candidate. This
+  is the mechanical cause of the apparent Forge capability lead, and the reason its PASS
+  asymmetry is not a measured Rules difference. Source:
+  `docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md` §7.1 and the blocker
+  table (`PROVIDER_COMPARISON_COMPLETE = NO`, `PROVIDER_SELECTION_READY = NO`).
+- **PB-06 / PB-07 / PB-08 are `both`-sided blockers, not Forge-only.** Per the same package:
+  PB-06 per-scenario hidden channels, PB-07 the effective 29-card corpus, PB-08 the
+  per-fixture clean-process replay twin are `UNKNOWN_IMPACT` and still open for **both**
+  candidates. Ownership is therefore split per side, not assigned to one lane: the Forge
+  seams with the XMage-side seams (hidden-channel projection, 29-card corpus execution,
+  replay/RNG twin rows) as parallel obligations, so a successor must not close either half
+  on the strength of the other.
 - Provider selection and Architecture Freeze (Coordinator only).
 - 33 provenance pull requests kept open on purpose; no branch or repository deletion.
 - WS-48 stash, duplicate Forge clone, Mage pull requests #13–#16, restored-morph guard
@@ -62,6 +73,8 @@ hygiene. Everything below is merged on `main`. No open workstream item remains.
 
 ## Resume point for any successor
 
-Nothing is mid-flight. Start from `main` at the commit recorded above, read
+Nothing is mid-flight. This record itself lands in the merge commit of its own pull request,
+so `c771e353` is the **audit base**, not the revision that contains this file. Start from the
+newest `main` (`git pull --ff-only`), read this file from there, read
 `docs/REPOSITORY_TRIAGE_INDEX.md` for the backlog rules, and treat
 `config/rules_engines.json` as the only pin authority.
