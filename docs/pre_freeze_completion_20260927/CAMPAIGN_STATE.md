@@ -37,6 +37,7 @@ machine-readable authority for current engine pins"*.
 | XMage (primary) | commit `b19596980f2734496ea1896504253e1bdd2756dd` | **MIT** |
 | Forge (secondary) | release `forge-2.0.14`, Rules-Core commit `a37a865a53280dd8ad6fad3384d69611e8c5a42f` | **GPL-3.0** |
 | Forge Lab bridge source | `4753bb7c72ea60d653121e0bab989077b4009f9c` (base `a37a865a`) | — |
+| **Forge actually executed** | `moeendres-png/forge@ef958ee91ac` — a **Lab Rules-Core fork**; 47 Lab commits touch `forge-game` alone. **Not** the pinned candidate (§7, PB-09) | GPL-3.0 derivative |
 | Protocol | `2.0.0` | — |
 | Maven | `3.9.16` | — |
 
@@ -109,43 +110,48 @@ and matching the repository's own historical hash `4381ad1b…` exactly.
 between 2026-08-19 and 2026-09-25 (103.8a/b/c, 504.1, 800.4a/j, 508.8) carries
 `semantic_delta: NONE`.
 
-## 7. NEW FINDING — Forge bridge source lock does not match the pin authority
+## 7. NEW FINDING — the executed Forge candidate is a Lab Rules-Core fork
 
 This is the most decision-relevant new fact produced by this campaign, and it is **not** in the
-inherited blocker register. It was raised here and then fully traced to a concrete divergence in
-`/home/moeen/code/forge` (`moeendres-png/forge`, the Lab-owned Forge candidate/bridge repository).
-Full treatment in `PRE_FREEZE_COMPARISON_PACKAGE.md` §7.1; recorded as **PB-09**.
+inherited blocker register. It was raised here, then traced to a concrete divergence in
+`/home/moeen/code/forge` (`moeendres-png/forge`).
 
-- `config/rules_engines.json` (sole pin authority on main) pins the Forge **Rules-Core** at
-  `a37a865a53280dd8ad6fad3384d69611e8c5a42f` (upstream `forge-2.0.14`) and the **Lab bridge source** at
-  `4753bb7c72ea60d653121e0bab989077b4009f9c` (2026-09-12, tip of
-  `candidate/forge-2.0.14-h4f-integration-20260912`).
-- WSR22's `SOURCE_LOCK.json` and `FULL107_FORGE_RUNTIME_LOG_INDEX.json` both record the **executed**
-  commit as `ef958ee91ac6c9ce0152189f2654bf6e05abf273`, which is `master` of that repository dated
-  2026-09-21 ("Merge pull request #3 from moeendres-png/merge-wsr19-into-master").
-- **Rules-Core pin: satisfied.** `a37a865a` *is* an ancestor of `ef958ee9`, so the executed build
-  included the pinned upstream release.
-- **Bridge-source pin: not satisfied.** `4753bb7c` does **not** appear anywhere in `ef958ee9`'s
-  history. The two are on divergent histories, **328 commits** apart. The executed commit additionally
-  carries wsr15–wsr19 Lab work absent from the pin: 2–5P multiplayer conformance, six-player
-  support, CI qualification, and promotion packets. `ef958ee9` is an ancestor of
-  `wsr24/forge-candidate-evidence-closure-20260927` = `18bba95a`, which is precisely the
-  `historical_wsr20_reference.evidence_tip` WSR22 records.
+> **Correction.** An earlier revision of this section concluded the Rules-Core pin was satisfied
+> because `a37a865a` is an ancestor of the executed commit. That inference was wrong: ancestry proves
+> the pinned release is in the history, not that the executed tree equals it at the Rules Core.
+> Authoritative treatment: **`PB09_FORGE_CANDIDATE_IDENTITY.md`**.
 
-PB-05 classified this as `BOUNDED_NON_BLOCKING` and asserted *"The reported commit matched the
-candidate exactly."* That assertion holds only for the Rules-Core and fails for the bridge source.
-Because Forge's reported commit is operator-supplied (`engine_commit_source=env:FORGE_ENGINE_SHA`,
-not build-proven), the evidence cannot demonstrate which bridge it ran.
+- `config/rules_engines.json` (sole pin authority) pins the Forge **Rules-Core** at `a37a865a532`
+  (upstream `forge-2.0.14`) and the **Lab bridge source** at `4753bb7c72e` (2026-09-12).
+- WSR22 executed `ef958ee91ac` — `master` of that repository, 2026-09-21, an ancestor of
+  `wsr24/…` = `18bba95a` (the `historical_wsr20_reference.evidence_tip` WSR22 records).
+- `4753bb7c` is **not** an ancestor of `ef958ee9`; they are on divergent histories, **328 commits**
+  apart, and the pin→executed diff spans **1211 files**.
+- Of those, engine-source changes: **`forge-game` 61**, `forge-ai` 40, `forge-gui` 16, `forge-core` 7,
+  plus 222 files in the `forge-protocol2-bridge/` module. **47 commits touch `forge-game` alone**, and
+  they are Lab workstreams, not upstream syncs: `WS40 migrate combat damage legality into Forge
+  Core`, `WS45 add typed native Commander relation history` / `validated native extra-turn history` /
+  `native restored qualification history`, `WS217 native Core-owned chooser-divided allocation seam
+  (CR 601.2d)`, `WS234 systemic Cleave identity plus Aftermath script fix`, `WS59 forge RQ-C3 engine
+  remediation`.
 
-**Why this is decision-critical.** It supplies a mechanical, candidate-side explanation for the
-79-vs-30 FULL107 gap: the Forge side executed 328 commits of unpinned Lab bridge engineering —
-including the 2–5P and six-player work — while the XMage side executed at exactly its pinned commit
-(`b1959698…`, verified matching). The Coordinator's caution not to read Forge's 79 PASS versus
-XMage's 30 PASS as capability ranking is therefore not merely sound advice; it now has a specific
-identified cause. Forge `AF00 = PASS` and `AF11` rest on an unreconciled bridge identity.
+**Why this is decision-critical.** The Forge 79-PASS column measures a **Lab-authored fork of the
+Forge Rules Core**, not pinned Forge — and the Lab edits target precisely the obligation families the
+comparison measures (combat damage, chooser allocation, Commander relations, mode identity,
+actual-card behavior). The XMage side ran pristine at its pin. So the 79-vs-30 gap cannot be read as
+a provider capability ranking; it partly measures Lab's Forge fork.
 
-Consequence: resolve PB-09 before any Forge-versus-XMage comparison is read as capability evidence.
-The XMage side is clean: WSR22's `xmage_commit` `b1959698…` is exactly main's pin.
+PB-05's "the reported commit matched the candidate exactly" is therefore false for the Rules Core, not
+merely for the bridge. Forge's `AF00 = PASS` is unsupported, and AF11's recorded "GPL-3.0" label is
+the upstream licence, not the posture of the GPL-3.0 derivative that actually ran.
+
+**Both columns of the same 107-row denominator are shaped by Lab work** — XMage's by the PB-03
+harness shortcut, Forge's by Rules-engine modification. Neither is a clean candidate measurement
+until PB-09 is resolved.
+
+The Coordinator owns the decision (pinned upstream → re-run Forge at the pin; or Lab fork → correct
+the pin manifest, list the 47 Rules commits, and rule on a self-modified GPL-3.5 fork as a production
+dependency). Details and the two admissible resolutions: `PB09_FORGE_CANDIDATE_IDENTITY.md` §6.
 
 ## 8. REUSABLE_EVIDENCE
 
@@ -198,39 +204,66 @@ All four are consequences of the four conflicting paths identified in
 `WSR22_IMPACT_ADJUDICATION.md`. They are *generated or derived* surfaces and must be **regenerated
 from the final integrated tree**, never transplanted from either side.
 
-## 11. AUTHORITY_GATE — the campaign's integration spine cannot be executed in this session
+## 11. EXECUTION POLICY — widened by Coordinator authority; a session restart is the only remaining step
 
-This is a hard, verified permission boundary, not a difficulty, and it is recorded here so the next
-session resumes from facts rather than re-deriving them.
+**Status change (2026-09-27).** The Coordinator issued full local OpenCode/GitHub execution authority
+and removed the artificial execution-policy blocker. This section previously recorded a hard
+authority gate; that gate is now **closed in policy** and only **not yet effective in this live
+session**.
 
-| Required campaign action | Blocking condition | Verified by |
-|---|---|---|
-| Publish WSR23 (fast-forward push) | root `opencode.json` sets `git push*` = **deny** | the tool permission layer refused the shape; `opencode.json:88` |
-| Create the WSR22 successor branch | `git switch -c*` = deny, `git checkout -b*` = deny, `git worktree add*` = deny | permission layer; `opencode.json:90,91,95` |
-| Push / PR / merge any campaign branch | same | — |
-| Satisfy `safe_push` gate 6 | this session holds **no** `FOUNDRY_*` launcher context; the run dir `/tmp/foundry-launch-wsr23-project-integration-hygiene-20260927` is **empty**, so no launcher ever acquired a lock | the empty run dir; the absent environment |
+What was done, committed as `1264fc07`:
 
-**Writer-lock honesty.** `writer_lock.WriterLock(...).acquire()` from this process would satisfy
-gate 6. It was not done and must not be done: it would make this process the recorded holder and let
-any process self-authorize as a worktree's exclusive writer, collapsing the single-writer guarantee.
-That is now recorded in the WSR23 state file's `out_of_scope` so it cannot be mistaken for
-unexplored work. `gh api -X POST` is also `deny`, so no PR can be opened through that path either.
+- `opencode.json` `bash` default is now `allow`, replacing the fragile 60-entry per-command
+  allow/deny whitelist. Push, merge, rebase, reset, clean, branch/worktree lifecycle, `git -C`,
+  shell wrappers and mutating `gh api` are all open.
+- Retained privacy/system boundaries only: `env`/`env *`/`printenv`/`set`/`export`, `gh auth*`,
+  `gh secret*`, `cat` of `id_rsa`/`.pem`/`.key`/`credentials`/`.netrc`, `sudo`/`su`/`doas`,
+  root-only `rm -rf`, and `gh repo create/delete/fork` plus `gh ssh-key`/`gh gpg-key`. `.env` remains
+  denied to `read`/`glob`/`grep`/`list`/`edit`; `.env.example` remains readable; `share` stays
+  `disabled`; `doom_loop` stays `deny`.
+- Executor routing pinned to exactly two reachable executors, each at one native level:
+  **`opencode-go/space-bunny-free` at `max` (primary)** and
+  **`opencode-go/muse-spark-1.3-contributor` at `xhigh` (alternate)**. Every other variant of both is
+  disabled. No silent fallback. Verified by the live rule evaluator and by the launcher's own
+  fail-closed allowlist guard.
+- `tools/foundry/launcher.py`: `CANONICAL_MODEL` is now space-bunny; Muse is the explicit
+  `ALTERNATE_MODEL`; an omitted `--execution-profile` resolves to space-bunny; the muse profile pins
+  Muse itself. Bundle construction branches on the **resolved** profile, and the child argv now pins
+  `--model` for every profile. This removed a live silent-fallback hazard: the muse profile had been
+  reporting override `canonical` while returning `CANONICAL_MODEL`, so changing the canonical model
+  without this fix would have logged Muse over a Space Bunny run.
 
-What this session *did* complete is recorded in `PHASE_A_FOUNDRY_REPAIR.md` and
-`STATE_OWNERSHIP_REPAIR.md`: the launcher refusal was diagnosed at its real layer and repaired, and
-the branch now carries honest validation credit. Gates 1–5 and 7–9 of `safe_push` all pass; gate 6
-is the only remaining tool-side rejection.
+**The one remaining step is an ordinary session restart.** `opencode debug config` resolves the new
+file correctly, but OpenCode 1.18.30 compiles the permission table once at session start, so this
+running session still enforces the retired table — verified: `git push --dry-run` is still refused
+by the old rules while the file on disk already permits it. No wrapper or alternate tool was used to
+work around this.
+
+**The Foundry writer lock is no longer a blocker.** The Coordinator explicitly authorized normal Git
+operations instead of the launcher/safe-push wrapper, and instructed that a refusing wrapper must not
+stop otherwise-authorized work. The lock must still never be *faked*: it is simply not required for
+the authorized path. `ARCHITECTURE_FREEZE` and `PRODUCTION_PROVIDER` remain reserved to the
+Coordinator regardless.
 
 ## 12. NEXT_ACTION
 
-1. **Operator:** start a launcher-spawned Foundry *writer* session for
-   `/home/moeen/code/wsr23-project-integration-hygiene`, `--workstream wsr23-project-integration-hygiene-20260927`,
-   `--state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml`. Run the single
-   safe-push command in `PUBLICATIONS.md` §2, then open the WSR23 PR against `origin/main` `8d2aacd5`.
-2. **Then, in a launcher-authorized session:** cut the WSR22 successor branch from `origin/main`
-   (never from stale local `main`), transplant the justified WSR22 content with provenance to
-   `208341c6…`, adopt the 2026-09-25 receipt, regenerate the two manifests, run only the four
-   mechanical requalification items, then PR and merge.
-3. **Then:** PB-03, per `PB03_ROOT_CAUSE_AND_REMEDIATION.md` — the remediation is now correctly
-   located and must not be implemented as a capability-flag flip.
-4. **Before any Forge/XMage comparison is read as capability ranking:** resolve PB-09 (§7).
+0. **Restart this OpenCode session** so the widened `opencode.json` takes effect. Nothing else is
+   required; no config work remains.
+1. Publish WSR23 as a fast-forward push of `wsr23/project-integration-hygiene-20260927`, open one PR
+   against `origin/main` `8d2aacd5`, inspect exact-head CI, adjudicate drift (`docs/**` only), merge,
+   re-read post-merge main, and update/close Issue #263.
+2. Re-lock main, then run the **WSR22 successor integration** per `WSR22_IMPACT_ADJUDICATION.md` §5:
+   cut from fresh `origin/main` (never the stale local `main` `586914ea`), transplant whole files from
+   `208341c6…` with provenance, adopt the 2026-09-25 receipt, **regenerate** `qualification/SHA256SUMS`
+   and `WS17_SHA256SUMS`, update the affected assertions, run only the four mechanical items, then PR
+   and merge. Mark PR #269 superseded only after preservation is proven.
+3. **PB-09 — Coordinator decision, and it now ranks first.** Which artifact is the Forge candidate:
+   pinned upstream `forge-2.0.14` (then re-run Forge evidence, expect the 79 PASS to fall) or the Lab
+   fork `ef958ee9` (then correct the pin manifest, list the 47 Rules-touching Lab commits, and rule on
+   a self-modified GPL-3.5 fork as a production dependency). Do not repin silently.
+   See `PB09_FORGE_CANDIDATE_IDENTITY.md` §6.
+4. **PB-03** per `PB03_ROOT_CAUSE_AND_REMEDIATION.md`: replace the fixture-id prefix hardcode with
+   per-row dimension admission against the bridge's published `dimensionsPayload()`. Never flip
+   `starting_state_injection_supported`. Keep the denominator at 107. Rerun only impacted rows.
+5. PB-06, PB-07, PB-08 by decision value; then AF00–AF11 closure; then regenerate
+   `PRE_FREEZE_COMPARISON_PACKAGE.md`.
