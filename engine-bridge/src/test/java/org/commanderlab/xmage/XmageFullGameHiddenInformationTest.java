@@ -87,13 +87,7 @@ class XmageFullGameHiddenInformationTest {
             Set<String> hiddenIds = hiddenCardIds(session, actorId);
             if (!hiddenIds.isEmpty()) {
                 oracleHands++;
-                String serialized = pilotState.toString();
-                for (String hidden : hiddenIds) {
-                    assertTrue(!serialized.contains(hidden),
-                            "hidden card identity leaked at offset "
-                                    + pending.get("decision_offset").getAsLong()
-                                    + " class=" + decisionClass);
-                }
+                assertNoHiddenCardIdentities(pending, hiddenIds);
             }
 
             answerNeutrally(session, pending);
