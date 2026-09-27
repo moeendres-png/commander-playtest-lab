@@ -3,6 +3,8 @@
 This module does not implement Magic rules and does not reconstruct legality. It
 injects controlled faults into an already recorded real semantic replay tape and
 asks the existing provider-neutral comparator whether the fault is detected.
+Runtime-bound mutations may only be promoted when an external runtime gate has
+actually executed the named detector on the same source head.
 """
 
 from __future__ import annotations
@@ -35,7 +37,11 @@ REAL_TAPE_MUTATIONS: tuple[MutationSpec, ...] = (
 )
 
 RUNTIME_REQUIRED_MUTATIONS: tuple[MutationSpec, ...] = (
-    MutationSpec("MQ-HIDDEN-001", "XmageFullGameHiddenInformationTest", "RUNTIME_BRIDGE_REQUIRED"),
+    MutationSpec(
+        "MQ-HIDDEN-001",
+        "XmageFullGameHiddenInformationTest#qualificationOracleKillsInjectedOpponentPrivateIdentity",
+        "LIVE_XMAGE_BOUNDARY",
+    ),
 )
 
 
@@ -94,9 +100,11 @@ def run_meta_verification(
     tape: dict[str, Any],
     *,
     source_tape: str,
+    runtime_kills: set[str] | None = None,
 ) -> dict[str, Any]:
-    """Run all currently executable semantic mutations and account for NOT_RUN entries."""
+    """Run executable mutations while preserving fail-closed NOT_RUN accounting."""
     results: list[dict[str, Any]] = []
+    runtime_kills = runtime_kills or set()
 
     for spec in REAL_TAPE_MUTATIONS:
         mutated, expected_index = _mutate_real_tape(tape, spec.mutation_id)
@@ -120,12 +128,13 @@ def run_meta_verification(
         )
 
     for spec in RUNTIME_REQUIRED_MUTATIONS:
+        executed = spec.mutation_id in runtime_kills
         results.append(
             {
                 "mutation_id": spec.mutation_id,
-                "status": "NOT_RUN",
+                "status": "KILLED" if executed else "NOT_RUN",
                 "expected_detector": spec.expected_detector,
-                "observed_detector": None,
+                "observed_detector": spec.expected_detector if executed else None,
                 "record_index": None,
             }
         )
