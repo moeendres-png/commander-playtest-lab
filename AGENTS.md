@@ -103,33 +103,30 @@ requalification.
   evidence promotion, cross-workstream integration, gate decisions, Architecture Freeze.
 - OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
   tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
-  and long autonomous workstreams. For new substantial work, prefer the explicit
-  `space-bunny` profile: `opencode-go/space-bunny-free`, pinned by the launcher to
-  native `max` reasoning for the main model, small model, and reachable project agents.
-  The committed/default `muse` profile remains
-  `opencode-go/muse-spark-1.3-contributor` for reproducibility, continuation of
-  Muse-owned workstreams, alternate execution, and deliberate cross-model review.
-  Executor selection is explicit per run, recorded, never inferred from quota or failure,
-  and never falls back silently.
+  and long autonomous workstreams. The committed/default and preferred executor is
+  `space-bunny`: `opencode-go/space-bunny-free` at native `max` for the main model,
+  small model, primary implementer, and reachable project agents. Muse is an explicit
+  alternate only: `opencode-go/muse-spark-1.3-contributor` at `xhigh`; Muse HIGH is
+  not an active project lane. Executor selection is explicit per run, recorded, never
+  inferred from quota or failure, and never falls back silently.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
   capability identified; Sol High insufficient; OpenCode Foundry insufficient; genuinely
   required; smallest necessary scope). Never the normal engineering path.
 
 Technical autonomy within those tiers is defined in §8.
 
-## 7. Reasoning effort
+## 7. Execution effort
 
-Allowed project efforts: `high`, `xhigh`. `high` is the normal default for
-implementation, edits, builds, tests, debugging, CI remediation, qualification, evidence,
-and build-test-fix loops. `xhigh` is escalation for difficult nonlocal reasoning,
-unclear engine-vs-provider-vs-harness-vs-fixture causality, complex multi-subsystem
-remediation, deep debugging chains, identity/state/lifecycle problems, and
-architecture-adjacent implementation. Never use `medium`, `low`, `minimal`, `none`, or
-`off` as project effort for active work. The `space-bunny` execution profile deliberately
-maps either allowed project effort to its verified native `max` variant and records that
-mapping; this changes compute allocation, not authority. Do not use XHIGH merely because a
-task is large; do not restart valid work solely to change effort. Preserve Source Lock and
-durable state across model/profile handoff. HIGH→XHIGH escalation is not failure.
+Active project execution has exactly two allowed identities:
+
+- Space Bunny: native `max` only. This is the default and preferred execution path for
+  implementation, debugging, qualification, integration, CI remediation, evidence and
+  long-running campaigns.
+- Muse Spark 1.3 Contributor: native `xhigh` only. Use Muse deliberately for alternate
+  execution, continuation where specifically required, or cross-model challenge/review.
+
+There is no active-work `high`, `medium`, `low`, `minimal`, `none`, or `off` lane.
+Do not relabel Space Bunny MAX as XHIGH; record the actual native identity.
 
 ## 8. Technical decision authority
 
@@ -143,13 +140,10 @@ can resolve it.
 
 Routing distinction:
 
-- Space Bunny MAX: preferred execution profile for new substantial engineering work.
-  It is autonomous within the workstream contract and remains natively pinned to
-  `max` even when the project-level effort field is `high` or `xhigh`.
-- Muse HIGH: supported bounded engineering execution + ordinary local technical
-  decisions, especially for established Muse-owned workstreams.
-- Muse XHIGH: supported difficult engineering + technical root-cause, evidence,
-  qualification, and repair adjudication within already-defined project policy.
+- Space Bunny MAX: committed/default and preferred execution profile for active engineering.
+  It is autonomous within the workstream contract and always runs at native `max`.
+- Muse XHIGH: explicit alternate/cross-model execution and technical adjudication lane.
+  Muse never runs at HIGH for active project work.
 - Sol High: Rules, evidence-policy, qualification-policy, shared-architecture,
   cross-workstream authority, Provider Selection, Architecture Freeze.
 
