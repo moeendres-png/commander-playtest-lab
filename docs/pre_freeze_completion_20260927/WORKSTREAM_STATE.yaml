@@ -175,12 +175,13 @@ validated_gates:
   WS17 manifest gate
 - FULL107 denominator preserved at exactly 107; no row removed or duplicated
 - Strict mypy, ruff, compileall, invariant audit, STATE_OK all clean
-validated_head: 2a24180028f7dc88d8d863c5aba5562d58894e81
+validated_head: fe84a6747ffbbc1a3e1056d042cc217ee2709cf5
 worktree: /home/moeen/code/wsr22-successor-current-boundary
 evidence_integrity_remediation:
-  status: GATES_1_TO_9_IMPLEMENTED_AND_GREEN__GATES_10_11_AND_PB_OPEN
-  validated_head: 2a24180028f7dc88d8d863c5aba5562d58894e81
-  validated_tree: e5a439a0cdc053715282739ca585a06ef2c8fd8b
+  status: GATES_1_TO_9_AND_11_IMPLEMENTED_AND_GREEN__GATE_10_AND_PB_OPEN
+  validated_head: fe84a6747ffbbc1a3e1056d042cc217ee2709cf5
+  validated_tree: f7322e06baa23c6abd0d6aba1540e6eea177ecae
+  prior_validated_head: 2a24180028f7dc88d8d863c5aba5562d58894e81
   pre_remediation_checkpoint: b1a5c2b4095a831a28c699ae5111c0e6c2625918
   branch: wsr22-successor/current-boundary-freeze-20260927
   pr: 278
@@ -260,10 +261,10 @@ evidence_integrity_remediation:
     head, so no current PASS count may be claimed for either candidate.
   - PB-09 and PB-03 remain open. Provider comparison is not decision-grade.
   - ARCHITECTURE_FREEZE = NOT CLAIMED. PRODUCTION_PROVIDER = NOT SELECTED.
-last_verified_summary: 'Evidence-integrity remediation gates 1-9 implemented, committed
-  and green on a clean tree at 2a241800. Python 1809 passed / 6 skipped / 0 failed;
-  Java bridge 322 tests, 0 failures. Gates 10 (AF02 all-or-nothing) and 11 (normalized
-  semantic equality) remain open, as do PB-09 and PB-03. No current candidate PASS
+last_verified_summary: 'Evidence-integrity remediation gates 1-9 and 11 implemented,
+  committed and green on a clean tree. Python 1822 passed / 6 skipped / 0 failed;
+  Java bridge 322 tests, 0 failures. Gate 10 (AF02 all-or-nothing lifecycle) is the
+  only remaining gate; PB-09 and PB-03 also remain open. No current candidate PASS
   count exists yet: no receipt directory and no AF03 artifact exist, so the assembler
   fails closed to zero credit. Pre-remediation checkpoint b1a5c2b4 preserved as the
-  parent of this work.'
+  parent of this work and not amended.'
