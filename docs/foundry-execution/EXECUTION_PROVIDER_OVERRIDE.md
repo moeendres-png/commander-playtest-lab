@@ -28,6 +28,25 @@ narrowed into a run-specific `OPENCODE_CONFIG_CONTENT` bundle, so enabling the p
 does not make both models simultaneously selectable inside a session. Caller
 `--model`/`--variant` flags remain refused.
 
+### Qualified CLI compatibility
+
+The qualified Foundry CLI remains OpenCode `1.18.30`; this profile does not require
+a CLI repin merely because Space Bunny was added later. Direct source verification of
+OpenCode `v1.18.30` shows that its ModelsDev service fetches the live catalog from
+`https://models.opencode.ai/api.json` (with a five-minute cache) and that configured
+models merge against that catalog. The current authoritative models.dev entry
+`providers/opencode-go/models/space-bunny-free.toml` declares
+`low|medium|high|xhigh|max` effort levels, a 1,048,576-token context limit, tool use,
+and OpenAI-compatible reasoning. The pinned `v1.18.30` transform maps catalog-declared
+effort values for `@ai-sdk/openai-compatible` to `reasoningEffort`, so the injected
+`max` variant has a verified configuration path.
+
+This is source-level compatibility evidence, not a claim that a particular local account
+is authenticated or that the limited-time preview remains available forever. If the
+catalog/model/auth path is unavailable, the selected Space Bunny run fails closed; it
+must never fall back silently to Muse. Requalification is required if the CLI pin,
+catalog contract, provider protocol, or Space Bunny reasoning contract changes.
+
 ## Legacy Zen Muse override
 
 For an operator-authorized workstream, add `--execution-provider zen` to its existing
@@ -79,10 +98,12 @@ Other child exits retain their status. Spawn failure returns 127 with
 propagate after end-telemetry is attempted; the outer finally releases the lock
 even when telemetry fails. No process-killing mechanism is added.
 
-`launch-context.json` records `execution` (override, provider, model, requested
-effort, variant resolution). Both session metric records carry the selected
-model, `execution_provider`, `execution_override`, `variant_resolution` and
-requested reasoning effort; the end record also carries interruption status.
+`launch-context.json` records the full `execution` identity. Both session metric
+records carry the selected model, `execution_provider`, `execution_override`,
+`execution_profile`, `native_variant` when one is directly pinned,
+`variant_resolution`, and requested project reasoning effort; the end record also
+carries interruption status. Muse's project-level XHIGH routing is not mislabeled as a
+top-level native model variant.
 
 Missing Zen availability/authentication fails on that selected launch without
 switching provider. Launcher/config tests do not prove authenticated connectivity.

@@ -120,7 +120,7 @@ def execution_identity(
         "model": CANONICAL_MODEL,
         "requested_effort": effort,
         "variant_resolution": "canonical_agent_variant",
-        "native_variant": effort,
+        "native_variant": None,
     }
 
 
@@ -707,8 +707,11 @@ def _launch_locked(
         "started_utc": "AUTOCAPTURED",
         "execution_provider": "AUTOCAPTURED",
         "execution_override": "AUTOCAPTURED",
+        "execution_profile": "AUTOCAPTURED",
         "variant_resolution": "AUTOCAPTURED",
     }
+    if execution["native_variant"] is not None:
+        auto["native_variant"] = "AUTOCAPTURED"
     try:
         metrics_mod.record(
             metrics_path,
@@ -719,6 +722,8 @@ def _launch_locked(
             model=execution["model"],
             execution_provider=execution["provider"],
             execution_override=execution["override"],
+            execution_profile=execution["profile"],
+            native_variant=execution["native_variant"],
             variant_resolution=execution["variant_resolution"],
             reasoning_effort=effort,
             source_sha=plan.get("live_head"),
@@ -778,6 +783,8 @@ def _launch_locked(
                 model=execution["model"],
                 execution_provider=execution["provider"],
                 execution_override=execution["override"],
+                execution_profile=execution["profile"],
+                native_variant=execution["native_variant"],
                 variant_resolution=execution["variant_resolution"],
                 reasoning_effort=effort,
                 final_sha=end_head,

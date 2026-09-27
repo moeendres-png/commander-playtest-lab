@@ -1069,7 +1069,29 @@ def test_space_bunny_launch_uses_explicit_model_and_no_fallback(target, canon, m
     ]
     assert {record["model"] for record in records} == {launcher_mod.SPACE_BUNNY_MODEL}
     assert {record["execution_override"] for record in records} == {"space-bunny"}
+    assert {record["execution_profile"] for record in records} == {"space-bunny"}
+    assert {record["native_variant"] for record in records} == {"max"}
     assert {record["variant_resolution"] for record in records} == {"native_max"}
+
+
+@pytest.mark.parametrize("effort", ["high", "xhigh"])
+def test_space_bunny_project_effort_maps_to_native_max(target, canon, effort):
+    plan = _plan(target, canon, execution_profile="space-bunny", effort=effort)
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["execution"]["requested_effort"] == effort
+    assert plan["execution"]["native_variant"] == "max"
+    assert plan["execution"]["variant_resolution"] == "native_max"
+    assert plan["_env"]["FOUNDRY_EFFORT"] == effort
+    assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
+
+
+def test_muse_xhigh_does_not_fabricate_top_level_native_variant(target, canon):
+    plan = _plan(target, canon, execution_profile="muse", effort="xhigh")
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    assert plan["execution"]["requested_effort"] == "xhigh"
+    assert plan["execution"]["variant_resolution"] == "canonical_agent_variant"
+    assert plan["execution"]["native_variant"] is None
+    assert "FOUNDRY_NATIVE_VARIANT" not in plan["_env"]
 
 
 def test_space_bunny_cli_consumes_explicit_profile(target, canon, monkeypatch):

@@ -133,6 +133,8 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
         str(metrics),
         repo_profile="mage",
         model="opencode-go/muse-spark-1.3-contributor",
+        execution_profile="muse",
+        native_variant="high",
         started_utc="2026-09-10T00:00:00Z",
         ended_utc="2026-09-10T01:00:00Z",
         exit_status=0,
@@ -142,6 +144,8 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
         cost_usd=0.5,
     )
     assert entry["repo_profile"] == "mage"
+    assert entry["execution_profile"] == "muse"
+    assert entry["native_variant"] == "high"
     assert entry["push_result"] == "PUSHED"
     assert entry["exit_status"] == 0
 
