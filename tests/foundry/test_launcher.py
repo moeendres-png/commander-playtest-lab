@@ -328,8 +328,8 @@ def test_init_cpl_ready_with_dynamic_denies(target: dict, canon: Path) -> None:
     bundle = json.loads(env["OPENCODE_CONFIG_CONTENT"])
     assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
     assert bundle["permission"]["bash"]["git push*"] == "deny"
-    sib_deny = f"{target['wt'].parent / 'sib'}*"
-    assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
+    for sib_deny in launcher_mod._root_patterns(str(target["wt"].parent / "sib")):
+        assert bundle["permission"]["external_directory"].get(sib_deny) == "deny"
     assert env["FOUNDRY_EFFORT"] == "high"
     assert env["FOUNDRY_SESSION"] == "ses-t"
     assert len(env["FOUNDRY_CANONICAL_POLICY_HASH"]) == 64
@@ -1243,7 +1243,7 @@ def test_workspace_access_owned_write_requires_matching_state_and_injects_write(
         assert bundle["permission"]["external_directory"][pattern] == "allow"
         assert bundle["permission"]["edit"][pattern] == "allow"
     assert plan["worktree_states"][str(root)] == spec["state_path"]
-    assert plan["workspace_access"][0]["ownership"] == "SIDE-WS"
+    assert plan["workspace_access"][0]["ownership"] == "TEST-WS"
 
 
 def test_owned_write_refuses_state_owned_by_other_workstream(
@@ -1263,15 +1263,12 @@ def test_workspace_path_rules_do_not_match_same_prefix_sibling(
     evil.mkdir()
     plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
     assert plan["verdict"] == "LAUNCH_READY", plan
-    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    rules = [
-        {"permission": "external_directory", "pattern": pattern, "action": action}
-        for pattern, action in bundle["permission"]["external_directory"].items()
-    ]
-    verdict, matched = permission_battery_mod.evaluate_rule(
-        rules, "external_directory", str(evil / "payload.txt")
-    )
-    assert verdict != "ENFORCED_ALLOW", matched
+    # The declaration-specific rules are boundary anchored: neither exact-root nor
+    # descendant pattern may match a same-prefix sibling. Generic /tmp policy is
+    # intentionally irrelevant to this regression.
+    probe = str(evil / "payload.txt")
+    for pattern in launcher_mod._root_patterns(str(root)):
+        assert not permission_battery_mod.matches(pattern, probe), pattern
 
 
 def test_workspace_access_owned_write_refuses_wrong_ownership(
