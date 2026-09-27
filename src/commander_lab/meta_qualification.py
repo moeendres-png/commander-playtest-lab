@@ -72,9 +72,7 @@ def _mutate_real_tape(tape: dict[str, Any], mutation_id: str) -> tuple[dict[str,
         step["event_digest"] = _nonzero_digest(step["event_digest"])
         return mutated, target
     if mutation_id == "MQ-OBS-001":
-        step["principal_observation_digest"] = _nonzero_digest(
-            step["principal_observation_digest"]
-        )
+        step["principal_observation_digest"] = _nonzero_digest(step["principal_observation_digest"])
         return mutated, target
     if mutation_id == "MQ-STATE-001":
         current = step.get("post_checkpoint_digest")
@@ -106,11 +104,7 @@ def run_meta_verification(
         divergence = comparison.divergence
         observed = divergence.kind.value if divergence is not None else None
         record_index = divergence.record_index if divergence is not None else None
-        killed = (
-            not comparison.match
-            and observed == spec.expected_detector
-            and record_index == expected_index
-        )
+        was_killed = (\n            not comparison.match\n            and observed == spec.expected_detector\n            and record_index == expected_index\n        )
         results.append(
             {
                 "mutation_id": spec.mutation_id,
