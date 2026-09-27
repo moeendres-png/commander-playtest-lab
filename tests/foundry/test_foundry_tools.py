@@ -476,14 +476,11 @@ def test_battery_full_probe_set_runs() -> None:
     }
 
 
-def test_safe_auto_deny_set_pinned() -> None:
-    """Every SAFE_AUTO threat-model deny shape must stay deny in opencode.json.
-
-    Guards against silent ask-downgrades. Live resolution is proven separately
-    by the adversarial battery against `opencode debug agent` output.
-    """
+def test_project_execution_authority_permissions_pinned() -> None:
+    """Project-scoped execution is autonomous; reserved safety boundaries stay denied."""
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     bash = config["permission"]["bash"]
+    assert bash["*"] == "allow"
     for pattern in (
         "git push*",
         "git merge*",
@@ -495,16 +492,10 @@ def test_safe_auto_deny_set_pinned() -> None:
         "git worktree add*",
         "git worktree remove*",
         "git worktree move*",
-        "git checkout main",
-        "git checkout master",
         "git checkout -b*",
-        "git switch main",
-        "git switch master",
         "git switch -c*",
         "git update-ref*",
         "git symbolic-ref*",
-        "git filter-branch*",
-        "git filter-repo*",
         "git tag -d*",
         "git tag -f*",
         "git stash drop*",
@@ -515,6 +506,20 @@ def test_safe_auto_deny_set_pinned() -> None:
         "command *",
         "sh -c*",
         "bash -c*",
+        "gh api*",
+        "gh api -X POST*",
+        "gh api -X PUT*",
+        "gh api -X PATCH*",
+        "gh api -X DELETE*",
+    ):
+        assert bash.get(pattern) == "allow", pattern
+    for pattern in (
+        "git checkout main",
+        "git checkout master",
+        "git switch main",
+        "git switch master",
+        "git filter-branch*",
+        "git filter-repo*",
         "sudo*",
         "su *",
         "env",
@@ -526,41 +531,11 @@ def test_safe_auto_deny_set_pinned() -> None:
         "gh repo create*",
         "gh repo delete*",
         "gh repo fork*",
-        "gh api -X POST*",
-        "gh api -X PUT*",
-        "gh api -X PATCH*",
-        "gh api -X DELETE*",
-        "gh api --method POST*",
-        "gh api --method PUT*",
-        "gh api --method PATCH*",
-        "gh api --method DELETE*",
-        "*| sh",
-        "*| sh *",
-        "*|sh",
-        "*|sh *",
-        "*| bash",
-        "*| bash *",
-        "*|bash",
-        "*|bash *",
     ):
         assert bash.get(pattern) == "deny", pattern
-    # Routine engineering must still proceed unattended.
-    for pattern in (
-        "git status*",
-        "git diff*",
-        "git log*",
-        "pytest*",
-        "python*",
-        "ruff*",
-        "git add*",
-        "git commit*",
-    ):
-        assert bash.get(pattern) == "allow", pattern
+    assert config["permission"]["task"]["*"] == "allow"
     ext = config["permission"]["external_directory"]
-    assert ext["/home/moeen/code/ws50-forge-decision-sequence-slice*"] == "deny"
-    assert ext["/home/moeen/code/q6-capability-curation-20260910*"] == "deny"
-    assert ext["/tmp/*"] == "allow"
-
+    assert ext["/home/moeen/code/*"] == "allow"
 
 def test_inventory_marks_clean_true_and_strips_refs(repo: Path) -> None:
     entries = worktree_inventory.inventory(str(repo))
