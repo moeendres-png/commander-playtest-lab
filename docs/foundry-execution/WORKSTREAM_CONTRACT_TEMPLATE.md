@@ -53,11 +53,18 @@ Default: the primary worktree is the only writable surface.
 Declare additional project surfaces explicitly:
 
 - REFERENCE / read-only: verified repo + exact HEAD/tree; launcher materializes a disposable detached runtime snapshot for inspection/build/test while the authoritative source worktree stays outside mutation authority.
-- OWNED_WRITE / owned-write: verified repo + branch + exact HEAD/tree + explicit state path + ownership equal to THIS workstream; the launcher holds its writer lock for the entire worker lifetime.
+- OWNED_WRITE / owned-write: verified repo + branch + exact HEAD/tree + state path under ROOT/.foundry + ownership equal to THIS workstream; cross-WS writable checkouts must be standalone (checkout-local .git), disjoint, and the launcher holds every writer lock for the entire worker lifetime.
 - FOREIGN_ACTIVE: read-only; never take writer ownership.
 - UNKNOWN_OWNER: read-only / fail closed for mutation.
 
-A cross-WS assignment may own N writable surfaces only when each is explicitly contracted and verified. Undeclared sibling worktrees are not writable. Cross-WS launch additionally requires the Linux Landlock write boundary; absence/failure is a hard launch gate.
+A cross-WS assignment may own N writable surfaces only when each is explicitly contracted
+and verified. Undeclared sibling worktrees are not writable.
+
+Runtime isolation: Bubblewrap is mandatory for a cross-WS child. The host root is
+read-only; only contracted standalone writable surfaces, the unique runtime directory and
+narrow tool caches are write-mounted. Missing/unusable Bubblewrap fails closed. The
+requested run-dir must live under the system temp directory or
+~/.local/share/commander-foundry/runs and may not overlap any workspace. Cross-WS launch additionally requires the Linux Landlock write boundary; absence/failure is a hard launch gate.
 
 [list exact roots / branch / access / ownership / state path]
 
