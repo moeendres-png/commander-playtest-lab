@@ -38,12 +38,18 @@ def test_current_authority_preserves_history_and_changes_only_start2() -> None:
     assert authority["full107"]["denominator_count"] == 107
     assert authority["full107"]["changed_fixture_ids"] == ["WS05-CMD-START-2"]
     assert authority["full107"]["unchanged_fixture_count"] == 106
-    assert authority["full107"]["evidence_survival"]["WS05-CMD-START-2"] == "REQUALIFICATION_REQUIRED"
+    assert (
+        authority["full107"]["evidence_survival"]["WS05-CMD-START-2"]
+        == "REQUALIFICATION_REQUIRED"
+    )
     assert "PROVIDER_SELECTION" in authority["forbidden_claims"]
     assert "ARCHITECTURE_FREEZE" in authority["forbidden_claims"]
 
     base = REPO_ROOT / authority["full107"]["historical_base_materialization"]
-    assert hashlib.sha256(base.read_bytes()).hexdigest() == authority["full107"]["historical_base_sha256"]
+    assert (
+        hashlib.sha256(base.read_bytes()).hexdigest()
+        == authority["full107"]["historical_base_sha256"]
+    )
 
 
 def test_start2_successor_matches_cr1038a_shape_and_new_digest() -> None:
@@ -67,7 +73,10 @@ def test_start2_successor_matches_cr1038a_shape_and_new_digest() -> None:
     assert "draw_step_started:P1:turn1" in record["expected_events"]["forbidden_events"]
     assert "draw_step_draw:P1:turn1" in record["expected_events"]["forbidden_events"]
     assert record["requested_state_digest"] == patch["successor_requested_state_digest"]
-    assert resolver.requested_state_digest(record) == "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342"
+    assert (
+        resolver.requested_state_digest(record)
+        == "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342"
+    )
     assert "RSP" not in record["knowledge_state"]["channel_policy"]
     assert record["knowledge_state"]["channel_policy"].startswith(
         "Current candidate-neutral qualification-boundary"
@@ -104,9 +113,21 @@ def test_af01_uses_current_candidate_neutral_protocol_boundary() -> None:
         "get_provider_version",
         "get_capabilities",
     ]
-    assert boundary["truthful_capability_requirements"]["client_may_not_infer_support_from_provider_name"] is True
-    assert boundary["rules_authority_invariants"]["adapter_or_pilot_legality_reconstruction_forbidden"] is True
-    assert boundary["fail_closed_invariants"]["unsupported_production_reachable_decision"].startswith("TYPED_UNSUPPORTED")
+    assert (
+        boundary["truthful_capability_requirements"][
+            "client_may_not_infer_support_from_provider_name"
+        ]
+        is True
+    )
+    assert (
+        boundary["rules_authority_invariants"][
+            "adapter_or_pilot_legality_reconstruction_forbidden"
+        ]
+        is True
+    )
+    assert boundary["fail_closed_invariants"][
+        "unsupported_production_reachable_decision"
+    ].startswith("TYPED_UNSUPPORTED")
 
 
 def test_af_catalog_has_exact_required_gate_set_and_no_rsp11_af01_binding() -> None:
@@ -123,9 +144,15 @@ def test_af_catalog_has_exact_required_gate_set_and_no_rsp11_af01_binding() -> N
 def test_freeze_schema_binds_current_boundary_without_claiming_freeze() -> None:
     schema = _json(AF_SCHEMA_PATH)
     props = schema["properties"]
-    assert props["qualification_boundary"]["const"] == "commander-lab.pre-freeze-qualification/2.0.0"
+    assert (
+        props["qualification_boundary"]["const"]
+        == "commander-lab.pre-freeze-qualification/2.0.0"
+    )
     assert props["transport_protocol_version"]["const"] == "2.0.0"
     assert props["af_results"]["minItems"] == props["af_results"]["maxItems"] == 12
 
-    legacy = _json(REPO_ROOT / "qualification/protocol/ws10r/architecture_freeze_gate_catalog_v1.json")
+    legacy = _json(
+        REPO_ROOT
+        / "qualification/protocol/ws10r/architecture_freeze_gate_catalog_v1.json"
+    )
     assert legacy["protocol"] == "commander-lab.rules-service/1.1.0"
