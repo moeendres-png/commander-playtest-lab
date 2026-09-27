@@ -4,8 +4,8 @@ worktree: /home/moeen/code/wsr22-final-current-boundary-freeze
 branch: wsr22/final-current-boundary-freeze-qualification-20260927
 audit_base_sha: c5f9418e755a02ffec0e02c34b4a739baf10f5f0
 audit_base_tree: 610f93d81e3b7154731d95472be6dcac05057eac
-state_written_against_head: c5f9418e755a02ffec0e02c34b4a739baf10f5f0
-validated_head: null
+state_written_against_head: de08e928909e10db86399a21c7e09d3f9ba5fe99
+validated_head: de08e928909e10db86399a21c7e09d3f9ba5fe99
 objective: >-
   Produce the FINAL CURRENT-BOUNDARY runtime evidence required for the
   Coordinator to decide between XMage and Forge and perform Architecture Freeze,
@@ -84,3 +84,6 @@ counts:
   native_tests_xmage: 168
   native_tests_forge: 217
   lab_tests: 27
+  lab_unit_suite_clean_tree: { passed: 1001, failed: 3, collection_errors: 8, note: "3 failures and 8 errors are pre-existing/environmental (package not pip-installed; missing typer/asyncio plugin)" }
+  final_head: de08e928909e10db86399a21c7e09d3f9ba5fe99
+  final_tree: bf510a40a194d7ddd7b67aacc664e120a67db902
