@@ -39,8 +39,7 @@ WS75 hardening:
 - The exact ``--state`` path plus worktree/branch/workstream/run-dir/
   mode/effort reach the selected worker as ``FOUNDRY_*`` env (no secrets) and as
   ``run_dir/launch-context.json``.
-- Declared read-only reference roots (``--reference`` JSON, repeatable) are verified
-  and runtime-readable/edit-denied.
+- Declared read-only reference roots (``--reference`` JSON, repeatable) are verified and materialized as disposable detached snapshots; the authoritative source root remains denied.
 - Explicit ``--workspace-access`` surfaces may be read-only or owned-write; writable
   surfaces bind repo/branch/HEAD/tree/state/ownership and are multi-locked for the
   complete child lifetime.
@@ -55,6 +54,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -214,21 +214,97 @@ def install_hook(worktree: str, branch: str) -> str:
     return str(hook_path)
 
 
+def _root_patterns(root: str) -> tuple[str, str]:
+    """Exact directory + descendants without same-prefix sibling leakage."""
+    canonical = os.path.realpath(os.path.abspath(root)).rstrip("/")
+    return canonical, f"{canonical}/*"
+
+
 def sibling_denies(worktree: str, accessible_roots: set[str] | None = None) -> list[str]:
-    """Deny every undeclared sibling worktree of the same repo."""
+    """Deny every undeclared sibling worktree of the same repo at path boundaries."""
     canonical = os.path.realpath(os.path.abspath(worktree))
     accessible = {os.path.realpath(path) for path in (accessible_roots or set())}
     try:
         raw = _git(["worktree", "list", "--porcelain"], canonical)
     except RuntimeError:
         return []
-    denies = []
+    denies: list[str] = []
     for line in raw.splitlines():
         if line.startswith("worktree "):
             path = os.path.realpath(line[len("worktree ") :])
             if path != canonical and path not in accessible:
-                denies.append(f"{path}*")
-    return sorted(denies)
+                denies.extend(_root_patterns(path))
+    return sorted(set(denies))
+
+
+def _clone_snapshot(source_root: str, commit: str, destination: Path) -> str:
+    """Materialize an exact disposable Git snapshot detached from the source remote."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        shutil.rmtree(destination)
+    proc = subprocess.run(
+        ["git", "clone", "--no-hardlinks", "--no-checkout", source_root, str(destination)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise ValueError(f"reference snapshot clone failed: {proc.stderr.strip()[:200]}")
+    proc = subprocess.run(
+        ["git", "checkout", "--detach", commit],
+        cwd=str(destination),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise ValueError(f"reference snapshot checkout failed: {proc.stderr.strip()[:200]}")
+    subprocess.run(
+        ["git", "remote", "remove", "origin"],
+        cwd=str(destination),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    live = _git(["rev-parse", "HEAD"], str(destination))
+    if live != commit:
+        raise ValueError(f"reference snapshot HEAD {live!r} != expected {commit!r}")
+    return os.path.realpath(str(destination))
+
+
+def materialize_runtime_references(
+    references: list[dict], workspace_access: list[dict], run_dir: str
+) -> tuple[list[dict], list[dict]]:
+    """Replace read-only source roots with disposable runtime snapshots.
+
+    The authoritative source worktree is never added to the OpenCode external-directory
+    allowlist. Build tools may write into the disposable snapshot without mutating source.
+    """
+    base = Path(run_dir) / "reference-snapshots"
+    runtime_refs: list[dict] = []
+    runtime_access: list[dict] = []
+    for ref in references:
+        source_root = os.path.realpath(ref["root"])
+        runtime_root = _clone_snapshot(
+            source_root, ref["commit"], base / f"reference-{ref['label']}"
+        )
+        item = dict(ref)
+        item["source_root"] = source_root
+        item["root"] = runtime_root
+        runtime_refs.append(item)
+    for spec in workspace_access:
+        if spec["access"] == "owned-write":
+            runtime_access.append(dict(spec))
+            continue
+        source_root = os.path.realpath(spec["root"])
+        runtime_root = _clone_snapshot(
+            source_root, spec["commit"], base / f"workspace-{spec['label']}"
+        )
+        item = dict(spec)
+        item["source_root"] = source_root
+        item["root"] = runtime_root
+        runtime_access.append(item)
+    return runtime_refs, runtime_access
 
 
 def _validated_tool_output(value: object) -> dict:
@@ -408,15 +484,22 @@ def resolve_environment(
     canonical = Path(canonical_root)
     if not (canonical / "opencode.json").is_file() or not (canonical / "AGENTS.md").is_file():
         raise ValueError(f"canonical root {canonical_root!r} lacks policy files")
-    declared_roots = {os.path.realpath(ref["root"]) for ref in references} | {
-        os.path.realpath(spec["root"]) for spec in workspace_access
+    writable_roots = {
+        os.path.realpath(spec["root"])
+        for spec in workspace_access
+        if spec["access"] == "owned-write"
     }
-    denies = sibling_denies(worktree, declared_roots)
+    denies = sibling_denies(worktree, writable_roots)
     static_denies = json.loads((canonical / "opencode.json").read_text(encoding="utf-8"))[
         "permission"
     ]["external_directory"]
     static_denies_only = [k for k, v in static_denies.items() if v == "deny"]
-    for root in sorted(declared_roots):
+    source_roots = {
+        os.path.realpath(ref.get("source_root", ref["root"])) for ref in references
+    } | {
+        os.path.realpath(spec.get("source_root", spec["root"])) for spec in workspace_access
+    }
+    for root in sorted(source_roots):
         for pattern in static_denies_only:
             prefix = pattern[:-1] if pattern.endswith("*") else pattern
             if root == prefix or root.startswith(prefix):
@@ -431,13 +514,25 @@ def resolve_environment(
     ext = bundle["permission"].setdefault("external_directory", {})
     edit = bundle["permission"].setdefault("edit", {})
     for ref in references:
+        source = ref.get("source_root")
+        if source:
+            for pattern in _root_patterns(source):
+                ext[pattern] = "deny"
+                edit[pattern] = "deny"
         root = os.path.realpath(ref["root"])
-        ext[f"{root}*"] = "allow"
-        edit[f"{root}*"] = "deny"
+        for pattern in _root_patterns(root):
+            ext[pattern] = "allow"
+            edit[pattern] = "deny"
     for spec in workspace_access:
+        source = spec.get("source_root")
+        if source:
+            for pattern in _root_patterns(source):
+                ext[pattern] = "deny"
+                edit[pattern] = "deny"
         root = os.path.realpath(spec["root"])
-        ext[f"{root}*"] = "allow"
-        edit[f"{root}*"] = "allow" if spec["access"] == "owned-write" else "deny"
+        for pattern in _root_patterns(root):
+            ext[pattern] = "allow"
+            edit[pattern] = "allow" if spec["access"] == "owned-write" else "deny"
     env = dict(os.environ)
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
@@ -630,6 +725,12 @@ def init(
     )
     if gate["verdict"] != "BOOTSTRAP_PASS":
         return {"verdict": "LAUNCH_REFUSED", "gate": gate}
+    try:
+        runtime_refs, runtime_access = materialize_runtime_references(
+            parsed_refs, parsed_access, run_dir
+        )
+    except (OSError, RuntimeError, ValueError) as exc:
+        return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": f"snapshot: {exc}"}
     drift_suppressed = gate["drift"]["verdict"] == "DRIFT_FAIL"
     resolved_state = state_path
     try:
@@ -644,8 +745,8 @@ def init(
             run_dir=run_dir,
             state_path=resolved_state,
             mode=mode,
-            references=parsed_refs,
-            workspace_access=parsed_access,
+            references=runtime_refs,
+            workspace_access=runtime_access,
             opencode_binary=binary,
             execution_provider=execution_provider,
             execution_profile=execution_profile,
@@ -678,8 +779,8 @@ def init(
         "version_audit_mode": version_audit_mode,
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
-        "references": parsed_refs,
-        "workspace_access": parsed_access,
+        "references": runtime_refs,
+        "workspace_access": runtime_access,
         "worktree_states": state_map,
         "live_head": live_head,
     }
@@ -705,7 +806,7 @@ def init(
         "run_dir": run_dir,
         "state_path": resolved_state,
         "worktree_states": state_map,
-        "workspace_access": parsed_access,
+        "workspace_access": runtime_access,
         "opencode_binary": binary,
         "opencode_version": version,
         "version_audit_mode": version_audit_mode,
