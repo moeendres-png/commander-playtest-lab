@@ -12,20 +12,76 @@ verification command is named for each.
 
 ## 1. CURRENT_MAIN_SHA / CURRENT_MAIN_TREE
 
+> **MAIN DRIFT — re-locked 2026-09-27 after the policy work.** `origin/main` advanced during this
+> session. The Coordinator's `8d2aacd5` is no longer current, exactly as the campaign's
+> "do not assume any SHA from this prompt is still current after a merge" rule anticipates. See §1.1
+> for the adjudication; **this is now the single largest integration item in the campaign.**
+
 | Field | Value | Verified by |
 |---|---|---|
-| `origin/main` HEAD | `8d2aacd530ea47d3ef39f4ab4f974f301da3cf24` | `git rev-parse origin/main` |
-| `origin/main` TREE | `b54ea3992bd2d58712c3e6d5e6daa63349802ab1` | `git rev-parse origin/main^{tree}` |
-| Tip subject | `Merge PR #262: meta-qualification v1` | `git log --oneline -1 origin/main` |
+| `origin/main` HEAD | **`b786fbf2…`** — `Merge PR #266: explicit multi-workstream Foundry access` | `git log --oneline -1 origin/main` |
+| `origin/main` TREE | `e97dd131b965d6097ca77f60630d428a218b583a` | `git rev-parse origin/main^{tree}` |
+| Prior main (Coordinator-stated) | `8d2aacd530ea47d3ef39f4ab4f974f301da3cf24` / tree `b54ea399…` | superseded by PR #266 |
+| Local `main` | `586914ea` (`Merge PR #257`) — **stale, never use as an integration base** | `git log --oneline -1 main` |
 
-`8d2aacd5` matches the Coordinator's stated current main, so the Coordinator's main is confirmed
-fresh; no main movement occurred during this session.
+`git fetch` was run in this session; the only ref that moved was
+`foundry/multi-workstream-access-20260927` → then merged into main as PR #266.
 
-**Local `main` is stale and must not be used as an integration base.** The canonical worktree
-`/home/moeen/code/commander-playtest-lab` has local `main` at `586914ea` (`Merge PR #257`), which is
-an *ancestor* of `origin/main` `8d2aacd5`. The stale local ref was **not** fast-forwarded: that
-would require `git merge`, which the root policy denies. Any successor branch must be cut from
-`origin/main`, never from local `main`.
+### 1.1 PR #266 drift adjudication — a real semantic conflict, not textual
+
+**Four paths collide** between PR #266 and this branch:
+
+| Path | PR #266 | This branch | Nature |
+|---|---|---|---|
+| `opencode.json` | +12 lines: formatting, and **`mvn*`, `./mvnw*`, `gradle*`, `./gradlew*` allows** | full widening to `bash: * = allow` | **compatible** — main's additions are redundant under `*: allow` but their *intent* (engine builds must run) must be preserved |
+| `tools/foundry/launcher.py` | **+600 lines** | ~+100 lines of model-routing | **conflicting** — see below |
+| `tests/foundry/test_launcher.py` | **+616 lines** | ~+150 lines of policy-test updates | **conflicting** |
+| `tests/foundry/test_ws75_tooling_hardening.py` | +11 lines | ~+80 lines of policy-test updates | **conflicting** |
+
+**What PR #266 actually built, and why this is good news.** It adds a *process-level* ownership and
+confinement layer, not a model-facing permission change:
+
+- `tools/foundry/workspace_access.py` — explicit `--workspace-access` declarations, each binding
+  repository identity plus exact HEAD/tree; `owned-write` additionally binds branch, state path and
+  ownership, and is **multi-locked for the complete child lifetime**. Its own docstring states
+  *"Folder names never imply authority."*
+- `tools/foundry/fs_sandbox.py` — a fail-closed **Bubblewrap read-only-root mount namespace** for any
+  run with cross-workstream references or access. Only the primary standalone checkout, explicitly
+  declared owned-write roots, run/temp state and narrow tool caches are writable. **Sandbox setup
+  failure refuses the launch.**
+- Reference roots are verified and materialized as disposable detached snapshots, and the
+  authoritative source root stays denied.
+
+**Adjudication.** The Coordinator's authority and PR #266 are **orthogonal layers, not contradictions**:
+
+- The OpenCode permission table is the *model-facing* layer. The Coordinator removed a redundant
+  restriction there, so `bash: * = allow` and `external_directory: * = allow` stand.
+- PR #266's Bubblewrap sandbox and multi-lock are the *process-level* layer, enforced by the kernel
+  mount namespace. They are unaffected by the permission table and remain fail-closed.
+
+So the widening does **not** weaken PR #266's containment: a launcher-spawned run is still confined
+regardless of what the permission table says. This is also consistent with the Coordinator's
+instruction not to require the old launcher to grant ownership "if the project state can establish
+it directly" — `workspace_access.py` *is* that project state, binding repo identity and exact
+HEAD/tree, which is stronger evidence than a filename-based deny.
+
+**Merge recipe, in this order (do not hand-merge blindly):**
+
+1. Take **main's** `tools/foundry/launcher.py` as the base — it is newer, 600 lines larger, and is
+   canonical. Re-apply only this branch's model-routing changes on top of it:
+   `CANONICAL_MODEL` → space-bunny, `ALTERNATE_MODEL` → Muse, `DEFAULT_EXECUTION_PROFILE` →
+   `space-bunny`, the exact-two-executors allowlist + single-authorized-variant fail-closed guard,
+   the resolved-profile bundle branch, and the unconditional `--model` child pin.
+2. Take **main's** `opencode.json` as the base and re-apply the widening, keeping main's
+   `mvn*`/`./mvnw*`/`gradle*`/`./gradlew*` entries (redundant under `*: allow`, but they document
+   that engine builds are expected to run).
+3. Re-apply the policy-test updates onto main's much larger `test_launcher.py` and
+   `test_ws75_tooling_hardening.py`. Main's new tests must keep passing unchanged; where main added
+   tests that assert the *old* narrow policy, apply the same in-both-directions rewrite used here.
+4. Re-run the full suite. A clean merge is not evidence that the semantic merge is correct — main's
+   616 new launcher test lines must be re-verified against the widened policy.
+5. **Do not** carry this branch's `docs/project_integration_hygiene_20260927/PUBLICATIONS.md` gate
+   table forward as current; it is superseded by §11 below.
 
 ## 2. ACTIVE_PROVIDER_PINS
 
@@ -248,10 +304,14 @@ Coordinator regardless.
 ## 12. NEXT_ACTION
 
 0. **Restart this OpenCode session** so the widened `opencode.json` takes effect. Nothing else is
-   required; no config work remains.
+   pending on configuration.
+0a. **Resolve the PR #266 drift first** (`b786fbf2` is now main; four paths collide). Follow §1.1's
+   merge recipe: take main's `launcher.py` and `opencode.json` as the base, re-apply the model-routing
+   changes and the widening on top, and re-verify main's 616 new launcher test lines against the
+   widened policy. A textually clean merge is not sufficient evidence here.
 1. Publish WSR23 as a fast-forward push of `wsr23/project-integration-hygiene-20260927`, open one PR
-   against `origin/main` `8d2aacd5`, inspect exact-head CI, adjudicate drift (`docs/**` only), merge,
-   re-read post-merge main, and update/close Issue #263.
+   against `origin/main`, inspect exact-head CI, adjudicate drift, merge, re-read post-merge main, and
+   update/close Issue #263.
 2. Re-lock main, then run the **WSR22 successor integration** per `WSR22_IMPACT_ADJUDICATION.md` §5:
    cut from fresh `origin/main` (never the stale local `main` `586914ea`), transplant whole files from
    `208341c6…` with provenance, adopt the 2026-09-25 receipt, **regenerate** `qualification/SHA256SUMS`
