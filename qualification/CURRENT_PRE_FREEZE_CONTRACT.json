@@ -60,6 +60,9 @@
   ],
   "rules_authority": {
     "current_receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
-    "historical_repository_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json"
+    "historical_repository_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
+    "current_status": "CURRENT_OFFICIAL_AUTHORITY_VERIFIED",
+    "freshness_adjudication": "FRESHNESS_CONFLICT_RESOLVED",
+    "verified_date": "2026-09-27"
   }
 }
