@@ -114,7 +114,7 @@ def run_meta_verification(
         results.append(
             {
                 "mutation_id": spec.mutation_id,
-                "status": "KILLED" if killed else "SURVIVED",
+                "status": "KILLED" if was_killed else "SURVIVED",
                 "expected_detector": spec.expected_detector,
                 "observed_detector": observed,
                 "record_index": record_index,
@@ -133,7 +133,7 @@ def run_meta_verification(
         )
 
     attempted = sum(row["status"] != "NOT_RUN" for row in results)
-    killed = sum(row["status"] == "KILLED" for row in results)
+    killed_count = sum(row["status"] == "KILLED" for row in results)
     survived = sum(row["status"] == "SURVIVED" for row in results)
     not_run = sum(row["status"] == "NOT_RUN" for row in results)
     total = len(results)
@@ -144,10 +144,10 @@ def run_meta_verification(
         "source_tape": source_tape,
         "results": results,
         "attempted": attempted,
-        "killed": killed,
+        "killed": killed_count,
         "survived": survived,
         "not_run": not_run,
-        "kill_rate": killed / attempted if attempted else None,
+        "kill_rate": killed_count / attempted if attempted else None,
         "catalog_coverage": attempted / total if total else 0.0,
     }
 
