@@ -963,7 +963,10 @@ def _revalidate_locked_surfaces(
             f"{env.get('FOUNDRY_BRANCH', '')!r}"
         )
     if live_head != plan.get("live_head"):
-        return f"primary HEAD changed after init: {live_head[:12]} != {str(plan.get('live_head'))[:12]}"
+        return (
+            f"primary HEAD changed after init: {live_head[:12]} != "
+            f"{str(plan.get('live_head'))[:12]}"
+        )
 
     for spec in plan.get("workspace_access", []):
         if spec.get("access") != "owned-write":
