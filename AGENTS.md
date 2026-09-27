@@ -238,11 +238,18 @@ Persistence, and Stop Conditions. One primary objective; do not silently broaden
 ## 11. Git, worktree, ownership
 
 Do not modify another active workstream's branch or worktree. Do not modify `main`
-directly. Local commits for resumability are encouraged. Push, merge, rebase,
-history rewriting, remote repository creation, paid services, process killing, and
-worktree deletion require explicit user approval. Before material work, verify branch,
-HEAD, tree, `git status`, contract, and state file; resume from the newest verified
-state without redoing valid evidence.
+directly. Local commits for resumability are encouraged. Project-scoped Git/GitHub
+operations are pre-authorized for the selected OpenCode executor when they are
+evidence-backed and within the active campaign/workstream: create/switch branches,
+create/remove worktrees, push owned branches, create/update/merge/close PRs, maintain
+issues, rebase/cherry-pick/merge integration branches, and clean proven-superseded
+campaign surfaces. Preserve immutable evidence/provenance branches and unique
+unintegrated work; do not force a result toward PASS. Remote repository creation,
+paid services, raw-secret exposure, account/org security changes, Production Provider
+selection, and Architecture Freeze remain outside ordinary executor authority. Before
+material work, verify branch, HEAD, tree, `git status`, contract/state or durable
+campaign checkpoint, and resume from the newest verified state without redoing valid
+evidence.
 
 ## 12. Privacy
 
