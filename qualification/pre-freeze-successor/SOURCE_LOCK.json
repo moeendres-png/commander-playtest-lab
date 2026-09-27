@@ -25,7 +25,12 @@
     "official_comprehensive_rules_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
     "historical_authority_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
     "historical_authority_lock_note": "Historical capture provenance only; its artifacts/cr path is not treated as a current repository-verifiable artifact by this successor.",
-    "successor_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json"
+    "successor_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json",
+    "rules_authority_status": "CURRENT_OFFICIAL_AUTHORITY_VERIFIED",
+    "rules_authority_freshness_adjudication": "FRESHNESS_CONFLICT_RESOLVED",
+    "current_rules_page_verified_date": "2026-09-27",
+    "reality_fracture_release_date": "2026-10-02",
+    "reality_fracture_prerelease_date": "2026-09-25"
   },
   "ownership": {
     "publisher_safe_push": "OUT_OF_SCOPE",
