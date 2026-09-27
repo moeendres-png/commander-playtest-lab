@@ -1,0 +1,22 @@
+{
+  "schema_version": "commander-lab.current-rules-authority-receipt/1.0.0",
+  "authority": "Wizards of the Coast",
+  "verified_date": "2026-09-27",
+  "official_rules_page_url": "https://magic.wizards.com/en/rules",
+  "official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+  "effective_date": "2026-08-07",
+  "applicable_rule": "103.8a",
+  "semantic_requirement": "In a two-player game, the starting player skips the entire draw step of the first turn.",
+  "reproduction": {
+    "fetch_official_rules_page": true,
+    "require_txt_link_from_official_rules_page": true,
+    "require_txt_effective_date": "2026-08-07",
+    "require_rule_number": "103.8a",
+    "fail_closed_on_source_drift": true
+  },
+  "historical_repository_provenance": {
+    "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
+    "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE_ONLY",
+    "note": "The historical lock names an untracked artifacts/cr capture. The successor does not treat that absent path as current repository-verifiable authority."
+  }
+}
