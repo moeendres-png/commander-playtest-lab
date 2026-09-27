@@ -95,3 +95,19 @@
 ## Exact Next Action
 - Coordinator/GitHub lane: review merge-ready PR, adjudicate drift, exact-head CI, merge when
   Space Bunny path-ownership disjoint. Then cite RG-07/08 PASS in provider comparison.
+
+## Merge Receipt (additive, appended after merge — supersedes the Next Action above)
+
+`WSR25_RESIDUAL_CLOSURE = COMPLETE` (merged; the pending "Next Action" above is historical).
+
+- PR: #270 — "WSR25: RG-07 (6/6) + RG-08 (8/8) Lab evidence port onto current pin b1959698"
+- PR head at merge: `45387a8bda99eef9e104e2c1106aff872e350f6f`
+- Merge commit: `425a9af2115159e7986cb1e574fd918d7cbf2378` (normal GitHub merge, no force/admin)
+- Post-merge exact-head CI on `main`: quality, security, infrastructure, build-release,
+  real-4p-smoke, conformance, exact-main-admission, recovery, windows-runtime = success.
+- Merge gate: own `wsr25/...` branch; base drift `8d2aacd5` → `f5941985` adjudicated with zero
+  path overlap; no open reviews; no PB-03 / WSR22 / Forge / Mage-candidate surface touched.
+- Consequence: RG-07 and RG-08 are CURRENTLY_CONSUMED on `main` and may be cited as Lab
+  runtime credit in the provider comparison (Space Bunny owns that assembly).
+- Residual: `STARTING_STATE_INJECTION_SUPPORTED` remains `false` (truthful); PB-03 and the
+  deferred ws88/ws90 manifest-gated notes stay with their owners.
