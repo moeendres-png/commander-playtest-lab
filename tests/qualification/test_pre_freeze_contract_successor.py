@@ -330,8 +330,7 @@ def test_current_rules_authority_is_current_and_prerelease_is_not_rules_effectiv
     assert receipt["adjudication"]["cr_103_8a_changed"] is False
     assert receipt["reproduction"]["fail_closed_on_source_drift"] is True
     assert (
-        receipt["reproduction"]["fail_closed_if_rules_page_points_to_newer_effective_rules"]
-        is True
+        receipt["reproduction"]["fail_closed_if_rules_page_points_to_newer_effective_rules"] is True
     )
 
     assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
