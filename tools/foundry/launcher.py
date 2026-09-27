@@ -39,8 +39,11 @@ WS75 hardening:
 - The exact ``--state`` path plus worktree/branch/workstream/run-dir/
   mode/effort reach the selected worker as ``FOUNDRY_*`` env (no secrets) and as
   ``run_dir/launch-context.json``.
-- Declared read-only reference roots (``--reference`` JSON, repeatable)
-  are verified at bootstrap and exposed as ``FOUNDRY_REFERENCE_ROOTS``.
+- Declared read-only reference roots (``--reference`` JSON, repeatable) are verified
+  and runtime-readable/edit-denied.
+- Explicit ``--workspace-access`` surfaces may be read-only or owned-write; writable
+  surfaces bind repo/branch/HEAD/tree/state/ownership and are multi-locked for the
+  complete child lifetime.
 - The installed OpenCode CLI must equal the canonical qualified version
   (``tools/foundry/opencode_cli_version.py``) unless explicit
   ``--version-audit-mode`` bounds the drift for migration/audit runs.
@@ -64,6 +67,7 @@ import drift_check as drift_mod
 import metrics as metrics_mod
 import opencode_cli_version as version_mod
 import reference_roots as reference_mod
+import workspace_access as workspace_access_mod
 import writer_lock as writer_lock_mod
 
 CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
@@ -210,9 +214,10 @@ def install_hook(worktree: str, branch: str) -> str:
     return str(hook_path)
 
 
-def sibling_denies(worktree: str) -> list[str]:
-    """external_directory denies for every OTHER worktree of the same repo."""
+def sibling_denies(worktree: str, accessible_roots: set[str] | None = None) -> list[str]:
+    """Deny every undeclared sibling worktree of the same repo."""
     canonical = os.path.realpath(os.path.abspath(worktree))
+    accessible = {os.path.realpath(path) for path in (accessible_roots or set())}
     try:
         raw = _git(["worktree", "list", "--porcelain"], canonical)
     except RuntimeError:
@@ -221,7 +226,7 @@ def sibling_denies(worktree: str) -> list[str]:
     for line in raw.splitlines():
         if line.startswith("worktree "):
             path = os.path.realpath(line[len("worktree ") :])
-            if path != canonical:
+            if path != canonical and path not in accessible:
                 denies.append(f"{path}*")
     return sorted(denies)
 
@@ -392,6 +397,7 @@ def resolve_environment(
     state_path: str,
     mode: str,
     references: list[dict],
+    workspace_access: list[dict],
     opencode_binary: str,
     execution_provider: str | None = None,
     execution_profile: str | None = None,
@@ -402,15 +408,38 @@ def resolve_environment(
     canonical = Path(canonical_root)
     if not (canonical / "opencode.json").is_file() or not (canonical / "AGENTS.md").is_file():
         raise ValueError(f"canonical root {canonical_root!r} lacks policy files")
-    denies = sibling_denies(worktree)
+    declared_roots = {
+        os.path.realpath(ref["root"]) for ref in references
+    } | {
+        os.path.realpath(spec["root"]) for spec in workspace_access
+    }
+    denies = sibling_denies(worktree, declared_roots)
     static_denies = json.loads((canonical / "opencode.json").read_text(encoding="utf-8"))[
         "permission"
     ]["external_directory"]
-    denies += [k for k, v in static_denies.items() if v == "deny"]
+    static_denies_only = [k for k, v in static_denies.items() if v == "deny"]
+    for root in sorted(declared_roots):
+        for pattern in static_denies_only:
+            prefix = pattern[:-1] if pattern.endswith("*") else pattern
+            if root == prefix or root.startswith(prefix):
+                raise ValueError(
+                    f"declared workspace root {root!r} conflicts with static deny {pattern!r}"
+                )
+    denies += static_denies_only
     execution = execution_identity(execution_provider, effort, execution_profile)
     bundle = build_content_bundle(
         canonical_root, sorted(set(denies)), execution_provider, execution_profile
     )
+    ext = bundle["permission"].setdefault("external_directory", {})
+    edit = bundle["permission"].setdefault("edit", {})
+    for ref in references:
+        root = os.path.realpath(ref["root"])
+        ext[f"{root}*"] = "allow"
+        edit[f"{root}*"] = "deny"
+    for spec in workspace_access:
+        root = os.path.realpath(spec["root"])
+        ext[f"{root}*"] = "allow"
+        edit[f"{root}*"] = "allow" if spec["access"] == "owned-write" else "deny"
     env = dict(os.environ)
     # Pinned CLI applies this after CONFIG_CONTENT; never let ambient overrides
     # widen canonical permissions. Do not read or log its value.
@@ -442,6 +471,7 @@ def resolve_environment(
     env["FOUNDRY_RUN_DIR"] = run_dir
     env["FOUNDRY_MODE"] = mode
     env["FOUNDRY_REFERENCE_ROOTS"] = json.dumps(references, sort_keys=True)
+    env["FOUNDRY_WORKSPACE_ACCESS"] = json.dumps(workspace_access, sort_keys=True)
     env["FOUNDRY_CANONICAL_POLICY_HASH"] = policy_hash
     env["FOUNDRY_CONFIG_DIR_MANIFEST"] = manifest["sha256"]
     if drift_suppressed:
@@ -481,6 +511,7 @@ def init(
     run_dir: str,
     ui_mode: str = "headless",
     references: list[str] | None = None,
+    workspace_access: list[str] | None = None,
     opencode_bin: str | None = None,
     version_audit_mode: bool = False,
     worktree_states: list[str] | None = None,
@@ -506,6 +537,32 @@ def init(
             parsed_refs.append(reference_mod.parse_spec(raw))
         except reference_mod.ReferenceError as exc:
             return {"verdict": "LAUNCH_REFUSED", "error": f"reference: {exc}"}
+    parsed_access: list[dict] = []
+    seen_access_roots: set[str] = set()
+    for raw in workspace_access or []:
+        try:
+            spec = workspace_access_mod.parse_spec(raw)
+        except workspace_access_mod.WorkspaceAccessError as exc:
+            return {"verdict": "LAUNCH_REFUSED", "error": f"workspace-access: {exc}"}
+        root = os.path.realpath(spec["root"])
+        if root == canonical:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": "workspace-access must not redeclare the primary worktree",
+            }
+        if root in seen_access_roots:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"duplicate --workspace-access root {root!r}",
+            }
+        seen_access_roots.add(root)
+        reasons = workspace_access_mod.verify(spec)
+        if reasons:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"workspace-access {spec['label']!r}: {reasons[0]}",
+            }
+        parsed_access.append(spec)
     # Explicit ownership authority: the launcher always declares its own
     # worktree/state pair (ground truth for this run) plus any
     # operator-declared sibling pairs. A conflicting operator pair for our
@@ -528,6 +585,17 @@ def init(
             "error": "--worktree-state for this worktree conflicts with --state",
         }
     state_map[canonical] = state_path
+    for spec in parsed_access:
+        if spec["access"] != "owned-write":
+            continue
+        root = os.path.realpath(spec["root"])
+        other_state = spec["state_path"]
+        if root in state_map and state_map[root] != other_state:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": f"owned-write state conflicts with --worktree-state for {root!r}",
+            }
+        state_map[root] = other_state
     binary = resolve_opencode_binary(opencode_bin)
     try:
         version = version_mod.verify(binary)
@@ -579,6 +647,7 @@ def init(
             state_path=resolved_state,
             mode=mode,
             references=parsed_refs,
+            workspace_access=parsed_access,
             opencode_binary=binary,
             execution_provider=execution_provider,
             execution_profile=execution_profile,
@@ -612,6 +681,7 @@ def init(
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
         "references": parsed_refs,
+        "workspace_access": parsed_access,
         "worktree_states": state_map,
         "live_head": live_head,
     }
@@ -637,6 +707,7 @@ def init(
         "run_dir": run_dir,
         "state_path": resolved_state,
         "worktree_states": state_map,
+        "workspace_access": parsed_access,
         "opencode_binary": binary,
         "opencode_version": version,
         "version_audit_mode": version_audit_mode,
@@ -668,18 +739,43 @@ def launch(
         return 1
     mode = ui_mode or plan.get("ui_mode", "headless")
     env: dict = plan["_env"]
-    lock = writer_lock_mod.WriterLock(
-        worktree, workstream, env.get("FOUNDRY_BRANCH", ""), env.get("FOUNDRY_SESSION", "")
-    )
-    try:
-        lock.acquire()
-    except writer_lock_mod.LockedError as exc:
-        print(str(exc), file=sys.stderr)
-        return writer_lock_mod.HELD_EXIT
+    lock_specs = [
+        {
+            "root": os.path.realpath(worktree),
+            "workstream": workstream,
+            "branch": env.get("FOUNDRY_BRANCH", ""),
+        }
+    ]
+    for spec in plan.get("workspace_access", []):
+        if spec.get("access") == "owned-write":
+            lock_specs.append(
+                {
+                    "root": os.path.realpath(spec["root"]),
+                    "workstream": spec["ownership"],
+                    "branch": spec["branch"],
+                }
+            )
+    locks: list[writer_lock_mod.WriterLock] = []
+    for spec in sorted(lock_specs, key=lambda item: item["root"]):
+        lock = writer_lock_mod.WriterLock(
+            spec["root"],
+            spec["workstream"],
+            spec["branch"],
+            env.get("FOUNDRY_SESSION", ""),
+        )
+        try:
+            lock.acquire()
+        except writer_lock_mod.LockedError as exc:
+            for held in reversed(locks):
+                held.release()
+            print(str(exc), file=sys.stderr)
+            return writer_lock_mod.HELD_EXIT
+        locks.append(lock)
     try:
         return _launch_locked(plan, argv_extra, worktree, workstream, effort, mode, execution)
     finally:
-        lock.release()
+        for lock in reversed(locks):
+            lock.release()
 
 
 def _launch_locked(
@@ -850,6 +946,15 @@ def main(argv: list[str] | None = None) -> int:
         help="Declared read-only reference root as JSON (repeatable).",
     )
     parser.add_argument(
+        "--workspace-access",
+        action="append",
+        default=[],
+        help=(
+            "Verified project surface as JSON (repeatable): access=read-only or "
+            "owned-write; writable surfaces require branch/state_path/ownership."
+        ),
+    )
+    parser.add_argument(
         "--worktree-state",
         action="append",
         default=[],
@@ -888,6 +993,7 @@ def main(argv: list[str] | None = None) -> int:
         run_dir=run_dir,
         ui_mode=args.ui_mode,
         references=args.reference,
+        workspace_access=args.workspace_access,
         opencode_bin=args.opencode_bin,
         version_audit_mode=args.version_audit_mode,
         worktree_states=args.worktree_state,

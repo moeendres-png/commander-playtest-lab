@@ -136,6 +136,14 @@ spellings, indirect interpreters, another tool, or a different model.
 Push/merge/rebase/destructive operations, secrets and cross-worktree mutation remain
 subject to the repository permission/approval gates.
 
+## Cross-workstream execution capability
+
+Project-wide understanding must not be confused with project-wide write authority.
+
+Both Space Bunny MAX and Muse may consume explicitly verified project references across /home/moeen/code. A cross-workstream task may also receive multiple explicit owned-write mutation surfaces. Every writable surface must bind exact repository, branch, HEAD/tree, state path and ownership, and all writer locks are held concurrently for the complete child lifetime.
+
+Read-only references are runtime-readable but edit-denied. Foreign active and unknown-owner worktrees are not mutation-authorized. Undeclared siblings remain denied. This lets Foundry perform real integration work without creating competing writers.
+
 ## Executor handoff and parallelism
 
 Exactly one active writer owns one branch/worktree/mutation surface.
