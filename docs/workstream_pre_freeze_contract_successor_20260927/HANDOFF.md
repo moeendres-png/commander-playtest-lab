@@ -28,16 +28,24 @@
    exactly once, and permits `freeze_eligible=true` only when all twelve verdicts
    are `PASS`.
 7. Added regression tests for exact change accounting, START-2 semantics/digest,
-   unchanged non-START2 records, protocol binding and historical preservation.
-8. Removed stale predecessor materialization/obligation/supersession digests from the
-   effective START-2 record and retained them only under `historical_digests`.
-9. Removed the predecessor bundle's canonical digest/common-manifest digest from current
-   identity fields, preserved them as historical provenance, and rebound the effective
-   bundle to `AUTHORITY_LOCK_v2`.
+   unchanged non-START2 fixture records, protocol binding and historical preservation.
+8. Added a strict successor materialization schema and recomputed current START-2
+   obligation/materialization plus bundle digests rather than advertising stale digests.
+9. Hardened Architecture-Freeze v2 so source/provider/adapter/build identities and
+   provider-reported capabilities are structurally required; an eligible result may not
+   carry missing required capabilities.
+10. Rebound Rules authority to a reproducible official Wizards source receipt instead of
+    treating the historical untracked `artifacts/cr/...` path as current evidence.
+11. Reclassified all historical FULL107 runtime evidence as provenance-only for the
+    current Protocol-2 comparison; fresh current-boundary execution is required for all 107.
+Historical predecessor digests remain under `historical_digests`; the effective
+START-2 record receives newly computed requested-state, obligation and materialization
+digests. The effective bundle receives a newly computed canonical bundle digest while
+preserving the historical digest under `supersedes`.
 
 ## START-2 Authority Correction
 
-Repository authority lock `AUTHORITY_LOCK_v2` pins the current Comprehensive Rules
+Repository authority lock `CURRENT_RULES_AUTHORITY.json` binds the current official Wizards Rules page/TXT and the Comprehensive Rules
 effective 2026-08-07. CR 103.8a requires the player who plays first in a two-player
 game to skip the draw step of the first turn.
 
@@ -69,9 +77,11 @@ Successor requested-state digest:
 Evidence survival:
 
 - `WS05-CMD-START-2`: **REQUALIFICATION_REQUIRED**
-- other 106 FULL107 denominator rows: **UNCHANGED_REUSABLE_SUBJECT_TO_SOURCE_IDENTITY**
+- other 106 FULL107 denominator rows: **HISTORICAL_PROVENANCE_ONLY_PENDING_CURRENT_BOUNDARY_EXECUTION**
 - Forge WSR20's reported START-2 DIRECT is not imported as successor runtime credit.
 - Historical XMage START-2 blocker remains provenance only.
+- For the current Protocol-2 comparison boundary, **all 107 FULL107 rows require fresh
+  execution**. Source identity alone never promotes historical RSP-1.1 runtime evidence.
 
 ## AF01 Migration
 
@@ -168,9 +178,11 @@ Evidence classification:
 
 ## Remaining Blockers
 
-1. Execute START-2 successor semantics independently on each candidate.
-2. Execute AF01 v2 handshake/capability/fail-closed qualification for each candidate.
-3. Continue common-fixture comparison only after those normalized contracts are consumed.
+1. Execute all 107 FULL107 rows freshly under the current qualification boundary for
+   XMage and Forge; START-2 uses the corrected successor semantics.
+2. Execute AF01 v2 handshake/capability/fail-closed qualification independently on each
+   candidate using exact provider/adapter/build source locks.
+3. Continue provider comparison only from those normalized current-boundary results.
 
 ## Dependencies Unblocked
 
@@ -182,9 +194,10 @@ than choosing between historical FULL107/RSP artifacts ad hoc.
 After PR #254 is integrated, run the bounded common-fixture execution/requalification
 against the effective successor contract:
 
-1. `WS05-CMD-START-2` successor semantics independently on XMage and Forge.
-2. AF01 v2 handshake / truthful-capability / fail-closed qualification independently
-   on XMage and Forge.
+1. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
+   including corrected `WS05-CMD-START-2`.
+2. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
+   provider/adapter/build identities for both candidates.
 3. Only then consume the normalized results in the pre-Freeze provider-comparison
    framework.
 
@@ -203,3 +216,21 @@ Do not select a provider from this contract-only workstream.
 - Base tree: `4cf4f3d23da9b6a7bb010178b6efcc2b2c853ba2`
 - Mergeability at validation: TRUE
 - Scope status: **COMPLETE / BOUNDED PASS**
+
+## Review Remediation Before Merge
+
+Automated review surfaced additional contract-integrity requirements after the first
+green head. They were treated as blockers, not waived:
+
+- exact-once AF00–AF11 + all-PASS eligibility: fixed;
+- required per-gate evidence references: fixed;
+- predecessor canonical bundle digest advertised as current: fixed;
+- historical untracked CR artifact path used as current authority: replaced by
+  reproducible official Wizards authority receipt;
+- empty source lock / empty capability payload could validate: fixed structurally;
+- RSP-1.1 evidence could carry forward on source identity alone: prohibited;
+- successor materialization lacked its own schema: fixed with a strict v1.0.6-successor
+  schema and current digest reconstruction.
+
+The final status below must be read against the post-review terminal head and its green
+CI receipts, not the earlier intermediate head.
