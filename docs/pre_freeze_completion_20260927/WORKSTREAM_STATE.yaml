@@ -49,20 +49,11 @@ evidence:
 - docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md
 - docs/pre_freeze_completion_20260927/WSR22_EVIDENCE_INTEGRITY.md
 - qualification/final-current-boundary-20260927/SOURCE_LOCK.json#known_evidence_defects
-exact_next_action: 'Do NOT merge PR #278 and do NOT supersede PR #269; both dispositions
-  are already recorded. Open a bounded evidence-integrity remediation workstream from
-  current main with its own branch, and do these five things: (1) make run_native_suite()
-  actually execute and persist receipts, failing closed when a receipt is absent instead
-  of falling back to a literal; (2) bind the seed through the provider''s authoritative
-  seed API and confirm the returned binding before recording RNG credit; (3) replace
-  the fixture-ID regex with explicit positive fixture-to-test receipts; (4) derive
-  AF01, AF03 and START-2 from recorded probe responses, event-log observations and
-  principal-state snapshots; (5) enforce the per-request deadline around response
-  reads and terminate a stalled process on expiry. Then re-run the affected rows,
-  recompute the comparison, re-seal the manifests, and only then re-attempt the WSR22
-  successor merge and consider superseding #269. PB-09 (Forge candidate identity)
-  remains a separate Coordinator decision. ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER
-  = NOT SELECTED.'
+exact_next_action: 'Run the impact-required gate set on this branch, bind validation
+  credit to the exact head, push, open one PR against main, inspect exact-head CI,
+  repair only attributable failures, merge, re-read post-merge main, and only then
+  mark PR #269 superseded - which requires proving every WSR22 evidence family is
+  present on main with the successor''s provenance intact.'
 failure_class: EVIDENCE_PIPELINE_DEFECT
 first_failing_boundary: scripts/assemble_current_boundary_evidence.py:27 (hard-coded
   NATIVE_RUNS consumed at lines 142, 156, 214 and 219 while run_native_suite() at
@@ -131,8 +122,8 @@ ownership: wsr22-successor-current-boundary-freeze-20260927
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: EVIDENCE_PIPELINE_DEFECT
 schema_version: '2.0'
-state_written_against_head: 46c43b4b1af2abfd2b27b70052193bee000720ca
-status: BLOCKED
+state_written_against_head: f9100650ab5e76b56c7d2ef475cd707e6e9b4f5e
+status: WAITING
 technical_decisions:
 - Main was merged as the base and main moved three times during the WSR23 stage, so
   this branch binds the exact post-merge main 7d50937d TREE 15c47157 rather than the
@@ -156,33 +147,33 @@ technical_decisions:
   block inside the lock itself, so the defect travels with the artifact instead of
   living only in a PR comment that a later session might never read.
 tests_run:
-- 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at 35ed98b539eb05bc5af2e7381ba12dedcd9020e6):
+- 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at f9100650ab5e76b56c7d2ef475cd707e6e9b4f5e):
   1713 passed, 5 skipped, 0 failed'
 - 'pytest tests/qualification -q: 87 passed, 2 skipped'
-- 'pytest tests/qualification/test_pre_freeze_contract_successor.py tests/qualification/test_wsr22_current_boundary.py
-  -q: 26 passed'
-- 'pytest tests/qualification/test_ws17_qualification.py -q: 12 passed (manifest integrity,
-  after reseal)'
 - 'ruff check: All checks passed'
-- 'ruff format --check: 1009 files already formatted'
+- 'ruff format --check: 1011 files already formatted'
 - 'mypy src/commander_lab (strict): Success, no issues in 270 source files'
 - 'python -m compileall -q src tests: exit 0'
-- 'python tools/project_invariant_audit.py: 6 pass / 0 fail / 1 not_applicable'
 - 'python tools/foundry/state.py --check-validated: STATE_OK schema=2.0'
-- 'python tools/foundry/bootstrap.py --workstream wsr22-successor-current-boundary-freeze-20260927:
-  BOOTSTRAP_PASS'
+- 'PR #278 exact-head CI on 96ef2251: quality, security, infrastructure, windows-runtime,
+  mutation-detection, decision-workflow-contract all success'
+- 'PR #278 merge attempt: refused by base-branch policy; ruleset CPL - Canonical Main
+  Protection requires required_review_thread_resolution=true with 0 required approvals
+  and no bypass actors'
 validated_gates:
 - Full python test suite green on a clean tree (1713 passed / 5 skipped / 0 failed)
-- Receipt assertions retargeted to the 2026-09-25 capture and still asserting byte-exact
-  hash, byte count, independent re-verification, explicit supersession with preserved_not_deleted,
-  both fail-closed reproduction flags, and successor/receipt agreement
+- 'Evidence-integrity findings re-verified in source rather than relayed: NATIVE_RUNS
+  is a hard-coded literal with run_native_suite() having no callers, and the seed
+  parameter never reaches the create-game request'
+- 'PR #278 deliberately NOT merged and threads NOT resolved; --admin NOT used; PR
+  #269 NOT superseded'
+- SOURCE_LOCK contract_blobs resealed for the three files whose bytes this branch
+  changed, with an explicit not_a_reexecution note
+- known_evidence_defects recorded inside SOURCE_LOCK.json so the defect travels with
+  the artifact
 - Both integrity manifests recomputed from the integrated tree and verified by the
   WS17 manifest gate
 - FULL107 denominator preserved at exactly 107; no row removed or duplicated
-- Strict mypy green on src/commander_lab including the transplanted package
-- ruff lint and format clean; compileall clean
-- 'project invariant audit: 6 pass, 0 fail'
-- WORKSTREAM_STATE STATE_OK schema 2.0; bootstrap gate BOOTSTRAP_PASS
-- 'Evidence provenance bound: WSR22 evidence head 208341c6 recorded and untouched'
-validated_head: 46c43b4b1af2abfd2b27b70052193bee000720ca
+- Strict mypy, ruff, compileall, invariant audit, STATE_OK all clean
+validated_head: f9100650ab5e76b56c7d2ef475cd707e6e9b4f5e
 worktree: /home/moeen/code/wsr22-successor-current-boundary
