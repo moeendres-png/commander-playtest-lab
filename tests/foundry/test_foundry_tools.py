@@ -552,6 +552,7 @@ def test_safe_auto_deny_set_pinned() -> None:
         "git push * -f",
         "git push --force-with-lease*",
         "git push * --force-with-lease*",
+        "git push --delete*",
         "git push * --delete*",
         "git push * :*",
         "git push origin main*",

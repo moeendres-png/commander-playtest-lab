@@ -520,6 +520,9 @@ def test_direct_git_push_denied() -> None:
 
 def test_owned_branch_git_allow_set() -> None:
     rules = _config_bash_rules()
+    bash = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))["permission"]["bash"]
+    assert bash.get("git push --delete*") == "deny"
+    assert bash.get("git push * --delete*") == "deny"
     for cmd in (
         "git merge origin/main",
         "git pull --ff-only",
