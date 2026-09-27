@@ -22,10 +22,10 @@ Injection (all officially supported, verified Checkpoint A):
   CWD is CPL. For engine CWDs the launcher FAILS CLOSED on reachable stale
   routing unless suppression is explicit.
 
-Effort: --effort must be high|xhigh (below-HIGH rejected). TUI sessions run
-the HIGH implementer by config default; xhigh work routes to the
-foundry-adjudicator subagent (variant xhigh). The launcher records effort in
-telemetry and lock metadata; it invents no OpenCode flags.
+Execution identity is profile-exact: Space Bunny runs only at native `max`;
+Muse runs only at native `xhigh`. Space Bunny MAX is the default profile.
+There is no active-work Muse HIGH lane. The launcher records the exact selected
+identity in telemetry and lock metadata and rejects mismatched profile/effort pairs.
 
 WS75 hardening:
 
@@ -66,13 +66,14 @@ import opencode_cli_version as version_mod
 import reference_roots as reference_mod
 import writer_lock as writer_lock_mod
 
-CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
 CANONICAL_PROVIDER = "opencode-go"
-ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
 SPACE_BUNNY_MODEL = "opencode-go/space-bunny-free"
-EXECUTION_PROFILES = ("muse", "space-bunny")
-ALLOWED_EFFORTS = ("high", "xhigh")
-BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
+MUSE_MODEL = "opencode-go/muse-spark-1.3-contributor"
+CANONICAL_MODEL = SPACE_BUNNY_MODEL
+ZEN_MODEL = "opencode/muse-spark-1.3-contributor-free"
+EXECUTION_PROFILES = ("space-bunny", "muse")
+ALLOWED_EFFORTS = ("max", "xhigh")
+BELOW_HIGH = ("none", "off", "minimal", "low", "medium", "high")
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
 UI_MODES = ("headless", "tui")
 
@@ -92,8 +93,10 @@ def execution_identity(
             "execution profile and provider override cannot select different executors"
         )
 
-    profile = execution_profile or "muse"
+    profile = execution_profile or "space-bunny"
     if override == "zen":
+        if effort != "xhigh":
+            raise ValueError("legacy Zen Muse execution requires effort='xhigh'")
         return {
             "profile": "muse-free-zen",
             "override": "zen",
@@ -104,25 +107,28 @@ def execution_identity(
             "native_variant": None,
         }
     if profile == "space-bunny":
+        if effort != "max":
+            raise ValueError("Space Bunny execution requires effort='max'")
         return {
             "profile": "space-bunny",
-            "override": "space-bunny",
+            "override": "canonical",
             "provider": CANONICAL_PROVIDER,
             "model": SPACE_BUNNY_MODEL,
             "requested_effort": effort,
             "variant_resolution": "native_max",
             "native_variant": "max",
         }
+    if effort != "xhigh":
+        raise ValueError("Muse execution requires effort='xhigh'")
     return {
         "profile": "muse",
-        "override": "canonical",
+        "override": "muse",
         "provider": CANONICAL_PROVIDER,
-        "model": CANONICAL_MODEL,
+        "model": MUSE_MODEL,
         "requested_effort": effort,
-        "variant_resolution": "canonical_agent_variant",
-        "native_variant": None,
+        "variant_resolution": "native_xhigh",
+        "native_variant": "xhigh",
     }
-
 
 def validate_child_options(extra: list[str]) -> None:
     """Selection belongs to the launcher; explicit session IDs remain supported."""
@@ -254,9 +260,8 @@ def build_content_bundle(
     execution_provider: str | None = None,
     execution_profile: str | None = None,
 ) -> dict:
-    """Canonical permissions with one explicitly selected execution model."""
+    """Canonical permissions with Space Bunny MAX default and Muse XHIGH alternate."""
     config_path = Path(canonical_root) / "opencode.json"
-    execution = execution_identity(execution_provider, "high", execution_profile)
     try:
         config = json.loads(config_path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
@@ -266,18 +271,43 @@ def build_content_bundle(
     providers = config.get("enabled_providers", [])
     if providers != [CANONICAL_PROVIDER]:
         raise ValueError(f"canonical provider drift: {providers!r}")
-    # NOTE: provider.models is keyed by SHORT model name (verified against the
-    # resolved config); the provider/model pair lives in top-level "model".
-    short_model = CANONICAL_MODEL.split("/", 1)[1]
     try:
-        variants = config["provider"][CANONICAL_PROVIDER]["models"][short_model]["variants"]
+        provider_cfg = config["provider"][CANONICAL_PROVIDER]
+        bunny = provider_cfg["models"][SPACE_BUNNY_MODEL.split("/", 1)[1]]
+        muse = provider_cfg["models"][MUSE_MODEL.split("/", 1)[1]]
     except KeyError as exc:
         raise ValueError(f"canonical model entry missing: {exc}") from exc
-    for effort in BELOW_HIGH:
-        if variants.get(effort) != {"disabled": True}:
-            raise ValueError(f"canonical below-HIGH variant {effort!r} not disabled")
+    if set(provider_cfg.get("whitelist", [])) != {
+        SPACE_BUNNY_MODEL.split("/", 1)[1],
+        MUSE_MODEL.split("/", 1)[1],
+    }:
+        raise ValueError("canonical model whitelist must contain Space Bunny and Muse only")
+    bunny_variants = bunny.get("variants", {})
+    for name in ("none", "off", "minimal", "low", "medium", "high", "xhigh"):
+        if bunny_variants.get(name) != {"disabled": True}:
+            raise ValueError(f"Space Bunny non-MAX variant {name!r} not disabled")
+    if bunny_variants.get("max") != {}:
+        raise ValueError("Space Bunny MAX variant missing")
+    if bunny.get("options", {}).get("reasoningEffort") != "max":
+        raise ValueError("Space Bunny reasoningEffort must be max")
+    muse_variants = muse.get("variants", {})
+    for name in ("none", "off", "minimal", "low", "medium", "high"):
+        if muse_variants.get(name) != {"disabled": True}:
+            raise ValueError(f"Muse non-XHIGH variant {name!r} not disabled")
+    if muse_variants.get("xhigh") != {}:
+        raise ValueError("Muse XHIGH variant missing")
+    if muse.get("options", {}).get("reasoningEffort") != "xhigh":
+        raise ValueError("Muse reasoningEffort must be xhigh")
     if config.get("share", "disabled") != "disabled":
         raise ValueError("canonical share must remain disabled")
+
+    if execution_provider == "zen":
+        selected_provider = "opencode"
+        selected_profile = "muse-free-zen"
+    else:
+        selected_provider = CANONICAL_PROVIDER
+        selected_profile = execution_profile or "space-bunny"
+
     bundle = {
         "model": config["model"],
         "share": config.get("share", "disabled"),
@@ -292,22 +322,26 @@ def build_content_bundle(
         bundle["instructions"] = config["instructions"]
     if "tool_output" in config:
         bundle["tool_output"] = _validated_tool_output(config["tool_output"])
-    # Copy all non-provider policies, replacing only the execution allowlist.
     experimental = json.loads(json.dumps(config.get("experimental", {})))
     policies = [p for p in experimental.get("policies", []) if p.get("action") != "provider.use"]
     experimental["policies"] = [
         *policies,
         {"action": "provider.use", "effect": "deny", "resource": "*"},
-        {"action": "provider.use", "effect": "allow", "resource": execution["provider"]},
+        {"action": "provider.use", "effect": "allow", "resource": selected_provider},
     ]
     bundle["experimental"] = experimental
     if "default_agent" in config:
         bundle["default_agent"] = config["default_agent"]
-    if execution_profile == "space-bunny":
+
+    names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
+    names.update(config.get("agent", {}))
+    names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
+
+    if selected_profile == "space-bunny":
+        short = SPACE_BUNNY_MODEL.split("/", 1)[1]
         bundle["model"] = SPACE_BUNNY_MODEL
         bundle["small_model"] = SPACE_BUNNY_MODEL
         bundle["enabled_providers"] = [CANONICAL_PROVIDER]
-        short = SPACE_BUNNY_MODEL.split("/", 1)[1]
         bundle["provider"] = {
             CANONICAL_PROVIDER: {
                 "whitelist": [short],
@@ -319,15 +353,29 @@ def build_content_bundle(
                 },
             }
         }
-        # The canonical Markdown agent definitions stay Muse-specific on disk.
-        # Inline run config wins and pins every reachable agent to Space Bunny Max.
-        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
-        names.update(config.get("agent", {}))
-        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
         bundle["agent"] = {
             name: {"model": SPACE_BUNNY_MODEL, "variant": "max"} for name in sorted(names)
         }
-    elif execution_provider == "zen":
+    elif selected_profile == "muse":
+        short = MUSE_MODEL.split("/", 1)[1]
+        bundle["model"] = MUSE_MODEL
+        bundle["small_model"] = MUSE_MODEL
+        bundle["enabled_providers"] = [CANONICAL_PROVIDER]
+        bundle["provider"] = {
+            CANONICAL_PROVIDER: {
+                "whitelist": [short],
+                "models": {
+                    short: {
+                        "options": {"reasoningEffort": "xhigh"},
+                        "variants": {"xhigh": {}},
+                    }
+                },
+            }
+        }
+        bundle["agent"] = {
+            name: {"model": MUSE_MODEL, "variant": "xhigh"} for name in sorted(names)
+        }
+    elif selected_profile == "muse-free-zen":
         bundle["model"] = ZEN_MODEL
         bundle["small_model"] = ZEN_MODEL
         bundle["enabled_providers"] = ["opencode"]
@@ -345,15 +393,8 @@ def build_content_bundle(
                 },
             }
         }
-        # Inline agent values override the unchanged canonical Markdown snapshot.
-        # Empty variant clears Go's inherited value (pinned agent.ts uses ??),
-        # without inventing a supported Zen HIGH/XHIGH variant or reasoning option.
-        names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
-        names.update(config.get("agent", {}))
-        names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
         bundle["agent"] = {name: {"model": ZEN_MODEL, "variant": ""} for name in sorted(names)}
     return bundle
-
 
 def build_config_dir(canonical_root: str, dest: str) -> dict:
     """Snapshot canonical .opencode agents/skills for OPENCODE_CONFIG_DIR."""
@@ -809,14 +850,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--workstream", required=True)
     parser.add_argument("--branch", required=True)
     parser.add_argument("--audit-base-sha", required=True)
-    parser.add_argument("--effort", default="high")
+    parser.add_argument("--effort", default="max", choices=ALLOWED_EFFORTS)
     parser.add_argument(
         "--execution-profile",
         choices=EXECUTION_PROFILES,
         default=None,
         help=(
-            "Explicit OpenCode Go executor profile. Omitted or 'muse' keeps Muse; "
-            "'space-bunny' pins Space Bunny Free at native max reasoning."
+            "Explicit OpenCode Go executor profile. Omitted defaults to Space Bunny MAX; "
+            "'muse' is an explicit XHIGH-only alternate."
         ),
     )
     parser.add_argument(
