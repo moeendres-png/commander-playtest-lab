@@ -61,14 +61,38 @@ def parse_worktree_state_specs(specs: list[str]) -> dict[str, str]:
 
 
 def _ownership_from_file(state: Path) -> str:
-    """Read the ownership field from one explicit state file (UNKNOWN on doubt)."""
+    """Read the ownership field from one explicit state file (UNKNOWN on doubt).
+
+    Uses the same structured reader as the rest of the Foundry stack
+    (``yaml.safe_load``, which also accepts a JSON document) instead of a
+    line-prefix scan. A schema-2.0 state file is routinely JSON, and the old
+    scan only matched a bare ``ownership:`` YAML key, so every JSON state
+    silently degraded to UNKNOWN here even though ``state.py`` and
+    ``bootstrap.py`` read the very same field correctly. UNKNOWN then means
+    "reported as unowned" downstream, which is a real evidence loss.
+
+    ``ownership`` is an identity token (compare, never prose): the bootstrap
+    gate rejects a state whose ownership differs from the launching workstream
+    and safe-push records it as the push task id. Fail closed on any doubt,
+    and never fabricate or infer a value.
+    """
     try:
-        for line in state.read_text(encoding="utf-8").splitlines():
-            if line.startswith("ownership:"):
-                return line.split(":", 1)[1].strip() or "UNKNOWN"
+        text = state.read_text(encoding="utf-8")
     except OSError:
         return "UNKNOWN"
-    return "UNKNOWN"
+    try:
+        import yaml
+
+        data = yaml.safe_load(text)
+    except Exception:
+        # Any parse problem is UNKNOWN, never fatal and never fabricated.
+        return "UNKNOWN"
+    if not isinstance(data, dict):
+        return "UNKNOWN"
+    value = data.get("ownership")
+    if not isinstance(value, str):
+        return "UNKNOWN"
+    return value.strip() or "UNKNOWN"
 
 
 def _ownership(path: str, state_map: dict[str, str] | None = None) -> str:

@@ -678,6 +678,90 @@ def test_inventory_ignores_conventional_root_file(repo: Path, tmp_path: Path) ->
     )
 
 
+def test_inventory_reports_ownership_from_json_state(repo: Path, tmp_path: Path) -> None:
+    """A schema-2.0 state written as JSON yields its ownership, not UNKNOWN.
+
+    Regression: the reader used to line-scan for a bare ``ownership:`` YAML
+    key, so every JSON-format state (which state.py/bootstrap.py both read
+    correctly via yaml.safe_load) silently reported UNKNOWN here.
+    """
+    custom = tmp_path / "dedicated" / "WS-JSON.yaml"
+    custom.parent.mkdir(parents=True)
+    custom.write_text(json.dumps(_ownership_state("WS-JSON"), indent=2), encoding="utf-8")
+    entries = worktree_inventory.inventory(str(repo), {str(repo): str(custom)})
+    assert entries[0]["ownership"] == "WS-JSON"
+
+
+def test_inventory_json_and_yaml_states_agree_on_ownership(repo: Path, tmp_path: Path) -> None:
+    """One identity, one answer: serialization must not change the reading."""
+    as_json = tmp_path / "json" / "WS-SAME.yaml"
+    as_yaml = tmp_path / "yaml" / "WS-SAME.yaml"
+    as_json.parent.mkdir(parents=True)
+    as_yaml.parent.mkdir(parents=True)
+    as_json.write_text(json.dumps(_ownership_state("WS-SAME")), encoding="utf-8")
+    as_yaml.write_text(yaml.safe_dump(_ownership_state("WS-SAME")), encoding="utf-8")
+    assert (
+        worktree_inventory.inventory(str(repo), {str(repo): str(as_json)})[0]["ownership"]
+        == worktree_inventory.inventory(str(repo), {str(repo): str(as_yaml)})[0]["ownership"]
+        == "WS-SAME"
+    )
+
+
+def test_inventory_reports_prose_ownership_verbatim(repo: Path, tmp_path: Path) -> None:
+    """Inventory reports, it does not judge: prose is reported as-is.
+
+    Whether prose is a legal identity is the bootstrap gate's decision, not
+    this reporter's. Suppressing or truncating it here would destroy the very
+    evidence the gate needs to explain its refusal.
+    """
+    prose = "WSR23 is the sole writer of branch b in worktree /w."
+    custom = tmp_path / "dedicated" / "WS-PROSE.yaml"
+    custom.parent.mkdir(parents=True)
+    custom.write_text(yaml.safe_dump(_ownership_state(prose)), encoding="utf-8")
+    assert (
+        worktree_inventory.inventory(str(repo), {str(repo): str(custom)})[0]["ownership"] == prose
+    )
+
+
+def test_inventory_unreadable_or_malformed_state_is_unknown(repo: Path, tmp_path: Path) -> None:
+    """Fail closed: malformed, non-mapping, and fieldless states are UNKNOWN."""
+    base = _ownership_state("WS-ANY")
+    cases: dict[str, str] = {
+        "not-a-mapping.yaml": "- just\n- a\n- list\n",
+        "plain-scalar.yaml": "just-a-string\n",
+        "empty-document.yaml": "\n",
+        "absent-field.yaml": yaml.safe_dump({k: v for k, v in base.items() if k != "ownership"}),
+        "null-field.yaml": yaml.safe_dump({**base, "ownership": None}),
+        "empty-field.yaml": yaml.safe_dump({**base, "ownership": "   "}),
+        "non-string-field.yaml": yaml.safe_dump({**base, "ownership": {"ws": "WS-NESTED"}}),
+        "truncated-json.yaml": '{"ownership": "WS-TRUNC',
+    }
+    for name, body in cases.items():
+        custom = tmp_path / "cases" / name
+        custom.parent.mkdir(parents=True, exist_ok=True)
+        custom.write_text(body, encoding="utf-8")
+        assert (
+            worktree_inventory.inventory(str(repo), {str(repo): str(custom)})[0]["ownership"]
+            == "UNKNOWN"
+        ), name
+
+
+def test_inventory_reads_minimal_mapping_field(repo: Path, tmp_path: Path) -> None:
+    """Field-level read: a minimal mapping still reports its identity token.
+
+    Whole-document schema validity is state.py's and the bootstrap gate's
+    job. This reporter answers one question — what identity token does the
+    explicitly mapped file declare — and must not silently widen or narrow it.
+    """
+    custom = tmp_path / "dedicated" / "WS-MINIMAL.yaml"
+    custom.parent.mkdir(parents=True)
+    custom.write_text("ownership: WS-MINIMAL\n", encoding="utf-8")
+    assert (
+        worktree_inventory.inventory(str(repo), {str(repo): str(custom)})[0]["ownership"]
+        == "WS-MINIMAL"
+    )
+
+
 def _inventory_cli(args: list[str]) -> tuple[int, dict, str]:
     import io
     from contextlib import redirect_stderr, redirect_stdout

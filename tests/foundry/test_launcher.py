@@ -719,6 +719,51 @@ def test_bootstrap_rejects_conflicting_state_ownership(target: dict, canon: Path
     assert any("ownership" in f for f in result["failures"])
 
 
+def test_bootstrap_rejects_prose_state_ownership(target: dict, canon: Path) -> None:
+    """IDENTITY_FIELD_SEMANTICS: ownership is a token, not a description.
+
+    A descriptive sentence that happens to name the right workstream is still
+    a different value from the identity token, so the gate refuses. The gate
+    compares; it never parses prose to guess who the owner is. This is the
+    exact WSR23 bootstrap failure (prose in `ownership`) and the reason it
+    must stay a failure rather than a loosened comparison.
+    """
+    _rewrite_state_ownership(
+        target,
+        "TEST-WS is the sole writer of branch project/test in worktree "
+        f"{target['wt']}. Its mutation surface is docs/**.",
+    )
+    result = bootstrap_mod.bootstrap(
+        str(target["wt"]),
+        "TEST-WS",
+        "project/test",
+        target["base"],
+        str(target["state"]),
+        "cpl",
+        str(ROOT / ".foundry" / "repo-profiles"),
+        str(canon),
+    )
+    assert result["verdict"] == "BOOTSTRAP_FAIL"
+    assert any("ownership" in f for f in result["failures"])
+
+
+def test_bootstrap_accepts_matching_token_in_json_state(target: dict, canon: Path) -> None:
+    """A JSON-serialized state is a first-class state, not a degraded one."""
+    data = yaml.safe_load(target["state"].read_text(encoding="utf-8"))
+    target["state"].write_text(json.dumps(data, indent=2), encoding="utf-8")
+    result = bootstrap_mod.bootstrap(
+        str(target["wt"]),
+        "TEST-WS",
+        "project/test",
+        target["base"],
+        str(target["state"]),
+        "cpl",
+        str(ROOT / ".foundry" / "repo-profiles"),
+        str(canon),
+    )
+    assert result["verdict"] == "BOOTSTRAP_PASS", result
+
+
 def test_bootstrap_accepts_matching_explicit_ownership(target: dict, canon: Path) -> None:
     result = bootstrap_mod.bootstrap(
         str(target["wt"]),
