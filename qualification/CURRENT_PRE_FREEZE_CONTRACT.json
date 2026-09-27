@@ -9,6 +9,12 @@
       "prior_main": "d04bf9e4ec9178d448b1a68e4bfa9fd8050e0ddb",
       "classification": "NON_IMPACTING",
       "reason": "main advanced only through merged publisher-security PR #253; no overlap with FULL107, qualification protocol, AF contract, or Rules authority paths"
+    },
+    "integration_main": {
+      "commit": "586914ea10caf1ede3e509908a6b177c4a20d5e7",
+      "tree": "6d2aab11a5bf432207a96977c9009fb11906c0d0",
+      "impact": "NON_IMPACTING_IMPLEMENTATION_SURFACE_GOVERNANCE_REVIEWED",
+      "merge_commit": "add963b9f57f3910d1a80912cac1a7dc89163843"
     }
   },
   "full107": {
