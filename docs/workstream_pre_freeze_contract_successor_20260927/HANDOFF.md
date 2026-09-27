@@ -23,7 +23,10 @@
    Engine Adapter Protocol 2.0.0 schema and explicit truthful-capability /
    fail-closed / Rules-authority invariants.
 6. Added Architecture Freeze gate catalog/result schema v2 without granting any
-   candidate AF01 or Freeze credit.
+   candidate AF01 or Freeze credit. The v2 result schema preserves WS10R's mandatory
+   evidence references and `architecture_winner=false`, requires every AF00–AF11
+   exactly once, and permits `freeze_eligible=true` only when all twelve verdicts
+   are `PASS`.
 7. Added regression tests for exact change accounting, START-2 semantics/digest,
    unchanged non-START2 records, protocol binding and historical preservation.
 8. Removed stale predecessor materialization/obligation/supersession digests from the
