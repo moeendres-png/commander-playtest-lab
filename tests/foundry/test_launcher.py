@@ -1337,6 +1337,157 @@ def test_multi_surface_launch_fails_before_child_when_secondary_lock_held(
         held.release()
 
 
+def test_owned_write_rejects_protected_main_branch(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, state_path, spec = _workspace_surface(tmp_path)
+    _git(["checkout", "main"], root, target["env"])
+    state = yaml.safe_load(state_path.read_text(encoding="utf-8"))
+    state["branch"] = "main"
+    state_path.write_text(yaml.safe_dump(state), encoding="utf-8")
+    spec["branch"] = "main"
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "protected" in str(plan.get("error", ""))
+
+
+def test_owned_write_rejects_lookalike_remote_identity(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    _git(
+        [
+            "config",
+            "remote.origin.url",
+            "https://github.com/example/moeendres-png/commander-playtest-lab-copy.git",
+        ],
+        root,
+        target["env"],
+    )
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "remote identity" in str(plan.get("error", ""))
+
+
+def test_duplicate_reference_label_fails_closed(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, owned = _workspace_surface(tmp_path)
+    ref = {
+        "label": "dup",
+        "root": str(root),
+        "repo_slug": CPL_SLUG,
+        "commit": owned["commit"],
+        "tree": owned["tree"],
+        "cleanliness": "clean",
+        "intent": "read-only",
+    }
+    plan = _plan(target, canon, references=[json.dumps(ref), json.dumps(ref)])
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "duplicate declared workspace label" in str(plan.get("error", ""))
+
+
+def test_root_cannot_be_reference_and_owned_write(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    ref = {
+        "label": "ref-side",
+        "root": str(root),
+        "repo_slug": CPL_SLUG,
+        "commit": spec["commit"],
+        "tree": spec["tree"],
+        "cleanliness": "clean",
+        "intent": "read-only",
+    }
+    plan = _plan(
+        target,
+        canon,
+        references=[json.dumps(ref)],
+        workspace_access=[json.dumps(spec)],
+    )
+    assert plan["verdict"] == "LAUNCH_REFUSED"
+    assert "cannot be both" in str(plan.get("error", ""))
+
+
+def test_owned_write_reapplies_sensitive_edit_denies(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    rules = [
+        {"permission": "edit", "pattern": pattern, "action": action}
+        for pattern, action in bundle["permission"]["edit"].items()
+    ]
+    for probe in (str(root / ".env"), str(root / "secrets" / "prod.env")):
+        verdict, matched = permission_battery_mod.evaluate_rule(rules, "edit", probe)
+        assert verdict == "DENIED", (probe, matched)
+
+
+def test_secondary_repository_siblings_are_denied(
+    target: dict, canon: Path, tmp_path: Path
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    sibling = tmp_path / "side-linked-sibling"
+    _git(["worktree", "add", str(sibling), "-b", "project/side-sibling"], root, target["env"])
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
+    for pattern in launcher_mod._root_patterns(str(sibling)):
+        assert bundle["permission"]["external_directory"].get(pattern) == "deny"
+
+
+def test_owned_write_is_reverified_after_lock_acquisition(
+    target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    marker_file = tmp_path / "child-started"
+    stub = tmp_path / "opencode-revalidation-stub"
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import pathlib, sys\n"
+        "if sys.argv[1:] == ['--version']:\n"
+        "    print('1.18.30'); raise SystemExit(0)\n"
+        f"pathlib.Path({str(marker_file)!r}).write_text('started')\n",
+        encoding="utf-8",
+    )
+    stub.chmod(0o755)
+    plan = _plan(
+        target,
+        canon,
+        workspace_access=[json.dumps(spec)],
+        opencode_bin=str(stub),
+    )
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    (root / "after-init.txt").write_text("changed\n", encoding="utf-8")
+    _git(["add", "."], root, target["env"])
+    _git(["commit", "-m", "changed after init"], root, target["env"])
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 1
+    assert not marker_file.exists()
+
+
+def test_owned_write_rejects_foreign_same_cwd_opencode(
+    target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, _, spec = _workspace_surface(tmp_path)
+    plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
+    assert plan["verdict"] == "LAUNCH_READY", plan
+    monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
+    occupant = subprocess.Popen(
+        ["opencode", "-c", "import time; time.sleep(30)"],
+        executable=sys.executable,
+        cwd=str(root),
+    )
+    try:
+        assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 1
+    finally:
+        occupant.kill()
+        occupant.wait()
+
+
 def test_cross_workspace_launch_is_wrapped_in_landlock(
     target: dict, canon: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
