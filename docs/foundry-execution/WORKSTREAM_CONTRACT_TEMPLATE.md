@@ -52,8 +52,8 @@ Default: the primary worktree is the only writable surface.
 
 Declare additional project surfaces explicitly:
 
-- REFERENCE / read-only: verified repo + exact HEAD/tree; may be inspected and tested, never edited/committed.
-- OWNED_WRITE / owned-write: verified repo + branch + exact HEAD/tree + explicit state path + matching ownership; the launcher holds its writer lock for the entire worker lifetime.
+- REFERENCE / read-only: verified repo + exact HEAD/tree; launcher materializes a disposable detached runtime snapshot for inspection/build/test while the authoritative source worktree stays outside mutation authority.
+- OWNED_WRITE / owned-write: verified repo + branch + exact HEAD/tree + explicit state path + ownership equal to THIS workstream; the launcher holds its writer lock for the entire worker lifetime.
 - FOREIGN_ACTIVE: read-only; never take writer ownership.
 - UNKNOWN_OWNER: read-only / fail closed for mutation.
 
