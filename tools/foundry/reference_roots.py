@@ -31,6 +31,8 @@ import re
 import subprocess
 from pathlib import Path
 
+import source_lock as source_lock_mod
+
 REQUIRED_KEYS = ("label", "root", "repo_slug", "commit", "tree", "cleanliness", "intent")
 CLEANLINESS_POLICIES = ("clean", "allow-ignored-build-outputs")
 READ_ONLY_INTENT = "read-only"
@@ -110,12 +112,14 @@ def verify(ref: dict) -> list[str]:
             f"reference {ref['label']!r}: root {root!r} is not the checkout toplevel ({toplevel!r})"
         )
     try:
-        url = _run_git(["config", "--get", "remote.origin.url"], root)
+        urls = source_lock_mod.remote_url_records(root, "origin")
     except RuntimeError:
-        url = ""
-    if ref["repo_slug"] not in url:
+        urls = []
+    if len(urls) != 1 or not source_lock_mod.is_canonical_remote(
+        urls[0], ref["repo_slug"]
+    ):
         failures.append(
-            f"reference {ref['label']!r}: remote identity lacks slug {ref['repo_slug']!r}"
+            f"reference {ref['label']!r}: remote identity is not the exact requested slug"
         )
     try:
         head = _run_git(["rev-parse", "HEAD"], root)
