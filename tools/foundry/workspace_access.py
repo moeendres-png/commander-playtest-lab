@@ -15,10 +15,9 @@ import os
 import subprocess
 from pathlib import Path
 
-import yaml
-
 import reference_roots as reference_mod
 import state as state_mod
+import yaml
 
 ACCESS_MODES = ("read-only", "owned-write")
 COMMON_KEYS = ("label", "root", "repo_slug", "commit", "tree", "cleanliness", "access")
@@ -153,8 +152,7 @@ def format_context(specs: list[dict]) -> str:
         suffix = ""
         if spec["access"] == "owned-write":
             suffix = (
-                f" branch={spec['branch']} ownership={spec['ownership']} "
-                f"state={spec['state_path']}"
+                f" branch={spec['branch']} ownership={spec['ownership']} state={spec['state_path']}"
             )
         lines.append(
             f"- {spec['label']}: access={spec['access']} root={spec['root']} "
