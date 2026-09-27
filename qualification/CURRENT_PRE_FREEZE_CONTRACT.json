@@ -21,8 +21,17 @@
     ],
     "unchanged_fixture_count": 106,
     "evidence_survival": {
-      "WS05-CMD-START-2": "REQUALIFICATION_REQUIRED",
-      "all_other_full107_rows": "UNCHANGED_REUSABLE_SUBJECT_TO_SOURCE_IDENTITY"
+      "WS05-CMD-START-2": "REQUALIFICATION_REQUIRED_SEMANTIC_CHANGE",
+      "all_other_full107_rows": "HISTORICAL_PROVENANCE_ONLY_PENDING_CURRENT_BOUNDARY_EXECUTION"
+    },
+    "effective_materialization_schema": "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json",
+    "evidence_migration": {
+      "protocol_boundary_changed": true,
+      "automatic_carry_forward": false,
+      "source_identity_alone_is_sufficient": false,
+      "impact_adjudication_required": true,
+      "common_comparison_runtime_credit": "FRESH_CURRENT_BOUNDARY_EXECUTION_REQUIRED_ALL_107",
+      "historical_results_role": "PROVENANCE_ONLY_UNTIL_CURRENT_BOUNDARY_REQUALIFICATION"
     }
   },
   "architecture_freeze": {
@@ -42,5 +51,9 @@
     "ARCHITECTURE_FREEZE",
     "START2_RUNTIME_PASS_FROM_CONTRACT_CHANGE",
     "AUTOMATIC_EVIDENCE_PROMOTION"
-  ]
+  ],
+  "rules_authority": {
+    "current_receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+    "historical_repository_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json"
+  }
 }
