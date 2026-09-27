@@ -21,6 +21,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 from commander_lab.qualification.current_boundary import receipts as receipt_mod  # noqa: E402
+from commander_lab.qualification.current_boundary import semantic as semantic_mod  # noqa: E402
 
 OUT = REPO / "qualification" / "final-current-boundary-20260927"
 FORGE_WS = Path("/home/moeen/code/ws-forge-full107-cdq-20260926")
@@ -432,11 +433,15 @@ def assemble() -> None:
     for fixture in sorted(x):
         xr, fr = x[fixture], f[fixture]
         if xr["exit_state"] == fr["exit_state"] == "PASS":
-            disposition = "SAME_SEMANTICS"
-            note = (
-                "both candidates executed the effective v1.0.6 obligation and both "
-                "observed the obligated facts in this boundary"
-            )
+            # PASS/PASS is not a semantic comparison. Compare the normalized
+            # Rules-visible observations the two sides actually recorded, so two
+            # engines that disagree about a turn number or a library count are
+            # reported as a difference instead of being labelled equal.
+            comparison_result = semantic_mod.compare_semantics(xr, fr)
+            disposition = comparison_result["disposition"]
+            note = comparison_result["reason"]
+            if disposition == "SEMANTIC_DIFFERENCE":
+                note += " (requires Coordinator Rules adjudication)"
         elif "FAIL" in (xr["exit_state"], fr["exit_state"]):
             disposition = "UNKNOWN_PENDING_RULES_ADJUDICATION"
             note = "a current-boundary failure requires Coordinator Rules adjudication"
@@ -458,6 +463,11 @@ def assemble() -> None:
                 "fixture_id": fixture,
                 "disposition": disposition,
                 "note": note,
+                **(
+                    {"semantic_comparison": comparison_result}
+                    if xr["exit_state"] == fr["exit_state"] == "PASS"
+                    else {}
+                ),
                 "xmage": {
                     "exit_state": xr["exit_state"],
                     "execution_mode": xr["execution_mode"],
