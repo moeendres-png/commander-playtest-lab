@@ -328,6 +328,12 @@ def test_adjudicator_narrower_than_implementer() -> None:
     assert isinstance(adjudicator["permission"]["bash"], dict)
 
 
+def test_state_accepts_space_bunny_max_tier() -> None:
+    state = _valid_state()
+    state["current_reasoning_tier"] = "max"
+    assert state_mod.validate(state) == []
+
+
 def test_state_accepts_adjudication_extension_fields() -> None:
     state = _valid_state()
     state.update(
@@ -403,9 +409,9 @@ def test_env_deny_rules_win_by_order() -> None:
         assert keys.index("*.env.example") > keys.index("*.env.*")
 
 
-def test_generic_gh_api_is_not_allow() -> None:
+def test_generic_gh_api_project_authority_and_adjudicator_narrowing() -> None:
     permission = _root_permission()
-    assert permission["bash"]["gh api*"] != "allow"
+    assert permission["bash"]["gh api*"] == "allow"
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["permission"]["bash"]["gh api*"] != "allow"
 
