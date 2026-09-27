@@ -17,6 +17,7 @@ from pathlib import Path
 
 import reference_roots as reference_mod
 import safe_push as safe_push_mod
+import source_lock as source_lock_mod
 import state as state_mod
 import yaml
 
@@ -105,13 +106,38 @@ def _reference_view(spec: dict) -> dict:
     }
 
 
+def exact_fetch_identity_error(root: str, expected_slug: str) -> str | None:
+    """Fail-closed exact fetch identity without imposing push-only policy."""
+    try:
+        records = source_lock_mod.remote_url_records(root, "origin")
+    except RuntimeError:
+        return "origin has no readable URL identity (want exactly one URL)"
+    if len(records) != 1:
+        return f"ambiguous origin identity: {len(records)} URL records (want exactly 1)"
+    if not safe_push_mod._is_expected_target(records[0], expected_slug):
+        return "WRONG_REMOTE: origin fetch identity is not the expected slug"
+    env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never")
+    if not safe_push_mod._no_push_rewrites(root, env):
+        return "EFFECTIVE_URL_REWRITE: Git URL rewrite configuration present or unreadable"
+    return None
+
+
 def verify(spec: dict) -> list[str]:
     """Verify exact identity; writable surfaces additionally verify ownership state."""
     failures = reference_mod.verify(_reference_view(spec))
-    if failures or spec["access"] == "read-only":
+    if failures:
         return failures
 
     root = os.path.realpath(spec["root"])
+    fetch_error = exact_fetch_identity_error(root, spec["repo_slug"])
+    if fetch_error is not None:
+        failures.append(
+            f"workspace {spec['label']!r}: exact fetch identity rejected ({fetch_error})"
+        )
+        return failures
+    if spec["access"] == "read-only":
+        return failures
+
     remote_error = safe_push_mod._verify_push_target(root, "origin", spec["repo_slug"])
     if remote_error is not None:
         failures.append(
