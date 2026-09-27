@@ -1,0 +1,6 @@
+{
+ "schema_version": "final-provider-divergence-1.0.0",
+ "note": "No XMage-vs-Forge Rules-visible behavioral delta is proven in Lab source truth: the Forge comparison side is absent (WSR20 packet not ingested), so no divergence is assertable and none is fabricated. This packet stays compact and empty by evidence, not by assumption.",
+ "divergences": [],
+ "divergence_count": 0
+}

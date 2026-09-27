@@ -1,0 +1,281 @@
+{
+ "schema_version": "final-provider-targeted-runtime-1.0.0",
+ "methodology": "Reuse-first: no already-valid evidence rerun. Gaps ordered per \u00a710 (Rules-authority surfaces first). 4P primary; 2-5P technical conformance; bounded 6P secondary; 7P FAIL_CLOSED acceptable.",
+ "engine_executions_performed_in_this_worktree": [],
+ "engine_execution_note": "No new engine execution performed here: XMage credited rows are already qualified (Gate B) and rerunning them would violate reuse-first; missing rows and all Forge rows require the WSR20 ingest plus engine builds outside this worktree's declared reference scope. Local validation executed instead: packet schema/count reconciliation, correspondence guard, and the new packet-validation test (see VALIDATION.md).",
+ "comparison_rule": "Same player count, same deck/card identities where possible, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition. Never fake RNG parity or inject expected outcomes; never use a harness as a second Rules engine.",
+ "gaps": [
+  {
+   "rank": 0,
+   "priority_dimension": "forge_packet_ingest (blocking all cross-engine comparison)",
+   "fixture_ids": [
+    "ALL-101-COMMON"
+   ],
+   "what_missing": "WSR20 packet ingest into Lab source truth",
+   "why_decision_critical": "Every Gate C comparison is NON_COMPARABLE without the Forge side; no divergence or gap can be adjudicated.",
+   "proposed_minimal_runtime": "Ingest-only workstream: verify WSR20 tip bytes, import the 8 packet files with source lock, reconcile counts, then run Gate D matrix below.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 1,
+   "priority_dimension": "rules_authority",
+   "fixture_ids": [
+    "PILOT_CHOICE",
+    "PILOT_PILE",
+    "PILOT_ANNOUNCE_X",
+    "PILOT_MULTI_AMOUNT",
+    "PILOT_REPLACEMENT_EFFECT",
+    "PILOT_TRIGGER_ORDER",
+    "PILOT_CHOOSE_ABILITY"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 2,
+   "priority_dimension": "forbidden_fallback",
+   "fixture_ids": [
+    "NEGATIVE_FIRST_OPTION",
+    "NEGATIVE_RANDOM_OPTION",
+    "NEGATIVE_DEFAULT_YES_NO",
+    "NEGATIVE_INTERNAL_AI",
+    "NEGATIVE_GUI_DEFAULT",
+    "NEGATIVE_SILENT_SKIP",
+    "NEGATIVE_PARENT_CLASS_FALLBACK"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 3,
+   "priority_dimension": "hidden_information",
+   "fixture_ids": [
+    "HIDDEN_01",
+    "HIDDEN_02",
+    "HIDDEN_03",
+    "HIDDEN_04",
+    "HIDDEN_07",
+    "HIDDEN_09",
+    "HIDDEN_10",
+    "HIDDEN_13",
+    "HIDDEN_14",
+    "HIDDEN_15",
+    "HIDDEN_16",
+    "HIDDEN_17",
+    "HIDDEN_18",
+    "HIDDEN_19",
+    "HIDDEN_HONEYCARD_SENTINEL"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 4,
+   "priority_dimension": "rng_replay",
+   "fixture_ids": [
+    "RNG_RULES_TAPE",
+    "REPLAY_DECISION_TAPE",
+    "REPLAY_EVENT_TAPE",
+    "REPLAY_CLEAN_PROCESS",
+    "REPLAY_STATE_HASHES"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 5,
+   "priority_dimension": "costs_mana_targets_modes",
+   "fixture_ids": [
+    "MICRO_COSTS",
+    "MICRO_MANA_PAYMENT",
+    "MICRO_MODES"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 6,
+   "priority_dimension": "priority_stack",
+   "fixture_ids": [
+    "MICRO_PRIORITY",
+    "MICRO_STACK"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 7,
+   "priority_dimension": "triggers",
+   "fixture_ids": [
+    "MICRO_TRIGGERS"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 8,
+   "priority_dimension": "replacement_prevention",
+   "fixture_ids": [
+    "MICRO_REPLACEMENT",
+    "MICRO_PREVENTION"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 9,
+   "priority_dimension": "layers_continuous",
+   "fixture_ids": [
+    "MICRO_CONTINUOUS_EFFECTS"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 10,
+   "priority_dimension": "sbas",
+   "fixture_ids": [
+    "MICRO_STATE_BASED_ACTIONS"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 11,
+   "priority_dimension": "zones_copy_control",
+   "fixture_ids": [
+    "MICRO_ZONE_CHANGES",
+    "MICRO_COPY",
+    "MICRO_CONTROL"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 12,
+   "priority_dimension": "combat",
+   "fixture_ids": [
+    "MICRO_COMBAT"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 13,
+   "priority_dimension": "commander_blocked",
+   "fixture_ids": [
+    "WS05-CMD-ZONE-GY-YES",
+    "WS05-CMD-ZONE-GY-NO",
+    "WS05-CMD-ZONE-EXILE-YES",
+    "WS05-CMD-ZONE-EXILE-NO",
+    "WS05-CMD-ZONE-HAND-YES",
+    "WS05-CMD-ZONE-HAND-NO",
+    "WS05-CMD-ZONE-LIB-YES",
+    "WS05-CMD-ZONE-LIB-NO",
+    "WS05-CMD-DMG-SAME-21",
+    "WS05-CMD-DMG-CONTROL",
+    "WS05-CMD-START-2",
+    "WS05-CMD-ELIM-4"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    2,
+    4
+   ],
+   "seed": 424242
+  },
+  {
+   "rank": 14,
+   "priority_dimension": "multiplayer_blocked",
+   "fixture_ids": [
+    "WS05-MP-PRIO-3",
+    "WS05-MP-PRIO-5",
+    "WS05-MP-COMBAT-4",
+    "WS05-MP-COMBAT-5",
+    "WS05-MP-BLOCK-4",
+    "WS05-MP-TURN-3",
+    "WS05-MP-TURN-5",
+    "WS05-MP-ELIM-OWNED-3",
+    "WS05-MP-ELIM-CONTROL-3",
+    "WS05-MP-ELIM-STACK-3",
+    "WS05-MP-ELIM-PRIO-3",
+    "WS05-MP-ELIM-TURN-3",
+    "WS05-MP-ELIM-5"
+   ],
+   "what_missing": "fixture-corresponding runtime with digest equality (XMage) + Forge counterpart (WSR20 ingest)",
+   "why_decision_critical": "per \u00a710 priority order",
+   "proposed_minimal_runtime": "4P primary at seed 424242 with same decks/cards, same requested seed where both engines expose a real Rules-RNG binding, same externally supplied discretionary choices, same semantic stopping condition; 2P/3P/5P conformance for promoted rows; bounded 6P secondary; 7P explicit FAIL_CLOSED. No manual outcome injection; no harness Rules engine.",
+   "player_counts": [
+    3,
+    4,
+    5
+   ],
+   "seed": 424242
+  }
+ ]
+}

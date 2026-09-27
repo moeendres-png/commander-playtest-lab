@@ -1,0 +1,720 @@
+{
+ "schema_version": "final-provider-readiness-1.0.0",
+ "identities": {
+  "lab_head": "58e8fca430651207a87a8f3e9f41d8c6527dd4cd",
+  "frozen_source": "5a2e4f462fd45bba25f2271153212aab9faf09f5",
+  "xmage_candidate": "b19596980f2734496ea1896504253e1bdd2756dd",
+  "xmage_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+  "forge_candidate": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+  "forge_wsr20_tip": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8"
+ },
+ "scoring_disclaimer": "No provider score, overall winner, or ranking is computed or implied. The Coordinator adjudicates from this evidence.",
+ "terminal_states": {
+  "ARCHITECTURE_FREEZE": "NOT CLAIMED",
+  "PRODUCTION_PROVIDER": "NOT SELECTED"
+ },
+ "dimensions": [
+  {
+   "dimension": "rules_authority_separation",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "engine-bridge decision controller + redactor + prevalidation battery (L7)",
+     "B4-D legal-action handoff surface"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Forge side requires WSR20 ingest; no Lab Forge authority evidence beyond H4 materialization.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "legal_action_completeness",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "bounded current-priority enumeration (B4-D)",
+     "projection coverage + live-observed classes"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Globally complete enumeration unproven on both sides in Lab truth.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "action_submission_completeness",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "bounded targetless/nonmodal submission + Rograkh cast (B4-D)",
+     "stale-decision rejection"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Target/mode/choice/combat submission classes incomplete per manifest truth_boundary.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "costs",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "WS05-CMD-TAX-2/4 DIRECT (engine-owned {4} tax payment)",
+     "per-commander tax figures (Partner)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "mana",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "engine-owned payment pipeline via TAX fixtures",
+     "live-observed mana_payment class"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "priority",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "L3 temporal driver checkpoints",
+     "live-observed priority class 2-5P"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "stack",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "L4 5/5 reconstruction + 7/7 mechanics (Bolt/modal/nested/counter/fizzle)",
+     "MICRO_TARGETS DIRECT"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "targets",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "MICRO_TARGETS DIRECT (exact P2 target, 3 damage)",
+     "RG-07 exact-N offering (candidate)",
+     "Switcheroo 2-target exchange (L5)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "modes",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "PILOT_CHOOSE_MODE DIRECT (two-mode Devil selection)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "choices",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "live-observed choose_object/choose_use classes",
+     "MICRO_MODES fixture UNKNOWN"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "triggers",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "WS05-MP-TRIG-3/5 DIRECT (Soul Warden APNAP)",
+     "L3 simultaneous-trigger ordering"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "replacement_effects",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "RG-08 replacement timing (candidate-level)",
+     "native cleanup paths (L5/L6)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "No fixture-corresponding digest run on either side in Lab truth.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "prevention_effects",
+   "xmage": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "none exact in Lab truth"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "MICRO_PREVENTION UNKNOWN both sides (Forge side absent).",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "continuous_effects",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "Humility/Anthem/Bears native layer facts (LAYERS scope)",
+     "overlapping Control Magic timestamps (L5)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "layers",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "MICRO_LAYERS DIRECT (layer 6/7b/7c native facts)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "sbas",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "20-vs-21 SBA loss (L2)",
+     "command-zone choice characterization (blocked fixtures)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "zones",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "Unsummon/control-leaves zone cleanup (L5)",
+     "zone-choice seams blocked (injection)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "copy",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "Flare of Duplication mechanics (L4)",
+     "decoy-copy isolation (L2)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "control",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "L5 7/7 divergence suite",
+     "WS05-CMD-DMG-CONTROL blocked (injection)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "combat",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "real attack/block flow + skip-combat + extra-turn (L3)",
+     "combat-damage test surface"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "MICRO_COMBAT + MP combat/block fixtures need exact runs.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "commander_tax",
+   "xmage": {
+    "status": "DIRECT",
+    "evidence_pointers": [
+     "WS05-CMD-TAX-2/4 DIRECT",
+     "WS05-CMD-PARTNER-TAX DIRECT (per-commander figures)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "commander_zone_replacement",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "native replacement paths (L5/L6)",
+     "8 zone-choice fixtures NOT_RUN_BLOCKED (injection)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "commander_damage",
+   "xmage": {
+    "status": "DIRECT",
+    "evidence_pointers": [
+     "WS05-CMD-DMG-SPLIT + WS05-CMD-PARTNER-DMG DIRECT (independent edges, no aggregation)",
+     "L2 8/8 suite incl. 20/21"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "partner",
+   "xmage": {
+    "status": "DIRECT",
+    "evidence_pointers": [
+     "WS05-CMD-PARTNER-TAX/ZONE/DMG DIRECT",
+     "Partner legality engine-proven at import"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "mulligan",
+   "xmage": {
+    "status": "DIRECT",
+    "evidence_pointers": [
+     "WS05-CMD-MULL-2/4 DIRECT (XMage London counts 93/6, 92/7)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "BLOCKED",
+    "evidence_pointers": [
+     "Forge WS05-CMD-MULL-2 contract-claimed NOT_RUN_BLOCKED (London bottom-card seam); remediation not authorized here.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "starting_player_semantics",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "WS05-CMD-START-3 DIRECT (3P first-turn draw 8/7/7)",
+     "2P/3P/4P/5P lane gates"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "START-2 blocked (injection) + draw-assertion contradiction retained UNKNOWN.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "player_count_2p",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "2P lane gate PASS + replay MATCH",
+     "MULL-2/TAX-2 DIRECT",
+     "L6 2P terminal cell"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Exact Rograkh/424242 fixture reruns absent.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "player_count_3p",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "3P lane gate PASS",
+     "TRIG-3 + START-3 DIRECT",
+     "L6 3P x8 cells"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Exact fixture reruns absent for gates.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "player_count_4p",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "4P 4476-decision semantic replay MATCH",
+     "11 DIRECT fixtures at 4P",
+     "Real 4P smoke PASS"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "player_count_5p",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "5P lane gate PASS",
+     "TRIG-5 DIRECT",
+     "L6 5P middle-seat cell"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "bounded_6p",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "bounded 6P smoke PASS (general surface only, not mechanism-specific)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Per-handoff: no 6P mechanism-specific elimination claim.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "fail_closed_7p",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "7P explicit FAIL_CLOSED (reconciled bytes)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "FAIL_CLOSED is the acceptable terminal per \u00a710.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "hidden_information",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "L7 9/9 + boundary report + hash separation + transcript hygiene",
+     "per-scenario exact reruns absent (Gate B)"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Forge HIDDEN_05/06/11 UNKNOWN + HIDDEN_08/12 NOT_RUN_BLOCKED (contract-claimed seams); Forge H4 materialization is technical only.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "rules_rng",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "Rules-seed binding + same-seed replay MATCH",
+     "RNG tape unit suites"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "RNG_RULES_TAPE exact rerun absent; cross-engine binding parity unproven.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "semantic_replay",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "same-seed public semantic replay (4P 4476 MATCH; per-count MATCH)",
+     "atomicity battery"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "N-scoped fixture replay reruns absent.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "process_isolation",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "H4 XMage materialization PASS",
+     "per-game lifecycle cleanup/reuse"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "H4 Forge materialization PASS (technical only, artifacts 10907027320-era)",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "actual_card_runtime_coverage",
+   "xmage": {
+    "status": "SUPPORTING",
+    "evidence_pointers": [
+     "16 named cards qualified across L2-L5 + real-deck E2E gate docs",
+     "Rograkh cast to stack (B4-D)"
+    ],
+    "runtime_identity": "mixed lane/mechanism heads (see Gate B rows)"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "Coverage is card-listed, not win-rate; broad card universe unproven.",
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  },
+  {
+   "dimension": "unsupported_path_failure_behavior",
+   "xmage": {
+    "status": "TECHNICALLY_CONFORMANT",
+    "evidence_pointers": [
+     "prevalidation zero-mutation rejects",
+     "invalid-payload + stale-decision rejection",
+     "7P FAIL_CLOSED",
+     "incomplete-library fail-before-mutation"
+    ],
+    "runtime_identity": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "forge": {
+    "status": "UNKNOWN",
+    "evidence_pointers": [
+     "WSR20 packet absent locally; claimed counts CONTRACT_CLAIMED only"
+    ],
+    "runtime_identity": "18bba95a4528f6ab5910633f1f87f603b8c4ddf8 (EVIDENCE_ONLY, packet absent locally)"
+   }
+  }
+ ]
+}
