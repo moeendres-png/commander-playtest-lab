@@ -1,0 +1,34 @@
+{
+  "schema_version": "commander-lab.meta-verification-contract/1.0.0",
+  "workstream": "META-QUALIFICATION — Qualification of the Qualification",
+  "source_lock": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "commit": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
+    "tree": "610f93d81e3b7154731d95472be6dcac05057eac",
+    "pre_freeze_contract": "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
+  },
+  "rules_authority": {
+    "receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+    "admission_policy": "FRESHNESS_CONFLICT_FAIL_CLOSED remains binding until direct current official bytes are captured"
+  },
+  "reuse": {
+    "semantic_replay_schema": "semantic-replay-tape/1.0.0",
+    "comparator": "src/commander_lab/semantic_replay/comparator.py",
+    "real_xmage_tape": "qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json"
+  },
+  "forbidden": [
+    "second rules engine",
+    "qualification-side legality reconstruction",
+    "fabricated legal actions",
+    "silent fallback",
+    "reference-engine agreement as official rules truth",
+    "NOT_RUN promoted to PASS"
+  ],
+  "required_outputs": [
+    "semantic mutation catalog",
+    "machine-readable mutation results",
+    "mutation kill-rate and catalog-coverage accounting",
+    "first-divergence evidence",
+    "explicit unsupported/runtime-required mutations"
+  ]
+}
