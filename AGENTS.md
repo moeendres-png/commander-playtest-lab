@@ -1,6 +1,6 @@
 # Commander Simulator Next — Repository Agent Policy
 
-Durable instructions for every OpenCode/Muse session on `moeendres-png/commander-playtest-lab`.
+Durable instructions for every OpenCode execution session on `moeendres-png/commander-playtest-lab`.
 Stable rules only. Never place volatile data here: no SHAs, run IDs, PASS counts, failure
 diagnoses, pricing, or rate limits. Session-specific facts live in the Workstream Contract
 and the workstream's explicit dedicated state file (the exact `--state` path supplied
@@ -201,7 +201,7 @@ state without redoing valid evidence.
 
 ## 12. Privacy
 
-Muse may use project-relevant technical data: repository source, tests, contracts,
+OpenCode workers may use project-relevant technical data: repository source, tests, contracts,
 qualification artifacts, build output, logs, Git metadata, branches/worktrees, engine
 sources, Maven/Gradle/package caches, project configuration, and explicitly allowed
 MTG deck/card/collection/ownership/gameplay data. Do not intentionally expose unrelated

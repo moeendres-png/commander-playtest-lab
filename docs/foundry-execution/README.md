@@ -25,7 +25,6 @@ Single coherent entry point for the dual-model OpenCode execution system on
 | Compaction record | `docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md` | `COMPACTION_HOOK = DEFERRED` + reason |
 | Metrics | `docs/foundry-execution/METRICS.md` + `tools/foundry/metrics.py` | JSONL session records |
 | Benchmark design | `docs/foundry-execution/HIGH_XHIGH_BENCHMARK.md` | Replay schema, no claimed results |
-| Next workstream | `handoffs/CROSS_CANDIDATE_DECISION_PLUMBING_ROOT_CAUSE_AUDIT.md` | Source-locked XHIGH task spec |
 
 Historical research, dated reports, and superseded proposals stay where they are and
 keep their facts; only their execution-routing instructions are superseded, per
@@ -67,10 +66,10 @@ this repository. Do not edit user-global skills from this workstream.
 ## Permission model (summary)
 
 Root `opencode.json` is the single permission authority; agents inherit it and
-must not widen it. `foundry-implementer` carries no agent-local permission
-override. `foundry-adjudicator` narrows to `edit: deny`, ask-gated
+must not widen it. Both implementers carry no agent-local permission override.
+Both adjudicators narrow to `edit: deny`, ask-gated
 `pytest`/`python`/`ruff`/`gh api`, and denied destructive/remote/mutation
-paths. `foundry-reviewer` stays fully contained (`edit: deny`,
+paths. Both reviewer agents stay fully contained (`edit: deny`,
 `bash: deny` except read-only Git). Generic `gh api*` is ask-gated for all
 roles because OpenCode glob semantics cannot reliably distinguish read
 (`GET`) from mutation (`POST`/`PATCH`/`PUT`/`DELETE`); no method-sensitive
