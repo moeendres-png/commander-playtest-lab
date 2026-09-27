@@ -532,7 +532,6 @@ _SLUG_BY_PROFILE = {
 
 
 @pytest.mark.parametrize("profile", ["cpl", "mage", "forge"])
-
 def test_init_ready_for_all_three_profiles(
     tmp_path: Path, canon: Path, profile: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -805,7 +804,6 @@ def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
         ("zen", "opencode", "opencode/muse-spark-1.3-contributor-free"),
     ],
 )
-
 def test_ws190_execution_identity(target, canon, override, provider, model):
     before = (canon / "opencode.json").read_bytes()
     effort = "xhigh" if override == "zen" else "max"
@@ -829,6 +827,7 @@ def test_ws190_execution_identity(target, canon, override, provider, model):
         assert context["execution"]["native_variant"] == "max"
     assert (canon / "opencode.json").read_bytes() == before
 
+@pytest.mark.parametrize("override", ["auto", "openai", "", "opencode"])
 def test_ws190_unknown_override_refused(target, canon, override):
     plan = _plan(target, canon, execution_provider=override)
     assert plan["verdict"] == "LAUNCH_REFUSED"
@@ -843,7 +842,6 @@ def test_ws190_zen_below_high_refused(target, canon, effort):
 
 @pytest.mark.parametrize("result", [0, 7, 130, -2, "interrupt", "spawn-error"])
 @pytest.mark.parametrize("override", [None, "zen"])
-
 def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
     effort = "xhigh" if override == "zen" else "max"
     plan = _plan(target, canon, effort=effort, **({"execution_provider": override} if override else {}))
@@ -875,6 +873,9 @@ def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
     assert records[-1]["completed"] is (result == 0)
 
 
+@pytest.mark.parametrize(
+    "extra", [["--model", "other/x"], ["-mother/x"], ["--variant=low"], ["--continue"], ["-c"]]
+)
 def test_ws190_child_cannot_override_policy(target, canon, extra, monkeypatch):
     plan = _plan(target, canon, execution_provider="zen", effort="xhigh")
     monkeypatch.setattr(launcher_mod.subprocess, "run", lambda *a, **k: pytest.fail("must not execute"))
@@ -904,7 +905,6 @@ def test_ws190_end_telemetry_failure_still_releases(target, canon, monkeypatch):
     lock = launcher_mod.writer_lock_mod.WriterLock(str(target["wt"]), "NEXT", "b", "s")
     lock.acquire()
     lock.release()
-
 def test_ws190_cli_consumes_explicit_override(target, canon, monkeypatch, capsys):
     captured = {}
 
@@ -1004,6 +1004,7 @@ def test_space_bunny_launch_uses_explicit_model_and_no_fallback(target, canon, m
     assert {record["native_variant"] for record in records} == {"max"}
 
 
+@pytest.mark.parametrize("effort", ["high", "xhigh"])
 def test_space_bunny_rejects_non_max_effort(target, canon, effort):
     plan = _plan(target, canon, execution_profile="space-bunny", effort=effort)
     assert plan["verdict"] == "LAUNCH_REFUSED"
