@@ -234,3 +234,24 @@ green head. They were treated as blockers, not waived:
 
 The final status below must be read against the post-review terminal head and its green
 CI receipts, not the earlier intermediate head.
+
+
+## PR #257 Source Drift Adjudication
+
+While PR #254 was under final validation, canonical `main` advanced from
+`58e8fca430651207a87a8f3e9f41d8c6527dd4cd` to
+`586914ea10caf1ede3e509908a6b177c4a20d5e7` (tree
+`6d2aab11a5bf432207a96977c9009fb11906c0d0`) through PR #257.
+
+Changed paths were limited to `AGENTS.md` and Foundry execution/routing,
+launcher, telemetry and tests. None overlap this workstream's owned
+qualification/contract/resolver/test paths. Because `AGENTS.md` changed, the
+advance was explicitly reviewed as governance drift rather than ignored.
+
+Disposition:
+`NON_IMPACTING_IMPLEMENTATION_SURFACE_GOVERNANCE_REVIEWED`.
+
+The current main was integrated as a real second parent in merge commit
+`add963b9f57f3910d1a80912cac1a7dc89163843`; no force update or stale-base
+merge was used. Final qualification receipts must therefore bind to the
+post-integration PR head, not to any earlier intermediate head.
