@@ -563,8 +563,16 @@ def resolve_environment(
     env["FOUNDRY_WORKTREE"] = worktree
     env["FOUNDRY_RUN_DIR"] = run_dir
     env["FOUNDRY_MODE"] = mode
-    env["FOUNDRY_REFERENCE_ROOTS"] = json.dumps(references, sort_keys=True)
-    env["FOUNDRY_WORKSPACE_ACCESS"] = json.dumps(workspace_access, sort_keys=True)
+    public_refs = [
+        {key: value for key, value in ref.items() if key != "source_root"}
+        for ref in references
+    ]
+    public_access = [
+        {key: value for key, value in spec.items() if key != "source_root"}
+        for spec in workspace_access
+    ]
+    env["FOUNDRY_REFERENCE_ROOTS"] = json.dumps(public_refs, sort_keys=True)
+    env["FOUNDRY_WORKSPACE_ACCESS"] = json.dumps(public_access, sort_keys=True)
     env["FOUNDRY_CANONICAL_POLICY_HASH"] = policy_hash
     env["FOUNDRY_CONFIG_DIR_MANIFEST"] = manifest["sha256"]
     if drift_suppressed:
@@ -654,6 +662,14 @@ def init(
             return {
                 "verdict": "LAUNCH_REFUSED",
                 "error": f"workspace-access {spec['label']!r}: {reasons[0]}",
+            }
+        if spec["access"] == "owned-write" and spec["ownership"] != workstream:
+            return {
+                "verdict": "LAUNCH_REFUSED",
+                "error": (
+                    f"workspace-access {spec['label']!r}: owned-write ownership "
+                    f"{spec['ownership']!r} != current workstream {workstream!r}"
+                ),
             }
         parsed_access.append(spec)
     # Explicit ownership authority: the launcher always declares its own
@@ -763,6 +779,14 @@ def init(
         live_head = _git(["rev-parse", "HEAD"], canonical)
     except RuntimeError:
         live_head = "UNKNOWN"
+    public_refs = [
+        {key: value for key, value in ref.items() if key != "source_root"}
+        for ref in runtime_refs
+    ]
+    public_access = [
+        {key: value for key, value in spec.items() if key != "source_root"}
+        for spec in runtime_access
+    ]
     context = {
         "execution": execution,
         "workstream": workstream,
@@ -779,8 +803,8 @@ def init(
         "version_audit_mode": version_audit_mode,
         "canonical_policy_hash": env["FOUNDRY_CANONICAL_POLICY_HASH"],
         "config_dir_manifest": env["FOUNDRY_CONFIG_DIR_MANIFEST"],
-        "references": runtime_refs,
-        "workspace_access": runtime_access,
+        "references": public_refs,
+        "workspace_access": public_access,
         "worktree_states": state_map,
         "live_head": live_head,
     }
@@ -806,7 +830,7 @@ def init(
         "run_dir": run_dir,
         "state_path": resolved_state,
         "worktree_states": state_map,
-        "workspace_access": runtime_access,
+        "workspace_access": public_access,
         "opencode_binary": binary,
         "opencode_version": version,
         "version_audit_mode": version_audit_mode,
