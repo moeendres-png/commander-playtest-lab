@@ -12,76 +12,80 @@ verification command is named for each.
 
 ## 1. CURRENT_MAIN_SHA / CURRENT_MAIN_TREE
 
-> **MAIN DRIFT — re-locked 2026-09-27 after the policy work.** `origin/main` advanced during this
-> session. The Coordinator's `8d2aacd5` is no longer current, exactly as the campaign's
-> "do not assume any SHA from this prompt is still current after a merge" rule anticipates. See §1.1
-> for the adjudication; **this is now the single largest integration item in the campaign.**
+> **Re-locked twice more on 2026-09-27. Fresh Git reality wins over any SHA in a prompt.** The
+> Coordinator's `8d2aacd5` and then the dispatch prompt's `b786fbf2` are both superseded.
 
 | Field | Value | Verified by |
 |---|---|---|
-| `origin/main` HEAD | **`b786fbf2…`** — `Merge PR #266: explicit multi-workstream Foundry access` | `git log --oneline -1 origin/main` |
-| `origin/main` TREE | `e97dd131b965d6097ca77f60630d428a218b583a` | `git rev-parse origin/main^{tree}` |
-| Prior main (Coordinator-stated) | `8d2aacd530ea47d3ef39f4ab4f974f301da3cf24` / tree `b54ea399…` | superseded by PR #266 |
+| `origin/main` HEAD | **`f5941985811ef3d670e27ee7e2201a0b2a4fc534`** — `Merge pull request #272 from …/foundry/delegated-git-authority-20260927` | `git rev-parse origin/main` |
+| `origin/main` TREE | `5604ce4b6c5632e416f6cfa5df0dcac3ca021810` | `git rev-parse origin/main^{tree}` |
+| Dispatch-prompt main | `b786fbf2…` (PR #266) — superseded | `git log --oneline` |
+| Coordinator main | `8d2aacd5…` — superseded | superseded |
+| `origin/wsr23/…` | `b786fbf2…` — **the Coordinator reset the remote WSR23 branch to the PR #266 merge commit**, which is why the first push attempt was rejected non-fast-forward | `git fetch` output |
 | Local `main` | `586914ea` (`Merge PR #257`) — **stale, never use as an integration base** | `git log --oneline -1 main` |
 
-`git fetch` was run in this session; the only ref that moved was
-`foundry/multi-workstream-access-20260927` → then merged into main as PR #266.
+Main gained, after `b786fbf2`:
 
-### 1.1 PR #266 drift adjudication — a real semantic conflict, not textual
+| Commit | Content |
+|---|---|
+| `3f0aaadf` | **PR #266 follow-up: enable delegated owned-branch Git authority** (push/merge/branch/worktree/PR) with ordered main/master/force denies; AGENTS.md delegation policy; machine-verified permission tests |
+| `518ee78c` | PR #266 follow-up: deny the flag-first `push --delete` form; pin it in the battery tests |
+| `4ee14acf` | **PR #272: adapt the ws78 safety-permissions test to the delegated push policy** |
+| `f5941985` | merge of #272 |
 
-**Four paths collide** between PR #266 and this branch:
+### 1.1 PR #266 + PR #272 drift adjudication — main already had this governance
 
-| Path | PR #266 | This branch | Nature |
-|---|---|---|---|
-| `opencode.json` | +12 lines: formatting, and **`mvn*`, `./mvnw*`, `gradle*`, `./gradlew*` allows** | full widening to `bash: * = allow` | **compatible** — main's additions are redundant under `*: allow` but their *intent* (engine builds must run) must be preserved |
-| `tools/foundry/launcher.py` | **+600 lines** | ~+100 lines of model-routing | **conflicting** — see below |
-| `tests/foundry/test_launcher.py` | **+616 lines** | ~+150 lines of policy-test updates | **conflicting** |
-| `tests/foundry/test_ws75_tooling_hardening.py` | +11 lines | ~+80 lines of policy-test updates | **conflicting** |
+**Four paths collided** between main and this branch: `opencode.json`,
+`tools/foundry/launcher.py`, `tests/foundry/test_launcher.py`,
+`tests/foundry/test_ws75_tooling_hardening.py` (plus `AGENTS.md` and
+`tests/unit/test_ws78_token_economy.py` from #272). `launcher.py` auto-merged and was verified to
+carry **both** sides: 17 workspace/sandbox references from #266 plus the model-routing constants.
 
-**What PR #266 actually built, and why this is good news.** It adds a *process-level* ownership and
-confinement layer, not a model-facing permission change:
+**The substantive finding: main had already independently implemented a delegated Git integration
+authority over the same six files.** `AGENTS.md` §10 `DELEGATED_GIT_INTEGRATION_AUTHORITY = ENABLED`
+grants the executor ordinary push/merge/branch/worktree/PR operations, with ordered hard boundaries
+(no force push in any spelling, no direct push to `main`/`master`, no history rewrite, no general
+rebase, no `reset --hard`, no `clean`, no destructive branch/worktree deletion, no `update-ref`,
+no branch-protection or admin bypass, no remote-repository creation/deletion, no secret extraction).
+The permission table implements it as `bash: * = ask` with a long ordered deny list, resolved
+last-match-wins.
 
-- `tools/foundry/workspace_access.py` — explicit `--workspace-access` declarations, each binding
-  repository identity plus exact HEAD/tree; `owned-write` additionally binds branch, state path and
-  ownership, and is **multi-locked for the complete child lifetime**. Its own docstring states
-  *"Folder names never imply authority."*
-- `tools/foundry/fs_sandbox.py` — a fail-closed **Bubblewrap read-only-root mount namespace** for any
-  run with cross-workstream references or access. Only the primary standalone checkout, explicitly
-  declared owned-write roots, run/temp state and narrow tool caches are writable. **Sandbox setup
-  failure refuses the launch.**
-- Reference roots are verified and materialized as disposable detached snapshots, and the
-  authoritative source root stays denied.
+**Resolution: main is the base.** The conflict was not "mine versus theirs" but a duplicate
+implementation of the same authority.
 
-**Adjudication.** The Coordinator's authority and PR #266 are **orthogonal layers, not contradictions**:
+| Preserved from main | Re-applied from this branch (main lacked it) |
+|---|---|
+| `AGENTS.md` §10 delegation policy, verbatim | Executor routing: Space Bunny MAX primary at native `max`; Muse `xhigh` only |
+| `tools/foundry/workspace_access.py` — repo identity + exact HEAD/tree per surface, `owned-write` binds branch/state/ownership under a multi-lock, *"folder names never imply authority"* | Widening of the **artificial** denies: `git -C`, `/usr/bin/git`, `/bin/git`, `command`, `sh -c`, `bash -c`, and the eight mutating `gh api` forms — all of which blocked operations the delegation explicitly grants |
+| `tools/foundry/fs_sandbox.py` — fail-closed Bubblewrap read-only-root mount namespace | New retained boundaries main lacked: `gh secret*`, `set`, `set *`, `export`, `doas`, `cat` of `id_rsa`/`.pem`/`.key`/`credentials`/`.netrc`, `gh ssh-key*`/`gpg-key*` |
+| `--workspace-access` / `--reference` / `FOUNDRY_FS_SANDBOX` in the launcher | `bash` default `ask` → `allow`, with **every** AGENTS.md hard boundary still denied later in the same list |
+| PR #272's ordered force-push, `push --delete`, push-to-main/master denies | |
+| PR #266's `mvn*`/`./mvnw*`/`gradle*`/`./gradlew*` allows | |
+| All #266 and #272 test coverage | |
 
-- The OpenCode permission table is the *model-facing* layer. The Coordinator removed a redundant
-  restriction there, so `bash: * = allow` and `external_directory: * = allow` stand.
-- PR #266's Bubblewrap sandbox and multi-lock are the *process-level* layer, enforced by the kernel
-  mount namespace. They are unaffected by the permission table and remain fail-closed.
+**Why the two layers are compatible rather than contradictory.** The OpenCode permission table is
+*model-facing*; PR #266's Bubblewrap sandbox and multi-lock are *process-level* and enforced by the
+kernel mount namespace. Widening the table does not weaken the sandbox: a launcher-spawned run stays
+confined regardless. That is also consistent with not requiring the old launcher to grant ownership
+"if the project state can establish it directly" — `workspace_access.py` *is* that state, and binding
+repository identity plus exact HEAD/tree is stronger evidence than a filename-based deny. That is
+why the two folder-name `external_directory` denies were removed deliberately rather than restored.
 
-So the widening does **not** weaken PR #266's containment: a launcher-spawned run is still confined
-regardless of what the permission table says. This is also consistent with the Coordinator's
-instruction not to require the old launcher to grant ownership "if the project state can establish
-it directly" — `workspace_access.py` *is* that project state, binding repo identity and exact
-HEAD/tree, which is stronger evidence than a filename-based deny.
+**Verification, not assertion.** The merged policy was evaluated with the project's own
+`permission_battery.evaluate_rule` (last-match-wins): **31 probes, 0 mismatches.** Ordinary push,
+merge, branch creation, `git -C`, shell wrappers, `gh api` mutations, `gh pr create` and `gh pr merge`
+all resolve `ENFORCED_ALLOW`; force-push in every form, `--delete`, push-to-main/master, rebase,
+`reset --hard`, `clean`, `branch -D`, `update-ref`, credential, privilege and remote-repository shapes
+all resolve `DENIED`.
 
-**Merge recipe, in this order (do not hand-merge blindly):**
+### 1.2 Test-denominator change, explained
 
-1. Take **main's** `tools/foundry/launcher.py` as the base — it is newer, 600 lines larger, and is
-   canonical. Re-apply only this branch's model-routing changes on top of it:
-   `CANONICAL_MODEL` → space-bunny, `ALTERNATE_MODEL` → Muse, `DEFAULT_EXECUTION_PROFILE` →
-   `space-bunny`, the exact-two-executors allowlist + single-authorized-variant fail-closed guard,
-   the resolved-profile bundle branch, and the unconditional `--model` child pin.
-2. Take **main's** `opencode.json` as the base and re-apply the widening, keeping main's
-   `mvn*`/`./mvnw*`/`gradle*`/`./gradlew*` entries (redundant under `*: allow`, but they document
-   that engine builds are expected to run).
-3. Re-apply the policy-test updates onto main's much larger `test_launcher.py` and
-   `test_ws75_tooling_hardening.py`. Main's new tests must keep passing unchanged; where main added
-   tests that assert the *old* narrow policy, apply the same in-both-directions rewrite used here.
-4. Re-run the full suite. A clean merge is not evidence that the semantic merge is correct — main's
-   616 new launcher test lines must be re-verified against the widened policy.
-5. **Do not** carry this branch's `docs/project_integration_hygiene_20260927/PUBLICATIONS.md` gate
-   table forward as current; it is superseded by §11 below.
+Baseline before the merge: **1642 passed / 5 skipped / 0 failed**. After merging current main and
+retargeting the policy tests: **1667 passed / 5 skipped / 0 failed**. The delta is **+25 passing,
+0 removed, 0 changed skips** — entirely main's new coverage for `workspace_access`, `fs_sandbox` and
+the delegated permission battery. No denominator was reduced and no expected value was weakened to
+recover green; every retargeted test still fails if the property it protects regresses.
+
 
 ## 2. ACTIVE_PROVIDER_PINS
 
@@ -260,70 +264,66 @@ All four are consequences of the four conflicting paths identified in
 `WSR22_IMPACT_ADJUDICATION.md`. They are *generated or derived* surfaces and must be **regenerated
 from the final integrated tree**, never transplanted from either side.
 
-## 11. EXECUTION POLICY — widened by Coordinator authority; a session restart is the only remaining step
+## 11. EXECUTION POLICY — widened, merged onto main's delegation, verified live
 
-**Status change (2026-09-27).** The Coordinator issued full local OpenCode/GitHub execution authority
-and removed the artificial execution-policy blocker. This section previously recorded a hard
-authority gate; that gate is now **closed in policy** and only **not yet effective in this live
-session**.
+**The previously reported authority gate is closed.** This is no longer a blocker and is recorded
+here as resolved, not as pending work.
 
-What was done, committed as `1264fc07`:
+Live proof in this session, not inference: `git push --dry-run origin
+wsr23/project-integration-hygiene-20260927` executed and reached the remote. It was rejected
+**non-fast-forward**, because the Coordinator had reset the remote WSR23 branch to `b786fbf2` — a
+Git-history fact, not a permission refusal. No wrapper, alternate binary or command spelling was
+used.
 
-- `opencode.json` `bash` default is now `allow`, replacing the fragile 60-entry per-command
-  allow/deny whitelist. Push, merge, rebase, reset, clean, branch/worktree lifecycle, `git -C`,
-  shell wrappers and mutating `gh api` are all open.
-- Retained privacy/system boundaries only: `env`/`env *`/`printenv`/`set`/`export`, `gh auth*`,
-  `gh secret*`, `cat` of `id_rsa`/`.pem`/`.key`/`credentials`/`.netrc`, `sudo`/`su`/`doas`,
-  root-only `rm -rf`, and `gh repo create/delete/fork` plus `gh ssh-key`/`gh gpg-key`. `.env` remains
-  denied to `read`/`glob`/`grep`/`list`/`edit`; `.env.example` remains readable; `share` stays
-  `disabled`; `doom_loop` stays `deny`.
-- Executor routing pinned to exactly two reachable executors, each at one native level:
-  **`opencode-go/space-bunny-free` at `max` (primary)** and
-  **`opencode-go/muse-spark-1.3-contributor` at `xhigh` (alternate)**. Every other variant of both is
-  disabled. No silent fallback. Verified by the live rule evaluator and by the launcher's own
-  fail-closed allowlist guard.
-- `tools/foundry/launcher.py`: `CANONICAL_MODEL` is now space-bunny; Muse is the explicit
-  `ALTERNATE_MODEL`; an omitted `--execution-profile` resolves to space-bunny; the muse profile pins
-  Muse itself. Bundle construction branches on the **resolved** profile, and the child argv now pins
-  `--model` for every profile. This removed a live silent-fallback hazard: the muse profile had been
-  reporting override `canonical` while returning `CANONICAL_MODEL`, so changing the canonical model
-  without this fix would have logged Muse over a Space Bunny run.
+The policy now in force, merged onto main's PR #266 + #272 base:
 
-**The one remaining step is an ordinary session restart.** `opencode debug config` resolves the new
-file correctly, but OpenCode 1.18.30 compiles the permission table once at session start, so this
-running session still enforces the retired table — verified: `git push --dry-run` is still refused
-by the old rules while the file on disk already permits it. No wrapper or alternate tool was used to
-work around this.
+- `bash` default is `allow`, with every AGENTS.md hard boundary still denied later in the same
+  last-match-wins list: force-push in all spellings, `push --delete`, push to `main`/`master`,
+  rebase, `reset --hard`, `clean`, `branch -D`/`-d`, `worktree remove`/`move`, `update-ref`,
+  `symbolic-ref`, `filter-branch`/`filter-repo`, `tag -d`/`-f`, `stash drop`/`clear`, `rm -rf`, `sudo`,
+  `su`, `env`/`env *`/`printenv`, `gh auth*`, and `gh repo create`/`delete`/`fork`.
+- Retained **and extended** privacy/system boundaries: `set`, `set *`, `export`, `doas`,
+  `gh secret*`, `cat` of `id_rsa`/`.pem`/`.key`/`credentials`/`.netrc`, `gh ssh-key*`/`gpg-key*`.
+  `.env` remains denied to `read`/`glob`/`grep`/`list`/`edit`; `.env.example` remains readable;
+  `share` stays `disabled`; `doom_loop` stays `deny`.
+- `external_directory` is fully reachable, because ownership is now enforced by
+  `workspace_access.py` binding repository identity plus exact HEAD/tree under a multi-lock — stronger
+  evidence than the two folder-name denies it replaces.
+- Exactly two reachable executors, one native level each: **`opencode-go/space-bunny-free` at `max`
+  (primary)** and **`opencode-go/muse-spark-1.3-contributor` at `xhigh` (alternate)**. Every other
+  variant of both is disabled. The launcher fails closed on allowlist or variant drift, branches on
+  the **resolved** profile, and pins `--model` on every child argv, so telemetry always names the
+  executor that actually runs.
 
-**The Foundry writer lock is no longer a blocker.** The Coordinator explicitly authorized normal Git
-operations instead of the launcher/safe-push wrapper, and instructed that a refusing wrapper must not
-stop otherwise-authorized work. The lock must still never be *faked*: it is simply not required for
-the authorized path. `ARCHITECTURE_FREEZE` and `PRODUCTION_PROVIDER` remain reserved to the
-Coordinator regardless.
+PR #266's process-level containment is untouched by any of this: `workspace_access.py`,
+`fs_sandbox.py`, exact repo/branch/HEAD/tree binding, read-only vs `owned-write`, multi-lock lifetime,
+*"folder names never imply authority"*, and the fail-closed Bubblewrap read-only-root namespace all
+survive. `ARCHITECTURE_FREEZE` and `PRODUCTION_PROVIDER` remain reserved to the Coordinator
+regardless.
 
 ## 12. NEXT_ACTION
 
-0. **Restart this OpenCode session** so the widened `opencode.json` takes effect. Nothing else is
-   pending on configuration.
-0a. **Resolve the PR #266 drift first** (`b786fbf2` is now main; four paths collide). Follow §1.1's
-   merge recipe: take main's `launcher.py` and `opencode.json` as the base, re-apply the model-routing
-   changes and the widening on top, and re-verify main's 616 new launcher test lines against the
-   widened policy. A textually clean merge is not sufficient evidence here.
-1. Publish WSR23 as a fast-forward push of `wsr23/project-integration-hygiene-20260927`, open one PR
-   against `origin/main`, inspect exact-head CI, adjudicate drift, merge, re-read post-merge main, and
-   update/close Issue #263.
-2. Re-lock main, then run the **WSR22 successor integration** per `WSR22_IMPACT_ADJUDICATION.md` §5:
-   cut from fresh `origin/main` (never the stale local `main` `586914ea`), transplant whole files from
-   `208341c6…` with provenance, adopt the 2026-09-25 receipt, **regenerate** `qualification/SHA256SUMS`
-   and `WS17_SHA256SUMS`, update the affected assertions, run only the four mechanical items, then PR
-   and merge. Mark PR #269 superseded only after preservation is proven.
-3. **PB-09 — Coordinator decision, and it now ranks first.** Which artifact is the Forge candidate:
-   pinned upstream `forge-2.0.14` (then re-run Forge evidence, expect the 79 PASS to fall) or the Lab
-   fork `ef958ee9` (then correct the pin manifest, list the 47 Rules-touching Lab commits, and rule on
-   a self-modified GPL-3.5 fork as a production dependency). Do not repin silently.
-   See `PB09_FORGE_CANDIDATE_IDENTITY.md` §6.
-4. **PB-03** per `PB03_ROOT_CAUSE_AND_REMEDIATION.md`: replace the fixture-id prefix hardcode with
-   per-row dimension admission against the bridge's published `dimensionsPayload()`. Never flip
-   `starting_state_injection_supported`. Keep the denominator at 107. Rerun only impacted rows.
-5. PB-06, PB-07, PB-08 by decision value; then AF00–AF11 closure; then regenerate
+Stage A is complete: the branch is integrated onto current main, fully validated, and the state
+records honest validation credit. Continue:
+
+1. **Publish WSR23.** `git push` the owned branch, open exactly one PR against `origin/main`
+   `f5941985811ef3d670e27ee7e2201a0b2a4fc534`, bind the body to that exact base and head with the
+   1667/5/0 evidence and the §1.1 integration note, inspect exact-head CI, repair attributable
+   failures, merge, re-read post-merge main, persist the receipt, then close Issue #263.
+2. **Disposition the redundant governance surfaces** — PR #271 and the two `governance/…` branches.
+   Compare their semantic content against merged WSR23; preserve any unique valid improvement; add a
+   precise supersession receipt and close where WSR23 fully supersedes. Goal: one canonical
+   governance implementation.
+3. **Adjudicate PR #270** (WSR25 RG-07/RG-08). Re-lock fresh main, inspect its exact head/base/diff,
+   confirm it stays test/evidence-only, obtain exact-head CI, then integrate or supersede with a
+   current-main successor.
+4. **WSR22 successor** from fresh current main, per `WSR22_IMPACT_ADJUDICATION.md` §5. Use #269 as
+   evidence, not as current state. Integrate valid surfaces, adopt the 2026-09-25 Rules receipt,
+   regenerate the two manifests, run only impact-required checks, merge, then close #269 only after
+   preservation is proven.
+5. **PB-09 before PB-03** — Coordinator decision. See `PB09_FORGE_CANDIDATE_IDENTITY.md` §6. Do not
+   repin silently.
+6. **PB-03** per `PB03_ROOT_CAUSE_AND_REMEDIATION.md`: capability-driven dimension admission, never a
+   capability-flag flip. Keep the denominator at 107.
+7. PB-06, PB-07, PB-08 by decision value; then AF00–AF11 closure; then regenerate
    `PRE_FREEZE_COMPARISON_PACKAGE.md`.

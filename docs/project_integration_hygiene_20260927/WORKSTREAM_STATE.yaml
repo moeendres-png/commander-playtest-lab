@@ -7,27 +7,23 @@ authority_gates:
 - ARCHITECTURE_FREEZE = NOT CLAIMED (Coordinator authority; unchanged by WSR23)
 - MTG Rules adjudication remains with GPT-5.6 Sol High; WSR23 made no Rules ruling
 branch: wsr23/project-integration-hygiene-20260927
-current_failure: 'EXECUTION_POLICY_WIDENED_AWAITING_SESSION_RESTART. Coordinator authority
-  (2026-09-27) removed the artificial Git/GitHub execution-policy blocker. opencode.json
-  now authorizes default-allow project engineering, Git and GitHub operations, retains
-  only the privacy/system boundaries, and pins exactly two reachable executors (opencode-go/space-bunny-free
-  at native max as primary, opencode-go/muse-spark-1.3-contributor at xhigh as alternate).
-  The change is committed and opencode debug config resolves it correctly, but OpenCode
-  1.18.30 compiles the permission table once at session start, so this running session
-  still enforces the retired table: git push --dry-run is still refused while the
-  file on disk already permits it. No wrapper, alternate tool or indirection was used
-  to work around it. The only remaining step is an ordinary session restart.'
-current_hypothesis: NONE - no remaining defect. The earlier ownership-identity defect
-  is repaired, the tooling defect is repaired, and the execution policy is widened
-  and verified by the live rule evaluator plus a new fail-closed launcher allowlist
-  guard. The single outstanding item is a session restart, which is a harness requirement
-  rather than a defect.
-current_reasoning: 'The launcher-held-writer-lock precondition is now verified rather
-  than assumed: this session carries no FOUNDRY_* launcher context at all, and the
-  run directory /tmp/foundry-launch-wsr23-project-integration-hygiene-20260927 is
-  empty, so no launcher ever acquired or held a lock for this worktree. The ownership
-  defect that caused LAUNCH_REFUSED is diagnosed at its real layer and repaired. Everything
-  local is complete; the remaining WSR23 actions are remote and permission-gated.'
+current_failure: 'NO_TECHNICAL_BLOCKER. Execution authority is active and verified
+  live: git push reached the remote in this session. The previous session''s only
+  pending item, an OpenCode session restart to load the widened policy, is complete.
+  WSR23 is now integrated onto current main f5941985811ef3d670e27ee7e2201a0b2a4fc534
+  (PR #266 multi-workstream access + PR #272 delegated Git integration authority)
+  with both sides preserved. The remaining campaign steps are publication, governance
+  disposition, the WSR22 successor, PB-09, PB-03, PB-06/07/08 and the final comparison
+  package.'
+current_hypothesis: NONE. No defect outstanding on this branch.
+current_reasoning: 'Stage A complete. Source re-locked against live remote: origin/main
+  is f5941985811ef3d670e27ee7e2201a0b2a4fc534, which had already independently merged
+  the delegated Git integration authority that this branch also implemented. Conflict
+  resolution took main as the base per instruction, preserved every AGENTS.md hard
+  boundary and all PR #266/#272 machinery, and re-applied only the genuinely unique
+  delta: Space Bunny MAX primary at native max, Muse XHIGH-only alternate, the widening
+  of artificial denies, and the added secret boundaries. Verified with the live rule
+  evaluator: 31 probes, 0 mismatches.'
 current_reasoning_tier: high
 dependencies:
 - WSR22 must finish before any provider adjudication; WSR23 depends on nothing from
@@ -53,26 +49,18 @@ evidence:
 - docs/pre_freeze_completion_20260927/PB09_FORGE_CANDIDATE_IDENTITY.md
 - docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md
 - docs/pre_freeze_completion_20260927/RESUMPTION_KIT.md
-exact_next_action: 'STEP 0 (the only pending config step): restart this OpenCode session
-  in /home/moeen/code/wsr23-project-integration-hygiene so the widened opencode.json
-  takes effect. OpenCode 1.18.30 compiles the permission table at session start, so
-  the committed widening is not yet live in the current process. Then, in order: (1)
-  push wsr23/project-integration-hygiene-20260927, open its PR against origin/main
-  8d2aacd530ea47d3ef39f4ab4f974f301da3cf24, inspect exact-head CI, adjudicate docs-only
-  drift, merge, re-read post-merge main, and close/update Issue #263. (2) WSR22 successor
-  integration per docs/pre_freeze_completion_20260927/WSR22_IMPACT_ADJUDICATION.md
-  section 5: cut from fresh origin/main (never the stale local main 586914ea), transplant
-  whole files from 208341c6124674046787f3a4b1d699c98c286a27, adopt the 2026-09-25
-  Rules receipt, regenerate qualification/SHA256SUMS and WS17_SHA256SUMS, repair the
-  affected assertions, run only impact-required checks, merge, then close PR #269
-  only after preservation is proven. (3) PB-09 Coordinator decision, now ranked first:
-  which artifact is the Forge candidate, pinned upstream forge-2.0.14 (requalify)
-  or the Lab fork ef958ee9 (correct the pin manifest, list the 47 Rules-touching Lab
-  commits, rule on a self-modified GPL-3.5 fork). Do not repin silently. (4) PB-03
-  per docs/pre_freeze_completion_20260927/PB03_ROOT_CAUSE_AND_REMEDIATION.md as capability-driven
-  dimension admission, never a capability-flag flip. (5) PB-06/PB-07/PB-08, then AF00-AF11
-  closure, then regenerate the comparison package. ARCHITECTURE_FREEZE = NOT CLAIMED;
-  PRODUCTION_PROVIDER = NOT SELECTED; both remain Coordinator authority.'
+exact_next_action: 'Publish WSR23 and merge it. Exact head 7d14810ed98fed32c4915d62e596636999a0efc1,
+  exact base origin/main f5941985811ef3d670e27ee7e2201a0b2a4fc534. Push wsr23/project-integration-hygiene-20260927
+  (a fast-forward: origin/wsr23 was reset by the Coordinator to b786fbf2, which is
+  an ancestor of this head), open exactly one PR bound to that base and head with
+  the 1667/5/0 test evidence and the #266/#272 integration note, inspect exact-head
+  CI, repair attributable failures, merge, re-read post-merge main HEAD/TREE, persist
+  the receipt, then close Issue #263. After that: disposition the redundant governance
+  PR #271 and its two governance branches against merged WSR23; adjudicate and integrate
+  or supersede PR #270; then create the current-main WSR22 successor; then PB-09 (Coordinator
+  decision) before PB-03; then PB-06/PB-07/PB-08; then the final current-boundary
+  comparison package. ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT
+  SELECTED.'
 failed_gates: []
 failure_class: INFRASTRUCTURE_DEFECT
 files_modified:
@@ -181,7 +169,7 @@ remaining_scope:
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: INFRASTRUCTURE_DEFECT
 schema_version: '2.0'
-state_written_against_head: 799b8f9e5313250080a02a51d8fdb5de8e9308d1
+state_written_against_head: 7d14810ed98fed32c4915d62e596636999a0efc1
 status: WAITING
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
@@ -221,40 +209,44 @@ technical_decisions:
   to NO_IMPACT on an empty path intersection, rebasing, and re-validating, rather
   than publishing a stale audit base.'
 tests_run:
-- 'pytest -q (lock-faithful venv, Python 3.12.14, requirements/lock.txt --require-hashes
-  + editable install, clean tree): 1642 passed, 5 skipped, 0 failed'
-- 'pytest tests/foundry -q: 451 passed, 1 skipped'
-- 'pytest tests/unit/test_ws78_token_economy.py -q: 22 passed'
+- 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at 7d14810ed98fed32c4915d62e596636999a0efc1):
+  1667 passed, 5 skipped, 0 failed (baseline before the #266/#272 merge was 1642;
+  the +25 are main''s new launcher/workspace/sandbox/permission tests)'
+- 'pytest tests/foundry tests/unit/test_ws78_token_economy.py -q: 494 passed, 1 skipped
+  (was 451 before the merge)'
+- 'permission_battery.evaluate_rule: 31 probes, 0 mismatches, on the merged policy'
 - 'ruff check: All checks passed'
-- 'ruff format --check: 968 files already formatted'
-- 'mypy src/commander_lab (strict): Success, no issues in 261 source files'
+- 'ruff format --check: 976 files already formatted'
+- 'mypy src/commander_lab (strict): Success, no issues in 262 source files'
 - 'python -m compileall -q src tests: exit 0'
 - 'python tools/project_invariant_audit.py: 6 pass / 0 fail / 1 not_applicable'
-- 'opencode debug config: resolves model=opencode-go/space-bunny-free, bash.*=allow,
-  both authorized variants'
-- 'launcher build_content_bundle: space-bunny->max, muse->xhigh, default->max, zen->legacy
-  (no silent fallback)'
-- 'git push --dry-run: still refused by the retired session table, proving a restart
-  is required'
-- 'independent live fetch of the official MagicCompRules 20260925.txt: effective-date
-  text and rule 103.8a confirmed verbatim'
+- 'python tools/foundry/state.py --check-validated: STATE_OK schema=2.0'
+- 'python tools/foundry/bootstrap.py: BOOTSTRAP_PASS'
+- 'opencode debug config: model=opencode-go/space-bunny-free, bash.*=allow, both authorized
+  variants'
 validated_gates:
-- Full python test suite green on a clean tree in a lock-faithful Python 3.12 venv
-  (1642 passed, 5 skipped, 0 failed)
-- 'tests/foundry green: 451 passed, 1 skipped'
+- Full python test suite green on a clean tree (1667 passed / 5 skipped / 0 failed),
+  exceeding the 1642 pre-merge baseline
+- 'tests/foundry green: 494 passed, 1 skipped, including all PR #266 workspace-access
+  and fs-sandbox coverage and PR #272 permission coverage'
+- 'Executor routing verified fail-closed: exactly two reachable executors, Space Bunny
+  MAX primary and Muse XHIGH alternate, one authorized native variant each'
+- 'Merged policy verified through the live rule evaluator: ordinary push/merge/branch
+  creation/git -C/shell wrappers/gh api mutations/PR create/PR merge all ENFORCED_ALLOW,
+  while force-push, --delete, push-to-main/master, rebase, reset --hard, clean, branch
+  -D, update-ref, credential, privilege and remote-repository shapes all DENIED'
+- 'PR #266 containment preserved: workspace_access.py, fs_sandbox.py, exact repo/branch/HEAD/tree
+  binding, read-only vs owned-write, multi-lock lifetime, folder names never implying
+  authority, Bubblewrap fail-closed'
+- 'PR #272 delegation preserved: AGENTS.md section 10 verbatim and the ordered force/main/master
+  denies'
+- 'Maven/Gradle allows from PR #266 preserved'
+- 'Phase A Foundry repair survived the merge: worktree_inventory reads ownership from
+  any schema-2.0 serialization, and the state ownership field is the exact identity
+  token'
 - mypy strict green on src/commander_lab
-- ruff lint and format green
+- ruff lint and format clean
 - 'project invariant audit: 6 pass, 0 fail'
-- Foundry bootstrap gate BOOTSTRAP_PASS; WORKSTREAM_STATE STATE_OK schema 2.0
-- Execution policy widened to the Coordinator authorization and pinned by the live
-  rule evaluator in both directions
-- Exactly two reachable executors, each at one authorized native level; launcher fails
-  closed on allowlist or variant drift
-- Rules authority 2026-09-25 independently re-verified against the live official Wizards
-  TXT
-- PB-03 root cause established as a Lab harness defect (fixture-id prefix hardcode),
-  not a missing engine seam
-- 'PB-09 established and CORRECTED: the executed Forge candidate is a Lab Rules-Core
-  fork (47 Lab commits touch forge-game), not the pinned candidate'
-validated_head: 799b8f9e5313250080a02a51d8fdb5de8e9308d1
+- WORKSTREAM_STATE validates as schema 2.0 and is STATE_OK; bootstrap gate BOOTSTRAP_PASS
+validated_head: 7d14810ed98fed32c4915d62e596636999a0efc1
 worktree: /home/moeen/code/wsr23-project-integration-hygiene
