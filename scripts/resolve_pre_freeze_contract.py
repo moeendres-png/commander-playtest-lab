@@ -109,9 +109,7 @@ def load_effective_materialization() -> dict[str, Any]:
 
         for key, value in patch["replace"].items():
             record[key] = copy.deepcopy(value)
-        record["knowledge_state"]["channel_policy"] = patch[
-            "knowledge_state_channel_policy"
-        ]
+        record["knowledge_state"]["channel_policy"] = patch["knowledge_state_channel_policy"]
         record.setdefault("native_procedure", []).extend(
             copy.deepcopy(patch["append_native_procedure"])
         )
