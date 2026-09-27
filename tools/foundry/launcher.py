@@ -286,13 +286,9 @@ def _validate_cross_ws_topology(
     writable.update(
         os.path.realpath(spec["root"]) for spec in access if spec.get("access") == "owned-write"
     )
-    readonly = {
-        os.path.realpath(ref["root"]) for ref in refs
-    }
+    readonly = {os.path.realpath(ref["root"]) for ref in refs}
     readonly.update(
-        os.path.realpath(spec["root"])
-        for spec in access
-        if spec.get("access") == "read-only"
+        os.path.realpath(spec["root"]) for spec in access if spec.get("access") == "read-only"
     )
 
     # Cross-WS mutation requires checkout-local Git metadata. Shared worktree Git
@@ -310,10 +306,7 @@ def _validate_cross_ws_topology(
         if spec.get("access") != "owned-write":
             continue
         if not _state_inside_surface(spec["state_path"], spec["root"]):
-            return (
-                f"owned-write surface {spec['label']!r} state must live under "
-                "ROOT/.foundry"
-            )
+            return f"owned-write surface {spec['label']!r} state must live under ROOT/.foundry"
 
     protected = set(readonly)
     for root in sorted(writable | readonly):
@@ -1055,8 +1048,7 @@ def init(
     except RuntimeError:
         live_head = "UNKNOWN"
     public_refs = [
-        {key: value for key, value in ref.items() if key != "source_root"}
-        for ref in runtime_refs
+        {key: value for key, value in ref.items() if key != "source_root"} for ref in runtime_refs
     ]
     public_access = [
         {key: value for key, value in spec.items() if key != "source_root"}
