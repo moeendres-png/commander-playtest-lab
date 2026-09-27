@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 AUTHORITY_PATH = REPO_ROOT / "qualification/CURRENT_PRE_FREEZE_CONTRACT.json"
@@ -206,12 +207,12 @@ def test_freeze_schema_requires_all_gate_ids_once_and_evidence_refs() -> None:
 
     duplicate = _freeze_result()
     duplicate["gate_results"][11]["gate_id"] = "AF10"
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         validator.validate(duplicate)
 
     no_evidence = _freeze_result()
     no_evidence["gate_results"][0]["evidence_refs"] = []
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         validator.validate(no_evidence)
 
 
@@ -219,7 +220,7 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
     validator = Draft202012Validator(_json(AF_SCHEMA_PATH))
     invalid = _freeze_result()
     invalid["gate_results"][3]["verdict"] = "PARTIAL"
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         validator.validate(invalid)
 
     not_eligible = _freeze_result(verdict="PARTIAL", freeze_eligible=False)
