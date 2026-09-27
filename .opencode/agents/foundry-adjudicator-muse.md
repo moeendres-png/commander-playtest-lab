@@ -1,8 +1,8 @@
 ---
-description: Read/test-first technical adjudicator for difficult root cause, evidence provenance, and repair ordering at MAX
+description: Muse XHIGH read/test-first technical adjudicator for difficult root cause, evidence provenance, and repair ordering
 mode: subagent
-model: opencode-go/space-bunny-free
-variant: max
+model: opencode-go/muse-spark-1.3-contributor
+variant: xhigh
 permission:
   edit: deny
   bash:

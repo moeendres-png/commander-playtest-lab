@@ -1,6 +1,6 @@
 # Commander Simulator Next — Repository Agent Policy
 
-Durable instructions for every OpenCode/Muse session on `moeendres-png/commander-playtest-lab`.
+Durable instructions for every OpenCode execution session on `moeendres-png/commander-playtest-lab`.
 Stable rules only. Never place volatile data here: no SHAs, run IDs, PASS counts, failure
 diagnoses, pricing, or rate limits. Session-specific facts live in the Workstream Contract
 and the workstream's explicit dedicated state file (the exact `--state` path supplied
@@ -85,73 +85,72 @@ requalification.
 
 ## 6. Execution routing
 
-- GPT-5.6 Sol High (normal chat): Coordinator and adjudication tier — architecture, Source
-  Truth, MTG Rules adjudication, GitHub research, difficult review, qualification design,
-  evidence promotion, cross-workstream integration, gate decisions, Architecture Freeze.
-- OpenCode Go + `opencode-go/muse-spark-1.3-contributor`: primary execution tier —
-  implementation, repository edits, builds, tests, debugging, CI, qualification execution,
-  evidence generation, deterministic tooling, long autonomous workstreams.
-- ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
-  capability identified; Sol High insufficient; OpenCode+Muse insufficient; genuinely
-  required; smallest necessary scope). Never the normal engineering path.
+Current execution-model authority is `docs/foundry-execution/EXECUTION_MODEL_ROUTING.md`.
+Every worker must use that file together with this `AGENTS.md`; historical workstream
+documents retain their original model names as provenance and are not routing authority.
 
-Technical autonomy within those tiers is defined in §8.
+- GPT-5.6 Sol High (normal ChatGPT): Coordinator and final adjudication tier —
+  architecture, Source Truth, MTG Rules adjudication, evidence-policy decisions,
+  cross-workstream integration, Production Provider selection and Architecture Freeze.
+- OpenCode Go + `opencode-go/space-bunny-free` at `max`: preferred execution lane for
+  new implementation, repository edits, builds, tests, debugging, CI, qualification,
+  evidence generation and long autonomous workstreams.
+- OpenCode Go + `opencode-go/muse-spark-1.3-contributor` at `xhigh`: fully supported
+  alternate execution lane for continuation of Muse-owned work, independent comparison,
+  second-pass engineering, difficult remediation, or operator-selected execution.
+- ChatGPT Work / Astra: exceptional only after `WORK_NECESSITY = PASS`; it is not a
+  routine replacement for Sol or either OpenCode lane.
 
-## 7. Reasoning effort
+Model choice never changes Rules authority, evidence semantics, branch ownership or
+workstream scope.
 
-Allowed project efforts: `high`, `xhigh`. `high` is the normal default for
-implementation, edits, builds, tests, debugging, CI remediation, qualification, evidence,
-and build-test-fix loops. `xhigh` is escalation for difficult nonlocal reasoning,
-unclear engine-vs-provider-vs-harness-vs-fixture causality, complex multi-subsystem
-remediation, deep debugging chains, identity/state/lifecycle problems, and
-architecture-adjacent implementation. Never use `medium`, `low`, `minimal`, `none`, or
-`off` for active project work. Do not use XHIGH merely because a task is large; do not
-restart valid work solely to change effort. Preserve Source Lock and durable state
-across escalation. HIGH→XHIGH escalation is not failure.
+## 7. Reasoning effort and model discipline
+
+Active project engineering uses exactly the lane-native maximum configured effort:
+
+- Space Bunny Free: `max` only.
+- Muse Spark 1.3 Contributor: `xhigh` only.
+
+Do not silently downgrade effort, substitute another model/provider, or fall back after
+quota/auth/model-resolution failure. Fail closed and report the exact execution-model
+gate instead. Token cost is not an optimization objective; spend context/reasoning when
+it materially improves correctness, contradictory-evidence search, debugging or
+validation. Free tokens do not justify irrelevant repository scans or rerunning valid
+evidence without an impact reason.
+
+An already-running workstream keeps its verified model identity until a deliberate
+checkpointed handoff. Do not restart valid work solely to switch models.
 
 ## 8. Technical decision authority
 
 `TECHNICAL_DECISION_AUTHORITY = AUTONOMOUS_WITHIN_CONTRACT`
 
-OpenCode/Muse workers do not stop or ask the Coordinator for routine technical
-decisions that can be resolved from authoritative repository source, tests,
-artifacts, logs, contracts, or bounded experimentation. They must not stop or
-escalate merely because a difficult technical decision exists when those sources
-can resolve it.
+Both Space Bunny MAX and Muse XHIGH own autonomous technical execution inside the
+authorized workstream contract: inspect, reason, decide technically, implement when
+authorized, test, diagnose, repair, validate, persist evidence and continue.
 
-Routing distinction:
+OpenCode workers do not stop or ask the Coordinator for routine technical decisions
+that can be resolved from the workstream contract, source, tests, logs or bounded runtime evidence.
 
-- Muse HIGH: autonomous bounded engineering execution + ordinary local technical
-  decisions.
-- Muse XHIGH: autonomous difficult engineering + technical root-cause, evidence,
-  qualification, and repair adjudication within already-defined project policy.
-- Sol High: Rules, evidence-policy, qualification-policy, shared-architecture,
-  cross-workstream authority, Provider Selection, Architecture Freeze.
+Sol High retains authority for ambiguous MTG Rules interpretation, project-wide
+evidence/qualification policy, shared architecture, cross-workstream ownership conflict,
+material scope expansion, Production Provider selection and Architecture Freeze.
 
-Muse HIGH owns autonomous bounded engineering execution, including ordinary local
-technical decisions inside the authorized workstream contract. Muse XHIGH owns
-difficult technical reasoning and adjudication within already-defined project
-policy (root cause, failure-class, evidence-provenance, repair-DAG decisions).
-The model is: Muse investigates → reasons → decides technically → implements when
-authorized → tests → diagnoses → repairs → validates → records evidence →
-continues. Sol High is an authority and gate tier, not a routine engineering
-micro-manager; the full delegation is recorded in
-`docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md`.
-
-For in-scope technical ambiguity, Muse must:
+For in-scope technical ambiguity, either OpenCode lane must:
 
 1. inspect authoritative evidence;
 2. form one or more hypotheses;
-3. search for contradictory evidence;
-4. perform the smallest permitted validation when required;
-5. adjudicate technically when existing project policy determines the allowed semantics;
+3. actively search for contradictory evidence;
+4. perform the smallest permitted validation required to distinguish them;
+5. adjudicate technically when current project policy determines the semantics;
 6. persist the decision and evidence;
 7. continue the workstream.
 
-Only a real Rules, Evidence-Policy, Architecture, Scope, Provider, or Freeze
-authority question becomes an `AUTHORITY_GATE` for Sol High. A technical decision
-is never an authority decision: reaching and persisting a root cause within policy
-is the job, not an escalation.
+Sequential use of both models on one workstream is allowed only after a persisted
+checkpoint and handoff of the same branch/worktree ownership; never run two writers
+against one mutation surface. Parallel use is allowed only for independent branches /
+worktrees / mutation surfaces, or bounded read-only review. A technical decision is not
+an authority gate merely because the two models disagree.
 
 ## 9. Reuse-first gate
 
@@ -202,7 +201,7 @@ state without redoing valid evidence.
 
 ## 12. Privacy
 
-Muse may use project-relevant technical data: repository source, tests, contracts,
+OpenCode workers may use project-relevant technical data: repository source, tests, contracts,
 qualification artifacts, build output, logs, Git metadata, branches/worktrees, engine
 sources, Maven/Gradle/package caches, project configuration, and explicitly allowed
 MTG deck/card/collection/ownership/gameplay data. Do not intentionally expose unrelated

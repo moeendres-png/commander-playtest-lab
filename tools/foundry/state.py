@@ -107,7 +107,7 @@ FAILURE_CLASSES = {
     "UNKNOWN",
 }
 
-REASONING_TIERS = {"high", "xhigh"}
+REASONING_TIERS = {"high", "xhigh", "max"}
 
 
 def _git(args: list[str], cwd: str) -> str:

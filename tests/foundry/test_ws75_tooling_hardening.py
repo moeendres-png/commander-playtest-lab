@@ -98,7 +98,7 @@ def canon(tmp_path: Path) -> Path:
     (root / ".opencode" / "skills").mkdir(parents=True)
     (root / "AGENTS.md").write_text("# canonical policy\n", encoding="utf-8")
     (root / ".opencode" / "agents" / "foundry-implementer.md").write_text(
-        "---\nvariant: high\n---\n", encoding="utf-8"
+        "---\nvariant: max\n---\n", encoding="utf-8"
     )
     real = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))
     (root / "opencode.json").write_text(
@@ -187,7 +187,7 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
         "workstream": "TEST-WS",
         "branch": "project/test",
         "audit_base_sha": target["base"],
-        "effort": "high",
+        "effort": "max",
         "mode": "writer",
         "session": "ses-t",
         "state_path": str(target["state"]),
@@ -233,7 +233,7 @@ def test_headless_launch_execs_run_auto_first(
     stub = _version_stub(tmp_path, exit_code=7)
     plan = _plan(target, canon, ui_mode="headless", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
-    rc = launcher_mod.launch(plan, ["do the thing"], str(target["wt"]), "TEST-WS", "high")
+    rc = launcher_mod.launch(plan, ["do the thing"], str(target["wt"]), "TEST-WS", "max")
     assert rc == 7
     lines = record.read_text(encoding="utf-8").strip().splitlines()
     assert len(lines) == 1
@@ -252,7 +252,7 @@ def test_tui_launch_execs_without_run(
     stub = _version_stub(tmp_path, exit_code=7)
     plan = _plan(target, canon, ui_mode="tui", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
-    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high")
+    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "max")
     assert rc == 7
     parts = record.read_text(encoding="utf-8").strip().split(" ")
     assert parts[1] == "--auto"
@@ -280,7 +280,7 @@ def test_telemetry_under_run_dir_and_tree_stays_clean(
     stub = _version_stub(tmp_path, exit_code=0)
     plan = _plan(target, canon, ui_mode="headless", opencode_bin=str(stub))
     assert plan["verdict"] == "LAUNCH_READY", plan
-    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high")
+    rc = launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "max")
     assert rc == 0
     metrics_file = Path(plan["run_dir"]) / "metrics.jsonl"
     assert metrics_file.is_file()
@@ -310,7 +310,7 @@ def test_state_path_context_exposed_without_secrets(
     assert env["FOUNDRY_WORKSTREAM"] == "TEST-WS"
     assert env["FOUNDRY_RUN_DIR"] == str(target["rundir"])
     assert env["FOUNDRY_MODE"] == "writer"
-    assert env["FOUNDRY_EFFORT"] == "high"
+    assert env["FOUNDRY_EFFORT"] == "max"
     context = json.loads(Path(plan["context_path"]).read_text(encoding="utf-8"))
     assert context["state_path"] == str(target["state"])
     assert context["run_dir"] == str(target["rundir"])
