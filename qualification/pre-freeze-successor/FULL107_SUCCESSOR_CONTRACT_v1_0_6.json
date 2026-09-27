@@ -1,0 +1,100 @@
+{
+  "schema_version": "commander-lab.full107-successor-contract/1.0.0",
+  "contract_id": "commander-lab.full107/1.0.6-successor",
+  "predecessor": {
+    "path": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
+    "schema_version": "commander-lab.semantic-fixture-materialization/1.0.5",
+    "sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "record_count": 135,
+    "provider_denominator_count": 107
+  },
+  "change_accounting": {
+    "changed_fixture_ids": [
+      "WS05-CMD-START-2"
+    ],
+    "changed_fixture_count": 1,
+    "unchanged_provider_denominator_rows": 106,
+    "historical_predecessor_preserved": true,
+    "change_class": "OFFICIAL_RULES_AUTHORITY_CORRECTION",
+    "provider_semantics_used_to_define_successor": false
+  },
+  "rules_authority": {
+    "lock": "AUTHORITY_LOCK_v2",
+    "artifact": "artifacts/cr/MagicCompRules_20260819.txt",
+    "artifact_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+    "effective_date": "2026-08-07",
+    "rule": "103.8a",
+    "requirement": "In a two-player game, the starting player skips the draw step of the first turn; the successor fixture must not require priority or any observation inside that skipped step."
+  },
+  "record_successors": [
+    {
+      "fixture_id": "WS05-CMD-START-2",
+      "predecessor_requested_state_digest": "2a40e275af77f173c62bb63fbd059cd17197ddffc2d9b338258b836ca1f83312",
+      "successor_requested_state_digest": "f9a753ae652f0f84830308f585d339f49cdf40a8115c091615f67c4beb72b6f2",
+      "evidence_survival": "REQUALIFICATION_REQUIRED",
+      "predecessor_invalidity": {
+        "temporal_state": {
+          "turn_number": 1,
+          "phase": "beginning",
+          "step": "draw",
+          "active_player": "P1",
+          "priority_player": "P1"
+        },
+        "reason": "The predecessor simultaneously required the first draw step to be skipped and priority to exist inside that draw step. CR 103.8a skips the entire step, so that temporal checkpoint is unsatisfiable for a conforming provider."
+      },
+      "replace": {
+        "temporal_state": {
+          "turn_number": 1,
+          "phase": "precombat_main",
+          "step": "main",
+          "active_player": "P1",
+          "priority_player": "P1",
+          "extra_turn_queue": []
+        },
+        "expected_events": {
+          "required_events": [
+            "starting_player:P1",
+            "first_turn_draw_step_skipped:true"
+          ],
+          "forbidden_events": [
+            "draw_step_started:P1:turn1",
+            "draw_step_draw:P1:turn1"
+          ],
+          "ordering_constraints": [],
+          "partial_order_constraints": []
+        },
+        "terminal_postconditions": [
+          "In 2P, starting player P1 skips the entire draw step on the first turn; no draw-step priority occurs and P1 hand/library counts remain unchanged from the post-mulligan opening state through entry to precombat main."
+        ]
+      },
+      "append_native_procedure": [
+        {
+          "step_id": "start2-cr1038a-skip-proof",
+          "operation": "NATIVE_ADVANCE_THROUGH_FIRST_BEGINNING_AND_VERIFY_DRAW_STEP_SKIPPED",
+          "details": {
+            "starting_player": "P1",
+            "turn_number": 1,
+            "forbidden_checkpoint": "beginning/draw",
+            "next_observable_checkpoint": "precombat_main/main",
+            "hand_and_library_must_not_change_due_to_draw_step": true,
+            "priority_inside_skipped_draw_step_forbidden": true
+          }
+        }
+      ],
+      "authority_overlay": {
+        "historical_rsp": "commander-lab.rules-service/1.1.0",
+        "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+        "transport_protocol": "2.0.0",
+        "comprehensive_rules_effective_date": "2026-08-07",
+        "comprehensive_rules_rule": "103.8a"
+      }
+    }
+  ],
+  "evidence_policy": {
+    "successor_contract_creation_is_runtime_credit": false,
+    "predecessor_start2_runtime_credit_survives": false,
+    "forge_wsr20_reported_start2_direct_requires_requalification": true,
+    "xmage_predecessor_start2_blocker_is_historical_provenance": true,
+    "unaffected_fixture_evidence_may_survive_after_identity_check": true
+  }
+}

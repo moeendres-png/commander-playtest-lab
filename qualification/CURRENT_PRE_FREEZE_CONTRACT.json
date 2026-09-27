@@ -1,0 +1,46 @@
+{
+  "schema_version": "commander-lab.current-pre-freeze-contract/1.0.0",
+  "authority": "COORDINATOR_SUCCESSOR_CONTRACT",
+  "source_lock": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "base_commit": "58e8fca430651207a87a8f3e9f41d8c6527dd4cd",
+    "base_tree": "4cf4f3d23da9b6a7bb010178b6efcc2b2c853ba2",
+    "source_drift_from_prior_adjudication": {
+      "prior_main": "d04bf9e4ec9178d448b1a68e4bfa9fd8050e0ddb",
+      "classification": "NON_IMPACTING",
+      "reason": "main advanced only through merged publisher-security PR #253; no overlap with FULL107, qualification protocol, AF contract, or Rules authority paths"
+    }
+  },
+  "full107": {
+    "denominator_count": 107,
+    "historical_base_materialization": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
+    "historical_base_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
+    "changed_fixture_ids": [
+      "WS05-CMD-START-2"
+    ],
+    "unchanged_fixture_count": 106,
+    "evidence_survival": {
+      "WS05-CMD-START-2": "REQUALIFICATION_REQUIRED",
+      "all_other_full107_rows": "UNCHANGED_REUSABLE_SUBJECT_TO_SOURCE_IDENTITY"
+    }
+  },
+  "architecture_freeze": {
+    "historical_ws10r_contract": "qualification/protocol/ws10r/ARCHITECTURE_FREEZE_CONTRACT_V1.md",
+    "current_gate_catalog": "qualification/pre-freeze-successor/architecture_freeze_gate_catalog_v2.json",
+    "current_result_schema": "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json",
+    "current_af01_boundary": "qualification/pre-freeze-successor/AF01_QUALIFICATION_BOUNDARY_V2.json",
+    "historical_rsp_1_1_status": "PROVENANCE_ONLY_FOR_NEW_FREEZE_ADJUDICATION"
+  },
+  "transport_protocol": {
+    "version_source": "config/rules_engines.json#protocol_version",
+    "current_version_at_source_lock": "2.0.0",
+    "schema": "schemas/engine_adapter_protocol.schema.json"
+  },
+  "forbidden_claims": [
+    "PROVIDER_SELECTION",
+    "ARCHITECTURE_FREEZE",
+    "START2_RUNTIME_PASS_FROM_CONTRACT_CHANGE",
+    "AUTOMATIC_EVIDENCE_PROMOTION"
+  ]
+}

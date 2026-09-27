@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://commander-lab.local/schemas/architecture-freeze-result-2.0.0.json",
+  "title": "Commander Lab Architecture Freeze Result v2",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "architecture-freeze-result/2.0.0"
+    },
+    "candidate": {
+      "type": "string",
+      "minLength": 1
+    },
+    "qualification_boundary": {
+      "const": "commander-lab.pre-freeze-qualification/2.0.0"
+    },
+    "transport_protocol_version": {
+      "const": "2.0.0"
+    },
+    "protocol_schema_identity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_lock": {
+      "type": "object"
+    },
+    "truthful_capabilities": {
+      "type": "object"
+    },
+    "af_results": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gate_id": {
+            "enum": [
+              "AF00",
+              "AF01",
+              "AF02",
+              "AF03",
+              "AF04",
+              "AF05",
+              "AF06",
+              "AF07",
+              "AF08",
+              "AF09",
+              "AF10",
+              "AF11"
+            ]
+          },
+          "verdict": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN",
+              "NOT_RUN",
+              "PARTIAL",
+              "UNSUPPORTED"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "gate_id",
+          "verdict",
+          "reason"
+        ]
+      }
+    },
+    "freeze_eligible": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "candidate",
+    "qualification_boundary",
+    "transport_protocol_version",
+    "protocol_schema_identity",
+    "source_lock",
+    "truthful_capabilities",
+    "af_results",
+    "freeze_eligible"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "freeze_eligible": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "description": "Repository validation additionally requires all twelve AF gates to be present exactly once and PASS; schema shape alone does not grant Freeze."
+      }
+    }
+  ]
+}

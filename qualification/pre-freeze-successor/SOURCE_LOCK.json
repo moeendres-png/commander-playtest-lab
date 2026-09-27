@@ -1,0 +1,32 @@
+{
+  "schema_version": "pre-freeze-contract-successor-source-lock/1.0.0",
+  "workstream": "PRE-FREEZE CONTRACT SUCCESSOR — START-2 + AF01",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "base_commit": "58e8fca430651207a87a8f3e9f41d8c6527dd4cd",
+  "base_tree": "4cf4f3d23da9b6a7bb010178b6efcc2b2c853ba2",
+  "branch": "sol/pre-freeze-contract-successor-start2-af01-20260927",
+  "historical_inputs": {
+    "ws47_materialization_path": "qualification/ws47/SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json",
+    "ws47_materialization_git_blob": "87da95fcbe90c2c729d1a7b28ee9a65ac8a0bab7",
+    "ws47_materialization_sha256": "0e47b792cc5232fa0ef06a0cab2a4ebfe9d72d4cbc8bc2bfc5c22b9bf7a940b3",
+    "ws10r_protocol": "commander-lab.rules-service/1.1.0",
+    "ws10r_gate_catalog": "qualification/protocol/ws10r/architecture_freeze_gate_catalog_v1.json"
+  },
+  "current_inputs": {
+    "rules_authority_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
+    "comprehensive_rules_effective_date": "2026-08-07",
+    "comprehensive_rules_artifact": "artifacts/cr/MagicCompRules_20260819.txt",
+    "comprehensive_rules_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+    "applicable_rule": "103.8a",
+    "engine_protocol_source": "config/rules_engines.json#protocol_version",
+    "engine_protocol_at_lock": "2.0.0",
+    "engine_protocol_schema": "schemas/engine_adapter_protocol.schema.json",
+    "engine_protocol_schema_git_blob": "ea8651f75a1461ecc41dc1f24586c00bff97fee5"
+  },
+  "ownership": {
+    "publisher_safe_push": "OUT_OF_SCOPE",
+    "engine_implementation": "OUT_OF_SCOPE",
+    "provider_selection": "OUT_OF_SCOPE",
+    "architecture_freeze": "OUT_OF_SCOPE"
+  }
+}
