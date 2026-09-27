@@ -328,7 +328,8 @@ def test_init_cpl_ready_with_dynamic_denies(target: dict, canon: Path) -> None:
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
     bundle = json.loads(env["OPENCODE_CONFIG_CONTENT"])
-    assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
+    # The omitted execution profile resolves to the primary executor.
+    assert bundle["model"] == "opencode-go/space-bunny-free"
     assert bundle["permission"]["bash"]["git push*"] == "allow"
     assert bundle["permission"]["bash"]["git push origin main*"] == "deny"
     assert bundle["permission"]["bash"]["git push --force*"] == "deny"
@@ -471,9 +472,10 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         "sys.path.insert(0, os.environ['FOUNDARY_TOOLS'])\n"
         "from foundry import writer_lock\n"
         "bundle = json.loads(os.environ['OPENCODE_CONFIG_CONTENT'])\n"
-        "assert bundle['model'] == 'opencode-go/muse-spark-1.3-contributor', 'model lock missing'\n"
+        "assert bundle['model'] == 'opencode-go/space-bunny-free', 'model lock missing'\n"
         "assert bundle['permission']['bash']['git push*'] == 'allow', 'delegated push missing'\n"
         "assert bundle['permission']['bash']['git push origin main*'] == 'deny', 'main-push deny missing'\n"
+        "assert bundle['permission']['bash']['git push --force*'] == 'deny', 'force-push deny missing'\n"
         "assert os.environ.get('FOUNDRY_EFFORT') == 'xhigh', 'effort missing'\n"
         "assert os.path.isdir(os.environ['OPENCODE_CONFIG_DIR']), 'config dir missing'\n"
         "lock = writer_lock.WriterLock(os.environ['FOUNDARY_WT'], 'INTRUDER', 'project/test', '')\n"
@@ -519,12 +521,67 @@ def test_launch_refused_plan_returns_one(target: dict, canon: Path) -> None:
 
 
 def test_injection_bundle_carries_no_secret_shaped_keys(target: dict, canon: Path) -> None:
+    """The injected config must carry no secret VALUES, and must still guard secrets.
+
+    A whole-blob substring scan cannot express this: a permission pattern such as
+    ``gh secret*`` or ``cat *credentials*`` is a rule *protecting* secrets and
+    necessarily contains the marker word. The invariant is therefore split:
+
+    * outside the permission block, no secret-shaped key or value may appear;
+    * inside it, the rules that deny secret access must be present and closed;
+    * no string value anywhere may look like a live credential.
+    """
     plan = _plan(target, canon)
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    blob = json.dumps(bundle).lower()
-    for marker in ("apikey", "api_key", "token", "secret", "password", "credential"):
-        assert marker not in blob, marker
+
+    def strip(value: object) -> object:
+        if isinstance(value, dict):
+            return {k: strip(v) for k, v in value.items() if k != "permission"}
+        if isinstance(value, list):
+            return [strip(v) for v in value]
+        return value
+
+    non_permission = json.dumps(strip(bundle)).lower()
+    for marker in ("apikey", "api_key", "token", "password", "credential"):
+        assert marker not in non_permission, marker
+
+    # The secret-protecting denies must still be closed, and secret files must
+    # still be unreadable. This is the positive half of the same property.
+    bash = bundle["permission"]["bash"]
+    for pattern in (
+        "env",
+        "env *",
+        "printenv*",
+        "gh auth*",
+        "gh secret*",
+        "cat *id_rsa*",
+        "cat *.pem",
+        "cat *.key",
+        "cat *credentials*",
+        "cat *.netrc",
+    ):
+        assert bash.get(pattern) == "deny", pattern
+    for tool in ("read", "glob", "grep", "list", "edit"):
+        for pattern in ("*.env", "*.env.*", "**/*.env", "**/*.env.*"):
+            assert bundle["permission"][tool].get(pattern) == "deny", f"{tool}:{pattern}"
+
+    # No value anywhere may look like a live credential.
+    def walk(node: object) -> None:
+        if isinstance(node, dict):
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+        elif isinstance(node, str):
+            lowered = node.lower()
+            for prefix in ("ghp_", "gho_", "github_pat_", "sk-", "xoxb-", "akia"):
+                assert not lowered.startswith(prefix), node
+            assert "bearer " not in lowered, node
+
+    walk(bundle)
+
     printable = {k: v for k, v in plan.items() if k != "_env"}
     assert "_env" not in printable
     # Key names are transparent; values (the bundle) must not leak into logs.
@@ -597,7 +654,8 @@ def test_init_ready_for_all_three_profiles(
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    assert bundle["model"] == "opencode-go/muse-spark-1.3-contributor"
+    # The omitted execution profile resolves to the primary executor.
+    assert bundle["model"] == "opencode-go/space-bunny-free"
     assert bundle["permission"]["bash"]["git push*"] == "allow"
     assert bundle["permission"]["bash"]["git push origin main*"] == "deny"
     assert bundle["permission"]["bash"]["git push --force*"] == "deny"
@@ -838,15 +896,40 @@ def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
 
 
 @pytest.mark.parametrize(
-    "override,provider,model",
+    "override,profile,provider,model,resolved_override,variant",
     [
-        (None, "opencode-go", "opencode-go/muse-spark-1.3-contributor"),
-        ("zen", "opencode", "opencode/muse-spark-1.3-contributor-free"),
+        # No flag resolves to the primary executor; an omitted profile must never
+        # fall through to the alternate.
+        (None, None, "opencode-go", "opencode-go/space-bunny-free", "space-bunny", "max"),
+        (None, "space-bunny", "opencode-go", "opencode-go/space-bunny-free", "space-bunny", "max"),
+        (
+            None,
+            "muse",
+            "opencode-go",
+            "opencode-go/muse-spark-1.3-contributor",
+            "muse",
+            "xhigh",
+        ),
+        (
+            "zen",
+            None,
+            "opencode",
+            "opencode/muse-spark-1.3-contributor-free",
+            "zen",
+            "",
+        ),
     ],
 )
-def test_ws190_execution_identity(target, canon, override, provider, model):
+def test_ws190_execution_identity(
+    target, canon, override, profile, provider, model, resolved_override, variant
+):
     before = (canon / "opencode.json").read_bytes()
-    plan = _plan(target, canon, execution_provider=override)
+    plan = _plan(
+        target,
+        canon,
+        execution_provider=override,
+        **({"execution_profile": profile} if profile else {}),
+    )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
     assert bundle["model"] == model
@@ -862,9 +945,11 @@ def test_ws190_execution_identity(target, canon, override, provider, model):
     context = json.loads(Path(plan["context_path"]).read_text())
     assert context["execution"]["provider"] == provider
     assert context["execution"]["model"] == model
-    assert context["execution"]["override"] == (override or "canonical")
+    # Telemetry must name the executor that actually runs: a "muse" label over a
+    # Space Bunny run would be a silent fallback.
+    assert context["execution"]["override"] == resolved_override
     assert context["execution"]["requested_effort"] == "high"
-    if override:
+    if override == "zen":
         assert bundle["disabled_providers"] == ["opencode-go"]
         assert bundle["small_model"] == model
         variants = bundle["provider"][provider]["models"][model.split("/")[1]]["variants"]
@@ -875,6 +960,19 @@ def test_ws190_execution_identity(target, canon, override, provider, model):
             assert agent["variant"] == ""
     else:
         assert "opencode" not in bundle["provider"]
+        # Every reachable agent is pinned to the selected executor at exactly one
+        # authorized native level, so no agent can silently run at another level.
+        for agent in bundle["agent"].values():
+            assert agent["model"] == model, agent
+            assert agent["variant"] == variant, agent
+        short = model.split("/", 1)[1]
+        assert bundle["provider"][provider]["whitelist"] == [short]
+        enabled = sorted(
+            name
+            for name, spec in bundle["provider"][provider]["models"][short]["variants"].items()
+            if spec != {"disabled": True}
+        )
+        assert enabled == [variant]
     assert (canon / "opencode.json").read_bytes() == before
 
 
@@ -926,7 +1024,7 @@ def test_ws190_child_lifecycle(target, canon, monkeypatch, result, override):
     for record in records:
         assert record["model"] == plan["execution"]["model"]
         assert record["execution_provider"] == plan["execution"]["provider"]
-        assert record["execution_override"] == (override or "canonical")
+        assert record["execution_override"] == (override or "space-bunny")
     assert records[-1]["exit_status"] == expected
     assert records[-1]["completed"] is (result == 0)
     assert records[-1]["interrupted"] is (result in ("interrupt", -2, 130))

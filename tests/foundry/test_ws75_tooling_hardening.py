@@ -240,7 +240,12 @@ def test_headless_launch_execs_run_auto_first(
     parts = lines[0].split(" ")
     assert parts[1] == "run"
     assert parts[2] == "--auto"
-    assert parts[3:] == ["do", "the", "thing"]
+    # The launcher owns executor selection and pins it on the argv, so the child
+    # cannot silently inherit a different model from session history. The prompt
+    # words follow the pin, in order.
+    assert parts[3] == "--model"
+    assert parts[4] == plan["execution"]["model"]
+    assert parts[5:] == ["do", "the", "thing"]
 
 
 def test_tui_launch_execs_without_run(
@@ -551,21 +556,83 @@ def test_owned_branch_git_allow_set() -> None:
         assert verdict == "DENIED", (cmd, matched)
 
 
-def test_git_C_remains_denied() -> None:
+def test_git_C_allowed_as_ordinary_tooling() -> None:
+    """`git -C` is an ordinary Git spelling, not a safety boundary.
+
+    It was denied purely to block a wrapper-shaped bypass, which the fail-closed
+    ownership machinery now handles structurally. Denying it also blocked every
+    legitimate multi-workstream invocation the delegated authority grants.
+    """
     rules = _config_bash_rules()
     for cmd in ("git -C /tmp/wt status", "git -C /tmp/wt push origin x"):
+        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
+
+
+def test_retained_safety_boundaries_still_denied() -> None:
+    """The privacy/system boundaries the authorization explicitly kept closed.
+
+    The widening opened engineering and Git/GitHub mutation. It did not open
+    credential disclosure, privilege escalation, force-push, main/master mutation
+    or remote-repository destruction, and this pins those resolutions through the
+    live rule evaluator rather than by string comparison.
+    """
+    rules = _config_bash_rules()
+    for cmd in (
+        "gh auth token",
+        "gh secret list",
+        "printenv GITHUB_TOKEN",
+        "env",
+        "sudo rm -rf /var",
+        "gh repo delete moeendres-png/commander-playtest-lab",
+        "git push --force origin main",
+        "git push -f origin x",
+        "git push --delete origin x",
+        "git push origin main",
+        "git rebase origin/main",
+        "git reset --hard HEAD~1",
+        "git clean -fdx",
+        "git update-ref refs/heads/x y",
+        "cat ~/.ssh/id_rsa",
+        "cat server.pem",
+    ):
         verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
         assert verdict == "DENIED", (cmd, matched)
 
 
-def test_no_broad_home_code_write_access() -> None:
+def test_campaign_workspace_reachable() -> None:
+    """The whole Commander-Lab workspace tree is in campaign scope.
+
+    Ownership is enforced by tools/foundry/workspace_access.py binding repository
+    identity plus exact HEAD/tree under a multi-lock, which is stronger evidence
+    than a folder-name deny, so reachability is no longer narrowed by path.
+    """
     rules = _config_ext_rules()
     for probe in (
         "/home/moeen/code/ws75-foundry-opencode-tooling-hardening/tools/foundry/launcher.py",
         "/home/moeen/code/some-other-checkout/file.txt",
+        "/tmp/opencode/scratch.json",
     ):
         verdict, matched = battery_mod.evaluate_rule(rules, "external_directory", probe)
-        assert verdict != "ENFORCED_ALLOW", (probe, matched)
+        assert verdict == "ENFORCED_ALLOW", (probe, matched)
+
+
+def test_secret_files_stay_unreadable() -> None:
+    """Secret files remain closed to every read-shaped tool after the widening."""
+    config = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))
+    for tool in ("read", "glob", "grep", "list", "edit"):
+        rules = [
+            {"permission": tool, "pattern": pattern, "action": action}
+            for pattern, action in config["permission"][tool].items()
+        ]
+        for probe in (
+            "/home/moeen/code/commander-playtest-lab/.env",
+            "/home/moeen/code/commander-playtest-lab/.env.local",
+        ):
+            verdict, matched = battery_mod.evaluate_rule(rules, tool, probe)
+            assert verdict == "DENIED", (tool, probe, matched)
+        verdict, _ = battery_mod.evaluate_rule(rules, tool, "/home/moeen/code/x/.env.example")
+        assert verdict == "ENFORCED_ALLOW", tool
 
 
 def test_sibling_worktree_denied_in_bundle(target: dict, canon: Path, tmp_path: Path) -> None:
