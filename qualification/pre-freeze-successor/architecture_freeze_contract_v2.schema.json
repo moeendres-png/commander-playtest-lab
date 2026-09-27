@@ -22,8 +22,7 @@
       "const": "2.0.0"
     },
     "protocol_schema_identity": {
-      "type": "string",
-      "minLength": 1
+      "const": "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5"
     },
     "source_lock": {
       "type": "object",
