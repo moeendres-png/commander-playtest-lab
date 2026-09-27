@@ -1,0 +1,79 @@
+{
+  "schema_version": "architecture-freeze-gate-catalog/2.0.0",
+  "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+  "transport_protocol_version": "2.0.0",
+  "gates": [
+    {
+      "id": "AF00",
+      "name": "SOURCE_AND_BUILD_LOCK",
+      "required": true,
+      "description": "Exact provider source/build/license/adapter identities are reproducible."
+    },
+    {
+      "id": "AF01",
+      "name": "PROTOCOL_HANDSHAKE",
+      "required": true,
+      "description": "Exact current Protocol 2.0.0 schema handshake under the candidate-neutral qualification boundary; provider identity and capabilities are explicit and truthful; protocol/decision/unsupported errors fail closed; adapter and pilot do not reconstruct legality."
+    },
+    {
+      "id": "AF02",
+      "name": "PLAYER_CARDINALITY",
+      "required": true,
+      "description": "Independent runtime support for 2P,3P,4P,5P."
+    },
+    {
+      "id": "AF03",
+      "name": "RULES_AUTHORITY",
+      "required": true,
+      "description": "Rules Core is sole legality/rules-randomness authority."
+    },
+    {
+      "id": "AF04",
+      "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+      "required": true,
+      "description": "Complete legal options; no adapter/pilot legality reconstruction; fail-closed unsupported decisions."
+    },
+    {
+      "id": "AF05",
+      "name": "HIDDEN_INFORMATION",
+      "required": true,
+      "description": "Actor-safe observation and metadata channels; honeycard leakage negatives."
+    },
+    {
+      "id": "AF06",
+      "name": "GENERAL_RULES_CORRECTNESS",
+      "required": true,
+      "description": "Runtime qualification across the effective frozen micro-rules surface."
+    },
+    {
+      "id": "AF07",
+      "name": "ACTUAL_CARD_BEHAVIOR",
+      "required": true,
+      "description": "Behavioral runtime qualification for the effective actual-card denominator and 29-card corpus."
+    },
+    {
+      "id": "AF08",
+      "name": "MULTIPLAYER_COMMANDER",
+      "required": true,
+      "description": "WS-05 MUST multiplayer/Commander semantics at required cardinalities, using the effective FULL107 successor contract."
+    },
+    {
+      "id": "AF09",
+      "name": "RNG_REPLAY",
+      "required": true,
+      "description": "Rules RNG attribution plus clean-process semantic replay tapes/checkpoints."
+    },
+    {
+      "id": "AF10",
+      "name": "RUNTIME_EVIDENCE_RELIABILITY",
+      "required": true,
+      "description": "No skip/crash/hang/protocol desync/stale evidence; denominator-complete evidence accounting."
+    },
+    {
+      "id": "AF11",
+      "name": "INTEROP_LICENSE_TOPOLOGY",
+      "required": true,
+      "description": "Actual integration topology satisfies WS-09; Forge remains a genuine separate process/service."
+    }
+  ]
+}

@@ -1,0 +1,595 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://commander-lab.local/schemas/architecture-freeze-result-2.0.0.json",
+  "title": "Commander Lab Architecture Freeze Result v2",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "architecture-freeze-result/2.0.0"
+    },
+    "architecture_winner": {
+      "const": false
+    },
+    "candidate": {
+      "type": "string",
+      "minLength": 1
+    },
+    "qualification_boundary": {
+      "const": "commander-lab.pre-freeze-qualification/2.0.0"
+    },
+    "transport_protocol_version": {
+      "const": "2.0.0"
+    },
+    "protocol_schema_identity": {
+      "const": "git-blob:ea8651f75a1461ecc41dc1f24586c00bff97fee5"
+    },
+    "source_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider_source": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "tree": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            }
+          },
+          "required": [
+            "repository",
+            "commit",
+            "tree"
+          ]
+        },
+        "adapter_source": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "tree": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            }
+          },
+          "required": [
+            "repository",
+            "commit",
+            "tree"
+          ]
+        },
+        "build": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "artifact_identity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "artifact_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "artifact_identity",
+            "artifact_sha256"
+          ]
+        }
+      },
+      "required": [
+        "provider_source",
+        "adapter_source",
+        "build"
+      ]
+    },
+    "truthful_capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reported_by_provider": {
+          "const": true
+        },
+        "runtime_kind": {
+          "const": "external_rules_engine"
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "commander_supported": {
+              "type": "boolean"
+            },
+            "multiplayer_supported": {
+              "type": "boolean"
+            },
+            "deck_import_supported": {
+              "type": "boolean"
+            },
+            "legal_actions_supported": {
+              "type": "boolean"
+            },
+            "action_submission_supported": {
+              "type": "boolean"
+            },
+            "event_log_supported": {
+              "type": "boolean"
+            },
+            "headless_supported": {
+              "type": "boolean"
+            },
+            "seed_supported": {
+              "type": "boolean"
+            },
+            "replay_supported": {
+              "type": "boolean"
+            },
+            "game_shutdown_supported": {
+              "type": "boolean"
+            },
+            "engine_shutdown_supported": {
+              "type": "boolean"
+            },
+            "priority_visible": {
+              "type": "boolean"
+            },
+            "stack_visible": {
+              "type": "boolean"
+            },
+            "commander_tax_visible": {
+              "type": "boolean"
+            },
+            "commander_damage_visible": {
+              "type": "boolean"
+            },
+            "mulligan_supported": {
+              "type": "boolean"
+            },
+            "target_selection_supported": {
+              "type": "boolean"
+            },
+            "mode_selection_supported": {
+              "type": "boolean"
+            },
+            "trigger_order_supported": {
+              "type": "boolean"
+            },
+            "concede_supported": {
+              "type": "boolean"
+            },
+            "starting_state_injection_supported": {
+              "type": "boolean"
+            },
+            "scenario_injection_supported": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "commander_supported",
+            "multiplayer_supported",
+            "deck_import_supported",
+            "legal_actions_supported",
+            "action_submission_supported",
+            "event_log_supported",
+            "headless_supported",
+            "seed_supported",
+            "replay_supported",
+            "game_shutdown_supported",
+            "engine_shutdown_supported",
+            "priority_visible",
+            "stack_visible",
+            "commander_tax_visible",
+            "commander_damage_visible",
+            "mulligan_supported",
+            "target_selection_supported",
+            "mode_selection_supported",
+            "trigger_order_supported",
+            "concede_supported",
+            "starting_state_injection_supported",
+            "scenario_injection_supported"
+          ]
+        },
+        "required_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "missing_required_capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "reported_by_provider",
+        "runtime_kind",
+        "capabilities",
+        "required_capabilities",
+        "missing_required_capabilities"
+      ]
+    },
+    "gate_results": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gate_id": {
+            "enum": [
+              "AF00",
+              "AF01",
+              "AF02",
+              "AF03",
+              "AF04",
+              "AF05",
+              "AF06",
+              "AF07",
+              "AF08",
+              "AF09",
+              "AF10",
+              "AF11"
+            ]
+          },
+          "verdict": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN",
+              "NOT_RUN",
+              "PARTIAL",
+              "UNSUPPORTED"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "gate_id",
+          "verdict",
+          "reason",
+          "evidence_refs"
+        ]
+      }
+    },
+    "freeze_eligible": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "architecture_winner",
+    "candidate",
+    "qualification_boundary",
+    "transport_protocol_version",
+    "protocol_schema_identity",
+    "source_lock",
+    "truthful_capabilities",
+    "gate_results",
+    "freeze_eligible"
+  ],
+  "allOf": [
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF00"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF01"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF02"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF03"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF04"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF05"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF06"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF07"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF08"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF09"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF10"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "gate_results": {
+          "contains": {
+            "properties": {
+              "gate_id": {
+                "const": "AF11"
+              }
+            },
+            "required": [
+              "gate_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "freeze_eligible": {
+            "const": true
+          }
+        },
+        "required": [
+          "freeze_eligible"
+        ]
+      },
+      "then": {
+        "properties": {
+          "gate_results": {
+            "items": {
+              "properties": {
+                "verdict": {
+                  "const": "PASS"
+                }
+              },
+              "required": [
+                "verdict"
+              ]
+            }
+          },
+          "truthful_capabilities": {
+            "properties": {
+              "missing_required_capabilities": {
+                "maxItems": 0
+              },
+              "capabilities": {
+                "properties": {
+                  "commander_supported": {
+                    "const": true
+                  },
+                  "multiplayer_supported": {
+                    "const": true
+                  },
+                  "deck_import_supported": {
+                    "const": true
+                  },
+                  "legal_actions_supported": {
+                    "const": true
+                  },
+                  "action_submission_supported": {
+                    "const": true
+                  },
+                  "event_log_supported": {
+                    "const": true
+                  },
+                  "headless_supported": {
+                    "const": true
+                  },
+                  "seed_supported": {
+                    "const": true
+                  },
+                  "replay_supported": {
+                    "const": true
+                  },
+                  "game_shutdown_supported": {
+                    "const": true
+                  },
+                  "engine_shutdown_supported": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
