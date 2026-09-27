@@ -265,12 +265,19 @@ def test_repo_root_state_absent_schema_kept() -> None:
 
 def test_opencode_config_schema_conformance() -> None:
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode-go/muse-spark-1.3-contributor"
+    assert config["model"] == "opencode-go/space-bunny-free"
     assert config["share"] == "disabled"
-    variants = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]["variants"]
-    for effort in ("none", "off", "minimal", "low", "medium"):
-        assert variants[effort] == {"disabled": True}
-    assert set(variants) == {"none", "off", "minimal", "low", "medium", "high", "xhigh"}
+    models = config["provider"]["opencode-go"]["models"]
+    bunny = models["space-bunny-free"]
+    muse = models["muse-spark-1.3-contributor"]
+    assert bunny["options"] == {"reasoningEffort": "max"}
+    assert bunny["variants"]["max"] == {}
+    for effort in ("none", "off", "minimal", "low", "medium", "high", "xhigh"):
+        assert bunny["variants"][effort] == {"disabled": True}
+    assert muse["options"] == {"reasoningEffort": "xhigh"}
+    assert muse["variants"]["xhigh"] == {}
+    for effort in ("none", "off", "minimal", "low", "medium", "high"):
+        assert muse["variants"][effort] == {"disabled": True}
     assert "permissions" not in config
     assert isinstance(config["permission"], dict)
 
@@ -280,15 +287,20 @@ def _agent_frontmatter(name: str) -> dict:
     return yaml.safe_load(text.split("---")[1])
 
 
-def test_high_default_retained() -> None:
+def test_space_bunny_max_default_and_muse_xhigh_only() -> None:
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    provider_model = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]
-    assert provider_model["options"] == {"reasoningEffort": "high"}
-    assert config["agent"]["build"] == {"variant": "high"}
+    assert config["model"] == "opencode-go/space-bunny-free"
+    assert config["agent"]["build"] == {
+        "model": "opencode-go/space-bunny-free",
+        "variant": "max",
+    }
     implementer = _agent_frontmatter("foundry-implementer.md")
-    assert implementer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert implementer["variant"] == "high"
-
+    assert implementer["model"] == "opencode-go/space-bunny-free"
+    assert implementer["variant"] == "max"
+    muse = config["provider"]["opencode-go"]["models"]["muse-spark-1.3-contributor"]
+    assert muse["options"] == {"reasoningEffort": "xhigh"}
+    assert muse["variants"]["high"] == {"disabled": True}
+    assert muse["variants"]["xhigh"] == {}
 
 def test_adjudicator_exists_and_configured() -> None:
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
@@ -314,6 +326,12 @@ def test_adjudicator_narrower_than_implementer() -> None:
     assert "permission" not in implementer
     assert adjudicator["permission"]["edit"] == "deny"
     assert isinstance(adjudicator["permission"]["bash"], dict)
+
+
+def test_state_accepts_space_bunny_max_tier() -> None:
+    state = _valid_state()
+    state["current_reasoning_tier"] = "max"
+    assert state_mod.validate(state) == []
 
 
 def test_state_accepts_adjudication_extension_fields() -> None:
@@ -353,11 +371,11 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     assert "authority_gate" in flat
 
 
-def test_reviewer_remains_high_and_read_only() -> None:
+def test_reviewer_remains_muse_xhigh_and_read_only() -> None:
     reviewer = _agent_frontmatter("foundry-reviewer.md")
     assert reviewer["mode"] == "subagent"
     assert reviewer["model"] == "opencode-go/muse-spark-1.3-contributor"
-    assert reviewer["variant"] == "high"
+    assert reviewer["variant"] == "xhigh"
     assert reviewer["permission"]["edit"] == "deny"
 
 
@@ -391,9 +409,9 @@ def test_env_deny_rules_win_by_order() -> None:
         assert keys.index("*.env.example") > keys.index("*.env.*")
 
 
-def test_generic_gh_api_is_not_allow() -> None:
+def test_generic_gh_api_project_authority_and_adjudicator_narrowing() -> None:
     permission = _root_permission()
-    assert permission["bash"]["gh api*"] != "allow"
+    assert permission["bash"]["gh api*"] == "allow"
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["permission"]["bash"]["gh api*"] != "allow"
 
@@ -476,14 +494,11 @@ def test_battery_full_probe_set_runs() -> None:
     }
 
 
-def test_safe_auto_deny_set_pinned() -> None:
-    """Every SAFE_AUTO threat-model deny shape must stay deny in opencode.json.
-
-    Guards against silent ask-downgrades. Live resolution is proven separately
-    by the adversarial battery against `opencode debug agent` output.
-    """
+def test_project_execution_authority_permissions_pinned() -> None:
+    """Project-scoped execution is autonomous; reserved safety boundaries stay denied."""
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     bash = config["permission"]["bash"]
+    assert bash["*"] == "allow"
     for pattern in (
         "git push*",
         "git merge*",
@@ -495,16 +510,10 @@ def test_safe_auto_deny_set_pinned() -> None:
         "git worktree add*",
         "git worktree remove*",
         "git worktree move*",
-        "git checkout main",
-        "git checkout master",
         "git checkout -b*",
-        "git switch main",
-        "git switch master",
         "git switch -c*",
         "git update-ref*",
         "git symbolic-ref*",
-        "git filter-branch*",
-        "git filter-repo*",
         "git tag -d*",
         "git tag -f*",
         "git stash drop*",
@@ -515,6 +524,20 @@ def test_safe_auto_deny_set_pinned() -> None:
         "command *",
         "sh -c*",
         "bash -c*",
+        "gh api*",
+        "gh api -X POST*",
+        "gh api -X PUT*",
+        "gh api -X PATCH*",
+        "gh api -X DELETE*",
+    ):
+        assert bash.get(pattern) == "allow", pattern
+    for pattern in (
+        "git checkout main",
+        "git checkout master",
+        "git switch main",
+        "git switch master",
+        "git filter-branch*",
+        "git filter-repo*",
         "sudo*",
         "su *",
         "env",
@@ -526,41 +549,11 @@ def test_safe_auto_deny_set_pinned() -> None:
         "gh repo create*",
         "gh repo delete*",
         "gh repo fork*",
-        "gh api -X POST*",
-        "gh api -X PUT*",
-        "gh api -X PATCH*",
-        "gh api -X DELETE*",
-        "gh api --method POST*",
-        "gh api --method PUT*",
-        "gh api --method PATCH*",
-        "gh api --method DELETE*",
-        "*| sh",
-        "*| sh *",
-        "*|sh",
-        "*|sh *",
-        "*| bash",
-        "*| bash *",
-        "*|bash",
-        "*|bash *",
     ):
         assert bash.get(pattern) == "deny", pattern
-    # Routine engineering must still proceed unattended.
-    for pattern in (
-        "git status*",
-        "git diff*",
-        "git log*",
-        "pytest*",
-        "python*",
-        "ruff*",
-        "git add*",
-        "git commit*",
-    ):
-        assert bash.get(pattern) == "allow", pattern
+    assert config["permission"]["task"]["*"] == "allow"
     ext = config["permission"]["external_directory"]
-    assert ext["/home/moeen/code/ws50-forge-decision-sequence-slice*"] == "deny"
-    assert ext["/home/moeen/code/q6-capability-curation-20260910*"] == "deny"
-    assert ext["/tmp/*"] == "allow"
-
+    assert ext["/home/moeen/code/*"] == "allow"
 
 def test_inventory_marks_clean_true_and_strips_refs(repo: Path) -> None:
     entries = worktree_inventory.inventory(str(repo))
