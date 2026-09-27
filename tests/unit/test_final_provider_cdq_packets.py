@@ -92,6 +92,10 @@ def test_normalization_is_101_common_without_seams(repo_root: Path) -> None:
     assert not (ids & SEAMS), ids & SEAMS
     excluded = {s["fixture_id"] for s in normalization["excluded_seams"]}
     assert excluded == SEAMS, excluded
+    packet = json.loads((repo_root / PACKET_DIR / "wsr20-ingest"
+                         / "COMMON_FIXTURE_SUCCESSOR_PACKET.json").read_text(encoding="utf-8"))
+    packet_seed = {f["fixture_id"]: f.get("seed_request", 424242)
+                   for f in packet["fixtures"]}
     counts = dict(normalization["comparison_counts"])
     assert sum(counts.values()) == 101, counts
     for key in counts:
@@ -99,9 +103,51 @@ def test_normalization_is_101_common_without_seams(repo_root: Path) -> None:
     for fixture in fixtures:
         assert fixture["comparison_disposition"] in COMPARISON_ALLOWED, fixture
         assert fixture["comparison_reason"], fixture
-        assert fixture["seed_request"] == 424242, fixture
-        assert fixture["xmage_evidence"]["status"] in REFRESH_ALLOWED, fixture
-        assert fixture["forge_evidence"]["status"] in REFRESH_ALLOWED, fixture
+        assert fixture["seed_request"] == packet_seed[fixture["fixture_id"]], fixture
+        record = fixture["comparison_record"]
+        assert record["xmage_evidence"]["status"] in REFRESH_ALLOWED, fixture
+        assert record["forge_evidence"]["status"] in REFRESH_ALLOWED, fixture
+    # Finalized adjudicated split (both engines' evidence ingested).
+    assert counts.get("SAME_SEMANTICS", 0) == 14, counts
+    assert counts.get("NON_COMPARABLE", 0) == 62, counts
+    assert counts.get("ENGINE_CAPABILITY_GAP", 0) == 25, counts
+    assert counts.get("UNKNOWN_PENDING_RULES_ADJUDICATION", 0) == 0, counts
+
+
+def test_gap_rows_are_xmage_injection_blocked(repo_root: Path) -> None:
+    normalization = _load(repo_root, "COMMON_FIXTURE_NORMALIZATION.json")
+    refresh = _load(repo_root, "XMAGE_FULL107_REFRESH.json")
+    by_xm = {r["fixture_id"]: r["new_status"] for r in refresh["rows"]}
+    gaps = [f for f in normalization["fixtures"]
+            if f["comparison_disposition"] == "ENGINE_CAPABILITY_GAP"]
+    assert len(gaps) == 25
+    for fixture in gaps:
+        assert by_xm[fixture["fixture_id"]] == "NOT_RUN_BLOCKED", fixture
+        assert fixture["comparison_record"]["type"] == "capability_gap", fixture
+    same = [f for f in normalization["fixtures"]
+            if f["comparison_disposition"] == "SAME_SEMANTICS"]
+    assert len(same) == 14
+    for fixture in same:
+        assert by_xm[fixture["fixture_id"]] == "DIRECTLY_VERIFIED", fixture
+        assert fixture["comparison_record"]["forge_evidence"]["status"] in (
+            "DIRECTLY_VERIFIED", "TECHNICALLY_CONFORMANT"), fixture
+
+
+def test_wsr20_ingest_present_and_reconciled(repo_root: Path) -> None:
+    ingest = repo_root / PACKET_DIR / "wsr20-ingest"
+    for name in ("FULL107_FORGE_MAPPING.json",
+                 "COMMON_FIXTURE_SUCCESSOR_PACKET.json",
+                 "EXECUTION_RESULTS.json", "HIDDEN_INFO_RESULTS.json",
+                 "RNG_REPLAY_RESULTS.json", "MULTIPLAYER_RESULTS.json"):
+        assert (ingest / name).is_file(), name
+    mapping = json.loads((ingest / "FULL107_FORGE_MAPPING.json").read_text(encoding="utf-8"))
+    assert len(mapping["rows"]) == 107
+    assert mapping["forge_head"] == "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
+    assert mapping["counts"]["DIRECTLY_VERIFIED"] == 84
+    assert mapping["counts"]["TECHNICALLY_CONFORMANT"] == 17
+    assert mapping["counts"].get("FAIL", 0) == 0
+    packet = json.loads((ingest / "COMMON_FIXTURE_SUCCESSOR_PACKET.json").read_text(encoding="utf-8"))
+    assert len(packet["fixtures"]) == 101
 
 
 def test_normalization_matches_refresh_xmage_status(repo_root: Path) -> None:
@@ -109,7 +155,8 @@ def test_normalization_matches_refresh_xmage_status(repo_root: Path) -> None:
     normalization = _load(repo_root, "COMMON_FIXTURE_NORMALIZATION.json")
     by_fid = {r["fixture_id"]: r["new_status"] for r in refresh["rows"]}
     for fixture in normalization["fixtures"]:
-        assert fixture["xmage_evidence"]["status"] == by_fid[fixture["fixture_id"]], fixture
+        record = fixture["comparison_record"]
+        assert record["xmage_evidence"]["status"] == by_fid[fixture["fixture_id"]], fixture
 
 
 def test_targeted_gaps_ordered_and_bounded(repo_root: Path) -> None:
@@ -118,7 +165,13 @@ def test_targeted_gaps_ordered_and_bounded(repo_root: Path) -> None:
     assert len(gaps) == 15, len(gaps)
     assert [g["rank"] for g in gaps] == list(range(15))
     assert gaps[0]["priority_dimension"].startswith("forge_packet_ingest"), gaps[0]
-    assert targeted["engine_executions_performed_in_this_worktree"] == []
+    assert gaps[0]["status"] == "COMPLETE", gaps[0]
+    executions = targeted["gate_d_executions_performed"]
+    assert executions, "Gate-D must record actually executed runs"
+    forge_runs = [e for e in executions if e["kind"] == "forge-gate-d-denominator"]
+    assert len(forge_runs) == 1, executions
+    assert "31/31" in forge_runs[0]["result"], forge_runs[0]
+    assert forge_runs[0]["mutation"] == "none (worktree clean, HEAD unchanged)"
     # Every gap fixture must belong to the 107 denominator.
     refresh = _load(repo_root, "XMAGE_FULL107_REFRESH.json")
     known = {r["fixture_id"] for r in refresh["rows"]} | {"ALL-101-COMMON"}
@@ -150,9 +203,13 @@ def test_readiness_dimensions_complete_and_unranked(repo_root: Path) -> None:
 
 
 def test_no_provider_ranking_language_in_packets(repo_root: Path) -> None:
-    for name in ("XMAGE_FULL107_REFRESH.json", "COMMON_FIXTURE_NORMALIZATION.json",
-                 "TARGETED_RUNTIME_RESULTS.json", "DIVERGENCE_PACKET.json",
-                 "PROVIDER_READINESS_PACKET.json", "PROVIDER_READINESS_SUMMARY.md"):
+    names = ["XMAGE_FULL107_REFRESH.json", "COMMON_FIXTURE_NORMALIZATION.json",
+             "TARGETED_RUNTIME_RESULTS.json", "DIVERGENCE_PACKET.json",
+             "PROVIDER_READINESS_PACKET.json", "PROVIDER_READINESS_SUMMARY.md",
+             "HIDDEN_INFO_COMPARISON.md", "RNG_REPLAY_COMPARISON.md",
+             "MULTIPLAYER_COMPARISON.md", "FORBIDDEN_FALLBACK_COMPARISON.md",
+             "FINAL_HANDOFF.md", "VALIDATION.md"]
+    for name in names:
         text = (repo_root / PACKET_DIR / name).read_text(encoding="utf-8")
         for token in BANNED_RANKING_TOKENS:
             assert token not in text.upper(), (name, token)

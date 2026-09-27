@@ -1,0 +1,3449 @@
+{
+ "schema": "wsr20-common-fixture-successor-packet/1",
+ "forge_head": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+ "forge_tree": "fc3387bf37aab19d780b2939a235309ed32b0492",
+ "xmage_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b",
+ "xmage_pin": "b19596980f2734496ea1896504253e1bdd2756dd",
+ "denominator": "origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46 (materialization 1.0.5)",
+ "comparison_rule": "no false byte equality; divergences are UNKNOWN_PENDING_RULES_ADJUDICATION; no winner labels",
+ "fixtures": [
+  {
+   "fixture_id": "PLAYER_COUNT_2P",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest#testTwoPlayerLifecycle + WS233CardinalityProcessTest#testFreshProcess2Players + R15/R16 families + WSR20 start tests",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-2p.json",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 2,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "mulligan"
+   ],
+   "terminal_facts": [
+    "exactly 2 live real players exist",
+    "each player started at 40 life",
+    "each commander began in command zone",
+    "each library was derived from exactly 99 Mountains",
+    "opening hand size is seven after scripted keeps",
+    "turn/priority ring contains exactly the live players"
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PLAYER_COUNT_3P",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest#testThreePlayerLifecycle + WS233CardinalityProcessTest#testFreshProcess3Players + R15/R16 families + WSR20 start tests",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-3p.json",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "mulligan"
+   ],
+   "terminal_facts": [
+    "exactly 3 live real players exist",
+    "each player started at 40 life",
+    "each commander began in command zone",
+    "each library was derived from exactly 99 Mountains",
+    "opening hand size is seven after scripted keeps",
+    "turn/priority ring contains exactly the live players"
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PLAYER_COUNT_4P",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest + process per-count + R15/R16 families",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-4p.json",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "mulligan"
+   ],
+   "terminal_facts": [
+    "exactly 4 live real players exist",
+    "each player started at 40 life",
+    "each commander began in command zone",
+    "each library was derived from exactly 99 Mountains",
+    "opening hand size is seven after scripted keeps",
+    "turn/priority ring contains exactly the live players"
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PLAYER_COUNT_5P",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest + process per-count + R15/R16 families",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "docs/workstream_successor_integration_20260919/gate-evidence/gate-5p.json",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 5,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "mulligan"
+   ],
+   "terminal_facts": [
+    "exactly 5 live real players exist",
+    "each player started at 40 life",
+    "each commander began in command zone",
+    "each library was derived from exactly 99 Mountains",
+    "opening hand size is seven after scripted keeps",
+    "turn/priority ring contains exactly the live players"
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_PRIORITY",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest + forge-protocol2-bridge/src/test/java/forge/bridge/WS202ExecutableSurfaceTest + forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest#testLifecyclePassAndShutdown",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Selected cast action was among provider-offered legal options and no adapter legality was invented."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_TARGET",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeCharmModesTargets + #testPipeFireballX + WsR9RetargetBridgeFamilyTest + WsR20Full107DenominatorTest (Murder/Swords/Unsummon/Spin selections)",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "P2 is the target selected from the provider legal target set."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_OBJECT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest (COST_SELECTION Memnite, SEARCH_SELECTION Plains) + forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeGenericSelection + R20 Thoughtseize HIDDEN_ZONE_SELECTION",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_object"
+   ],
+   "terminal_facts": [
+    "Only provider-offered selectable objects were eligible; obj:p1-hand-a was selected."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_TARGET_AMOUNT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS217DividedAllocationTest (Arc 2+1) + WsR10MagmaBridgeFamilyTest (2+2) + WS217SeparateProcessTest (Seedcore 3+1)",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "target_amount"
+   ],
+   "terminal_facts": [
+    "Assignment totals exactly 4 and each selected damage target receives at least 1."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_MULLIGAN",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest (keeps at 2-5P) + BridgeEngineTest mulligan negatives + London/free-multiplayer native rules",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "mulligan"
+   ],
+   "terminal_facts": [
+    "In this 4P Commander fixture the first mulligan is the multiplayer free mulligan, so it does not increase the bottom-card count.",
+    "P1 keeps a legal seven-card opening hand after exactly one free mulligan and bottoms zero cards."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_USE",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeCounterPitch (Yes/No pay) + forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeGenericConfirm + WsR13PathBridgeFamilyTest (scry choice) + WsR20Full107DenominatorTest#testR20_ScryActorSeesTop",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_use",
+    "mana_payment",
+    "priority"
+   ],
+   "terminal_facts": [
+    "Known top card remains on top after the provider-offered scry choice."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_CHOICE",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeColorChoice (green from 5+)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choice"
+   ],
+   "terminal_facts": [
+    "RED was selected from provider-offered color choices."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_PILE",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeOrderChoice (2 perms, Bear-first) + hidden canary/adversary metadata scans",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "pile"
+   ],
+   "terminal_facts": [
+    "Every revealed object appears in exactly one pile; no hidden identity is added to pile metadata."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_MANA_PAYMENT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest (MANA_PAYMENT, nonzero-mana decline, fixed-output pool) + WsR10Magma/WsR11Fuse short-mana fail-closed + R20 exact-tax payments",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "mana_payment",
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Exactly the selected provider-legal mana payment is consumed."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_ANNOUNCE_X",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeFireballX + #testPipeSerpentReplacement (X=3) + WsR9FinaleX10BridgeFamilyTest (X=10)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "announce_x",
+    "priority"
+   ],
+   "terminal_facts": [
+    "X=3 is bound into the announced spell and cost calculation by the Rules Core."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_MULTI_AMOUNT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS217SeparateProcessTest#testPipeStormSeedcore (4-total 3+1) + forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeAmount",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "multi_amount"
+   ],
+   "terminal_facts": [
+    "Assignment totals exactly 4 and each selected damage target receives at least 1."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_REPLACEMENT_EFFECT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR11JeskaBridgeFamilyTest (0-ability 2->6) + forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest (COMMANDER_MOVE Yes, Clone COPY_CHOICE, Serpent order) + R20 zone branches",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "replacement_effect"
+   ],
+   "terminal_facts": [
+    "Commander is in command zone rather than hand; provider performed replacement legality."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_TRIGGER_ORDER",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeTriggerOrder (2 triggers ordered #0;#1) + WS202ExecutableSurfaceTest 5xWarden ordering",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "trigger_order"
+   ],
+   "terminal_facts": [
+    "Both triggers are on stack in the selected relative order; trigger creation itself remains simultaneous."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_MODE",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeCharmModesTargets + forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeBinary + WsR11FuseBridgeFamilyTest (fused vs half)",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameDecisionExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_mode",
+    "priority"
+   ],
+   "terminal_facts": [
+    "Selected mode is the provider-offered Devil-token mode."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_CHOOSE_ABILITY",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR11JeskaBridgeFamilyTest (3-ability presence + loyalty-scaled activation) + WsR10MagmaBridgeFamilyTest#testMagmaTreasureActivation",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_ability"
+   ],
+   "terminal_facts": [
+    "The provider-selected legal activated ability is Jeska 0 ability."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_DECLARE_ATTACKER",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR15MulticountCombatTest (2/3/5P) + WsR16SixPlayerFamilyTest#testSixPlayerCombatSplit + R20 Gishath/Isamaru/Bear attacks",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "declare_attacker"
+   ],
+   "terminal_facts": [
+    "obj:p1-bears is attacking P2 and is tapped if required by rules."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "PILOT_DECLARE_BLOCKER",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeCombatDamage (double block) + R20 Bears-trade block + Propaganda No-blocks",
+   "xmage_evidence": {
+    "lab_status": "SUPPORTING",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameActionProjectionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "declare_blocker"
+   ],
+   "terminal_facts": [
+    "Block assignment exists only between the defending player P2 blocker and attacker attacking P2."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "NEGATIVE_FIRST_OPTION",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest + forge-protocol2-bridge/src/test/java/forge/bridge/HeadlessGuiFailClosedTest + forge-protocol2-bridge/src/test/java/forge/bridge/ProtocolTest + WS202/216/217 pipe negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_mode"
+   ],
+   "terminal_facts": [
+    "No first_option behavior selected an option.",
+    "Session/fixture terminates with typed unsupported discretionary-decision failure."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "NEGATIVE_RANDOM_OPTION",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest + forge-protocol2-bridge/src/test/java/forge/bridge/HeadlessGuiFailClosedTest + forge-protocol2-bridge/src/test/java/forge/bridge/ProtocolTest + WS202/216/217 pipe negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "target"
+   ],
+   "terminal_facts": [
+    "No random_option behavior selected an option.",
+    "Session/fixture terminates with typed unsupported discretionary-decision failure."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "NEGATIVE_DEFAULT_YES_NO",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest + forge-protocol2-bridge/src/test/java/forge/bridge/HeadlessGuiFailClosedTest + forge-protocol2-bridge/src/test/java/forge/bridge/ProtocolTest + WS202/216/217 pipe negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_use"
+   ],
+   "terminal_facts": [
+    "No default_yes_no behavior selected an option.",
+    "Session/fixture terminates with typed unsupported discretionary-decision failure."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "NEGATIVE_INTERNAL_AI",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest + forge-protocol2-bridge/src/test/java/forge/bridge/HeadlessGuiFailClosedTest + forge-protocol2-bridge/src/test/java/forge/bridge/ProtocolTest + WS202/216/217 pipe negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "declare_attacker"
+   ],
+   "terminal_facts": [
+    "No internal_ai behavior selected an option.",
+    "Session/fixture terminates with typed unsupported discretionary-decision failure."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "NEGATIVE_GUI_DEFAULT",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest + forge-protocol2-bridge/src/test/java/forge/bridge/HeadlessGuiFailClosedTest + forge-protocol2-bridge/src/test/java/forge/bridge/ProtocolTest + WS202/216/217 pipe negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_mode"
+   ],
+   "terminal_facts": [
+    "No gui_default behavior selected an option.",
+    "Session/fixture terminates with typed unsupported discretionary-decision failure."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "NEGATIVE_SILENT_SKIP",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest + forge-protocol2-bridge/src/test/java/forge/bridge/HeadlessGuiFailClosedTest + forge-protocol2-bridge/src/test/java/forge/bridge/ProtocolTest + WS202/216/217 pipe negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "target"
+   ],
+   "terminal_facts": [
+    "No silent_skip behavior selected an option.",
+    "Session/fixture terminates with typed unsupported discretionary-decision failure."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest + forge-protocol2-bridge/src/test/java/forge/bridge/HeadlessGuiFailClosedTest + forge-protocol2-bridge/src/test/java/forge/bridge/ProtocolTest + WS202/216/217 pipe negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "No parent_class_fallback behavior selected an option.",
+    "Session/fixture terminates with typed unsupported discretionary-decision failure."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_01",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest#testHiddenInformationAdversary",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_02",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest (library.size==0 to foes) + forge-protocol2-bridge/src/test/java/forge/bridge/WS202ExecutableSurfaceTest#testOrderMoveToZoneListBounds",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_03",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_FaceUpExileVisibleToFoe",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_04",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest#testFaceDownVisibilityGate",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_07",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_ThoughtseizeRevealAudience",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_09",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeRampantSearch + forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeSearchOutcome (outsider 0)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_10",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_ScryActorSeesTop + WsR13PathBridgeFamilyTest (scry-1 offered, library unchanged)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_13",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeOrderChoice + canary/adversary metadata scans",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_14",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest#testHiddenInformationAdversary (no Memnite/label/optionId leak)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_15",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest (no sentinel externally) + HeadlessGuiFailClosedTest#testExceptionCarriesNoGameData",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_16",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest#testFaceDownVisibilityGate + #testFaceDownStackRedaction (no name/description to foes)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_17",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest#testFaceDownStackRedaction (<face-down spell> to foe/public, full to controller)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_18",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest#testSubmitResponseWithholdsNextActor + forge-protocol2-bridge/src/test/java/forge/bridge/WS227SemanticReplayTest#testPrincipalScopingRemainsIntact",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_19",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "separate-process architecture (WS202/216/217/227 pipe tests: parent sees offered options only) + wrong-actor negatives",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "HIDDEN_HONEYCARD_SENTINEL",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR15HiddenInfoFamilyTest (2/3/5P canaries) + forge-protocol2-bridge/src/test/java/forge/bridge/WsR16SixPlayerFamilyTest#testSixPlayerHiddenInfo",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P1 observation exactly respects declared viewer state.",
+    "No prohibited metadata appears in any tested channel.",
+    "Knowledge invalidation/permission persistence follows the declared conditions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "RNG_RULES_TAPE",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS227SemanticReplayTest#testRulesRngBindingIsCoreOwned + WS202 seed twins (424242/777) + MyRandom binding",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": null,
+   "seed_comparable": "fixture-specific",
+   "decision_families": [
+    "choose_mode",
+    "priority"
+   ],
+   "terminal_facts": [
+    "Three Devil tokens exist under P1 after resolution.",
+    "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+    "RulesRngTape records semantic random operations and results separate from pilot decisions."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "REPLAY_DECISION_TAPE",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS227SemanticReplayTest (exactly-once, neutral mapping) + WsR15DeterminismTwinTest + WS233 twins",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": null,
+   "seed_comparable": "fixture-specific",
+   "decision_families": [
+    "choose_mode",
+    "priority"
+   ],
+   "terminal_facts": [
+    "Three Devil tokens exist under P1 after resolution.",
+    "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+    "DecisionTape records exact discretionary semantic selections."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "REPLAY_EVENT_TAPE",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS227SemanticReplayTest#testEventCheckpointTerminalSurface + export_event_log scoping negative",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": null,
+   "seed_comparable": "fixture-specific",
+   "decision_families": [
+    "choose_mode",
+    "priority"
+   ],
+   "terminal_facts": [
+    "Three Devil tokens exist under P1 after resolution.",
+    "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+    "EventTape records normalized meaningful semantic events."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "REPLAY_CLEAN_PROCESS",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS227SeparateProcessTest (fresh-JVM record/replay) + WS233CardinalityProcessTest (fresh process 2-6P)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": null,
+   "seed_comparable": "fixture-specific",
+   "decision_families": [
+    "choose_mode",
+    "priority"
+   ],
+   "terminal_facts": [
+    "Three Devil tokens exist under P1 after resolution.",
+    "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+    "A fresh process reproduces the semantic checkpoints from tapes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "REPLAY_STATE_HASHES",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS227SemanticReplayTest (public/principal digests) + StateHash + twin digest equality",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": null,
+   "seed_comparable": "fixture-specific",
+   "decision_families": [
+    "choose_mode",
+    "priority"
+   ],
+   "terminal_facts": [
+    "Three Devil tokens exist under P1 after resolution.",
+    "Clean replay under same materialization/RulesRngTape/DecisionTape yields equal normalized checkpoints.",
+    "Privileged/public/actor-scoped hashes exclude process-local identity."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_COSTS",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202 G02/TAX tests ({2}/{4} exact) + Propaganda tax + Fuse/Finale/Magma short-mana fail-closed + WS234 additional-cost proxies",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Targeting two P1 commanders while Esior is controlled adds exactly {3} total, once."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_MANA_PAYMENT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/BridgeEngineTest (MANA_PAYMENT, decline-keeps-hand, pool accounting) + R20 payments everywhere",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "mana_payment",
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_PRIORITY",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_BoltGrowthStackOrder",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.",
+    "Stack is empty after both spells resolve."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_STACK",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_BoltGrowthStackOrder",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.",
+    "Stack is empty after both spells resolve."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_TARGETS",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest (Charm->p2, Fireball p2+p3, Murder->Isamaru) + R20 selections",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameMicroExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Only Rules-Core legal targets were offered and P2 was selected."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_MODES",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeCharmModesTargets + forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeBinary",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choose_mode"
+   ],
+   "terminal_facts": [
+    "Exactly the selected mode resolves; damage mode does not also occur."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_TRIGGERS",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_WarstormSurgeExactlyOnce (delta exactly 2) + WS202 5xWarden ordering + Kediss fan-outs",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority",
+    "target"
+   ],
+   "terminal_facts": [
+    "Warstorm Surge triggers exactly once and entering creature deals 2 to P2 on resolution."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_REPLACEMENT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR11JeskaBridgeFamilyTest#testJeskaZeroAbilityTriplesDamage (2->6 exact) + WS216 Serpent 8-counters + Clone COPY_CHOICE",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Single applicable replacement changes 3 damage to 6 before the damage event occurs."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_PREVENTION",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_FogPreventionZeroDamage",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority"
+   ],
+   "terminal_facts": [
+    "P2 loses 0 life from the prevented combat damage."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_CONTINUOUS_EFFECTS",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CrawlerTracksHandSize",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Psychosis Crawler power/toughness are 5/5 from current P1 hand size without a trigger."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_LAYERS",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_HumilityAnthemLayers",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameMicroExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Grizzly Bears has no abilities and is 2/2 after Humility then Glorious Anthem are applied in layers."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_STATE_BASED_ACTIONS",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS234S3BridgeTest#testCloneZeroDiesToSbaViaBridge + WsR11Jeska (0 loyalty dies) + R20 Bears trade",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority"
+   ],
+   "terminal_facts": [
+    "The 0/0 creature is in its owner graveyard before any player receives priority."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_ZONE_CHANGES",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "zone moves verified in every family (GY/exile/hand/library/BF/command) + wsc2a construction",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "The physical/card lineage is continuous but the graveyard object is a new object incarnation; provider-local UUID is ignored."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_COPY",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR9RetargetBridgeFamilyTest#testFlareSacAltCostCopiesBolt (6 total) + WS202 Clone entry",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Spell copy is not cast and exists as a distinct semantic stack object with copied characteristics."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_CONTROL",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_ControlMagicStealAndRevert",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Grizzly Bears owner remains P2 while controller is P1; if Control Magic leaves, control reverts according to rules."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_COMBAT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_BearsTradeViaCombat + WsR15MulticountCombatTest + WS202 CombatDamage",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Both 2/2 creatures are in their owners graveyards after simultaneous combat damage and SBA."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "MICRO_RULES_RANDOMNESS",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS227 RNG binding + seed twins + forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CoinFlipCallOffered (pilot call framed)",
+   "xmage_evidence": {
+    "lab_status": "UNKNOWN",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Rules randomness came only from RulesRng channel and the predetermined semantic HEADS result created an extra turn."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "CARD_02",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_Card02RograkhFirstCast",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameCard02ExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority"
+   ],
+   "terminal_facts": [
+    "Rograkh is on P1 battlefield.",
+    "commander cast count cmd:P1-A = 1.",
+    "No commander-tax increment was charged."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-PRIO-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest (3P passes/ring) + R15 canary matrices",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Priority traverses exactly P1..P3 live ring and resets after P3 acts; eliminated/nonexistent seats are absent."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-PRIO-5",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest (5P passes/ring) + R15 canary matrices",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 5,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Priority traverses exactly P1..P5 live ring and resets after P5 acts; eliminated/nonexistent seats are absent."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-TRIG-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR15MulticountTriggerTest#testKedissThreePlayerFanout",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority"
+   ],
+   "terminal_facts": [
+    "Trigger generation is simultaneous; stack placement follows APNAP without fabricating a generation order."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-TRIG-5",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR15MulticountTriggerTest#testKedissFivePlayerFanout",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTrigExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 5,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Trigger generation is simultaneous; stack placement follows APNAP without fabricating a generation order."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-COMBAT-4",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipePropagandaTax (Bear-A->p1, Bear-B->p3)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "declare_attacker"
+   ],
+   "terminal_facts": [
+    "A single declare-attackers action may assign different attackers to different defending players; each assignment retains defender identity."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-COMBAT-5",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR15MulticountCombatTest#testFivePlayerCombatSplitOthersUntouched",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 5,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "declare_attacker"
+   ],
+   "terminal_facts": [
+    "A single declare-attackers action may assign different attackers to different defending players; each assignment retains defender identity."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-BLOCK-4",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202SeparateProcessTest#testPipeCombatDamage (double Bear+Elves block)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "declare_blocker"
+   ],
+   "terminal_facts": [
+    "P2 blocker options contain only attackers for which P2 is defending player."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-TURN-3",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_TimeWalkExtraTurn (4P extra turn, order resumes)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Most recently created extra turn is taken first: P3 extra, then P2 extra, then normal turn order resumes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-TURN-5",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_TimeWalkExtraTurn",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 5,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Most recently created extra turn is taken first: P3 extra, then P2 extra, then normal turn order resumes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-OWNED-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR15ConcessionFamilyTest (Bear leaves, 800.4) + forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_ElimOwnedLeavesEntirely",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "All objects owned by P2 leave the game, including obj:leave-owned."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-CONTROL-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_ElimControlReverts",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P2-owned Control Magic leaves; P1-owned Grizzly Bears remains and control reverts according to remaining effects/default controller."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-STACK-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_EliminationStackCleanup",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P2-owned spell on stack leaves the game and does not resolve."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-PRIO-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_EliminationRingExcludesDeparted",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "After P2 leaves, priority ring excludes P2 and next eligible live player is selected."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-TURN-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_EliminationTurnContinues",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "The current turn continues without the departed active player as required; after it ends the next live player becomes active."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-MP-ELIM-5",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR15ConcessionFamilyTest#testFivePlayerConcedeCleansUpAndContinues (count+cleanup+lives)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 5,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Live-player ring recomputes from P1,P2,P4,P5; eliminated P3 is absent from turn, priority, opponent and APNAP sets."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-TAX-2",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderTaxTwoPlayers",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 2,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority"
+   ],
+   "terminal_facts": [
+    "Rograkh printed mana cost 0 plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes 3."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-TAX-4",
+   "forge_status": "TECHNICALLY_CONFORMANT",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS216SeparateProcessTest#testPipeCommanderTaxRecast (4P {2}, count 2) + R20 {4} exactness at 2P",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameTaxExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "priority"
+   ],
+   "terminal_facts": [
+    "Rograkh printed mana cost 0 plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes 3."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-GY-YES",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS202ExecutableSurfaceTest#testG02CommanderMovementAndTax (Yes -> command)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choice"
+   ],
+   "terminal_facts": [
+    "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-GY-NO",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderZoneChoiceNoToGraveyard",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choice"
+   ],
+   "terminal_facts": [
+    "Commander is in graveyard after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-YES",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderZoneChoiceYesFromExile",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choice"
+   ],
+   "terminal_facts": [
+    "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-EXILE-NO",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderZoneChoiceNoToExile",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "choice"
+   ],
+   "terminal_facts": [
+    "Commander is in exile after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderZoneChoiceHandBranches (Yes)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "replacement_effect"
+   ],
+   "terminal_facts": [
+    "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-HAND-NO",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderZoneChoiceHandBranches (No)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "replacement_effect"
+   ],
+   "terminal_facts": [
+    "Commander is in hand after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderZoneChoiceLibraryBranches (Yes)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "replacement_effect"
+   ],
+   "terminal_facts": [
+    "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ZONE-LIB-NO",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderZoneChoiceLibraryBranches (No)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [
+    "replacement_effect"
+   ],
+   "terminal_facts": [
+    "Commander is in library after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-SAME-21",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderDamageLethal21",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P2 loses as SBA for 21 combat damage from the same commander."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-SPLIT",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderDamageSplitNoLoss",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "P2 has 21 aggregate commander damage but no single commander has dealt 21; P2 does not lose for commander damage."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-DMG-CONTROL",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderDamageControlIdentity",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Commander identity remains cmd:P1-A despite controller P3; P2 reaches 21 from that same commander and loses."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-PARTNER-TAX",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_PartnerTaxIndependent",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Partner commanders track command-zone cast counts/tax independently."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-PARTNER-DMG",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderDamageSplitNoLoss (per-commander maps, no pooling) + PartnerZone registration + Kediss own-commander scoping",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "12 + 9 combat damage from different partner commanders does not pool to cause a 21-damage loss."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-PARTNER-ZONE",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_PartnerZoneIdentities",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGamePartnerExecutionTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Both partner commanders begin in command zone as separate commander identities."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-MULL-4",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WS233CardinalityTest (4P keeps) + London firstMullFree native + forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest keep flows",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameWs05MulliganTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": null,
+   "seed_comparable": "fixture-specific",
+   "decision_families": [
+    "mulligan"
+   ],
+   "terminal_facts": [
+    "In 4P multiplayer Commander the first mulligan is free and a kept hand after exactly one mulligan bottoms zero cards."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-START-2",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_FirstTurnDrawSkippedTwoPlayers",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 2,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "In 2P, starting player P1 skips the draw step draw on first turn."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-START-3",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_FirstTurnDrawGrantedThreePlayers",
+   "xmage_evidence": {
+    "lab_status": "DIRECT",
+    "lab_pointer": "engine-bridge/src/test/java/org/commanderlab/xmage/XmageFull107ResidualRequalificationTest.java",
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 3,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "In 3P multiplayer, starting player P1 draws on first turn."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  },
+  {
+   "fixture_id": "WS05-CMD-ELIM-4",
+   "forge_status": "DIRECTLY_VERIFIED",
+   "forge_evidence": "forge-protocol2-bridge/src/test/java/forge/bridge/WsR20Full107DenominatorTest#testR20_CommanderDamageLethal21 (loss+cleanup+ring+continue)",
+   "xmage_evidence": {
+    "lab_status": "NOT_RUN_BLOCKED",
+    "lab_pointer": null,
+    "authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
+   },
+   "player_count": 4,
+   "seed_request": 424242,
+   "seed_comparable": true,
+   "decision_families": [],
+   "terminal_facts": [
+    "Commander-damage loss and multiplayer leave-game cleanup are integrated in one stable state before priority."
+   ],
+   "observation_slots": [
+    "public_state",
+    "principal_observations",
+    "semantic_events",
+    "rng_operations",
+    "terminal_state"
+   ],
+   "known_non_comparable": [
+    "deck composition (Forge fixture decks vs Lab Rograkh+Mountain bound fixture)",
+    "seed value where Forge run used harness seed (documented per evidence)",
+    "entry mode (Forge fresh-game construction vs Lab NATIVE_STATE_LOAD)",
+    "engine-local identities (UUIDs, optionIds, revisions)"
+   ],
+   "required_rules_adjudication": "any behavioral divergence between the two candidates on this fixture",
+   "verdict": "UNKNOWN_PENDING_RULES_ADJUDICATION"
+  }
+ ]
+}

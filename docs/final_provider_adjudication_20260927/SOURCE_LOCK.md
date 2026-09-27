@@ -48,15 +48,20 @@ Frozen bytes treated as immutable. No fixture meaning altered.
 
 | Identity | Value | Verification |
 |---|---|---|
-| Engine candidate pin | `b19596980f2734496ea1896504253e1bdd2756dd` (moeendres-png/mage) | CONTRACT_CLAIMED. Not locally re-verified: no Mage reference root declared for this run; Mage master divergence warning from contract honored (no substitution, no repin, no migration). Corroborated in-repo by `config/rules_engines.json` (`primary_engine.commit`), residual campaign handoff (Mage pin throughout), and reconciled runtime docs. |
+| Engine candidate pin | `b19596980f2734496ea1896504253e1bdd2756dd` (moeendres-png/mage) | VERIFIED: resolves in reference `mage-rg-candidate-build` (`RG-06A: persist hidden-state restore qualification handoff`). Mage master divergence warning honored (no substitution, no repin, no migration). Corroborated in-repo by `config/rules_engines.json` (`primary_engine.commit`), residual campaign handoff, and reconciled runtime docs. |
 | Reconciled Lab runtime authority | `593326713faeddb8c90df2fdc5e5bafbe1fccf1b` | LOCALLY_VERIFIED: `git show --no-patch` resolves (`L7: prevalidation atomicity battery`); recorded 3× in `docs/residual_closure_campaign_20260926/HANDOFF.md`; 6 exact-head workflows SUCCESS (CI `36252815364`, External `36252815268`, Conformance `36252815281`, Smoke `36252815303`, H4 `36252815304`, Production Qualification `36252815322`); post-merge push on `f133fe9d…` all SUCCESS. |
 
-## Forge identities (contract-claimed, not locally re-verified)
+## Forge identities (verified via read-only reference + ingest)
+
+Reference worktree `/home/moeen/code/ws-forge-full107-cdq-20260926` was used
+strictly READ-ONLY (no checkout, no staging, no file mutation; verified clean
+before and after the Gate-D execution run; HEAD unchanged).
 
 | Identity | Value | Verification |
 |---|---|---|
-| Production-code candidate | `ef958ee91ac6c9ce0152189f2654bf6e05abf273` (moeendres-png/forge), tree `fc3387bf37aab19d780b2939a235309ed32b0492` | CONTRACT_CLAIMED. No Forge reference root declared; not locally re-verified here. No merge, no repin, no Rules-semantic edit performed. |
-| WSR20 evidence tip | `18bba95a4528f6ab5910633f1f87f603b8c4ddf8`, tree `56209bb72b84fc845ad00433b4471e723ecc8a01` | CONTRACT_CLAIMED. WSR20 packet (`forge-protocol2-bridge/wsr20-full107/` with `FULL107_FORGE_MAPPING.json`, `COMMON_FIXTURE_SUCCESSOR_PACKET.json`, `EXECUTION_RESULTS.json`, `HIDDEN_INFO_RESULTS.json`, `RNG_REPLAY_RESULTS.json`, `MULTIPLAYER_RESULTS.json`, `VALIDATION.md`, `FINAL_HANDOFF.md`) is ABSENT from Lab source truth in this worktree (glob+grep negative; see Gate C). Production-code delta WSR20↔candidate is contract-recorded as NONE; WSR20 is tests/evidence only and must not be merged into Forge master nor treated as a new Rules-Core version. |
+| Production-code candidate | `ef958ee91ac6c9ce0152189f2654bf6e05abf273` (moeendres-png/forge), tree `fc3387bf37aab19d780b2939a235309ed32b0492` | VERIFIED: `git show` in the reference resolves with byte-exact tree; matches the WSR20 SOURCE_LOCK audit base. No merge, no repin, no Rules-semantic edit performed. |
+| WSR20 evidence tip | `18bba95a4528f6ab5910633f1f87f603b8c4ddf8` (branch `wsr20/forge-full107-common-denominator-20260926`; content tip `088c1a39…`) | VERIFIED: reference HEAD equals the tip, clean. Production-code delta vs audit base NONE (WSR20 seal). Tests/evidence only: not merged into Forge master, not a new Rules-Core version. |
+| WSR20 packet ingest | 8 files vendored to `docs/final_provider_adjudication_20260927/wsr20-ingest/` | Byte copies with provenance (source tip + sizes/hashes recorded at ingest). Forge mapping verified from ingested bytes: 84 / 17 / 3 / 3, FAIL 0, 107 rows over exactly the Lab denominator fixture_ids; successor packet 101 fixtures. |
 | Lab pre-selection manifest (current, frozen for this workstream) | Rules-Core `a37a865a53280dd8ad6fad3384d69611e8c5a42f`, bridge materialization `4753bb7c72ea60d653121e0bab989077b4009f9c` | LOCALLY_VERIFIED in `config/rules_engines.json` (secondary_engine.commit + bridge_source). NOT repinned here; repinning belongs to the later Freeze decision. |
 
 ## Provenance preservation
@@ -69,9 +74,10 @@ EVIDENCE_ONLY / ENGINE_CODE / LAB_INTEGRATION / PRE_SELECTION_MANIFEST labels.
 
 ## Impact adjudication (fetch policy)
 
-Only Commander-Lab history was fetched/inspected in this worktree
-(`git fetch` scope = Lab remotes). Fresh fetches of the separate Forge/Mage
-repositories were not achievable from this worktree (no declared reference
-roots; sibling-worktree probing prohibited). This is recorded as a bounded
-verification gap, not a drift: all Lab-side source-lock facts verify exactly,
-and no Lab main/branch advancement occurred during the session opening.
+Commander-Lab history fresh-fetched in this worktree (`git fetch origin`;
+only a foreign `sol/pre-freeze-contract-*` ref moved — no Lab main/branch
+advancement affecting this workstream; remote WSR21 branch still at
+`58e8fca4`, expected ancestor of local work). Forge/Mage bytes verified via
+the read-only reference worktrees above (Coordinator-authorized read-only
+evidence input; no mutation of either engine repository). No SOURCE_DRIFT:
+all source-lock facts verify exactly.

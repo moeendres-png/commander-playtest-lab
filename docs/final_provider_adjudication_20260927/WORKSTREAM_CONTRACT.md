@@ -40,11 +40,11 @@ One primary workstream only. No additional implementation fronts.
   Recovery `36310680895`, Windows Runtime Hygiene `36310680966`, Release
   Artifacts `36310680812`
 
-External Forge/Mage SHAs above are Coordinator-contract identities. This
-worktree holds only the Commander-Lab clone; no Forge/Mage reference root was
-declared for this run, so external engine bytes are NOT locally re-verified
-here and are recorded as CONTRACT_CLAIMED (see SOURCE_LOCK.md and
-IDENTITY_RECONCILIATION.md). Lab-side identities ARE locally verified.
+External Forge/Mage SHAs above are Coordinator-contract identities, verified
+in-continuation via Coordinator-authorized read-only references (Forge
+worktree HEAD == WSR20 tip, clean; Mage candidate resolves; byte-exact trees)
+and, for WSR20, vendored with provenance into `wsr20-ingest/` (see
+SOURCE_LOCK.md and IDENTITY_RECONCILIATION.md).
 
 If Commander-Lab main or the reserved branch advances mid-workstream:
 determine exact changed paths, perform impact adjudication, continue only on
@@ -96,10 +96,9 @@ defects may be repaired systemically with tests + documentation.
 - Current FULL107 mapping (15 DIRECT / 13 SUPPORTING / 25 NOT_RUN_BLOCKED /
   54 UNKNOWN) + fixture identity register (20 adjudicated verdicts) — reuse
 - WS47 v1.0.5 frozen denominator/materialization — immutable reuse
-- Forge WSR20 packet (`forge-protocol2-bridge/wsr20-full107/`) — ABSENT from
-  Lab source truth in this worktree; recorded as the single blocking ingest
-  (see Gate C and FINAL_HANDOFF.md). No Forge evidence is fabricated to fill
-  it.
+- Forge WSR20 packet (`forge-protocol2-bridge/wsr20-full107/`) — VENDORED with
+  provenance into `wsr20-ingest/` and verified (84/17/3/3/0 over the exact Lab
+  denominator ids); Gate-D denominator class re-executed 31/31 read-only.
 
 ## Hard Gates
 

@@ -73,11 +73,11 @@ Classification legend:
   M1–M4 residual candidate (RG-02 commander-damage restore, RG-07 exact-N
   target offering, RG-08 replacement timing, RG-06A ordered-library/face-down
   state-load remediation).
-- Status: CONTRACT_CLAIMED in this worktree (no Mage reference root declared;
-  bytes not locally re-verified here). Corroborated by
-  `config/rules_engines.json` (`primary_engine.commit`), the L1 handoff
-  (single-candidate consumption + requalification), and the cumulative
-  campaign handoff (pin held constant across L1→L7).
+- Status: VERIFIED via read-only reference `mage-rg-candidate-build` (resolves
+  to `RG-06A: persist hidden-state restore qualification handoff`).
+  Corroborated by `config/rules_engines.json` (`primary_engine.commit`), the
+  L1 handoff (single-candidate consumption + requalification), and the
+  cumulative campaign handoff (pin held constant across L1→L7).
 - Mage master is explicitly NOT the candidate (materially diverged, not
   qualified for this decision). No substitution, rebase, repin, or migration
   performed.
@@ -110,9 +110,10 @@ Classification legend:
 - Repository: `moeendres-png/forge`
 - Commit: `ef958ee91ac6c9ce0152189f2654bf6e05abf273`
 - Tree: `fc3387bf37aab19d780b2939a235309ed32b0492`
-- Status: CONTRACT_CLAIMED in this worktree (no Forge reference root
-  declared; bytes not locally re-verified here). No production-code edit,
-  merge, repin, or Rules-semantic change performed here.
+- Status: VERIFIED via read-only reference worktree
+  `/home/moeen/code/ws-forge-full107-cdq-20260926` (`git show` resolves with
+  byte-exact tree `fc3387bf…`, matching the WSR20 audit base). No
+  production-code edit, merge, repin, or Rules-semantic change performed here.
 
 ## 7. Forge WSR20 evidence tip — EVIDENCE_ONLY (contract-claimed, packet absent locally)
 
@@ -127,14 +128,14 @@ Classification legend:
   `COMMON_FIXTURE_SUCCESSOR_PACKET.json` (101 common fixtures),
   `EXECUTION_RESULTS.json`, `HIDDEN_INFO_RESULTS.json`, `RNG_REPLAY_RESULTS.json`,
   `MULTIPLAYER_RESULTS.json`, `VALIDATION.md`, `FINAL_HANDOFF.md`.
-- Local truth: this packet is ABSENT from Commander-Lab source truth in this
-  worktree (exhaustive glob/grep negative across the Lab clone; cumulative
-  campaign handoff records Forge FULL107 as NOT_RUN). The claimed WSR20
-  counts are therefore recorded as CONTRACT_CLAIMED, never as locally
-  verified evidence. Gate C derives the 101-fixture common set as
-  107-minus-6-residual-seams and marks every cross-engine comparison
-  NON_COMPARABLE pending packet ingest — the single blocking ingest this
-  workstream isolates (outcome B).
+- Local truth: the packet is VENDORED into this workstream as
+  `docs/final_provider_adjudication_20260927/wsr20-ingest/` (8 byte copies
+  with provenance: source tip, sizes, hashes). Forge mapping counts verified
+  from ingested bytes (84 / 17 / 3 / 3, FAIL 0, 107 rows over exactly the Lab
+  denominator ids; successor packet 101 fixtures). Gate C is rebuilt from the
+  actual successor packet; every prior UNKNOWN_PENDING verdict is
+  re-adjudicated per row (prior verdict preserved in
+  `packet_verdict_superseded`).
 
 ## 8. Lab Forge pre-selection manifest — PRE_SELECTION_MANIFEST (frozen here)
 
@@ -152,11 +153,11 @@ Classification legend:
 
 ## Gate A verdict
 
-PASS (bounded): all 8 identities bound separately with explicit CURRENT /
-HISTORICAL / EVIDENCE_ONLY / ENGINE_CODE / LAB_INTEGRATION /
-PRE_SELECTION_MANIFEST classification; Lab-side facts locally verified;
-external engine bytes honestly recorded as CONTRACT_CLAIMED with the exact
-verification gap (no declared Forge/Mage reference roots) rather than
-asserted. No source identity is ambiguous. The one material asymmetry — the
-WSR20 packet's absence from Lab source truth — is isolated as the blocking
-ingest for Gate C / outcome B, not papered over.
+PASS: all 8 identities bound separately with explicit CURRENT / HISTORICAL /
+EVIDENCE_ONLY / ENGINE_CODE / LAB_INTEGRATION / PRE_SELECTION_MANIFEST
+classification; Lab-side facts verified in-clone; Forge/Mage bytes verified
+via Coordinator-authorized read-only references; WSR20 packet vendored with
+provenance and verified counts. No source identity is ambiguous. Seam
+blocking assessments (§8 of the continuation: 5 still-unknown, MULL-2
+bounded-non-blocking) are recorded in `COMMON_FIXTURE_NORMALIZATION.json`
+(`excluded_seams`), not papered over.

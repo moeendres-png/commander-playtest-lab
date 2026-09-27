@@ -1,0 +1,52 @@
+{
+ "bridge_suite": "mvn -pl forge-protocol2-bridge -am -Dcheckstyle.skip=true test (from audit-base source)",
+ "candidate_head": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
+ "candidate_tree": "fc3387bf37aab19d780b2939a235309ed32b0492",
+ "existing_suites": {
+  "result": "213/213 PASS, 0 fail/error/skip",
+  "rounds": [
+   "2026-09-23 wsc2 fresh 213/213 (~844s)",
+   "2026-09-26 WSR20 re-verification 213/213 (~837s, BUILD SUCCESS all modules)",
+   "2026-09-27 full 243/243 incl. R20 v30 (BUILD SUCCESS)"
+  ]
+ },
+ "new_suite": {
+  "class": "forge.bridge.WsR20Full107DenominatorTest",
+  "result": "31/31 PASS (2026-09-27, ~408s)",
+  "tests": [
+   "testR20_CommanderTaxTwoPlayers ({W}+{2}+{4} exact, count 3)",
+   "testR20_CommanderDamageLethal21",
+   "testR20_CommanderDamageSplitNoLoss",
+   "testR20_CommanderDamageControlIdentity",
+   "testR20_CommanderZoneChoiceNoToGraveyard",
+   "testR20_CommanderZoneChoiceYesFromExile",
+   "testR20_CommanderZoneChoiceNoToExile",
+   "testR20_CommanderZoneChoiceHandBranches",
+   "testR20_CommanderZoneChoiceLibraryBranches",
+   "testR20_PartnerZoneIdentities",
+   "testR20_PartnerTaxIndependent",
+   "testR20_Card02RograkhFirstCast",
+   "testR20_FirstTurnDrawSkippedTwoPlayers",
+   "testR20_FirstTurnDrawGrantedThreePlayers",
+   "testR20_EliminationStackCleanup",
+   "testR20_EliminationRingExcludesDeparted",
+   "testR20_EliminationTurnContinues",
+   "testR20_ElimOwnedLeavesEntirely",
+   "testR20_FogPreventionZeroDamage",
+   "testR20_ControlMagicStealAndRevert",
+   "testR20_ElimControlReverts",
+   "testR20_CrawlerTracksHandSize",
+   "testR20_HumilityAnthemLayers",
+   "testR20_BoltGrowthStackOrder",
+   "testR20_WarstormSurgeExactlyOnce",
+   "testR20_FaceUpExileVisibleToFoe",
+   "testR20_ThoughtseizeRevealAudience",
+   "testR20_ScryActorSeesTop",
+   "testR20_TimeWalkExtraTurn",
+   "testR20_CoinFlipCallOffered",
+   "testR20_BearsTradeViaCombat"
+  ]
+ },
+ "no_weakening": "no existing test modified, deleted, or relaxed; 31 tests added, all green; every development failure root-caused to harness bugs (frame order, forced targets, untap accounting, stale-frame handling, auto-payment over-tap) with engine behavior confirmed correct throughout (tax formula count*2, damage attribution, layers 7b/7c, replacement confirms, tuck)",
+ "production_code_delta_vs_audit_base": "none (test sources + wsr20-full107 docs only; verified by git diff at seal)"
+}

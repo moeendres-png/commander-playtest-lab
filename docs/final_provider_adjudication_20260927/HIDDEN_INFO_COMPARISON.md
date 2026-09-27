@@ -28,19 +28,28 @@ event IDs, internal serialization details.
 - Readiness dimension `hidden_information`: TECHNICALLY_CONFORMANT (mechanism
   qualified; per-fixture exact runs absent).
 
-## Forge evidence
+## Forge evidence (ingested WSR20, tip `18bba95a…`)
 
-- WSR20 `HIDDEN_INFO_RESULTS.json` is contract-claimed but ABSENT from Lab
-  source truth; recorded UNKNOWN (never fabricated).
+- `HIDDEN_INFO_RESULTS.json`: 13 DIRECTLY_VERIFIED / 2 TECHNICALLY_CONFORMANT
+  / 2 NOT_RUN_BLOCKED / 3 UNKNOWN (= 20). Method: live principal-scoped
+  observation asserts across BridgeEngineTest, WsR15HiddenInfoFamilyTest,
+  WsR16SixPlayerFamilyTest, WS216GapClosureTest, WS227 replay principal
+  scoping, WS233 lifecycles, R20 reveal/exile/scry tests, wsc2a hidden-info
+  opening/extended.
+- Proven: no opponent library-order leak, no face-down identity leak, no
+  private hash in public transcript (state_hash null to outsiders);
+  permission inference confined to engine authority.
+- HIDDEN_13 TC (pile-label channel residual: dedicated label audit);
+  HIDDEN_19 TC (no direct omniscient-API-block test).
 - Coordinator-listed residual seams, preserved explicitly (§14, remediation
   NOT authorized here):
-  - HIDDEN_05 UNKNOWN — face-down exile permission persistence
-  - HIDDEN_06 UNKNOWN — face-down exile invalidation on zone change
-  - HIDDEN_11 UNKNOWN — shuffle/order-knowledge invalidation
-  - HIDDEN_08 NOT_RUN_BLOCKED — look-audience seam
-  - HIDDEN_12 NOT_RUN_BLOCKED — controlled-player decision seam
-- Whether any seam is provider-selection-blocking can only be adjudicated
-  after packet ingest + full cross-engine adjudication (outcome B).
+  - HIDDEN_05 UNKNOWN — face-down exile permission persistence → STILL_UNKNOWN_FOR_READINESS
+  - HIDDEN_06 UNKNOWN — face-down exile invalidation on zone change → STILL_UNKNOWN_FOR_READINESS
+  - HIDDEN_11 UNKNOWN — shuffle/order-knowledge invalidation → STILL_UNKNOWN_FOR_READINESS
+  - HIDDEN_08 NOT_RUN_BLOCKED — look-audience seam → STILL_UNKNOWN_FOR_READINESS
+    (Forge seam missing and XMage exact evidence missing)
+  - HIDDEN_12 NOT_RUN_BLOCKED — controlled-player decision seam → STILL_UNKNOWN_FOR_READINESS
+- Readiness dimension `hidden_information`: Forge TECHNICALLY_CONFORMANT.
 
 ## Per-fixture hidden-info record (common set)
 
@@ -54,8 +63,8 @@ For every hidden-information fixture in the common set
 | unauthorized principals | XMage: non-oracle proofs (generic); Forge: UNKNOWN |
 | public representation | comparable only after ingest (byte equality excluded for engine-local IDs) |
 | private representation | principal-scoped; never compared across principals |
-| zone-movement survival/invalidation | XMage UNKNOWN at fixture level; Forge seams HIDDEN_05/06/11 excluded from common set |
-| replay knowledge boundary | XMage generic same-seed public replay; fixture-level UNKNOWN |
+| zone-movement survival/invalidation | XMage UNKNOWN at fixture level; Forge HIDDEN_05/06/11 UNKNOWN (excluded seams, still unknown for readiness) |
+| replay knowledge boundary | XMage generic same-seed public replay; Forge exactly-once twins + coordinates; fixture-level replay-boundary UNKNOWN on XMage |
 
 ## Leakage policy
 

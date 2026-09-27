@@ -1,6 +1,7 @@
 {
  "schema_version": "final-provider-divergence-1.0.0",
- "note": "No XMage-vs-Forge Rules-visible behavioral delta is proven in Lab source truth: the Forge comparison side is absent (WSR20 packet not ingested), so no divergence is assertable and none is fabricated. This packet stays compact and empty by evidence, not by assumption.",
+ "review_performed": "All 101 common fixtures compared with both engines' fixture-corresponding evidence ingested (WSR20 packet + Lab Gate B). No Rules-visible behavioral delta is recorded on any row: SAME_SEMANTICS rows show obligation agreement; GAP rows show a missing XMage execution seam (not a behavioral disagreement); NON_COMPARABLE rows show XMage evidence absence (not a disagreement). Bridge/harness observations (London-tuck loud fail, unexecutable-cast refusal, frame-order settling, forced lone-target resolution) are documented behaviors, not Rules divergences.",
  "divergences": [],
- "divergence_count": 0
+ "divergence_count": 0,
+ "pending_rules_adjudication": []
 }

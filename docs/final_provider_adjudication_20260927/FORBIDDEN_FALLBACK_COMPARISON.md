@@ -36,19 +36,23 @@ or test helper.
   multi-face-down atomic requests, partial historical records, START-2 draw
   contradiction) fail closed with explicit UNKNOWN/BLOCKED records.
 
-## Forge evidence
+## Forge evidence (ingested WSR20, tip `18bba95a…`)
 
-- No forbidden-fallback negatives exist for Forge in Lab source truth:
-  UNKNOWN. The WSR20 packet's claimed disposition (FAIL 0) is
-  CONTRACT_CLAIMED, not verified evidence, and a zero-FAIL claim does not
-  substitute for dedicated negative runs.
+- All 7 NEGATIVE_* families TECHNICALLY_CONFORMANT: no first-option /
+  random-option / default-yes-no / internal-AI / GUI-default / silent-skip /
+  parent-fallback behavior — typed failures, state unchanged (fail-closed
+  green). Capped at TC (not DIRECT) per row residuals.
+- WS227 replay tamper negatives fail closed with no mutation; London-tuck
+  ship path fails LOUDLY by design.
+- Readiness dimension `unsupported_path_failure_behavior`: Forge
+  TECHNICALLY_CONFORMANT.
 
-## Comparison
+## Comparison (adjudicated, Gate C)
 
-No cross-engine fallback comparison is assertable: both sides lack
-fixture-corresponding negative runs for the frozen NEGATIVE_* obligations in
-Lab truth (XMage UNKNOWN with adjacent mechanism-level negatives; Forge
-UNKNOWN with packet absent). Gate D rank 2 defines the minimal negative
-campaign (one live negative per prohibited shortcut at 4P/seed 424242 on each
-engine, asserting deterministic fail-closed with zero state mutation).
+The 7 NEGATIVE_* rows are NON_COMPARABLE: Forge proves fail-closed (TC) while
+XMage holds no fixture-corresponding negative runs (UNKNOWN with adjacent
+mechanism-level negatives) — evidence asymmetry, not a proven incapability
+and not a Rules delta. Gate D ranks 1–2 retain the narrowly defined negative
+campaign (one live negative per prohibited shortcut at 4P/seed 424242 on
+XMage, asserting deterministic fail-closed with zero state mutation).
 Leakage or fallback downgraded to cosmetic is forbidden.

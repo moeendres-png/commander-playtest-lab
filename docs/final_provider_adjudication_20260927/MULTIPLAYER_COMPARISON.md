@@ -32,19 +32,26 @@ is acceptable (and proven for XMage).
   TECHNICALLY_CONFORMANT; mulligan DIRECT; commander_damage DIRECT; partner
   DIRECT; commander_tax DIRECT.
 
-## Forge evidence
+## Forge evidence (ingested WSR20, tip `18bba95a…`)
 
-- WSR20 `MULTIPLAYER_RESULTS.json` contract-claimed but ABSENT locally:
-  UNKNOWN. H4 Forge materialization PASS is technical-only (container
-  materialization, not Rules behavior).
-- No 2–5P conformance evidence for Forge exists in Lab source truth.
+- `MULTIPLAYER_RESULTS.json`: 2P/3P/4P/5P DIRECTLY_VERIFIED (WS233 lifecycles
+  + R15 combat/trigger/concede/hidden + R20 start/tax/elim/commander suites +
+  R9–R13 + G02/G03 + Propaganda split at 4P); 6P bounded SUPPORT
+  (R16 lifecycle/combat/fanout/concede/hidden/twins; extra-denominator);
+  7P FAIL_CLOSED (PLAYER_COUNT_UNSUPPORTED, no session, no truncation).
+- Zone-replacement branches all 8 DIRECT (incl. library-bottom via Condemn);
+  partner zone/tax DIRECT; damage suite (21-lethal/split/control) DIRECT;
+  elim stack/ring/turn/owned/control DIRECT at 3P (+ ELIM-5 mechanism TC:
+  5P ring-recompute assert missing); MP-TURN-3/5 TC (two-extra ordering
+  residual); START-2/START-3 DIRECT (first-turn draw skip/grant).
+- Readiness: Forge 2P/3P/4P/5P DIRECT, 6P SUPPORTING (bounded), 7P
+  TECHNICALLY_CONFORMANT (fail-closed), mulligan TECHNICALLY_CONFORMANT
+  (MULL-4 DIRECT; MULL-2 London-tuck seam → BOUNDED_NON_BLOCKING).
 
-## Comparison
+## Comparison (adjudicated, Gate C)
 
-All 101 common fixtures NON_COMPARABLE (Gate C): no cross-engine
-same-deck/same-seed execution exists in Lab truth. The Gate D matrix
-(rank 14, multiplayer_blocked + per-count conformance) defines the minimal
-runtime to make multiplayer comparable: 4P primary; 2P/3P/5P conformance for
-promoted rows; same decks/cards; seed 424242 where both engines expose a real
-Rules-RNG binding; same discretionary choices; same semantic stopping
-condition.
+14 SAME_SEMANTICS (13 both-DIRECT + TAX-4 with run-shape-only Forge
+residual); 25 ENGINE_CAPABILITY_GAP (all XMage injection-blocked rows, which
+Forge executes: 22 DIRECT + MP-TURN-3/5 and ELIM-5 TC); 62 NON_COMPARABLE
+(XMage exact evidence absent); 0 UNKNOWN_PENDING (no recorded Rules-visible
+delta on any of the 101 rows).

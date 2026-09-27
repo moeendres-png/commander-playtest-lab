@@ -18,7 +18,7 @@
   "engine_candidate": "b19596980f2734496ea1896504253e1bdd2756dd",
   "lab_runtime_authority": "593326713faeddb8c90df2fdc5e5bafbe1fccf1b"
  },
- "promotion_rule": "DIRECTLY_VERIFIED/TECHNICALLY_CONFORMANT only on exact obligation match across behavior, card/scenario semantics, player count, decision class, visibility, principal, RNG, replay, state transition, runtime identity, and absence of prohibited fallback. No CODE_DERIVED to runtime PASS; no construction to behavior; no family to exact fixture; no 4P to 5P; no similarity to DIRECT.",
+ "promotion_rule": "DIRECTLY_VERIFIED/TECHNICALLY_CONFORMANT only on exact obligation match across behavior, card/scenario semantics, player count, decision class, visibility, principal, RNG, replay, state transition, runtime identity, and absence of prohibited fallback.",
  "result_counts": {
   "DIRECTLY_VERIFIED": 15,
   "TECHNICALLY_CONFORMANT": 0,
