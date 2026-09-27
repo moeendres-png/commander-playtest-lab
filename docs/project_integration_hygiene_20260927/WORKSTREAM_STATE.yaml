@@ -180,7 +180,7 @@ remaining_scope:
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: INFRASTRUCTURE_DEFECT
 schema_version: '2.0'
-state_written_against_head: adcd2c83cc687d501c67b0950eac8d8b391afb77
+state_written_against_head: 5e0299ad3493f5ef7f6adbf87a9b1ad4da092237
 status: BLOCKED
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
@@ -221,7 +221,8 @@ technical_decisions:
   than publishing a stale audit base.'
 tests_run:
 - 'pytest -q (lock-faithful venv, Python 3.12.14, requirements/lock.txt --require-hashes
-  + editable install, clean tree at 372851c1): 1638 passed, 5 skipped, 0 failed'
+  + editable install, clean tree at 5e0299ad3493f5ef7f6adbf87a9b1ad4da092237): 1638
+  passed, 5 skipped, 0 failed'
 - 'pytest tests/foundry -q: 447 passed, 1 skipped (10 new: identity-token contract,
   JSON/YAML state equivalence, prose reported verbatim, fail-closed ownership cases)'
 - 'ruff check: All checks passed'
@@ -242,8 +243,8 @@ tests_run:
   effective-date text and rule 103.8a confirmed verbatim, matching the WSR22-recorded
   text'
 validated_gates:
-- Full python test suite green on a clean tree in a lock-faithful Python 3.12 venv
-  (1638 passed, 5 skipped, 0 failed)
+- Full python test suite green on a clean tree at 5e0299ad3493f5ef7f6adbf87a9b1ad4da092237
+  in a lock-faithful Python 3.12 venv (1638 passed, 5 skipped, 0 failed)
 - 'tests/foundry green: 447 passed, 1 skipped'
 - mypy strict green on src/commander_lab
 - ruff lint and format green
@@ -257,5 +258,5 @@ validated_gates:
   not a missing engine seam
 - 'New blocker PB-09 established: the Forge commit WSR22 executed matches neither
   pinned Forge identity'
-validated_head: adcd2c83cc687d501c67b0950eac8d8b391afb77
+validated_head: 5e0299ad3493f5ef7f6adbf87a9b1ad4da092237
 worktree: /home/moeen/code/wsr23-project-integration-hygiene
