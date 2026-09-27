@@ -213,7 +213,7 @@ def _git_path(root: str, args: list[str]) -> str:
 
 
 def _is_standalone_checkout(root: str) -> bool:
-    """True only when Git metadata is wholly contained in ROOT/.git."""
+    """True only when all Git metadata belongs to this checkout."""
     canonical = os.path.realpath(os.path.abspath(root))
     dotgit = Path(canonical) / ".git"
     if not dotgit.is_dir():
@@ -224,7 +224,19 @@ def _is_standalone_checkout(root: str) -> bool:
     except RuntimeError:
         return False
     expected = os.path.realpath(str(dotgit))
-    return git_dir == expected and common_dir == expected
+    if git_dir != expected or common_dir != expected:
+        return False
+
+    # A nested repository would inherit the parent writable mount even though it is
+    # a distinct mutation surface. Submodules/nested repos therefore require their
+    # own isolated assignment instead of silently riding the parent capability.
+    for current, dirs, files in os.walk(canonical):
+        if os.path.realpath(current) == canonical:
+            dirs[:] = [name for name in dirs if name != ".git"]
+            continue
+        if ".git" in dirs or ".git" in files:
+            return False
+    return True
 
 
 def _contains_path(parent: str, child: str) -> bool:
@@ -309,7 +321,14 @@ def _validate_cross_ws_topology(
     for root in sorted(writable | readonly):
         protected.update(_repo_worktree_roots(root) - writable)
 
-    for write_root in sorted(writable):
+    writable_list = sorted(writable)
+    for index, write_root in enumerate(writable_list):
+        for other in writable_list[index + 1 :]:
+            if _paths_overlap(write_root, other):
+                return (
+                    f"writable surfaces {write_root!r} and {other!r} overlap; "
+                    "each mutation surface must be disjoint"
+                )
         for protected_root in sorted(protected):
             if _paths_overlap(write_root, protected_root):
                 return (
@@ -318,6 +337,11 @@ def _validate_cross_ws_topology(
                 )
 
     run_real = os.path.realpath(os.path.abspath(requested_run_dir))
+    if not _runtime_base_allowed(run_real):
+        return (
+            "cross-workstream run-dir must be under the system temp directory or "
+            "~/.local/share/commander-foundry/runs"
+        )
     for root in sorted(writable | protected):
         if _paths_overlap(run_real, root):
             return (
@@ -327,7 +351,20 @@ def _validate_cross_ws_topology(
     return None
 
 
+def _runtime_base_allowed(path: str) -> bool:
+    canonical = os.path.realpath(os.path.abspath(path))
+    tmp_base = os.path.realpath(tempfile.gettempdir())
+    home = Path(os.environ.get("HOME", str(Path.home())))
+    foundry_base = os.path.realpath(str(home / ".local" / "share" / "commander-foundry" / "runs"))
+    return _contains_path(tmp_base, canonical) or _contains_path(foundry_base, canonical)
+
+
 def _reserve_run_dir(requested_run_dir: str, workstream: str) -> str:
+    if not _runtime_base_allowed(requested_run_dir):
+        raise ValueError(
+            "cross-workstream run-dir must be under the system temp directory or "
+            "~/.local/share/commander-foundry/runs"
+        )
     parent = Path(requested_run_dir)
     parent.mkdir(parents=True, exist_ok=True)
     safe = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in workstream)[:48]
