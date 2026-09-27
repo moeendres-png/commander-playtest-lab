@@ -30,7 +30,7 @@
     {
       "fixture_id": "WS05-CMD-START-2",
       "predecessor_requested_state_digest": "2a40e275af77f173c62bb63fbd059cd17197ddffc2d9b338258b836ca1f83312",
-      "successor_requested_state_digest": "f9a753ae652f0f84830308f585d339f49cdf40a8115c091615f67c4beb72b6f2",
+      "successor_requested_state_digest": "bc01a714cbaa035d2f7954d4fd2dcabb63c391160f78774749ab50ab63fa4342",
       "evidence_survival": "REQUALIFICATION_REQUIRED",
       "predecessor_invalidity": {
         "temporal_state": {
@@ -87,6 +87,12 @@
         "transport_protocol": "2.0.0",
         "comprehensive_rules_effective_date": "2026-08-07",
         "comprehensive_rules_rule": "103.8a"
+      },
+      "knowledge_state_channel_policy": "Current candidate-neutral qualification-boundary actor-aware observation applies to prompts, context, options, source/ability/pile metadata, events, transcripts and logs.",
+      "digest_migration": {
+        "predecessor_non_requested_digests": "HISTORICAL_PROVENANCE_ONLY",
+        "successor_non_requested_digest_policy": "REMOVE_STALE_VALUES_AND_PRESERVE_UNDER_historical_digests",
+        "reason": "Changing fixture semantics invalidates predecessor obligation/materialization lineage digests; carrying them as current fields would falsely imply byte/semantic identity."
       }
     }
   ],
