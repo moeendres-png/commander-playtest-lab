@@ -19,12 +19,11 @@
     "provider_semantics_used_to_define_successor": false
   },
   "rules_authority": {
-    "lock": "AUTHORITY_LOCK_v2",
-    "artifact": "artifacts/cr/MagicCompRules_20260819.txt",
-    "artifact_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+    "current_receipt": "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json",
+    "historical_repository_lock": "qualification/manifests/AUTHORITY_LOCK_v2.json",
     "effective_date": "2026-08-07",
     "rule": "103.8a",
-    "requirement": "In a two-player game, the starting player skips the draw step of the first turn; the successor fixture must not require priority or any observation inside that skipped step."
+    "requirement": "In a two-player game, the starting player skips the entire draw step of the first turn; the successor fixture must not require priority or any observation inside that skipped step."
   },
   "record_successors": [
     {
@@ -101,6 +100,9 @@
     "predecessor_start2_runtime_credit_survives": false,
     "forge_wsr20_reported_start2_direct_requires_requalification": true,
     "xmage_predecessor_start2_blocker_is_historical_provenance": true,
-    "unaffected_fixture_evidence_may_survive_after_identity_check": true
+    "historical_full107_runtime_credit_for_current_boundary": "PROVENANCE_ONLY",
+    "source_identity_alone_allows_carry_forward": false,
+    "protocol_impact_adjudication_required": true,
+    "common_comparison_requires_fresh_current_boundary_execution_all_107": true
   }
 }
