@@ -60,6 +60,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -205,25 +206,143 @@ def _git_dir(worktree: str) -> str:
     return str(path if path.is_absolute() else Path(worktree) / common)
 
 
+def _git_path(root: str, args: list[str]) -> str:
+    raw = _git(args, root)
+    path = Path(raw)
+    return os.path.realpath(str(path if path.is_absolute() else Path(root) / path))
+
+
+def _is_standalone_checkout(root: str) -> bool:
+    """True only when Git metadata is wholly contained in ROOT/.git."""
+    canonical = os.path.realpath(os.path.abspath(root))
+    dotgit = Path(canonical) / ".git"
+    if not dotgit.is_dir():
+        return False
+    try:
+        git_dir = _git_path(canonical, ["rev-parse", "--git-dir"])
+        common_dir = _git_path(canonical, ["rev-parse", "--git-common-dir"])
+    except RuntimeError:
+        return False
+    expected = os.path.realpath(str(dotgit))
+    return git_dir == expected and common_dir == expected
+
+
+def _contains_path(parent: str, child: str) -> bool:
+    parent_real = os.path.realpath(os.path.abspath(parent))
+    child_real = os.path.realpath(os.path.abspath(child))
+    try:
+        return os.path.commonpath([parent_real, child_real]) == parent_real
+    except ValueError:
+        return False
+
+
+def _paths_overlap(a: str, b: str) -> bool:
+    return _contains_path(a, b) or _contains_path(b, a)
+
+
+def _repo_worktree_roots(root: str) -> set[str]:
+    try:
+        raw = _git(["worktree", "list", "--porcelain"], root)
+    except RuntimeError:
+        return {os.path.realpath(os.path.abspath(root))}
+    roots = {
+        os.path.realpath(line[len("worktree ") :])
+        for line in raw.splitlines()
+        if line.startswith("worktree ")
+    }
+    return roots or {os.path.realpath(os.path.abspath(root))}
+
+
+def _state_inside_surface(state_path: str, root: str) -> bool:
+    state_real = os.path.realpath(os.path.abspath(state_path))
+    foundry_root = os.path.realpath(os.path.join(root, ".foundry"))
+    return _contains_path(foundry_root, state_real)
+
+
+def _validate_cross_ws_topology(
+    primary: str,
+    state_path: str,
+    refs: list[dict],
+    access: list[dict],
+    requested_run_dir: str,
+) -> str | None:
+    """Fail closed on topology that can leak cross-workstream mutation authority."""
+    if not refs and not access:
+        return None
+
+    writable = {os.path.realpath(primary)}
+    writable.update(
+        os.path.realpath(spec["root"])
+        for spec in access
+        if spec.get("access") == "owned-write"
+    )
+    readonly = {
+        os.path.realpath(ref["root"]) for ref in refs
+    }
+    readonly.update(
+        os.path.realpath(spec["root"])
+        for spec in access
+        if spec.get("access") == "read-only"
+    )
+
+    # Cross-WS mutation requires checkout-local Git metadata. Shared worktree Git
+    # directories would otherwise expose refs/index/config for foreign surfaces.
+    for root in sorted(writable):
+        if not _is_standalone_checkout(root):
+            return (
+                f"cross-workstream writable surface {root!r} is not a standalone "
+                "checkout with checkout-local .git metadata"
+            )
+
+    if not _state_inside_surface(state_path, primary):
+        return "cross-workstream primary --state must live under PRIMARY/.foundry"
+    for spec in access:
+        if spec.get("access") != "owned-write":
+            continue
+        if not _state_inside_surface(spec["state_path"], spec["root"]):
+            return (
+                f"owned-write surface {spec['label']!r} state must live under "
+                "ROOT/.foundry"
+            )
+
+    protected = set(readonly)
+    for root in sorted(writable | readonly):
+        protected.update(_repo_worktree_roots(root) - writable)
+
+    for write_root in sorted(writable):
+        for protected_root in sorted(protected):
+            if _paths_overlap(write_root, protected_root):
+                return (
+                    f"writable surface {write_root!r} overlaps protected workspace "
+                    f"{protected_root!r}"
+                )
+
+    run_real = os.path.realpath(os.path.abspath(requested_run_dir))
+    for root in sorted(writable | protected):
+        if _paths_overlap(run_real, root):
+            return (
+                f"run-dir {run_real!r} overlaps authoritative/protected workspace "
+                f"{root!r}"
+            )
+    return None
+
+
+def _reserve_run_dir(requested_run_dir: str, workstream: str) -> str:
+    parent = Path(requested_run_dir)
+    parent.mkdir(parents=True, exist_ok=True)
+    safe = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in workstream)[:48]
+    return os.path.realpath(tempfile.mkdtemp(prefix=f"launch-{safe}-", dir=str(parent)))
+
+
 def _sandbox_write_roots(plan: dict, worktree: str, run_dir: str) -> list[str]:
-    """Exact paths the cross-WS child may mutate under Landlock."""
+    """Exact paths the cross-WS child may mutate under the mount sandbox."""
     roots = {
         os.path.realpath(worktree),
         os.path.realpath(run_dir),
-        os.path.realpath(_git_dir(worktree)),
     }
-    state_path = plan.get("state_path")
-    if state_path:
-        roots.add(os.path.realpath(str(Path(state_path).parent)))
     for spec in plan.get("workspace_access", []):
-        if spec.get("access") != "owned-write":
-            continue
-        root = os.path.realpath(spec["root"])
-        roots.add(root)
-        roots.add(os.path.realpath(_git_dir(root)))
-        other_state = spec.get("state_path")
-        if other_state:
-            roots.add(os.path.realpath(str(Path(other_state).parent)))
+        if spec.get("access") == "owned-write":
+            roots.add(os.path.realpath(spec["root"]))
 
     home = Path(os.environ.get("HOME", str(Path.home())))
     cache_candidates = [
@@ -246,7 +365,7 @@ def _sandbox_write_roots(plan: dict, worktree: str, run_dir: str) -> list[str]:
 
 
 def _sandbox_command(plan: dict, argv: list[str], worktree: str, run_dir: str) -> list[str]:
-    """Wrap cross-WS execution in the fail-closed Landlock helper."""
+    """Wrap cross-WS execution in the fail-closed read-only-root mount sandbox."""
     if not plan.get("references") and not plan.get("workspace_access"):
         return argv
     sandbox = Path(__file__).resolve().parent / "fs_sandbox.py"
@@ -294,10 +413,10 @@ def sibling_denies(worktree: str, accessible_roots: set[str] | None = None) -> l
 
 
 def _clone_snapshot(source_root: str, commit: str, destination: Path) -> str:
-    """Materialize an exact disposable Git snapshot detached from the source remote."""
+    """Materialize one exact disposable snapshot at a fresh unique destination."""
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists():
-        shutil.rmtree(destination)
+        raise ValueError(f"reference snapshot destination already exists: {destination}")
     proc = subprocess.run(
         ["git", "clone", "--no-hardlinks", "--no-checkout", source_root, str(destination)],
         capture_output=True,
@@ -337,13 +456,13 @@ def materialize_runtime_references(
     allowlist. Build tools may write into the disposable snapshot without mutating source.
     """
     base = Path(run_dir) / "reference-snapshots"
+    base.mkdir(parents=True, exist_ok=True)
     runtime_refs: list[dict] = []
     runtime_access: list[dict] = []
     for ref in references:
         source_root = os.path.realpath(ref["root"])
-        runtime_root = _clone_snapshot(
-            source_root, ref["commit"], base / f"reference-{ref['label']}"
-        )
+        slot = Path(tempfile.mkdtemp(prefix=f"reference-{ref['label']}-", dir=str(base)))
+        runtime_root = _clone_snapshot(source_root, ref["commit"], slot / "checkout")
         item = dict(ref)
         item["source_root"] = source_root
         item["root"] = runtime_root
@@ -353,9 +472,8 @@ def materialize_runtime_references(
             runtime_access.append(dict(spec))
             continue
         source_root = os.path.realpath(spec["root"])
-        runtime_root = _clone_snapshot(
-            source_root, spec["commit"], base / f"workspace-{spec['label']}"
-        )
+        slot = Path(tempfile.mkdtemp(prefix=f"workspace-{spec['label']}-", dir=str(base)))
+        runtime_root = _clone_snapshot(source_root, spec["commit"], slot / "checkout")
         item = dict(spec)
         item["source_root"] = source_root
         item["root"] = runtime_root
@@ -779,6 +897,20 @@ def init(
                 ),
             }
         parsed_access.append(spec)
+    topology_error = _validate_cross_ws_topology(
+        canonical,
+        state_path,
+        parsed_refs,
+        parsed_access,
+        run_dir,
+    )
+    if topology_error is not None:
+        return {"verdict": "LAUNCH_REFUSED", "error": topology_error}
+    effective_run_dir = (
+        _reserve_run_dir(run_dir, workstream)
+        if parsed_refs or parsed_access
+        else run_dir
+    )
     # Explicit ownership authority: the launcher always declares its own
     # worktree/state pair (ground truth for this run) plus any
     # operator-declared sibling pairs. A conflicting operator pair for our
@@ -850,7 +982,7 @@ def init(
         return {"verdict": "LAUNCH_REFUSED", "gate": gate}
     try:
         runtime_refs, runtime_access = materialize_runtime_references(
-            parsed_refs, parsed_access, run_dir
+            parsed_refs, parsed_access, effective_run_dir
         )
     except (OSError, RuntimeError, ValueError) as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": f"snapshot: {exc}"}
@@ -865,7 +997,7 @@ def init(
             effort=effort,
             session=session,
             drift_suppressed=drift_suppressed,
-            run_dir=run_dir,
+            run_dir=effective_run_dir,
             state_path=resolved_state,
             mode=mode,
             references=runtime_refs,
@@ -900,7 +1032,7 @@ def init(
         "branch": branch,
         "worktree": canonical,
         "state_path": resolved_state,
-        "run_dir": run_dir,
+        "run_dir": effective_run_dir,
         "mode": mode,
         "ui_mode": ui_mode,
         "effort": effort,
@@ -916,7 +1048,7 @@ def init(
         "live_head": live_head,
     }
     try:
-        context_path = write_launch_context(run_dir, context)
+        context_path = write_launch_context(effective_run_dir, context)
     except OSError as exc:
         return {"verdict": "LAUNCH_REFUSED", "gate": gate, "error": f"context: {exc}"}
     notes = []
@@ -934,7 +1066,7 @@ def init(
         "ui_mode": ui_mode,
         "session": session,
         "live_head": live_head,
-        "run_dir": run_dir,
+        "run_dir": effective_run_dir,
         "state_path": resolved_state,
         "worktree_states": state_map,
         "references": public_refs,
@@ -1116,7 +1248,7 @@ def _launch_locked(
             tmp_dir = Path(run_dir) / "tmp"
             tmp_dir.mkdir(parents=True, exist_ok=True)
             env["TMPDIR"] = str(tmp_dir)
-            env["FOUNDRY_FS_SANDBOX"] = "landlock-write-boundary"
+            env["FOUNDRY_FS_SANDBOX"] = "bubblewrap-readonly-root"
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"LAUNCH_REFUSED: {exc}", file=sys.stderr)
         return 1
