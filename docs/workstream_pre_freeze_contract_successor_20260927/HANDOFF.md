@@ -38,6 +38,11 @@
     treating the historical untracked `artifacts/cr/...` path as current evidence.
 11. Reclassified all historical FULL107 runtime evidence as provenance-only for the
     current Protocol-2 comparison; fresh current-boundary execution is required for all 107.
+12. Resolved the temporary Rules-authority freshness blocker by rechecking the current
+    official Wizards Rules page on 2026-09-27. The page still directly links the
+    `MagicCompRules 20260807.txt` document, whose own effective date is 2026-08-07
+    and whose CR 103.8a preserves the START-2 semantic requirement. The prior
+    2026-09-25 signal is retained only as rejected discovery provenance.
 Historical predecessor digests remain under `historical_digests`; the effective
 START-2 record receives newly computed requested-state, obligation and materialization
 digests. The effective bundle receives a newly computed canonical bundle digest while
@@ -45,9 +50,13 @@ preserving the historical digest under `supersedes`.
 
 ## START-2 Authority Correction
 
-Repository authority lock `CURRENT_RULES_AUTHORITY.json` binds the current official Wizards Rules page/TXT and the Comprehensive Rules
-effective 2026-08-07. CR 103.8a requires the player who plays first in a two-player
-game to skip the draw step of the first turn.
+Repository authority receipt `CURRENT_RULES_AUTHORITY.json` binds the current official
+Wizards Rules page and the TXT that page directly links on 2026-09-27. That TXT is
+`MagicCompRules 20260807.txt`, states an effective date of 2026-08-07, and CR 103.8a
+requires the player who plays first in a two-player game to skip the draw step of the
+first turn. No byte-exact SHA-256 is claimed for this fresh web verification; the
+receipt records that limitation explicitly and fails closed if the official Rules page
+target changes.
 
 The historical START-2 record required both:
 
@@ -155,24 +164,25 @@ Final fully validated post-review, post-PR-257 integration head:
 The handoff update following that validated head is documentation-only; no contract,
 hash manifest, resolver, schema or test semantics change in that handoff commit.
 
-Rules-authority status is deliberately fail closed:
+Rules-authority freshness is now resolved:
 
-- the directly retrieved official Wizards source proves CR 103.8a semantics for the
-  2026-08-07 rules;
-- a newer 2026-09-25 release signal exists but no direct official current TXT bytes and
-  SHA-256 are yet bound in the repository;
-- therefore `CURRENT_RULES_AUTHORITY.authority_status =
-  FRESHNESS_CONFLICT_FAIL_CLOSED`;
-- the 2026-08-07 semantics may support the START-2 correction, but **current Rules
-  authority admission credit remains blocked** until the newer official bytes are
-  directly captured and adjudicated.
+- on 2026-09-27 the current official Wizards Rules page directly links
+  `MagicCompRules 20260807.txt`;
+- that official document states an effective date of 2026-08-07;
+- CR 103.8a retains the START-2 draw-step-skip semantics;
+- the prior claimed 2026-09-25 rules release is rejected as lower-authority discovery
+  evidence because it is not what the current official Wizards Rules page publishes;
+- `CURRENT_RULES_AUTHORITY.authority_status =
+  CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED`;
+- no byte-identity claim is made without a captured SHA-256.
 
 Evidence classification:
 
 - Contract implementation/repository integration: **TECHNICALLY_CONFORMANT** within
   this bounded contract-normalization scope.
-- START-2 semantic basis: **EXTERNALLY_RULE_VALIDATED** for CR 103.8a semantics, with
-  current-authority freshness explicitly blocked rather than silently promoted.
+- START-2 semantic basis: **EXTERNALLY_RULE_VALIDATED** for current official CR 103.8a
+  semantics; Rules-authority freshness is **DIRECTLY_VERIFIED** at the current official
+  Rules-page/link level, with byte identity explicitly not claimed.
 - Qualification hash sealing and CI receipts: **DIRECTLY_VERIFIED**.
 - START-2 candidate runtime behavior: **UNKNOWN** until current-boundary execution.
 - AF01 candidate runtime compliance: **UNKNOWN** until candidate-specific execution.
@@ -189,14 +199,11 @@ Evidence classification:
 
 ## Remaining Blockers
 
-1. Resolve `FRESHNESS_CONFLICT_FAIL_CLOSED` by directly capturing and binding the
-   current official Comprehensive Rules bytes corresponding to the newer release signal,
-   then impact-adjudicate CR 103.8a.
-2. Execute all 107 FULL107 rows freshly under the current qualification boundary for
+1. Execute all 107 FULL107 rows freshly under the current qualification boundary for
    XMage and Forge; START-2 uses the corrected successor semantics.
-3. Execute AF01 v2 handshake/capability/fail-closed qualification independently on each
+2. Execute AF01 v2 handshake/capability/fail-closed qualification independently on each
    candidate using exact provider/adapter/build source locks.
-4. Continue provider comparison only from those normalized current-boundary results.
+3. Continue provider comparison only from those normalized current-boundary results.
 
 ## Dependencies Unblocked
 
@@ -208,13 +215,11 @@ than choosing between historical FULL107/RSP artifacts ad hoc.
 After PR #254 is integrated, run the bounded common-fixture execution/requalification
 against the effective successor contract:
 
-1. Close the current Rules-authority freshness conflict with a direct official current
-   CR capture and record whether CR 103.8a changed.
-2. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
+1. Fresh current-boundary execution of all 107 FULL107 rows on XMage and Forge,
    including corrected `WS05-CMD-START-2`.
-3. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
+2. AF01 v2 handshake / truthful-capability / fail-closed qualification with exact
    provider/adapter/build identities for both candidates.
-4. Only then consume the normalized results in the pre-Freeze provider-comparison
+3. Only then consume the normalized results in the pre-Freeze provider-comparison
    framework.
 
 Do not select a provider from this contract-only workstream.
@@ -277,3 +282,18 @@ The current main was integrated as a real second parent in merge commit
 `add963b9f57f3910d1a80912cac1a7dc89163843`; no force update or stale-base
 merge was used. Final qualification receipts must therefore bind to the
 post-integration PR head, not to any earlier intermediate head.
+
+## Post-Merge Rules-Authority Freshness Closeout
+
+PR #254 merged the bounded contract successor to canonical main at
+`c5f9418e755a02ffec0e02c34b4a739baf10f5f0`.
+
+A post-merge source-truth check on 2026-09-27 re-opened only the temporary
+Rules-authority freshness receipt. Direct verification of the current official Wizards
+Rules page established that its current TXT target remains
+`MagicCompRules%2020260807.txt`, so the lower-authority 2026-09-25 signal does not
+supersede the official source.
+
+This follow-up changes no fixture semantics, AF gate semantics, engine code, provider
+code, FULL107 denominator, or evidence-promotion policy. It only closes the erroneous
+freshness blocker and reseals the changed qualification artifacts.
