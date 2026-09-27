@@ -22,12 +22,9 @@ AF_SCHEMA_PATH = (
     REPO_ROOT / "qualification/pre-freeze-successor/architecture_freeze_contract_v2.schema.json"
 )
 MATERIALIZATION_SCHEMA_PATH = (
-    REPO_ROOT
-    / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json"
+    REPO_ROOT / "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_6_SUCCESSOR.json"
 )
-RULES_AUTHORITY_PATH = (
-    REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
-)
+RULES_AUTHORITY_PATH = REPO_ROOT / "qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json"
 
 
 def _json(path: Path) -> dict:
@@ -111,16 +108,11 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
     old = {record["fixture_id"]: record for record in base["records"]}
     new = {record["fixture_id"]: record for record in effective["records"]}
 
-    assert effective["schema_version"] == (
-        "commander-lab.semantic-fixture-materialization/1.0.6-successor"
-    )
+    assert effective["schema_version"] == "commander-lab.semantic-fixture-materialization/1.0.6-successor"
     assert effective["contract_id"] == "commander-lab.full107/1.0.6-successor"
     assert effective["protocol"] == base["protocol"]
     assert effective["protocol_role"] == "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
-    assert (
-        effective["qualification_boundary"]
-        == "commander-lab.pre-freeze-qualification/2.0.0"
-    )
+    assert effective["qualification_boundary"] == "commander-lab.pre-freeze-qualification/2.0.0"
     assert effective["common_fixture_manifest_sha256"] == base["common_fixture_manifest_sha256"]
     assert effective["historical_authority_lock"] == base["authority_lock"]
     assert effective["authority_lock"]["receipt_path"].endswith("CURRENT_RULES_AUTHORITY.json")
@@ -128,9 +120,7 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
         effective["supersedes"]["historical_canonical_bundle_digest"]
         == base["canonical_bundle_digest"]
     )
-    assert effective["canonical_bundle_digest"] == _resolver().canonical_bundle_digest(
-        effective
-    )
+    assert effective["canonical_bundle_digest"] == _resolver().canonical_bundle_digest(effective)
     Draft202012Validator(_json(MATERIALIZATION_SCHEMA_PATH)).validate(effective)
     assert old.keys() == new.keys()
     for fixture_id in old:
@@ -280,6 +270,14 @@ def _freeze_result(verdict: str = "PASS", freeze_eligible: bool = True) -> dict:
     }
 
 
+def test_freeze_schema_rejects_wrong_protocol_schema_identity() -> None:
+    validator = Draft202012Validator(_json(AF_SCHEMA_PATH))
+    invalid = _freeze_result()
+    invalid["protocol_schema_identity"] = "git-blob:" + "0" * 40
+    with pytest.raises(ValidationError):
+        validator.validate(invalid)
+
+
 def test_freeze_schema_requires_all_gate_ids_once_and_evidence_refs() -> None:
     validator = Draft202012Validator(_json(AF_SCHEMA_PATH))
     validator.validate(_freeze_result())
@@ -306,23 +304,20 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
     validator.validate(not_eligible)
 
 
-def test_current_rules_authority_is_reproducible_and_has_no_missing_local_artifact() -> None:
+def test_current_rules_authority_freshness_conflict_fails_closed() -> None:
     receipt = _json(RULES_AUTHORITY_PATH)
+    successor = _json(SUCCESSOR_PATH)
     assert receipt["authority"] == "Wizards of the Coast"
-    assert receipt["official_rules_page_url"] == "https://magic.wizards.com/en/rules"
-    assert receipt["official_txt_url"].endswith("MagicCompRules%2020260807.txt")
-    assert receipt["effective_date"] == "2026-08-07"
-    assert receipt["applicable_rule"] == "103.8a"
-    assert receipt["reproduction"]["fail_closed_on_source_drift"] is True
-    assert "artifact_path" not in receipt
-    assert (
-        receipt["live_verification"]["official_rules_page_current_txt_link"]
-        == receipt["official_txt_url"]
-    )
-    assert receipt["live_verification"]["rule_103_8a_observed"] is True
-    adjudication = receipt["historical_url_drift_adjudication"]
-    assert adjudication["current_official_rules_page_link_differs"] is True
-    assert adjudication["carry_forward_of_historical_byte_digest"] is False
+    assert receipt["authority_status"] == "FRESHNESS_CONFLICT_FAIL_CLOSED"
+    assert receipt["directly_retrieved_official_source"]["effective_date"] == "2026-08-07"
+    assert receipt["directly_retrieved_official_source"]["rule_103_8a_observed"] is True
+    assert receipt["newer_release_signal"]["effective_date"] == "2026-09-25"
+    assert receipt["newer_release_signal"]["official_txt_url"] is None
+    assert receipt["newer_release_signal"]["official_txt_sha256"] is None
+    assert receipt["newer_release_signal"]["admission_credit"] is False
+    assert receipt["reproduction"]["fail_closed_on_freshness_conflict"] is True
+    assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
+    assert successor["rules_authority"]["semantic_basis_effective_date"] == "2026-08-07"
 
 
 def test_freeze_schema_rejects_unbound_source_or_capabilities() -> None:

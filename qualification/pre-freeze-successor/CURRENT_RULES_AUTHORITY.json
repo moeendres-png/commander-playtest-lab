@@ -1,37 +1,54 @@
 {
-  "schema_version": "commander-lab.current-rules-authority-receipt/1.0.0",
+  "schema_version": "commander-lab.current-rules-authority-receipt/1.1.0",
   "authority": "Wizards of the Coast",
   "verified_date": "2026-09-27",
   "official_rules_page_url": "https://magic.wizards.com/en/rules",
-  "official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
-  "effective_date": "2026-08-07",
   "applicable_rule": "103.8a",
   "semantic_requirement": "In a two-player game, the starting player skips the entire draw step of the first turn.",
+  "authority_status": "FRESHNESS_CONFLICT_FAIL_CLOSED",
+  "directly_retrieved_official_source": {
+    "url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+    "effective_date": "2026-08-07",
+    "rule_103_8a_observed": true,
+    "classification": "DIRECTLY_VERIFIED_OFFICIAL_BUT_FRESHNESS_DISPUTED"
+  },
+  "newer_release_signal": {
+    "effective_date": "2026-09-25",
+    "status": "REQUIRES_DIRECT_OFFICIAL_BYTE_CAPTURE",
+    "official_txt_url": null,
+    "official_txt_sha256": null,
+    "admission_credit": false,
+    "corroboration": [
+      {
+        "type": "USER_SUPPLIED_WORK_EXECUTION_REPORT",
+        "note": "A prior execution worker reported a newer official Comprehensive Rules TXT effective 2026-09-25."
+      },
+      {
+        "type": "SECONDARY_PUBLIC_MIRROR",
+        "repository": "muz/mtgrulediff",
+        "commit": "8ba7eb0d63a9b1e67aa1280fafb9fd0d16052592",
+        "rules_file": "rules/MagicCompRules 20260925.txt",
+        "rules_file_git_blob": "4dc4fead596288be1ca6aa9c913ea1739c680a29",
+        "rule_103_8a_semantics_match": true,
+        "authority_role": "DISCOVERY_ONLY_NOT_RULES_AUTHORITY"
+      }
+    ]
+  },
   "reproduction": {
-    "fetch_official_rules_page": true,
-    "require_txt_link_from_official_rules_page": true,
-    "require_txt_effective_date": "2026-08-07",
+    "require_direct_official_current_txt_capture": true,
+    "require_current_effective_date": true,
+    "require_current_txt_sha256": true,
     "require_rule_number": "103.8a",
-    "fail_closed_on_source_drift": true
+    "fail_closed_on_source_drift": true,
+    "fail_closed_on_freshness_conflict": true,
+    "on_unresolved_conflict": "BLOCK_CURRENT_RULES_AUTHORITY_CREDIT"
   },
   "historical_repository_provenance": {
     "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
     "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE_ONLY",
-    "note": "The historical lock names an untracked artifacts/cr capture. The successor does not treat that absent path as current repository-verifiable authority."
-  },
-  "live_verification": {
-    "verified_at": "2026-09-27",
-    "official_rules_page_current_txt_link": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
-    "txt_effective_date_observed": "2026-08-07",
-    "rule_103_8a_observed": true,
-    "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL_SOURCE"
-  },
-  "historical_url_drift_adjudication": {
-    "historical_lock_recorded_resolved_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
-    "historical_lock_capture_date": "2026-09-15",
-    "current_official_rules_page_link_differs": true,
-    "authority_precedence": "CURRENT_OFFICIAL_WIZARDS_RULES_PAGE_OVER_HISTORICAL_CAPTURE_URL",
-    "carry_forward_of_historical_byte_digest": false,
-    "note": "The historical 20260819 capture remains provenance. The current official Rules page freshly verified on 2026-09-27 links 20260807.txt; requalification must follow the live official page and fail closed if it drifts."
+    "historical_effective_date": "2026-08-07",
+    "historical_resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
+    "historical_txt_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+    "carry_forward_as_current_authority": false
   }
 }

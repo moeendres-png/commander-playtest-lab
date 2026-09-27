@@ -93,13 +93,9 @@ def load_effective_materialization() -> dict[str, Any]:
     historical_bundle_digest = effective.pop("canonical_bundle_digest", None)
     historical_supersedes = copy.deepcopy(effective.get("supersedes"))
 
-    effective["schema_version"] = (
-        "commander-lab.semantic-fixture-materialization/1.0.6-successor"
-    )
+    effective["schema_version"] = "commander-lab.semantic-fixture-materialization/1.0.6-successor"
     effective["contract_id"] = successor["contract_id"]
-    effective["qualification_boundary"] = (
-        "commander-lab.pre-freeze-qualification/2.0.0"
-    )
+    effective["qualification_boundary"] = "commander-lab.pre-freeze-qualification/2.0.0"
     effective["qualification_protocol_version"] = "2.0.0"
     effective["protocol_role"] = "HISTORICAL_FIXTURE_ENCODING_PROVENANCE"
     effective["authority_lock"] = {
