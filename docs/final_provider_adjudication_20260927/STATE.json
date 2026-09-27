@@ -3,6 +3,7 @@
   "branch": "wsr21/final-provider-cdq-20260927",
   "worktree": "/home/moeen/code/wsr21-final-provider-cdq",
   "base_head": "58e8fca430651207a87a8f3e9f41d8c6527dd4cd",
+  "head": "624ad8ce71f70ffdf2899c1852386c969a604415",
   "base_tree": "4cf4f3d23da9b6a7bb010178b6efcc2b2c853ba2",
   "milestones": {
     "source_lock_verified": true,
@@ -13,7 +14,7 @@
     "divergence_packet_sealed": true,
     "readiness_packet_sealed": true,
     "final_validation_complete": true,
-    "local_commit_complete": false,
+    "local_commit_complete": true,
     "remote_publication": "BLOCKED_BY_PUSH_APPROVAL_GATE"
   },
   "packet_counts": {
