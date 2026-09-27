@@ -1,148 +1,237 @@
-{
-  "artifacts": [
-    "docs/project_integration_hygiene_20260927/ (durable integration packet)"
-  ],
-  "audit_base_sha": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719",
-  "audit_base_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
-  "authority_gates": [
-    "PRODUCTION_PROVIDER = NOT SELECTED (Coordinator authority; unchanged by WSR23)",
-    "ARCHITECTURE_FREEZE = NOT CLAIMED (Coordinator authority; unchanged by WSR23)",
-    "MTG Rules adjudication remains with GPT-5.6 Sol High; WSR23 made no Rules ruling"
-  ],
-  "branch": "wsr23/project-integration-hygiene-20260927",
-  "current_failure": "PUBLICATION_GATED_ON_WRITER_LOCK_AND_PUSH_AUTHORITY. The original BOOTSTRAP_FAIL / LAUNCH_REFUSED (prose in the `ownership` identity field) is REPAIRED and the bootstrap gate now returns BOOTSTRAP_PASS. Three independent fail-closed gates still block publication of this branch, none of which may be evaded: (1) tools/foundry/safe_push.py gate 6 requires the kernel flock on the WSR23 writer-lock file to be held by a recorded holder PID that is an ancestor of the pushing process - this session is not launcher-spawned and holds no such lock; (2) safe_push gate 7 requires a non-null validated_head with ancestry, and the pre-repair state honestly recorded null; (3) the committed root opencode.json denies `git push*`, and the campaign inherits that policy unchanged.",
-  "current_hypothesis": "NONE - no remaining defect is suspected in the state or the launcher. Both previously-reported conditions are now separated: the ownership failure was a genuine state-metadata defect (repaired, proven, regression-tested) and the push failure is an intended ownership/permission boundary (not a defect, and not evadable).",
-  "current_reasoning": "The launcher-held-writer-lock precondition is now verified rather than assumed: this session carries no FOUNDRY_* launcher context at all, and the run directory /tmp/foundry-launch-wsr23-project-integration-hygiene-20260927 is empty, so no launcher ever acquired or held a lock for this worktree. The ownership defect that caused LAUNCH_REFUSED is diagnosed at its real layer and repaired. Everything local is complete; the remaining WSR23 actions are remote and permission-gated.",
-  "current_reasoning_tier": "high",
-  "dependencies": [
-    "WSR22 must finish before any provider adjudication; WSR23 depends on nothing from it",
-    "PR #261 must merge before AGENTS.md and the foundry-execution routing docs are considered stable",
-    "PR #260 and WSR22 both touch qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json and tests/qualification/test_pre_freeze_contract_successor.py; the Coordinator must sequence them",
-    "A Coordinator ruling is required on the RG-07/RG-08 port from the unpublished local branch camp/rg-closure-20260925"
-  ],
-  "do_not_rerun": [
-    "FULL107 qualification",
-    "XMage qualification matrices",
-    "Forge qualification matrices",
-    "The WSR22 current-boundary matrix"
-  ],
-  "evidence": [
-    "docs/project_integration_hygiene_20260927/REPAIRS_APPLIED.md",
-    "docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json",
-    "docs/project_integration_hygiene_20260927/UNPUBLISHED_BRANCHES.json",
-    "docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json",
-    "docs/project_integration_hygiene_20260927/PUBLICATIONS.md"
-  ],
-  "exact_next_action": "Coordinator: adjudicate REMAINING_BLOCKERS.md B1 (port RG-07/RG-08 evidence off the unpublished local branch camp/rg-closure-20260925) and B3 (unowned tracked modifications to Mage engine sources in xmage-ws49-baseline), then sequence PR #260 against WSR22 on their two shared paths. WSR23 requires no further local work; its remaining actions are remote and permission-gated.",
-  "failed_gates": [],
-  "failure_class": "INFRASTRUCTURE_DEFECT",
-  "files_modified": [
-    "docs/foundry-execution/GOVERNANCE_SUPERSESSION.md",
-    "docs/project_integration_hygiene_20260927/ACTIVE_SURFACES.json",
-    "docs/project_integration_hygiene_20260927/CI_VALIDATION.md",
-    "docs/project_integration_hygiene_20260927/DELETION_CANDIDATES.md",
-    "docs/project_integration_hygiene_20260927/DIRTY_WORKTREES.json",
-    "docs/project_integration_hygiene_20260927/FINAL_HANDOFF.md",
-    "docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json",
-    "docs/project_integration_hygiene_20260927/PUBLICATIONS.md",
-    "docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json",
-    "docs/project_integration_hygiene_20260927/REMAINING_BLOCKERS.md",
-    "docs/project_integration_hygiene_20260927/REPAIRS_APPLIED.md",
-    "docs/project_integration_hygiene_20260927/REPOSITORY_INVENTORY.json",
-    "docs/project_integration_hygiene_20260927/SUPERSESSION_LEDGER.json",
-    "docs/project_integration_hygiene_20260927/UNPUBLISHED_BRANCHES.json",
-    "docs/project_integration_hygiene_20260927/WORKSPACE_INVENTORY.json",
-    "docs/project_integration_hygiene_20260927/WORKSTREAM_CONTRACT.md",
-    "docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml",
-    "docs/project_integration_hygiene_20260927/WORKTREE_INVENTORY.json",
-    "tools/foundry/worktree_inventory.py",
-    "tests/foundry/test_foundry_tools.py",
-    "tests/foundry/test_launcher.py"
-  ],
-  "first_failing_boundary": "RESOLVED: tools/foundry/bootstrap.py gate 3 state-ownership identity check (bootstrap.py:165-173) returned BOOTSTRAP_FAIL -> LAUNCH_REFUSED. tools/foundry/safe_push.py gate 6 (_lock_held_by_ancestor, safe_push.py:485-513) and gate 7 (validated_head null, safe_push.py:594-596) remain the first failing boundaries for publication.",
-  "forbidden_shortcuts": [
-    "Inferring supersession from PR age",
-    "Using git rev-parse <rev>:<path> as an existence probe; it echoes its argument to stdout for a missing path, so git cat-file -e is used instead",
-    "Assuming the git cherry sign convention; it was verified empirically against origin/main~10..origin/main before any classification depended on it",
-    "Treating a CURRENT, FINAL or LATEST filename as freshness authority",
-    "Promoting a delegated audit conclusion without re-verifying its decisive evidence"
-  ],
-  "hard_gates": [
-    "No mutation of any path in the diff of PR #260, #261, #262 or WSR22",
-    "No git push outside tools/foundry/safe_push.py; no raw git push; no force push",
-    "No Rules semantics change and no second Rules Engine",
-    "UNKNOWN != PASS; PARTIAL != FULL; NOT_RUN != PASS; CODE_DERIVED != RUNTIME_VERIFIED",
-    "Any permission denial is respected, never wrapped or bypassed"
-  ],
-  "hypotheses_rejected": [
-    "The three pytest collection errors seen under the ambient interpreter were a repository defect. Rejected: typer (a core dependency), httpx2 and pytest-asyncio are all pinned in requirements/lock.txt and installed by CI; the first failing boundary is the interpreter, not the repository.",
-    "The repository has a dead-link or stale-script-path defect class needing repair. Rejected on measurement: 0 broken relative markdown links across 315 tracked files, and all 143 workflow/script path hits are runtime output paths, not stale input references.",
-    "camp/rg-closure-20260925 is publication-ready unpublished work. Rejected: it is a divergent sibling of merged PR #249 from the same base, 129 commits behind, conflicting on two production files, and its evidence is bound to a superseded engine pin.",
-    "The WSR23 branch could be published with a raw git push because the session's permission layer permitted other gated operations such as git worktree add. Rejected: the committed opencode.json denies git push*, and \u00a712 requires the hardened path specifically. A push-intent against a real remote ref is a write and was never attempted."
-  ],
-  "in_scope": [
-    "Read-only inventory of repositories, worktrees, branches, writer locks, processes, Foundry state, PRs, issues and CI under /home/moeen/code",
-    "Classification of all 41 open PRs with blob-level or ls-tree evidence",
-    "Classification of all 61 local branches with no remote branch, plus every branch ahead of its remote",
-    "Preservation of every dirty or untracked surface without reset, clean, checkout, restore or deletion",
-    "Repair of free non-overlapping Lab documentation and integration consistency defects on the WSR23 branch",
-    "Validation via pytest, ruff check, ruff format --check, mypy strict, compileall and Foundry state validation",
-    "Safe fast-forward publication of the WSR23 branch through tools/foundry/safe_push.py and opening one WSR23 PR",
-    "Terminal supersession comment plus closure for open PRs proven to satisfy all six section 10 conditions"
-  ],
-  "invalidated_gates": [],
-  "next_action": "Operator: start a launcher-spawned Foundry writer session for /home/moeen/code/wsr23-project-integration-hygiene on branch wsr23/project-integration-hygiene-20260927 with --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml and --workstream wsr23-project-integration-hygiene-20260927, then run the safe-push command in PUBLICATIONS.md section 2, then open the WSR23 PR against main. Coordinator: adjudicate REMAINING_BLOCKERS.md B1 (port RG-07/RG-08 off the unpublished local branch camp/rg-closure-20260925) and B3 (unowned tracked modifications to Mage engine sources in xmage-ws49-baseline), and sequence WSR24 (issue #267) against the open WSR22 qualification.",
-  "objective": "Inventory the /home/moeen/code Commander Simulator Next workspace, separate active from stale work, classify every open PR and every unpublished local branch, repair only free non-overlapping Lab integration and hygiene defects, validate, publish what is provably publishable, and leave a durable integration ledger.",
-  "out_of_scope": [
-    "Any mutation of WSR22, PR #260, PR #261, PR #262, PR #259 or issue #255",
-    "Any XMage or Forge Rules-engine change; engine defects are recorded, never fixed here",
-    "Provider selection, ARCHITECTURE_FREEZE, qualification policy, evidence promotion",
-    "FULL107, XMage qualification matrices, Forge qualification matrices and the WSR22 matrix",
-    "Force push, history rewrite, branch or worktree deletion, repository settings, protection changes, auto-merge, PR merge",
-    "Any repository under /home/moeen/code without a Commander Simulator Next remote",
-    "Acquiring the Foundry writer lock from a non-launcher process, or any other self-authorization of exclusive worktree ownership"
-  ],
-  "ownership": "wsr23-project-integration-hygiene-20260927",
-  "remaining_scope": [
-    "Run the single verified safe-push command in PUBLICATIONS.md section 2 from inside a Foundry writer session for this worktree",
-    "Open the WSR23 pull request against main once the branch is on the remote"
-  ],
-  "repository": "moeendres-png/commander-playtest-lab",
-  "root_cause_class": "INFRASTRUCTURE_DEFECT",
-  "schema_version": "2.0",
-  "state_written_against_head": "240a8d40da13f2e7bc1d24e9eb87097d159629b0",
-  "status": "BLOCKED",
-  "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
-  "technical_decisions": [
-    "STATE_REPAIR (2026-09-27, identity field): the `ownership` field held the descriptive sentence \"WSR23 is the sole writer of branch wsr23/project-integration-hygiene-20260927 in worktree /home/moeen/code/wsr23-project-integration-hygiene. Its mutation surface is docs/project_integration_hygiene_20260927/** plus exactly one existing file, docs/foundry-execution/GOVERNANCE_SUPERSESSION.md. Verified disjoint from the diffs of PR #260, #261, #262 and the WSR22 branch.\" `ownership` is an identity token: bootstrap.py compares it to the launching workstream and safe_push.py records it as the push task id, so prose is a different value from the token and the bootstrap gate refused with BOOTSTRAP_FAIL / LAUNCH_REFUSED. The field now holds the exact workstream identity `wsr23-project-integration-hygiene-20260927`; this entry preserves the original sentence verbatim, and its substance is unchanged in WORKSTREAM_CONTRACT.md, in_scope and files_modified.",
-    "Built a lock-faithful venv outside the worktree instead of changing repository dependencies, so validation matches CI and the working tree stays clean.",
-    "Declined to add a repository link checker under the reuse-first gate: it would add a permanent maintenance surface for a defect class with zero live instances.",
-    "Declined to add a test asserting AGENTS.md section numbers, because open PR #261 is editing AGENTS.md right now and such a test would create a new CI failure on an active surface.",
-    "Corrected the delegated PR audit's over-broad claim on PR #162 by re-running the blob comparison and narrowing the integrated scope to the WS-47 deliverable before classifying it.",
-    "Downgraded PRs #163 and #164 from ACTIVE_CURRENT_WORK to STALE_BUT_UNADJUDICATED: their only 'active' evidence was a 2026-09-10 handoff sentence, and their branch heads are not descendants of their own PR heads.",
-    "Chose NOT_READY over PUBLICATION_READY for every foreign unpublished branch, because section 12 conditions 9 and 10 cannot be proven for any of them.",
-    "Did not self-acquire the Foundry writer lock to satisfy safe_push gate 6. Doing so would make this process the recorded holder and would let any process self-authorize as a worktree's exclusive writer, collapsing the single-writer guarantee the Foundry ownership model depends on. Recorded BLOCKED_BY_PUSH_POLICY_GATE with exactly one verified safe command instead.",
-    "Absorbed three mid-run main merges (#261, #260, #268) by fetching, adjudicating to NO_IMPACT on an empty path intersection, rebasing, and re-validating, rather than publishing a stale audit base."
-  ],
-  "tests_run": [
-    "pytest -q (lock-faithful venv, audit base c5f9418e): 1628 passed, 5 skipped, 0 failed",
-    "pytest -q (lock-faithful venv, rebased tip on bbbb6b9c): 1631 passed, 5 skipped, 0 failed (3 new tests arrive with PR #260)",
-    "pytest tests/foundry -q: 437 passed, 1 skipped",
-    "ruff check: All checks passed",
-    "ruff format --check: 959 files already formatted",
-    "mypy src/commander_lab (strict): no issues in 261 source files",
-    "python -m compileall -q src tests: exit 0",
-    "python tools/foundry/state.py --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml --workdir . --check-validated: STATE_OK",
-    "python tools/foundry/worktree_inventory.py --workdir . --fail-on-duplicate-writer: exit 0, duplicate_writers=[] over 173 Lab worktrees",
-    "python3 tools/foundry/safe_push.py ... --dry-run: PUSH_REJECT (no writer lock) - the intended, fail-closed outcome"
-  ],
-  "validated_gates": [
-    "Full python test suite green on the audit base in a lock-faithful venv",
-    "mypy strict green on src/commander_lab",
-    "ruff lint and format green",
-    "All six main-branch GitHub workflows report success at 613cd57b and 60fc3c8a",
-    "commander-playtest-lab remote passes the hardened effective-target checks: one fetch URL record, zero pushurl records, no mirror, no receivepack, no insteadOf or pushInsteadOf rewrite"
-  ],
-  "validated_head": null,
-  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
-}
+artifacts:
+- docs/project_integration_hygiene_20260927/ (durable integration packet)
+audit_base_sha: bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719
+audit_base_tree: 32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a
+authority_gates:
+- PRODUCTION_PROVIDER = NOT SELECTED (Coordinator authority; unchanged by WSR23)
+- ARCHITECTURE_FREEZE = NOT CLAIMED (Coordinator authority; unchanged by WSR23)
+- MTG Rules adjudication remains with GPT-5.6 Sol High; WSR23 made no Rules ruling
+branch: wsr23/project-integration-hygiene-20260927
+current_failure: 'PUBLICATION_GATED_ON_WRITER_LOCK_AND_PUSH_AUTHORITY. The original
+  BOOTSTRAP_FAIL / LAUNCH_REFUSED (prose in the `ownership` identity field) is REPAIRED
+  and the bootstrap gate now returns BOOTSTRAP_PASS. Three independent fail-closed
+  gates still block publication of this branch, none of which may be evaded: (1) tools/foundry/safe_push.py
+  gate 6 requires the kernel flock on the WSR23 writer-lock file to be held by a recorded
+  holder PID that is an ancestor of the pushing process - this session is not launcher-spawned
+  and holds no such lock; (2) safe_push gate 7 requires a non-null validated_head
+  with ancestry, and the pre-repair state honestly recorded null; (3) the committed
+  root opencode.json denies `git push*`, and the campaign inherits that policy unchanged.'
+current_hypothesis: 'NONE - no remaining defect is suspected in the state or the launcher.
+  Both previously-reported conditions are now separated: the ownership failure was
+  a genuine state-metadata defect (repaired, proven, regression-tested) and the push
+  failure is an intended ownership/permission boundary (not a defect, and not evadable).'
+current_reasoning: 'The launcher-held-writer-lock precondition is now verified rather
+  than assumed: this session carries no FOUNDRY_* launcher context at all, and the
+  run directory /tmp/foundry-launch-wsr23-project-integration-hygiene-20260927 is
+  empty, so no launcher ever acquired or held a lock for this worktree. The ownership
+  defect that caused LAUNCH_REFUSED is diagnosed at its real layer and repaired. Everything
+  local is complete; the remaining WSR23 actions are remote and permission-gated.'
+current_reasoning_tier: high
+dependencies:
+- WSR22 must finish before any provider adjudication; WSR23 depends on nothing from
+  it
+- 'PR #261 must merge before AGENTS.md and the foundry-execution routing docs are
+  considered stable'
+- 'PR #260 and WSR22 both touch qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json
+  and tests/qualification/test_pre_freeze_contract_successor.py; the Coordinator must
+  sequence them'
+- A Coordinator ruling is required on the RG-07/RG-08 port from the unpublished local
+  branch camp/rg-closure-20260925
+do_not_rerun:
+- FULL107 qualification
+- XMage qualification matrices
+- Forge qualification matrices
+- The WSR22 current-boundary matrix
+evidence:
+- docs/project_integration_hygiene_20260927/REPAIRS_APPLIED.md
+- docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json
+- docs/project_integration_hygiene_20260927/UNPUBLISHED_BRANCHES.json
+- docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json
+- docs/project_integration_hygiene_20260927/PUBLICATIONS.md
+- docs/project_integration_hygiene_20260927/STATE_OWNERSHIP_REPAIR.md
+exact_next_action: 'Operator: start a launcher-spawned Foundry WRITER session for
+  /home/moeen/code/wsr23-project-integration-hygiene on branch wsr23/project-integration-hygiene-20260927
+  with --workstream wsr23-project-integration-hygiene-20260927 and --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml
+  (that session''s own writer lock is what safe_push gate 6 requires), then run the
+  safe-push command recorded in PUBLICATIONS.md section 2, then open the WSR23 PR
+  against current main. Campaign: with WSR23 published, re-lock main and proceed to
+  the WSR22 successor integration (Coordinator-adjudicated: adopt MagicCompRules 20260925.txt,
+  sha256 8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca, RULES_AUTHORITY_CONTRADICTION
+  = RESOLVED, no blanket FULL107 rerun). Coordinator: REMAINING_BLOCKERS.md B1 (RG-07/RG-08
+  off unpublished camp/rg-closure-20260925) and B3 (unowned Mage engine modifications
+  in xmage-ws49-baseline) still need a ruling.'
+failed_gates: []
+failure_class: INFRASTRUCTURE_DEFECT
+files_modified:
+- docs/foundry-execution/GOVERNANCE_SUPERSESSION.md
+- docs/project_integration_hygiene_20260927/ACTIVE_SURFACES.json
+- docs/project_integration_hygiene_20260927/CI_VALIDATION.md
+- docs/project_integration_hygiene_20260927/DELETION_CANDIDATES.md
+- docs/project_integration_hygiene_20260927/DIRTY_WORKTREES.json
+- docs/project_integration_hygiene_20260927/FINAL_HANDOFF.md
+- docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json
+- docs/project_integration_hygiene_20260927/PUBLICATIONS.md
+- docs/project_integration_hygiene_20260927/PUBLICATION_CANDIDATES.json
+- docs/project_integration_hygiene_20260927/REMAINING_BLOCKERS.md
+- docs/project_integration_hygiene_20260927/REPAIRS_APPLIED.md
+- docs/project_integration_hygiene_20260927/REPOSITORY_INVENTORY.json
+- docs/project_integration_hygiene_20260927/SUPERSESSION_LEDGER.json
+- docs/project_integration_hygiene_20260927/UNPUBLISHED_BRANCHES.json
+- docs/project_integration_hygiene_20260927/WORKSPACE_INVENTORY.json
+- docs/project_integration_hygiene_20260927/WORKSTREAM_CONTRACT.md
+- docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml
+- docs/project_integration_hygiene_20260927/WORKTREE_INVENTORY.json
+- tools/foundry/worktree_inventory.py
+- tests/foundry/test_foundry_tools.py
+- tests/foundry/test_launcher.py
+first_failing_boundary: 'RESOLVED: tools/foundry/bootstrap.py gate 3 state-ownership
+  identity check (bootstrap.py:165-173) returned BOOTSTRAP_FAIL -> LAUNCH_REFUSED.
+  tools/foundry/safe_push.py gate 6 (_lock_held_by_ancestor, safe_push.py:485-513)
+  and gate 7 (validated_head null, safe_push.py:594-596) remain the first failing
+  boundaries for publication.'
+forbidden_shortcuts:
+- Inferring supersession from PR age
+- Using git rev-parse <rev>:<path> as an existence probe; it echoes its argument to
+  stdout for a missing path, so git cat-file -e is used instead
+- Assuming the git cherry sign convention; it was verified empirically against origin/main~10..origin/main
+  before any classification depended on it
+- Treating a CURRENT, FINAL or LATEST filename as freshness authority
+- Promoting a delegated audit conclusion without re-verifying its decisive evidence
+hard_gates:
+- 'No mutation of any path in the diff of PR #260, #261, #262 or WSR22'
+- No git push outside tools/foundry/safe_push.py; no raw git push; no force push
+- No Rules semantics change and no second Rules Engine
+- UNKNOWN != PASS; PARTIAL != FULL; NOT_RUN != PASS; CODE_DERIVED != RUNTIME_VERIFIED
+- Any permission denial is respected, never wrapped or bypassed
+hypotheses_rejected:
+- 'The three pytest collection errors seen under the ambient interpreter were a repository
+  defect. Rejected: typer (a core dependency), httpx2 and pytest-asyncio are all pinned
+  in requirements/lock.txt and installed by CI; the first failing boundary is the
+  interpreter, not the repository.'
+- 'The repository has a dead-link or stale-script-path defect class needing repair.
+  Rejected on measurement: 0 broken relative markdown links across 315 tracked files,
+  and all 143 workflow/script path hits are runtime output paths, not stale input
+  references.'
+- 'camp/rg-closure-20260925 is publication-ready unpublished work. Rejected: it is
+  a divergent sibling of merged PR #249 from the same base, 129 commits behind, conflicting
+  on two production files, and its evidence is bound to a superseded engine pin.'
+- 'The WSR23 branch could be published with a raw git push because the session''s
+  permission layer permitted other gated operations such as git worktree add. Rejected:
+  the committed opencode.json denies git push*, and §12 requires the hardened path
+  specifically. A push-intent against a real remote ref is a write and was never attempted.'
+in_scope:
+- Read-only inventory of repositories, worktrees, branches, writer locks, processes,
+  Foundry state, PRs, issues and CI under /home/moeen/code
+- Classification of all 41 open PRs with blob-level or ls-tree evidence
+- Classification of all 61 local branches with no remote branch, plus every branch
+  ahead of its remote
+- Preservation of every dirty or untracked surface without reset, clean, checkout,
+  restore or deletion
+- Repair of free non-overlapping Lab documentation and integration consistency defects
+  on the WSR23 branch
+- Validation via pytest, ruff check, ruff format --check, mypy strict, compileall
+  and Foundry state validation
+- Safe fast-forward publication of the WSR23 branch through tools/foundry/safe_push.py
+  and opening one WSR23 PR
+- Terminal supersession comment plus closure for open PRs proven to satisfy all six
+  section 10 conditions
+invalidated_gates: []
+next_action: 'Operator: start a launcher-spawned Foundry writer session for /home/moeen/code/wsr23-project-integration-hygiene
+  on branch wsr23/project-integration-hygiene-20260927 with --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml
+  and --workstream wsr23-project-integration-hygiene-20260927, then run the safe-push
+  command in PUBLICATIONS.md section 2, then open the WSR23 PR against main. Coordinator:
+  adjudicate REMAINING_BLOCKERS.md B1 (port RG-07/RG-08 off the unpublished local
+  branch camp/rg-closure-20260925) and B3 (unowned tracked modifications to Mage engine
+  sources in xmage-ws49-baseline), and sequence WSR24 (issue #267) against the open
+  WSR22 qualification.'
+objective: Inventory the /home/moeen/code Commander Simulator Next workspace, separate
+  active from stale work, classify every open PR and every unpublished local branch,
+  repair only free non-overlapping Lab integration and hygiene defects, validate,
+  publish what is provably publishable, and leave a durable integration ledger.
+out_of_scope:
+- 'Any mutation of WSR22, PR #260, PR #261, PR #262, PR #259 or issue #255'
+- Any XMage or Forge Rules-engine change; engine defects are recorded, never fixed
+  here
+- Provider selection, ARCHITECTURE_FREEZE, qualification policy, evidence promotion
+- FULL107, XMage qualification matrices, Forge qualification matrices and the WSR22
+  matrix
+- Force push, history rewrite, branch or worktree deletion, repository settings, protection
+  changes, auto-merge, PR merge
+- Any repository under /home/moeen/code without a Commander Simulator Next remote
+- Acquiring the Foundry writer lock from a non-launcher process, or any other self-authorization
+  of exclusive worktree ownership
+ownership: wsr23-project-integration-hygiene-20260927
+remaining_scope:
+- Run the single verified safe-push command in PUBLICATIONS.md section 2 from inside
+  a Foundry writer session for this worktree
+- Open the WSR23 pull request against main once the branch is on the remote
+repository: moeendres-png/commander-playtest-lab
+root_cause_class: INFRASTRUCTURE_DEFECT
+schema_version: '2.0'
+state_written_against_head: 372851c145fc35f5b2dc887a21fdd872ef1184d5
+status: BLOCKED
+technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
+technical_decisions:
+- 'STATE_REPAIR (2026-09-27, identity field): the `ownership` field held the descriptive
+  sentence "WSR23 is the sole writer of branch wsr23/project-integration-hygiene-20260927
+  in worktree /home/moeen/code/wsr23-project-integration-hygiene. Its mutation surface
+  is docs/project_integration_hygiene_20260927/** plus exactly one existing file,
+  docs/foundry-execution/GOVERNANCE_SUPERSESSION.md. Verified disjoint from the diffs
+  of PR #260, #261, #262 and the WSR22 branch." `ownership` is an identity token:
+  bootstrap.py compares it to the launching workstream and safe_push.py records it
+  as the push task id, so prose is a different value from the token and the bootstrap
+  gate refused with BOOTSTRAP_FAIL / LAUNCH_REFUSED. The field now holds the exact
+  workstream identity `wsr23-project-integration-hygiene-20260927`; this entry preserves
+  the original sentence verbatim, and its substance is unchanged in WORKSTREAM_CONTRACT.md,
+  in_scope and files_modified.'
+- Built a lock-faithful venv outside the worktree instead of changing repository dependencies,
+  so validation matches CI and the working tree stays clean.
+- 'Declined to add a repository link checker under the reuse-first gate: it would
+  add a permanent maintenance surface for a defect class with zero live instances.'
+- 'Declined to add a test asserting AGENTS.md section numbers, because open PR #261
+  is editing AGENTS.md right now and such a test would create a new CI failure on
+  an active surface.'
+- 'Corrected the delegated PR audit''s over-broad claim on PR #162 by re-running the
+  blob comparison and narrowing the integrated scope to the WS-47 deliverable before
+  classifying it.'
+- 'Downgraded PRs #163 and #164 from ACTIVE_CURRENT_WORK to STALE_BUT_UNADJUDICATED:
+  their only ''active'' evidence was a 2026-09-10 handoff sentence, and their branch
+  heads are not descendants of their own PR heads.'
+- Chose NOT_READY over PUBLICATION_READY for every foreign unpublished branch, because
+  section 12 conditions 9 and 10 cannot be proven for any of them.
+- Did not self-acquire the Foundry writer lock to satisfy safe_push gate 6. Doing
+  so would make this process the recorded holder and would let any process self-authorize
+  as a worktree's exclusive writer, collapsing the single-writer guarantee the Foundry
+  ownership model depends on. Recorded BLOCKED_BY_PUSH_POLICY_GATE with exactly one
+  verified safe command instead.
+- 'Absorbed three mid-run main merges (#261, #260, #268) by fetching, adjudicating
+  to NO_IMPACT on an empty path intersection, rebasing, and re-validating, rather
+  than publishing a stale audit base.'
+tests_run:
+- 'pytest -q (lock-faithful venv, Python 3.12.14, requirements/lock.txt --require-hashes
+  + editable install, clean tree at 372851c1): 1638 passed, 5 skipped, 0 failed'
+- 'pytest tests/foundry -q: 447 passed, 1 skipped (10 new: identity-token contract,
+  JSON/YAML state equivalence, prose reported verbatim, fail-closed ownership cases)'
+- 'ruff check: All checks passed'
+- 'ruff format --check: 961 files already formatted'
+- 'mypy src/commander_lab (strict): Success, no issues in 261 source files'
+- 'python -m compileall -q src tests: exit 0'
+- 'python tools/foundry/bootstrap.py --workstream wsr23-project-integration-hygiene-20260927
+  ... --profile cpl: BOOTSTRAP_FAIL (prose ownership, fail-before) -> BOOTSTRAP_PASS
+  (post-repair)'
+- 'python tools/foundry/state.py --check-validated: STATE_OK schema=2.0'
+- 'python tools/foundry/worktree_inventory.py --fail-on-duplicate-writer: duplicate_writers=[]'
+validated_gates:
+- Full python test suite green on a clean tree at 372851c1 in a lock-faithful Python
+  3.12 venv (1638 passed, 5 skipped, 0 failed)
+- 'tests/foundry green: 447 passed, 1 skipped'
+- mypy strict green on src/commander_lab
+- ruff lint and format green
+- Foundry bootstrap gate BOOTSTRAP_PASS for workstream wsr23-project-integration-hygiene-20260927
+  after the ownership identity repair
+- WORKSTREAM_STATE validates as schema 2.0 and is STATE_OK
+- 'commander-playtest-lab remote passes the hardened effective-target checks: one
+  fetch URL record, zero pushurl records, no mirror, no receivepack, no insteadOf
+  or pushInsteadOf rewrite'
+validated_head: 372851c145fc35f5b2dc887a21fdd872ef1184d5
+worktree: /home/moeen/code/wsr23-project-integration-hygiene
