@@ -238,12 +238,42 @@ substantial assignment needs Objective, Source Lock, In/Out of Scope, Ownership,
 Dependencies, Hard Gates, Forbidden Shortcuts, Evidence Requirements, Persistence, and
 Stop Conditions. One primary objective; do not silently broaden scope.
 
+### Delegated Git integration authority
+
+`DELEGATED_GIT_INTEGRATION_AUTHORITY = ENABLED`
+
+Inside an exclusively owned workstream, the worker may autonomously: fetch remotes;
+inspect refs/remotes/branches; create feature branches; create isolated worktrees;
+merge current target/base INTO the owned feature branch (normal merge only);
+bounded cherry-pick; commit; push the owned non-protected feature branch normally;
+create/update PRs; comment on PRs/issues; inspect CI; repair attributable failures;
+push follow-ups; mark ready; and merge the campaign-owned PR through the normal GitHub
+PR merge path once every merge-gate condition below holds. Routine user confirmation
+is not required for those operations.
+
+Hard boundaries (never evaded by wrappers, alternate binaries, or shell indirection):
+no force push in any spelling; no direct push to `main`/`master`; no committing while
+checked out on `main`/`master`; no history rewriting; no general rebase; no
+`reset --hard`; no `clean`; no destructive branch/worktree deletion; no `update-ref`,
+ref, filter, or forced-tag mutation; no branch-protection or admin bypass; no
+remote-repository creation/deletion; no secret/token extraction or exposure.
+
+A campaign-owned PR may merge without further confirmation only when: exclusive
+ownership holds; exact PR head and target SHAs are freshly verified; target drift is
+adjudicated; all required exact-head CI/qualification gates PASS; no current
+non-outdated unresolved P1/P2 remains; no FAIL/UNKNOWN/BLOCKED is hidden; Rules and
+evidence integrity hold; no source-lock or ownership conflict remains; the merge needs
+no force/admin bypass/history rewrite; the branch is the worker's own; and canonical
+HEAD/TREE is re-read with a persisted receipt afterwards. Otherwise repair if
+technical and in-scope, or stop on a genuine authority/ownership/source blocker.
+
 ## 11. Git, worktree, ownership
 
 Do not modify another active workstream's branch or worktree. Do not modify `main`
-directly. Local commits for resumability are encouraged. Push, merge, rebase,
+directly. Local commits for resumability are encouraged. Rebase,
 history rewriting, remote repository creation, paid services, process killing, and
-worktree deletion require explicit user approval. Before material work, verify branch,
+worktree deletion require explicit user approval; push and merge of the owned
+workstream branch/PR follow the delegated authority above instead. Before material work, verify branch,
 HEAD, tree, `git status`, contract, and state file; resume from the newest verified
 state without redoing valid evidence.
 

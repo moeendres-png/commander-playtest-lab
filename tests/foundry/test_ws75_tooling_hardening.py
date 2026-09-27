@@ -502,7 +502,48 @@ def test_doom_loop_deny() -> None:
 
 def test_direct_git_push_denied() -> None:
     rules = _config_bash_rules()
-    for cmd in ("git push origin test/ws", "git push --force origin test/ws", "git push"):
+    # Delegated authority: owned-branch push is allowed.
+    for cmd in ("git push origin test/ws", "git push"):
+        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
+    # Force, deletion and main/master push stay denied via later rules.
+    for cmd in (
+        "git push --force origin test/ws",
+        "git push -f origin test/ws",
+        "git push origin test/ws --delete",
+        "git push origin main",
+        "git push origin master",
+    ):
+        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "DENIED", (cmd, matched)
+
+
+def test_owned_branch_git_allow_set() -> None:
+    rules = _config_bash_rules()
+    for cmd in (
+        "git merge origin/main",
+        "git pull --ff-only",
+        "git cherry-pick deadbee",
+        "git checkout -b foundry/x",
+        "git switch -c foundry/x",
+        "git worktree add /tmp/wt",
+        "gh pr create --title t",
+        "gh pr merge 266",
+        "gh issue comment 265 --body hi",
+    ):
+        verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
+        assert verdict == "ENFORCED_ALLOW", (cmd, matched)
+    for cmd in (
+        "git rebase origin/main",
+        "git reset --hard HEAD",
+        "git clean -fd",
+        "git branch -D foundry/x",
+        "git checkout -B foundry/x",
+        "git switch -C foundry/x",
+        "git worktree remove /tmp/wt",
+        "git checkout main",
+        "gh repo delete owner/repo",
+    ):
         verdict, matched = battery_mod.evaluate_rule(rules, "bash", cmd)
         assert verdict == "DENIED", (cmd, matched)
 
