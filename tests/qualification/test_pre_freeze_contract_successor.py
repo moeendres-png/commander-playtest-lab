@@ -92,6 +92,19 @@ def test_successor_overlay_does_not_mutate_other_records() -> None:
     effective = _resolver().load_effective_materialization()
     old = {record["fixture_id"]: record for record in base["records"]}
     new = {record["fixture_id"]: record for record in effective["records"]}
+
+    assert "canonical_bundle_digest" not in effective
+    assert "common_fixture_manifest_sha256" not in effective
+    assert effective["authority_lock"]["lock_id"] == "AUTHORITY_LOCK_v2"
+    assert effective["historical_authority_lock"] == base["authority_lock"]
+    assert (
+        effective["supersedes"]["historical_canonical_bundle_digest"]
+        == base["canonical_bundle_digest"]
+    )
+    assert (
+        effective["fixture_denominator_source"]["historical_common_fixture_manifest_sha256"]
+        == base["common_fixture_manifest_sha256"]
+    )
     assert old.keys() == new.keys()
     for fixture_id in old:
         if fixture_id == "WS05-CMD-START-2":
