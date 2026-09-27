@@ -23,6 +23,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTHONHASHSEED: "0"
+
 jobs:
   semantic-mutation-detection:
     runs-on: ubuntu-latest
