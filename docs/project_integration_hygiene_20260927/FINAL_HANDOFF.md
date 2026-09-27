@@ -58,8 +58,16 @@ Open PR count: **41 → 36**. No content deleted.
 
 ## Dirty / Unknown Worktrees
 
-**19** dirty; **0** modified. All recorded in `DIRTY_WORKTREES.json`, none reset, cleaned, checked
-out, restored or deleted. Highest-value unowned state:
+**19** dirty, of which **3 carry tracked modifications** and 16 are untracked-only. All recorded in
+`DIRTY_WORKTREES.json`; none reset, cleaned, checked out, restored or deleted.
+
+| Tracked-modification worktree | Files | Branch |
+|---|---|---|
+| `xmage-ws49-baseline` | 7 Mage engine sources incl. `PlayerImpl`, `RandomUtil` | detached |
+| `ws-l6-rg05` | 1 (`XmageCausalEliminationReconstructionTest.java`) | `sol/rg05-causal-elimination-20260924` |
+| `ws49-canonical` | 1 (`run_full107_behavior_probe_v105.py`) | `ws49/xmage-v1.0.5-successor-qualification` |
+
+Highest-value unowned state:
 
 - `xmage-ws49-baseline` — **7 tracked modifications to Mage engine sources** including `PlayerImpl` and `RandomUtil` (Rules randomness). Needs a Coordinator ruling.
 - `ws50-forge-decision-sequence-slice` — 51 untracked evidence paths, no owner.

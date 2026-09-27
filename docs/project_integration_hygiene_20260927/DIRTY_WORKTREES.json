@@ -352,6 +352,18 @@
   "observed_main_sha": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719",
   "observed_main_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
   "preservation_rule": "\u00a77 - a dirty worktree is NOT clutter until proven so; no reset/clean/checkout/restore/delete was performed anywhere.",
+  "summary": {
+    "modified_or_cleaned_by_wsr23": 0,
+    "note": "WSR23 performed no reset, clean, checkout, restore, stash or delete on any of these surfaces. git status and git log were the only commands run against them.",
+    "total_dirty": 19,
+    "untracked_only": 16,
+    "with_tracked_modification_paths": {
+      "ws-l6-rg05": 1,
+      "ws49-canonical": 1,
+      "xmage-ws49-baseline": 7
+    },
+    "with_tracked_modifications": 3
+  },
   "total": 19,
   "workstream": "WSR23",
   "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
