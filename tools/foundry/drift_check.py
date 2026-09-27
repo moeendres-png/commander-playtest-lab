@@ -32,7 +32,7 @@ REACHABLE_CONFIG_FILES = ("opencode.json", "opencode.jsonc")
 REACHABLE_DIRS = (".opencode", ".claude")
 HISTORICAL_NESTS = ("research", "handoffs", "docs", "artifacts", "qualification")
 
-CANONICAL_MODEL = "opencode-go/muse-spark-1.3-contributor"
+CANONICAL_MODEL = "opencode-go/space-bunny-free"
 
 
 def _run(args: list[str], cwd: str) -> str:
