@@ -1,54 +1,45 @@
 {
-  "schema_version": "commander-lab.current-rules-authority-receipt/1.1.0",
+  "schema_version": "commander-lab.current-rules-authority-receipt/1.2.0",
   "authority": "Wizards of the Coast",
   "verified_date": "2026-09-27",
+  "authority_status": "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED",
   "official_rules_page_url": "https://magic.wizards.com/en/rules",
-  "applicable_rule": "103.8a",
-  "semantic_requirement": "In a two-player game, the starting player skips the entire draw step of the first turn.",
-  "authority_status": "FRESHNESS_CONFLICT_FAIL_CLOSED",
-  "directly_retrieved_official_source": {
-    "url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+  "current_official_source": {
+    "rules_page_txt_link_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
     "effective_date": "2026-08-07",
+    "document_effective_date_text": "These rules are effective as of August 7, 2026.",
+    "applicable_rule": "103.8a",
+    "semantic_requirement": "In a two-player game, the player who plays first skips the draw step of their first turn.",
     "rule_103_8a_observed": true,
-    "classification": "DIRECTLY_VERIFIED_OFFICIAL_BUT_FRESHNESS_DISPUTED"
+    "classification": "DIRECTLY_VERIFIED_CURRENT_OFFICIAL",
+    "byte_exact_sha256": null,
+    "byte_exact_status": "NOT_CAPTURED_IN_THIS_COORDINATOR_SURFACE"
   },
-  "newer_release_signal": {
-    "effective_date": "2026-09-25",
-    "status": "REQUIRES_DIRECT_OFFICIAL_BYTE_CAPTURE",
-    "official_txt_url": null,
-    "official_txt_sha256": null,
-    "admission_credit": false,
-    "corroboration": [
-      {
-        "type": "USER_SUPPLIED_WORK_EXECUTION_REPORT",
-        "note": "A prior execution worker reported a newer official Comprehensive Rules TXT effective 2026-09-25."
-      },
-      {
-        "type": "SECONDARY_PUBLIC_MIRROR",
-        "repository": "muz/mtgrulediff",
-        "commit": "8ba7eb0d63a9b1e67aa1280fafb9fd0d16052592",
-        "rules_file": "rules/MagicCompRules 20260925.txt",
-        "rules_file_git_blob": "4dc4fead596288be1ca6aa9c913ea1739c680a29",
-        "rule_103_8a_semantics_match": true,
-        "authority_role": "DISCOVERY_ONLY_NOT_RULES_AUTHORITY"
-      }
-    ]
+  "freshness_adjudication": {
+    "prior_claimed_newer_effective_date": "2026-09-25",
+    "prior_signal_role": "DISCOVERY_ONLY",
+    "disposition": "REJECTED_BY_HIGHER_AUTHORITY_CURRENT_OFFICIAL_RULES_PAGE",
+    "reason": "On 2026-09-27 the current official Wizards Rules page directly links the 20260807 TXT, whose document states an August 7, 2026 effective date. The prior 2026-09-25 signal is therefore not current Rules authority.",
+    "official_release_bulletin_url": "https://magic.wizards.com/en/news/announcements/reality-fracture-update-bulletin",
+    "bulletin_role": "OFFICIAL_CORROBORATION_ONLY",
+    "admission_credit_from_prior_signal": false
   },
   "reproduction": {
-    "require_direct_official_current_txt_capture": true,
-    "require_current_effective_date": true,
-    "require_current_txt_sha256": true,
+    "require_current_official_rules_page": true,
+    "require_rules_page_txt_target_match": true,
+    "require_document_effective_date": true,
     "require_rule_number": "103.8a",
     "fail_closed_on_source_drift": true,
-    "fail_closed_on_freshness_conflict": true,
-    "on_unresolved_conflict": "BLOCK_CURRENT_RULES_AUTHORITY_CREDIT"
+    "fail_closed_if_rules_page_target_changes": true,
+    "byte_exact_hash_optional_for_semantic_authority_but_required_for_byte_identity_claim": true
   },
   "historical_repository_provenance": {
     "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
-    "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE_ONLY",
+    "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE",
     "historical_effective_date": "2026-08-07",
     "historical_resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
     "historical_txt_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
-    "carry_forward_as_current_authority": false
+    "semantic_effective_date_matches_current": true,
+    "byte_identity_carry_forward": false
   }
 }
