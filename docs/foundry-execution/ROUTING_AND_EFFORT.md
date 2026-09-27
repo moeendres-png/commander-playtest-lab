@@ -14,12 +14,11 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.
 2. OpenCode Foundry — primary execution tier with one explicit executor per run:
-   - preferred for new substantial work: `space-bunny` =
-     `opencode-go/space-bunny-free`, pinned to native `max` reasoning by the
-     run-specific injected config;
-   - committed/default and fully supported alternate: `muse` =
-     `opencode-go/muse-spark-1.3-contributor`, retained for reproducibility,
-     continuation and deliberate cross-model review.
+   - committed/default and preferred: `space-bunny` =
+     `opencode-go/space-bunny-free` at native `max`;
+   - explicit alternate only: `muse` =
+     `opencode-go/muse-spark-1.3-contributor` at native `xhigh`.
+   Muse HIGH is not an active project lane.
 3. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
 Executor choice is explicit and auditable. The launcher never changes model because of
@@ -34,30 +33,23 @@ The existing `--execution-provider zen` remains a compatibility override for
 `--execution-profile space-bunny`; conflicting selections fail closed. See
 `EXECUTION_PROVIDER_OVERRIDE.md` for exact resolution.
 
-## Effort policy
+## Execution identity policy
 
-Allowed project efforts: `high`, `xhigh`. Minimum: `high`. Default: `high`.
+Active project work has exactly two supported execution identities:
 
-- `high`: normal implementation, repository edits, builds, tests, ordinary debugging,
-  CI remediation, qualification, evidence generation, normal build-test-fix loops,
-  long but well-scoped workstreams, repetitive mechanical evidence work.
-- `xhigh`: escalation for difficult nonlocal reasoning, unclear
-  engine-vs-provider-vs-harness-vs-fixture causality, complex multi-subsystem
-  remediation, deep debugging chains, identity/state/lifecycle problems, and
-  architecture-adjacent implementation.
+- `space-bunny` → `opencode-go/space-bunny-free` → native `max`.
+  This is the default and preferred executor for implementation, debugging,
+  qualification, integration, CI remediation, evidence generation and long campaigns.
+- `muse` → `opencode-go/muse-spark-1.3-contributor` → native `xhigh`.
+  This is an explicit alternate for deliberate cross-model work, difficult technical
+  adjudication, or continuation where Muse is specifically desired.
 
-Never use `medium`, `low`, `minimal`, `none`, or `off` for active project work.
-Do not use XHIGH merely because a task is large. Do not restart valid work solely to
-change effort. Preserve Source Lock and durable state across escalation.
+The launcher fails closed on mismatched pairs. In particular, Space Bunny with `xhigh`
+or Muse with `high`/`max` is invalid. There is no active-work HIGH lane.
 
-Machine enforcement: root `opencode.json` remains Muse-default, disables the
-`none`, `off`, `minimal`, `low`, and `medium` variants, sets Muse default reasoning
-to `high`, and restricts providers to `opencode-go`. The launcher may construct a
-run-specific, single-model `space-bunny` bundle that pins
-`opencode-go/space-bunny-free` to native `max`; it does not widen the committed
-canonical allowlist or create fallback behavior. The GitHub lane
-(`.github/workflows/opencode.yml`) remains Muse HIGH by default unless separately
-changed and qualified.
+Root `opencode.json` is Space Bunny MAX by default and exposes Muse only at XHIGH.
+The GitHub OpenCode lane is also Space Bunny MAX. No executor fallback occurs on quota,
+auth, catalog or child failure.
 
 ## Technical decision authority
 
@@ -67,8 +59,7 @@ Authoritative model:
 - Space Bunny MAX: preferred new-work execution profile. Autonomous implementation,
   debugging, qualification, evidence generation, tool use and technical decisions
   within the bounded workstream contract. Native reasoning remains `max`.
-- Muse HIGH/XHIGH: fully supported alternate/continuation execution profile. HIGH owns
-  ordinary bounded engineering; XHIGH owns difficult nonlocal technical adjudication
+- Muse XHIGH: explicit alternate/continuation execution profile. XHIGH owns difficult nonlocal technical adjudication
   within already-defined policy.
 - Sol High: final authority only for project-wide evidence-semantics or
   qualification-policy changes, ambiguous MTG Rules interpretation, new shared
@@ -82,7 +73,7 @@ investigate root causes, repair in-scope defects, test, validate, persist eviden
 continue autonomously until COMPLETE or a genuine authority/permission/source gate.
 
 A technical decision is never an authority decision. Only genuine authority-policy
-questions become `AUTHORITY_GATE`. HIGH→XHIGH escalation is not failure.
+questions become `AUTHORITY_GATE`. Executor changes are explicit handoffs, not silent escalation.
 
 ## Work necessity gate
 

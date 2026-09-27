@@ -313,10 +313,18 @@ def test_high_default_retained() -> None:
     models = config["provider"]["opencode-go"]["models"]
     assert models["space-bunny-free"]["options"] == {"reasoningEffort": "max"}
     assert models["muse-spark-1.3-contributor"]["options"] == {"reasoningEffort": "xhigh"}
-    for name in ("foundry-implementer.md", "foundry-adjudicator.md", "foundry-reviewer.md"):
+    # The primary implementer is Space Bunny MAX. The read-only reviewer and the
+    # adjudicator are the Muse XHIGH cross-model alternate. No agent may sit on a
+    # retired level.
+    expected = {
+        "foundry-implementer.md": ("opencode-go/space-bunny-free", "max"),
+        "foundry-adjudicator.md": ("opencode-go/muse-spark-1.3-contributor", "xhigh"),
+        "foundry-reviewer.md": ("opencode-go/muse-spark-1.3-contributor", "xhigh"),
+    }
+    for name, (model, variant) in expected.items():
         front = _agent_frontmatter(name)
-        assert front["model"] == "opencode-go/muse-spark-1.3-contributor", name
-        assert front["variant"] == "xhigh", name
+        assert front["model"] == model, name
+        assert front["variant"] == variant, name
 
 
 def test_adjudicator_exists_and_configured() -> None:
@@ -995,7 +1003,7 @@ def test_current_routing_is_executor_neutral_and_bunny_preferred() -> None:
         encoding="utf-8"
     )
     flat = " ".join(routing.lower().split())
-    assert "preferred for new substantial work" in flat
+    assert "default and preferred executor" in flat
     assert "space-bunny" in flat
     assert "native `max`" in flat
     assert "muse" in flat

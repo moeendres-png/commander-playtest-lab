@@ -1,23 +1,14 @@
+> **Current routing authority update — 2026-09-27:** Historical HIGH/XHIGH
+> adjudications below are provenance only. Current active-work routing is Space Bunny
+> MAX by default/preference and Muse XHIGH only; Muse HIGH is no longer an active lane.
+> See `ROUTING_AND_EFFORT.md` and `COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`.
+
 # Governance Supersession — PR #161, #166, #167
 
-> **Currency note (WSR23, 2026-09-27, verified against `origin/main@c5f9418e`).** The
-> consolidation branch named below (`project/opencode-execution-system-consolidation-20260910`,
-> based on `origin/main@b3f5a9929aaf07d2ae574724bbe198b5ab402df6`) produced this
-> record and remains its historical author, but it is **no longer the successor governance
-> line**: it is 0 commits ahead of and 420 commits behind current `main`. The live
-> governance line is `main` itself, plus open PR #261
-> (`ops/dual-executor-governance-hardening-20260927`, head `0699a5f2`), which owns
-> `AGENTS.md`, `opencode.json`-adjacent routing docs, `docs/foundry-execution/README.md`
-> and `docs/foundry-execution/ROUTING_AND_EFFORT.md`. Read the dispositions below as
-> historical Coordinator input, not as the current routing authority.
->
-> The three dispositions were re-verified by WSR23 against current `main` and still hold;
-> per-PR evidence is in `docs/project_integration_hygiene_20260927/OPEN_PR_CLASSIFICATION.json`
-> and `SUPERSESSION_LEDGER.json`. One cross-reference in the PR #166 entry was corrected
-> from `AGENTS.md` §11 to §12 (Privacy) in the same change.
-
-Do not merge the PRs below wholesale. Recommended dispositions are
-for the Coordinator; no remote PR state was changed by the workstream that wrote this record.
+This branch (`project/opencode-execution-system-consolidation-20260910`, based on
+`origin/main@b3f5a9929aaf07d2ae574724bbe198b5ab402df6`) is the single successor
+governance line. Do not merge the PRs below wholesale. Recommended dispositions are
+for the Coordinator; no remote PR state was changed by this workstream.
 
 ## PR #161 — `chore/foundry-agents-policy` (@ `26409b932d540ba823ccc70e2187227cdae52329`)
 
@@ -49,8 +40,8 @@ WS49 qualification payload that must not enter governance; references
 Work/Work-chat effort prescriptions predate the final routing adjudication.
 
 Recommendation: `REBASE/REWORK` in spirit — extract only the privacy-boundary
-concepts (already incorporated into `AGENTS.md` §12 Privacy and the `opencode.json`
-`permission` block), then `CLOSE_AFTER_CONSOLIDATION`. Never merge wholesale.
+concepts (already incorporated into `AGENTS.md` §11 and `opencode.json`
+permissions), then `CLOSE_AFTER_CONSOLIDATION`. Never merge wholesale.
 
 ## PR #167 — `project/resource-constrained-execution-policy-20260908` (@ `633f51ae68b4908228afdb4354029163e24b903c`)
 

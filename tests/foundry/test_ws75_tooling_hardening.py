@@ -340,10 +340,13 @@ def test_implementer_reads_exact_state_path() -> None:
     assert "FOUNDRY_STATE_PATH" in text
     assert "FOUNDRY_RUN_DIR" in text
     assert "FOUNDRY_REFERENCE_ROOTS" in text
-    assert "never retry an identical denied command" in text.lower()
-    assert (
-        "never use `git -C`" in text or "never use ``git -C``" in text or "Never `git -C`" in text
-    )
+    # The protection, not one exact phrasing: a denied command must not be retried
+    # under a different spelling, and `git -C` must be treated as authorized
+    # ordinary tooling rather than a wrapper-shaped bypass.
+    low = text.lower()
+    assert "never retry an actually denied command" in low
+    assert "merely by spelling it differently" in low
+    assert "git -c" in low and "authorized" in low
 
 
 # --- 4. REFERENCE_ROOT contract ------------------------------------------------

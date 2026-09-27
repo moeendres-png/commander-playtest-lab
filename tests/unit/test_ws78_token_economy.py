@@ -352,17 +352,22 @@ def test_policy_layers_kept(repo_root: Path):
     implementer = (repo_root / ".opencode/agents/foundry-implementer.md").read_text(
         encoding="utf-8"
     )
-    # The implementer is no longer self-restricted from ordinary publication, but
+    # The implementer is not self-restricted from ordinary project execution, but
     # the boundaries that actually protect the project must still be written into
-    # the agent instructions, not only into the permission table.
+    # the agent instructions, not only into the permission table. Asserted by
+    # substance so a rewording cannot silently drop a protection.
+    low = implementer.lower()
     for required in (
-        "force-pushing or rewriting immutable evidence",
-        "destroying unique unintegrated work",
-        "exposing secrets",
+        "immutable evidence/provenance",
+        "unique unintegrated work",
+        "never mutate `main`/`master` directly",
+        "expose secrets",
         "unique content is proven preserved",
-        "ARCHITECTURE_FREEZE",
+        "reserved authority",
+        "architecture_freeze",
+        "production_provider",
     ):
-        assert required in implementer, required
+        assert required in low, required
     assert "saved full output" in implementer, (
         "C: agent must prefer reading saved full output over rerunning commands"
     )
