@@ -307,20 +307,104 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
     validator.validate(not_eligible)
 
 
-def test_current_rules_authority_freshness_conflict_fails_closed() -> None:
+_RULES_AUTHORITY_FAIL_CLOSED_POLICY = (
+    "A current official Rules authority receipt may only claim resolution when it "
+    "carries a direct official capture whose resolved TXT URL, byte count, "
+    "SHA-256, stated effective date, and exact rule text are all present and "
+    "mutually consistent, and when it records an explicit impact adjudication "
+    "for the successor contract. Resolution claimed without a direct official "
+    "capture, or a receipt whose capture contradicts its own reproduction "
+    "expectation, must fail closed."
+)
+
+
+def _assert_rules_authority_receipt(resolved: dict) -> None:
+    """Enforce the current Rules-authority receipt policy (fail closed)."""
+    assert resolved["authority"] == "Wizards of the Coast"
+    assert resolved["reproduction"]["fail_closed_on_freshness_conflict"] is True
+    assert resolved["reproduction"]["require_direct_official_current_txt_capture"] is True
+
+    status = resolved["authority_status"]
+    if status == "FRESHNESS_CONFLICT_FAIL_CLOSED":
+        # Unresolved: the newer signal must NOT carry admission credit.
+        signal = resolved["newer_release_signal"]
+        assert signal["admission_credit"] is False
+        assert signal["official_txt_url"] is None
+        assert signal["official_txt_sha256"] is None
+        return
+
+    assert status == "RESOLVED_DIRECT_OFFICIAL_CAPTURE_2026_09_25", status
+    capture = resolved.get("wsr22_direct_capture")
+    assert capture, "resolution claimed without a direct official capture"
+    assert capture["official_rules_page_url"] == "https://magic.wizards.com/en/rules"
+    assert capture["resolved_official_txt_url"].startswith("https://media.wizards.com/")
+    assert capture["official_txt_sha256"] and len(capture["official_txt_sha256"]) == 64
+    assert capture["official_txt_bytes"] > 0
+    assert capture["effective_date"] == "2026-09-25"
+    assert capture["effective_date_stated_in_txt"].endswith("September 25, 2026.")
+    assert capture["rule_103_8a_exact_text"].startswith(
+        "103.8a In a two-player game, the player who plays first skips the draw step"
+    )
+    assert capture["page_links_newer_than_2026_08_07"] is True
+    assert capture["prior_authority_status"] == "FRESHNESS_CONFLICT_FAIL_CLOSED"
+
+    # Capture must be internally consistent with the reproduction recipe.
+    assert capture["official_txt_sha256"] == capture["reproduction_expect_sha256"]
+    assert capture["official_txt_bytes"] == capture["reproduction_expect_bytes"]
+
+    # The newer signal is admitted, but the secondary mirror stays non-authoritative.
+    signal = resolved["newer_release_signal"]
+    assert signal["effective_date"] == "2026-09-25"
+    assert signal["admission_credit"] is True
+    assert signal["official_txt_url"] == capture["resolved_official_txt_url"]
+    assert signal["official_txt_sha256"] == capture["official_txt_sha256"]
+    assert "NOT_RULES_AUTHORITY" in signal["authority_role"]
+    assert resolved["superseded_artifact"]["status"].startswith("SUPERSEDED_BY_OFFICIAL")
+
+    # Successor-contract impact must be adjudicated, and must not be a silent rewrite.
+    impact = capture["successor_contract_impact_adjudication"]
+    assert impact["successor_contract_mutated_by_wsr22"] is False
+    assert impact["contract_drift_classification"] == "NOT_SOURCE_CONTRACT_DRIFT"
+    assert (
+        "103.8a is byte-identical" in impact["semantic_survival_proof"]["WS05-CMD-START-2"]
+    )
+    assert "103.8c is byte-identical" in impact["semantic_survival_proof"]["WS05-CMD-START-3"]
+
+
+def test_current_rules_authority_resolved_by_direct_official_capture() -> None:
     receipt = _json(RULES_AUTHORITY_PATH)
     successor = _json(SUCCESSOR_PATH)
-    assert receipt["authority"] == "Wizards of the Coast"
-    assert receipt["authority_status"] == "FRESHNESS_CONFLICT_FAIL_CLOSED"
-    assert receipt["directly_retrieved_official_source"]["effective_date"] == "2026-08-07"
-    assert receipt["directly_retrieved_official_source"]["rule_103_8a_observed"] is True
-    assert receipt["newer_release_signal"]["effective_date"] == "2026-09-25"
-    assert receipt["newer_release_signal"]["official_txt_url"] is None
-    assert receipt["newer_release_signal"]["official_txt_sha256"] is None
-    assert receipt["newer_release_signal"]["admission_credit"] is False
-    assert receipt["reproduction"]["fail_closed_on_freshness_conflict"] is True
-    assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
+    _assert_rules_authority_receipt(receipt)
+
+    # The frozen successor contract is deliberately NOT mutated by WSR22; its
+    # authored status/effective-date citation stay exactly as published.
+    assert successor["rules_authority"]["current_authority_status"] == (
+        "FRESHNESS_CONFLICT_FAIL_CLOSED"
+    )
     assert successor["rules_authority"]["semantic_basis_effective_date"] == "2026-08-07"
+    assert successor["rules_authority"]["current_authority_receipt_required"] is True
+    assert successor["change_accounting"]["changed_fixture_ids"] == ["WS05-CMD-START-2"]
+
+
+def test_current_rules_authority_fails_closed_without_direct_capture() -> None:
+    """Resolution claimed without direct official capture must fail closed."""
+    receipt = _json(RULES_AUTHORITY_PATH)
+
+    no_capture = json.loads(json.dumps(receipt))
+    del no_capture["wsr22_direct_capture"]
+    with pytest.raises(AssertionError):
+        _assert_rules_authority_receipt(no_capture)
+
+    contradicting = json.loads(json.dumps(receipt))
+    contradicting["wsr22_direct_capture"]["official_txt_sha256"] = "0" * 64
+    with pytest.raises(AssertionError):
+        _assert_rules_authority_receipt(contradicting)
+
+    # A secondary mirror may never be promoted to the authority slot.
+    mirror_only = json.loads(json.dumps(receipt))
+    mirror_only["authority"] = "secondary public mirror"
+    with pytest.raises(AssertionError):
+        _assert_rules_authority_receipt(mirror_only)
 
 
 def test_freeze_schema_rejects_unbound_source_or_capabilities() -> None:

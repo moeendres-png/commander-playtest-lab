@@ -1,54 +1,101 @@
 {
-  "schema_version": "commander-lab.current-rules-authority-receipt/1.1.0",
-  "authority": "Wizards of the Coast",
-  "verified_date": "2026-09-27",
+ "schema_version": "commander-lab.current-rules-authority-receipt/1.1.0",
+ "authority": "Wizards of the Coast",
+ "verified_date": "2026-09-27",
+ "official_rules_page_url": "https://magic.wizards.com/en/rules",
+ "applicable_rule": "103.8a",
+ "semantic_requirement": "In a two-player game, the starting player skips the entire draw step of the first turn.",
+ "authority_status": "RESOLVED_DIRECT_OFFICIAL_CAPTURE_2026_09_25",
+ "directly_retrieved_official_source": {
+  "url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
+  "effective_date": "2026-08-07",
+  "rule_103_8a_observed": true,
+  "classification": "DIRECTLY_VERIFIED_OFFICIAL_BUT_FRESHNESS_DISPUTED"
+ },
+ "newer_release_signal": {
+  "effective_date": "2026-09-25",
+  "status": "DIRECTLY_CONFIRMED_AND_RESEALED",
+  "official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "admission_credit": true,
+  "corroboration": [
+   {
+    "type": "USER_SUPPLIED_WORK_EXECUTION_REPORT",
+    "note": "A prior execution worker reported a newer official Comprehensive Rules TXT effective 2026-09-25."
+   },
+   {
+    "type": "SECONDARY_PUBLIC_MIRROR",
+    "repository": "muz/mtgrulediff",
+    "commit": "8ba7eb0d63a9b1e67aa1280fafb9fd0d16052592",
+    "rules_file": "rules/MagicCompRules 20260925.txt",
+    "rules_file_git_blob": "4dc4fead596288be1ca6aa9c913ea1739c680a29",
+    "rule_103_8a_semantics_match": true,
+    "authority_role": "DISCOVERY_ONLY_NOT_RULES_AUTHORITY"
+   }
+  ],
+  "authority_role": "CORROBORATED_DISCOVERY_ONLY_NOT_RULES_AUTHORITY"
+ },
+ "reproduction": {
+  "require_direct_official_current_txt_capture": true,
+  "require_current_effective_date": true,
+  "require_current_txt_sha256": true,
+  "require_rule_number": "103.8a",
+  "fail_closed_on_source_drift": true,
+  "fail_closed_on_freshness_conflict": true,
+  "on_unresolved_conflict": "BLOCK_CURRENT_RULES_AUTHORITY_CREDIT"
+ },
+ "historical_repository_provenance": {
+  "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
+  "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE_ONLY",
+  "historical_effective_date": "2026-08-07",
+  "historical_resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
+  "historical_txt_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
+  "carry_forward_as_current_authority": false
+ },
+ "wsr22_direct_capture": {
+  "workstream": "WSR22-FINAL-CURRENT-BOUNDARY-FREEZE-QUALIFICATION-20260927",
+  "retrieval_utc": "2026-09-27T14:05:23Z",
   "official_rules_page_url": "https://magic.wizards.com/en/rules",
-  "applicable_rule": "103.8a",
-  "semantic_requirement": "In a two-player game, the starting player skips the entire draw step of the first turn.",
-  "authority_status": "FRESHNESS_CONFLICT_FAIL_CLOSED",
-  "directly_retrieved_official_source": {
-    "url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260807.txt",
-    "effective_date": "2026-08-07",
-    "rule_103_8a_observed": true,
-    "classification": "DIRECTLY_VERIFIED_OFFICIAL_BUT_FRESHNESS_DISPUTED"
+  "page_txt_link_captured": "https://media.wizards.com/2026/downloads/MagicCompRules 20260925.txt",
+  "resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260925.txt",
+  "official_txt_bytes": 977752,
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "effective_date_stated_in_txt": "These rules are effective as of September 25, 2026.",
+  "effective_date": "2026-09-25",
+  "rule_103_8a_exact_text": "103.8a In a two-player game, the player who plays first skips the draw step (see rule 504, \u201cDraw Step\u201d) of their first turn.",
+  "page_links_newer_than_2026_08_07": true,
+  "prior_2026_08_07_url_status": "HTTP 404 (superseded/removed)",
+  "capture_pipeline_self_validation": "re-captured 2026-08-19 TXT sha256 4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f == AUTHORITY_LOCK_v2 historical_txt_sha256",
+  "prior_authority_status": "FRESHNESS_CONFLICT_FAIL_CLOSED",
+  "secondary_mirror_role": "DISCOVERY_ONLY_NOT_RULES_AUTHORITY (now corroborated, still non-authoritative)",
+  "full_evidence": "qualification/final-current-boundary-20260927/CURRENT_RULES_AUTHORITY.json",
+  "full107_impact": "SEMANTICS_CONFIRMED_STILL_CURRENT (103.8a/103.8b/103.8c/504.1/800.4a/800.4j byte-identical 2026-08-19 -> 2026-09-25; only combat-timing renumbering 506.7a-g -> 506.8a-g plus new 111.10x and 701.71a)",
+  "successor_contract_impact_adjudication": {
+   "successor_contract": "qualification/pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_6.json",
+   "successor_contract_mutated_by_wsr22": false,
+   "contract_cited_effective_date": "2026-08-07",
+   "contract_cited_date_status": "SUPERSEDED_BY_2026-09-25_OFFICIAL_RELEASE",
+   "semantic_survival_proof": {
+    "WS05-CMD-START-2": "Rule 103.8a is byte-identical between the 2026-08-19 and 2026-09-25 official TXT. The successor obligation (2P starting player skips the entire first-turn draw step; no priority or observation inside the skipped step; no draw event; first observable checkpoint is precombat main; hand/library unchanged by a first-turn draw) is exactly what the current official rule states. Contract semantics remain correct.",
+    "WS05-CMD-START-3": "Rule 103.8c is byte-identical and states that in all other multiplayer games no player skips the draw step of their first turn, so the 3P first-turn-draw obligation remains correct.",
+    "remaining_105_rows": "No qualification-relevant delta. Only changes are combat-timing renumbering 506.7a-g -> 506.8a-g (text identical), new 111.10x token definition, new 701.71a Jace empower."
+   },
+   "contract_drift_classification": "NOT_SOURCE_CONTRACT_DRIFT",
+   "classification_reason": "The successor contract blob is unchanged. Only its external Rules-authority citation date is superseded, and the newer official bytes confirm the contract's semantics with zero relevant delta. No candidate identity, fixture semantics, adapter protocol, AF gate, or Architecture Freeze gate changed.",
+   "required_coordinator_action": "None for the qualification boundary. The Coordinator may optionally restamp the successor contract's cited effective date from 2026-08-07 to 2026-09-25 in a later contract-normalization change; WSR22 does not mutate it."
   },
-  "newer_release_signal": {
-    "effective_date": "2026-09-25",
-    "status": "REQUIRES_DIRECT_OFFICIAL_BYTE_CAPTURE",
-    "official_txt_url": null,
-    "official_txt_sha256": null,
-    "admission_credit": false,
-    "corroboration": [
-      {
-        "type": "USER_SUPPLIED_WORK_EXECUTION_REPORT",
-        "note": "A prior execution worker reported a newer official Comprehensive Rules TXT effective 2026-09-25."
-      },
-      {
-        "type": "SECONDARY_PUBLIC_MIRROR",
-        "repository": "muz/mtgrulediff",
-        "commit": "8ba7eb0d63a9b1e67aa1280fafb9fd0d16052592",
-        "rules_file": "rules/MagicCompRules 20260925.txt",
-        "rules_file_git_blob": "4dc4fead596288be1ca6aa9c913ea1739c680a29",
-        "rule_103_8a_semantics_match": true,
-        "authority_role": "DISCOVERY_ONLY_NOT_RULES_AUTHORITY"
-      }
-    ]
-  },
-  "reproduction": {
-    "require_direct_official_current_txt_capture": true,
-    "require_current_effective_date": true,
-    "require_current_txt_sha256": true,
-    "require_rule_number": "103.8a",
-    "fail_closed_on_source_drift": true,
-    "fail_closed_on_freshness_conflict": true,
-    "on_unresolved_conflict": "BLOCK_CURRENT_RULES_AUTHORITY_CREDIT"
-  },
-  "historical_repository_provenance": {
-    "authority_lock_path": "qualification/manifests/AUTHORITY_LOCK_v2.json",
-    "authority_lock_role": "HISTORICAL_CAPTURE_PROVENANCE_ONLY",
-    "historical_effective_date": "2026-08-07",
-    "historical_resolved_official_txt_url": "https://media.wizards.com/2026/downloads/MagicCompRules%2020260819.txt",
-    "historical_txt_sha256": "4381ad1b39ab2c05f7d03633a20f711ed37277074d3266dcba5f38cbb527423f",
-    "carry_forward_as_current_authority": false
-  }
+  "reproduction_expect_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca",
+  "reproduction_expect_bytes": 977752,
+  "reproduction_recipe": [
+   "GET https://magic.wizards.com/en/rules and read the Comprehensive Rules TXT href",
+   "GET that href with the space URL-encoded, then hash the raw bytes",
+   "expect sha256 8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca over 977752 bytes",
+   "grep rule 103.8a and compare to rule_103_8a_exact_text"
+  ]
+ },
+ "superseded_artifact": {
+  "effective_date": "2026-08-07",
+  "status": "SUPERSEDED_BY_OFFICIAL_2026_09_25_RELEASE_URL_NOW_404",
+  "historical_role": "PROVENANCE_ONLY"
+ }
 }
