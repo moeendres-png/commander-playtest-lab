@@ -1,6 +1,6 @@
 # Commander Simulator Next — Repository Agent Policy
 
-Durable instructions for every OpenCode/Muse session on `moeendres-png/commander-playtest-lab`.
+Durable instructions for every OpenCode Foundry session on `moeendres-png/commander-playtest-lab`.
 Stable rules only. Never place volatile data here: no SHAs, run IDs, PASS counts, failure
 diagnoses, pricing, or rate limits. Session-specific facts live in the Workstream Contract
 and the workstream's explicit dedicated state file (the exact `--state` path supplied
@@ -30,6 +30,19 @@ a fixed 4-player architecture restriction.
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED`. `PRODUCTION_PROVIDER = NOT SELECTED`.
 Do not create the Production Repository, select a Rules Core, or claim Architecture Freeze.
+
+### Intended end state
+
+The project is not complete when a harness compiles or a subset of cards passes. The
+intended end state is a production-quality Commander simulation system that can execute
+real 100-card decks under a qualified full-rules Rules Core, with authoritative legal
+Decision Options, externally controlled discretionary decisions, principal-scoped hidden
+information, explicit Rules RNG, semantic replay, process-isolated batch execution, and
+correct multiplayer/Commander lifecycle semantics. Before Architecture Freeze, Foundry
+work should maximize decision-quality and qualification evidence for the candidate Rules
+Core/provider. After Freeze, implementation work must preserve that single-source Rules
+authority and move toward complete reproducible full games rather than parallel toy rules
+implementations.
 
 ## 2. Rules Authority
 
@@ -90,11 +103,14 @@ requalification.
   evidence promotion, cross-workstream integration, gate decisions, Architecture Freeze.
 - OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
   tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
-  and long autonomous workstreams. The default executor profile is
-  `opencode-go/muse-spark-1.3-contributor`. An explicit operator-selected
-  `space-bunny` profile may instead run `opencode-go/space-bunny-free` at native
-  `max` reasoning. Executor selection is per-run, recorded, never inferred from quota or
-  failure, and never falls back silently.
+  and long autonomous workstreams. For new substantial work, prefer the explicit
+  `space-bunny` profile: `opencode-go/space-bunny-free`, pinned by the launcher to
+  native `max` reasoning for the main model, small model, and reachable project agents.
+  The committed/default `muse` profile remains
+  `opencode-go/muse-spark-1.3-contributor` for reproducibility, continuation of
+  Muse-owned workstreams, alternate execution, and deliberate cross-model review.
+  Executor selection is explicit per run, recorded, never inferred from quota or failure,
+  and never falls back silently.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
   capability identified; Sol High insufficient; OpenCode Foundry insufficient; genuinely
   required; smallest necessary scope). Never the normal engineering path.
@@ -127,22 +143,44 @@ can resolve it.
 
 Routing distinction:
 
-- Muse HIGH: autonomous bounded engineering execution + ordinary local technical
-  decisions.
-- Muse XHIGH: autonomous difficult engineering + technical root-cause, evidence,
+- Space Bunny MAX: preferred execution profile for new substantial engineering work.
+  It is autonomous within the workstream contract and remains natively pinned to
+  `max` even when the project-level effort field is `high` or `xhigh`.
+- Muse HIGH: supported bounded engineering execution + ordinary local technical
+  decisions, especially for established Muse-owned workstreams.
+- Muse XHIGH: supported difficult engineering + technical root-cause, evidence,
   qualification, and repair adjudication within already-defined project policy.
 - Sol High: Rules, evidence-policy, qualification-policy, shared-architecture,
   cross-workstream authority, Provider Selection, Architecture Freeze.
 
-Muse HIGH owns autonomous bounded engineering execution, including ordinary local
-technical decisions inside the authorized workstream contract. Muse XHIGH owns
-difficult technical reasoning and adjudication within already-defined project
-policy (root cause, failure-class, evidence-provenance, repair-DAG decisions).
-The model is: Muse investigates → reasons → decides technically → implements when
-authorized → tests → diagnoses → repairs → validates → records evidence →
-continues. Sol High is an authority and gate tier, not a routine engineering
-micro-manager; the full delegation is recorded in
-`docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md`.
+The selected OpenCode Foundry executor owns autonomous technical execution inside the
+authorized workstream contract: inspect → reason → use tools → decide technically →
+implement when authorized → build/test → diagnose → repair → retest → validate →
+persist evidence → continue. It must actively detect adjacent in-scope defects or
+inconsistencies exposed by authoritative evidence and repair them systemically when doing
+so is necessary to complete the contracted objective. It must not stop merely because the
+first plan or implementation failed. Sol High is an authority and gate tier, not a routine
+engineering micro-manager; the current delegation is recorded in
+`docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`.
+
+### Autonomous tool use
+
+The selected Foundry worker is expected to use its available OpenCode tools proactively,
+not merely describe what could be done. Within configured permissions it should use
+read/list/glob/grep for source discovery; edit/write/apply-patch for authorized changes;
+bash for builds/tests/debugging and allowed Git inspection; websearch/webfetch for current
+public technical or Rules authority when required; LSP for code intelligence; skills for
+project workflows; and allowed task/subagent calls for bounded exploration, adjudication,
+or fresh-context review. An `allow`ed tool does not require a routine user round-trip.
+An `ask`/`deny` result is a real permission boundary: never evade it by wrappers,
+alternate command spellings, shell indirection, or a different tool.
+
+Tool use remains evidence-driven. Prefer the smallest discriminating command first, but
+continue through build-test-debug-fix loops until the semantic completion rule is met.
+When tool output exposes an additional defect that is inside the same objective or is a
+necessary prerequisite for it, investigate and repair it rather than knowingly leaving a
+broken reachable path behind. Record newly discovered out-of-scope defects without
+silently broadening the workstream.
 
 For in-scope technical ambiguity, the selected Foundry worker must:
 
@@ -208,7 +246,7 @@ state without redoing valid evidence.
 
 ## 12. Privacy
 
-Muse may use project-relevant technical data: repository source, tests, contracts,
+The selected OpenCode Foundry executor may use project-relevant technical data: repository source, tests, contracts,
 qualification artifacts, build output, logs, Git metadata, branches/worktrees, engine
 sources, Maven/Gradle/package caches, project configuration, and explicitly allowed
 MTG deck/card/collection/ownership/gameplay data. Do not intentionally expose unrelated

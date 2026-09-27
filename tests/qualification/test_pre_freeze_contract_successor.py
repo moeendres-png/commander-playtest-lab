@@ -307,20 +307,28 @@ def test_freeze_eligible_true_requires_all_pass() -> None:
     validator.validate(not_eligible)
 
 
-def test_current_rules_authority_freshness_conflict_fails_closed() -> None:
+def test_current_rules_authority_binds_current_official_rules_page() -> None:
     receipt = _json(RULES_AUTHORITY_PATH)
     successor = _json(SUCCESSOR_PATH)
     assert receipt["authority"] == "Wizards of the Coast"
-    assert receipt["authority_status"] == "FRESHNESS_CONFLICT_FAIL_CLOSED"
-    assert receipt["directly_retrieved_official_source"]["effective_date"] == "2026-08-07"
-    assert receipt["directly_retrieved_official_source"]["rule_103_8a_observed"] is True
-    assert receipt["newer_release_signal"]["effective_date"] == "2026-09-25"
-    assert receipt["newer_release_signal"]["official_txt_url"] is None
-    assert receipt["newer_release_signal"]["official_txt_sha256"] is None
-    assert receipt["newer_release_signal"]["admission_credit"] is False
-    assert receipt["reproduction"]["fail_closed_on_freshness_conflict"] is True
+    assert receipt["authority_status"] == "CURRENT_OFFICIAL_SOURCE_DIRECTLY_VERIFIED"
+    source = receipt["current_official_source"]
+    assert source["rules_page_txt_link_url"].endswith("MagicCompRules%2020260807.txt")
+    assert source["effective_date"] == "2026-08-07"
+    assert source["rule_103_8a_observed"] is True
+    assert source["byte_exact_sha256"] is None
+    assert source["byte_exact_status"] == "NOT_CAPTURED_IN_THIS_COORDINATOR_SURFACE"
+
+    freshness = receipt["freshness_adjudication"]
+    assert freshness["prior_claimed_newer_effective_date"] == "2026-09-25"
+    assert freshness["disposition"] == "REJECTED_BY_HIGHER_AUTHORITY_CURRENT_OFFICIAL_RULES_PAGE"
+    assert freshness["admission_credit_from_prior_signal"] is False
+    assert receipt["reproduction"]["fail_closed_if_rules_page_target_changes"] is True
+
     assert successor["rules_authority"]["current_authority_status"] == receipt["authority_status"]
     assert successor["rules_authority"]["semantic_basis_effective_date"] == "2026-08-07"
+    assert successor["rules_authority"]["byte_identity_claim"] is False
+    assert successor["rules_authority"]["freshness_conflict_resolved"] == "2026-09-27"
 
 
 def test_freeze_schema_rejects_unbound_source_or_capabilities() -> None:

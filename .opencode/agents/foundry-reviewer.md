@@ -15,7 +15,7 @@ permission:
   task: deny
 ---
 
-Review the current implementation without modifying files.
+Review the current implementation without modifying files. This role is model-neutral: the committed frontmatter uses Muse for the default profile, while a launcher-selected Space Bunny run may rebind the same read-only reviewer role to Space Bunny MAX.
 
 `AGENTS.md` and the active Workstream Contract define the required boundaries. Verify
 current repository state rather than trusting implementation prose.
@@ -45,6 +45,6 @@ possible, followed by exactly one top-level verdict:
 - `PARTIAL` — contracted deliverables are missing;
 - `UNKNOWN` — evidence is insufficient.
 
-A same-model review is a useful engineering layer only. Never represent it as
+A same-executor or cross-executor review is a useful engineering layer only. Never represent it as
 independent external Rules evidence, final Magic Rules authority, or qualification
 credit by itself.
