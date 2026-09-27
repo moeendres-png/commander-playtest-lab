@@ -79,11 +79,11 @@ jobs:
         run: opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/muse-spark-1.3-contributor
+          MODEL: opencode-go/space-bunny-free
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
           MENTIONS: ''
-          VARIANT: high
+          VARIANT: max
           OIDC_BASE_URL: ''
