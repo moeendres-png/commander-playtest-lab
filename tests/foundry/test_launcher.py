@@ -1257,7 +1257,9 @@ def test_workspace_access_read_only_rejects_lookalike_remote(
     spec["access"] = "read-only"
     plan = _plan(target, canon, workspace_access=[json.dumps(spec)])
     assert plan["verdict"] == "LAUNCH_REFUSED"
-    assert "exact fetch identity" in str(plan.get("error", ""))
+    error = str(plan.get("error", ""))
+    assert "remote identity" in error
+    assert "exact requested slug" in error
 
 
 def test_legacy_reference_rejects_lookalike_remote(
