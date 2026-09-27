@@ -16,14 +16,15 @@ current_failure: 'NO_TECHNICAL_BLOCKER. Execution authority is active and verifi
   disposition, the WSR22 successor, PB-09, PB-03, PB-06/07/08 and the final comparison
   package.'
 current_hypothesis: NONE. No defect outstanding on this branch.
-current_reasoning: 'Stage A complete. Source re-locked against live remote: origin/main
-  is f5941985811ef3d670e27ee7e2201a0b2a4fc534, which had already independently merged
-  the delegated Git integration authority that this branch also implemented. Conflict
-  resolution took main as the base per instruction, preserved every AGENTS.md hard
-  boundary and all PR #266/#272 machinery, and re-applied only the genuinely unique
-  delta: Space Bunny MAX primary at native max, Muse XHIGH-only alternate, the widening
-  of artificial denies, and the added secret boundaries. Verified with the live rule
-  evaluator: 31 probes, 0 mismatches.'
+current_reasoning: 'Stage A complete and published. PR #275 opened against main, then
+  main advanced twice more: PR #270 (WSR25 RG-07/RG-08 evidence port) merged as 425a9af2
+  and PR #273 (its handoff receipt) as 4a3abd34. The Coordinator had already integrated
+  the RG-07/RG-08 port, so campaign step 9 is done by them. Adjudicated that drift:
+  13 paths, ZERO intersection with this branch''s mutation surface, so NO_IMPACT.
+  Merged current main in cleanly and re-validated at the new tip: 1667 passed / 5
+  skipped / 0 failed, ruff, mypy strict, compileall and the invariant audit all clean.
+  No Rules semantics, qualification contract, FULL107 denominator or engine-candidate
+  source is touched by this branch.'
 current_reasoning_tier: high
 dependencies:
 - WSR22 must finish before any provider adjudication; WSR23 depends on nothing from
@@ -49,18 +50,15 @@ evidence:
 - docs/pre_freeze_completion_20260927/PB09_FORGE_CANDIDATE_IDENTITY.md
 - docs/pre_freeze_completion_20260927/PRE_FREEZE_COMPARISON_PACKAGE.md
 - docs/pre_freeze_completion_20260927/RESUMPTION_KIT.md
-exact_next_action: 'Publish WSR23 and merge it. Exact head 7d14810ed98fed32c4915d62e596636999a0efc1,
-  exact base origin/main f5941985811ef3d670e27ee7e2201a0b2a4fc534. Push wsr23/project-integration-hygiene-20260927
-  (a fast-forward: origin/wsr23 was reset by the Coordinator to b786fbf2, which is
-  an ancestor of this head), open exactly one PR bound to that base and head with
-  the 1667/5/0 test evidence and the #266/#272 integration note, inspect exact-head
-  CI, repair attributable failures, merge, re-read post-merge main HEAD/TREE, persist
-  the receipt, then close Issue #263. After that: disposition the redundant governance
-  PR #271 and its two governance branches against merged WSR23; adjudicate and integrate
-  or supersede PR #270; then create the current-main WSR22 successor; then PB-09 (Coordinator
-  decision) before PB-03; then PB-06/PB-07/PB-08; then the final current-boundary
-  comparison package. ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT
-  SELECTED.'
+exact_next_action: 'Finish Stage A: inspect PR #275 exact-head CI, repair any failure
+  attributable to this branch, merge, re-read post-merge main HEAD/TREE, persist the
+  receipt, then close Issue #263 with a terminal receipt. Campaign step 9 (PR #270)
+  is already satisfied: the Coordinator merged the WSR25 RG-07/RG-08 port as 425a9af2
+  and its handoff receipt as 4a3abd34. Then: disposition the redundant governance
+  surfaces (PR #271 and the two governance/* branches) against merged WSR23; create
+  the current-main WSR22 successor from fresh main; then PB-09 (Coordinator decision)
+  before PB-03; then PB-06/PB-07/PB-08; then the final current-boundary comparison
+  and AF00-AF11. ARCHITECTURE_FREEZE = NOT CLAIMED; PRODUCTION_PROVIDER = NOT SELECTED.'
 failed_gates: []
 failure_class: INFRASTRUCTURE_DEFECT
 files_modified:
@@ -169,7 +167,7 @@ remaining_scope:
 repository: moeendres-png/commander-playtest-lab
 root_cause_class: INFRASTRUCTURE_DEFECT
 schema_version: '2.0'
-state_written_against_head: eac61e11a988da548f8d30e4d4d738f44ef26a23
+state_written_against_head: 0184437ab6ec41e5d623be277ae50cc91cc789cd
 status: WAITING
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
@@ -209,44 +207,47 @@ technical_decisions:
   to NO_IMPACT on an empty path intersection, rebasing, and re-validating, rather
   than publishing a stale audit base.'
 tests_run:
-- 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at 7d14810ed98fed32c4915d62e596636999a0efc1):
-  1667 passed, 5 skipped, 0 failed (baseline before the #266/#272 merge was 1642;
-  the +25 are main''s new launcher/workspace/sandbox/permission tests)'
-- 'pytest tests/foundry tests/unit/test_ws78_token_economy.py -q: 494 passed, 1 skipped
-  (was 451 before the merge)'
+- 'pytest -q (lock-faithful venv, Python 3.12.14, clean tree at 0184437ab6ec41e5d623be277ae50cc91cc789cd):
+  1667 passed, 5 skipped, 0 failed'
+- 'pytest tests/foundry tests/unit/test_ws78_token_economy.py -q: 494 passed, 1 skipped'
 - 'permission_battery.evaluate_rule: 31 probes, 0 mismatches, on the merged policy'
 - 'ruff check: All checks passed'
-- 'ruff format --check: 976 files already formatted'
+- 'ruff format --check: 980 files already formatted'
 - 'mypy src/commander_lab (strict): Success, no issues in 262 source files'
 - 'python -m compileall -q src tests: exit 0'
 - 'python tools/project_invariant_audit.py: 6 pass / 0 fail / 1 not_applicable'
 - 'python tools/foundry/state.py --check-validated: STATE_OK schema=2.0'
 - 'python tools/foundry/bootstrap.py: BOOTSTRAP_PASS'
-- 'opencode debug config: model=opencode-go/space-bunny-free, bash.*=allow, both authorized
-  variants'
+- 'git push: fast-forward b786fbf2..1df42da1, no force, no rewrite'
+- 'gh pr create: PR #275, base main, mergeable=true'
+- 'drift adjudication f5941985 -> 4a3abd34: 13 paths, zero intersection with this
+  branch'
 validated_gates:
-- Full python test suite green on a clean tree (1667 passed / 5 skipped / 0 failed),
-  exceeding the 1642 pre-merge baseline
-- 'tests/foundry green: 494 passed, 1 skipped, including all PR #266 workspace-access
-  and fs-sandbox coverage and PR #272 permission coverage'
+- Full python test suite green on a clean tree at the published head (1667 passed
+  / 5 skipped / 0 failed), exceeding the 1642 pre-merge baseline by main's own +25
+  coverage
+- 'tests/foundry green: 494 passed, 1 skipped, including all PR #266 workspace-access/fs-sandbox
+  and PR #272 delegated permission coverage'
 - 'Executor routing verified fail-closed: exactly two reachable executors, Space Bunny
-  MAX primary and Muse XHIGH alternate, one authorized native variant each'
-- 'Merged policy verified through the live rule evaluator: ordinary push/merge/branch
-  creation/git -C/shell wrappers/gh api mutations/PR create/PR merge all ENFORCED_ALLOW,
-  while force-push, --delete, push-to-main/master, rebase, reset --hard, clean, branch
-  -D, update-ref, credential, privilege and remote-repository shapes all DENIED'
+  MAX primary and Muse XHIGH alternate, one authorized native variant each, no fallback'
+- 'Merged policy verified through the live rule evaluator: 31 probes, 0 mismatches;
+  ordinary push/merge/branch/git -C/shell wrappers/gh api mutations/PR create/PR merge
+  ENFORCED_ALLOW; force-push, --delete, push-to-main/master, rebase, reset --hard,
+  clean, branch -D, update-ref, credential, privilege and remote-repository shapes
+  DENIED'
 - 'PR #266 containment preserved: workspace_access.py, fs_sandbox.py, exact repo/branch/HEAD/tree
   binding, read-only vs owned-write, multi-lock lifetime, folder names never implying
   authority, Bubblewrap fail-closed'
-- 'PR #272 delegation preserved: AGENTS.md section 10 verbatim and the ordered force/main/master
+- 'PR #272 delegation preserved: AGENTS.md section 10 and the ordered force/main/master
   denies'
 - 'Maven/Gradle allows from PR #266 preserved'
-- 'Phase A Foundry repair survived the merge: worktree_inventory reads ownership from
-  any schema-2.0 serialization, and the state ownership field is the exact identity
-  token'
+- 'Main drift since the merge adjudicated NO_IMPACT: zero path intersection, and the
+  suite re-run green at the new tip'
+- 'Phase A Foundry repair survived: worktree_inventory reads ownership from any schema-2.0
+  serialization; state ownership is the exact identity token'
 - mypy strict green on src/commander_lab
 - ruff lint and format clean
 - 'project invariant audit: 6 pass, 0 fail'
-- WORKSTREAM_STATE validates as schema 2.0 and is STATE_OK; bootstrap gate BOOTSTRAP_PASS
-validated_head: eac61e11a988da548f8d30e4d4d738f44ef26a23
+- WORKSTREAM_STATE STATE_OK schema 2.0; bootstrap gate BOOTSTRAP_PASS
+validated_head: 0184437ab6ec41e5d623be277ae50cc91cc789cd
 worktree: /home/moeen/code/wsr23-project-integration-hygiene
